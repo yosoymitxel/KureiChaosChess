@@ -3,11 +3,27 @@ import { BoardView } from './view/board-view.js';
 import { makePiece, placeBoss } from './game/generate.js';
 import { Match } from './game/match.js';
 import { key } from './game/rules.js';
+import { Moments } from './ui/moments.js';
+import { BOSSES } from './data/bosses.js';
 
 let view, camera = 'tilt';
 const board = () => ({ rows: 7, cols: 7, holes: new Set([key(3, 0), key(3, 6)]), protectRows: 2 });
 
 // Each scene builds a tiny position and returns an async "play" function.
+// Foreground moments, played over the lab stage without a match.
+const MOMENTS = {
+  'Momento: jaque': (m) => m.callout({ text: '¡Jaque!', sub: 'Tu turno: protege al rey', tone: 'danger', piece: { type: 'king', side: 'light' }, anim: 'tremble' }),
+  'Momento: reina caída': (m) => m.callout({ text: '¡Reina caída!', tone: 'brass', piece: { type: 'queen', side: 'dark' }, anim: 'fall' }),
+  'Momento: rey caído': (m) => m.callout({ text: '¡Rey caído!', sub: 'Cae el bando carmesí', tone: 'brass', piece: { type: 'king', side: 'dark' }, anim: 'explode' }),
+  'Momento: coronación': (m) => m.callout({ text: '¡Coronación!', sub: 'El peón asciende a reina', tone: 'brass', piece: { type: 'pawn', side: 'light' }, pieceTo: { type: 'queen', side: 'light' }, anim: 'promote' }),
+  'Momento: golpe al jefe': (m) => m.callout({ text: '¡Golpe!', sub: 'A Titán le quedan 2 vidas', tone: 'brass', piece: { type: 'king', side: 'dark' }, anim: 'hit' }),
+  'Momento: aplastados': (m) => m.callout({ text: '¡Aplastados ×3!', tone: 'danger', piece: { type: 'king', side: 'dark' }, anim: 'stomp' }),
+  'Momento: derrumbe': (m) => m.callout({ text: '¡Derrumbe!', sub: 'El borde cae al vacío', tone: 'danger', icon: 'collapse', anim: 'crumble' }),
+  'Momento: piso': (m) => m.cinematic({ title: 'Piso 3', sub: 'Prisa. Cada jugador mueve dos veces por turno.', icon: 'rush', wave: ['pawn', 'knight', 'king'].flatMap((t) => [[t, 'light'], [t, 'dark']]) }),
+  'Momento: jefe': (m) => m.cinematic({ title: 'Titán', sub: BOSSES.titan.desc, piece: { type: 'king', side: 'dark' }, hp: { hp: 3, max: 3 }, tone: 'danger', anim: 'stomp' }),
+  'Momento: jefe derribado': (m) => m.cinematic({ title: '¡Titán derribado!', sub: 'El coloso cae y la torre es tuya.', piece: { type: 'king', side: 'dark' }, tone: 'brass', anim: 'down' }),
+};
+
 const SCENES = {
   'Piezas': () => {
     const b = { rows: 4, cols: 6, holes: new Set(), protectRows: 0 };
@@ -46,7 +62,7 @@ const SCENES = {
 async function run(name) {
   view?.destroy();
   const s = SCENES[name]();
-  view = new BoardView(document.getElementById('stage'), { camera });
+  view = new BoardView(document.getElementById('board'), { camera });
   view.setBoard(s.b);
   view.setPieces(s.pieces);
   await view.intro(s.pieces);
@@ -59,10 +75,17 @@ async function run(name) {
   if (s.victory) await view.victory('light');
 }
 
+const stage = document.getElementById('stage');
+const moments = new Moments(stage);
+async function play(name) {
+  if (MOMENTS[name]) { if (!view) await run('Piezas'); return MOMENTS[name](moments); }
+  return run(name);
+}
+
 const scenes = document.getElementById('scenes');
-for (const name of Object.keys(SCENES)) {
+for (const name of [...Object.keys(SCENES), ...Object.keys(MOMENTS)]) {
   const b = document.createElement('button');
-  b.className = 'btn sm'; b.textContent = name; b.onclick = () => run(name);
+  b.className = 'btn sm'; b.textContent = name; b.onclick = () => play(name);
   scenes.appendChild(b);
 }
 const cams = document.getElementById('cams');
@@ -72,4 +95,4 @@ for (const [id, label] of [['flat', 'Cenital'], ['tilt', 'Mesa'], ['epic', 'Épi
   b.onclick = () => { camera = id; [...cams.children].forEach((x) => x.classList.toggle('on', x === b)); view?.setCamera(id); };
   cams.appendChild(b);
 }
-run(new URLSearchParams(location.search).get('scene') || 'Golpe al jefe');
+play(new URLSearchParams(location.search).get('scene') || 'Golpe al jefe');

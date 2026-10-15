@@ -99,11 +99,11 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (res.promoted) addLog(`${tag}¡Coronación!`);
       await d.view.playMove(res);
       const fallenBoss = res.victims.find((v) => v.killed && v.piece.boss)?.piece;
-      if (fallenBoss) await d.moments.cinematic({ title: `¡${fallenBoss.name} derribado!`, sub: 'El coloso cae y la torre es tuya.', piece: { type: fallenBoss.type, side: fallenBoss.color }, tone: 'brass' });
+      if (fallenBoss) await d.moments.cinematic({ title: `¡${fallenBoss.name} derribado!`, sub: 'El coloso cae y la torre es tuya.', piece: { type: fallenBoss.type, side: fallenBoss.color }, tone: 'brass', anim: 'down' });
       const after = match.afterMove();
       if (after.collapse) {
         addLog('¡El borde se desploma!');
-        d.moments.callout({ text: '¡Derrumbe!', sub: 'El borde cae al vacío', icon: 'collapse', tone: 'danger' });
+        d.moments.callout({ text: '¡Derrumbe!', sub: 'El borde cae al vacío', icon: 'collapse', tone: 'danger', anim: 'crumble' });
         await d.view.collapse(after.collapse);
       }
       d.busy = false;
@@ -143,9 +143,12 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         if (now && !d.check[s.color] && anyHuman) {
           const royal = match.pieces.find((x) => x.royal && x.color === s.color);
           const mine = s.kind === 'human';
-          d.moments.callout(mine
-            ? { text: '¡Jaque!', sub: s === match.player ? 'Tu turno: protege al rey' : `${s.name}, tu rey está amenazado`, tone: 'danger', piece: { type: royal.type, side: s.color } }
-            : { text: '¡Jaque!', sub: `${royal.boss ? royal.name : 'El rey ' + SIDE_NAME[s.color]} está a tiro`, tone: 'brass', piece: { type: royal.type, side: s.color } });
+          d.moments.callout({
+            text: '¡Jaque!', piece: { type: royal.type, side: s.color }, anim: 'tremble',
+            ...(mine
+              ? { sub: s === match.player ? 'Tu turno: protege al rey' : `${s.name}, tu rey está amenazado`, tone: 'danger' }
+              : { sub: `${royal.boss ? royal.name : 'El rey ' + SIDE_NAME[s.color]} está a tiro`, tone: 'brass' }),
+          });
           if (mine && s === match.player) warnedMe = true;
         }
         d.check[s.color] = now;
@@ -162,17 +165,17 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const art = (p) => ({ type: p.type, side: p.color });
       if (res.bounced) {
         const b = res.victims[0].piece;
-        return d.moments.callout({ text: '¡Golpe!', sub: `A ${b.name} le ${b.hp === 1 ? 'queda 1 vida' : `quedan ${b.hp} vidas`}`, tone, piece: art(b) });
+        return d.moments.callout({ text: '¡Golpe!', sub: `A ${b.name} le ${b.hp === 1 ? 'queda 1 vida' : `quedan ${b.hp} vidas`}`, tone, piece: art(b), anim: 'hit' });
       }
       if (killed.some((p) => p.boss)) return;
       const royal = killed.find((p) => p.royal);
-      if (royal) return d.moments.callout({ text: '¡Rey caído!', sub: `Cae el bando ${SIDE_NAME[royal.color]}`, tone, piece: art(royal) });
-      if (killed.length > 1) d.moments.callout({ text: res.piece.boss ? `¡Aplastados ×${killed.length}!` : `¡Captura ×${killed.length}!`, tone, piece: art(res.piece) });
+      if (royal) return d.moments.callout({ text: '¡Rey caído!', sub: `Cae el bando ${SIDE_NAME[royal.color]}`, tone, piece: art(royal), anim: 'explode' });
+      if (killed.length > 1) d.moments.callout({ text: res.piece.boss ? `¡Aplastados ×${killed.length}!` : `¡Captura ×${killed.length}!`, tone, piece: art(res.piece), anim: 'stomp' });
       else {
         const big = killed.find((p) => p.type === 'queen' || p.type === 'rook');
-        if (big) d.moments.callout({ text: `¡${PIECE_NAMES[big.type]} caída!`, tone, piece: art(big) });
+        if (big) d.moments.callout({ text: `¡${PIECE_NAMES[big.type]} caída!`, tone, piece: art(big), anim: 'fall' });
       }
-      if (res.promoted) d.moments.callout({ text: '¡Coronación!', sub: 'El peón asciende a reina', tone: 'brass', piece: { type: 'queen', side: res.piece.color } });
+      if (res.promoted) d.moments.callout({ text: '¡Coronación!', sub: 'El peón asciende a reina', tone: 'brass', piece: { type: 'pawn', side: res.piece.color }, pieceTo: { type: 'queen', side: res.piece.color }, anim: 'promote' });
     };
 
     const onTap = (hit) => {
@@ -212,9 +215,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     // The floor card plays over the board while it assembles; the boss gets its own entrance after landing.
     Promise.all([
       d.view.intro(pieces),
-      !boss && d.moments.cinematic({ title: `Piso ${node.floor + 1}`, sub: `${mod.name}. ${mod.desc}`, icon: mod.icon }),
+      !boss && d.moments.cinematic({ title: `Piso ${node.floor + 1}`, sub: `${mod.name}. ${mod.desc}`, icon: mod.icon, wave: seats.flatMap((s) => ['pawn', 'knight', 'king'].map((t) => [t, s.color])) }),
     ])
-      .then(() => boss && d.moments.cinematic({ title: boss.name, sub: BOSSES[boss.boss].desc, piece: { type: boss.type, side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger' }))
+      .then(() => boss && d.moments.cinematic({ title: boss.name, sub: BOSSES[boss.boss].desc, piece: { type: boss.type, side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger', anim: 'stomp' }))
       .then(() => { d.busy = false; startTurn(); });
     const onKey = (e) => e.key === 'Escape' && setPaused((v) => !v);
     addEventListener('keydown', onKey);

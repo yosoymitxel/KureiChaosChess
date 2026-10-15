@@ -143,7 +143,7 @@
 
 .turn-banner {
   position: absolute; left: 0; right: 0; top: 42%; z-index: 6; pointer-events: none;
-  display: grid; place-items: center; padding: 14px;
+  display: grid; place-items: center; padding: clamp(18px, 3vh, 28px) 24px;
   background: var(--paper); color: var(--ink);
   border-block: 8px solid var(--pc);
   outline: 2px solid var(--ink);
@@ -171,7 +171,7 @@
 .cine-art .piece-icon { width: clamp(96px, 18vw, 200px) !important; height: clamp(96px, 18vw, 200px) !important; filter: drop-shadow(0 10px 10px oklch(0.12 0.03 55 / 0.35)); }
 .cine-icon { display: grid; place-items: center; width: clamp(84px, 12vw, 128px); aspect-ratio: 1; border-radius: 22px; background: var(--ink); color: var(--brass); }
 .cine-icon .icon { width: 64%; height: 64%; }
-.cine-text { display: flex; flex-direction: column; gap: 10px; max-width: 34rem; }
+.cine-text { display: flex; flex-direction: column; gap: 16px; max-width: 34rem; }
 .cine-text h2 { font-size: clamp(40px, 7vw, 84px); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; }
 .cine-text p { margin: 0; font-size: clamp(14px, 1.6vw, 17px); color: var(--ink-2); max-width: 40ch; text-wrap: pretty; }
 .cine-hp { display: flex; gap: 8px; }
@@ -179,13 +179,17 @@
 .cine-hp b.on { background: var(--danger); }
 .cine-skip { position: absolute; bottom: 4.5%; left: 0; right: 0; text-align: center; font-size: 13px; color: var(--paper-3); }
 
-.moment.callout { top: 34%; bottom: auto; display: flex; align-items: center; justify-content: center; gap: 16px; padding: 14px 20px; }
+.moment.callout { top: 32%; bottom: auto; display: flex; align-items: center; justify-content: center; gap: clamp(16px, 2.5vw, 28px); padding: clamp(20px, 3.4vh, 34px) clamp(28px, 6vw, 80px); }
 .callout .band { position: absolute; inset: 0; background: var(--ink); rotate: -2deg; }
 .callout.tone-danger .band { background: var(--danger); }
 .callout.tone-brass .band { background: var(--brass); }
 .callout-art, .callout-text { position: relative; rotate: -2deg; }
-.callout-art { display: grid; place-items: center; }
-.callout-text { display: flex; flex-direction: column; align-items: flex-start; color: var(--paper); }
+.callout-art { display: grid; place-items: center; transform-origin: 50% 90%; }
+.callout-art .swap-to { display: none; place-items: center; }
+.callout-art.flash, .cine-art.flash { filter: brightness(2.4) saturate(0.2); }
+.cine-art { transform-origin: 50% 90%; }
+.cine-wave { display: flex; gap: 6px; margin-top: 6px; }
+.callout-text { display: flex; flex-direction: column; align-items: flex-start; gap: 0.7em; color: var(--paper); }
 .callout.tone-brass .callout-text { color: var(--ink); }
 .callout-text strong { font-size: clamp(36px, 7vw, 76px); font-weight: 800; letter-spacing: -0.04em; line-height: 1; padding-block: 0.08em; }
 /* Trim the line box to cap height so big display text centres optically, not by its font metrics. */
@@ -232,4 +236,6 @@
 .lab-menu h1 { font-size: 30px; }
 .lab-menu p { margin: 0; font-size: 13px; color: var(--ink-2); }
 #scenes { display: flex; flex-direction: column; gap: 8px; }
-.lab-stage { flex: 1; display: flex; }
+.lab-stage { flex: 1; display: flex; position: relative; overflow: hidden; }
+.lab-board { flex: 1; display: flex; }
+.lab-menu { overflow: auto; }

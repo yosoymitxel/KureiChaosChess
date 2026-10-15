@@ -32,7 +32,7 @@ favicon y los iconos troquelados de la interfaz.
 | Bermellón solo en el botón principal, el jefe y el bando carmesí | Un acento que marca "esto es lo importante ahora", no decoración. |
 | Bricolage Grotesque | Grotesca con trazo de imprenta y ejes de óptica: suena a caja de juego, no a SaaS. Una sola familia con pesos 400 a 800; los números en tabular. |
 | Sin monoespaciada | No hay código ni datos técnicos que mostrar; usarla sería un disfraz (impeccable). |
-| Piezas Staunton con peana común | Las piezas inventadas comparten peana y collarín con las clásicas para leerse como una misma familia. |
+| Piezas Staunton con peana común | Todas las piezas, clásicas e inventadas, se apoyan en la misma peana. Cada cuerpo se mide y se escala a una altura de una escala fija que sigue la jerarquía (peón el más bajo, rey el más alto) con un ancho máximo; el grosor de trazo se compensa para que no cambie con la escala. El caballo se centra por su cuello, no por su caja, para no quedar desplazado. |
 | Figura con el pie en el centro de la ficha | La ficha es la casilla que ocupa la pieza; la figura se apoya en su centro. |
 | Iconos troquelados propios | Siluetas macizas con el detalle recortado en el color del fondo, como los pictogramas de un reglamento. Cada icono representa su concepto (hoguera = descanso, zurrón = bolsa, casilla agrietada = derrumbe). |
 | Botones con canto inferior sólido | Es el grosor de la ficha de cartón, el mismo canto que muestran las casillas del tablero; se hunde al pulsar. Va acompañado de una sombra difusa real. |
@@ -46,7 +46,7 @@ favicon y los iconos troquelados de la interfaz.
 | Curvas `ease-out` exponenciales | Los objetos deceleran como objetos reales; sin rebotes elásticos. El *squash* al aterrizar es física del impacto, no adorno. |
 | Anillo rojo bajo una pieza | Marca un estado real: esa pieza puede ser capturada. Sin pulso infinito. |
 | Cinemáticas (piso, entrada del jefe, jefe derribado) | Marcan los tres cambios de capítulo de una partida. Franjas de tinta y un rótulo de papel sobre la mesa: es la tarjeta de presentación de la caja. Duran 1,7 s como mucho y se saltan con cualquier toque o tecla (la queja principal de Gambonanza son sus animaciones imposibles de saltar). |
-| Rótulos de golpe (¡Jaque!, ¡Reina caída!, ¡Aplastados ×3!, ¡Golpe!, ¡Coronación!, ¡Derrumbe!) | Salen solo cuando cambia algo que el jugador tiene que notar, nunca bloquean y se encolan. El color dice a quién beneficia: latón si es tuyo, rojo si va contra ti. |
+| Rótulos de golpe (¡Jaque!, ¡Reina caída!, ¡Aplastados ×3!, ¡Golpe!, ¡Coronación!, ¡Derrumbe!) | Salen solo cuando cambia algo que el jugador tiene que notar, nunca bloquean y se encolan. El color dice a quién beneficia: latón si es tuyo, rojo si va contra ti. Cada uno anima su pieza (de la antigua galería): la reina capturada se vuelca y se rompe, el rey estalla, el peón gira y sale reina, el rey en jaque tiembla, el jefe pisa con polvo, la casilla se agrieta y cae. |
 | Pausa de impacto al capturar | 70 ms de pausa (160 ms con rey o captura múltiple) para que el golpe tenga peso, como en Gambonanza. |
 | Viñeta roja mientras dura el jaque | Estado real y continuo; no parpadea. |
 | Centrado óptico | Los iconos se compensan con su desvío medido; las piezas se encuadran por su caja real cuando son icono; los textos grandes recortan el interlineado a la altura de mayúscula (`text-box`). Verificado midiendo el centro de cada icono, texto y figura contra su contenedor en todas las pantallas, en escritorio y móvil. |
