@@ -41,10 +41,10 @@ const BODY_BOX = {
 
 // Height ladder above the plinth: value order follows the chess hierarchy; maxW keeps wide crowns in check.
 // ax: x of the raw drawing that sits over the plinth centre (the knight balances on its neck, not its bbox).
-// The bishop's finial is light, so it may rise above the ladder like the original drawing did.
+// The guard's plume is light, so it may rise above the ladder like the original drawing did.
 const LADDER = {
-  pawn: { h: 18.5 }, rook: { h: 21.5 }, guard: { h: 22 }, cannon: { h: 23 }, elephant: { h: 22.5 },
-  advisor: { h: 23.5 }, camel: { h: 24.5, maxW: 31, ax: 28.4 }, knight: { h: 24, ax: 25.5 }, bishop: { h: 27.5 },
+  pawn: { h: 18.5 }, rook: { h: 21.5 }, guard: { h: 25.5 }, cannon: { h: 23 }, elephant: { h: 22.5 },
+  advisor: { h: 23.5 }, camel: { h: 24.5, maxW: 31, ax: 28.4 }, knight: { h: 24, ax: 25.5 }, bishop: { h: 25 },
   queen: { h: 26.5, maxW: 29 }, king: { h: 27.5, maxW: 29 },
 };
 
