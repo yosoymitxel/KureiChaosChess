@@ -12,4 +12,5 @@ export const MODIFIERS = {
   bag: { id: 'bag', name: 'Bolsa', desc: 'Una bolsa con un objeto.', icon: 'bag' },
   // Minigames: an interlude with its own rules. Winning pays a mutation or a piece and unlocks it in the menu.
   connect4: { id: 'connect4', name: 'Conecta 4', desc: 'Minijuego: alinea cuatro fichas antes que el bot. Premio: mutación o pieza.', icon: 'connect4', mini: true },
+  bomber: { id: 'bomber', name: 'Bomberman', desc: 'Minijuego: limpia el tablero de enemigos con bombas. Premio: mutación o pieza.', icon: 'collapse', mini: true },
 };
