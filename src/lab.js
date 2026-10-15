@@ -9,6 +9,12 @@ const board = () => ({ rows: 7, cols: 7, holes: new Set([key(3, 0), key(3, 6)]),
 
 // Each scene builds a tiny position and returns an async "play" function.
 const SCENES = {
+  'Piezas': () => {
+    const b = { rows: 4, cols: 6, holes: new Set(), protectRows: 0 };
+    const types = ['pawn', 'rook', 'knight', 'bishop', 'queen', 'king', 'guard', 'advisor', 'elephant', 'camel', 'cannon', 'pawn'];
+    const pieces = types.map((t, i) => makePiece(t, i < 6 ? 'light' : 'dark', 1 + Math.floor(i / 6) * 2, i % 6));
+    return { b, pieces };
+  },
   'Golpe al jefe': () => {
     const b = board(), pieces = [makePiece('rook', 'light', 5, 3), makePiece('king', 'light', 6, 6)];
     const boss = placeBoss(pieces, b, 'titan'); boss.row = 1;

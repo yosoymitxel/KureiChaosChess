@@ -23,6 +23,8 @@ hace falta conexión la primera vez.
 
 ## Documentación
 
+- [DESIGN.md](DESIGN.md): dirección visual, diales y la razón de cada decisión.
+- [PRODUCT.md](PRODUCT.md): qué es el juego, para quién y en qué escena se usa.
 - [Arquitectura](docs/ARCHITECTURE.md): carpetas, flujo de una jugada, jefes multi-casilla,
   cómo funciona la coreografía.
 - [Investigación de herramientas](docs/RESEARCH.md): qué se usa de cada librería pedida y por qué.

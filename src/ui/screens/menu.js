@@ -1,6 +1,6 @@
 import { html, useEffect, useRef } from '../lib.js';
 import { Icon } from '../icons.js';
-import { useEnter } from '../components.js';
+import { useEnter, ConfirmButton } from '../components.js';
 import { BoardView } from '../../view/board-view.js';
 import { makePiece } from '../../game/generate.js';
 
@@ -30,18 +30,17 @@ export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings }) {
     <${Diorama} />
     <div class="menu-col">
       <div class="logo" data-enter>
-        <span class="eyebrow">Ajedrez mutante · roguelike de mesa</span>
         <h1>Zug<span>zwang</span></h1>
+        <p>Ajedrez que muta en cada piso. Sube la torre, gana piezas raras y derriba al coloso del final.</p>
       </div>
       <nav class="menu-actions">
-        <button class="btn primary" data-enter onClick=${hasRun ? onContinue : onNew}>${hasRun ? 'Continuar run' : 'Empezar run'}<${Icon} name="arrow" /></button>
-        ${hasRun && html`<button class="btn" data-enter onClick=${() => confirm('¿Empezar de cero? Se pierde la run actual.') && onNew()}>Nueva run</button>`}
+        <button class="btn primary" data-enter onClick=${hasRun ? onContinue : onNew}>${hasRun ? 'Continuar run' : 'Empezar run'}</button>
+        ${hasRun && html`<${ConfirmButton} class="btn" onConfirm=${onNew} confirmLabel="Se pierde la run actual. ¿Seguro?">Nueva run<//>`}
         <div class="menu-row" data-enter>
           <button class="btn ghost" onClick=${onHowTo}><${Icon} name="book" />Reglas</button>
-          <button class="btn ghost" onClick=${onSettings}><${Icon} name="dice" />Ajustes</button>
+          <button class="btn ghost" onClick=${onSettings}><${Icon} name="gear" />Ajustes</button>
         </div>
       </nav>
     </div>
-    <div class="version">v2.0</div>
   </div>`;
 }

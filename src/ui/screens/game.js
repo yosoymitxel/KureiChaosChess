@@ -166,24 +166,20 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   return html`<div class="screen game">
     <div class="game-main">
       <div class="game-top">
-        <button class="btn ghost sm icon-only" title="Pausa" onClick=${() => setPaused(true)}><${Icon} name="pause" /></button>
-        <div>
-          <div class="eyebrow">${node.isBoss ? 'Piso final' : `Piso ${node.floor + 1} de ${run.map.floors}`}</div>
-          <div class="title">${mod.name}</div>
-        </div>
+        <button class="btn ghost sm icon-only" aria-label="Pausa" title="Pausa (Escape)" onClick=${() => setPaused(true)}><${Icon} name="pause" /></button>
+        <h1 class="title">${node.isBoss ? 'Piso final' : `Piso ${node.floor + 1} de ${run.map.floors}`}</h1>
       </div>
       <div class="board-host" ref=${hostRef}></div>
       ${banner && html`<${TurnBanner} key=${banner.key} text=${banner.text} side=${banner.side} />`}
     </div>
     <aside class="hud panel">
-      ${hud?.boss && html`<section class="boss-bar">
-        <div class="eyebrow">Jefe</div>
+      ${hud?.boss && html`<section class="boss-bar" aria-label="Jefe">
         <div class="boss-row"><strong>${hud.boss.name}</strong>
           <span class="hp">${Array.from({ length: hud.boss.maxHp }, (_, i) => html`<b class=${i < hud.boss.hp ? 'on' : ''}></b>`)}</span></div>
       </section>`}
       <section class="mod-card">
-        <span class="mod-icon"><${Icon} name=${mod.icon} size=${20} /></span>
-        <div><strong>${mod.name}</strong><p>${mod.desc}</p></div>
+        <span class="mod-icon"><${Icon} name=${mod.icon} size=${22} /></span>
+        <div><h2>${mod.name}</h2><p>${mod.desc}</p></div>
       </section>
       <section class="seats">
         ${seats.map((s, i) => {
@@ -211,7 +207,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
           <div class="tags">${inspect.extra.map((t) => html`<span class=${'tag' + (t.mut ? ' mut' : '')}>${t.name}</span>`)}</div>
         </div>
       </section>`}
-      <ol class="log">${log.slice(-6).map((l, i) => html`<li key=${log.length - 6 + i}>${l}</li>`)}</ol>
+      <ol class="log" aria-live="polite" aria-label="Registro de jugadas">${log.slice(-6).map((l, i) => html`<li key=${log.length - 6 + i}>${l}</li>`)}</ol>
     </aside>
     ${paused && !end && html`<${PauseOverlay} settings=${settings} setSettings=${setSettings}
       onResume=${() => setPaused(false)} onRestart=${onRestart} onExit=${onExit} onAbandon=${onAbandon}
@@ -223,7 +219,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
 function EndOverlay({ state, isFinal, onContinue, onRetry, onMap }) {
   const ref = useRef(null);
   useEffect(() => {
-    motion(ref.current, { scale: [0.6, 1], rotate: [-8, -2], opacity: [0, 1] }, { type: 'spring', stiffness: 220, damping: 14 });
+    motion(ref.current, { scale: [0.85, 1], rotate: [-6, -2], opacity: [0, 1] }, { duration: 0.5, ease: [0.16, 1, 0.3, 1] });
   }, []);
   const kind = state.tie ? 'tie' : state.victory ? 'win' : 'loss';
   const title = state.tie ? 'Tablas' : state.victory ? (isFinal ? 'Run completada' : 'Victoria') : 'Derrota';
@@ -236,9 +232,9 @@ function EndOverlay({ state, isFinal, onContinue, onRetry, onMap }) {
       <h1>${title}</h1>
       <p>${msg}</p>
       <div class="end-actions">
-        ${state.victory && html`<button class="btn primary" onClick=${onContinue}>${isFinal ? 'Nueva run' : 'Reclamar recompensa'}</button>`}
+        ${state.victory && html`<button class="btn primary" autofocus onClick=${onContinue}>${isFinal ? 'Nueva run' : 'Reclamar recompensa'}</button>`}
         <button class="btn" onClick=${onRetry}><${Icon} name="refresh" size=${16} />Reintentar</button>
-        ${!state.victory && html`<button class="btn ghost-ink" onClick=${onMap}><${Icon} name="home" size=${16} />Volver al mapa</button>`}
+        ${!state.victory && html`<button class="btn ghost-ink" onClick=${onMap}><${Icon} name="map" size=${16} />Volver al mapa</button>`}
       </div>
     </div>
   </div>`;

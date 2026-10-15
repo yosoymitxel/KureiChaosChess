@@ -11,14 +11,14 @@ import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
 import { applyTheme } from '../data/themes.js';
 
 const REST_CARDS = [
-  { id: 'extra_mut', name: 'Meditar', desc: 'Elige una mutación de entre tres.', icon: 'star' },
+  { id: 'extra_mut', name: 'Meditar', desc: 'Elige una mutación de entre tres.', icon: 'scroll' },
   { id: 'promote_one', name: 'Ascenso', desc: 'Un peón empieza el próximo nodo como reina.', icon: 'queen' },
-  { id: 'fury_now', name: 'Impulso', desc: '+1 movimiento por turno en el próximo nodo.', icon: 'bolt' },
+  { id: 'fury_now', name: 'Impulso', desc: '+1 movimiento por turno en el próximo nodo.', icon: 'boot' },
 ];
 const BAG_CARDS = [
-  { id: 'mut', name: 'Frasco extraño', desc: 'Una mutación al azar, ahora mismo.', icon: 'dice', rarity: 'rare' },
+  { id: 'mut', name: 'Frasco extraño', desc: 'Una mutación al azar, ahora mismo.', icon: 'flask', rarity: 'rare' },
   { id: 'extra_pawn', name: 'Recluta', desc: '+1 peón en tu formación en el próximo nodo.', icon: 'pawn' },
-  { id: 'fury', name: 'Furia menor', desc: '+1 movimiento permanente (máx. 3).', icon: 'bolt', rarity: 'rare' },
+  { id: 'fury', name: 'Furia menor', desc: '+1 movimiento permanente (máx. 3).', icon: 'boot', rarity: 'rare' },
   { id: 'extra_rook', name: 'Torre mercenaria', desc: '+1 torre en tu última fila en el próximo nodo.', icon: 'rook' },
 ];
 const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3);
@@ -114,9 +114,9 @@ export function App() {
   };
 
   const REWARD_TEXT = {
-    mutation: ['Recompensa', 'Elige una mutación', 'Se aplica a tu ejército durante el resto de la run.'],
-    rest: ['Descanso', 'Un momento de calma', 'Elige un beneficio para el camino.'],
-    bag: ['Bolsa', 'Encuentras una bolsa', 'Llévate un objeto.'],
+    mutation: ['Elige una mutación', 'Se aplica a tu ejército durante el resto de la run.'],
+    rest: ['Un momento de calma', 'Elige un beneficio para el camino.'],
+    bag: ['Encuentras una bolsa', 'Llévate un objeto.'],
   };
 
   return html`
@@ -125,7 +125,7 @@ export function App() {
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} defaultCount=${seats?.length} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame} />`}
     ${screen === 'reward' && reward && html`<${CardPick} key=${reward.kind + reward.cards.map((c) => c.id).join()}
-      eyebrow=${REWARD_TEXT[reward.kind][0]} title=${REWARD_TEXT[reward.kind][1]} subtitle=${REWARD_TEXT[reward.kind][2]}
+      title=${REWARD_TEXT[reward.kind][0]} subtitle=${REWARD_TEXT[reward.kind][1]}
       cards=${reward.cards} onConfirm=${onReward} />`}
     ${screen === 'game' && node && seats && run && html`<${GameScreen} key=${node.id + '-' + gameKey}
       node=${node} run=${run} seats=${seats} settings=${settings} setSettings=${setSettings}

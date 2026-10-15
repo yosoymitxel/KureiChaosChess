@@ -1,7 +1,7 @@
 import { mulberry32 } from '../core/rng.js';
 
 export const MUTATIONS = {
-  fury: { id: 'fury', name: 'Furia', icon: 'bolt', desc: '+1 movimiento por turno (máx. 3).', stack: true, maxStack: 3, rarity: 'rare' },
+  fury: { id: 'fury', name: 'Furia', icon: 'boot', desc: '+1 movimiento por turno (máx. 3).', stack: true, maxStack: 3, rarity: 'rare' },
   crown: { id: 'crown', name: 'Corona doble', icon: 'crown', desc: 'Tus peones coronan siempre en la última fila.', rarity: 'common' },
   knightBishop: { id: 'knightBishop', name: 'Caballo loco', icon: 'knight', desc: 'Tus caballos también se mueven como alfiles.', rarity: 'rare' },
   towerDiag: { id: 'towerDiag', name: 'Torre diagonal', icon: 'rook', desc: 'Tus torres también se mueven 1 en diagonal.', rarity: 'common' },

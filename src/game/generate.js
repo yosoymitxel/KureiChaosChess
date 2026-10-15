@@ -4,7 +4,6 @@ import { key } from './rules.js';
 import { BOSSES, BOSS_IDS } from '../data/bosses.js';
 import { applyMutations } from '../data/mutations.js';
 
-/* ---------- Run map ---------- */
 
 const MOD_POOL = ['none', 'promote', 'promote', 'chaos', 'chaos', 'chaos', 'rush', 'rush', 'fog', 'fog', 'rest', 'bag'];
 
@@ -44,7 +43,6 @@ export function generateMap(seed) {
   return { nodes, floors, connections, layouts };
 }
 
-/* ---------- Board ---------- */
 
 const SHAPES = ['diamond', 'hourglass', 'cross', 'fortress', 'random', 'stripes', 'scatter', 'lake', 'canyon', 'islands'];
 
@@ -92,7 +90,6 @@ export function generateBoard(seed, floor, totalFloors) {
   return { rows, cols, holes, shape, protectRows: safe };
 }
 
-/* ---------- Armies ---------- */
 
 const BACK_RANK = {
   1: ['king'], 2: ['king', 'rook'], 3: ['rook', 'king', 'rook'], 4: ['rook', 'king', 'knight', 'rook'],
@@ -182,7 +179,7 @@ export function placeBoss(pieces, board, bossId) {
   const col = Math.max(0, Math.floor((board.cols - w) / 2));
   const cells = [];
   for (let i = 0; i < h; i++) for (let j = 0; j < w; j++) cells.push(key(i, col + j));
-  // Clear the footprint (incl. the old king) — the boss is the new royal piece.
+  // Clear the footprint and the old king: the boss is the new royal piece.
   for (let i = pieces.length - 1; i >= 0; i--) {
     const p = pieces[i];
     if (p.color === 'dark' && (p.type === 'king' || cells.includes(key(p.row, p.col)))) pieces.splice(i, 1);

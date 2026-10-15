@@ -29,6 +29,37 @@ export class BoardView {
     this.ro = new ResizeObserver(() => this.layout());
     this.ro.observe(host);
     this.bindPointer();
+    if (onTap) this.bindKeys();
+  }
+
+  // Keyboard play: arrows move a cursor over the tiles, Enter or Space acts like a tap.
+  bindKeys() {
+    const h = this.host;
+    h.tabIndex = 0;
+    h.setAttribute('role', 'application');
+    h.setAttribute('aria-label', 'Tablero. Flechas para moverte, Enter para elegir o mover.');
+    const DIRS = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
+    h.addEventListener('focus', () => this.moveCursor(this.cursor || { row: this.board.rows - 1, col: Math.floor(this.board.cols / 2) }));
+    h.addEventListener('blur', () => this.tiles.get(key(this.cursor?.row, this.cursor?.col))?.classList.remove('cursor'));
+    h.addEventListener('keydown', (e) => {
+      if (DIRS[e.key] && this.cursor) {
+        e.preventDefault();
+        let { row, col } = this.cursor;
+        const [dr, dc] = DIRS[e.key];
+        // Skip over holes to the next real tile in that direction.
+        do { row += dr; col += dc; } while (row >= 0 && col >= 0 && row < this.board.rows && col < this.board.cols && !this.tiles.has(key(row, col)));
+        if (this.tiles.has(key(row, col))) this.moveCursor({ row, col });
+      } else if ((e.key === 'Enter' || e.key === ' ') && this.cursor) {
+        e.preventDefault();
+        this.onTap({ ...this.cursor });
+      }
+    });
+  }
+
+  moveCursor(cell) {
+    if (this.cursor) this.tiles.get(key(this.cursor.row, this.cursor.col))?.classList.remove('cursor');
+    this.cursor = cell;
+    this.tiles.get(key(cell.row, cell.col))?.classList.add('cursor');
   }
 
   destroy() { this.ro.disconnect(); this.fx.destroy(); this.unbind?.(); this.host.innerHTML = ''; }
@@ -53,7 +84,6 @@ export class BoardView {
     s.setProperty('--cols', cols);
   }
 
-  /* ---------- Build ---------- */
 
   setBoard(board) {
     this.board = board;
@@ -109,7 +139,7 @@ export class BoardView {
   }
 
   hpHTML(p) {
-    return `<div class="pc-hp">${Array.from({ length: p.maxHp }, (_, i) => `<b class="${i < p.hp ? 'on' : ''}"></b>`).join('')}</div><div class="pc-name">${p.name}</div>`;
+    return `<div class="pc-hp"><span>${p.name}</span>${Array.from({ length: p.maxHp }, (_, i) => `<b class="${i < p.hp ? 'on' : ''}"></b>`).join('')}</div>`;
   }
 
   apply(p) {
@@ -125,7 +155,6 @@ export class BoardView {
     if (art) art.innerHTML = pieceSVG(p.type);
   }
 
-  /* ---------- Highlights ---------- */
 
   clearMarks() {
     for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger');
@@ -164,7 +193,6 @@ export class BoardView {
     }
   }
 
-  /* ---------- Input ---------- */
 
   cellFromEl(el) {
     const pe = el?.closest?.('[data-pid]');
@@ -219,7 +247,6 @@ export class BoardView {
     };
   }
 
-  /* ---------- Choreography ---------- */
 
   centerOf(p, r = p.row, c = p.col) {
     // Average the tile centres of the footprint (tiles under pieces always exist).
@@ -249,7 +276,7 @@ export class BoardView {
       t.style.setProperty('--d', d);
     });
     animate(tiles, {
-      opacity: [0, 1], z: [-120, 0], duration: this.d(520), ease: 'outBack(1.4)',
+      opacity: [0, 1], z: [-120, 0], duration: this.d(520), ease: 'outExpo',
       delay: (el) => this.d(+el.style.getPropertyValue('--d') * 45),
     });
     await wait(this.d(260));
@@ -327,7 +354,7 @@ export class BoardView {
     el.classList.add('hit');
     setTimeout(() => el.classList.remove('hit'), this.d(260));
     const hp = el.querySelector('.pc-hp');
-    if (hp) hp.outerHTML = this.hpHTML(p).replace(/<div class="pc-name">.*$/, '');
+    if (hp) hp.outerHTML = this.hpHTML(p);
     this.floatText(c.x, c.y - this.sq * 1.2, '−1');
   }
 
@@ -365,7 +392,7 @@ export class BoardView {
     await animate(stand, { rotateY: 360, duration: this.d(380), ease: 'inQuad' });
     this.setArt(p);
     this.fx.burst(c.x, c.y - this.sq * 0.5, { count: 40, color: ['#ffcf6b', '#fff', css('--side-' + p.color)], speed: [80, 300], gravity: 120 });
-    await animate(stand, { rotateY: 720, scale: [1.3, 1], duration: this.d(420), ease: 'outBack(2)' });
+    await animate(stand, { rotateY: 720, scale: [1.3, 1], duration: this.d(420), ease: 'outExpo' });
     stand.style.transform = 'none';
   }
 
@@ -391,7 +418,7 @@ export class BoardView {
     this.fx.confetti([css('--side-light'), css('--accent'), '#ffcf6b', css('--side-wild')]);
     losers.forEach((p, i) => {
       const st = this.state.get(p), el = this.els.get(p);
-      animate(st, { z: this.sq * 5, duration: this.d(900), delay: this.d(i * 40), ease: 'inBack(1.5)', onUpdate: () => this.apply(p) });
+      animate(st, { z: this.sq * 5, duration: this.d(900), delay: this.d(i * 40), ease: 'inExpo', onUpdate: () => this.apply(p) });
       animate(el, { opacity: 0, duration: this.d(500), delay: this.d(i * 40 + 400) });
     });
     await wait(this.d(Math.min(1600, losers.length * 40 + 1000)));

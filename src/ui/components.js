@@ -1,16 +1,27 @@
 import { html, useState, useEffect, useRef, motion, motionStagger } from './lib.js';
 import { Icon } from './icons.js';
 
-export function Topbar({ title, eyebrow, onBack, backLabel = 'Volver', backIcon = 'back', children }) {
+export function Topbar({ title, sub, onBack, backLabel = 'Volver', children }) {
   return html`<header class="topbar">
-    ${onBack && html`<button class="btn ghost sm" onClick=${onBack}><${Icon} name=${backIcon} size=${16} />${backLabel}</button>`}
+    ${onBack && html`<button class="btn ghost sm" onClick=${onBack}><${Icon} name="back" size=${16} />${backLabel}</button>`}
     <div>
-      ${eyebrow && html`<div class="eyebrow">${eyebrow}</div>`}
-      <div class="title">${title}</div>
+      <h1 class="title">${title}</h1>
+      ${sub && html`<p class="sub">${sub}</p>`}
     </div>
     <div class="spacer"></div>
     ${children}
   </header>`;
+}
+
+// Destructive actions ask for a second press instead of a browser dialog.
+export function ConfirmButton({ class: cls = 'btn', onConfirm, confirmLabel = 'Pulsa otra vez para confirmar', children }) {
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    if (!armed) return;
+    const t = setTimeout(() => setArmed(false), 3000);
+    return () => clearTimeout(t);
+  }, [armed]);
+  return html`<button class=${cls + (armed ? ' armed' : '')} onClick=${() => (armed ? onConfirm() : setArmed(true))}>${armed ? confirmLabel : children}</button>`;
 }
 
 // Screen entrance: content rises in with a soft spring.
@@ -21,7 +32,7 @@ export function useEnter(ref, selector = '[data-enter]') {
   }, []);
 }
 
-// Card with pointer tilt + glare (pattern borrowed from Magic UI / Kokonut "tilt card").
+// Card tilts toward the pointer like a card held in hand (Magic UI / Kokonut tilt-card pattern).
 function Card({ card, chosen, onPick }) {
   const ref = useRef(null);
   const onMove = (e) => {
@@ -29,8 +40,6 @@ function Card({ card, chosen, onPick }) {
     const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
     ref.current.style.setProperty('--ry', (x - 0.5) * 18 + 'deg');
     ref.current.style.setProperty('--rx', (0.5 - y) * 14 + 'deg');
-    ref.current.style.setProperty('--gx', x * 100 + '%');
-    ref.current.style.setProperty('--gy', y * 100 + '%');
   };
   const onLeave = () => { ref.current.style.setProperty('--rx', '0deg'); ref.current.style.setProperty('--ry', '0deg'); };
   return html`<div ref=${ref} class=${'card' + (chosen ? ' chosen' : '')} data-deal
@@ -44,21 +53,20 @@ function Card({ card, chosen, onPick }) {
       <div class="desc">${card.desc}</div>
     </div>
     <div class="back"></div>
-    <div class="glare"></div>
   </div>`;
 }
 
 // Deck-builder style pick: cards are dealt face down and flip over.
-export function CardPick({ eyebrow, title, subtitle, cards, onConfirm, confirmLabel = 'Quedármela' }) {
+export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = 'Quedármela' }) {
   const [chosen, setChosen] = useState(null);
   const row = useRef(null);
   useEffect(() => {
     const els = row.current.querySelectorAll('[data-deal]');
     motion(els, { opacity: [0, 1], y: [260, 0], rotateY: [180, 0], rotateZ: [-12, 0] },
-      { type: 'spring', stiffness: 140, damping: 16, delay: motionStagger(0.12, { startDelay: 0.15 }) });
+      { duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: motionStagger(0.12, { startDelay: 0.15 }) });
   }, []);
   return html`<div class="screen pick">
-    <${Topbar} eyebrow=${eyebrow} title=${title} />
+    <${Topbar} title=${title} />
     <div class="pick-body">
       <p class="pick-sub">${subtitle}</p>
       <div class="card-row" ref=${row}>

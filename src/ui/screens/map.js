@@ -20,8 +20,8 @@ export function MapScreen({ run, onBack, onSelect }) {
     // Scroll so the current floor is in view, then drop the pawn in.
     const el = wrap.current;
     el.scrollTop = Math.max(0, pawnAt.y - el.clientHeight * 0.65);
-    motion(pawn.current, { y: [-60, 0], opacity: [0, 1] }, { type: 'spring', stiffness: 260, damping: 14, delay: 0.2 });
-    motion(el.querySelectorAll('.node.open'), { scale: [0.6, 1] }, { type: 'spring', stiffness: 300, damping: 12, delay: 0.35 });
+    motion(pawn.current, { y: [-60, 0], opacity: [0, 1] }, { duration: 0.45, delay: 0.2, ease: [0.7, 0, 0.84, 0] });
+    motion(el.querySelectorAll('.node.open'), { scale: [0.7, 1] }, { duration: 0.5, delay: 0.45, ease: [0.16, 1, 0.3, 1] });
   }, []);
 
   const pick = async (n) => {
@@ -31,7 +31,7 @@ export function MapScreen({ run, onBack, onSelect }) {
   };
 
   return html`<div class="screen map">
-    <${Topbar} eyebrow=${`Piso ${run.currentFloor + 1} de ${floors}`} title="Elige tu ruta" onBack=${onBack} backLabel="Menú" />
+    <${Topbar} title="Elige tu ruta" sub=${`Piso ${run.currentFloor + 1} de ${floors}`} onBack=${onBack} backLabel="Menú" />
     <div class="map-scroll" ref=${wrap}>
       <div class="map-sheet" style=${{ height: H + 'px' }}>
         <svg class="trails" viewBox=${`0 0 100 ${H}`} preserveAspectRatio="none">
@@ -52,7 +52,7 @@ export function MapScreen({ run, onBack, onSelect }) {
           return html`<button key=${n.id} disabled=${!open}
             class=${`node mod-${n.modifier}${open ? ' open' : ''}${done ? ' done' : ''}${n.isBoss ? ' boss' : ''}`}
             style=${{ left: p.x + '%', top: p.y + 'px' }} onClick=${() => open && pick(n)} title=${mod.name}>
-            <span class="coin"><${Icon} name=${done ? 'check' : mod.icon} size=${n.isBoss ? 28 : 20} /></span>
+            <span class="coin"><${Icon} name=${done ? 'check' : mod.icon} size=${n.isBoss ? 36 : 26} /></span>
             ${open && html`<span class="label">${mod.name}</span>`}
           </button>`;
         })}
