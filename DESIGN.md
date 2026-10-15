@@ -39,6 +39,10 @@ favicon y los iconos troquelados de la interfaz.
 | Paneles de papel con grano | Son las hojas del reglamento y la hoja de puntuación; el grano es fibra de papel, no textura de relleno. |
 | Vetas de madera generadas con ruido SVG | Textura de la mesa; no se usan rayas con gradientes repetidos. |
 | Cartas en las recompensas | Las recompensas son cartas del juego: la forma de carta es el contenido, no un contenedor. |
+| Anatomía única de carta | Toda carta (recompensa o mano) tiene marco del color de su tipo (bermellón = táctica, latón = mutación, tinta = objeto), gema de rareza, cartela de título, ventana de ilustración, línea de tipo y caja de texto. La figura siempre es papel con contorno de tinta, sea pieza o icono, para que ninguna carta parezca de otra baraja. |
+| Mano en franja propia bajo el tablero | Las cartas no tapan piezas; al apuntar, la carta elegida sube y el tablero marca objetivos en latón y la vista previa del resultado. |
+| Insignias y cuerda de escolta | La regla de captura de élite se lee en el tablero sin abrir el manual. |
+| Salidas con gesto propio | Al mapa: las piezas despegan y el tablero se desmonta. Reiniciar: las piezas se recogen al centro. Rendirse: el rey se tumba (el gesto clásico de abandonar en ajedrez) y la mesa pierde el color. |
 | Sombras | Una sola: `--lift` (desplazada y difusa) para lo que está encima de la mesa. Sin halos de color. |
 | Radios | 6 / 12 / 20 px según tamaño: inputs y chips, botones, paneles. Las fichas son redondas porque son fichas. |
 | Cortina bermellón entre pantallas | El único momento autoral de transición; tapa la carga del tablero. |

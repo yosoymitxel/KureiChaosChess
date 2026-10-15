@@ -5,7 +5,7 @@ import { BOSSES, BOSS_IDS } from '../data/bosses.js';
 import { applyMutations } from '../data/mutations.js';
 
 
-const MOD_POOL = ['none', 'promote', 'promote', 'chaos', 'chaos', 'chaos', 'rush', 'rush', 'fog', 'fog', 'rest', 'bag'];
+const MOD_POOL = ['none', 'promote', 'promote', 'chaos', 'chaos', 'rush', 'rush', 'fog', 'ice', 'portal', 'rest', 'bag', 'elite', 'elite'];
 
 export function generateMap(seed) {
   const rng = mulberry32(seed);
@@ -16,7 +16,8 @@ export function generateMap(seed) {
     const isBoss = f === floors - 1, isFirst = f === 0;
     for (let c = 0; c < nc; c++) {
       const nodeSeed = Math.floor(rng() * 1e6);
-      const modifier = isFirst ? 'none' : isBoss ? 'boss' : pickFrom(rng, MOD_POOL);
+      let modifier = isFirst ? 'none' : isBoss ? 'boss' : pickFrom(rng, MOD_POOL);
+      if (modifier === 'elite' && f < 2) modifier = 'promote'; // elites only once the player has a few cards
       nodes.push({ id: `f${f}c${c}`, floor: f, column: c, totalCols: nc, modifier, seed: nodeSeed, isBoss, isFirst });
     }
   });
@@ -44,9 +45,9 @@ export function generateMap(seed) {
 }
 
 
-const SHAPES = ['diamond', 'hourglass', 'cross', 'fortress', 'random', 'stripes', 'scatter', 'lake', 'canyon', 'islands'];
+const SHAPES = ['diamond', 'hourglass', 'cross', 'fortress', 'random', 'stripes', 'scatter', 'lake', 'canyon', 'islands', 'ring', 'bridges', 'checker'];
 
-export function generateBoard(seed, floor, totalFloors) {
+export function generateBoard(seed, floor, totalFloors, modifier) {
   const rng = mulberry32(seed);
   const t = totalFloors > 1 ? floor / (totalFloors - 1) : 0;
   const base = 8 + Math.round(t * 4);
@@ -76,6 +77,9 @@ export function generateBoard(seed, floor, totalFloors) {
         case 'lake': out = (dist < maxDist * 0.35 && rng() < 0.8) || (dist > maxDist * 0.65 && rng() < 0.5); break;
         case 'canyon': out = Math.abs(c - cC) < 1.6 && edgeR > 1 && rng() < 0.7; break;
         case 'islands': out = (edgeR > 1 && edgeC > 1 && rng() < 0.22) || (dist > maxDist * 0.7 && rng() < 0.6); break;
+        case 'ring': out = dr <= rows * 0.16 && dc <= cols * 0.16; break; // a pit in the middle to walk around
+        case 'bridges': out = dr < 0.8 && c % 3 !== 1; break; // a river across the middle with bridges
+        case 'checker': out = (r + c) % 4 === 0 && edgeC > 0; break;
       }
       if (out) addSym(r, c);
     }
@@ -87,7 +91,31 @@ export function generateBoard(seed, floor, totalFloors) {
     holes.clear();
     arr.slice(0, maxHoles).forEach((k) => holes.add(k));
   }
-  return { rows, cols, holes, shape, protectRows: safe };
+  const board = { rows, cols, holes, shape, protectRows: safe, terrain: new Map(), portals: new Map() };
+  if (modifier === 'ice' || modifier === 'portal') addTerrain(board, rng, modifier);
+  return board;
+}
+
+// Terrain lives in the middle rows, mirrored so neither side gets the better half.
+function addTerrain(board, rng, kind) {
+  const { rows, cols, holes, protectRows: safe, terrain, portals } = board;
+  const mid = [];
+  for (let r = safe; r < rows - safe; r++) for (let c = 0; c < cols; c++) if (!holes.has(key(r, c))) mid.push([r, c]);
+  const mirror = ([r, c]) => [rows - 1 - r, cols - 1 - c];
+  if (kind === 'ice') {
+    for (const cell of mid) {
+      if (rng() > 0.2) continue;
+      for (const [r, c] of [cell, mirror(cell)]) if (!holes.has(key(r, c))) terrain.set(key(r, c), 'ice');
+    }
+  } else {
+    // Two portal pairs, each linking a tile with its mirror across the board.
+    for (let i = 0; i < 2 && mid.length; i++) {
+      const a = mid.splice(Math.floor(rng() * mid.length), 1)[0], b = mirror(a);
+      if (key(...a) === key(...b) || terrain.has(key(...a)) || holes.has(key(...b))) continue;
+      terrain.set(key(...a), 'portal'); terrain.set(key(...b), 'portal');
+      portals.set(key(...a), key(...b)); portals.set(key(...b), key(...a));
+    }
+  }
 }
 
 
@@ -115,7 +143,21 @@ export function makePiece(type, color, row, col, extra = {}) {
   return p;
 }
 
-export function placePieces(board, { playerCount, isBoss, seed, mutations, bonuses }) {
+// Elite floors: the enemy queen holds out until she is the last piece standing,
+// and up to two heavy pieces are escorted (immune while their escort lives).
+function protectElites(pieces) {
+  const dark = pieces.filter((p) => p.color === 'dark' && !p.royal);
+  const last = dark.find((p) => p.type === 'queen') || dark.find((p) => p.type === 'rook');
+  if (last) last.trait = 'last';
+  const escorts = dark.filter((p) => p.type === 'guard' || p.type === 'advisor');
+  const dist = (a, b) => Math.abs(a.row - b.row) + Math.abs(a.col - b.col);
+  for (const p of dark.filter((p) => p !== last && (p.type === 'rook' || p.type === 'cannon')).slice(0, 2)) {
+    const g = escorts.filter((e) => !pieces.some((o) => o.escort === e.id)).sort((a, b) => dist(a, p) - dist(b, p))[0];
+    if (g) p.escort = g.id;
+  }
+}
+
+export function placePieces(board, { playerCount, isBoss, elite, seed, mutations, bonuses }) {
   const rng = mulberry32(seed + 7);
   const { rows, cols } = board;
   const pieces = [];
@@ -162,6 +204,7 @@ export function placePieces(board, { playerCount, isBoss, seed, mutations, bonus
     placeBoss(pieces, board, BOSS_IDS[Math.floor(rng() * BOSS_IDS.length)]);
   }
 
+  if (elite) protectElites(pieces);
   applyMutations(pieces, mutations, 'light');
 
   if (bonuses?.promoteOne) { const p = pieces.find((p) => p.type === 'pawn' && p.color === 'light'); if (p) p.type = 'queen'; }
@@ -179,13 +222,14 @@ export function placeBoss(pieces, board, bossId) {
   const col = Math.max(0, Math.floor((board.cols - w) / 2));
   const cells = [];
   for (let i = 0; i < h; i++) for (let j = 0; j < w; j++) cells.push(key(i, col + j));
-  // Clear the footprint and the old king: the boss is the new royal piece.
+  // Clear the footprint (a 3×3 may reach past the safe rows) and the old king: the boss is the new royal piece.
+  cells.forEach((k) => board.holes.delete(k));
   for (let i = pieces.length - 1; i >= 0; i--) {
     const p = pieces[i];
     if (p.color === 'dark' && (p.type === 'king' || cells.includes(key(p.row, p.col)))) pieces.splice(i, 1);
   }
   const boss = makePiece(def.art, 'dark', 0, col, {
-    boss: def.id, h, w, hp: def.hp, maxHp: def.hp, moves: def.moves, royal: true, name: def.name,
+    boss: def.id, h, w, hp: def.hp, maxHp: def.hp, moves: [...def.moves], royal: true, name: def.name, absorb: !!def.absorb,
   });
   pieces.push(boss);
   return boss;

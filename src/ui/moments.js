@@ -95,6 +95,12 @@ export class Moments {
         this.burst(el, { count: 90, color: [side, '#fff', '#ffcf6b'], speed: [100, 480], size: [3, 9], gravity: 380, shape: 'chunk', life: [0.7, 1.4] });
         await motion(el, { rotate: [0, -24], y: [0, 14], scale: [1, 0.9], opacity: [1, 0.2] }, { duration: t(0.7), ease: IN });
         return sleep(hold);
+      case 'resign': // the classic gesture: the king is laid down on the board
+        await motion(el, { opacity: [0, 1] }, { duration: t(0.25) });
+        await sleep(t(0.35));
+        await motion(el, { rotate: [0, -90], scale: [1, 0.72], x: [0, 30] }, { duration: t(0.9), ease: [0.45, 0, 0.55, 1] });
+        this.dust(el);
+        return sleep(hold);
       default:
         await motion(el, { scale: [1.3, 1], opacity: [0, 1] }, { duration: t(0.25), ease: OUT });
         return sleep(hold);

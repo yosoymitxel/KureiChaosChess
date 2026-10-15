@@ -2,7 +2,7 @@
 // The board is a tilted plane (rotateX); tiles live on it, pieces are cardboard
 // "standees" counter-rotated to face the camera. anime.js drives all choreography.
 import { animate, stagger } from 'animejs';
-import { pieceSVG } from './piece-art.js';
+import { pieceSVG, headTop } from './piece-art.js';
 import { Fx } from './fx.js';
 import { key, cellsOf, sizeOf } from '../game/rules.js';
 
@@ -11,10 +11,14 @@ const JUMPERS = new Set(['knight', 'camel', 'elephant']);
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const BADGES = {
+  lock: '<svg viewBox="0 0 24 24"><path d="M7 10V7.5a5 5 0 0 1 10 0V10h-2.6V7.5a2.4 2.4 0 0 0-4.8 0V10z"/><rect x="4.5" y="10" width="15" height="11.5" rx="2.5"/></svg>',
+  last: '<svg viewBox="0 0 24 24"><path d="M5 2.5h2.6v19H5z"/><path d="M7.6 3.5h11.9l-2.6 4 2.6 4H7.6z"/></svg>',
+};
 
 export class BoardView {
-  constructor(host, { camera = 'tilt', shake = true, speed = 1, onTap, onDrop, canDrag, onImpact } = {}) {
-    Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, shakeOn: shake, speed });
+  constructor(host, { camera = 'tilt', shake = true, speed = 1, onTap, onDrop, canDrag, onImpact, onHover } = {}) {
+    Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, onHover, shakeOn: shake, speed });
     this.tilt = CAMERAS[camera] ?? 40;
     host.classList.add('table');
     host.innerHTML = `<div class="stage"><div class="board"><div class="tiles"></div><div class="pieces"></div></div></div>`;
@@ -64,6 +68,7 @@ export class BoardView {
     if (this.cursor) this.tiles.get(key(this.cursor.row, this.cursor.col))?.classList.remove('cursor');
     this.cursor = cell;
     this.tiles.get(key(cell.row, cell.col))?.classList.add('cursor');
+    this.onHover?.({ ...cell });
   }
 
   destroy() { this.ro.disconnect(); this.fx.destroy(); this.unbind?.(); this.host.innerHTML = ''; }
@@ -102,6 +107,10 @@ export class BoardView {
       t.dataset.r = r; t.dataset.c = c;
       t.style.setProperty('--r', r); t.style.setProperty('--c', c);
       t.style.setProperty('--grain', ((r * 7 + c * 13) % 5) / 5);
+      const terrain = board.terrain?.get(key(r, c));
+      if (terrain) t.classList.add(terrain);
+      // Portal pairs share a colour so the player can tell which tile leads where.
+      if (terrain === 'portal') t.classList.add([...board.portals.keys()].indexOf(key(r, c)) < 2 ? 'pair-a' : 'pair-b');
       t.innerHTML = '<i class="mark"></i>';
       frag.appendChild(t);
       this.tiles.set(key(r, c), t);
@@ -132,8 +141,10 @@ export class BoardView {
     el.className = `pc side-${p.color}${p.boss ? ' boss' : ''}`;
     el.dataset.pid = p.id;
     el.style.setProperty('--h', h); el.style.setProperty('--w', w);
+    el.style.setProperty('--s', h * w > 1 ? Math.max(h, w) * 0.85 : 1); // multi-cell figures read bigger than one tile
+    el.style.setProperty('--head', headTop(p.type).toFixed(3));
     el.innerHTML = `<div class="pc-shadow"></div><div class="pc-base"><i></i><i></i><i></i></div>
-      <div class="pc-stand"><div class="pc-fig"><div class="pc-art">${pieceSVG(p.type)}</div>${p.boss ? this.hpHTML(p) : ''}</div></div>`;
+      <div class="pc-stand"><div class="pc-fig"><div class="pc-art">${pieceSVG(p.type)}</div>${p.boss || p.maxHp > 1 ? this.hpHTML(p) : ''}<span class="pc-badge"></span></div></div>`;
     this.piecesEl.appendChild(el);
     this.els.set(p, el);
     const st = { r: p.row, c: p.col, z: 0 };
@@ -143,7 +154,41 @@ export class BoardView {
   }
 
   hpHTML(p) {
-    return `<div class="pc-hp"><span>${p.name}</span>${Array.from({ length: p.maxHp }, (_, i) => `<b class="${i < p.hp ? 'on' : ''}"></b>`).join('')}</div>`;
+    return `<div class="pc-hp">${p.name ? `<span>${p.name}</span>` : ''}${Array.from({ length: p.maxHp }, (_, i) => `<b class="${i < p.hp ? 'on' : ''}"></b>`).join('')}</div>`;
+  }
+
+  // Rebuild a piece's element after a card changed its size, type or HP.
+  remake(p) {
+    const st = this.state.get(p);
+    this.els.get(p)?.remove();
+    this.addPiece(p);
+    if (st) Object.assign(this.state.get(p), { z: st.z });
+    return this.els.get(p);
+  }
+
+  // Protected pieces wear a badge (lock = escorted, flag = falls last) and escorts are tied
+  // to their ward with a rope on the board, so the rule is readable without opening the rules.
+  setGuards(pieces, isImmune) {
+    this.piecesEl.querySelectorAll('.tether').forEach((t) => t.remove());
+    for (const [p, el] of this.els) {
+      const on = isImmune(p);
+      const kind = on ? (p.trait === 'last' ? 'last' : 'lock') : '';
+      el.classList.toggle('guarded', on);
+      const badge = el.querySelector('.pc-badge');
+      if (badge && badge.dataset.kind !== kind) { badge.dataset.kind = kind; badge.innerHTML = kind ? BADGES[kind] : ''; }
+      const escort = on && p.escort && pieces.find((o) => o.id === p.escort);
+      if (escort) this.tether(escort, p);
+    }
+  }
+
+  tether(a, b) {
+    const ca = { x: a.col + (a.w || 1) / 2, y: a.row + (a.h || 1) / 2 }, cb = { x: b.col + 0.5, y: b.row + 0.5 };
+    const len = Math.hypot(cb.x - ca.x, cb.y - ca.y);
+    const t = document.createElement('i');
+    t.className = 'tether';
+    t.style.setProperty('--x', ca.x); t.style.setProperty('--y', ca.y);
+    t.style.setProperty('--len', len); t.style.setProperty('--ang', Math.atan2(cb.y - ca.y, cb.x - ca.x) + 'rad');
+    this.piecesEl.prepend(t);
   }
 
   apply(p) {
@@ -161,7 +206,17 @@ export class BoardView {
 
 
   clearMarks() {
-    for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger');
+    for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger', 'target', 'preview', 'foot');
+  }
+  // Card targeting: outline valid targets; `preview` shows where the piece could move after the card.
+  showTargets(cells) {
+    this.clearMarks();
+    for (const k of cells) this.tiles.get(k)?.classList.add('target');
+  }
+  showPreview(targets, preview, footprint = []) {
+    this.showTargets(targets);
+    for (const k of preview) this.tiles.get(k)?.classList.add('mv', 'preview');
+    for (const k of footprint) this.tiles.get(k)?.classList.add('foot');
   }
   // cells: Set of "r,c"; captures: Set of "r,c" with an enemy
   showMoves(cells, captures, danger = false) {
@@ -241,6 +296,7 @@ export class BoardView {
       this.onDrop?.(d.piece, hit);
     };
     this.host.addEventListener('pointerdown', down);
+    this.host.addEventListener('pointerover', (e) => this.onHover?.(this.cellFromEl(e.target)));
     addEventListener('pointermove', move);
     addEventListener('pointerup', up);
     addEventListener('pointercancel', up);
@@ -350,7 +406,101 @@ export class BoardView {
     this.onImpact?.(res);
     if (victims.length) await this.hitStop(victims, victims.some((v) => v.piece.royal) || victims.length > 1 ? 160 : 70);
     await Promise.all(victims.map((v) => this.kill(v.piece, from, to)));
+    if (res.slide) await this.slide(piece, res.slide);
+    if (res.portal) await this.warp(piece, res.portal);
     if (promoted) await this.promote(piece);
+  }
+
+  // Ice: the piece keeps going one tile, skating low with frost spraying behind it.
+  async slide(p, to) {
+    const st = this.state.get(p);
+    const c0 = this.centerOf(p, Math.round(st.r), Math.round(st.c));
+    this.fx.burst(c0.x, c0.y, { count: 16, color: ['#e8f4ff', '#bfdcf2', '#fff'], speed: [40, 160], size: [2, 4], life: [0.3, 0.6] });
+    await animate(st, { r: to.row, c: to.col, duration: this.d(260), ease: 'outQuad', onUpdate: () => this.apply(p) });
+    this.squash(p, 0.85);
+  }
+
+  // Portal: sucked into one ring, popped out of its twin.
+  async warp(p, { from, to }) {
+    const fig = this.els.get(p)?.querySelector('.pc-fig'), st = this.state.get(p);
+    const a = this.centerOf(p, from.row, from.col);
+    this.fx.ring(a.x, a.y, { radius: this.sq * 0.9, color: css('--brass'), width: 4 });
+    await animate(fig, { scale: [1, 0], rotate: [0, 180], duration: this.d(260), ease: 'inQuad' });
+    Object.assign(st, { r: to.row, c: to.col }); this.apply(p);
+    const b = this.centerOf(p, to.row, to.col);
+    this.fx.ring(b.x, b.y, { radius: this.sq * 0.9, color: css('--brass'), width: 4 });
+    this.fx.burst(b.x, b.y, { count: 20, color: [css('--brass'), '#fff'], speed: [60, 200] });
+    await animate(fig, { scale: [0, 1], rotate: [180, 360], duration: this.d(320), ease: 'outExpo' });
+  }
+
+  // A newly placed piece falls onto the board from above.
+  async dropIn(p) {
+    this.addPiece(p);
+    const st = this.state.get(p), el = this.els.get(p);
+    st.z = this.sq * 4; this.apply(p); el.style.opacity = 0;
+    animate(el, { opacity: 1, duration: this.d(120) });
+    await animate(st, { z: 0, duration: this.d(420), ease: 'inQuad', onUpdate: () => this.apply(p) });
+    const c = this.centerOf(p); this.fx.dust(c.x, c.y, 0.9); this.squash(p, 0.7);
+  }
+
+  // Visual side of a played card (game/cards.js result).
+  async applyCard(res) {
+    const id = res.card.id, p = res.piece;
+    if (p) {
+      const c = this.centerOf(p);
+      this.fx.ring(c.x, c.y, { radius: this.sq * 1.2, color: css('--accent'), width: 5 });
+    }
+    if (id === 'colossus') {
+      const el = this.remake(p), fig = el.querySelector('.pc-fig'), c = this.centerOf(p);
+      this.shake(12, 450);
+      this.fx.dust(c.x, c.y, 1.8);
+      this.fx.burst(c.x, c.y - this.sq, { count: 36, color: [css('--side-' + p.color), '#fff', css('--brass')], speed: [80, 300], gravity: 200, shape: 'chunk' });
+      await animate(fig, { scaleY: [0.3, 1.12, 1], scaleX: [1.3, 0.94, 1], duration: this.d(560), ease: 'outExpo' });
+    } else if (id === 'ascend') {
+      await this.promote(p);
+    } else if (id === 'mount' || id === 'fortify') {
+      if (id === 'fortify') this.remake(p);
+      const c = this.centerOf(p);
+      this.fx.burst(c.x, c.y - this.sq * 0.5, { count: 24, color: [css('--brass'), '#fff'], speed: [60, 220] });
+      this.floatText(c.x, c.y - this.sq * 1.1, id === 'mount' ? '+ salto en L' : '+1 escudo');
+      await animate(this.els.get(p).querySelector('.pc-fig'), { y: [0, -this.sq * 0.4, 0], duration: this.d(420), ease: 'outQuad' });
+    } else if (id === 'quake') {
+      await this.collapse([[res.cell.row, res.cell.col]]);
+    } else if (id === 'reinforce') {
+      await this.dropIn(res.spawned);
+    }
+  }
+
+  // Leaving the board, each exit with its own gesture:
+  //  exit   -> pieces lift off and the tiles drop away in a wave (back to the map)
+  //  reset  -> pieces are swept into the centre, ready to be dealt again
+  //  resign -> the loser's pieces lie down and the table fades to grey
+  async outro(kind, color = 'light') {
+    const pieces = [...this.els.keys()];
+    if (kind === 'reset') {
+      pieces.forEach((p, i) => {
+        const st = this.state.get(p);
+        animate(st, { r: (this.board.rows - 1) / 2, c: (this.board.cols - 1) / 2, z: [0, this.sq, 0], duration: this.d(480), delay: this.d(i * 10), ease: 'inOutQuad', onUpdate: () => this.apply(p) });
+        animate(this.els.get(p), { opacity: [1, 0], duration: this.d(200), delay: this.d(i * 10 + 360) });
+      });
+      return wait(this.d(pieces.length * 10 + 620));
+    }
+    if (kind === 'resign') {
+      pieces.filter((p) => p.color === color).forEach((p, i) => {
+        animate(this.els.get(p).querySelector('.pc-fig'), { rotate: (i % 2 ? 1 : -1) * 88, duration: this.d(700), delay: this.d(i * 40), ease: 'inOutSine' });
+      });
+      this.host.classList.add('lost');
+      return wait(this.d(pieces.length * 20 + 900));
+    }
+    pieces.forEach((p, i) => {
+      const st = this.state.get(p);
+      animate(st, { z: this.sq * 6, duration: this.d(520), delay: this.d(i * 14), ease: 'inExpo', onUpdate: () => this.apply(p) });
+      animate(this.els.get(p), { opacity: [1, 0], duration: this.d(240), delay: this.d(i * 14 + 300) });
+    });
+    await wait(this.d(260));
+    const tiles = [...this.tiles.values()].sort((a, b) => +b.dataset.r - +a.dataset.r);
+    animate(tiles, { z: -this.sq * 4, opacity: [1, 0], duration: this.d(520), ease: 'inQuad', delay: stagger(this.d(6)) });
+    return wait(this.d(tiles.length * 6 + 560));
   }
 
   // Freeze-frame on impact so a capture lands with weight; big hits also punch the camera in.

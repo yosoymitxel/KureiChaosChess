@@ -31,6 +31,13 @@ const P = {
   boss: html`<path d="M5 12c0-4.4 3.1-7.5 7-7.5s7 3.1 7 7.5v5.5H5z" /><path d="M5.5 10.5C3 9.5 1.8 7 2 3.5c1.6 2.2 3.4 3 5.4 3M18.5 10.5c2.5-1 3.7-3.5 3.5-7-1.6 2.2-3.4 3-5.4 3" /><rect x="4" y="17.5" width="16" height="3.5" rx="1" />${cut('M8 12.5h3M13 12.5h3M12 13v4.5', 1.8)}`,
   rest: html`<path d="M12 2.5c3.5 3.2 5 6 5 8.6a5 5 0 0 1-10 0c0-1.8.8-3.3 2.2-4.6.2 1.6 1 2.6 2.1 3-.4-2.3-.2-4.5.7-7z" /><path d="M3.5 18.5l17-3.5.6 2.8-17 3.5zM20.5 18.5l-17-3.5-.6 2.8 17 3.5z" />`,
   bag: html`<path d="M8.5 6.5h7l-1.5-3h-4z" /><path d="M9 6.5c-4 2.2-6.5 6-6.5 9.7 0 3.1 2.4 5.3 6 5.3h7c3.6 0 6-2.2 6-5.3 0-3.7-2.5-7.5-6.5-9.7z" />${cut('M8.5 8.5h7', 1.6)}<circle cx="12" cy="15" r="3" fill="none" stroke=${CUT} stroke-width="1.6" />`,
+  ice: html`<path d="M10.8 2.5h2.4v19h-2.4zM2.9 7.4l1.2-2.1 17 9.8-1.2 2.1zM4.1 18.7l-1.2-2.1 17-9.8 1.2 2.1z" /><circle cx="12" cy="12" r="4" />${cut('M10 10.5l4 3M14 10.5l-4 3', 1.2)}`,
+  portal: html`<ellipse cx="12" cy="12" rx="9.5" ry="9.5" /><ellipse cx="12" cy="12" rx="6" ry="6" fill=${CUT} /><ellipse cx="12" cy="12" rx="3.2" ry="3.2" />`,
+  swords: html`<path d="M4 2.5l11.5 11.5-1.8 1.8L2.2 4.3zM20 2.5L8.5 14l1.8 1.8L21.8 4.3z" /><path d="M5.5 15.5l3 3-2.2 2.2-1.6-.4-.4-1.6zM18.5 15.5l-3 3 2.2 2.2 1.6-.4.4-1.6z" /><path d="M3.8 13.8l6.4 6.4M20.2 13.8l-6.4 6.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />`,
+  shield: html`<path d="M12 2.5l8.5 3.2v6.1c0 5.3-3.6 8.6-8.5 10.7-4.9-2.1-8.5-5.4-8.5-10.7V5.7z" />${cut('M12 6v13M7 11h10', 1.6)}`,
+  lock: html`<path d="M7 10V7.5a5 5 0 0 1 10 0V10h-2.6V7.5a2.4 2.4 0 0 0-4.8 0V10z" /><rect x="4.5" y="10" width="15" height="11.5" rx="2.5" />${dot(12, 15, 1.6)}${cut('M12 15.5v2.5', 1.6)}`,
+  last: html`<path d="M5 2.5h2.6v19H5z" /><path d="M7.6 3.5h11.9l-2.6 4 2.6 4H7.6z" />${cut('M11 7.5h4', 1.6)}`,
+  hand: html`<rect x="3" y="6" width="10" height="14" rx="2" transform="rotate(-12 8 13)" /><rect x="11" y="4" width="10" height="14" rx="2" transform="rotate(10 16 11)" />${cut('M14.6 9.5l3.6.7M14.1 12.3l3.6.7', 1.4)}`,
   // Rewards
   scroll: html`<rect x="5.5" y="5" width="13" height="14" /><rect x="3" y="2.5" width="18" height="4" rx="2" /><rect x="3" y="17.5" width="18" height="4" rx="2" />${cut('M8.5 10h7M8.5 13.5h5', 1.5)}`,
   boot: html`<path d="M7 2.5h6.5l-.5 9 6.5 3.3c1.3.7 2 1.8 2 3.2v2.5H4.5V16c0-1.5.8-2.2 1.5-3z" />${cut('M7.5 7h4M7 10.5h4', 1.4)}<path d="M1.5 6.5h4M1 10h4.5M2 13.5h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />`,

@@ -24,10 +24,10 @@ const BODIES = {
   advisor: `<path d="M14.5 32.3c1.5-4 2.6-8.6 2.6-12.8h10.8c0 4.2 1.1 8.8 2.6 12.8z"/><path d="M22.5 6.5c-4.6 0-7.2 5-7.2 10.4 0 1.2.3 2 .8 2.6h12.8c.5-.6.8-1.4.8-2.6 0-5.4-2.6-10.4-7.2-10.4z"/><path d="M22.5 11.5c-2.1 0-3.4 2.1-3.4 4.6h6.8c0-2.5-1.3-4.6-3.4-4.6z" fill="${F2}"/><circle cx="22.5" cy="4.6" r="1.8"/>${detail('M17 25.5h11M18 29h9')}`,
   // Elefante: profile head with ear, trunk curling forward and a tusk.
   elephant: `<path d="M31 32.3c1.6-2.8 2.4-5.8 2.4-9.3 0-7-4.8-12-11.2-12-5.8 0-10.4 4.2-10.4 10 0 2.4.8 4.4 2 5.8-.9 1.4-2.5 2.8-4.3 3-1.4.2-1.9 1.9-.6 2.4 3.2 1.2 6.6-.6 8.4-3.1.8.3 1.7.5 2.6.5-.2 1-.4 1.8-.8 2.7z"/><path d="M24.5 14.5c4.6-1.6 8.6.8 8.6 6 0 3.2-2 5.6-5 6.3-1.8-3.8-3-8-3.6-12.3z" fill="${F2}"/><circle cx="17.6" cy="18.6" r="1.1" fill="${S}" stroke="none"/><path d="M19.6 25.2c-.6 2.2.1 4 1.9 4.9" fill="none" stroke="${S}" stroke-width="2.6"/><path d="M19.6 25.2c-.6 2.2.1 4 1.9 4.9" fill="none" stroke="var(--side-light, #f5efe0)" stroke-width="1.2"/>`,
-  // Camello: long curved neck, drooping snout, small ear, hump behind.
-  camel: `<path d="M27 32.3c.4-5.4 3.4-9.6 6.6-9.6s5 3.4 4.4 9.6z"/><path d="M32 32.3c-.2-6.6-1.6-11-3.6-14.4-1.4-2.4-1.9-4.6-1.9-7.6 0-2.6-1.9-4.3-4.4-4.3h-4.4c-2 0-3.5.9-4.5 2.4l-2.2 3.4c-.6 1 0 2.2 1.2 2.2h3.6c1.2 0 2 .9 2 2.1 0 3.9 1.4 6.9 3.4 9.8 1.4 2 1.6 4.4 1.2 6.4z"/><path d="M24.2 6.2l1.2-2.8 1.6 3" /><circle cx="20" cy="9.4" r="1" fill="${S}" stroke="none"/>${detail('M12.4 11.9h2.4M29 22c.8 2.8 1.2 6 1.2 9.6')}`,
-  // Cañón: barrel raised on a spoked wheel.
-  cannon: `<path d="M12.8 28l18-12 3.6 5.6-18 12z"/><path d="M29.6 14.6l4.2-2.8 5 7.6-4.2 2.8z"/><circle cx="18.6" cy="27.4" r="5.6"/><circle cx="18.6" cy="27.4" r="1.7" fill="${F2}"/>${detail('M18.6 22.6v9.6M13.8 27.4h9.6')}`,
+  // Camello: thick curved neck, drooping snout, small ear, big hump behind.
+  camel: `<path d="M25.5 32.3c0-8.4 4.8-13.8 9.8-13.8s7.4 5.2 6.2 13.8z"/><path d="M33 32.3c-.2-6.6-1.4-11-3.2-14.4-1.3-2.4-1.8-4.6-1.8-7.6 0-2.6-2-4.3-4.6-4.3h-4.6c-2 0-3.5.9-4.5 2.4l-2.4 3.6c-.6 1 0 2.2 1.2 2.2h3.6c1.2 0 2 .9 2 2.1 0 3.6-.4 6.4-1.4 9.4-.8 2.4-1.2 4.4-1.2 6.6z"/><path d="M24.4 6.2l1.2-2.8 1.6 3"/><circle cx="20" cy="9.6" r="1" fill="${S}" stroke="none"/>${detail('M12.4 12.2h2.4M30.2 21.5c.9 3 1.3 6.6 1.3 10.4M36 21.5c1.6 1.4 2.6 3.4 2.9 6')}`,
+  // Cañón: mortar-style bombard, barrel raised steeply on a carriage, with a wheel and trunnion.
+  cannon: `<path d="M13 32.3l2-7h15l2 7z"/><path d="M16.57 21.62L25.93 8.14L32.07 11.86L24.43 26.38Z"/><path d="M23.82 10.24L25.38 7.68L32.72 12.14L31.16 14.7Z"/><ellipse cx="29.1" cy="9.3" rx="2.5" ry="1.1" transform="rotate(31 29.1 9.3)" fill="${F2}"/><circle cx="19.4" cy="25.6" r="2.3"/><circle cx="21.8" cy="21.4" r="2.1" fill="${F2}"/><circle cx="15" cy="28.4" r="3.9"/><circle cx="15" cy="28.4" r="1.2" fill="${F2}"/>${detail('M15 24.9v7M11.5 28.4h7', 1.1)}`,
 };
 
 // Measured geometric boxes of each raw body [x, y, w, h] (getBBox, stroke excluded).
@@ -36,14 +36,15 @@ const BODY_BOX = {
   pawn: [12.4, 9, 20.2, 24.8], rook: [11, 10, 23, 23], bishop: [13.7, 7.5, 17.61, 28.38],
   knight: [6, 8, 32.03, 32], queen: [4, 5.5, 37, 35.25], king: [5.83, 6, 33.29, 35.38],
   guard: [14.5, 2.8, 16, 29.5], advisor: [14.5, 2.8, 16, 29.5], elephant: [8.15, 11, 25.25, 21.58],
-  camel: [10.76, 3.4, 27.35, 28.9], cannon: [12.8, 11.8, 26, 21.8],
+  camel: [11.66, 3.4, 30.14, 28.9], cannon: [11.1, 7.07, 21.62, 25.23],
 };
 
 // Height ladder above the plinth: value order follows the chess hierarchy; maxW keeps wide crowns in check.
 // ax: x of the raw drawing that sits over the plinth centre (the knight balances on its neck, not its bbox).
+// The bishop's finial is light, so it may rise above the ladder like the original drawing did.
 const LADDER = {
-  pawn: { h: 18.5 }, rook: { h: 21.5 }, guard: { h: 22 }, cannon: { h: 20 }, elephant: { h: 22.5 },
-  advisor: { h: 23.5 }, camel: { h: 24 }, knight: { h: 24, ax: 25.5 }, bishop: { h: 25 },
+  pawn: { h: 18.5 }, rook: { h: 21.5 }, guard: { h: 22 }, cannon: { h: 23 }, elephant: { h: 22.5 },
+  advisor: { h: 23.5 }, camel: { h: 24.5, maxW: 31, ax: 28.4 }, knight: { h: 24, ax: 25.5 }, bishop: { h: 27.5 },
   queen: { h: 26.5, maxW: 29 }, king: { h: 27.5, maxW: 29 },
 };
 
@@ -78,5 +79,8 @@ export function pieceSVG(type, { fit = false } = {}) {
   }
   return `<svg viewBox="${vb}" preserveAspectRatio="${align} meet" aria-hidden="true">${svg}</svg>`;
 }
+
+// Height of the figure's head as a fraction of the board canvas (0 = top), for labels that sit on it.
+export const headTop = (type) => art(type).L.top / 41;
 
 export const RAW_BODIES = BODIES;

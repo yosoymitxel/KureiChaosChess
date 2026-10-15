@@ -1,11 +1,12 @@
 // Game screen: the "director" that wires Match (rules) to BoardView (3D) and the HUD.
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
-import { TurnBanner } from '../components.js';
+import { TurnBanner, CardFace } from '../components.js';
 import { BoardView } from '../../view/board-view.js';
 import { Match, botChooseMove } from '../../game/match.js';
 import { generateBoard, placePieces } from '../../game/generate.js';
-import { moveCells, cellsOf, key, anchorForCell } from '../../game/rules.js';
+import { moveCells, cellsOf, key, anchorForCell, immune } from '../../game/rules.js';
+import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { PIECE_NAMES, MOVE_NAMES } from '../../data/pieces.js';
@@ -15,7 +16,7 @@ import { Moments } from '../moments.js';
 
 const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
 
-export function GameScreen({ node, run, seats, settings, setSettings, onExit, onAbandon, onWin, onRestart, onHowTo }) {
+export function GameScreen({ node, run, seats, settings, setSettings, onExit, onAbandon, onWin, onRestart, onHowTo, onUseCard }) {
   const hostRef = useRef(null);
   const mainRef = useRef(null);
   const ref = useRef({}); // mutable director state: view, match, busy, selected
@@ -25,13 +26,16 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   const [banner, setBanner] = useState(null);
   const [paused, setPaused] = useState(false);
   const [end, setEnd] = useState(null);
+  const [cardSel, setCardSel] = useState(null); // index in the hand while aiming a card
   const mod = MODIFIERS[node.modifier];
+  ref.current.hand = run.cards || [];
+  ref.current.onUseCard = onUseCard;
   const addLog = (m) => setLog((l) => [...l.slice(-30), m]);
 
   useEffect(() => {
     const d = ref.current;
-    const board = generateBoard(node.seed, node.floor, run.map.floors);
-    const pieces = placePieces(board, { playerCount: seats.length, isBoss: node.isBoss, seed: node.seed, mutations: run.mutations, bonuses: run.bonuses });
+    const board = generateBoard(node.seed, node.floor, run.map.floors, node.modifier);
+    const pieces = placePieces(board, { playerCount: seats.length, isBoss: node.isBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses });
     const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses });
     const humanTurn = () => match.player.kind === 'human' && !match.over && !d.busy && !d.paused;
 
@@ -41,6 +45,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const threats = p.kind === 'human' ? match.threats() : new Set();
       if (p.kind === 'human' && match.inCheck(p.color)) threats.add(match.pieces.find((x) => x.royal && x.color === p.color));
       d.view.setThreats(threats);
+      d.view.setGuards(match.pieces, (x) => immune(x, match.pieces));
       if (node.modifier === 'fog') {
         const viewer = p.kind === 'human' ? p.color : seats.find((s) => s.kind === 'human')?.color || 'light';
         d.view.setFog(match.pieces, viewer);
@@ -51,7 +56,67 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         eliminated: { ...match.eliminated }, threats: p.kind === 'human' ? match.threats().size : 0,
         chaosIn: 3 - (match.turn % 3), boss: boss && { name: boss.name, hp: boss.hp, maxHp: boss.maxHp, id: boss.boss },
         counts: Object.fromEntries(seats.map((s) => [s.color, match.pieces.filter((x) => x.color === s.color).length])),
+        canCard: p.kind === 'human' && !match.cardUsed && !match.over,
       });
+    };
+
+    // Tactic cards: pick from the hand, aim at a marked target (hover previews the result), play.
+    const aim = () => {
+      const card = CARDS[d.hand[d.cardSel]];
+      const targets = cardTargets(match, card);
+      const keys = new Set(card.target === 'piece' ? targets.flatMap((p) => cellsOf(p).map(([r, c]) => key(r, c))) : targets.map((t) => key(t.row, t.col)));
+      return { card, targets, keys };
+    };
+    const cancelCard = () => { d.cardSel = null; setCardSel(null); d.view.clearMarks(); };
+    d.pickCard = (i) => {
+      if (!humanTurn() || match.cardUsed) return;
+      if (d.cardSel === i) return cancelCard();
+      clearSel();
+      d.cardSel = i; setCardSel(i);
+      const { card, keys } = aim();
+      if (card.target === 'none') return playFromHand(null);
+      if (!keys.size) { addLog(`${card.name}: no hay objetivos válidos ahora`); return cancelCard(); }
+      d.view.showTargets(keys);
+    };
+    const onHover = (hit) => {
+      if (d.cardSel == null || !hit) return;
+      const { card, targets, keys } = aim();
+      const piece = hit.piece || match.pieceAt(hit.row, hit.col);
+      if (card.target === 'piece' && targets.includes(piece)) {
+        const pv = previewMoves(match, card, piece);
+        d.view.showPreview(keys, pv.cells, pv.footprint);
+      } else d.view.showTargets(keys);
+    };
+    const playFromHand = async (hit) => {
+      const i = d.cardSel, id = d.hand[i], card = CARDS[id];
+      const target = card.target === 'piece' ? { piece: hit?.piece || match.pieceAt(hit.row, hit.col) } : hit;
+      const res = playCard(match, id, target);
+      if (!res) return cancelCard();
+      d.busy = true;
+      cancelCard();
+      await flyCard(i, res);
+      d.onUseCard(i);
+      addLog(`Carta: ${card.name}`);
+      d.moments.callout({ text: `¡${card.name}!`, sub: card.desc, tone: 'brass', icon: card.icon, anim: 'stomp' });
+      await d.view.applyCard(res);
+      d.busy = false;
+      refresh();
+      if (!match.canMove()) startTurn(false);
+    };
+    // The played card flies from the hand to its target and burns out there.
+    const flyCard = async (i, res) => {
+      const src = mainRef.current.querySelectorAll('.hand-card')[i];
+      if (!src) return;
+      const from = src.getBoundingClientRect();
+      const at = res.piece ? d.view.centerOf(res.piece) : res.cell ? d.view.centerOf({ row: res.cell.row, col: res.cell.col }) : { x: d.view.fx.w / 2, y: d.view.fx.h / 2 };
+      const host = hostRef.current.getBoundingClientRect();
+      const ghost = src.cloneNode(true);
+      Object.assign(ghost.style, { position: 'fixed', left: from.left + 'px', top: from.top + 'px', width: from.width + 'px', height: from.height + 'px', margin: 0, zIndex: 60, pointerEvents: 'none' });
+      document.body.appendChild(ghost);
+      src.style.visibility = 'hidden';
+      await motion(ghost, { x: [0, host.left + at.x - from.left - from.width / 2], y: [0, host.top + at.y - from.top - from.height / 2], rotate: [0, 360], scale: [1, 0.35], opacity: [1, 0.2] }, { duration: 0.55, ease: [0.7, 0, 0.3, 1] });
+      ghost.remove();
+      src.style.visibility = '';
     };
 
     const clearSel = () => { d.selected = null; d.view.select(null); d.view.clearMarks(); setInspect(null); };
@@ -71,10 +136,13 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const inspectPiece = (p) => {
       d.selected = null; d.view.select(null);
       const moves = show(p, true);
+      const guarded = immune(p, match.pieces);
+      const escort = p.escort && match.pieces.find((o) => o.id === p.escort);
       setInspect({
-        type: p.type, side: p.color, name: p.boss ? p.name : PIECE_NAMES[p.type], color: SIDE_NAME[p.color], moves: moves.length,
-        extra: (p.boss ? p.moves : p.extraMoveTypes || []).map((t) => ({ name: MOVE_NAMES[t] || t, mut: (p.mutationExtras || []).includes(t) })),
+        type: p.type, side: p.color, name: p.name || PIECE_NAMES[p.type], color: SIDE_NAME[p.color], moves: moves.length,
+        extra: (p.moves || p.extraMoveTypes || []).map((t) => ({ name: MOVE_NAMES[t] || t, mut: (p.mutationExtras || []).includes(t) })),
         boss: p.boss && BOSSES[p.boss].desc,
+        guard: guarded && (p.trait === 'last' ? 'Solo cae cuando sea la última pieza de su bando.' : `Protegida: no cae mientras viva su escolta (${PIECE_NAMES[escort.type].toLowerCase()}).`),
       });
     };
 
@@ -165,8 +233,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const art = (p) => ({ type: p.type, side: p.color });
       if (res.bounced) {
         const b = res.victims[0].piece;
-        return d.moments.callout({ text: '¡Golpe!', sub: `A ${b.name} le ${b.hp === 1 ? 'queda 1 vida' : `quedan ${b.hp} vidas`}`, tone, piece: art(b), anim: 'hit' });
+        return d.moments.callout({ text: '¡Golpe!', sub: `A ${b.name || PIECE_NAMES[b.type]} le ${b.hp === 1 ? 'queda 1 vida' : `quedan ${b.hp} vidas`}`, tone, piece: art(b), anim: 'hit' });
       }
+      if (res.absorbed?.length) d.moments.callout({ text: '¡Aprende!', sub: `${res.piece.name} roba: ${res.absorbed.map((t) => MOVE_NAMES[t]).join(', ')}`, tone, piece: art(res.piece), anim: 'tremble' });
       if (killed.some((p) => p.boss)) return;
       const royal = killed.find((p) => p.royal);
       if (royal) return d.moments.callout({ text: '¡Rey caído!', sub: `Cae el bando ${SIDE_NAME[royal.color]}`, tone, piece: art(royal), anim: 'explode' });
@@ -180,6 +249,10 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
 
     const onTap = (hit) => {
       if (!humanTurn()) return;
+      if (d.cardSel != null) {
+        const { keys } = aim();
+        return keys.has(key(hit.row, hit.col)) ? playFromHand(hit) : cancelCard();
+      }
       const piece = hit.piece || match.pieceAt(hit.row, hit.col);
       const me = match.player.color;
       if (d.selected) {
@@ -199,12 +272,29 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const anchor = anchorForCell(piece, hit.row, hit.col, match.legal(piece));
       if (anchor) doMove(piece, anchor);
     };
-    const canDrag = (p) => humanTurn() && p.color === match.player.color;
+    const canDrag = (p) => humanTurn() && d.cardSel == null && p.color === match.player.color;
+
+    // Every way out of the board has its own gesture before the screen changes.
+    d.leave = async (kind, then) => {
+      if (d.leaving) return;
+      d.leaving = true; d.busy = true;
+      clearTimeout(d.timer);
+      setPaused(false); setEnd(null);
+      const human = seats.find((s) => s.kind === 'human')?.color || 'light';
+      if (kind === 'resign') {
+        const king = match.pieces.find((x) => x.royal && x.color === human);
+        await Promise.all([
+          d.view.outro('resign', human),
+          d.moments.cinematic({ title: 'Te rindes', sub: 'El rey se tumba sobre el tablero. La run termina aquí.', piece: { type: king?.type || 'king', side: human }, anim: 'resign' }),
+        ]);
+      } else await d.view.outro(kind);
+      then();
+    };
 
     d.match = match;
     d.check = {};
     d.moments = new Moments(mainRef.current, { speed: settings.speed, enabled: settings.moments });
-    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, onTap, onDrop, canDrag, onImpact });
+    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, onTap, onDrop, canDrag, onImpact, onHover });
     d.view.setBoard(board);
     d.view.setPieces(pieces);
     d.busy = true;
@@ -228,6 +318,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   useEffect(() => { ref.current.view?.setCamera(settings.camera); if (ref.current.view) { ref.current.view.shakeOn = settings.shake; ref.current.view.speed = settings.speed; } if (ref.current.moments) Object.assign(ref.current.moments, { speed: settings.speed, enabled: settings.moments }); }, [settings]);
 
   const muts = Object.entries(countMutations(run.mutations || []));
+  const hand = run.cards || [];
+  const leave = (kind, then) => ref.current.leave(kind, then);
   return html`<div class="screen game">
     <div class="game-main" ref=${mainRef}>
       <div class="game-top">
@@ -236,6 +328,13 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       </div>
       <div class="board-host" ref=${hostRef}></div>
       ${banner && html`<${TurnBanner} key=${banner.key} text=${banner.text} side=${banner.side} />`}
+      ${hand.length > 0 && html`<div class=${'hand' + (hud?.canCard ? '' : ' spent')} role="group" aria-label="Mano de cartas tácticas">
+        ${hand.map((id, i) => html`<button key=${id + i} class=${'hand-card' + (cardSel === i ? ' on' : '')} style=${{ '--rot': (i - (hand.length - 1) / 2) * 7 + 'deg', '--drop': Math.abs(i - (hand.length - 1) / 2) * 7 + 'px' }}
+            disabled=${!hud?.canCard} aria-pressed=${cardSel === i} title=${CARDS[id].desc} onClick=${() => ref.current.pickCard(i)}>
+          <${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini />
+        </button>`)}
+        <p class="hand-hint" aria-live="polite">${cardSel != null ? CARDS[hand[cardSel]]?.aim || '' : hud?.canCard ? 'Una carta por turno' : 'Ya jugaste carta este turno'}</p>
+      </div>`}
     </div>
     <aside class="hud panel">
       ${hud?.boss && html`<section class="boss-bar" aria-label="Jefe">
@@ -269,15 +368,16 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         <div>
           <strong>${inspect.name} <small>${inspect.color}</small></strong>
           <p>${inspect.boss || `Alcanza ${inspect.moves} casilla${inspect.moves === 1 ? '' : 's'}`}</p>
+          ${inspect.guard && html`<p class="guard-note"><${Icon} name="lock" size=${13} /> ${inspect.guard}</p>`}
           <div class="tags">${inspect.extra.map((t) => html`<span class=${'tag' + (t.mut ? ' mut' : '')}>${t.name}</span>`)}</div>
         </div>
       </section>`}
       <ol class="log" aria-live="polite" aria-label="Registro de jugadas">${log.slice(-6).map((l, i) => html`<li key=${log.length - 6 + i}>${l}</li>`)}</ol>
     </aside>
     ${paused && !end && html`<${PauseOverlay} settings=${settings} setSettings=${setSettings}
-      onResume=${() => setPaused(false)} onRestart=${onRestart} onExit=${onExit} onAbandon=${onAbandon}
+      onResume=${() => setPaused(false)} onRestart=${() => leave('reset', onRestart)} onExit=${() => leave('exit', onExit)} onAbandon=${() => leave('resign', onAbandon)}
       onHowTo=${() => { setPaused(false); onHowTo(); }} />`}
-    ${end && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} onContinue=${onWin} onRetry=${onRestart} onMap=${onExit} />`}
+    ${end && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} onContinue=${() => leave('exit', onWin)} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)} />`}
   </div>`;
 }
 

@@ -61,6 +61,38 @@ probar en Node simulando partidas bot contra bot.
 Añadir un jefe nuevo = una entrada en `BOSSES`. Por ejemplo, un 1×3 que se mueve como alfil:
 `{ id: 'serpent', name: 'Sierpe', size: [1, 3], hp: 2, moves: ['bishop'], art: 'bishop', desc: '…' }`.
 
+Jefes disponibles (`src/data/bosses.js`): Titán 2×2, Ariete 2×2, Hidra 2×2, Gólem 3×3, Jinete 2×1,
+Muralla 1×2 y Devorador 2×2. Cuanto más grande, más simple su movimiento. El Devorador tiene
+`absorb`: cada pieza que aplasta le enseña su patrón de movimiento (hasta 4), y se anuncia
+con el rótulo "¡Aprende!".
+
+## Piezas protegidas (élite)
+
+`rules.js → immune(p, pieces)` decide si una pieza puede ser golpeada ahora:
+
+- `trait: 'last'`: solo cae cuando es la última pieza no real de su bando.
+- `escort: <id>`: no cae mientras viva la pieza que la escolta.
+
+`landing()` trata a las piezas inmunes como casillas bloqueadas, así que ni el jugador ni el bot
+pueden atacarlas. En el tablero llevan una insignia (candado o estandarte) y una cuerda une
+escolta y protegida; el inspector lo explica en una línea.
+
+## Terreno
+
+`board.terrain` (Map `"r,c" → 'ice' | 'portal'`) y `board.portals` (pares). Se resuelve en
+`Match.terrainAfterMove` después de aterrizar: el hielo hace resbalar una casilla más en la
+misma dirección y el portal teletransporta al gemelo si está libre. Solo afecta a piezas 1×1.
+
+## Cartas tácticas
+
+`src/game/cards.js` define cada carta con `target` (`piece`, `tile` o `none`), `can()` (a qué
+se puede aplicar, para que no haya usos rotos) y `apply()`. `previewMoves()` aplica la carta a
+una copia para enseñar al jugador el resultado antes de jugarla. Reglas: una carta por turno,
+no gasta movimiento, se consume. La mano vive en `run.cards` (máximo 5).
+
+Ritmo de recompensas (Slay the Spire): victoria normal → elegir 1 de 3 cartas; élite →
+mutación; descanso → mutación u objeto; bolsa → objeto o mazo de dos cartas.
+
 ## Coreografía (anime.js)
 
 `BoardView` guarda por pieza un objeto `{ r, c, z }` y lo anima. Cada fotograma vuelca esos

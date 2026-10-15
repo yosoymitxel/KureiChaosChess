@@ -1,6 +1,6 @@
 // Match state: turns, moves, captures, boss HP, collapse, end of game.
 // Mutates its own state and returns plain "result" objects that the view animates.
-import { legalMoves, landing, buildOccupancy, hasAnyLegalMove, threatenedPieces, key } from './rules.js';
+import { legalMoves, landing, buildOccupancy, hasAnyLegalMove, threatenedPieces, key, cellsOf, walkable } from './rules.js';
 import { countMutations } from '../data/mutations.js';
 import { PIECE_VALUE } from '../data/pieces.js';
 
@@ -21,7 +21,7 @@ export class Match {
   }
 
   get player() { return this.players[this.current]; }
-  movesFor(color) { return (this.modifier === 'rush' ? 2 : 1) + (this.bonusMoves[color] || 0); }
+  movesFor(color) { return (this.modifier === 'rush' ? 2 : 1) + (this.bonusMoves[color] || 0) + (color === this.player.color ? this.turnBonus || 0 : 0); }
   legal(piece) { return legalMoves(piece, this.pieces, this.board); }
   pieceAt(r, c) { return buildOccupancy(this.pieces).get(key(r, c)) || null; }
   threats(color = this.player.color) { return threatenedPieces(this.pieces, color, this.board); }
@@ -34,7 +34,7 @@ export class Match {
     const ok = this.legal(piece).some((m) => m.row === to.row && m.col === to.col);
     if (!ok) return null;
     const occ = buildOccupancy(this.pieces);
-    const hits = landing(piece, to.row, to.col, { board: this.board, occ });
+    const hits = landing(piece, to.row, to.col, { board: this.board, occ, pieces: this.pieces });
     const from = { row: piece.row, col: piece.col };
     const victims = hits.map((v) => {
       v.hp = (v.hp ?? 1) - 1;
@@ -46,15 +46,49 @@ export class Match {
       this.pieces.splice(this.pieces.indexOf(v.piece), 1);
       if (v.piece.royal) this.eliminated[v.piece.color] = true;
     }
-    if (!bounced) { piece.row = to.row; piece.col = to.col; }
-    let promoted = false;
+    const res = { piece, from, to, victims, bounced, promoted: false };
+    if (!bounced) {
+      piece.row = to.row; piece.col = to.col;
+      res.absorbed = this.absorb(piece, victims);
+      this.terrainAfterMove(piece, from, res);
+    }
     if (!bounced && piece.type === 'pawn' && (this.modifier === 'promote' || piece.canCrown)) {
       const last = piece.color === 'light' ? 0 : this.board.rows - 1;
-      if (piece.row === last) { piece.type = 'queen'; promoted = true; }
+      if (piece.row === last) { piece.type = 'queen'; res.promoted = true; }
     }
     this.movesThisTurn++;
     if (victims.length) this.quietTurns = 0;
-    return { piece, from, to, victims, bounced, promoted };
+    return res;
+  }
+
+  // Devourer-type bosses learn the movement of every piece they crush (up to 4 patterns).
+  absorb(piece, victims) {
+    if (!piece.absorb) return [];
+    const learned = [];
+    for (const v of victims) {
+      if (!v.killed) continue;
+      for (const t of [...(v.piece.moves || [v.piece.type]), ...(v.piece.extraMoveTypes || [])]) {
+        if (piece.moves.length >= 4 || piece.moves.includes(t) || t === 'pawn' || t === 'pawnBack') continue;
+        piece.moves.push(t); learned.push(t);
+      }
+    }
+    return learned;
+  }
+
+  // Ice: a 1×1 piece keeps sliding one tile in its direction. Portal: it reappears at the twin portal.
+  terrainAfterMove(piece, from, res) {
+    const t = this.board.terrain;
+    if (!t || piece.h > 1 || piece.w > 1) return;
+    const occupied = (r, c) => this.pieces.some((p) => p !== piece && cellsOf(p).some(([a, b]) => a === r && b === c));
+    if (t.get(key(piece.row, piece.col)) === 'ice') {
+      const r = piece.row + Math.sign(piece.row - from.row), c = piece.col + Math.sign(piece.col - from.col);
+      if (walkable(this.board, r, c) && !occupied(r, c)) { piece.row = r; piece.col = c; res.slide = { row: r, col: c }; }
+    }
+    const twin = this.board.portals?.get(key(piece.row, piece.col));
+    if (twin) {
+      const [r, c] = twin.split(',').map(Number);
+      if (!occupied(r, c)) { res.portal = { from: { row: piece.row, col: piece.col }, to: { row: r, col: c } }; piece.row = r; piece.col = c; }
+    }
   }
 
   // Called after the view finished animating a move (or when a player must pass).
@@ -63,6 +97,8 @@ export class Match {
     if (this.checkOver()) return { ended: true, over: this.over };
     if (!pass && this.movesThisTurn < this.movesFor(this.player.color) && this.canMove()) return { ended: false };
     this.movesThisTurn = 0;
+    this.turnBonus = 0;
+    this.cardUsed = false;
     this.turn++;
     this.quietTurns++;
     const collapse = this.modifier === 'chaos' && this.turn % 3 === 0 ? this.collapse() : null;

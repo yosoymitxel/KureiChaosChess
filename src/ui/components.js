@@ -45,14 +45,24 @@ function Card({ card, chosen, onPick }) {
   return html`<div ref=${ref} class=${'card' + (chosen ? ' chosen' : '')} data-deal
       onPointerMove=${onMove} onPointerLeave=${onLeave} onClick=${() => onPick(card)} role="button" tabindex="0"
       onKeyDown=${(e) => (e.key === 'Enter' || e.key === ' ') && onPick(card)}>
-    <div class="face">
-      ${card.rarity && html`<span class=${'rarity ' + card.rarity}>${card.rarity === 'epic' ? 'épica' : card.rarity === 'rare' ? 'rara' : 'común'}</span>`}
-      ${card.stack > 1 && html`<span class="stack">×${card.stack}</span>`}
-      <div class="art"><${Icon} name=${card.icon} size=${64} /></div>
-      <div class="name">${card.name}</div>
-      <div class="desc">${card.desc}</div>
-    </div>
+    <${CardFace} card=${card} />
     <div class="back"></div>
+  </div>`;
+}
+
+const KIND_LABEL = { tactic: 'Táctica', mutation: 'Mutación', boon: 'Objeto' };
+const RARITY_LABEL = { common: 'común', rare: 'rara', epic: 'épica' };
+
+// One card anatomy for every card in the game (rewards, hand, previews):
+// frame colour = kind, gem = rarity, title plate, art window, type line, rules box.
+export function CardFace({ card, mini = false }) {
+  const kind = card.kind || 'boon', rarity = card.rarity || 'common';
+  return html`<div class=${`face kind-${kind}`}>
+    <span class=${'gem ' + rarity} title=${RARITY_LABEL[rarity]}></span>
+    <div class="plate">${card.name}</div>
+    <div class="art"><${Icon} name=${card.icon} size=${mini ? 34 : 72} /></div>
+    <div class="type">${KIND_LABEL[kind]} · ${RARITY_LABEL[rarity]}${card.stack > 1 ? ` · ×${card.stack}` : ''}</div>
+    ${!mini && html`<p class="desc">${card.desc}</p>`}
   </div>`;
 }
 

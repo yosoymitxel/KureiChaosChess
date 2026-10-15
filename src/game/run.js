@@ -1,5 +1,6 @@
 // Run (roguelike map) persistence and progression helpers.
 import { generateMap } from './generate.js';
+import { STARTER_CARDS } from './cards.js';
 import { randomSeed } from '../core/rng.js';
 
 const RUN_KEY = 'zugzwang.run.v2';
@@ -14,7 +15,7 @@ export const clearRun = () => write(RUN_KEY, null);
 
 export function createRun() {
   const seed = randomSeed();
-  return { seed, map: generateMap(seed), currentFloor: 0, completed: {}, mutations: [], bonuses: {}, lastNode: null };
+  return { seed, map: generateMap(seed), currentFloor: 0, completed: {}, mutations: [], bonuses: {}, cards: [...STARTER_CARDS], lastNode: null };
 }
 
 export function completeNode(run, node, patch = {}) {

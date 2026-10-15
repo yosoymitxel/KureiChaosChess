@@ -19,9 +19,18 @@ export function buildOccupancy(pieces) {
   return occ;
 }
 
-const ctxOf = (pieces, board) => ({ pieces, board, occ: buildOccupancy(pieces) });
+export const ctxOf = (pieces, board) => ({ pieces, board, occ: buildOccupancy(pieces) });
 const inBounds = (b, r, c) => r >= 0 && r < b.rows && c >= 0 && c < b.cols;
-const walkable = (b, r, c) => inBounds(b, r, c) && !b.holes.has(key(r, c));
+export const walkable = (b, r, c) => inBounds(b, r, c) && !b.holes.has(key(r, c));
+
+// Protected pieces cannot be hit yet:
+//  trait 'last'  -> only once it is the last non-royal piece of its side;
+//  escort: id    -> only after the escorting piece has fallen.
+export function immune(p, pieces) {
+  if (p.trait === 'last') return pieces.some((o) => o !== p && o.color === p.color && !o.royal);
+  if (p.escort) return pieces.some((o) => o.id === p.escort);
+  return false;
+}
 
 // Enemies hit if `piece` lands with its anchor at (r, c); null if it cannot land there.
 export function landing(piece, r, c, ctx) {
@@ -30,7 +39,7 @@ export function landing(piece, r, c, ctx) {
     if (!walkable(ctx.board, rr, cc)) return null;
     const o = ctx.occ.get(key(rr, cc));
     if (!o || o === piece) continue;
-    if (o.color === piece.color) return null;
+    if (o.color === piece.color || immune(o, ctx.pieces)) return null;
     if (!hits.includes(o)) hits.push(o);
   }
   return hits;

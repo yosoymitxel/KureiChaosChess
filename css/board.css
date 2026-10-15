@@ -58,6 +58,15 @@
   animation: mark-in 0.22s var(--ease-out) both;
 }
 .tile.danger.mv .mark::before { background: var(--danger); }
+/* Card targeting: dashed brass outline on valid targets; preview dots in brass; footprint tinted. */
+.tile.target { box-shadow: inset 0 0 0 calc(var(--sq) * 0.05) var(--brass), inset 0 0 0 999px oklch(0.77 0.12 80 / 0.18); }
+.tile.preview .mark::before { background: var(--brass); }
+.tile.foot { box-shadow: inset 0 0 0 999px oklch(0.77 0.12 80 / 0.45); }
+/* Terrain: ice is a pale frozen slab with cracks; portals are rings, coloured per pair. */
+.tile.ice { background-color: oklch(0.9 0.04 230); background-image: var(--grain), linear-gradient(125deg, transparent 40%, oklch(1 0 0 / 0.7) 41% 43%, transparent 44%), linear-gradient(35deg, transparent 62%, oklch(1 0 0 / 0.5) 63% 64%, transparent 65%); }
+.tile.portal::before { content: ''; position: absolute; inset: 14%; border-radius: 50%; background: radial-gradient(circle, var(--ink) 0 28%, var(--pair) 29% 46%, var(--ink) 47% 58%, var(--pair) 59% 70%, transparent 71%); }
+.tile.portal.pair-a { --pair: var(--brass); }
+.tile.portal.pair-b { --pair: var(--accent); }
 .tile.danger.cap .mark::before { border-color: var(--danger); }
 .tile.cracking { animation: crack 0.12s linear 4; background-image: var(--grain), linear-gradient(115deg, transparent 45%, var(--ink) 46% 48%, transparent 49%), linear-gradient(35deg, transparent 55%, var(--ink) 56% 57.5%, transparent 58%); }
 @keyframes crack { 50% { translate: 1px -1px; } }
@@ -91,7 +100,7 @@
 
 .pc-stand {
   position: absolute; left: 50%; bottom: 50%;
-  width: calc(var(--sq) * 0.96 * var(--w, 1)); height: calc(var(--sq) * 0.96 * var(--h, 1));
+  width: calc(var(--sq) * 0.96 * max(var(--w, 1), var(--s, 1))); height: calc(var(--sq) * 0.96 * var(--s, 1));
   transform-origin: 50% 100%;
   transform: translateX(-50%) translateZ(4px) rotateX(calc(var(--tilt) * -1));
   pointer-events: auto; cursor: pointer;
@@ -105,12 +114,24 @@
 }
 .pc.hit .pc-art svg { filter: brightness(2.5) saturate(0.2); }
 .pc.dragging { opacity: 0.35; }
-.pc.boss .pc-stand { width: calc(var(--sq) * 0.9 * var(--w)); height: calc(var(--sq) * 0.95 * var(--h)); }
+.pc.boss .pc-stand { width: calc(var(--sq) * 0.9 * max(var(--w), var(--s))); height: calc(var(--sq) * 0.95 * max(var(--h), var(--s))); }
 .pc.boss .pc-base { inset: 14%; }
-.pc-hp { position: absolute; left: 50%; top: 10%; translate: -50% -100%; display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: var(--ink); border-radius: 6px; white-space: nowrap; }
+.pc-hp { position: absolute; left: 50%; top: calc(var(--head, 0.1) * 100% - 4px); translate: -50% -100%; display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: var(--ink); border-radius: 6px; white-space: nowrap; }
 .pc-hp span { margin-right: 4px; font: 800 calc(var(--sq) * 0.26)/1 var(--font); color: var(--paper); text-box: trim-both cap alphabetic; }
 .pc-hp b { display: block; width: calc(var(--sq) * 0.18); height: calc(var(--sq) * 0.18); border-radius: 50%; background: oklch(1 0 0 / 0.15); }
 .pc-hp b.on { background: var(--danger); }
+
+/* Protection badge (lock = escorted, flag = falls last) and the rope tying an escort to its ward. */
+.pc-badge { position: absolute; right: 0; bottom: 12%; width: calc(var(--sq) * 0.3); height: calc(var(--sq) * 0.3); display: none; place-items: center; border-radius: 50%; background: var(--ink); }
+.pc.guarded .pc-badge { display: grid; }
+.pc-badge svg { width: 62%; height: 62%; fill: var(--brass); }
+.tether {
+  position: absolute; left: 0; top: 0; height: 0; width: calc(var(--len) * var(--sq));
+  transform-origin: 0 50%;
+  transform: translate3d(calc(var(--x) * var(--sq)), calc(var(--y) * var(--sq)), 3px) rotate(var(--ang));
+  border-top: calc(var(--sq) * 0.06) dashed var(--brass);
+  pointer-events: none;
+}
 
 .drag-ghost {
   position: fixed; left: 0; top: 0; z-index: 100; pointer-events: none;

@@ -65,6 +65,7 @@
   transition: transform 0.2s var(--ease-out);
 }
 .node.boss .coin { width: 76px; height: 76px; background: var(--accent); color: var(--paper); --icon-cut: var(--accent); box-shadow: 0 3px 0 var(--accent-ink), 0 7px 0 var(--ink), var(--lift); }
+.node.mod-elite:not(.done) .coin { background: var(--ink); color: var(--brass); --icon-cut: var(--ink); }
 .node:disabled:not(.done) { opacity: 0.5; }
 .node.done .coin { background: var(--ink); color: var(--paper); --icon-cut: var(--ink); box-shadow: 0 2px 0 var(--ink); translate: 0 4px; }
 .node.open { cursor: pointer; }
@@ -152,6 +153,26 @@
 }
 .turn-banner span { font-size: clamp(28px, 5vw, 48px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
 
+/* Hand of tactic cards: fanned in the bottom-left corner, like a hand held over the table. */
+/* Its own strip under the board, so cards never cover pieces; raised cards overlap upwards only. */
+.hand { position: relative; flex-shrink: 0; height: 132px; z-index: 6; display: flex; align-items: flex-end; padding: 0 22px calc(26px + env(safe-area-inset-bottom)); }
+.hand-card {
+  position: relative; width: 86px; aspect-ratio: 5 / 7.4; margin-left: -18px; padding: 0; border: 0; background: none; cursor: pointer;
+  transform: translateY(var(--drop)) rotate(var(--rot)); transform-origin: 50% 120%;
+  transition: transform 0.22s var(--ease-out);
+}
+.hand-card:first-child { margin-left: 0; }
+.hand-card .face { position: absolute; inset: 0; border-radius: 9px; border: 2px solid var(--ink); overflow: hidden; display: flex; flex-direction: column; gap: 4px; padding: 5px; background: var(--frame); background-image: var(--grain); box-shadow: var(--lift); }
+.hand-card .plate { font-size: 11px; padding: 3px 5px; border-radius: 5px; border-width: 1.5px; }
+.hand-card .art { border-radius: 5px; border-width: 1.5px; }
+.hand-card .type, .hand-card .gem { display: none; }
+.hand-card:hover:not(:disabled), .hand-card:focus-visible { transform: translateY(-22px) rotate(0deg) scale(1.12); z-index: 2; }
+.hand-card.on { transform: translateY(-34px) rotate(0deg) scale(1.18); z-index: 3; }
+.hand-card.on .face { outline: 3px solid var(--paper); outline-offset: 2px; }
+.hand.spent .hand-card { filter: saturate(0.4) brightness(0.8); cursor: default; }
+.hand-hint { position: absolute; left: 22px; bottom: calc(4px + env(safe-area-inset-bottom)); margin: 0; white-space: nowrap; font-size: 12.5px; font-weight: 700; color: var(--paper-2); }
+.guard-note { display: flex; gap: 6px; align-items: center; color: var(--accent-ink); font-weight: 650; }
+
 /* Foreground moments (src/ui/moments.js). Colour says who benefits: brass = you, danger = against you. */
 .moment { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
 .moment.cine { display: grid; place-items: center; pointer-events: auto; cursor: pointer; }
@@ -198,6 +219,10 @@
 .table.in-check::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, oklch(0.52 0.2 25 / 0.32)); }
 
 @media (max-width: 860px) {
+  .hand { height: 100px; padding: 0 14px 22px; }
+  .hand-card { width: 62px; margin-left: -12px; }
+  .hand-card .plate { font-size: 9px; padding: 2px 4px; }
+  .hand-hint { left: 14px; font-size: 11.5px; }
   .cine-body { flex-direction: column; text-align: center; }
   .cine-text { align-items: center; }
   .game { flex-direction: column; }

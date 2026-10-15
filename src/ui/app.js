@@ -9,18 +9,22 @@ import { HowToOverlay } from './screens/overlays.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings } from '../game/run.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
 import { applyTheme } from '../data/themes.js';
+import { CARDS, HAND_LIMIT, pickCardChoices } from '../game/cards.js';
 
 const REST_CARDS = [
-  { id: 'extra_mut', name: 'Meditar', desc: 'Elige una mutación de entre tres.', icon: 'scroll' },
-  { id: 'promote_one', name: 'Ascenso', desc: 'Un peón empieza el próximo nodo como reina.', icon: 'queen' },
-  { id: 'fury_now', name: 'Impulso', desc: '+1 movimiento por turno en el próximo nodo.', icon: 'boot' },
+  { id: 'extra_mut', name: 'Meditar', desc: 'Elige una mutación de entre tres.', icon: 'scroll', kind: 'boon' },
+  { id: 'promote_one', name: 'Ascenso', desc: 'Un peón empieza el próximo nodo como reina.', icon: 'queen', kind: 'boon' },
+  { id: 'fury_now', name: 'Impulso', desc: '+1 movimiento por turno en el próximo nodo.', icon: 'boot', kind: 'boon' },
 ];
 const BAG_CARDS = [
-  { id: 'mut', name: 'Frasco extraño', desc: 'Una mutación al azar, ahora mismo.', icon: 'flask', rarity: 'rare' },
-  { id: 'extra_pawn', name: 'Recluta', desc: '+1 peón en tu formación en el próximo nodo.', icon: 'pawn' },
-  { id: 'fury', name: 'Furia menor', desc: '+1 movimiento permanente (máx. 3).', icon: 'boot', rarity: 'rare' },
-  { id: 'extra_rook', name: 'Torre mercenaria', desc: '+1 torre en tu última fila en el próximo nodo.', icon: 'rook' },
+  { id: 'mut', name: 'Frasco extraño', desc: 'Una mutación al azar, ahora mismo.', icon: 'flask', rarity: 'rare', kind: 'boon' },
+  { id: 'deck', name: 'Mazo táctico', desc: 'Dos cartas tácticas al azar para tu mano.', icon: 'hand', rarity: 'rare', kind: 'boon' },
+  { id: 'extra_pawn', name: 'Recluta', desc: '+1 peón en tu formación en el próximo nodo.', icon: 'pawn', kind: 'boon' },
+  { id: 'fury', name: 'Furia menor', desc: '+1 movimiento permanente (máx. 3).', icon: 'boot', rarity: 'rare', kind: 'boon' },
+  { id: 'extra_rook', name: 'Torre mercenaria', desc: '+1 torre en tu última fila en el próximo nodo.', icon: 'rook', kind: 'boon' },
 ];
+// The hand holds HAND_LIMIT cards; a new card pushes out the oldest one.
+const addCards = (r, ids) => ({ ...r, cards: [...(r.cards || []), ...ids].slice(-HAND_LIMIT) });
 const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3);
 const ONE_SHOT = ['promoteOne', 'furyNow', 'extraPawn', 'extraRook'];
 
@@ -82,20 +86,26 @@ export function App() {
   const mutationReward = (r) => {
     const choices = pickMutationChoices(Date.now(), r.mutations);
     if (!choices.length) return goTo('map');
-    setReward({ kind: 'mutation', cards: choices.map((id) => ({ ...MUTATIONS[id], stack: r.mutations.filter((x) => x === id).length + 1 })) });
+    setReward({ kind: 'mutation', cards: choices.map((id) => ({ ...MUTATIONS[id], kind: 'mutation', stack: r.mutations.filter((x) => x === id).length + 1 })) });
+    goTo('reward');
+  };
+  const cardReward = () => {
+    setReward({ kind: 'tactic', cards: pickCardChoices(Date.now()).map((id) => ({ ...CARDS[id], kind: 'tactic' })) });
     goTo('reward');
   };
 
+  // Slay the Spire rhythm: normal fights give a tactic card, elites give a mutation.
   const onWin = () => {
     if (node.isBoss) { clearRun(); setRunState(null); return newRun(); }
     const next = completeNode(run, node);
     setRun(next);
-    if (Object.keys(run.completed).length === 0) return goTo('map');
-    mutationReward(next);
+    if (node.modifier === 'elite') return mutationReward(next);
+    cardReward();
   };
 
   const onReward = (card) => {
     if (reward.kind === 'mutation') { setRun((r) => ({ ...r, mutations: [...r.mutations, card.id] })); return goTo('map'); }
+    if (reward.kind === 'tactic') { setRun((r) => addCards(r, [card.id])); return goTo('map'); }
     if (reward.kind === 'rest') {
       if (card.id === 'extra_mut') { const next = completeNode(run, node); setRun(next); return mutationReward(next); }
       setRun((r) => completeNode(r, node, { bonuses: { ...r.bonuses, [card.id === 'promote_one' ? 'promoteOne' : 'furyNow']: true } }));
@@ -108,13 +118,15 @@ export function App() {
       if (card.id === 'extra_rook') bonuses.extraRook = true;
       if (card.id === 'fury' && mutations.filter((m) => m === 'fury').length < 3) mutations = [...mutations, 'fury'];
       if (card.id === 'mut') { const [m] = pickMutationChoices(Date.now(), mutations); if (m) mutations = [...mutations, m]; }
-      return completeNode(r, node, { mutations, bonuses });
+      const withCards = card.id === 'deck' ? addCards(r, pickCardChoices(Date.now(), 2)) : r;
+      return completeNode(withCards, node, { mutations, bonuses });
     });
     goTo('map');
   };
 
   const REWARD_TEXT = {
     mutation: ['Elige una mutación', 'Se aplica a tu ejército durante el resto de la run.'],
+    tactic: ['Elige una carta', `Va a tu mano y la juegas durante una partida, una por turno. Máximo ${HAND_LIMIT}: si está llena, sale la más antigua.`],
     rest: ['Un momento de calma', 'Elige un beneficio para el camino.'],
     bag: ['Encuentras una bolsa', 'Llévate un objeto.'],
   };
@@ -130,6 +142,7 @@ export function App() {
     ${screen === 'game' && node && seats && run && html`<${GameScreen} key=${node.id + '-' + gameKey}
       node=${node} run=${run} seats=${seats} settings=${settings} setSettings=${setSettings}
       onExit=${() => goTo('map')} onAbandon=${() => { setRun(null); goTo('menu'); }}
+      onUseCard=${(i) => setRun((r) => ({ ...r, cards: r.cards.filter((_, j) => j !== i) }))}
       onWin=${onWin} onRestart=${() => setGameKey((k) => k + 1)} onHowTo=${() => setHowTo(true)} />`}
     ${howTo && html`<${HowToOverlay} onClose=${() => setHowTo(false)} />`}
     <div class="curtain" ref=${curtain}><span>Zugzwang</span></div>

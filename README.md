@@ -41,3 +41,12 @@ hace falta conexión la primera vez.
   y se giran.
 - Límite de turnos sin capturas: las partidas bloqueadas se deciden por recuento de piezas
   (antes podían quedarse en bucle).
+
+## Novedades v2.2
+
+- Cartas tácticas en la mano (una por turno): Coloso, Ascenso, Montura, Fortificar, Terremoto,
+  Refuerzo, Paso doble. Al apuntar, el tablero enseña cómo quedará la pieza.
+- Jefes de 3×3, 2×1 y 1×2, y el Devorador, que roba el movimiento de lo que aplasta.
+- Nodos de élite: la reina enemiga solo cae la última y sus torres solo tras su escolta.
+- Tableros nuevos (anillo, río con puentes, damero) y terreno: hielo y portales.
+- Salidas animadas: al mapa, reinicio y rendición tienen cada una su gesto.
