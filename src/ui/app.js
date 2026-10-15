@@ -7,7 +7,10 @@ import { SetupScreen, SettingsScreen } from './screens/setup.js';
 import { GameScreen } from './screens/game.js';
 import { HowToOverlay } from './screens/overlays.js';
 import { setFullscreen } from './fullscreen.js';
-import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings } from '../game/run.js';
+import { Connect4Screen } from './screens/connect4.js';
+import { MinisScreen } from './screens/minis.js';
+import { MODIFIERS } from '../data/modifiers.js';
+import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini } from '../game/run.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
 import { applyTheme } from '../data/themes.js';
 import { CARDS, HAND_LIMIT, pickCardChoices } from '../game/cards.js';
@@ -27,7 +30,10 @@ const BAG_CARDS = [
 // The hand holds HAND_LIMIT cards; a new card pushes out the oldest one.
 const addCards = (r, ids) => ({ ...r, cards: [...(r.cards || []), ...ids].slice(-HAND_LIMIT) });
 const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3);
-const ONE_SHOT = ['promoteOne', 'furyNow', 'extraPawn', 'extraRook'];
+// A won minigame pays a mutation or a piece the army already knows.
+const MINI_PRIZES = BAG_CARDS.filter((c) => ['mut', 'extra_rook', 'extra_pawn'].includes(c.id));
+const MINI_SCREENS = { connect4: Connect4Screen };
+const ONE_SHOT =['promoteOne', 'furyNow', 'extraPawn', 'extraRook'];
 
 export function App() {
   const [screen, setScreen] = useState('menu');
@@ -37,6 +43,8 @@ export function App() {
   const [gameKey, setGameKey] = useState(0);
   const [reward, setReward] = useState(null); // { kind, cards }
   const [howTo, setHowTo] = useState(false);
+  const [freeMini, setFreeMini] = useState(null); // minigame played from the menu, outside a run
+  const [freeKey, setFreeKey] = useState(0);
   const [settings, setSettings] = useState(loadSettings);
   const curtain = useRef(null);
   const busy = useRef(false);
@@ -65,6 +73,7 @@ export function App() {
     setNode(n);
     if (n.modifier === 'rest') { setReward({ kind: 'rest', cards: REST_CARDS }); return goTo('reward'); }
     if (n.modifier === 'bag') { setReward({ kind: 'bag', cards: shuffle3(BAG_CARDS) }); return goTo('reward'); }
+    if (MODIFIERS[n.modifier]?.mini) return goTo('mini');
     if (!seats) return goTo('setup');
     startGame(seats);
   };
@@ -104,6 +113,14 @@ export function App() {
     cardReward();
   };
 
+  // Minigame inside the run: a win unlocks it and pays a prize; a loss just spends the node.
+  const onMiniEnd = (won) => {
+    if (!won) { setRun(completeNode(run, node)); return goTo('map'); }
+    unlockMini(node.modifier);
+    setReward({ kind: 'mini', cards: MINI_PRIZES });
+    goTo('reward');
+  };
+
   const onReward = (card) => {
     if (reward.kind === 'mutation') { setRun((r) => ({ ...r, mutations: [...r.mutations, card.id] })); return goTo('map'); }
     if (reward.kind === 'tactic') { setRun((r) => addCards(r, [card.id])); return goTo('map'); }
@@ -130,10 +147,13 @@ export function App() {
     tactic: ['Elige una carta', `Va a tu mano y la juegas durante una partida, una por turno. Máximo ${HAND_LIMIT}: si está llena, sale la más antigua.`],
     rest: ['Un momento de calma', 'Elige un beneficio para el camino.'],
     bag: ['Encuentras una bolsa', 'Llévate un objeto.'],
+    mini: ['¡Minijuego superado!', 'Elige tu premio. Ya puedes jugarlo cuando quieras desde el menú.'],
   };
+  const Mini = MINI_SCREENS[node?.modifier];
+  const FreeMini = MINI_SCREENS[freeMini];
 
   return html`
-    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${newRun} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} settings=${settings} setSettings=${setSettings} />`}
+    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${newRun} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} settings=${settings} setSettings=${setSettings} />`}
     ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} defaultCount=${seats?.length} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame} />`}
@@ -145,6 +165,10 @@ export function App() {
       onExit=${() => goTo('map')} onAbandon=${() => { setRun(null); goTo('menu'); }}
       onUseCard=${(i) => setRun((r) => ({ ...r, cards: r.cards.filter((_, j) => j !== i) }))}
       onWin=${onWin} onRestart=${() => setGameKey((k) => k + 1)} onHowTo=${() => setHowTo(true)} />`}
+    ${screen === 'mini' && Mini && html`<${Mini} key=${node.id} sub=${'Piso ' + (node.floor + 1) + ' · minijuego'} onBack=${() => goTo('map')} onEnd=${onMiniEnd} />`}
+    ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
+    ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub="Partida libre" onBack=${() => goTo('minis')}
+      endLabel="Otra partida" onEnd=${() => setFreeKey((k) => k + 1)} />`}
     ${howTo && html`<${HowToOverlay} onClose=${() => setHowTo(false)} />`}
     <div class="curtain" ref=${curtain}><span>Zugzwang</span></div>
   `;

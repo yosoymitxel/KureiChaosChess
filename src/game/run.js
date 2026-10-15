@@ -33,6 +33,11 @@ export function isAvailable(run, node) {
   return run.map.connections.some((cn) => cn.to === node.id && run.completed[cn.from]);
 }
 
+// Minigames won at least once; they stay playable from the menu across runs.
+const MINIS_KEY = 'zugzwang.minis.v1';
+export const loadUnlocked = () => read(MINIS_KEY) || [];
+export const unlockMini = (id) => { const u = loadUnlocked(); if (!u.includes(id)) write(MINIS_KEY, [...u, id]); };
+
 export const DEFAULT_SETTINGS = { theme: 'walnut', camera: 'tilt', shake: true, moments: true, fullscreen: false, speed: 1 };
 export const loadSettings = () => ({ ...DEFAULT_SETTINGS, ...(read(SETTINGS_KEY) || {}) });
 export const saveSettings = (s) => write(SETTINGS_KEY, s);

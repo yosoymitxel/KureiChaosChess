@@ -271,3 +271,26 @@
 .lab-stage { flex: 1; display: flex; position: relative; overflow: hidden; }
 .lab-board { flex: 1; display: flex; }
 .lab-menu { overflow: auto; }
+
+/* Minigames (src/ui/screens/connect4.js …): same table, same tokens as the board. */
+.mini-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 12px 16px 24px; min-height: 0; }
+.mini-status { margin: 0; font-size: 18px; font-weight: 750; color: var(--paper); text-align: center; }
+.c4 {
+  --cell: min(calc((100vw - 64px) / var(--cols)), calc((100dvh - 260px) / var(--rows)), 72px);
+  display: grid; grid-template-columns: repeat(var(--cols), var(--cell));
+  padding: 10px; border-radius: 16px; border: 3px solid var(--ink);
+  background: var(--tile-b); background-image: var(--grain); box-shadow: var(--lift), inset 0 -6px 0 var(--tile-side);
+}
+.c4-col { display: grid; padding: 0; border: 0; border-radius: 10px; background: none; cursor: pointer; }
+.c4-col:disabled { cursor: default; }
+.c4-col.on { background: oklch(1 0 0 / 0.16); }
+.c4-col:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
+.c4-cell { position: relative; width: var(--cell); height: var(--cell); }
+/* The hole: a dark well cut into the board, so tokens read as sitting inside it. */
+.c4-cell::before { content: ''; position: absolute; inset: 12%; border-radius: 50%; background: var(--table); box-shadow: inset 0 3px 0 oklch(0 0 0 / 0.35); }
+.c4-token {
+  position: absolute; inset: 12%; border-radius: 50%; z-index: 1;
+  background: var(--pc); box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 calc(var(--cell) * 0.08) var(--pc-2), 0 3px 0 var(--pc-2);
+}
+.c4-token.won { outline: 3px solid var(--brass); outline-offset: 2px; }
+.minis-list { display: grid; gap: 12px; width: min(420px, 100%); }
