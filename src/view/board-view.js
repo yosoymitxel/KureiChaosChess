@@ -209,16 +209,22 @@ export class BoardView {
 
 
   clearMarks() {
-    for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger', 'target', 'preview', 'foot');
+    for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger', 'target', 'gain', 'foot');
+    for (const el of this.els.values()) el.classList.remove('eligible');
+    this.host.classList.remove('aiming');
   }
-  // Card targeting: outline valid targets; `preview` shows where the piece could move after the card.
-  showTargets(cells) {
+  // Card targeting: outline valid tiles, ring the pieces the card can be played on and fade the rest.
+  showTargets(cells, pieces = []) {
     this.clearMarks();
     for (const k of cells) this.tiles.get(k)?.classList.add('target');
+    for (const p of pieces) this.els.get(p)?.classList.add('eligible');
+    this.host.classList.add('aiming');
   }
-  showPreview(targets, preview, footprint = []) {
-    this.showTargets(targets);
-    for (const k of preview) this.tiles.get(k)?.classList.add('mv', 'preview');
+  // Preview of a card on one target: moves it keeps stay as normal dots, moves it gains are
+  // drawn in their own colour, and the tiles the piece (or the tile card) will take are tinted.
+  showPreview(targets, pieces, { cells = [], before = new Set(), footprint = [] }) {
+    this.showTargets(targets, pieces);
+    for (const k of cells) this.tiles.get(k)?.classList.add(before.has(k) ? 'mv' : 'gain');
     for (const k of footprint) this.tiles.get(k)?.classList.add('foot');
   }
   // cells: Set of "r,c"; captures: Set of "r,c" with an enemy
@@ -266,12 +272,26 @@ export class BoardView {
     return t ? { row: +t.dataset.r, col: +t.dataset.c } : null;
   }
 
+  // On a tilted board a standing figure covers the tile in front of it, so a tap on a figure
+  // over a marked tile (move, capture or card target) of another cell means that tile.
+  hitAt(x, y) {
+    const stack = document.elementsFromPoint(x, y).filter((el) => this.host.contains(el));
+    const first = this.cellFromEl(stack[0]);
+    const tile = stack.find((el) => el.classList.contains('tile'));
+    if (first?.piece && tile?.matches('.mv, .cap, .target')) {
+      const r = +tile.dataset.r, c = +tile.dataset.c;
+      if (!cellsOf(first.piece).some(([a, b]) => a === r && b === c)) return { row: r, col: c };
+    }
+    return first;
+  }
+
   bindPointer() {
-    let drag = null;
+    let drag = null, over = '';
     const down = (e) => {
       if (e.button > 0) return;
-      const hit = this.cellFromEl(e.target);
+      const hit = this.hitAt(e.clientX, e.clientY);
       if (!hit) return;
+      hit.touch = e.pointerType !== 'mouse';
       if (hit.piece && this.canDrag?.(hit.piece)) drag = { piece: hit.piece, x: e.clientX, y: e.clientY, id: e.pointerId, ghost: null };
       this.onTap?.(hit);
     };
@@ -294,12 +314,15 @@ export class BoardView {
       if (!d.ghost) return;
       d.ghost.remove();
       this.els.get(d.piece)?.classList.remove('dragging');
-      const under = document.elementFromPoint(e.clientX, e.clientY);
-      const hit = this.cellFromEl(under);
-      this.onDrop?.(d.piece, hit);
+      this.onDrop?.(d.piece, this.hitAt(e.clientX, e.clientY));
     };
     this.host.addEventListener('pointerdown', down);
-    this.host.addEventListener('pointerover', (e) => this.onHover?.(this.cellFromEl(e.target)));
+    this.host.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return; // touch previews come from taps (see the game screen)
+      const hit = this.hitAt(e.clientX, e.clientY);
+      const k = hit ? key(hit.row, hit.col) : '';
+      if (k !== over) { over = k; this.onHover?.(hit); }
+    });
     addEventListener('pointermove', move);
     addEventListener('pointerup', up);
     addEventListener('pointercancel', up);

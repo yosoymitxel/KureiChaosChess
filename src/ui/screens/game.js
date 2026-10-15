@@ -16,6 +16,18 @@ import { Moments } from '../moments.js';
 
 const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
 
+// One line on what a card does to this piece, counted from the preview.
+function cardEffect(card, piece, pv) {
+  const name = piece.name || PIECE_NAMES[piece.type];
+  const gained = [...pv.cells].filter((k) => !pv.before.has(k)).length;
+  const reach = gained ? ` · ${gained} casilla${gained > 1 ? 's' : ''} nueva${gained > 1 ? 's' : ''} (en azul)` : '';
+  if (card.id === 'ascend') return `${name} → Reina${reach}`;
+  if (card.id === 'mount') return `${name} aprende el salto en L${reach}`;
+  if (card.id === 'colossus') return `${name} → Coloso 2×1: se mueve como rey y aguanta 2 golpes${reach}`;
+  if (card.id === 'fortify') return `${name} aguantará 2 golpes: el primero rebota`;
+  return `${name}: ${card.desc}`;
+}
+
 export function GameScreen({ node, run, seats, settings, setSettings, onExit, onAbandon, onWin, onRestart, onHowTo, onUseCard }) {
   const hostRef = useRef(null);
   const mainRef = useRef(null);
@@ -27,6 +39,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   const [paused, setPaused] = useState(false);
   const [end, setEnd] = useState(null);
   const [cardSel, setCardSel] = useState(null); // index in the hand while aiming a card
+  const [cardTip, setCardTip] = useState(null); // what the aimed card would do to the previewed target
   const mod = MODIFIERS[node.modifier];
   ref.current.hand = run.cards || [];
   ref.current.onUseCard = onUseCard;
@@ -65,27 +78,34 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const card = CARDS[d.hand[d.cardSel]];
       const targets = cardTargets(match, card);
       const keys = new Set(card.target === 'piece' ? targets.flatMap((p) => cellsOf(p).map(([r, c]) => key(r, c))) : targets.map((t) => key(t.row, t.col)));
-      return { card, targets, keys };
+      return { card, targets, keys, pieces: card.target === 'piece' ? targets : [] };
     };
-    const cancelCard = () => { d.cardSel = null; setCardSel(null); d.view.clearMarks(); };
+    const cancelCard = () => { d.cardSel = null; d.cardPick = null; setCardSel(null); setCardTip(null); d.view.clearMarks(); d.view.select(null); };
     d.pickCard = (i) => {
       if (!humanTurn() || match.cardUsed) return;
       if (d.cardSel === i) return cancelCard();
       clearSel();
-      d.cardSel = i; setCardSel(i);
-      const { card, keys } = aim();
+      d.cardSel = i; d.cardPick = null; setCardSel(i); setCardTip(null);
+      const { card, keys, pieces } = aim();
       if (card.target === 'none') return playFromHand(null);
       if (!keys.size) { addLog(`${card.name}: no hay objetivos válidos ahora`); return cancelCard(); }
-      d.view.showTargets(keys);
+      d.view.showTargets(keys, pieces);
     };
-    const onHover = (hit) => {
-      if (d.cardSel == null || !hit) return;
-      const { card, targets, keys } = aim();
-      const piece = hit.piece || match.pieceAt(hit.row, hit.col);
+    // Hover (mouse), keyboard cursor or first tap (touch) on a target: show what the card would do there.
+    const onHover = (hit, touch = false) => {
+      if (d.cardSel == null) return;
+      const { card, targets, keys, pieces } = aim();
+      const piece = hit && (hit.piece || match.pieceAt(hit.row, hit.col));
+      const again = touch ? ' Toca otra vez para jugarla.' : '';
       if (card.target === 'piece' && targets.includes(piece)) {
         const pv = previewMoves(match, card, piece);
-        d.view.showPreview(keys, pv.cells, pv.footprint);
-      } else d.view.showTargets(keys);
+        d.view.showPreview(keys, pieces, pv);
+        d.view.select(piece); // the previewed piece wears the solid selection ring
+        setCardTip(cardEffect(card, piece, pv) + '.' + again);
+      } else if (card.target === 'tile' && hit && keys.has(key(hit.row, hit.col))) {
+        d.view.showPreview(keys, pieces, { footprint: [key(hit.row, hit.col)] });
+        setCardTip((card.id === 'quake' ? 'Esta casilla se hundirá para siempre.' : 'Aquí entrará un peón nuevo.') + again);
+      } else { d.view.showTargets(keys, pieces); d.view.select(null); setCardTip(null); }
     };
     const playFromHand = async (hit) => {
       const i = d.cardSel, id = d.hand[i], card = CARDS[id];
@@ -250,8 +270,12 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const onTap = (hit) => {
       if (!humanTurn()) return;
       if (d.cardSel != null) {
-        const { keys } = aim();
-        return keys.has(key(hit.row, hit.col)) ? playFromHand(hit) : cancelCard();
+        const { card, keys } = aim();
+        if (!keys.has(key(hit.row, hit.col))) return cancelCard();
+        // Touch has no hover: the first tap on a target previews it, a second tap on it plays.
+        const pick = card.target === 'piece' ? (hit.piece || match.pieceAt(hit.row, hit.col))?.id : key(hit.row, hit.col);
+        if (hit.touch && d.cardPick !== pick) { d.cardPick = pick; return onHover(hit, true); }
+        return playFromHand(hit);
       }
       const piece = hit.piece || match.pieceAt(hit.row, hit.col);
       const me = match.player.color;
@@ -333,7 +357,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
             disabled=${!hud?.canCard} aria-pressed=${cardSel === i} title=${CARDS[id].desc} onClick=${() => ref.current.pickCard(i)}>
           <${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini />
         </button>`)}
-        <p class="hand-hint" aria-live="polite">${cardSel != null ? CARDS[hand[cardSel]]?.aim || '' : hud?.canCard ? 'Una carta por turno' : 'Ya jugaste carta este turno'}</p>
+        <p class=${'hand-hint' + (cardTip ? ' tip' : '')} aria-live="polite">${cardSel != null ? cardTip || CARDS[hand[cardSel]]?.aim || '' : hud?.canCard ? 'Una carta por turno' : 'Ya jugaste carta este turno'}</p>
       </div>`}
     </div>
     <aside class="hud panel">

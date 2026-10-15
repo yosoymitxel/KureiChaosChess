@@ -12,6 +12,7 @@
   --accent-ink: oklch(0.42 0.15 32);
   --brass: oklch(0.77 0.12 80);
   --legal: oklch(0.8 0.16 135);
+  --gain: oklch(0.72 0.14 235); /* moves a card would add: clearly not a move you have now */
   --danger: oklch(0.52 0.2 25);
 
   /* Table mood: overridden per theme by src/data/themes.js */

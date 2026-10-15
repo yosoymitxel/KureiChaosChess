@@ -66,7 +66,11 @@
 .tile.danger.mv .mark::before { background: var(--danger); }
 /* Card targeting: dashed brass outline on valid targets; preview dots in brass; footprint tinted. */
 .tile.target { box-shadow: inset 0 0 0 calc(var(--sq) * 0.05) var(--brass), inset 0 0 0 999px oklch(0.77 0.12 80 / 0.18); }
-.tile.preview .mark::before { background: var(--brass); }
+.tile.gain .mark::before {
+  content: ''; width: 36%; height: 36%; border-radius: 50%;
+  background: var(--gain); border: 2px solid var(--ink);
+  animation: mark-in 0.22s var(--ease-out) both;
+}
 .tile.foot { box-shadow: inset 0 0 0 999px oklch(0.77 0.12 80 / 0.45); }
 /* Terrain: ice is a pale frozen slab with cracks; portals are rings, coloured per pair. */
 .tile.ice { background-color: oklch(0.9 0.04 230); background-image: var(--grain), linear-gradient(125deg, transparent 40%, oklch(1 0 0 / 0.7) 41% 43%, transparent 44%), linear-gradient(35deg, transparent 62%, oklch(1 0 0 / 0.5) 63% 64%, transparent 65%); }
@@ -103,6 +107,9 @@
 .pc-base::after { content: ''; position: absolute; inset: -18%; border-radius: 50%; transform: translateZ(5px); border: 3px solid transparent; }
 .pc.threat .pc-base::after { border-color: var(--danger); }
 .pc.sel .pc-base::after { border-color: var(--brass); }
+/* Aiming a card: pieces it can be played on wear a dashed brass ring; the others step back. */
+.pc.eligible .pc-base::after { border: 3px dashed var(--brass); }
+.table.aiming .pc:not(.eligible) .pc-stand { opacity: 0.45; }
 
 .pc-stand {
   position: absolute; left: 50%; bottom: 50%;

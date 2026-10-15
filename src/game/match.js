@@ -22,11 +22,20 @@ export class Match {
 
   get player() { return this.players[this.current]; }
   movesFor(color) { return (this.modifier === 'rush' ? 2 : 1) + (this.bonusMoves[color] || 0) + (color === this.player.color ? this.turnBonus || 0 : 0); }
-  legal(piece) { return legalMoves(piece, this.pieces, this.board); }
+  // The extra move from Paso doble cannot capture: a free second capture ended matches too
+  // fast (tools/balance.mjs).
+  quietOnly() { return this.turnBonus > 0 && this.movesThisTurn >= this.movesFor(this.player.color) - this.turnBonus; }
+  legal(piece) {
+    const all = legalMoves(piece, this.pieces, this.board);
+    return piece.color === this.player.color && this.quietOnly() ? all.filter((m) => !m.hits.length) : all;
+  }
   pieceAt(r, c) { return buildOccupancy(this.pieces).get(key(r, c)) || null; }
   threats(color = this.player.color) { return threatenedPieces(this.pieces, color, this.board); }
   inCheck(color) { return !this.eliminated[color] && threatenedPieces(this.pieces, color, this.board, { royal: true }).size > 0; }
-  canMove(color = this.player.color) { return hasAnyLegalMove(this.pieces, color, this.board); }
+  canMove(color = this.player.color) {
+    if (color === this.player.color && this.quietOnly()) return this.pieces.some((p) => p.color === color && this.legal(p).length);
+    return hasAnyLegalMove(this.pieces, color, this.board);
+  }
 
   // Apply a move. Returns null if illegal.
   move(piece, to) {

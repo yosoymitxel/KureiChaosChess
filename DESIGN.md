@@ -41,6 +41,7 @@ favicon y los iconos troquelados de la interfaz.
 | Cartas en las recompensas | Las recompensas son cartas del juego: la forma de carta es el contenido, no un contenedor. |
 | Anatomía única de carta | Toda carta (recompensa o mano) tiene marco del color de su tipo (bermellón = táctica, latón = mutación, tinta = objeto), gema de rareza, cartela de título, ventana de ilustración, línea de tipo y caja de texto. La figura siempre es papel con contorno de tinta, sea pieza o icono, para que ninguna carta parezca de otra baraja. |
 | Mano en franja propia bajo el tablero | Las cartas no tapan piezas; al apuntar, la carta elegida sube y el tablero marca objetivos en latón y la vista previa del resultado. |
+| Apuntar una carta | Las piezas válidas llevan un aro discontinuo de latón y las demás se apagan. Al pasar por encima (o con el primer toque en móvil, porque no hay hover) la pieza se marca, sus casillas nuevas salen en azul (`--gain`, distinto del verde de "puedes mover ya") y una nota de papel dice qué cambia. En móvil, el segundo toque juega la carta. |
 | Insignias y cuerda de escolta | La regla de captura de élite se lee en el tablero sin abrir el manual. |
 | Salidas con gesto propio | Al mapa: las piezas despegan y el tablero se desmonta. Reiniciar: las piezas se recogen al centro. Rendirse: el rey se tumba (el gesto clásico de abandonar en ajedrez) y la mesa pierde el color. |
 | Sombras | Una sola: `--lift` (desplazada y difusa) para lo que está encima de la mesa. Sin halos de color. |

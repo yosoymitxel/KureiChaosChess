@@ -22,15 +22,17 @@ export const CARDS = {
     },
   },
   ascend: {
-    id: 'ascend', aim: 'Elige un peón.', name: 'Ascenso', rarity: 'common', icon: 'queen', target: 'piece',
-    desc: 'Un peón se convierte en reina ahora mismo.',
-    can: (m, p) => p.type === 'pawn',
+    id: 'ascend', aim: 'Elige un peón que ya esté en campo rival.', name: 'Ascenso', rarity: 'common', icon: 'queen', target: 'piece',
+    desc: 'Un peón que ya cruzó a campo rival se convierte en reina.',
+    // Only past the middle: a queen on turn one shortened matches by a sixth (tools/balance.mjs).
+    can: (m, p) => p.type === 'pawn' && (p.color === 'light' ? p.row < m.board.rows / 2 : p.row >= m.board.rows / 2),
     apply: (m, p) => { p.type = 'queen'; },
   },
   mount: {
-    id: 'mount', aim: 'Elige una pieza que no sea rey ni caballo.', name: 'Montura', rarity: 'common', icon: 'knight', target: 'piece',
-    desc: 'Una pieza (no el rey) aprende a saltar en L durante esta partida.',
-    can: (m, p) => !p.royal && !p.boss && p.type !== 'knight' && !(p.extraMoveTypes || []).includes('knight') && !p.moves,
+    id: 'mount', aim: 'Elige una pieza que no sea rey, reina ni caballo.', name: 'Montura', rarity: 'common', icon: 'knight', target: 'piece',
+    desc: 'Una pieza (no rey ni reina) aprende a saltar en L durante esta partida.',
+    // No queens: queen + L jump covers almost the whole board (tools/balance.mjs).
+    can: (m, p) => !p.royal && !p.boss && !['knight', 'queen'].includes(p.type) && !(p.extraMoveTypes || []).includes('knight') && !p.moves,
     apply: (m, p) => { p.extraMoveTypes = [...(p.extraMoveTypes || []), 'knight']; },
   },
   fortify: {
@@ -57,7 +59,7 @@ export const CARDS = {
   },
   haste: {
     id: 'haste', name: 'Paso doble', rarity: 'common', icon: 'boot', target: 'none',
-    desc: 'Este turno haces un movimiento más.',
+    desc: 'Este turno haces un movimiento más, pero ese no puede capturar.',
     apply: (m) => { m.turnBonus = (m.turnBonus || 0) + 1; },
   },
 };
@@ -90,7 +92,11 @@ export function previewMoves(m, card, piece) {
   const copy = { ...piece, extraMoveTypes: [...(piece.extraMoveTypes || [])], moves: piece.moves && [...piece.moves] };
   card.apply({ ...m, pieces: m.pieces }, copy);
   const pieces = m.pieces.map((p) => (p === piece ? copy : p));
-  return { cells: moveCells(copy, legalMoves(copy, pieces, m.board)), footprint: cellsOf(copy).map(([r, c]) => key(r, c)) };
+  return {
+    cells: moveCells(copy, legalMoves(copy, pieces, m.board)),
+    before: moveCells(piece, legalMoves(piece, m.pieces, m.board)),
+    footprint: cellsOf(copy).map(([r, c]) => key(r, c)),
+  };
 }
 
 // Plays a card for the current player. Returns a result for the view, or null if not allowed.
