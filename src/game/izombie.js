@@ -29,13 +29,13 @@ export function buy(s, type, c) {
 }
 
 // Un avance: cada atacante (de abajo arriba) da su paso más profundo; después cada defensor captura uno.
-export function advance(s) {
+export function advance(s, maxStep = Infinity) {
   if (s.over) return null;
   const caught = [];
   let moved = false;
   for (const p of s.pieces.filter((x) => x.color === 'dark').sort((a, b) => b.row - a.row)) {
     if (!s.pieces.includes(p)) continue;
-    const best = legalMoves(p, s.pieces, s.board).filter((m) => m.row > p.row)
+    const best = legalMoves(p, s.pieces, s.board).filter((m) => m.row > p.row && m.row - p.row <= maxStep + (p.type === 'knight'))
       .sort((a, b) => b.row - a.row || b.hits.length - a.hits.length)[0];
     if (!best) continue;
     moved = true;
@@ -47,6 +47,7 @@ export function advance(s) {
     const prey = legalMoves(d, s.pieces, s.board).flatMap((m) => m.hits).sort((a, b) => b.row - a.row)[0];
     if (prey && s.pieces.includes(prey)) { s.pieces = s.pieces.filter((x) => x !== prey); caught.push(prey); }
   }
+  s.moved = moved;
   const attackers = s.pieces.some((x) => x.color === 'dark');
   if ((!attackers || !moved) && s.coins < COST.pawn) s.over = 'lose';
   return caught;
