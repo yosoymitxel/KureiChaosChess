@@ -20,6 +20,12 @@
 }
 .tiles, .pieces { position: absolute; inset: 0; transform-style: preserve-3d; }
 .pieces { pointer-events: none; }
+/* Liquid base while a piece moves: drawn on the board plane just under the tokens' top disc,
+   so a puddle reaching a victim slides under its token instead of over it. */
+.goo { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; transform: translateZ(4.5px); }
+.goo .ink { flood-color: var(--ink); }
+.goo .rim { flood-color: var(--pc-2); }
+.goo .fill { flood-color: var(--pc); }
 
 /* Tiles */
 .tile {

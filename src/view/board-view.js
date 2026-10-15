@@ -9,6 +9,7 @@ import { key, cellsOf, sizeOf } from '../game/rules.js';
 export const CAMERAS = { flat: 0, tilt: 40, epic: 56 };
 const JUMPERS = new Set(['knight', 'camel', 'elephant']);
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+let gooCount = 0; // filter ids must be unique across every board on the page
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const BADGES = {
@@ -21,10 +22,11 @@ export class BoardView {
     Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, onHover, shakeOn: shake, speed });
     this.tilt = CAMERAS[camera] ?? 40;
     host.classList.add('table');
-    host.innerHTML = `<div class="stage"><div class="board"><div class="tiles"></div><div class="pieces"></div></div></div>`;
+    host.innerHTML = `<div class="stage"><div class="board"><div class="tiles"></div><svg class="goo" preserveAspectRatio="none" aria-hidden="true"></svg><div class="pieces"></div></div></div>`;
     this.stage = host.querySelector('.stage');
     this.boardEl = host.querySelector('.board');
     this.tilesEl = host.querySelector('.tiles');
+    this.gooEl = host.querySelector('.goo');
     this.piecesEl = host.querySelector('.pieces');
     this.fx = new Fx(host);
     this.tiles = new Map();
@@ -116,6 +118,7 @@ export class BoardView {
       this.tiles.set(key(r, c), t);
     }
     this.tilesEl.appendChild(frag);
+    this.gooEl.setAttribute('viewBox', `0 0 ${cols} ${rows}`); // one unit = one tile
     this.refreshEdges();
     this.layout();
   }
@@ -395,6 +398,7 @@ export class BoardView {
       return;
     }
 
+    if (!reduced()) await this.liquid(piece, from, to, dur);
     await animate(st, {
       r: to.row, c: to.col, z: [0, arc, 0], duration: dur,
       ease: 'inOutSine', onUpdate: () => this.apply(piece),
@@ -409,6 +413,66 @@ export class BoardView {
     if (res.slide) await this.slide(piece, res.slide);
     if (res.portal) await this.warp(piece, res.portal);
     if (promoted) await this.promote(piece);
+  }
+
+  // Liquid base: the token melts into a puddle that reaches over every tile of the route
+  // (round the corner of an L), then its tail drains after the piece and it sets as a disc again.
+  // Resolves once the puddle has reached the destination, so the piece takes off on cue.
+  liquid(p, from, to, dur) {
+    const el = this.els.get(p), base = el?.querySelector('.pc-base');
+    if (!base) return Promise.resolve();
+    const [h, w] = sizeOf(p);
+    const k = el.classList.contains('boss') ? 0.36 : 0.27; // matches the .pc-base inset
+    const rx = k * w, ry = k * h;
+    const at = (r, c) => [c + w / 2, r + h / 2];
+    const dr = to.row - from.row, dc = to.col - from.col;
+    const pts = [at(from.row, from.col)];
+    if (dr && dc && Math.abs(dr) !== Math.abs(dc)) pts.push(Math.abs(dr) > Math.abs(dc) ? at(to.row, from.col) : at(from.row, to.col));
+    pts.push(at(to.row, to.col));
+    const lens = pts.slice(1).map((b, i) => Math.hypot(b[0] - pts[i][0], b[1] - pts[i][1]));
+    const total = lens.reduce((a, b) => a + b, 0) || 1;
+    const cum = lens.reduce((acc, l) => [...acc, acc[acc.length - 1] + l / total], [0]);
+    const point = (t) => {
+      const i = Math.max(0, cum.findIndex((v, j) => j > 0 && t <= v) - 1);
+      const f = cum[i + 1] > cum[i] ? (t - cum[i]) / (cum[i + 1] - cum[i]) : 0;
+      return pts[i].map((v, j) => v + (pts[i + 1][j] - v) * Math.min(1, f));
+    };
+    const route = (t0, t1) => [point(t0), ...pts.filter((_, i) => cum[i] > t0 && cum[i] < t1), point(t1)];
+
+    const id = `goo-${++gooCount}`, px = 1 / this.sq;
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', `side-${p.color}`);
+    // Blur + alpha threshold melts the shapes together; the erosions redraw the token's
+    // ink outline (1.5px) and inner rim (4px) on whatever shape the puddle takes.
+    g.innerHTML = `<filter id="${id}" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" x="-1" y="-1" width="${this.board.cols + 2}" height="${this.board.rows + 2}">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="0.07"/>
+        <feComponentTransfer result="g"><feFuncA type="linear" slope="24" intercept="-11"/></feComponentTransfer>
+        <feFlood class="ink"/><feComposite in2="g" operator="in" result="o"/>
+        <feMorphology in="g" operator="erode" radius="${1.5 * px}" result="e1"/>
+        <feFlood class="rim"/><feComposite in2="e1" operator="in" result="r"/>
+        <feMorphology in="g" operator="erode" radius="${4 * px}" result="e2"/>
+        <feFlood class="fill"/><feComposite in2="e2" operator="in" result="f"/>
+        <feMerge><feMergeNode in="o"/><feMergeNode in="r"/><feMergeNode in="f"/></feMerge>
+      </filter>
+      <g filter="url(#${id})"><polyline fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="${Math.min(rx, ry) * 1.1}"/><ellipse rx="${rx}" ry="${ry}"/><ellipse rx="${rx}" ry="${ry}"/></g>`;
+    this.gooEl.appendChild(g);
+    const [neck, tail, head] = g.querySelectorAll('polyline, ellipse');
+    const s = { head: 0, tail: 0 };
+    const draw = () => {
+      const [hx, hy] = point(s.head), [tx, ty] = point(s.tail);
+      head.setAttribute('cx', hx); head.setAttribute('cy', hy);
+      tail.setAttribute('cx', tx); tail.setAttribute('cy', ty);
+      neck.setAttribute('points', route(s.tail, s.head).map((q) => q.join(',')).join(' '));
+    };
+    draw();
+    base.style.opacity = 0;
+    const reach = this.d(Math.min(260, 120 + total * 40));
+    animate(s, { tail: 1, delay: reach, duration: dur, ease: 'inOutSine', onUpdate: draw, onComplete: () => {
+      g.remove();
+      base.style.opacity = '';
+      animate(base, { scaleX: [1.16, 0.95, 1], scaleY: [0.86, 1.04, 1], duration: this.d(320), ease: 'outQuad' });
+    } });
+    return animate(s, { head: 1, duration: reach, ease: 'outExpo', onUpdate: draw }).then(() => {});
   }
 
   // Ice: the piece keeps going one tile, skating low with frost spraying behind it.

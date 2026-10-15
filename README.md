@@ -50,3 +50,4 @@ hace falta conexión la primera vez.
 - Nodos de élite: la reina enemiga solo cae la última y sus torres solo tras su escolta.
 - Tableros nuevos (anillo, río con puentes, damero) y terreno: hielo y portales.
 - Salidas animadas: al mapa, reinicio y rendición tienen cada una su gesto.
+- Base líquida: al mover, la ficha se derrite sobre el recorrido y se vuelve a cuajar en destino.

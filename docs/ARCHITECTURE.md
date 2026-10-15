@@ -103,6 +103,10 @@ para posición, altura del salto y sombra (la sombra lee `--z` para encogerse y 
   arquean más; los jefes caen con temblor de cámara y onda expansiva.
 - *Squash & stretch* al aterrizar sobre `.pc-fig` (el contenedor animable; la inclinación
   frente a cámara vive en `.pc-stand` para no pisarse con los transforms de anime).
+- Base líquida (`BoardView.liquid`): un `<svg class="goo">` en el plano del tablero, con una
+  unidad por casilla. Cabeza, cola y cuello (polilínea por el recorrido) pasan por un filtro
+  *goo* (desenfoque + umbral de alfa) y dos erosiones que redibujan contorno y canto de la ficha.
+  La cabeza llega al destino, la pieza despega y la cola la sigue al mismo ritmo.
 - Velocidad global y `prefers-reduced-motion` pasan por `BoardView.d(ms)`.
 
 ## Laboratorio
