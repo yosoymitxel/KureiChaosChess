@@ -31,6 +31,15 @@ const SCENES = {
     const pieces = types.map((t, i) => makePiece(t, i < 6 ? 'light' : 'dark', 1 + Math.floor(i / 6) * 2, i % 6));
     return { b, pieces };
   },
+  'Jefes': () => {
+    const b = { rows: 7, cols: 11, holes: new Set(), protectRows: 0 };
+    const at = { titan: [0, 0], ram: [0, 3], hydra: [0, 6], devourer: [0, 9], golem: [3, 0], rider: [3, 4], wall: [3, 7] };
+    const pieces = Object.entries(at).map(([id, [r, c]]) => {
+      const d = BOSSES[id];
+      return makePiece(d.art, 'dark', r, c, { boss: id, h: d.size[0], w: d.size[1], hp: d.hp, maxHp: d.hp, name: d.name, royal: true });
+    });
+    return { b, pieces };
+  },
   'Golpe al jefe': () => {
     const b = board(), pieces = [makePiece('rook', 'light', 5, 3), makePiece('king', 'light', 6, 6)];
     const boss = placeBoss(pieces, b, 'titan'); boss.row = 1;

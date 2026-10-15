@@ -3,6 +3,7 @@ import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { TurnBanner, CardFace } from '../components.js';
 import { BoardView } from '../../view/board-view.js';
+import { artOf } from '../../view/piece-art.js';
 import { Match, botChooseMove } from '../../game/match.js';
 import { generateBoard, placePieces } from '../../game/generate.js';
 import { moveCells, cellsOf, key, anchorForCell, immune } from '../../game/rules.js';
@@ -187,7 +188,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (res.promoted) addLog(`${tag}¡Coronación!`);
       await d.view.playMove(res);
       const fallenBoss = res.victims.find((v) => v.killed && v.piece.boss)?.piece;
-      if (fallenBoss) await d.moments.cinematic({ title: `¡${fallenBoss.name} derribado!`, sub: 'El coloso cae y la torre es tuya.', piece: { type: fallenBoss.type, side: fallenBoss.color }, tone: 'brass', anim: 'down' });
+      if (fallenBoss) await d.moments.cinematic({ title: `¡${fallenBoss.name} derribado!`, sub: 'El coloso cae y la torre es tuya.', piece: { type: artOf(fallenBoss), side: fallenBoss.color }, tone: 'brass', anim: 'down' });
       const after = match.afterMove();
       if (after.collapse) {
         addLog('¡El borde se desploma!');
@@ -250,7 +251,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const mine = match.player.kind === 'human';
       const tone = mine ? 'brass' : 'danger';
       const killed = res.victims.filter((v) => v.killed).map((v) => v.piece);
-      const art = (p) => ({ type: p.type, side: p.color });
+      const art = (p) => ({ type: artOf(p), side: p.color });
       if (res.bounced) {
         const b = res.victims[0].piece;
         return d.moments.callout({ text: '¡Golpe!', sub: `A ${b.name || PIECE_NAMES[b.type]} le ${b.hp === 1 ? 'queda 1 vida' : `quedan ${b.hp} vidas`}`, tone, piece: art(b), anim: 'hit' });
@@ -331,7 +332,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       d.view.intro(pieces),
       !boss && d.moments.cinematic({ title: `Piso ${node.floor + 1}`, sub: `${mod.name}. ${mod.desc}`, icon: mod.icon, wave: seats.flatMap((s) => ['pawn', 'knight', 'king'].map((t) => [t, s.color])) }),
     ])
-      .then(() => boss && d.moments.cinematic({ title: boss.name, sub: BOSSES[boss.boss].desc, piece: { type: boss.type, side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger', anim: 'stomp' }))
+      .then(() => boss && d.moments.cinematic({ title: boss.name, sub: BOSSES[boss.boss].desc, piece: { type: artOf(boss), side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger', anim: 'stomp' }))
       .then(() => { d.busy = false; startTurn(); });
     const onKey = (e) => e.key === 'Escape' && setPaused((v) => !v);
     addEventListener('keydown', onKey);

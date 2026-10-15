@@ -30,6 +30,30 @@ const BODIES = {
   cannon: `<path d="M13 32.3l2-7h15l2 7z"/><path d="M16.57 21.62L25.93 8.14L32.07 11.86L24.43 26.38Z"/><path d="M23.82 10.24L25.38 7.68L32.72 12.14L31.16 14.7Z"/><ellipse cx="29.1" cy="9.3" rx="2.5" ry="1.1" transform="rotate(31 29.1 9.3)" fill="${F2}"/><circle cx="19.4" cy="25.6" r="2.3"/><circle cx="21.8" cy="21.4" r="2.1" fill="${F2}"/><circle cx="15" cy="28.4" r="3.9"/><circle cx="15" cy="28.4" r="1.2" fill="${F2}"/>${detail('M15 24.9v7M11.5 28.4h7', 1.1)}`,
 };
 
+// Bosses are their own family: creatures and siege engines instead of chessmen, standing on a
+// wider stepped dais, all with brass eyes or lights so a boss reads as one at a glance.
+const EYE = 'var(--brass)';
+const eyes = (...pts) => pts.map(([x, y, r = 1.1]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${EYE}" stroke="${S}" stroke-width="0.7"/>`).join('');
+// Thick limb or neck: an ink stroke with a body-coloured stroke inside, so it reads as one outlined shape.
+const limb = (d, w = 4) => `<path d="${d}" fill="none" stroke="${S}" stroke-width="${w + 2.2}"/><path d="${d}" fill="none" stroke="${F}" stroke-width="${w}"/>`;
+const fangs = (xs, y, dir) => xs.map((x) => `<path d="M${x - 1.4} ${y}L${x} ${y + dir * 3.2}L${x + 1.4} ${y}z" stroke-width="0.7"/>`).join('');
+Object.assign(BODIES, {
+  // Titán: crowned great helm on broad armoured shoulders.
+  'boss-titan': `<path d="M6 34c0-8 2-12 6-14l4-1v-3h13v3l4 1c4 2 6 6 6 14z"/><path d="M16.5 9.5l1.6-4.5 2 3.2 2.4-5 2.4 5 2-3.2 1.6 4.5z" fill="${F2}"/><path d="M15.5 17c0-6.5 3-10 7-10s7 3.5 7 10z"/><path d="M17.5 12.6h10" stroke="${S}" stroke-width="2.4"/>${eyes([20.3, 12.6, 0.9], [24.7, 12.6, 0.9])}${detail('M14 27c5 2.2 12 2.2 17 0M12 20v8M33 20v8')}`,
+  // Ariete: ram's head with curled horns over the shoulders of the siege engine.
+  'boss-ram': `<path d="M9.5 34c0-6 4-8.5 8.5-9h9c4.5.5 8.5 3 8.5 9z"/>${limb('M17.5 12.5c-5.5-4-12-1-11 5.5.6 4 5 5.2 7.2 2.6 1.6-2-.2-4.2-2-3.6')}${limb('M27.5 12.5c5.5-4 12-1 11 5.5-.6 4-5 5.2-7.2 2.6-1.6-2 .2-4.2 2-3.6')}<path d="M17 13.5c0-4 2.5-6 5.5-6s5.5 2 5.5 6l-1 10.5c-.5 3.5-2.2 5.5-4.5 5.5s-4-2-4.5-5.5z"/>${eyes([20, 15], [25, 15])}${detail('M21 26.5h3M22.5 18v5')}`,
+  // Hidra: three serpent necks rising from one coiled body.
+  'boss-hydra': `${limb('M17 28c-4-5-7-10-6.5-15.5', 3.6)}${limb('M28 28c4-5 7-10 6.5-15.5', 3.6)}${limb('M22.5 27c0-7-1.5-12 0-18', 3.6)}<path d="M7 34c0-7 6-10 15.5-10S38 27 38 34z"/><ellipse cx="10.5" cy="11.5" rx="3.2" ry="2.4"/><ellipse cx="34.5" cy="11.5" rx="3.2" ry="2.4"/><ellipse cx="22.5" cy="7.5" rx="3.2" ry="2.4"/>${eyes([9.6, 11, 0.8], [35.4, 11, 0.8], [21.6, 7, 0.8], [23.4, 7, 0.8])}${detail('M12 30c3.5-1.8 7-1.8 10.5 0 3.5-1.8 7-1.8 10.5 0')}`,
+  // Gólem: stacked stone blocks with boulder shoulders and a small sunken head.
+  'boss-golem': `<path d="M9 34l1-14h25l1 14z"/><path d="M4 24l2-7 7-1 2 6-4 4z"/><path d="M41 24l-2-7-7-1-2 6 4 4z"/><path d="M17 20l.5-9h10l.5 9z"/><path d="M18 13.2h9" stroke="${S}" stroke-width="1.4"/>${eyes([20.5, 15.4], [24.5, 15.4])}${detail('M15 23l3 3-1 4M30 22.5l-2 4 2 3M22.5 21v4M8 19.5l3 2.5M37 19.5l-3 2.5')}`,
+  // Jinete: barded warhorse with a plume and a couched lance with a pennant.
+  'boss-rider': `${limb('M36.4 2.5l1.6 30.5', 1.6)}<path d="M36.6 3.6l6.4 2.6-6.2 2.6z" fill="${F2}"/><path d="M14 34c0-8 3-12 5-16l-7 2c-2.5.5-4-1-3.2-3L15 9c2-3 5-4 8-3.5 7 1 11 7.5 10 28.5z"/><path d="M23 5.5c0-3 4-4.5 7-3.5-2 1-2.5 2.5-3 4.5z" fill="${F2}"/><path d="M15 9l4.5-2-1.5 7z" fill="${F2}"/>${eyes([17, 11])}${detail('M24.5 9c3.5 2 6 8 6.5 22M20 20l7-1.5')}`,
+  // Muralla: a stretch of wall between two towers, gate shut, arrow slits lit.
+  'boss-wall': `<path d="M3 34V12h2.6v-3h2.6v3h2.2v-3H12v9h2.5v-2h3v2h3v-2h4v2h3v-2h3v2H33V9h1.6v3h2.2V9h2.6v3H42v22z"/><path d="M18.5 34v-7c0-2.5 1.8-4 4-4s4 1.5 4 4v7z" fill="${F2}"/>${detail('M20.5 25v9M22.5 23v11M24.5 25v9', 0.9)}<path d="M7.5 17.5v3.5M37.5 17.5v3.5" stroke="${EYE}" stroke-width="1.6"/>${detail('M3 22h9M33 22h9M12 26h6.5M26.5 26H33')}`,
+  // Devorador: a horned maw that swallows whatever it steps on.
+  'boss-devourer': `<path d="M12 16l-3-8 7 5z"/><path d="M33 16l3-8-7 5z"/><path d="M6 34c-1-12 6-24 16.5-24S40 22 39 34z"/><path d="M11 25c3-5 20-5 23 0-3 6-20 6-23 0z" fill="${S}"/><g fill="${F}">${fangs([15, 19, 22.5, 26, 30], 22.3, 1)}${fangs([17, 20.8, 24.2, 28], 28.6, -1)}</g>${eyes([17, 16.5, 1.6], [28, 16.5, 1.6])}<path d="M17 15.3v2.4M28 15.3v2.4" stroke="${S}" stroke-width="0.8"/>${detail('M13 31c6 1.5 13 1.5 19 0')}`,
+});
+
 // Measured geometric boxes of each raw body [x, y, w, h] (getBBox, stroke excluded).
 // Re-measure after editing a body (lab.html scene "Piezas" shows the result).
 const BODY_BOX = {
@@ -37,7 +61,14 @@ const BODY_BOX = {
   knight: [6, 8, 32.03, 32], queen: [4, 5.5, 37, 35.25], king: [5.83, 6, 33.29, 35.38],
   guard: [14.5, 2.8, 16, 29.5], advisor: [14.5, 2.8, 16, 29.5], elephant: [8.15, 11, 25.25, 21.58],
   camel: [11.66, 3.4, 30.14, 28.9], cannon: [11.1, 7.07, 21.62, 25.23],
+  // Bosses: measured with their thick limbs included.
+  'boss-titan': [6, 3.2, 33, 30.8], 'boss-ram': [4.1, 7.5, 36.8, 26.5], 'boss-hydra': [7, 5.1, 31, 28.9],
+  'boss-golem': [4, 11, 37, 23], 'boss-rider': [8.6, 1.4, 34.4, 32.7], 'boss-wall': [3, 9, 39, 25],
+  'boss-devourer': [5.9, 8, 33.2, 26],
 };
+// The boss dais: a wide riveted slab under a second step, broader than any chessman's plinth.
+const BOSS_PLINTH = `<path d="M4.5 40.5h36v-3c0-.8-.6-1.3-1.3-1.3H5.8c-.7 0-1.3.5-1.3 1.3z"/><path d="M8 36.2v-3.6h29v3.6z"/>${[8, 15, 22.5, 30, 37].map((x) => `<circle cx="${x}" cy="38.4" r="0.7" fill="${F2}" stroke="none"/>`).join('')}`;
+const isBoss = (type) => type.startsWith('boss-');
 
 // Height ladder above the plinth: value order follows the chess hierarchy; maxW keeps wide crowns in check.
 // ax: x of the raw drawing that sits over the plinth centre (the knight balances on its neck, not its bbox).
@@ -46,6 +77,9 @@ const LADDER = {
   pawn: { h: 18.5 }, rook: { h: 21.5 }, guard: { h: 25.5 }, cannon: { h: 23 }, elephant: { h: 22.5 },
   advisor: { h: 23.5 }, camel: { h: 24.5, maxW: 31, ax: 28.4 }, knight: { h: 24, ax: 25.5 }, bishop: { h: 25 },
   queen: { h: 26.5, maxW: 29 }, king: { h: 27.5, maxW: 29 },
+  'boss-titan': { h: 29, maxW: 34 }, 'boss-ram': { h: 26, maxW: 36, ax: 22.5 }, 'boss-hydra': { h: 28.5, maxW: 34 },
+  'boss-golem': { h: 25, maxW: 38 }, 'boss-rider': { h: 30, maxW: 32, ax: 23 }, 'boss-wall': { h: 23, maxW: 40 },
+  'boss-devourer': { h: 26.5, maxW: 36 },
 };
 
 function layout(type) {
@@ -62,7 +96,7 @@ function art(type) {
   if (!cache.has(type)) {
     const L = layout(type);
     const body = `<g transform="translate(${L.tx.toFixed(2)} ${L.ty.toFixed(2)}) scale(${L.s.toFixed(4)})" stroke-width="${(STROKE / L.s).toFixed(3)}">${BODIES[type]}</g>`;
-    cache.set(type, { L, svg: `<g fill="${F}" stroke="${S}" stroke-width="${STROKE}" stroke-linecap="round" stroke-linejoin="round">${body}${PLINTH}</g>` });
+    cache.set(type, { L, svg: `<g fill="${F}" stroke="${S}" stroke-width="${STROKE}" stroke-linecap="round" stroke-linejoin="round">${body}${isBoss(type) ? BOSS_PLINTH : PLINTH}</g>` });
   }
   return cache.get(type);
 }
@@ -72,7 +106,8 @@ export function pieceSVG(type, { fit = false } = {}) {
   const { L, svg } = art(type);
   let vb = '0 0 45 41', align = 'xMidYMax';
   if (fit) {
-    const left = Math.min(L.left, 9.5), right = Math.max(L.right, 35.5), top = L.top, bottom = 40;
+    const base = isBoss(type) ? [4.5, 40.5] : [9.5, 35.5];
+    const left = Math.min(L.left, base[0]), right = Math.max(L.right, base[1]), top = L.top, bottom = 40.5;
     const size = Math.max(right - left, bottom - top) + 3;
     vb = `${((left + right) / 2 - size / 2).toFixed(2)} ${((top + bottom) / 2 - size / 2).toFixed(2)} ${size.toFixed(2)} ${size.toFixed(2)}`;
     align = 'xMidYMid';
@@ -84,3 +119,6 @@ export function pieceSVG(type, { fit = false } = {}) {
 export const headTop = (type) => art(type).L.top / 41;
 
 export const RAW_BODIES = BODIES;
+
+// Which drawing a piece uses: bosses have their own; everything else draws its type.
+export const artOf = (p) => (p.boss ? `boss-${p.boss}` : p.type);

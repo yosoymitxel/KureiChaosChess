@@ -2,7 +2,7 @@
 // The board is a tilted plane (rotateX); tiles live on it, pieces are cardboard
 // "standees" counter-rotated to face the camera. anime.js drives all choreography.
 import { animate, stagger } from 'animejs';
-import { pieceSVG, headTop } from './piece-art.js';
+import { pieceSVG, headTop, artOf } from './piece-art.js';
 import { Fx } from './fx.js';
 import { key, cellsOf, sizeOf } from '../game/rules.js';
 
@@ -145,9 +145,9 @@ export class BoardView {
     el.dataset.pid = p.id;
     el.style.setProperty('--h', h); el.style.setProperty('--w', w);
     el.style.setProperty('--s', h * w > 1 ? Math.max(h, w) * 0.85 : 1); // multi-cell figures read bigger than one tile
-    el.style.setProperty('--head', headTop(p.type).toFixed(3));
+    el.style.setProperty('--head', headTop(artOf(p)).toFixed(3));
     el.innerHTML = `<div class="pc-shadow"></div><div class="pc-base"><i></i><i></i><i></i></div>
-      <div class="pc-stand"><div class="pc-fig"><div class="pc-art">${pieceSVG(p.type)}</div>${p.boss || p.maxHp > 1 ? this.hpHTML(p) : ''}<span class="pc-badge"></span></div></div>`;
+      <div class="pc-stand"><div class="pc-fig"><div class="pc-art">${pieceSVG(artOf(p))}</div>${p.boss || p.maxHp > 1 ? this.hpHTML(p) : ''}<span class="pc-badge"></span></div></div>`;
     this.piecesEl.appendChild(el);
     this.els.set(p, el);
     const st = { r: p.row, c: p.col, z: 0 };
@@ -204,7 +204,7 @@ export class BoardView {
 
   setArt(p) {
     const art = this.els.get(p)?.querySelector('.pc-art');
-    if (art) art.innerHTML = pieceSVG(p.type);
+    if (art) art.innerHTML = pieceSVG(artOf(p));
   }
 
 
@@ -302,7 +302,7 @@ export class BoardView {
         drag.ghost = document.createElement('div');
         drag.ghost.className = `drag-ghost side-${drag.piece.color}`;
         drag.ghost.style.setProperty('--sq', this.sq + 'px');
-        drag.ghost.innerHTML = pieceSVG(drag.piece.type);
+        drag.ghost.innerHTML = pieceSVG(artOf(drag.piece));
         document.body.appendChild(drag.ghost);
         src.classList.add('dragging');
       }

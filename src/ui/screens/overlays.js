@@ -44,7 +44,7 @@ export function HowToOverlay({ onClose }) {
       <h2>Jefes</h2>
       <p>Ocupan varias casillas. Al moverse aplastan todo lo que pisan. Cada golpe les quita una vida y tu pieza rebota; el último golpe los derriba.</p>
       <div class="rules">
-        ${Object.values(BOSSES).map((b) => html`<div class="rule"><${PieceIcon} type=${b.art} side="dark" size=${40} /><div><strong>${b.name}</strong><span>${b.desc}</span></div></div>`)}
+        ${Object.values(BOSSES).map((b) => html`<div class="rule"><${PieceIcon} type=${'boss-' + b.id} side="dark" size=${40} /><div><strong>${b.name}</strong><span>${b.desc}</span></div></div>`)}
       </div>
       <button class="btn primary" autofocus onClick=${onClose}>Entendido</button>
     </div>
