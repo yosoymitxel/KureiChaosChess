@@ -3,6 +3,7 @@ import { Icon } from '../icons.js';
 import { useEnter, ConfirmButton } from '../components.js';
 import { BoardView } from '../../view/board-view.js';
 import { makePiece } from '../../game/generate.js';
+import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
 
 // Decorative diorama: a small board with a boss facing a few pieces, gently swaying.
 function Diorama() {
@@ -23,9 +24,13 @@ function Diorama() {
   return html`<div class="diorama" ref=${host} aria-hidden="true"></div>`;
 }
 
-export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings }) {
+export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, settings, setSettings }) {
   const ref = useRef(null);
   useEnter(ref);
+  const full = useFullscreen();
+  const toggleFull = () => { setFullscreen(!full); setSettings((s) => ({ ...s, fullscreen: !full })); };
+  // Starting from the menu is a tap, so it can enter fullscreen right away when the setting asks for it.
+  const go = (fn) => () => { if (settings.fullscreen) setFullscreen(true); fn(); };
   return html`<div class="screen menu" ref=${ref}>
     <${Diorama} />
     <div class="menu-col">
@@ -34,11 +39,13 @@ export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings }) {
         <p>Ajedrez que muta en cada piso. Sube la torre, gana piezas raras y derriba al coloso del final.</p>
       </div>
       <nav class="menu-actions">
-        <button class="btn primary" data-enter onClick=${hasRun ? onContinue : onNew}>${hasRun ? 'Continuar run' : 'Empezar run'}</button>
+        <button class="btn primary" data-enter onClick=${go(hasRun ? onContinue : onNew)}>${hasRun ? 'Continuar run' : 'Empezar run'}</button>
         ${hasRun && html`<${ConfirmButton} class="btn" onConfirm=${onNew} confirmLabel="Se pierde la run actual. ¿Seguro?">Nueva run<//>`}
         <div class="menu-row" data-enter>
           <button class="btn ghost" onClick=${onHowTo}><${Icon} name="book" />Reglas</button>
           <button class="btn ghost" onClick=${onSettings}><${Icon} name="gear" />Ajustes</button>
+          ${canFullscreen && html`<button class="btn ghost icon-only" aria-pressed=${full} aria-label=${full ? 'Salir de pantalla completa' : 'Pantalla completa'}
+            title=${full ? 'Salir de pantalla completa' : 'Pantalla completa'} onClick=${toggleFull}><${Icon} name=${full ? 'shrink' : 'expand'} /></button>`}
         </div>
       </nav>
     </div>

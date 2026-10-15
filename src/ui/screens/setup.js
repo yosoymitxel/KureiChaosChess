@@ -3,6 +3,7 @@ import { Icon } from '../icons.js';
 import { Topbar, useEnter, Toggle } from '../components.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { THEMES } from '../../data/themes.js';
+import { canFullscreen, setFullscreen } from '../fullscreen.js';
 
 const SIDES = [
   { color: 'light', label: 'Marfil' },
@@ -68,7 +69,7 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
         </div>
         <${Toggle} on=${settings.moments} onChange=${set('moments')} label="Momentos destacados" hint="Rótulos y cinemáticas en jugadas clave (se saltan con un toque)" />
         <${Toggle} on=${settings.shake} onChange=${set('shake')} label="Temblor de cámara" hint="Impactos y derrumbes sacuden la mesa" />
-        <${Toggle} on=${settings.fullscreen} onChange=${set('fullscreen')} label="Pantalla completa" hint="Al empezar una partida" />
+        ${canFullscreen && html`<${Toggle} on=${settings.fullscreen} onChange=${(v) => { set('fullscreen')(v); setFullscreen(v); }} label="Pantalla completa" hint="Ahora y cada vez que empiece una partida" />`}
       </section>
     </div>
   </div>`;

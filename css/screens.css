@@ -242,6 +242,7 @@
 .pause, .howto, .end-card { display: flex; flex-direction: column; gap: 14px; }
 .pause h1, .howto h1 { font-size: 40px; }
 .pause-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pause-grid .wide { grid-column: 1 / -1; }
 .theme-row { display: flex; gap: 8px; }
 .swatch.on { outline: 3px solid var(--accent); outline-offset: 2px; }
 .overlay .panel.howto { width: min(640px, 100%); }

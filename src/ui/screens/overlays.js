@@ -4,6 +4,7 @@ import { ConfirmButton } from '../components.js';
 import { PIECE_RULES, PIECE_NAMES } from '../../data/pieces.js';
 import { BOSSES } from '../../data/bosses.js';
 import { THEMES } from '../../data/themes.js';
+import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
 
 const closeOnBackdrop = (fn) => (e) => e.target === e.currentTarget && fn();
 const useEscape = (fn) => useEffect(() => {
@@ -14,6 +15,7 @@ const useEscape = (fn) => useEffect(() => {
 
 export function PauseOverlay({ onResume, onRestart, onExit, onAbandon, onHowTo, settings, setSettings }) {
   useEscape(onResume);
+  const full = useFullscreen();
   return html`<div class="overlay" onClick=${closeOnBackdrop(onResume)}>
     <div class="panel pause" role="dialog" aria-modal="true" aria-label="Pausa">
       <h1>Pausa</h1>
@@ -27,6 +29,8 @@ export function PauseOverlay({ onResume, onRestart, onExit, onAbandon, onHowTo, 
         <button class="btn sm" onClick=${onRestart}><${Icon} name="refresh" size=${16} />Reiniciar</button>
         <button class="btn sm" onClick=${onExit}><${Icon} name="map" size=${16} />Al mapa</button>
         <${ConfirmButton} class="btn sm danger" onConfirm=${onAbandon} confirmLabel="¿Seguro?"><${Icon} name="skull" size=${16} />Abandonar<//>
+        ${canFullscreen && html`<button class="btn sm wide" aria-pressed=${full} onClick=${() => { setFullscreen(!full); setSettings((s) => ({ ...s, fullscreen: !full })); }}>
+          <${Icon} name=${full ? 'shrink' : 'expand'} size=${16} />${full ? 'Salir de pantalla completa' : 'Pantalla completa'}</button>`}
       </div>
     </div>
   </div>`;

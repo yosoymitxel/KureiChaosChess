@@ -6,6 +6,7 @@ import { MapScreen } from './screens/map.js';
 import { SetupScreen, SettingsScreen } from './screens/setup.js';
 import { GameScreen } from './screens/game.js';
 import { HowToOverlay } from './screens/overlays.js';
+import { setFullscreen } from './fullscreen.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings } from '../game/run.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
 import { applyTheme } from '../data/themes.js';
@@ -71,7 +72,7 @@ export function App() {
   const startGame = (s) => {
     setSeats(s);
     setGameKey((k) => k + 1);
-    if (settings.fullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+    if (settings.fullscreen) setFullscreen(true);
     goTo('game');
   };
 
@@ -132,7 +133,7 @@ export function App() {
   };
 
   return html`
-    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${newRun} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} />`}
+    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${newRun} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} settings=${settings} setSettings=${setSettings} />`}
     ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} defaultCount=${seats?.length} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame} />`}
