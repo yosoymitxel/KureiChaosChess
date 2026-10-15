@@ -295,8 +295,8 @@
 .c4-token.won { outline: 3px solid var(--brass); outline-offset: 2px; }
 .minis-list { display: grid; gap: 12px; width: min(420px, 100%); }
 .bm {
-  --cell: min(calc((100vw - 40px) / var(--n)), calc((100dvh - 300px) / var(--n)), 64px);
-  display: grid; grid-template-columns: repeat(var(--n), var(--cell));
+  --cell: min(calc((100vw - 40px) / var(--cols, var(--n))), calc((100dvh - 320px) / var(--rows, var(--n))), 64px);
+  display: grid; grid-template-columns: repeat(var(--cols, var(--n)), var(--cell));
   border: 3px solid var(--ink); border-radius: 12px; overflow: hidden; box-shadow: var(--lift);
 }
 .bm-cell { position: relative; display: grid; place-items: center; width: var(--cell); height: var(--cell); padding: 0; border: 0; background: var(--tile-a); background-image: var(--grain); cursor: pointer; }
@@ -324,3 +324,7 @@
 .br-wall.ghost.bad { background: var(--danger); }
 .btn.on { background: var(--brass); color: var(--ink); }
 .br-left { margin: 0; color: var(--paper-2); font-weight: 700; }
+.bm-cell.drop { box-shadow: inset 0 0 0 3px var(--brass); }
+.bm-cell.goal { background-color: color-mix(in oklch, var(--tile-a), var(--side-dark) 25%); }
+.mg-mark { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; color: var(--ink); }
+.bm-actions { flex-wrap: wrap; justify-content: center; }
