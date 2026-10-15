@@ -18,4 +18,5 @@ export const MODIFIERS = {
   bowling: { id: 'bowling', name: 'Bolos de nuez', desc: 'Minijuego: lanza fichas rodando y derriba a las piezas que avanzan. Premio: mutación o pieza.', icon: 'rush', mini: true },
   laststand: { id: 'laststand', name: 'Última resistencia', desc: 'Minijuego: coloca tu defensa con un presupuesto y aguanta tres oleadas. Premio: mutación o pieza.', icon: 'shield', mini: true },
   mates: { id: 'mates', name: 'Mate en 1 y 2', desc: 'Minijuego: resuelve un mate en 1 y uno en 2 con piezas mutantes. Premio: mutación o pieza.', icon: 'crown', mini: true },
+  knight: { id: 'knight', name: 'Ruta del caballo', desc: 'Minijuego: pisa todas las casillas marcadas con el caballo; lo pisado se cierra. Premio: mutación o pieza.', icon: 'map', mini: true },
 };
