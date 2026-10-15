@@ -4,6 +4,8 @@ Ajedrez mutante en formato roguelike de mesa. Tablero procedural con agujeros, p
 extra (guardia, camello, cañón…), mutaciones que se acumulan durante la run y jefes que
 ocupan varias casillas.
 
+**Jugar:** https://yosoymitxel.github.io/Zug/ · [laboratorio de animaciones](https://yosoymitxel.github.io/Zug/lab.html)
+
 ## Jugar en local
 
 No hay paso de build. Sirve la carpeta con cualquier servidor estático:
