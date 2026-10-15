@@ -5,7 +5,7 @@ import { BOSSES, BOSS_IDS } from '../data/bosses.js';
 import { applyMutations } from '../data/mutations.js';
 
 
-const MOD_POOL = ['none', 'promote', 'promote', 'chaos', 'chaos', 'rush', 'rush', 'fog', 'ice', 'portal', 'rest', 'bag', 'elite', 'elite', 'connect4', 'bomber', 'barrier', 'izombie', 'bowling', 'laststand'];
+const MOD_POOL = ['none', 'promote', 'promote', 'chaos', 'chaos', 'rush', 'rush', 'fog', 'ice', 'portal', 'rest', 'bag', 'elite', 'elite', 'connect4', 'bomber', 'barrier', 'izombie', 'bowling', 'laststand', 'mates'];
 
 export function generateMap(seed) {
   const rng = mulberry32(seed);

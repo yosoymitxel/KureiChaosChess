@@ -330,3 +330,5 @@
 .bm-actions { flex-wrap: wrap; justify-content: center; }
 .bm-cell.lane { background-color: color-mix(in oklch, var(--tile-a), var(--side-light) 45%); }
 .bm-cell.ball::after { content: ''; position: absolute; inset: 16%; border-radius: 50%; background: var(--side-light); box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 calc(var(--cell) * 0.08) color-mix(in oklch, var(--side-light), var(--ink) 35%); }
+.bm-cell.mv::after { content: ''; position: absolute; width: 26%; height: 26%; border-radius: 50%; background: var(--legal); border: 2px solid var(--ink); z-index: 2; }
+.bm-cell.sel { box-shadow: inset 0 0 0 3px var(--brass); }
