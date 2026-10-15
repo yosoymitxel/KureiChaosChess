@@ -1,0 +1,118 @@
+/* Reset, typography and shared components (buttons, panels, cards, overlays). */
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body {
+  background: var(--table);
+  background-image: var(--grain), var(--woodgrain), radial-gradient(120% 90% at 50% 20%, var(--table-2), var(--table));
+  color: var(--paper);
+  font: 15px/1.45 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+#root { position: fixed; inset: 0; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
+.icon { flex-shrink: 0; vertical-align: middle; }
+
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; min-height: 0; }
+.eyebrow { font: 600 10px/1 var(--font-mono); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1; letter-spacing: -0.02em; }
+
+/* --- Buttons: chunky printed tokens that press down --- */
+.btn {
+  --bg: var(--paper); --fg: var(--ink); --edge: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 12px 20px; min-height: 48px;
+  background: var(--bg); color: var(--fg);
+  border: 2px solid var(--edge); border-radius: var(--r-md);
+  font-weight: 700; font-size: 15px; letter-spacing: 0.01em;
+  box-shadow: 0 4px 0 var(--edge);
+  cursor: pointer;
+  transition: transform 0.12s var(--ease-out), box-shadow 0.12s var(--ease-out), background 0.15s;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 5px 0 var(--edge); }
+.btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--edge); }
+.btn[disabled] { opacity: 0.4; pointer-events: none; }
+.btn.primary { --bg: var(--accent); --fg: var(--paper); --edge: var(--accent-ink); }
+.btn.ghost { --bg: transparent; --fg: var(--paper); --edge: oklch(1 0 0 / 0.25); box-shadow: none; }
+.btn.ghost:hover { --edge: var(--paper); }
+.btn.danger { --bg: var(--paper); --fg: var(--danger); --edge: var(--danger); }
+.btn.sm { min-height: 38px; padding: 8px 12px; font-size: 13px; border-radius: 10px; box-shadow: 0 3px 0 var(--edge); }
+.btn.icon-only { padding: 0; width: 42px; min-height: 42px; }
+
+/* --- Top bar --- */
+.topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 20px; padding-top: calc(14px + env(safe-area-inset-top));
+  flex-shrink: 0; z-index: 5;
+}
+.topbar .title { font: 800 20px/1 var(--font-display); }
+.topbar .spacer { flex: 1; }
+
+/* --- Paper panel --- */
+.panel {
+  background: var(--paper); color: var(--ink);
+  background-image: var(--grain);
+  border: 2px solid var(--ink); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+}
+
+/* --- Overlay --- */
+.overlay {
+  position: fixed; inset: 0; z-index: 50;
+  display: grid; place-items: center; padding: 20px;
+  background: oklch(0.12 0.02 55 / 0.72);
+  backdrop-filter: blur(6px);
+}
+.overlay .panel { width: min(440px, 100%); max-height: calc(100dvh - 40px); overflow: auto; padding: 28px; }
+
+/* --- Playing cards (rewards) --- */
+.card-row { display: flex; gap: clamp(10px, 2.5vw, 28px); justify-content: center; flex-wrap: wrap; perspective: 1200px; }
+.card {
+  --rx: 0deg; --ry: 0deg; --lift: 0px;
+  position: relative; width: clamp(150px, 26vw, 210px); aspect-ratio: 5 / 7;
+  transform-style: preserve-3d;
+  transform: translateY(var(--lift)) rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform 0.25s var(--ease-out);
+  cursor: pointer;
+}
+.card .face, .card .back {
+  position: absolute; inset: 0; border-radius: 16px; backface-visibility: hidden;
+  border: 2px solid var(--ink); overflow: hidden;
+}
+.card .face {
+  display: flex; flex-direction: column; padding: 14px; gap: 10px;
+  background: var(--paper); color: var(--ink);
+  background-image: var(--grain);
+  box-shadow: 0 6px 0 var(--ink), 0 20px 40px oklch(0 0 0 / 0.4);
+}
+.card .back {
+  transform: rotateY(180deg);
+  background: repeating-linear-gradient(45deg, var(--accent) 0 10px, var(--accent-ink) 10px 20px);
+  box-shadow: inset 0 0 0 8px var(--paper), inset 0 0 0 10px var(--ink);
+}
+.card .art {
+  flex: 1; display: grid; place-items: center; border-radius: 10px;
+  background: radial-gradient(circle at 50% 40%, var(--paper), var(--paper-3));
+  border: 2px solid var(--ink); color: var(--accent-ink);
+}
+.card .art > svg, .card .art .piece-icon { width: 58% !important; height: 58% !important; }
+.card .art .piece-icon { --pc: var(--side-dark); --pc-2: var(--accent-ink); }
+.card .name { font: 800 18px/1.05 var(--font-display); }
+.card .desc { font-size: 12.5px; line-height: 1.35; color: var(--ink-2); min-height: 3.4em; }
+.card .rarity { position: absolute; top: 10px; right: 10px; font: 600 9px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; background: var(--ink); color: var(--paper); padding: 5px 7px; border-radius: 5px; }
+.card .rarity.rare { background: var(--accent-ink); }
+.card .rarity.epic { background: linear-gradient(90deg, var(--accent), var(--brass)); color: var(--ink); }
+.card .glare { position: absolute; inset: 0; border-radius: 16px; pointer-events: none; mix-blend-mode: soft-light; background: radial-gradient(circle at var(--gx, 50%) var(--gy, 30%), oklch(1 0 0 / 0.7), transparent 55%); opacity: 0; transition: opacity 0.2s; }
+.card:hover .glare { opacity: 1; }
+.card.chosen { --lift: -18px; }
+.card.chosen .face { box-shadow: 0 0 0 4px var(--brass), 0 6px 0 var(--ink), 0 30px 50px oklch(0 0 0 / 0.5); }
+.card .stack { position: absolute; top: 10px; left: 10px; font: 700 12px/1 var(--font-mono); color: var(--accent-ink); }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 999px; font: 600 11px/1 var(--font-mono); letter-spacing: 0.04em; border: 1.5px solid currentColor; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

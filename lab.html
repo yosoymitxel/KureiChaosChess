@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#2a2118" />
+  <title>Zugzwang · Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Martian+Mono:wght@500;600&display=swap" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/board.css" />
+  <link rel="stylesheet" href="css/screens.css" />
+  <!-- Dependencies come from the CDN through an import map: no bundler, no build step.
+       Pin exact versions; bump them deliberately. -->
+    <script type="importmap">
+  {
+    "imports": {
+      "preact": "https://cdn.jsdelivr.net/npm/preact@10.29.8/dist/preact.module.js",
+      "preact/hooks": "https://cdn.jsdelivr.net/npm/preact@10.29.8/hooks/dist/hooks.module.js",
+      "htm": "https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.module.js",
+      "animejs": "https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.esm.min.js",
+      "motion": "https://cdn.jsdelivr.net/npm/motion@12.43.0/+esm"
+    }
+  }
+  </script>
+  <script type="module" src="src/lab.js"></script>
+</head>
+<body>
+  <div class="lab">
+    <aside class="lab-menu panel">
+      <div class="eyebrow">Laboratorio</div>
+      <h1>Animaciones</h1>
+      <p>Escenas aisladas para iterar sobre la coreografía sin jugar una partida.</p>
+      <div id="scenes"></div>
+      <div class="eyebrow">Cámara</div>
+      <div class="segmented" id="cams"></div>
+    </aside>
+    <div class="lab-stage" id="stage"></div>
+  </div>
+</body>
+</html>

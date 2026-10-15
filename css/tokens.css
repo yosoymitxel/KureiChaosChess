@@ -1,0 +1,40 @@
+/* Design tokens. Tabletop palette: warm walnut, printed ivory card stock, vermilion ink, brass. */
+:root {
+  --font-display: 'Bricolage Grotesque', 'Trebuchet MS', sans-serif;
+  --font-body: 'Bricolage Grotesque', 'Trebuchet MS', sans-serif;
+  --font-mono: 'Martian Mono', ui-monospace, monospace;
+
+  --ink: oklch(0.2 0.02 55);
+  --ink-2: oklch(0.32 0.025 55);
+  --paper: oklch(0.95 0.025 85);
+  --paper-2: oklch(0.89 0.035 80);
+  --paper-3: oklch(0.8 0.045 75);
+  --muted: oklch(0.55 0.03 70);
+  --accent: oklch(0.63 0.2 35);
+  --accent-ink: oklch(0.42 0.15 32);
+  --brass: oklch(0.77 0.12 80);
+  --legal: oklch(0.82 0.17 135);
+  --danger: oklch(0.62 0.22 25);
+  --good: oklch(0.7 0.15 150);
+
+  /* Overridden per theme by src/data/themes.js */
+  --table: oklch(0.22 0.025 55);
+  --table-2: oklch(0.3 0.035 55);
+  --tile-a: oklch(0.86 0.045 80);
+  --tile-b: oklch(0.7 0.06 65);
+  --tile-side: oklch(0.45 0.05 55);
+  --side-light: oklch(0.95 0.025 90);
+  --side-dark: oklch(0.6 0.19 32);
+  --side-wild: oklch(0.65 0.13 160);
+
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --shadow-card: 0 1px 0 oklch(1 0 0 / 0.5) inset, 0 -2px 0 oklch(0 0 0 / 0.12) inset, 0 6px 0 var(--ink), 0 14px 30px oklch(0 0 0 / 0.35);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Paper grain, generated (no image assets). */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --woodgrain: repeating-linear-gradient(92deg, oklch(0 0 0 / 0.05) 0 2px, transparent 2px 9px, oklch(1 0 0 / 0.03) 9px 10px, transparent 10px 23px);
+}
