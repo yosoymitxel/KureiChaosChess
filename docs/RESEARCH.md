@@ -35,6 +35,15 @@ Las dos librerías de animación (anime.js y Motion) sí se usan, cargadas por C
 | **Bklit UI** | Librería de **gráficas** React (shadcn registry). | No por ahora | Útil más adelante para una pantalla de estadísticas de la run (historial de pisos, piezas perdidas). Requiere build. |
 | **Manus (manus.im)** | Agente autónomo de propósito general, no una librería. | No | Podría usarse para generar arte (sprites, fondos) fuera del repo. |
 
+## Referencias de juego
+
+| Juego | Qué se toma | Dónde |
+|---|---|---|
+| **Gambonanza** (roguelike de ajedrez) | Las reseñas destacan que capturar "tiene peso" → pausa de impacto y rótulos de captura. Su crítica más repetida en Steam son las animaciones que no se pueden saltar (15 s por jefe) → todas nuestras cinemáticas se saltan con un toque y duran 1,7 s como mucho. | `BoardView.hitStop`, `src/ui/moments.js` |
+| **Slay the Spire** | Banners cortos que anuncian cambios de estado (turno, jefe), recompensas en cartas, mapa de ramas. Su sistema de *intents* (el enemigo anuncia lo que va a hacer) queda propuesto como siguiente paso para los jefes: hoy el bot decide en su turno, así que anunciarlo exige que el jefe se comprometa con un plan, y eso es un cambio de mecánica. | Banner de turno, `CardPick`, mapa |
+
+Fuentes: [reseña en Movies Games and Tech](https://moviesgamesandtech.com/2026/05/10/review-gambonanza/), [reseñas negativas en Steam](https://steamcommunity.com/app/3509230/negativereviews/?browsefilter=toprated), [wiki de Intent de Slay the Spire](https://slay-the-spire.fandom.com/wiki/Intent).
+
 ## Recursos de arte recomendados (siguiente paso)
 
 - **Kenney "Boardgame Pack"** (CC0): fichas, dados, cartas, tableros. Ideal para sustituir las

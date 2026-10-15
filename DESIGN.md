@@ -45,6 +45,11 @@ favicon y los iconos troquelados de la interfaz.
 | Banner de turno | Aparece solo cuando empieza tu turno y desaparece; marca un cambio de estado real. |
 | Curvas `ease-out` exponenciales | Los objetos deceleran como objetos reales; sin rebotes elásticos. El *squash* al aterrizar es física del impacto, no adorno. |
 | Anillo rojo bajo una pieza | Marca un estado real: esa pieza puede ser capturada. Sin pulso infinito. |
+| Cinemáticas (piso, entrada del jefe, jefe derribado) | Marcan los tres cambios de capítulo de una partida. Franjas de tinta y un rótulo de papel sobre la mesa: es la tarjeta de presentación de la caja. Duran 1,7 s como mucho y se saltan con cualquier toque o tecla (la queja principal de Gambonanza son sus animaciones imposibles de saltar). |
+| Rótulos de golpe (¡Jaque!, ¡Reina caída!, ¡Aplastados ×3!, ¡Golpe!, ¡Coronación!, ¡Derrumbe!) | Salen solo cuando cambia algo que el jugador tiene que notar, nunca bloquean y se encolan. El color dice a quién beneficia: latón si es tuyo, rojo si va contra ti. |
+| Pausa de impacto al capturar | 70 ms de pausa (160 ms con rey o captura múltiple) para que el golpe tenga peso, como en Gambonanza. |
+| Viñeta roja mientras dura el jaque | Estado real y continuo; no parpadea. |
+| Centrado óptico | Los iconos se compensan con su desvío medido; las piezas se encuadran por su caja real cuando son icono; los textos grandes recortan el interlineado a la altura de mayúscula (`text-box`). Verificado midiendo el centro de cada icono, texto y figura contra su contenedor en todas las pantallas, en escritorio y móvil. |
 
 ## Lo que no se hace
 

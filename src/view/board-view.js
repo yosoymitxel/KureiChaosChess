@@ -13,8 +13,8 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 export class BoardView {
-  constructor(host, { camera = 'tilt', shake = true, speed = 1, onTap, onDrop, canDrag } = {}) {
-    Object.assign(this, { host, onTap, onDrop, canDrag, shakeOn: shake, speed });
+  constructor(host, { camera = 'tilt', shake = true, speed = 1, onTap, onDrop, canDrag, onImpact } = {}) {
+    Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, shakeOn: shake, speed });
     this.tilt = CAMERAS[camera] ?? 40;
     host.classList.add('table');
     host.innerHTML = `<div class="stage"><div class="board"><div class="tiles"></div><div class="pieces"></div></div></div>`;
@@ -39,10 +39,14 @@ export class BoardView {
     h.setAttribute('role', 'application');
     h.setAttribute('aria-label', 'Tablero. Flechas para moverte, Enter para elegir o mover.');
     const DIRS = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
-    h.addEventListener('focus', () => this.moveCursor(this.cursor || { row: this.board.rows - 1, col: Math.floor(this.board.cols / 2) }));
+    // Only keyboard focus shows the cursor; a mouse click focuses the board too but must not draw it.
+    h.addEventListener('focus', () => h.matches(':focus-visible') && this.moveCursor(this.cursor || { row: this.board.rows - 1, col: Math.floor(this.board.cols / 2) }));
     h.addEventListener('blur', () => this.tiles.get(key(this.cursor?.row, this.cursor?.col))?.classList.remove('cursor'));
     h.addEventListener('keydown', (e) => {
-      if (DIRS[e.key] && this.cursor) {
+      if (DIRS[e.key] && !this.cursor) {
+        e.preventDefault();
+        this.moveCursor({ row: this.board.rows - 1, col: Math.floor(this.board.cols / 2) });
+      } else if (DIRS[e.key]) {
         e.preventDefault();
         let { row, col } = this.cursor;
         const [dr, dc] = DIRS[e.key];
@@ -327,6 +331,8 @@ export class BoardView {
       const mid = { r: (from.row + to.row) / 2, c: (from.col + to.col) / 2 };
       await animate(st, { r: mid.r, c: mid.c, z: [0, arc * 0.6, 0], duration: dur * 0.6, ease: 'inQuad', onUpdate: () => this.apply(piece) });
       for (const v of victims) this.hurt(v.piece);
+      this.onImpact?.(res);
+      await this.hitStop(victims, 90);
       await animate(st, { r: from.row, c: from.col, z: [0, arc * 0.3, 0], duration: dur * 0.7, ease: 'outQuad', onUpdate: () => this.apply(piece) });
       this.squash(piece);
       for (const v of victims) if (v.killed) await this.kill(v.piece, from, to);
@@ -341,8 +347,19 @@ export class BoardView {
     this.squash(piece, piece.boss ? 0.6 : 0.78);
     this.fx.dust(c.x, c.y, piece.boss ? 2 : 0.8);
     if (piece.boss) { this.shake(14, 450); this.fx.ring(c.x, c.y, { radius: this.sq * 2.4, width: 5 }); }
+    this.onImpact?.(res);
+    if (victims.length) await this.hitStop(victims, victims.some((v) => v.piece.royal) || victims.length > 1 ? 160 : 70);
     await Promise.all(victims.map((v) => this.kill(v.piece, from, to)));
     if (promoted) await this.promote(piece);
+  }
+
+  // Freeze-frame on impact so a capture lands with weight; big hits also punch the camera in.
+  async hitStop(victims, ms) {
+    const els = victims.map((v) => this.els.get(v.piece)).filter(Boolean);
+    els.forEach((el) => el.classList.add('hit'));
+    if (ms > 100 && this.shakeOn && !reduced()) animate(this.stage, { scale: [1, 1.05, 1], duration: this.d(ms + 260), ease: 'outExpo' });
+    await wait(this.d(ms));
+    els.forEach((el) => el.classList.remove('hit'));
   }
 
   hurt(p) {

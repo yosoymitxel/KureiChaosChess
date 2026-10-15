@@ -25,6 +25,7 @@ export class Match {
   legal(piece) { return legalMoves(piece, this.pieces, this.board); }
   pieceAt(r, c) { return buildOccupancy(this.pieces).get(key(r, c)) || null; }
   threats(color = this.player.color) { return threatenedPieces(this.pieces, color, this.board); }
+  inCheck(color) { return !this.eliminated[color] && threatenedPieces(this.pieces, color, this.board, { royal: true }).size > 0; }
   canMove(color = this.player.color) { return hasAnyLegalMove(this.pieces, color, this.board); }
 
   // Apply a move. Returns null if illegal.

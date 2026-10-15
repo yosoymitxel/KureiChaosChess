@@ -11,11 +11,13 @@ import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { PIECE_NAMES, MOVE_NAMES } from '../../data/pieces.js';
 import { BOSSES } from '../../data/bosses.js';
 import { PauseOverlay } from './overlays.js';
+import { Moments } from '../moments.js';
 
 const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
 
 export function GameScreen({ node, run, seats, settings, setSettings, onExit, onAbandon, onWin, onRestart, onHowTo }) {
   const hostRef = useRef(null);
+  const mainRef = useRef(null);
   const ref = useRef({}); // mutable director state: view, match, busy, selected
   const [hud, setHud] = useState(null);
   const [log, setLog] = useState([]);
@@ -36,7 +38,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const refresh = () => {
       const p = match.player;
       d.view.setTurn(p.color);
-      d.view.setThreats(p.kind === 'human' ? match.threats() : new Set());
+      const threats = p.kind === 'human' ? match.threats() : new Set();
+      if (p.kind === 'human' && match.inCheck(p.color)) threats.add(match.pieces.find((x) => x.royal && x.color === p.color));
+      d.view.setThreats(threats);
       if (node.modifier === 'fog') {
         const viewer = p.kind === 'human' ? p.color : seats.find((s) => s.kind === 'human')?.color || 'light';
         d.view.setFog(match.pieces, viewer);
@@ -94,8 +98,14 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       else addLog(`${tag}${nm} mueve`);
       if (res.promoted) addLog(`${tag}¡Coronación!`);
       await d.view.playMove(res);
+      const fallenBoss = res.victims.find((v) => v.killed && v.piece.boss)?.piece;
+      if (fallenBoss) await d.moments.cinematic({ title: `¡${fallenBoss.name} derribado!`, sub: 'El coloso cae y la torre es tuya.', piece: { type: fallenBoss.type, side: fallenBoss.color }, tone: 'brass' });
       const after = match.afterMove();
-      if (after.collapse) { addLog('¡El borde se desploma!'); await d.view.collapse(after.collapse); }
+      if (after.collapse) {
+        addLog('¡El borde se desploma!');
+        d.moments.callout({ text: '¡Derrumbe!', sub: 'El borde cae al vacío', icon: 'collapse', tone: 'danger' });
+        await d.view.collapse(after.collapse);
+      }
       d.busy = false;
       if (match.over) return finish(), true;
       startTurn(after.ended);
@@ -117,9 +127,52 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
           const mv = botChooseMove(match);
           if (mv) doMove(mv.piece, mv.target);
         }, 450 + Math.random() * 300);
-      } else if (newTurn) {
+      }
+      const warned = announceChecks();
+      if (p.kind === 'human' && newTurn && !warned) {
         setBanner({ key: Date.now(), text: seats.filter((s) => s.kind === 'human').length > 1 ? `Turno de ${p.name}` : 'Tu turno', side: p.color });
       }
+    };
+
+    // "Jaque" fires once when a royal becomes threatened; returns true if the current human was warned.
+    const announceChecks = () => {
+      let warnedMe = false;
+      const anyHuman = seats.some((s) => s.kind === 'human');
+      for (const s of seats) {
+        const now = match.inCheck(s.color);
+        if (now && !d.check[s.color] && anyHuman) {
+          const royal = match.pieces.find((x) => x.royal && x.color === s.color);
+          const mine = s.kind === 'human';
+          d.moments.callout(mine
+            ? { text: '¡Jaque!', sub: s === match.player ? 'Tu turno: protege al rey' : `${s.name}, tu rey está amenazado`, tone: 'danger', piece: { type: royal.type, side: s.color } }
+            : { text: '¡Jaque!', sub: `${royal.boss ? royal.name : 'El rey ' + SIDE_NAME[s.color]} está a tiro`, tone: 'brass', piece: { type: royal.type, side: s.color } });
+          if (mine && s === match.player) warnedMe = true;
+        }
+        d.check[s.color] = now;
+      }
+      d.view.host.classList.toggle('in-check', seats.some((s) => s.kind === 'human' && d.check[s.color]));
+      return warnedMe;
+    };
+
+    // Callouts at the instant of impact, from the mover's point of view.
+    const onImpact = (res) => {
+      const mine = match.player.kind === 'human';
+      const tone = mine ? 'brass' : 'danger';
+      const killed = res.victims.filter((v) => v.killed).map((v) => v.piece);
+      const art = (p) => ({ type: p.type, side: p.color });
+      if (res.bounced) {
+        const b = res.victims[0].piece;
+        return d.moments.callout({ text: '¡Golpe!', sub: `A ${b.name} le ${b.hp === 1 ? 'queda 1 vida' : `quedan ${b.hp} vidas`}`, tone, piece: art(b) });
+      }
+      if (killed.some((p) => p.boss)) return;
+      const royal = killed.find((p) => p.royal);
+      if (royal) return d.moments.callout({ text: '¡Rey caído!', sub: `Cae el bando ${SIDE_NAME[royal.color]}`, tone, piece: art(royal) });
+      if (killed.length > 1) d.moments.callout({ text: res.piece.boss ? `¡Aplastados ×${killed.length}!` : `¡Captura ×${killed.length}!`, tone, piece: art(res.piece) });
+      else {
+        const big = killed.find((p) => p.type === 'queen' || p.type === 'rook');
+        if (big) d.moments.callout({ text: `¡${PIECE_NAMES[big.type]} caída!`, tone, piece: art(big) });
+      }
+      if (res.promoted) d.moments.callout({ text: '¡Coronación!', sub: 'El peón asciende a reina', tone: 'brass', piece: { type: 'queen', side: res.piece.color } });
     };
 
     const onTap = (hit) => {
@@ -146,25 +199,34 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const canDrag = (p) => humanTurn() && p.color === match.player.color;
 
     d.match = match;
-    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, onTap, onDrop, canDrag });
+    d.check = {};
+    d.moments = new Moments(mainRef.current, { speed: settings.speed, enabled: settings.moments });
+    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, onTap, onDrop, canDrag, onImpact });
     d.view.setBoard(board);
     d.view.setPieces(pieces);
     d.busy = true;
     addLog(`Piso ${node.floor + 1}/${run.map.floors} · ${board.rows}×${board.cols} · ${mod.name}`);
-    if (node.isBoss) addLog(`Aparece ${pieces.find((p) => p.boss)?.name}`);
+    const boss = pieces.find((p) => p.boss);
+    if (boss) addLog(`Aparece ${boss.name}`);
     refresh();
-    d.view.intro(pieces).then(() => { d.busy = false; startTurn(); });
+    // The floor card plays over the board while it assembles; the boss gets its own entrance after landing.
+    Promise.all([
+      d.view.intro(pieces),
+      !boss && d.moments.cinematic({ title: `Piso ${node.floor + 1}`, sub: `${mod.name}. ${mod.desc}`, icon: mod.icon }),
+    ])
+      .then(() => boss && d.moments.cinematic({ title: boss.name, sub: BOSSES[boss.boss].desc, piece: { type: boss.type, side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger' }))
+      .then(() => { d.busy = false; startTurn(); });
     const onKey = (e) => e.key === 'Escape' && setPaused((v) => !v);
     addEventListener('keydown', onKey);
-    return () => { clearTimeout(d.timer); removeEventListener('keydown', onKey); d.view.destroy(); };
+    return () => { clearTimeout(d.timer); removeEventListener('keydown', onKey); d.view.destroy(); d.moments.destroy(); };
   }, []);
 
   useEffect(() => { ref.current.paused = paused; }, [paused]);
-  useEffect(() => { ref.current.view?.setCamera(settings.camera); if (ref.current.view) { ref.current.view.shakeOn = settings.shake; ref.current.view.speed = settings.speed; } }, [settings]);
+  useEffect(() => { ref.current.view?.setCamera(settings.camera); if (ref.current.view) { ref.current.view.shakeOn = settings.shake; ref.current.view.speed = settings.speed; } if (ref.current.moments) Object.assign(ref.current.moments, { speed: settings.speed, enabled: settings.moments }); }, [settings]);
 
   const muts = Object.entries(countMutations(run.mutations || []));
   return html`<div class="screen game">
-    <div class="game-main">
+    <div class="game-main" ref=${mainRef}>
       <div class="game-top">
         <button class="btn ghost sm icon-only" aria-label="Pausa" title="Pausa (Escape)" onClick=${() => setPaused(true)}><${Icon} name="pause" /></button>
         <h1 class="title">${node.isBoss ? 'Piso final' : `Piso ${node.floor + 1} de ${run.map.floors}`}</h1>

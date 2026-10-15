@@ -28,6 +28,21 @@ const BODIES = {
   cannon: g(`${PLINTH}<path d="M12.8 28l18-12 3.6 5.6-18 12z"/><path d="M29.6 14.6l4.2-2.8 5 7.6-4.2 2.8z"/><circle cx="18.6" cy="27.4" r="5.6"/><circle cx="18.6" cy="27.4" r="1.7" fill="${F2}"/>${detail('M18.6 22.6v9.6M13.8 27.4h9.6')}`),
 };
 
-export function pieceSVG(type) {
-  return `<svg viewBox="0 0 45 41" preserveAspectRatio="xMidYMax meet" aria-hidden="true">${BODIES[type] || BODIES.pawn}</svg>`;
+// Measured bounding boxes [x, y, w, h], used to centre a piece optically when shown as an icon.
+const BOX = {
+  pawn: [11, 10, 23, 30], rook: [9, 10, 27, 30], knight: [6, 8, 32, 32], bishop: [6, 7.5, 33, 32.5],
+  queen: [4, 5.5, 37, 35.3], king: [5.8, 6, 33.3, 35.4], guard: [9.5, 2.8, 26, 37.2], advisor: [9.5, 2.8, 26, 37.2],
+  elephant: [8.2, 11, 27.4, 29], camel: [9.5, 3.4, 28.6, 36.6], cannon: [9.5, 11.8, 29.3, 28.2],
+};
+
+// On the board the foot sits on the base (bottom-aligned); as an icon (`fit`) the piece is centred in a square.
+export function pieceSVG(type, { fit = false } = {}) {
+  let vb = '0 0 45 41', align = 'xMidYMax';
+  if (fit) {
+    const [x, y, w, h] = BOX[type] || BOX.pawn;
+    const s = Math.max(w, h) + 3;
+    vb = `${x + w / 2 - s / 2} ${y + h / 2 - s / 2} ${s} ${s}`;
+    align = 'xMidYMid';
+  }
+  return `<svg viewBox="${vb}" preserveAspectRatio="${align} meet" aria-hidden="true">${BODIES[type] || BODIES.pawn}</svg>`;
 }

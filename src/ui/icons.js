@@ -21,7 +21,7 @@ const P = {
   skull: html`<path d="M12 2.5c-5 0-8.5 3.6-8.5 8.3 0 2.7 1.2 4.6 3 5.8v4h11v-4c1.8-1.2 3-3.1 3-5.8 0-4.7-3.5-8.3-8.5-8.3z" />${dot(8.7, 11.5, 2.1)}${dot(15.3, 11.5, 2.1)}${cut('M10 17.5v3M14 17.5v3', 1.4)}`,
   book: html`<path d="M2.5 4.5c3.5-1 6.5-.5 9 1.5v15c-2.5-2-5.5-2.5-9-1.5zM21.5 4.5c-3.5-1-6.5-.5-9 1.5v15c2.5-2 5.5-2.5 9-1.5z" />${cut('M5 9c1.8-.3 3.2 0 4.5.6M5 12.5c1.8-.3 3.2 0 4.5.6M19 9c-1.8-.3-3.2 0-4.5.6', 1.3)}`,
   flag: html`<rect x="4" y="2.5" width="2.4" height="19" rx="1" /><path d="M6.4 3.5h13l-3 4.5 3 4.5h-13z" />`,
-  gear: html`<path d="M10.3 2.5h3.4l.6 2.7 2 .9 2.4-1.5 2.4 2.4-1.5 2.4.9 2 2.7.6v3.4l-2.7.6-.9 2 1.5 2.4-2.4 2.4-2.4-1.5-2 .9-.6 2.7h-3.4l-.6-2.7-2-.9-2.4 1.5-2.4-2.4 1.5-2.4-.9-2-2.7-.6v-3.4l2.7-.6.9-2-1.5-2.4 2.4-2.4 2.4 1.5 2-.9z" /><circle cx="12" cy="12" r="3.2" fill=${CUT} />`,
+  gear: html`${[0, 45, 90, 135, 180, 225, 270, 315].map((a) => html`<rect x="10.2" y="1.8" width="3.6" height="5" rx="1" transform=${`rotate(${a} 12 12)`} />`)}<circle cx="12" cy="12" r="7.4" /><circle cx="12" cy="12" r="3" fill=${CUT} />`,
   // Modifiers
   plain: html`<path d="M12 4l9.5 5.5L12 15 2.5 9.5z" /><path d="M2.5 9.5V12L12 17.5 21.5 12V9.5L12 15z" opacity=".55" />`,
   crown: html`<path d="M3 18.5L2 7l5.3 4.3L12 4l4.7 7.3L22 7l-1 11.5z" /><rect x="3" y="19.5" width="18" height="2.5" rx="1" />${dot(12, 13.5, 1.5)}`,
@@ -37,11 +37,18 @@ const P = {
   flask: html`<path d="M9 2.5h6v2h-1v4.6l5.7 9.4c1 1.7-.2 3.5-2 3.5H6.3c-1.8 0-3-1.8-2-3.5L10 9.1V4.5H9z" />${cut('M7.5 15.5h9', 1.6)}${dot(10.5, 18.3, 1.1)}${dot(14, 17.8, 0.8)}`,
 };
 
+// Optical centring: measured offset of each glyph's bounding box from the 24×24 centre.
+const OFFSET = {
+  back: [-0.6, 0], check: [0, 0.4], warn: [0, -0.5], refresh: [0.25, -0.35], bot: [0, -0.75], skull: [0, -0.45],
+  book: [0, 0.5], plain: [0, -1.25], crown: [0, 1], fog: [-0.4, 0.1], bag: [0, 0.5], boot: [-0.75, -0.5],
+};
+
 export function Icon({ name, size = 18 }) {
   if (PIECE_TYPES.includes(name)) return html`<${PieceIcon} type=${name} size=${size} />`;
-  return html`<svg class="icon" width=${size} height=${size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${P[name]}</svg>`;
+  const [dx, dy] = OFFSET[name] || [0, 0];
+  return html`<svg class="icon" width=${size} height=${size} viewBox=${`${dx} ${dy} 24 24`} fill="currentColor" aria-hidden="true">${P[name]}</svg>`;
 }
 
 export function PieceIcon({ type, size = 28, side = 'dark' }) {
-  return html`<span class=${'piece-icon side-' + side} style=${{ width: size + 'px', height: size + 'px' }} dangerouslySetInnerHTML=${{ __html: pieceSVG(type) }} />`;
+  return html`<span class=${'piece-icon side-' + side} style=${{ width: size + 'px', height: size + 'px' }} dangerouslySetInnerHTML=${{ __html: pieceSVG(type, { fit: true }) }} />`;
 }

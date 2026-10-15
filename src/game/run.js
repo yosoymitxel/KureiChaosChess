@@ -32,6 +32,6 @@ export function isAvailable(run, node) {
   return run.map.connections.some((cn) => cn.to === node.id && run.completed[cn.from]);
 }
 
-export const DEFAULT_SETTINGS = { theme: 'walnut', camera: 'tilt', shake: true, fullscreen: false, speed: 1 };
+export const DEFAULT_SETTINGS = { theme: 'walnut', camera: 'tilt', shake: true, moments: true, fullscreen: false, speed: 1 };
 export const loadSettings = () => ({ ...DEFAULT_SETTINGS, ...(read(SETTINGS_KEY) || {}) });
 export const saveSettings = (s) => write(SETTINGS_KEY, s);

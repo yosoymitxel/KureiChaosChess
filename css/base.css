@@ -31,7 +31,7 @@ h2 { font-size: 17px; font-weight: 750; }
   padding: 12px 20px; min-height: 48px;
   background: var(--bg); color: var(--fg); --icon-cut: var(--bg);
   border: 2px solid var(--edge); border-radius: var(--r-md);
-  font-weight: 700; font-size: 15px;
+  font-weight: 700; font-size: 15px; text-align: center; line-height: 1.15;
   box-shadow: 0 4px 0 var(--edge), var(--lift);
   cursor: pointer;
   transition: transform 0.14s var(--ease-out), box-shadow 0.14s var(--ease-out), background 0.15s;

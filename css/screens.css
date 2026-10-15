@@ -152,7 +152,50 @@
 }
 .turn-banner span { font-size: clamp(28px, 5vw, 48px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
 
+/* Foreground moments (src/ui/moments.js). Colour says who benefits: brass = you, danger = against you. */
+.moment { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
+.moment.cine { display: grid; place-items: center; pointer-events: auto; cursor: pointer; }
+.cine .bar { position: absolute; left: 0; right: 0; height: 13%; background: var(--ink); }
+.cine .bar.top { top: 0; transform-origin: top; }
+.cine .bar.bottom { bottom: 0; transform-origin: bottom; }
+.cine-body {
+  display: flex; align-items: center; justify-content: center; gap: clamp(16px, 4vw, 48px);
+  width: 100%; padding: clamp(14px, 3vh, 28px) 24px;
+  background: var(--paper); background-image: var(--grain); color: var(--ink); --icon-cut: var(--ink);
+  border-block: 6px solid var(--ink);
+  box-shadow: var(--lift);
+}
+.cine.tone-danger .cine-body { border-color: var(--danger); }
+.cine.tone-brass .cine-body { border-color: var(--brass); }
+.cine-art { display: grid; place-items: center; }
+.cine-art .piece-icon { width: clamp(96px, 18vw, 200px) !important; height: clamp(96px, 18vw, 200px) !important; filter: drop-shadow(0 10px 10px oklch(0.12 0.03 55 / 0.35)); }
+.cine-icon { display: grid; place-items: center; width: clamp(84px, 12vw, 128px); aspect-ratio: 1; border-radius: 22px; background: var(--ink); color: var(--brass); }
+.cine-icon .icon { width: 64%; height: 64%; }
+.cine-text { display: flex; flex-direction: column; gap: 10px; max-width: 34rem; }
+.cine-text h2 { font-size: clamp(40px, 7vw, 84px); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; }
+.cine-text p { margin: 0; font-size: clamp(14px, 1.6vw, 17px); color: var(--ink-2); max-width: 40ch; text-wrap: pretty; }
+.cine-hp { display: flex; gap: 8px; }
+.cine-hp b { width: 18px; height: 18px; border-radius: 50%; background: var(--paper-3); border: 2px solid var(--ink); }
+.cine-hp b.on { background: var(--danger); }
+.cine-skip { position: absolute; bottom: 4.5%; left: 0; right: 0; text-align: center; font-size: 13px; color: var(--paper-3); }
+
+.moment.callout { top: 34%; bottom: auto; display: flex; align-items: center; justify-content: center; gap: 16px; padding: 14px 20px; }
+.callout .band { position: absolute; inset: 0; background: var(--ink); rotate: -2deg; }
+.callout.tone-danger .band { background: var(--danger); }
+.callout.tone-brass .band { background: var(--brass); }
+.callout-art, .callout-text { position: relative; rotate: -2deg; }
+.callout-art { display: grid; place-items: center; }
+.callout-text { display: flex; flex-direction: column; align-items: flex-start; color: var(--paper); }
+.callout.tone-brass .callout-text { color: var(--ink); }
+.callout-text strong { font-size: clamp(36px, 7vw, 76px); font-weight: 800; letter-spacing: -0.04em; line-height: 1; padding-block: 0.08em; }
+/* Trim the line box to cap height so big display text centres optically, not by its font metrics. */
+.callout-text strong, .cine-text h2, .turn-banner span, .end-card h1 { text-box: trim-both cap alphabetic; }
+.callout-text small { font-size: clamp(13px, 1.6vw, 16px); font-weight: 700; }
+.table.in-check::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, oklch(0.52 0.2 25 / 0.32)); }
+
 @media (max-width: 860px) {
+  .cine-body { flex-direction: column; text-align: center; }
+  .cine-text { align-items: center; }
   .game { flex-direction: column; }
   .hud { width: auto; margin: 0 10px calc(10px + env(safe-area-inset-bottom)); max-height: 34dvh; padding: 12px; gap: 10px; }
   .hud .mod-card, .hud .log { display: none; }

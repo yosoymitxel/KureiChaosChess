@@ -125,14 +125,14 @@ export function hasAnyLegalMove(pieces, color, board) {
   return pieces.some((p) => p.color === color && legalMoves(p, pieces, board, ctx).length > 0);
 }
 
-// Own pieces (non-royal) that some enemy could hit next move.
-export function threatenedPieces(pieces, color, board) {
+// Own pieces that some enemy could hit next move: the non-royal ones, or only the royal (check).
+export function threatenedPieces(pieces, color, board, { royal = false } = {}) {
   const ctx = ctxOf(pieces, board);
   const out = new Set();
   for (const e of pieces) {
     if (e.color === color) continue;
     for (const m of legalMoves(e, pieces, board, ctx))
-      for (const v of m.hits) if (v.color === color && !v.royal) out.add(v);
+      for (const v of m.hits) if (v.color === color && !!v.royal === royal) out.add(v);
   }
   return out;
 }

@@ -4,7 +4,7 @@ import { generateBoard, placePieces } from '../src/game/generate.js';
 import { Match, botChooseMove } from '../src/game/match.js';
 
 const games = +(process.argv[2] || 60);
-const stats = { win: 0, loss: 0, tie: 0, bossHits: 0, bossCrushes: 0 };
+const stats = { win: 0, loss: 0, tie: 0, bossHits: 0, bossCrushes: 0, checks: 0 };
 for (let g = 0; g < games; g++) {
   const seed = 1000 + g, isBoss = g % 2 === 0, three = g % 5 === 0;
   const board = generateBoard(seed, isBoss ? 9 : 3, 10);
@@ -17,8 +17,11 @@ for (let g = 0; g < games; g++) {
     if (n > 5000) throw new Error(`game ${g} never ended`);
     const mv = botChooseMove(m);
     if (!mv) { m.afterMove({ pass: true }); continue; }
+    const checked = Object.fromEntries(players.map((p) => [p.color, m.inCheck(p.color)]));
     const r = m.move(mv.piece, mv.target);
     if (!r) throw new Error(`game ${g}: bot chose an illegal move`);
+    for (const v of r.victims) if (v.killed && v.piece.royal && !checked[v.piece.color]) throw new Error(`game ${g}: royal fell without check`);
+    stats.checks += Object.values(checked).filter(Boolean).length;
     if (r.bounced) stats.bossHits++;
     if (r.piece.boss && r.victims.length) stats.bossCrushes++;
     m.afterMove();

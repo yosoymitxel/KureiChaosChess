@@ -66,6 +66,7 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
         <div class="segmented" role="group" aria-label="Velocidad de animación">
           ${[[0.75, 'Pausada'], [1, 'Normal'], [1.6, 'Rápida']].map(([v, label]) => html`<button class=${settings.speed === v ? 'on' : ''} aria-pressed=${settings.speed === v} onClick=${() => set('speed')(v)}>${label}</button>`)}
         </div>
+        <${Toggle} on=${settings.moments} onChange=${set('moments')} label="Momentos destacados" hint="Rótulos y cinemáticas en jugadas clave (se saltan con un toque)" />
         <${Toggle} on=${settings.shake} onChange=${set('shake')} label="Temblor de cámara" hint="Impactos y derrumbes sacuden la mesa" />
         <${Toggle} on=${settings.fullscreen} onChange=${set('fullscreen')} label="Pantalla completa" hint="Al empezar una partida" />
       </section>
