@@ -24,7 +24,7 @@ export const PIECE_RULES = [
   ['bishop', 'Se desliza en diagonal.'],
   ['queen', 'Torre + alfil.'],
   ['king', '1 paso en cualquier dirección. Si cae, su bando queda eliminado.'],
-  ['guard', '1 paso adelante, lateral o diagonal. Nunca retrocede recto.'],
+  ['guard', '1 paso adelante, lateral o diagonal, o 2 en diagonal si el paso está libre. Nunca retrocede recto.'],
   ['advisor', '1 paso en diagonal.'],
   ['elephant', 'Salta 2 en diagonal.'],
   ['camel', 'Salta en L larga (3 y 1).'],

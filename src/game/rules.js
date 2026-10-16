@@ -83,7 +83,11 @@ function canMoveAs(piece, type, tr, tc, ctx) {
       return adc === 1 && dr === dir && hit;
     }
     case 'pawnBack': return dc === 0 && dr === -forward(piece) && !hit;
-    case 'guard': return adr <= 1 && adc <= 1 && !(dr === -forward(piece) && dc === 0);
+    case 'guard': {
+      // Rey sin retroceso recto; en diagonal llega a 2 si el paso intermedio está libre.
+      if (adr <= 1 && adc <= 1) return !(dr === -forward(piece) && dc === 0);
+      return adr === 2 && adc === 2 && pathClear(piece, tr, tc, ctx);
+    }
     case 'advisor': return adr === 1 && adc === 1;
     case 'elephant': return adr === 2 && adc === 2;
     case 'camel': return (adr === 3 && adc === 1) || (adr === 1 && adc === 3);
