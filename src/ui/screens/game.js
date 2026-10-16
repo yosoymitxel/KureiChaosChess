@@ -219,7 +219,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       }
       const warned = announceChecks();
       if (p.kind === 'human' && newTurn && !warned) {
-        setBanner({ key: Date.now(), text: seats.filter((s) => s.kind === 'human').length > 1 ? `Turno de ${p.name}` : 'Tu turno', side: p.color });
+        // Let queued callouts (capture, collapse, jaque) finish before "Tu turno", so nothing overlaps.
+        const text = seats.filter((s) => s.kind === 'human').length > 1 ? `Turno de ${p.name}` : 'Tu turno';
+        d.moments.whenIdle().then(() => setBanner({ key: Date.now(), text, side: p.color }));
       }
     };
 
@@ -268,6 +270,12 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (res.promoted) d.moments.callout({ text: '¡Coronación!', sub: 'El peón asciende a reina', tone: 'brass', piece: { type: 'pawn', side: res.piece.color }, pieceTo: { type: 'queen', side: res.piece.color }, anim: 'promote' });
     };
 
+    // Tapping a terrain tile (ice, portal…) explains what it does.
+    const terrainInfo = (r, c) => {
+      const m = MODIFIERS[board.terrain?.get(key(r, c))];
+      if (m) d.moments.callout({ text: m.name, sub: m.desc, icon: m.icon, tone: 'paper' });
+      return !!m;
+    };
     const onTap = (hit) => {
       if (!humanTurn()) return;
       if (d.cardSel != null) {
@@ -287,9 +295,10 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         const anchor = anchorForCell(d.selected, hit.row, hit.col, moves);
         if (anchor) { doMove(d.selected, anchor); return; }
         if (piece) return inspectPiece(piece);
+        terrainInfo(hit.row, hit.col);
         return clearSel();
       }
-      if (!piece) return clearSel();
+      if (!piece) { terrainInfo(hit.row, hit.col); return clearSel(); }
       if (piece.color === me) select(piece); else inspectPiece(piece);
     };
     const onDrop = (piece, hit) => {
@@ -325,14 +334,17 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.busy = true;
     addLog(`Piso ${node.floor + 1}/${run.map.floors} · ${board.rows}×${board.cols} · ${mod.name}`);
     const boss = pieces.find((p) => p.boss);
-    if (boss) addLog(`Aparece ${boss.name}`);
+    const learned = pieces.filter((p) => p.color !== 'light' && p.extraMoveTypes?.length).length;
+    // On a boss floor enemy officers borrow moves: the star badge marks them and the entrance says so.
+    const bossSub = boss && `${BOSSES[boss.boss].desc}${learned ? ' Sus oficiales llevan la estrella: movimientos prestados.' : ''}`;
+    if (boss) addLog(`Aparece ${boss.name}${learned ? ` · ${learned} oficial${learned > 1 ? 'es' : ''} con movimientos prestados` : ''}`);
     refresh();
     // The floor card plays over the board while it assembles; the boss gets its own entrance after landing.
     Promise.all([
       d.view.intro(pieces),
       !boss && d.moments.cinematic({ title: `Piso ${node.floor + 1}`, sub: `${mod.name}. ${mod.desc}`, icon: mod.icon, wave: seats.flatMap((s) => ['pawn', 'knight', 'king'].map((t) => [t, s.color])) }),
     ])
-      .then(() => boss && d.moments.cinematic({ title: boss.name, sub: BOSSES[boss.boss].desc, piece: { type: artOf(boss), side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger', anim: 'stomp' }))
+      .then(() => boss && d.moments.cinematic({ title: boss.name, sub: bossSub, piece: { type: artOf(boss), side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger', anim: 'stomp' }))
       .then(() => { d.busy = false; startTurn(); });
     const onKey = (e) => e.key === 'Escape' && setPaused((v) => !v);
     addEventListener('keydown', onKey);

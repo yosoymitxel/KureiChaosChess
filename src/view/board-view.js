@@ -15,6 +15,7 @@ const css = (name) => getComputedStyle(document.documentElement).getPropertyValu
 const BADGES = {
   lock: '<svg viewBox="0 0 24 24"><path d="M7 10V7.5a5 5 0 0 1 10 0V10h-2.6V7.5a2.4 2.4 0 0 0-4.8 0V10z"/><rect x="4.5" y="10" width="15" height="11.5" rx="2.5"/></svg>',
   last: '<svg viewBox="0 0 24 24"><path d="M5 2.5h2.6v19H5z"/><path d="M7.6 3.5h11.9l-2.6 4 2.6 4H7.6z"/></svg>',
+  mut: '<svg viewBox="0 0 24 24"><path d="M12 1.8l2.6 7 7.4.4-5.7 4.7 1.9 7.2L12 17l-6.2 4.1 1.9-7.2L2 9.2l7.4-.4z"/></svg>',
 };
 
 export class BoardView {
@@ -169,14 +170,17 @@ export class BoardView {
     return this.els.get(p);
   }
 
-  // Protected pieces wear a badge (lock = escorted, flag = falls last) and escorts are tied
-  // to their ward with a rope on the board, so the rule is readable without opening the rules.
+  // Protected pieces wear a badge (lock = escorted, flag = falls last, star = borrowed moves)
+  // and escorts are tied to their ward with a rope on the board, so the rule is readable
+  // without opening the rules.
   setGuards(pieces, isImmune) {
     this.piecesEl.querySelectorAll('.tether').forEach((t) => t.remove());
     for (const [p, el] of this.els) {
       const on = isImmune(p);
-      const kind = on ? (p.trait === 'last' ? 'last' : 'lock') : '';
+      const mut = !on && !!p.extraMoveTypes?.length;
+      const kind = on ? (p.trait === 'last' ? 'last' : 'lock') : mut ? 'mut' : '';
       el.classList.toggle('guarded', on);
+      el.classList.toggle('mutated', mut);
       const badge = el.querySelector('.pc-badge');
       if (badge && badge.dataset.kind !== kind) { badge.dataset.kind = kind; badge.innerHTML = kind ? BADGES[kind] : ''; }
       const escort = on && p.escort && pieces.find((o) => o.id === p.escort);
@@ -273,15 +277,13 @@ export class BoardView {
   }
 
   // On a tilted board a standing figure covers the tile in front of it, so a tap on a figure
-  // over a marked tile (move, capture or card target) of another cell means that tile.
+  // over a marked tile (move, capture or card target) means that tile. A marked tile wins even
+  // when a big figure (boss) owns it, so aiming at its landing cells never falls back to its anchor.
   hitAt(x, y) {
     const stack = document.elementsFromPoint(x, y).filter((el) => this.host.contains(el));
     const first = this.cellFromEl(stack[0]);
     const tile = stack.find((el) => el.classList.contains('tile'));
-    if (first?.piece && tile?.matches('.mv, .cap, .target')) {
-      const r = +tile.dataset.r, c = +tile.dataset.c;
-      if (!cellsOf(first.piece).some(([a, b]) => a === r && b === c)) return { row: r, col: c };
-    }
+    if (tile?.matches('.mv, .cap, .target')) return { row: +tile.dataset.r, col: +tile.dataset.c };
     return first;
   }
 

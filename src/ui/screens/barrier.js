@@ -1,5 +1,5 @@
 import { html, useState, useEffect } from '../lib.js';
-import { Topbar } from '../components.js';
+import { Topbar, MiniEnd } from '../components.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { N, newBarrier, act, steps, canWall, botAction } from '../../game/barrier.js';
 
@@ -35,13 +35,13 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
 
   const reach = new Set(s.turn === 'light' && mode === 'move' && !s.over ? steps(s, 'light').map((m) => m.r * N + m.c) : []);
   const wallEl = (w, cls) => html`<i class=${'br-wall ' + w.o + ' ' + cls} style=${{ '--r': w.r, '--c': w.c }}></i>`;
-  const status = s.over === 'light' ? '¡Llegaste al otro lado! Ganas.' : s.over === 'dark' ? 'El peón carmesí cruzó primero.'
-    : s.turn === 'light' ? (mode === 'move' ? 'Mueve tu peón a la fila de arriba o pon una valla.' : 'Toca una casilla: la valla se pone en su borde.') : 'Piensa el bot…';
+  const status = s.turn === 'light' ? (mode === 'move' ? 'Mueve tu peón a la fila de arriba o pon una valla.' : 'Toca una casilla: la valla se pone en su borde.') : 'Piensa el bot…';
 
   return html`<div class="screen mini">
     <${Topbar} title="Barrera" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
-      <p class="mini-status" aria-live="polite">${status}</p>
+      ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
+      <p class="mini-help">Cruza a la fila de arriba antes que el peón carmesí, que baja hacia la suya. Muévete con las flechas o tocando una casilla, o gasta una valla para cerrar un borde.</p>
       <div class="br" style=${{ '--n': N }}>
         ${Array.from({ length: N * N }, (_, i) => {
           const r = Math.floor(i / N), c = i % N;
@@ -55,7 +55,7 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
         ${s.walls.map((w) => wallEl(w, ''))}
         ${ghost && wallEl(ghost, canWall(s, ghost) ? 'ghost' : 'ghost bad')}
       </div>
-      ${s.over ? html`<button class="btn primary" onClick=${() => onEnd(s.over === 'light')}>${endLabel}</button>`
+      ${s.over ? html`<${MiniEnd} win=${s.over === 'light'} note=${s.over === 'light' ? 'Tu peón cruzó antes que el carmesí.' : 'El peón carmesí cruzó primero.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'light')} />`
         : html`<div class="bm-actions" role="group" aria-label="Acción">
           <button class=${'btn sm' + (mode === 'move' ? ' on' : ' ghost')} aria-pressed=${mode === 'move'} onClick=${() => { setMode('move'); setGhost(null); }}>Mover</button>
           <button class=${'btn sm' + (mode === 'h' ? ' on' : ' ghost')} aria-pressed=${mode === 'h'} disabled=${!s.left.light} onClick=${() => setMode('h')}>Valla ─</button>

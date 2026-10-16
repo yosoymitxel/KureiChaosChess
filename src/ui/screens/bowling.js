@@ -1,5 +1,5 @@
 import { html, useState, useEffect } from '../lib.js';
-import { Topbar } from '../components.js';
+import { Topbar, MiniEnd } from '../components.js';
 import { MiniGrid } from './mini-grid.js';
 import { ROWS, COLS, GOAL, newBowling, launch, tick } from '../../game/bowling.js';
 
@@ -21,16 +21,16 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     const ball = s.balls.some((b) => b.r === r && b.c === c);
     return { cls: (c === 0 ? 'lane' + (s.reload ? '' : ' drop') : '') + (ball ? ' ball' : ''), piece: e && { type: e.type, side: 'dark' } };
   };
-  const status = s.over === 'win' ? '¡Bolera limpia! Ganas.' : s.over === 'lose' ? 'Una pieza llegó a tu borde.'
-    : `Derribadas ${s.down}/${GOAL}. Toca un carril (o teclas 1-5) para lanzar una ficha.`;
+  const status = `Derribadas ${s.down}/${GOAL}. Toca un carril o pulsa su número para lanzar una ficha.`;
 
   return html`<div class="screen mini">
     <${Topbar} title="Bolos de nuez" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
-      <p class="mini-status" aria-live="polite">${status}</p>
+      ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
+      <p class="mini-help">Las piezas carmesí cruzan de derecha a izquierda por cinco carriles. Lanza fichas desde la izquierda (toque o teclas 1-5): al derribar una, la ficha rebota en diagonal y sigue. No dejes que ninguna llegue a tu borde.</p>
       <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${!!s.over} label="Bolera"
         onTap=${(r) => launch(s, r) && redraw((n) => n + 1)} />
-      ${s.over && html`<button class="btn primary" onClick=${() => onEnd(s.over === 'win')}>${endLabel}</button>`}
+      ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Derribaste las ${GOAL} piezas que hacían falta.` : 'Una pieza llegó a tu borde.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
   </div>`;
 }

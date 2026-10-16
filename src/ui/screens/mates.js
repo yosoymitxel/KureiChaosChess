@@ -1,5 +1,5 @@
 import { html, useState } from '../lib.js';
-import { Topbar } from '../components.js';
+import { Topbar, MiniEnd } from '../components.js';
 import { MiniGrid } from './mini-grid.js';
 import { legalMoves } from '../../game/rules.js';
 import { SIZE, board, fromSpec, play, defend, capturesKing } from '../../game/mates.js';
@@ -28,12 +28,15 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     const reply = !kingTaken && defend(pieces, left);
     if (reply) pieces = play(pieces, reply.p, reply.m);
     const mate = kingTaken || capturesKing(pieces);
-    if (!pieces.some((p) => p.type === 'king' && p.color === 'light') || (!left && !mate)) {
-      setSt({ ...st, pieces, left }); setOver('lose'); return setNote('El rey carmesí se escapa.');
+    if (!pieces.some((p) => p.type === 'king' && p.color === 'light')) {
+      setSt({ ...st, pieces, left }); setOver('lose'); return setNote('El carmesí capturó a tu rey.');
+    }
+    if (!left && !mate) {
+      setSt({ ...st, pieces, left }); setOver('lose'); return setNote('Se acabaron tus jugadas y el rey carmesí sigue libre.');
     }
     if (mate && (!left || st.n === 1 || kingTaken)) {
-      if (st.n === 2) { setSt({ ...st, pieces, left }); setOver('win'); return setNote('¡Mate en 2! Ganas.'); }
-      setNote('¡Mate en 1! Ahora, mate en 2.');
+      if (st.n === 2) { setSt({ ...st, pieces, left }); setOver('win'); return setNote('¡Mate en 2! Problema resuelto.'); }
+      setNote('¡Mate en 1! Ahora el mate en 2.');
       return setSt(load(2));
     }
     setSt({ ...st, pieces, left });
@@ -42,16 +45,18 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
   const cell = (r, c) => {
     const p = st.pieces.find((x) => x.row === r && x.col === c);
     const t = targets.some((m) => m.row === r && m.col === c);
-    return { cls: (t ? 'mv' : '') + (sel && p === sel ? ' sel' : ''), piece: p && { type: p.type, side: p.color } };
+    const foe = p && p.type === 'king' && p.color === 'dark';
+    return { cls: (t ? 'mv ' : '') + (foe ? 'foe ' : '') + (sel && p === sel ? 'sel' : ''), piece: p && { type: p.type, side: p.color } };
   };
-  const status = note && (over || !sel) ? note : `Mate en ${st.n}: juegas con marfil. Te quedan ${st.left} jugada${st.left > 1 ? 's' : ''}.`;
+  const status = note && !over && !sel ? note : `Mate en ${st.n} · te queda${st.left > 1 ? `n ${st.left} jugadas` : ' 1 jugada'}.`;
 
   return html`<div class="screen mini">
     <${Topbar} title="Mate en 1 y 2" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
-      <p class="mini-status" aria-live="polite">${status}</p>
+      ${!over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
+      <p class="mini-help">Juegas con marfil y mueves primero: el rey carmesí marcado en rojo debe caer en ${st.n} jugada${st.n > 1 ? 's' : ''}, responda lo que responda. El carmesí juega siempre su mejor defensa.</p>
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!over} label="Problema de mate" onTap=${tap} />
-      ${over && html`<button class="btn primary" onClick=${() => onEnd(over === 'win')}>${endLabel}</button>`}
+      ${over && html`<${MiniEnd} win=${over === 'win'} note=${note} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
     </div>
   </div>`;
 }

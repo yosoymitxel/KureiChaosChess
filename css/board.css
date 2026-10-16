@@ -134,10 +134,11 @@
 .pc-hp b { display: block; width: calc(var(--sq) * 0.18); height: calc(var(--sq) * 0.18); border-radius: 50%; background: oklch(1 0 0 / 0.15); }
 .pc-hp b.on { background: var(--danger); }
 
-/* Protection badge (lock = escorted, flag = falls last) and the rope tying an escort to its ward. */
+/* Piece badges: lock = escorted, flag = falls last, star = borrowed moves; the rope ties an escort to its ward. */
 .pc-badge { position: absolute; right: 0; bottom: 12%; width: calc(var(--sq) * 0.3); height: calc(var(--sq) * 0.3); display: none; place-items: center; border-radius: 50%; background: var(--ink); }
-.pc.guarded .pc-badge { display: grid; }
+.pc.guarded .pc-badge, .pc.mutated .pc-badge { display: grid; }
 .pc-badge svg { width: 62%; height: 62%; fill: var(--brass); }
+.pc.mutated .pc-badge svg { fill: var(--gain); }
 .tether {
   position: absolute; left: 0; top: 0; height: 0; width: calc(var(--len) * var(--sq));
   transform-origin: 0 50%;

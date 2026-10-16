@@ -13,6 +13,15 @@ export function Topbar({ title, sub, onBack, backLabel = 'Volver', children }) {
   </header>`;
 }
 
+// Cierre común de los minijuegos: resultado, motivo y botón en un solo bloque, en cada pantalla.
+export function MiniEnd({ win, title, note, label = 'Continuar', onEnd }) {
+  return html`<div class=${'mini-end ' + (win ? 'win' : 'lose')} role="status">
+    <p class="mini-end-title">${title ?? (win ? '¡Victoria!' : 'Derrota')}</p>
+    ${note && html`<p class="mini-end-note">${note}</p>`}
+    <button class="btn primary" onClick=${() => onEnd()}>${label}</button>
+  </div>`;
+}
+
 // Destructive actions ask for a second press instead of a browser dialog.
 export function ConfirmButton({ class: cls = 'btn', onConfirm, confirmLabel = 'Pulsa otra vez para confirmar', children }) {
   const [armed, setArmed] = useState(false);

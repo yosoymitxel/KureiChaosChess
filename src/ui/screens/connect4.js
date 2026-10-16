@@ -1,7 +1,7 @@
 // Conecta 4 minigame screen: ivory (you) against crimson (bot), tokens drop with a bounce of weight.
 // Keyboard: arrows pick a column, Enter or Space drops.
 import { html, useState, useRef, useEffect, motion } from '../lib.js';
-import { Topbar } from '../components.js';
+import { Topbar, MiniEnd } from '../components.js';
 import { ROWS, COLS, emptyGrid, dropRow, lineAt, isFull, botColumn } from '../../game/connect4.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -51,13 +51,13 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
   });
 
   const won = (r, c) => result?.line?.some(([a, b]) => a === r && b === c);
-  const status = result ? (result.winner === 'light' ? '¡Cuatro en línea! Ganas.' : result.winner === 'dark' ? 'El bot conecta cuatro.' : 'Tablero lleno: empate.')
-    : turn === 'light' ? 'Tu turno: elige columna' : 'Piensa el bot…';
+  const status = turn === 'light' ? 'Tu turno: elige columna' : 'Piensa el bot…';
 
   return html`<div class="screen mini">
     <${Topbar} title="Conecta 4" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
-      <p class="mini-status" aria-live="polite">${status}</p>
+      ${!result && html`<p class="mini-status" aria-live="polite">${status}</p>`}
+      <p class="mini-help">Elige columna con las flechas o pasando el ratón, y suelta la ficha con Enter o un toque. Ganas al conectar cuatro en línea antes que el carmesí.</p>
       <div class="c4" ref=${boardRef} style=${{ '--cols': COLS, '--rows': ROWS }} role="grid" aria-label="Tablero de Conecta 4">
         ${Array.from({ length: COLS }, (_, c) => html`<button class=${'c4-col' + (c === col && !result ? ' on' : '')} aria-label=${'Columna ' + (c + 1)}
           disabled=${!!result || turn !== 'light' || dropRow(grid, c) < 0} onPointerEnter=${() => setCol(c)} onClick=${() => play(c)}>
@@ -65,7 +65,9 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
             ${grid[r][c] && html`<i class=${'c4-token side-' + grid[r][c] + (won(r, c) ? ' won' : '')}></i>`}</span>`)}
         </button>`)}
       </div>
-      ${result && html`<button class="btn primary" onClick=${() => onEnd(result.winner === 'light')}>${endLabel}</button>`}
+      ${result && html`<${MiniEnd} win=${result.winner === 'light'} title=${result.winner ? undefined : 'Empate'}
+        note=${result.winner === 'light' ? 'Cuatro en línea antes que el bot.' : result.winner === 'dark' ? 'El bot conectó cuatro antes que tú.' : 'Tablero lleno: nadie conectó cuatro.'}
+        label=${endLabel} onEnd=${() => onEnd(result.winner === 'light')} />`}
     </div>
   </div>`;
 }

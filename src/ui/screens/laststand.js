@@ -1,5 +1,5 @@
 import { html, useState, useEffect } from '../lib.js';
-import { Topbar } from '../components.js';
+import { Topbar, MiniEnd } from '../components.js';
 import { PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { MiniGrid } from './mini-grid.js';
@@ -20,16 +20,16 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) 
     const p = at(s, r, c);
     return { cls: canPlace(s, pick, r, c) ? 'drop' : '', piece: p && { type: p.type, side: p.color } };
   };
-  const status = s.over === 'win' ? '¡Aguantaste las tres oleadas! Ganas.' : s.over === 'lose' ? 'Rompieron tu defensa.'
-    : s.phase === 'setup' ? `Presupuesto: ${s.budget}. Coloca tu defensa en las tres filas de abajo.` : `Oleada ${s.wave} de ${WAVES}`;
+  const status = s.phase === 'setup' ? `Presupuesto: ${s.budget}. Coloca tu defensa en las tres filas de abajo.` : `Oleada ${s.wave} de ${WAVES}`;
 
   return html`<div class="screen mini">
     <${Topbar} title="Última resistencia" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
-      <p class="mini-status" aria-live="polite">${status}</p>
+      ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
+      <p class="mini-help">Compra piezas tocando las tres filas de abajo y pulsa Empezar oleadas. El carmesí ataca en ${WAVES} oleadas y tu defensa ya no se refuerza: aguanta sin ceder la línea.</p>
       <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${s.phase !== 'setup'} label="Tablero de Última resistencia"
         onTap=${(r, c) => place(s, pick, r, c) && redraw((n) => n + 1)} />
-      ${s.over ? html`<button class="btn primary" onClick=${() => onEnd(s.over === 'win')}>${endLabel}</button>`
+      ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Aguantaste las ${WAVES} oleadas sin ceder la línea.` : `El carmesí se abrió paso en la oleada ${s.wave}.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
         : s.phase === 'setup' && html`<div class="bm-actions" role="group" aria-label="Pieza a colocar">
           ${Object.entries(PRICES).map(([t, cost]) => html`<button class=${'btn sm' + (pick === t ? ' on' : ' ghost')} aria-pressed=${pick === t}
             disabled=${cost > s.budget} title=${PIECE_NAMES[t]} onClick=${() => setPick(t)}><${PieceIcon} type=${t} side="light" size=${22} />${cost}</button>`)}

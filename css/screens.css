@@ -165,7 +165,12 @@
 .hand-card .face { position: absolute; inset: 0; border-radius: 9px; border: 2px solid var(--ink); overflow: hidden; display: flex; flex-direction: column; gap: 4px; padding: 5px; background: var(--frame); background-image: var(--grain); box-shadow: var(--lift); }
 .hand-card .plate { font-size: 11px; padding: 3px 5px; border-radius: 5px; border-width: 1.5px; }
 .hand-card .art { border-radius: 5px; border-width: 1.5px; }
-.hand-card .type, .hand-card .gem { display: none; }
+.hand-card .type { display: none; }
+/* Rareza visible en la mano: la gema de la carta grande, en pequeño, en la esquina izquierda del
+   arte. Ahí la ve el abanico (la derecha la tapa la vecina) y el nombre no pierde ancho. */
+.hand-card .gem { position: absolute; left: 5px; bottom: 5px; width: 11px; height: 11px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 2.5px; background: var(--paper-3); }
+.hand-card .gem.rare { background: var(--accent); }
+.hand-card .gem.epic { background: var(--brass); box-shadow: inset 0 0 0 2px var(--paper); }
 .hand-card:hover:not(:disabled), .hand-card:focus-visible { transform: translateY(-22px) rotate(0deg) scale(1.12); z-index: 2; }
 .hand-card.on { transform: translateY(-34px) rotate(0deg) scale(1.18); z-index: 3; }
 .hand-card.on .face { outline: 3px solid var(--paper); outline-offset: 2px; }
@@ -273,8 +278,22 @@
 .lab-menu { overflow: auto; }
 
 /* Minigames (src/ui/screens/connect4.js …): same table, same tokens as the board. */
-.mini-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 12px 16px 24px; min-height: 0; }
+.mini-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; justify-content: safe center; gap: 18px; padding: 12px 16px 24px; min-height: 0; overflow-y: auto; }
 .mini-status { margin: 0; font-size: 18px; font-weight: 750; color: var(--paper); text-align: center; }
+.mini-help { margin: -10px 0 0; max-width: 52ch; font-size: 14px; line-height: 1.45; color: var(--paper-3); text-align: center; }
+/* Cierre de minijuego: misma superficie que los tableros (grano y borde de tinta) para que el
+   resultado se lea como el final de la misma mesa. */
+.mini-end { display: grid; justify-items: center; gap: 10px; max-width: 46ch; padding: 16px 26px 18px; text-align: center; border-radius: var(--r-md); border: 3px solid var(--ink); background: var(--tile-b); background-image: var(--grain); box-shadow: var(--lift), inset 0 -6px 0 var(--tile-side); animation: end-in 0.4s var(--ease-out) both; }
+.mini-end-title { margin: 0; font-size: 24px; font-weight: 850; color: var(--ink-2); }
+.mini-end.win .mini-end-title { color: var(--accent-ink); }
+.mini-end-note { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ink); }
+@keyframes end-in { from { opacity: 0; transform: translateY(14px) scale(0.97); } }
+/* Onboarding de Yo, Zombi: el paso activo queda encendido y los hechos apagados. */
+.mini-steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: -8px 0 0; }
+.mini-steps span { padding: 3px 10px; border-radius: var(--r-sm); border: 1px solid color-mix(in oklch, var(--paper), transparent 70%); color: var(--paper-3); font-size: 12px; font-weight: 700; }
+.mini-steps span.on { border-color: var(--brass); color: var(--paper); }
+.mini-steps span.done { border-color: transparent; color: var(--paper-2); }
+.mini-step-hint { margin: -10px 0 0; max-width: 46ch; font-size: 14px; line-height: 1.45; color: var(--paper); text-align: center; }
 .c4 {
   --cell: min(calc((100vw - 64px) / var(--cols)), calc((100dvh - 260px) / var(--rows)), 72px);
   display: grid; grid-template-columns: repeat(var(--cols), var(--cell));
@@ -296,6 +315,7 @@
 .minis-list { display: grid; gap: 12px; width: min(420px, 100%); }
 .bm {
   --cell: min(calc((100vw - 40px) / var(--cols, var(--n))), calc((100dvh - 320px) / var(--rows, var(--n))), 64px);
+  position: relative;
   display: grid; grid-template-columns: repeat(var(--cols, var(--n)), var(--cell));
   border: 3px solid var(--ink); border-radius: 12px; overflow: hidden; box-shadow: var(--lift);
 }
@@ -303,10 +323,22 @@
 .bm-cell.b { background-color: var(--tile-b); }
 .bm-cell.wall { background: color-mix(in oklch, var(--tile-side), black 45%); box-shadow: inset 0 0 0 2px var(--ink), inset 0 -6px 0 oklch(0 0 0 / 0.35); cursor: default; }
 .bm-cell.crate { background: var(--paper-3); box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 7px var(--paper-2); }
-.bm-cell.blast { background: var(--accent); }
+.bm-cell.blast { background: var(--accent); animation: blast 0.45s var(--ease-out); }
+.bm-cell.danger { box-shadow: inset 0 0 0 3px color-mix(in oklch, var(--danger), transparent 35%); }
+@keyframes blast { 0% { background-color: var(--paper); box-shadow: inset 0 0 0 10px var(--brass); } 100% { background-color: var(--accent); box-shadow: none; } }
 .bm-pc { position: absolute; inset: 4%; display: grid; }
 .bm-pc svg { width: 100%; height: 100%; }
 .bm-bomb { display: grid; place-items: center; width: 62%; aspect-ratio: 1; border-radius: 50%; background: var(--ink); color: var(--paper); font-weight: 800; font-size: calc(var(--cell) * 0.32); box-shadow: inset 0 -3px 0 oklch(1 0 0 / 0.15); }
+.bm-bomb.soon { background: var(--danger); color: var(--paper); }
+.bm-controls { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; }
+.bm-pad { display: grid; gap: 6px; grid-template-areas: '. up .' 'left . right' '. down .'; }
+.bm-pad .btn { min-width: 44px; min-height: 44px; justify-content: center; font-size: 16px; }
+.bm-pad .pad-up { grid-area: up; }
+.bm-pad .pad-left { grid-area: left; }
+.bm-pad .pad-right { grid-area: right; }
+.bm-pad .pad-down { grid-area: down; }
+.buy { gap: 6px; }
+.buy-cost { display: inline-grid; place-items: center; min-width: 18px; padding: 0 4px; border-radius: 6px; background: var(--ink); color: var(--paper); font-size: 12px; }
 .bm-actions { display: flex; gap: 10px; }
 .br {
   --cell: min(calc((100vw - 40px) / var(--n)), calc((100dvh - 330px) / var(--n)), 64px);
@@ -326,6 +358,7 @@
 .br-left { margin: 0; color: var(--paper-2); font-weight: 700; }
 .bm-cell.drop { box-shadow: inset 0 0 0 3px var(--brass); }
 .bm-cell.goal { background-color: color-mix(in oklch, var(--tile-a), var(--side-dark) 25%); }
+.bm-cell.goal.aim { box-shadow: inset 0 0 0 2px color-mix(in oklch, var(--brass), transparent 40%); }
 .mg-mark { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; color: var(--ink); }
 .bm-actions { flex-wrap: wrap; justify-content: center; }
 .bm-cell.lane { background-color: color-mix(in oklch, var(--tile-a), var(--side-light) 45%); }
@@ -334,4 +367,6 @@
 .bm-cell.sel { box-shadow: inset 0 0 0 3px var(--brass); }
 .bm-cell.target { box-shadow: inset 0 0 0 calc(var(--cell) * 0.12) var(--brass); }
 .bm-cell.closed { background: color-mix(in oklch, var(--tile-side), black 40%); }
+.bm-cell.path::before { content: ''; position: absolute; inset: 42%; border-radius: 50%; background: var(--brass); opacity: 0.65; }
 .bm-cell.clash { box-shadow: inset 0 0 0 calc(var(--cell) * 0.1) var(--danger); }
+.bm-cell.foe { box-shadow: inset 0 0 0 calc(var(--cell) * 0.07) var(--danger); }
