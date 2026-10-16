@@ -1,6 +1,7 @@
-import { html, useState, useEffect } from '../lib.js';
+import { html, useState, useEffect, useRef } from '../lib.js';
 import { Topbar, MiniEnd } from '../components.js';
 import { pieceSVG } from '../../view/piece-art.js';
+import { hopPiece } from '../hop.js';
 import { N, newBarrier, act, steps, canWall, botAction } from '../../game/barrier.js';
 
 const KEYS = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
@@ -11,6 +12,20 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
   const [mode, setMode] = useState('move');
   const [ghost, setGhost] = useState(null);
   const [, tick] = useState(0);
+  const gridRef = useRef(null);
+  const last = useRef(null);
+  // Cada peón que cambia de casilla entre repintados salta con su charco, turno tras turno.
+  useEffect(() => {
+    const was = last.current;
+    last.current = { light: { ...s.pos.light }, dark: { ...s.pos.dark } };
+    const grid = gridRef.current;
+    if (!grid || !was) return;
+    for (const side of ['light', 'dark']) {
+      const now = last.current[side], b = was[side];
+      if (now.r === b.r && now.c === b.c) continue;
+      hopPiece(grid, grid.children[now.r * N + now.c]?.querySelector('.bm-pc'), { from: b, to: { row: now.r, col: now.c }, side, cols: N, rows: N });
+    }
+  });
 
   const play = (action) => {
     if (s.turn !== 'light' || !act(s, action)) return;
@@ -42,7 +57,7 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     <div class="mini-body">
       ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
       <p class="mini-help">Cruza a la fila de arriba antes que el peón carmesí, que baja hacia la suya. Muévete con las flechas o tocando una casilla, o gasta una valla para cerrar un borde.</p>
-      <div class="br" style=${{ '--n': N }}>
+      <div class="br" ref=${gridRef} style=${{ '--n': N }}>
         ${Array.from({ length: N * N }, (_, i) => {
           const r = Math.floor(i / N), c = i % N;
           const who = ['light', 'dark'].find((k) => s.pos[k].r === r && s.pos[k].c === c);

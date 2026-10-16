@@ -1,12 +1,27 @@
-import { html, useState, useEffect } from '../lib.js';
+import { html, useState, useEffect, useRef } from '../lib.js';
 import { Topbar, MiniEnd } from '../components.js';
 import { MiniGrid } from './mini-grid.js';
+import { popPiece } from '../hop.js';
 import { N, SECONDS, newQueens, toggle, clashing } from '../../game/queens.js';
 
 export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
   const [s] = useState(newQueens);
   const [time, setTime] = useState(SECONDS);
   const [, redraw] = useState(0);
+  const gridRef = useRef(null);
+  const born = useRef(null);
+  // La reina que entra brota; quitarla es un clic seco, sin ceremonia.
+  useEffect(() => {
+    const q = born.current;
+    born.current = null;
+    if (q) popPiece(gridRef.current, gridRef.current?.children[q.r * N + q.c]?.querySelector('.bm-pc'));
+  });
+  const tap = (r, c) => {
+    const had = s.queens.some((q) => q.r === r && q.c === c);
+    if (!toggle(s, r, c)) return;
+    born.current = had ? null : { r, c };
+    redraw((n) => n + 1);
+  };
 
   useEffect(() => {
     const id = setInterval(() => setTime((t) => {
@@ -29,8 +44,8 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     <div class="mini-body">
       ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
       <p class="mini-help">Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Completa las ocho antes de que se acabe el tiempo.</p>
-      <${MiniGrid} rows=${N} cols=${N} cell=${cell} disabled=${!!s.over} label="Tablero de ocho reinas"
-        onTap=${(r, c) => toggle(s, r, c) && redraw((n) => n + 1)} />
+      <${MiniGrid} rows=${N} cols=${N} cell=${cell} disabled=${!!s.over} label="Tablero de ocho reinas" gridRef=${gridRef}
+        onTap=${tap} />
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Ocho reinas conviviendo sin atacarse.' : `Se acabó el tiempo con ${s.queens.length} de ${N} reinas.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
   </div>`;

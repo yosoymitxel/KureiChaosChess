@@ -82,7 +82,7 @@ function liquid(grid, from, to, { side, cell, cols, rows }) {
 // ya en la casilla destino.
 export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows }) {
   if (!grid || !pcEl || reduced()) return;
-  const cellEl = grid.querySelector('.bm-cell');
+  const cellEl = grid.querySelector('.bm-cell, .br-cell');
   if (!cellEl) return;
   const cw = cellEl.offsetWidth, chh = cellEl.offsetHeight;
   const dr = to.row - from.row, dc = to.col - from.col;
@@ -95,4 +95,29 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows }) {
   motion(pcEl, { x: [dx, dx / 2, 0], y: [dy, dy / 2 - lift, 0] }, { duration: dur, ease: 'easeInOut' });
   motion(pcEl, { scaleY: [0.78, 1.08, 1], scaleX: [1.13, 0.96, 1] }, { duration: 0.32 / speed(), delay: dur - 0.06, ease: OUT });
   liquid(grid, from, to, { side, cell: cw, cols, rows });
+}
+
+// Instantánea de posiciones (id -> casilla) para comparar antes y después de una acción.
+export const snapPieces = (pieces) => new Map(pieces.map((p) => [p.id, { row: p.row, col: p.col, color: p.color }]));
+
+// Fichas que saltaron y fichas que entraron, medido ya sobre el tablero repintado:
+// el elemento de cada una vive en la casilla nueva, índice fila×columnas + columna.
+export function pieceDiffs(grid, before, pieces, cols) {
+  const hops = [], born = [];
+  const cells = grid?.children;
+  if (!cells) return { hops, born };
+  for (const p of pieces) {
+    const el = cells[p.row * cols + p.col]?.querySelector('.bm-pc');
+    if (!el) continue;
+    const b = before.get(p.id);
+    if (!b) born.push(el);
+    else if (b.row !== p.row || b.col !== p.col) hops.push({ el, from: b, to: { row: p.row, col: p.col }, side: p.color });
+  }
+  return { hops, born };
+}
+
+// La ficha que entra al tablero (compra, oleada, reina colocada) brota con un golpe de escala.
+export function popPiece(grid, el) {
+  if (!grid || !el || reduced()) return;
+  motion(el, { scale: [0.35, 1.14, 1] }, { duration: 0.34 / speed(), ease: OUT });
 }

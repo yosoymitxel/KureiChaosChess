@@ -326,7 +326,7 @@
 .bm-cell.blast { background: var(--accent); animation: blast 0.45s var(--ease-out); }
 .bm-cell.danger { box-shadow: inset 0 0 0 3px color-mix(in oklch, var(--danger), transparent 35%); }
 @keyframes blast { 0% { background-color: var(--paper); box-shadow: inset 0 0 0 10px var(--brass); } 100% { background-color: var(--accent); box-shadow: none; } }
-.bm-pc { position: absolute; inset: 4%; display: grid; }
+.bm-pc { position: absolute; inset: 4%; display: grid; z-index: 1; }
 .bm-pc svg { width: 100%; height: 100%; }
 .bm-bomb { display: grid; place-items: center; width: 62%; aspect-ratio: 1; border-radius: 50%; background: var(--ink); color: var(--paper); font-weight: 800; font-size: calc(var(--cell) * 0.32); box-shadow: inset 0 -3px 0 oklch(1 0 0 / 0.15); }
 .bm-bomb.soon { background: var(--danger); color: var(--paper); }
