@@ -8,7 +8,7 @@ import { motion } from './lib.js';
 import { loadSettings } from '../game/run.js';
 
 const OUT = [0.16, 1, 0.3, 1];
-const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+export const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const speed = () => loadSettings().speed || 1;
 let gooCount = 0; // los ids de filtro tienen que ser únicos en toda la página
 
