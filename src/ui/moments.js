@@ -109,6 +109,7 @@ export class Moments {
 
   async cinematic({ title, sub, piece, icon, wave, hp, tone = 'paper', anim }) {
     if (!this.enabled) return;
+    await this.whenIdle(); // pending callouts play first, so nothing overlaps
     const el = this.mount(`cine tone-${tone}`, html`
       <i class="bar top"></i><i class="bar bottom"></i>
       <div class="cine-body">
@@ -141,13 +142,16 @@ export class Moments {
   }
 
   // Short punch-in label with its piece animation; returns immediately and plays in order.
-  callout({ text, sub, tone = 'paper', piece, pieceTo, icon, anim }) {
+  // `tier` weights it by importance: 'major' (checks, big falls, collapses) is bigger and holds
+  // longer; 'info' (cards, terrain) is smaller and quicker.
+  callout({ text, sub, tone = 'paper', piece, pieceTo, icon, anim, tier }) {
     if (!this.enabled) return;
     this.pending = (this.pending || 0) + 1;
     this.queue = this.queue.then(async () => {
       try {
         if (!this.enabled) return;
-        const el = this.mount(`callout tone-${tone}`, html`
+        const hold = tier === 'major' ? 1 : tier === 'info' ? 0.4 : 0.7;
+        const el = this.mount(`callout tone-${tone}${tier ? ' tier-' + tier : ''}`, html`
           <span class="band"></span>
           ${(piece || icon) && html`<span class="callout-art">
             ${piece ? html`<${PieceIcon} type=${piece.type} side=${piece.side} size=${72} />` : html`<${Icon} name=${icon} size=${52} />`}
@@ -157,7 +161,7 @@ export class Moments {
         motion(el.querySelector('.band'), { scaleX: [0, 1] }, { duration: this.t(0.22), ease: OUT });
         motion(el.querySelectorAll('strong, small'), { scale: [1.5, 1], opacity: [0, 1] }, { duration: this.t(0.3), ease: OUT });
         const art = el.querySelector('.callout-art');
-        await (art ? this.animate(anim, art, piece, this.t(0.7)) : sleep(this.t(0.85)));
+        await (art ? this.animate(anim, art, piece, this.t(hold)) : sleep(this.t(hold + 0.15)));
         await motion(el, { opacity: [1, 0], y: [0, -24] }, { duration: this.t(0.25), ease: IN });
         el.remove();
       } finally { this.pending--; }

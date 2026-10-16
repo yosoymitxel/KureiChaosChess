@@ -12,13 +12,13 @@ const board = () => ({ rows: 7, cols: 7, holes: new Set([key(3, 0), key(3, 6)]),
 // Each scene builds a tiny position and returns an async "play" function.
 // Foreground moments, played over the lab stage without a match.
 const MOMENTS = {
-  'Momento: jaque': (m) => m.callout({ text: '¡Jaque!', sub: 'Tu turno: protege al rey', tone: 'danger', piece: { type: 'king', side: 'light' }, anim: 'tremble' }),
-  'Momento: reina caída': (m) => m.callout({ text: '¡Reina caída!', tone: 'brass', piece: { type: 'queen', side: 'dark' }, anim: 'fall' }),
-  'Momento: rey caído': (m) => m.callout({ text: '¡Rey caído!', sub: 'Cae el bando carmesí', tone: 'brass', piece: { type: 'king', side: 'dark' }, anim: 'explode' }),
+  'Momento: jaque': (m) => m.callout({ text: '¡Jaque!', sub: 'Tu turno: protege al rey', tone: 'danger', piece: { type: 'king', side: 'light' }, anim: 'tremble', tier: 'major' }),
+  'Momento: reina caída': (m) => m.callout({ text: '¡Reina caída!', tone: 'brass', piece: { type: 'queen', side: 'dark' }, anim: 'fall', tier: 'major' }),
+  'Momento: rey caído': (m) => m.callout({ text: '¡Rey caído!', sub: 'Cae el bando carmesí', tone: 'brass', piece: { type: 'king', side: 'dark' }, anim: 'explode', tier: 'major' }),
   'Momento: coronación': (m) => m.callout({ text: '¡Coronación!', sub: 'El peón asciende a reina', tone: 'brass', piece: { type: 'pawn', side: 'light' }, pieceTo: { type: 'queen', side: 'light' }, anim: 'promote' }),
-  'Momento: golpe al jefe': (m) => m.callout({ text: '¡Golpe!', sub: 'A Titán le quedan 2 vidas', tone: 'brass', piece: { type: 'king', side: 'dark' }, anim: 'hit' }),
+  'Momento: golpe al jefe': (m) => m.callout({ text: '¡Golpe!', sub: 'A Titán le quedan 2 vidas', tone: 'brass', piece: { type: 'king', side: 'dark' }, anim: 'hit', tier: 'major' }),
   'Momento: aplastados': (m) => m.callout({ text: '¡Aplastados ×3!', tone: 'danger', piece: { type: 'king', side: 'dark' }, anim: 'stomp' }),
-  'Momento: derrumbe': (m) => m.callout({ text: '¡Derrumbe!', sub: 'El borde cae al vacío', tone: 'danger', icon: 'collapse', anim: 'crumble' }),
+  'Momento: derrumbe': (m) => m.callout({ text: '¡Derrumbe!', sub: 'El borde cae al vacío', tone: 'danger', icon: 'collapse', anim: 'crumble', tier: 'major' }),
   'Momento: piso': (m) => m.cinematic({ title: 'Piso 3', sub: 'Prisa. Cada jugador mueve dos veces por turno.', icon: 'rush', wave: ['pawn', 'knight', 'king'].flatMap((t) => [[t, 'light'], [t, 'dark']]) }),
   'Momento: jefe': (m) => m.cinematic({ title: 'Titán', sub: BOSSES.titan.desc, piece: { type: 'king', side: 'dark' }, hp: { hp: 3, max: 3 }, tone: 'danger', anim: 'stomp' }),
   'Momento: jefe derribado': (m) => m.cinematic({ title: '¡Titán derribado!', sub: 'El coloso cae y la torre es tuya.', piece: { type: 'king', side: 'dark' }, tone: 'brass', anim: 'down' }),
