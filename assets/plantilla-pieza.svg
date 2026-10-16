@@ -1,0 +1,19 @@
+<!-- Plantilla para dibujar piezas de Zugzwang (ver src/view/piece-art.js).
+     Lienzo: viewBox "0 0 45 41", la pieza se apoya abajo (y=40).
+     Pedestal: la base de 2 trazos de abajo se reutiliza, no se dibuja.
+     Cuerpo: silueta solida de tinta con detalles recortados (stroke de --pc-2).
+     Centro: x=22.5. El cuerpo se normaliza a una escalera fija de alturas.
+     Ojo de jefe: circulo de laton (var(--brass)).
+     Dibuja tu pieza sobre el pedestal y guarda el SVG. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 41" width="450" height="410">
+  <!-- Guias: centro y linea del pedestal -->
+  <line x1="22.5" y1="0" x2="22.5" y2="41" stroke="#999" stroke-width="0.3" stroke-dasharray="1.5 1.5"/>
+  <line x1="0" y1="32.6" x2="45" y2="32.6" stroke="#999" stroke-width="0.3" stroke-dasharray="1.5 1.5"/>
+  <!-- Pedestal de referencia (se reutiliza, no se dibuja) -->
+  <g fill="#bbb">
+    <path d="M9.5 40h26v-3.2c0-.8-.6-1.3-1.4-1.3H10.9c-.8 0-1.4.5-1.4 1.3z"/>
+    <path d="M12.5 35.5l1.6-3.2h16.8l1.6 3.2z"/>
+  </g>
+  <!-- Cuerpo de ejemplo (peon): silueta solida, detalles recortados -->
+  <path fill="#333" d="M22.5 9c-2.2 0-4 1.8-4 4 0 .9.3 1.7.8 2.4-2 1.1-3.3 3.2-3.3 5.6 0 2 .9 3.8 2.4 5-2.6 1-5.4 3.8-6 7.8h20.2c-.6-4-3.4-6.8-6-7.8 1.5-1.2 2.4-3 2.4-5 0-2.4-1.3-4.5-3.3-5.6.5-.7.8-1.5.8-2.4 0-2.2-1.8-4-4-4z"/>
+</svg>
