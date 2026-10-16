@@ -4,6 +4,14 @@ export const ROWS = 5, COLS = 9, GOAL = 12;
 const ENEMY_EVERY = 4, SPAWN_EVERY = 6, RELOAD = 3;
 const TYPES = ['pawn', 'pawn', 'knight', 'bishop', 'rook'];
 
+// Carril de la nuez nueva: evita los carriles con otra nuez a menos de tres casillas del borde,
+// para que la tanda se reparta en vez de amontonarse.
+const pickLane = (s, rng) => {
+  const free = [...Array(ROWS).keys()].filter((r) => !s.enemies.some((e) => e.r === r && e.c >= COLS - 3));
+  const pool = free.length ? free : [...Array(ROWS).keys()];
+  return pool[Math.floor(rng() * pool.length)];
+};
+
 export const newBowling = () => ({ t: 0, balls: [], enemies: [], down: 0, reload: 0, spawned: 0, over: null, nextId: 0 });
 
 export function launch(s, row) {
@@ -35,7 +43,7 @@ export function tick(s, rng = Math.random) {
   s.balls = s.balls.filter((b) => b.c < COLS);
   if (s.t % ENEMY_EVERY === 0) { for (const e of s.enemies) e.c--; collide(); }
   if (s.t % SPAWN_EVERY === 1 && s.spawned < GOAL + 6) {
-    s.enemies.push({ id: s.nextId++, r: Math.floor(rng() * ROWS), c: COLS - 1, type: TYPES[Math.floor(rng() * TYPES.length)] });
+    s.enemies.push({ id: s.nextId++, r: pickLane(s, rng), c: COLS - 1, type: TYPES[Math.floor(rng() * TYPES.length)] });
     s.spawned++;
   }
   if (s.enemies.some((e) => e.c < 0)) s.over = 'lose';
