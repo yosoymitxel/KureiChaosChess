@@ -1,6 +1,8 @@
 // Bomberman por turnos: cada acción del jugador avanza un tic. Reglas puras, sin DOM.
 export const SIZE = 9;
-const FUSE = 5, RANGE = 2; // the fuse ticks on the turn you place it: four moves to clear radius 2
+const FUSE = 5; // the fuse ticks on the turn you place it: four moves before it blows
+const L_JUMP = [[-2, -1], [-2, 1], [2, -1], [2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2]];
+const DIAG = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
 const DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
 export function newBomber(rng = Math.random) {
@@ -14,18 +16,18 @@ export function newBomber(rng = Math.random) {
     return { id: i, r, c, type: ['pawn', 'knight', 'bishop'][i] };
   });
   for (const [r, c] of [[0, SIZE - 2], [1, SIZE - 1], [SIZE - 2, 0], [SIZE - 1, 1], [SIZE - 1, SIZE - 2], [SIZE - 2, SIZE - 1]]) if (cells[r][c] === 'crate') cells[r][c] = null;
-  return { cells, player: { r: 0, c: 0 }, enemies, bombs: [], blast: [], over: null };
+  return { cells, player: { r: 0, c: 0 }, enemies, bombs: [], blast: [], items: [], range: 2, maxBombs: 2, over: null };
 }
 
 const inside = (r, c) => r >= 0 && c >= 0 && r < SIZE && c < SIZE;
 const free = (s, r, c) => inside(r, c) && !s.cells[r][c] && !s.bombs.some((b) => b.r === r && b.c === c);
 
-// Casillas que alumbra una bomba: su propia casilla y, en cada dirección, hasta RANGE, cortando
-// en el muro y justo después de la primera caja.
+// Casillas que alumbra una bomba: su propia casilla y, en cada dirección, hasta el alcance,
+// cortando en el muro y justo después de la primera caja.
 function rays(s, bomb) {
   const out = [];
   for (const [dr, dc] of DIRS) {
-    for (let k = 1; k <= RANGE; k++) {
+    for (let k = 1; k <= s.range; k++) {
       const r = bomb.r + dr * k, c = bomb.c + dc * k;
       if (!inside(r, c) || s.cells[r][c] === 'wall') break;
       const crate = s.cells[r][c] === 'crate';
@@ -39,19 +41,23 @@ function rays(s, bomb) {
 // Para la interfaz: dónde pegaría una bomba si estallara ahora.
 export const blastOf = (s, bomb) => [{ r: bomb.r, c: bomb.c }, ...rays(s, bomb).map(({ r, c }) => ({ r, c }))];
 
-function explode(s, bomb, out) {
+function explode(s, bomb, out, rng) {
   s.bombs = s.bombs.filter((b) => b !== bomb);
   out.push([bomb.r, bomb.c]);
   for (const { r, c, crate } of rays(s, bomb)) {
     out.push([r, c]);
     const chain = s.bombs.find((b) => b.r === r && b.c === c);
-    if (chain) explode(s, chain, out);
-    if (crate) s.cells[r][c] = null;
+    if (chain) explode(s, chain, out, rng);
+    if (crate) {
+      s.cells[r][c] = null;
+      // Una de cada tres cajas deja mejora: bomba extra o más alcance.
+      if (rng() < 0.3) s.items.push({ r, c, kind: rng() < 0.5 ? 'bomb' : 'range' });
+    }
   }
 }
 
 // IA: primer paso del camino más corto hacia el jugador (BFS por casillas libres).
-function huntStep(s, e, p, opts, rng) {
+function huntStep(s, e, p, opts, clear, rng) {
   if (!opts.length) return null;
   const start = e.r * SIZE + e.c, goal = p.r * SIZE + p.c;
   const prev = new Array(SIZE * SIZE).fill(-1);
@@ -64,7 +70,7 @@ function huntStep(s, e, p, opts, rng) {
       const nr = r + dr, nc = c + dc;
       if (!inside(nr, nc)) continue;
       const id = nr * SIZE + nc;
-      if (prev[id] >= 0 || blocked.has(id) || !free(s, nr, nc)) continue;
+      if (prev[id] >= 0 || blocked.has(id) || !clear(nr, nc)) continue;
       prev[id] = cur;
       q.push(id);
     }
@@ -80,6 +86,19 @@ function huntStep(s, e, p, opts, rng) {
   return [Math.floor(cur / SIZE), cur % SIZE];
 }
 
+// Caballo y alfil mutan el paso: salto en L (le da igual lo de en medio) y diagonal, como en el
+// tablero. Si no hay casilla que acerque, devuelven null y el rival usa su camino de siempre.
+function mutantStep(s, e, p, clear, rng) {
+  const d = ([r, c]) => Math.abs(r - p.r) + Math.abs(c - p.c);
+  const moves = (e.type === 'knight' ? L_JUMP : DIAG)
+    .map(([dr, dc]) => [e.r + dr, e.c + dc])
+    .filter(([r, c]) => clear(r, c) && d([r, c]) <= d([e.r, e.c]));
+  if (!moves.length) return null;
+  const best = Math.min(...moves.map(d));
+  const pool = moves.filter((o) => d(o) === best);
+  return pool[Math.floor(rng() * pool.length)];
+}
+
 // action: { move: [dr, dc] } | { bomb: true } | { wait: true }. Devuelve false si no es válida.
 export function step(s, action, rng = Math.random) {
   if (s.over) return false;
@@ -89,18 +108,26 @@ export function step(s, action, rng = Math.random) {
     // Walking into an enemy is not a move: dying on the square you asked to step on reads as a bug.
     if (!free(s, r, c) || s.enemies.some((e) => e.r === r && e.c === c)) return false;
     Object.assign(p, { r, c });
+    const i = s.items.findIndex((it) => it.r === r && it.c === c);
+    if (i >= 0) {
+      const [it] = s.items.splice(i, 1);
+      if (it.kind === 'bomb') s.maxBombs++; else s.range++;
+    }
   } else if (action.bomb) {
-    if (s.bombs.some((b) => b.r === p.r && b.c === p.c) || s.bombs.length >= 2) return false;
+    if (s.bombs.some((b) => b.r === p.r && b.c === p.c) || s.bombs.length >= s.maxBombs) return false;
     s.bombs.push({ r: p.r, c: p.c, t: FUSE });
   }
   s.blast = [];
   for (const b of s.bombs) b.t--;
-  for (const b of [...s.bombs]) if (b.t <= 0 && s.bombs.includes(b)) explode(s, b, s.blast);
+  for (const b of [...s.bombs]) if (b.t <= 0 && s.bombs.includes(b)) explode(s, b, s.blast, rng);
   const hit = (r, c) => s.blast.some(([a, b]) => a === r && b === c);
   s.enemies = s.enemies.filter((e) => !hit(e.r, e.c));
+  const clear = (r, c) => free(s, r, c) && !s.enemies.some((o) => o.r === r && o.c === c) && !s.blast.some(([a, b]) => a === r && b === c);
   for (const e of s.enemies) {
-    const opts = DIRS.map(([dr, dc]) => [e.r + dr, e.c + dc]).filter(([r, c]) => free(s, r, c) && !s.enemies.some((o) => o.r === r && o.c === c));
-    const pick = huntStep(s, e, p, opts, rng);
+    const opts = DIRS.map(([dr, dc]) => [e.r + dr, e.c + dc]).filter(([r, c]) => clear(r, c));
+    const pick = e.type === 'pawn'
+      ? huntStep(s, e, p, opts, clear, rng)
+      : mutantStep(s, e, p, clear, rng) || huntStep(s, e, p, opts, clear, rng);
     if (pick) [e.r, e.c] = pick;
   }
   if (hit(p.r, p.c) || s.enemies.some((e) => e.r === p.r && e.c === p.c)) s.over = 'lose';

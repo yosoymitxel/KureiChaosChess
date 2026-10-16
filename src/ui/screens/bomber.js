@@ -57,19 +57,20 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
   const at = (list, r, c) => list.find((x) => (x.r ?? x[0]) === r && (x.c ?? x[1]) === c);
   // Casillas que estallan en la próxima jugada: la bomba con la mecha a 1 muestra a dónde llega.
   const danger = new Set(s.bombs.filter((b) => b.t <= 1).flatMap((b) => blastOf(s, b)).map((x) => x.r * SIZE + x.c));
-  const status = `Quedan ${s.enemies.length} enemigos · bombas ${s.bombs.length}/2.`;
+  const status = `Quedan ${s.enemies.length} enemigos · bombas ${s.bombs.length}/${s.maxBombs} · alcance ${s.range}.`;
 
   return html`<div class="screen mini">
     <${Topbar} title="Bomberman" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
       ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-      <p class="mini-help">Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha dura 5 turnos (4 movimientos para salir del radio de 2) y las casillas con borde rojo estallan en la próxima jugada.</p>
+      <p class="mini-help">Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha da 5 turnos para salir del radio, las casillas con borde rojo estallan en la próxima jugada y algunas cajas sueltan bomba extra o más alcance.</p>
       <div class="mini-stage">
         <div class="bm" ref=${gridRef} style=${{ '--n': SIZE }} role="grid" aria-label="Tablero de Bomberman">
           ${s.cells.map((row, r) => row.map((cell, c) => {
-            const bomb = at(s.bombs, r, c), foe = at(s.enemies, r, c), me = s.player.r === r && s.player.c === c;
+            const bomb = at(s.bombs, r, c), foe = at(s.enemies, r, c), item = at(s.items, r, c), me = s.player.r === r && s.player.c === c;
             return html`<button class=${'bm-cell ' + ((r + c) % 2 ? 'b' : 'a') + (cell ? ' ' + cell : '') + (at(s.blast, r, c) ? ' blast' : '') + (danger.has(r * SIZE + c) ? ' danger' : '')}
-              disabled=${!!s.over} aria-label=${`Fila ${r + 1}, columna ${c + 1}`} onClick=${() => tap(r, c)}>
+              disabled=${!!s.over} aria-label=${`Fila ${r + 1}, columna ${c + 1}` + (item ? (item.kind === 'bomb' ? ', bomba extra' : ', más alcance') : '')} onClick=${() => tap(r, c)}>
+              ${item && html`<span class=${'bm-item bm-item-' + item.kind}><${Icon} name=${item.kind === 'bomb' ? 'collapse' : 'expand'} size=${18} /></span>`}
               ${bomb && html`<span class=${'bm-bomb' + (bomb.t <= 1 ? ' soon' : '')}>${bomb.t}</span>`}
               ${foe && html`<span class="bm-pc foe side-dark" data-id=${foe.id} dangerouslySetInnerHTML=${{ __html: pieceSVG(foe.type) }} />`}
               ${me && html`<span class="bm-pc me side-light" dangerouslySetInnerHTML=${{ __html: pieceSVG('king') }} />`}

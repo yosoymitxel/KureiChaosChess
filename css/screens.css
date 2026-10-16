@@ -337,6 +337,8 @@
 .bm-pc svg { width: 100%; height: 100%; }
 .bm-bomb { display: grid; place-items: center; width: 62%; aspect-ratio: 1; border-radius: 50%; background: var(--ink); color: var(--paper); font-weight: 800; font-size: calc(var(--cell) * 0.32); box-shadow: inset 0 -3px 0 oklch(1 0 0 / 0.15); }
 .bm-bomb.soon { background: var(--danger); color: var(--paper); }
+.bm-item { position: absolute; inset: 15%; display: grid; place-items: center; border-radius: 50%; background: var(--brass); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
+.bm-item .icon { width: 56%; height: 56%; }
 .bm-controls { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; }
 .bm-pad { display: grid; gap: 6px; grid-template-areas: '. up .' 'left . right' '. down .'; }
 .bm-pad .btn { min-width: 44px; min-height: 44px; justify-content: center; font-size: 16px; }
