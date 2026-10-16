@@ -320,6 +320,19 @@
 }
 .c4-token.won { outline: 3px solid var(--brass); outline-offset: 2px; }
 .minis-list { display: grid; gap: 12px; width: min(420px, 100%); }
+/* Jardín Zen: las macetas usan el mismo tablero y los mismos tokens que los minijuegos. */
+.zen-pond { background-color: color-mix(in oklch, var(--tile-a), var(--side-dark) 22%); cursor: default; }
+.zn-plant { width: 74%; height: 74%; color: var(--ink); }
+.zn-bloom { fill: var(--zn, var(--brass)); stroke: var(--ink); stroke-width: 1.2; }
+.zn-heart { fill: var(--ink); }
+.zn-k-romero { --zn: var(--side-light); }
+.zn-k-salvia { --zn: var(--side-dark); }
+.zn-k-lavanda { --zn: var(--brass); }
+.zen-shelf { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.zen-chip { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 8px; border: 2px solid var(--ink); border-radius: 999px; background: var(--paper); background-image: var(--grain); font-weight: 700; font-size: 14px; color: var(--ink-2); }
+.zen-chip.pending { opacity: 0.45; }
+.zen-chip svg { width: 22px; height: 22px; }
+.zen-chip b { font-size: 17px; }
 .bm {
   --cell: max(16px, min(calc((100cqw - 10px) / var(--cols, var(--n))), calc((100cqh - 10px) / var(--rows, var(--n))), 64px));
   position: relative;
