@@ -142,8 +142,7 @@ export class Moments {
   }
 
   // Short punch-in label with its piece animation; returns immediately and plays in order.
-  // `tier` weights it by importance: 'major' (checks, big falls, collapses) is bigger and holds
-  // longer; 'info' (cards, terrain) is smaller and quicker.
+  // `tier`: 'major' lands bigger and holds longer; 'info' reads small and quick.
   callout({ text, sub, tone = 'paper', piece, pieceTo, icon, anim, tier }) {
     if (!this.enabled) return;
     this.pending = (this.pending || 0) + 1;

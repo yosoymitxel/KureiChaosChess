@@ -116,7 +116,7 @@ export function pieceDiffs(grid, before, pieces, cols) {
   return { hops, born };
 }
 
-// La ficha que entra al tablero (compra, oleada, reina colocada) brota con un golpe de escala.
+// La ficha que entra al tablero (compra, oleada, reina colocada) brota.
 export function popPiece(grid, el) {
   if (!grid || !el || reduced()) return;
   motion(el, { scale: [0.35, 1.14, 1] }, { duration: 0.34 / speed(), ease: OUT });

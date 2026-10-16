@@ -10,7 +10,7 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
   const [, redraw] = useState(0);
   const gridRef = useRef(null);
   const born = useRef(null);
-  // La reina que entra brota; quitarla es un clic seco, sin ceremonia.
+  // La reina que entra brota; la que sale se va sin animación.
   useEffect(() => {
     const q = born.current;
     born.current = null;

@@ -50,8 +50,7 @@ function explode(s, bomb, out) {
   }
 }
 
-// IA: primer paso del camino más corto hacia el jugador (BFS por casillas libres). Si no hay
-// ruta queda deambulando contra las cajas hasta que las rompas.
+// IA: primer paso del camino más corto hacia el jugador (BFS por casillas libres).
 function huntStep(s, e, p, opts, rng) {
   if (!opts.length) return null;
   const start = e.r * SIZE + e.c, goal = p.r * SIZE + p.c;
@@ -71,7 +70,7 @@ function huntStep(s, e, p, opts, rng) {
     }
   }
   if (prev[goal] < 0) {
-    // Sin ruta (cajas sellando el paso): se aprieta hacia vos y espera a que abras.
+    // Sellado por cajas: se arrima lo posible y espera a que le abras paso.
     const gm = ([r, c]) => Math.abs(r - p.r) + Math.abs(c - p.c);
     const closer = opts.filter((o) => gm(o) === Math.min(...opts.map(gm)));
     return closer[Math.floor(rng() * closer.length)];

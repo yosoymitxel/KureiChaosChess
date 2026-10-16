@@ -1,13 +1,11 @@
 // Bolos de nuez: las piezas carmesí avanzan de derecha a izquierda por 5 carriles; lanzas fichas
-// rodando desde la izquierda. Al chocar, la ficha rebota en diagonal y sigue. Las piezas grandes
-// aguantan más toques: el peón cae al primero, caballo y alfil a los dos, la torre a los tres.
+// rodando desde la izquierda. Al chocar, la ficha rebota en diagonal y sigue.
 export const ROWS = 5, COLS = 9, GOAL = 12;
 const ENEMY_EVERY = 4, SPAWN_EVERY = 6, RELOAD = 3;
 const TYPES = ['pawn', 'pawn', 'knight', 'bishop', 'rook'];
 const HITS = { pawn: 1, knight: 2, bishop: 2, rook: 3 };
 
-// Carril de la nuez nueva: evita los carriles con otra nuez a menos de tres casillas del borde,
-// para que la tanda se reparta en vez de amontonarse.
+// Carril de la nuez nueva evitando los carriles con otra pegada al borde, para repartir la tanda.
 const pickLane = (s, rng) => {
   const free = [...Array(ROWS).keys()].filter((r) => !s.enemies.some((e) => e.r === r && e.c >= COLS - 3));
   const pool = free.length ? free : [...Array(ROWS).keys()];
