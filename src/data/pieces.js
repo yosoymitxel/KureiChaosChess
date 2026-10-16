@@ -28,5 +28,5 @@ export const PIECE_RULES = [
   ['advisor', '1 paso en diagonal.'],
   ['elephant', 'Salta 2 en diagonal.'],
   ['camel', 'Salta en L larga (3 y 1).'],
-  ['cannon', 'Como torre con alcance 4. Captura saltando exactamente 1 pieza.'],
+  ['cannon', 'Como torre con alcance 4, pero no captura deslizándose: mata saltando 1 pieza por medio. También salta 1 pieza propia y cae en el hueco justo detrás.'],
 ];

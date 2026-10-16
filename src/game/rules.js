@@ -94,15 +94,23 @@ function canMoveAs(piece, type, tr, tc, ctx) {
     case 'rook2': return (!dr || !dc) && adr + adc <= 2 && pathClear(piece, tr, tc, ctx);
     case 'queen': return (!dr || !dc || adr === adc) && pathClear(piece, tr, tc, ctx);
     case 'cannon': {
+      // Artillería corta: torre de alcance 4 que no captura al deslizarse. Mata saltando una
+      // pantalla (pieza propia o enemiga) y puede saltar sus propias piezas para caer en el
+      // hueco justo detrás de ellas.
       if (dr && dc) return false;
-      if (adr + adc > 4 + (piece.cannonRangeBonus || 0)) return false;
-      let screens = 0;
+      if (adr + adc > 4) return false;
       const sr = Math.sign(dr), sc = Math.sign(dc);
+      const ahead = []; // ocupantes entre el cañón y el destino (null = libre)
       for (let r = piece.row + sr, c = piece.col + sc; r !== tr || c !== tc; r += sr, c += sc) {
         if (!walkable(ctx.board, r, c)) return false;
-        if (ctx.occ.get(key(r, c))) screens++;
+        ahead.push(ctx.occ.get(key(r, c)) || null);
       }
-      return screens === 0 ? !hit : screens === 1 && hit;
+      const screens = ahead.filter(Boolean);
+      if (!screens.length) return !hit; // pasillo limpio: se desliza, pero no captura
+      if (hit) return screens.length === 1; // una sola pantalla por medio
+      const hops = 1 + (piece.cannonHops || 0); // apoyo: propias pegadas al destino y hueco detrás
+      const tail = ahead.slice(-hops);
+      return tail.length === hops && tail.every((o) => o && o.color === piece.color) && ahead.slice(0, -hops).every((o) => !o);
     }
   }
   return false;

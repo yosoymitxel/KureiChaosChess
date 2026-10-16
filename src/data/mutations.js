@@ -8,7 +8,7 @@ export const MUTATIONS = {
   pawnBack: { id: 'pawnBack', name: 'Retroceso', icon: 'pawn', desc: 'Tus peones pueden retroceder 1.', rarity: 'common' },
   kingRook: { id: 'kingRook', name: 'Rey blindado', icon: 'king', desc: 'Tu rey puede moverse 2 en línea recta.', rarity: 'common' },
   guardKnight: { id: 'guardKnight', name: 'Guardia montado', icon: 'guard', desc: 'Tus guardias saltan como caballos.', rarity: 'rare' },
-  cannonRange: { id: 'cannonRange', name: 'Artillería', icon: 'cannon', desc: 'Tus cañones ganan +2 de alcance.', rarity: 'common' },
+  cannonRange: { id: 'cannonRange', name: 'Artillería', icon: 'cannon', desc: 'Tus cañones saltan 2 piezas propias.', rarity: 'common' },
   queenKnight: { id: 'queenKnight', name: 'Reina estratega', icon: 'queen', desc: 'Tu reina también salta como caballo.', rarity: 'epic' },
   bishopOrth: { id: 'bishopOrth', name: 'Alfil blindado', icon: 'bishop', desc: 'Tus alfiles también se mueven 1 ortogonal.', rarity: 'common' },
 };
@@ -39,7 +39,7 @@ export function applyMutations(pieces, list, color) {
   for (const p of pieces) {
     if (p.color !== color) continue;
     if (p.type === 'pawn' && c.crown) p.canCrown = true;
-    if (p.type === 'cannon' && c.cannonRange) p.cannonRangeBonus = 2;
+    if (p.type === 'cannon' && c.cannonRange) p.cannonHops = 1;
     for (const [mut, [type, extra]] of Object.entries(EXTRA_MOVES)) {
       if (c[mut] && p.type === type) {
         p.extraMoveTypes = [...(p.extraMoveTypes || []), extra];
