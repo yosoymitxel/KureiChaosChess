@@ -1,8 +1,10 @@
 // Bolos de nuez: las piezas carmesí avanzan de derecha a izquierda por 5 carriles; lanzas fichas
-// rodando desde la izquierda. Al derribar una pieza la ficha rebota en diagonal y sigue.
+// rodando desde la izquierda. Al chocar, la ficha rebota en diagonal y sigue. Las piezas grandes
+// aguantan más toques: el peón cae al primero, caballo y alfil a los dos, la torre a los tres.
 export const ROWS = 5, COLS = 9, GOAL = 12;
 const ENEMY_EVERY = 4, SPAWN_EVERY = 6, RELOAD = 3;
 const TYPES = ['pawn', 'pawn', 'knight', 'bishop', 'rook'];
+const HITS = { pawn: 1, knight: 2, bishop: 2, rook: 3 };
 
 // Carril de la nuez nueva: evita los carriles con otra nuez a menos de tres casillas del borde,
 // para que la tanda se reparta en vez de amontonarse.
@@ -29,8 +31,8 @@ export function tick(s, rng = Math.random) {
     for (const b of s.balls) {
       const hit = s.enemies.find((e) => e.r === b.r && e.c === b.c);
       if (!hit) continue;
-      s.enemies = s.enemies.filter((e) => e !== hit);
-      s.down++;
+      hit.hp--;
+      if (hit.hp <= 0) { s.enemies = s.enemies.filter((e) => e !== hit); s.down++; }
       b.dr = b.dr || (b.r === 0 ? 1 : b.r === ROWS - 1 ? -1 : rng() < 0.5 ? -1 : 1);
     }
   };
@@ -43,7 +45,8 @@ export function tick(s, rng = Math.random) {
   s.balls = s.balls.filter((b) => b.c < COLS);
   if (s.t % ENEMY_EVERY === 0) { for (const e of s.enemies) e.c--; collide(); }
   if (s.t % SPAWN_EVERY === 1 && s.spawned < GOAL + 6) {
-    s.enemies.push({ id: s.nextId++, r: pickLane(s, rng), c: COLS - 1, type: TYPES[Math.floor(rng() * TYPES.length)] });
+    const type = TYPES[Math.floor(rng() * TYPES.length)];
+    s.enemies.push({ id: s.nextId++, r: pickLane(s, rng), c: COLS - 1, type, hp: HITS[type], maxHp: HITS[type] });
     s.spawned++;
   }
   if (s.enemies.some((e) => e.c < 0)) s.over = 'lose';

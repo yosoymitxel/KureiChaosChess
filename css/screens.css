@@ -361,7 +361,7 @@
 .bm-cell.drop { box-shadow: inset 0 0 0 3px var(--brass); }
 .bm-cell.goal { background-color: color-mix(in oklch, var(--tile-a), var(--side-dark) 25%); }
 .bm-cell.goal.aim { box-shadow: inset 0 0 0 2px color-mix(in oklch, var(--brass), transparent 40%); }
-.mg-mark { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; color: var(--ink); }
+.mg-mark { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; color: var(--paper); text-shadow: 0 1px 0 var(--ink), 0 0 6px var(--ink); z-index: 2; pointer-events: none; }
 .bm-actions { flex-wrap: wrap; justify-content: center; }
 .bm-cell.lane { background-color: color-mix(in oklch, var(--tile-a), var(--side-light) 45%); }
 .bm-cell.ball::after { content: ''; position: absolute; inset: 16%; border-radius: 50%; background: var(--side-light); box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 calc(var(--cell) * 0.08) color-mix(in oklch, var(--side-light), var(--ink) 35%); }

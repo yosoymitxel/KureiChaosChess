@@ -19,7 +19,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
   const cell = (r, c) => {
     const e = s.enemies.find((x) => x.r === r && x.c === c);
     const ball = s.balls.some((b) => b.r === r && b.c === c);
-    return { cls: (c === 0 ? 'lane' + (s.reload ? '' : ' drop') : '') + (ball ? ' ball' : ''), piece: e && { type: e.type, side: 'dark' } };
+    return { cls: (c === 0 ? 'lane' + (s.reload ? '' : ' drop') : '') + (ball ? ' ball' : ''), piece: e && { type: e.type, side: 'dark' }, mark: e && e.hp < e.maxHp ? e.hp : '' };
   };
   const status = `Derribadas ${s.down}/${GOAL}. Toca un carril o pulsa su número para lanzar una ficha.`;
 
@@ -27,7 +27,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     <${Topbar} title="Bolos de nuez" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
       ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-      <p class="mini-help">Las piezas carmesí cruzan de derecha a izquierda por cinco carriles. Lanza fichas desde la izquierda (toque o teclas 1-5): al derribar una, la ficha rebota en diagonal y sigue. No dejes que ninguna llegue a tu borde.</p>
+      <p class="mini-help">Las piezas carmesí cruzan de derecha a izquierda por cinco carriles. Lanza fichas desde la izquierda (toque o teclas 1-5): la ficha rebota en diagonal al chocar y sigue. Los peones caen al primer toque; caballo y alfil aguantan dos; la torre, tres. No dejes que ninguna llegue a tu borde.</p>
       <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${!!s.over} label="Bolera"
         onTap=${(r) => launch(s, r) && redraw((n) => n + 1)} />
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Derribaste las ${GOAL} piezas que hacían falta.` : 'Una pieza llegó a tu borde.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
