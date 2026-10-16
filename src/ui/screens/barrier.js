@@ -57,18 +57,20 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     <div class="mini-body">
       ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
       <p class="mini-help">Cruza a la fila de arriba antes que el peón carmesí, que baja hacia la suya. Muévete con las flechas o tocando una casilla, o gasta una valla para cerrar un borde.</p>
-      <div class="br" ref=${gridRef} style=${{ '--n': N }}>
-        ${Array.from({ length: N * N }, (_, i) => {
-          const r = Math.floor(i / N), c = i % N;
-          const who = ['light', 'dark'].find((k) => s.pos[k].r === r && s.pos[k].c === c);
-          return html`<button class=${'br-cell' + (reach.has(i) ? ' mv' : '') + (r === 0 ? ' goal-light' : r === N - 1 ? ' goal-dark' : '')}
-            disabled=${!!s.over || s.turn !== 'light'} aria-label=${`Fila ${r + 1}, columna ${c + 1}`}
-            onPointerEnter=${() => mode !== 'move' && setGhost(anchor(mode, r, c))} onClick=${() => tap(r, c)}>
-            ${who && html`<span class=${'bm-pc side-' + who} dangerouslySetInnerHTML=${{ __html: pieceSVG('pawn') }} />`}
-          </button>`;
-        })}
-        ${s.walls.map((w) => wallEl(w, ''))}
-        ${ghost && wallEl(ghost, canWall(s, ghost) ? 'ghost' : 'ghost bad')}
+      <div class="mini-stage">
+        <div class="br" ref=${gridRef} style=${{ '--n': N }}>
+          ${Array.from({ length: N * N }, (_, i) => {
+            const r = Math.floor(i / N), c = i % N;
+            const who = ['light', 'dark'].find((k) => s.pos[k].r === r && s.pos[k].c === c);
+            return html`<button class=${'br-cell' + (reach.has(i) ? ' mv' : '') + (r === 0 ? ' goal-light' : r === N - 1 ? ' goal-dark' : '')}
+              disabled=${!!s.over || s.turn !== 'light'} aria-label=${`Fila ${r + 1}, columna ${c + 1}`}
+              onPointerEnter=${() => mode !== 'move' && setGhost(anchor(mode, r, c))} onClick=${() => tap(r, c)}>
+              ${who && html`<span class=${'bm-pc side-' + who} dangerouslySetInnerHTML=${{ __html: pieceSVG('pawn') }} />`}
+            </button>`;
+          })}
+          ${s.walls.map((w) => wallEl(w, ''))}
+          ${ghost && wallEl(ghost, canWall(s, ghost) ? 'ghost' : 'ghost bad')}
+        </div>
       </div>
       ${s.over ? html`<${MiniEnd} win=${s.over === 'light'} note=${s.over === 'light' ? 'Tu peón cruzó antes que el carmesí.' : 'El peón carmesí cruzó primero.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'light')} />`
         : html`<div class="bm-actions" role="group" aria-label="Acción">

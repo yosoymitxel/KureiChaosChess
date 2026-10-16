@@ -64,16 +64,18 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     <div class="mini-body">
       ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
       <p class="mini-help">Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha dura 4 turnos (3 movimientos para salir del radio de 2) y las casillas con borde rojo estallan en la próxima jugada.</p>
-      <div class="bm" ref=${gridRef} style=${{ '--n': SIZE }} role="grid" aria-label="Tablero de Bomberman">
-        ${s.cells.map((row, r) => row.map((cell, c) => {
-          const bomb = at(s.bombs, r, c), foe = at(s.enemies, r, c), me = s.player.r === r && s.player.c === c;
-          return html`<button class=${'bm-cell ' + ((r + c) % 2 ? 'b' : 'a') + (cell ? ' ' + cell : '') + (at(s.blast, r, c) ? ' blast' : '') + (danger.has(r * SIZE + c) ? ' danger' : '')}
-            disabled=${!!s.over} aria-label=${`Fila ${r + 1}, columna ${c + 1}`} onClick=${() => tap(r, c)}>
-            ${bomb && html`<span class=${'bm-bomb' + (bomb.t <= 1 ? ' soon' : '')}>${bomb.t}</span>`}
-            ${foe && html`<span class="bm-pc foe side-dark" data-id=${foe.id} dangerouslySetInnerHTML=${{ __html: pieceSVG(foe.type) }} />`}
-            ${me && html`<span class="bm-pc me side-light" dangerouslySetInnerHTML=${{ __html: pieceSVG('king') }} />`}
-          </button>`;
-        }))}
+      <div class="mini-stage">
+        <div class="bm" ref=${gridRef} style=${{ '--n': SIZE }} role="grid" aria-label="Tablero de Bomberman">
+          ${s.cells.map((row, r) => row.map((cell, c) => {
+            const bomb = at(s.bombs, r, c), foe = at(s.enemies, r, c), me = s.player.r === r && s.player.c === c;
+            return html`<button class=${'bm-cell ' + ((r + c) % 2 ? 'b' : 'a') + (cell ? ' ' + cell : '') + (at(s.blast, r, c) ? ' blast' : '') + (danger.has(r * SIZE + c) ? ' danger' : '')}
+              disabled=${!!s.over} aria-label=${`Fila ${r + 1}, columna ${c + 1}`} onClick=${() => tap(r, c)}>
+              ${bomb && html`<span class=${'bm-bomb' + (bomb.t <= 1 ? ' soon' : '')}>${bomb.t}</span>`}
+              ${foe && html`<span class="bm-pc foe side-dark" data-id=${foe.id} dangerouslySetInnerHTML=${{ __html: pieceSVG(foe.type) }} />`}
+              ${me && html`<span class="bm-pc me side-light" dangerouslySetInnerHTML=${{ __html: pieceSVG('king') }} />`}
+            </button>`;
+          }))}
+        </div>
       </div>
       ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Tablero limpio: no queda ningún carmesí.' : 'Te alcanzó la explosión o un enemigo.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
         : html`<div class="bm-controls">

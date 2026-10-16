@@ -279,6 +279,8 @@
 
 /* Minigames (src/ui/screens/connect4.js …): same table, same tokens as the board. */
 .mini-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; justify-content: safe center; gap: 18px; padding: 12px 16px 24px; min-height: 0; overflow-y: auto; }
+/* El tablero mide su hueco real (contenedor de consulta), como el tablero grande: escala con la ventana, sin presupuesto fijo de chrome. */
+.mini-stage { flex: 1; width: 100%; min-height: 0; display: grid; place-items: center; container-type: size; }
 .mini-status { margin: 0; font-size: 18px; font-weight: 750; color: var(--paper); text-align: center; }
 .mini-help { margin: -10px 0 0; max-width: 52ch; font-size: 14px; line-height: 1.45; color: var(--paper-3); text-align: center; }
 /* Cierre de minijuego: misma superficie que los tableros (grano y borde de tinta) para que el
@@ -295,7 +297,7 @@
 .mini-steps span.done { border-color: transparent; color: var(--paper-2); }
 .mini-step-hint { margin: -10px 0 0; max-width: 46ch; font-size: 14px; line-height: 1.45; color: var(--paper); text-align: center; }
 .c4 {
-  --cell: min(calc((100vw - 64px) / var(--cols)), calc((100dvh - 260px) / var(--rows)), 72px);
+  --cell: max(16px, min(calc((100cqw - 30px) / var(--cols)), calc((100cqh - 30px) / var(--rows)), 72px));
   display: grid; grid-template-columns: repeat(var(--cols), var(--cell));
   padding: 10px; border-radius: 16px; border: 3px solid var(--ink);
   background: var(--tile-b); background-image: var(--grain); box-shadow: var(--lift), inset 0 -6px 0 var(--tile-side);
@@ -314,7 +316,7 @@
 .c4-token.won { outline: 3px solid var(--brass); outline-offset: 2px; }
 .minis-list { display: grid; gap: 12px; width: min(420px, 100%); }
 .bm {
-  --cell: min(calc((100vw - 40px) / var(--cols, var(--n))), calc((100dvh - 320px) / var(--rows, var(--n))), 64px);
+  --cell: max(16px, min(calc((100cqw - 10px) / var(--cols, var(--n))), calc((100cqh - 10px) / var(--rows, var(--n))), 64px));
   position: relative;
   display: grid; grid-template-columns: repeat(var(--cols, var(--n)), var(--cell));
   border: 3px solid var(--ink); border-radius: 12px; overflow: hidden; box-shadow: var(--lift);
@@ -341,7 +343,7 @@
 .buy-cost { display: inline-grid; place-items: center; min-width: 18px; padding: 0 4px; border-radius: 6px; background: var(--ink); color: var(--paper); font-size: 12px; }
 .bm-actions { display: flex; gap: 10px; }
 .br {
-  --cell: min(calc((100vw - 40px) / var(--n)), calc((100dvh - 330px) / var(--n)), 64px);
+  --cell: max(16px, min(calc((100cqw - 10px) / var(--n)), calc((100cqh - 10px) / var(--n)), 64px));
   position: relative; display: grid; grid-template-columns: repeat(var(--n), var(--cell));
   border: 3px solid var(--ink); border-radius: 12px; overflow: hidden; box-shadow: var(--lift);
 }

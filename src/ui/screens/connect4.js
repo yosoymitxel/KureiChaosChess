@@ -58,12 +58,14 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     <div class="mini-body">
       ${!result && html`<p class="mini-status" aria-live="polite">${status}</p>`}
       <p class="mini-help">Elige columna con las flechas o pasando el ratón, y suelta la ficha con Enter o un toque. Ganas al conectar cuatro en línea antes que el carmesí.</p>
-      <div class="c4" ref=${boardRef} style=${{ '--cols': COLS, '--rows': ROWS }} role="grid" aria-label="Tablero de Conecta 4">
-        ${Array.from({ length: COLS }, (_, c) => html`<button class=${'c4-col' + (c === col && !result ? ' on' : '')} aria-label=${'Columna ' + (c + 1)}
-          disabled=${!!result || turn !== 'light' || dropRow(grid, c) < 0} onPointerEnter=${() => setCol(c)} onClick=${() => play(c)}>
-          ${Array.from({ length: ROWS }, (_, r) => html`<span class="c4-cell" data-cell=${r + '-' + c}>
-            ${grid[r][c] && html`<i class=${'c4-token side-' + grid[r][c] + (won(r, c) ? ' won' : '')}></i>`}</span>`)}
-        </button>`)}
+      <div class="mini-stage">
+        <div class="c4" ref=${boardRef} style=${{ '--cols': COLS, '--rows': ROWS }} role="grid" aria-label="Tablero de Conecta 4">
+          ${Array.from({ length: COLS }, (_, c) => html`<button class=${'c4-col' + (c === col && !result ? ' on' : '')} aria-label=${'Columna ' + (c + 1)}
+            disabled=${!!result || turn !== 'light' || dropRow(grid, c) < 0} onPointerEnter=${() => setCol(c)} onClick=${() => play(c)}>
+            ${Array.from({ length: ROWS }, (_, r) => html`<span class="c4-cell" data-cell=${r + '-' + c}>
+              ${grid[r][c] && html`<i class=${'c4-token side-' + grid[r][c] + (won(r, c) ? ' won' : '')}></i>`}</span>`)}
+          </button>`)}
+        </div>
       </div>
       ${result && html`<${MiniEnd} win=${result.winner === 'light'} title=${result.winner ? undefined : 'Empate'}
         note=${result.winner === 'light' ? 'Cuatro en línea antes que el bot.' : result.winner === 'dark' ? 'El bot conectó cuatro antes que tú.' : 'Tablero lleno: nadie conectó cuatro.'}
