@@ -28,7 +28,7 @@ favicon y los iconos troquelados de la interfaz.
 |---|---|
 | Mesa de madera oscura como fondo | La escena es una partida sobre una mesa; las piezas marfil y el papel necesitan un fondo oscuro para leerse (R-21: el tema oscuro sale de la escena, no de la moda). |
 | Tres temas (Nogal, Tapete, Pizarra) | Son tres mesas distintas, no modo claro/oscuro; los tres pasan AA en todos los pares de texto (verificado). |
-| Paleta: tinta, papel, bermellón, latón | Dos núcleos (tinta y papel), un acento (bermellón) para la acción principal y el bando enemigo, y latón solo para selección y foco. |
+| Paleta: tinta, papel, bermellón, latón | Dos núcleos (tinta y papel), un acento (bermellón) para la acción principal y el bando enemigo, y latón para selección, foco y la ficha de descanso (la hoguera). |
 | Bermellón solo en el botón principal, el jefe y el bando carmesí | Un acento que marca "esto es lo importante ahora", no decoración. |
 | Bricolage Grotesque | Grotesca con trazo de imprenta y ejes de óptica: suena a caja de juego, no a SaaS. Una sola familia con pesos 400 a 800; los números en tabular. |
 | Sin monoespaciada | No hay código ni datos técnicos que mostrar; usarla sería un disfraz (impeccable). |
@@ -45,7 +45,7 @@ favicon y los iconos troquelados de la interfaz.
 | Insignias y cuerda de escolta | La regla de captura de élite se lee en el tablero sin abrir el manual. |
 | Salidas con gesto propio | Al mapa: las piezas despegan y el tablero se desmonta. Reiniciar: las piezas se recogen al centro. Rendirse: el rey se tumba (el gesto clásico de abandonar en ajedrez) y la mesa pierde el color. |
 | Sombras | Una sola: `--lift` (desplazada y difusa) para lo que está encima de la mesa. Sin halos de color. |
-| Radios | 6 / 12 / 20 px según tamaño: inputs y chips, botones, paneles. Las fichas son redondas porque son fichas. |
+| Radios | 6 / 12 / 20 px según tamaño: inputs y chips, botones, paneles. Las fichas de partida son redondas porque son fichas; la de minijuego es cuadrada porque es otro juego. |
 | Cortina bermellón entre pantallas | El único momento autoral de transición; tapa la carga del tablero. |
 | Banner de turno | Aparece solo cuando empieza tu turno y desaparece; marca un cambio de estado real. |
 | Curvas `ease-out` exponenciales | Los objetos deceleran como objetos reales; sin rebotes elásticos. El *squash* al aterrizar es física del impacto, no adorno. |
@@ -54,6 +54,8 @@ favicon y los iconos troquelados de la interfaz.
 | Rótulos de golpe (¡Jaque!, ¡Reina caída!, ¡Aplastados ×3!, ¡Golpe!, ¡Coronación!, ¡Derrumbe!) | Salen solo cuando cambia algo que el jugador tiene que notar, nunca bloquean y se encolan. El color dice a quién beneficia: latón si es tuyo, rojo si va contra ti. Cada uno anima su pieza (de la antigua galería): la reina capturada se vuelca y se rompe, el rey estalla, el peón gira y sale reina, el rey en jaque tiembla, el jefe pisa con polvo, la casilla se agrieta y cae. |
 | Base líquida al mover | La ficha se funde en un charco con su mismo contorno de tinta y canto, que se estira por todas las casillas del recorrido (dobla la esquina de la L), se recoge tras la pieza y vuelve a ser ficha. Dice de un vistazo qué casillas cruza la jugada. Se omite con movimiento reducido. |
 | Pausa de impacto al capturar | 70 ms de pausa (160 ms con rey o captura múltiple) para que el golpe tenga peso, como en Gambonanza. |
+| Troquel por tipo de nodo en el mapa | La forma y el color dicen qué es el nodo antes de leer el título: redonda de papel = partida de ajedrez (élite en tinta y latón, jefe bermellón y grande), cuadrada verde (`--side-wild`) = minijuego, latón = descanso, cuero (`--paper-3`) = bolsa. La lista de Minijuegos repite la ficha cuadrada. |
+| Un glifo por minijuego | Varios minijuegos enseñaban el icono de un evento de batalla (bomber el derrumbe, bolos la prisa, mate la coronación, marcianos la calavera) y dos cosas distintas parecían la misma; ahora cada uno tiene silueta propia (bomba, bolo, diana, invasor). |
 | Viñeta roja mientras dura el jaque | Estado real y continuo; no parpadea. |
 | Centrado óptico | Los iconos se compensan con su desvío medido; las piezas se encuadran por su caja real cuando son icono; los textos grandes recortan el interlineado a la altura de mayúscula (`text-box`). Verificado midiendo el centro de cada icono, texto y figura contra su contenedor en todas las pantallas, en escritorio y móvil. |
 

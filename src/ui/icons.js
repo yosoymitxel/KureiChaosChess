@@ -45,12 +45,18 @@ const P = {
   expand: html`<path d="M3 3h7v3H6v4H3zM21 3h-7v3h4v4h3zM3 21h7v-3H6v-4H3zM21 21h-7v-3h4v-4h3z" />`,
   shrink: html`<path d="M7 3h3v7H3V7h4zM17 3h-3v7h7V7h-4zM7 21h3v-7H3v3h4zM17 21h-3v-7h7v3h-4z" />`,
   flask: html`<path d="M9 2.5h6v2h-1v4.6l5.7 9.4c1 1.7-.2 3.5-2 3.5H6.3c-1.8 0-3-1.8-2-3.5L10 9.1V4.5H9z" />${cut('M7.5 15.5h9', 1.6)}${dot(10.5, 18.3, 1.1)}${dot(14, 17.8, 0.8)}`,
+  swap: html`<path d="M3.2 7.2h12.1V3.9L22.6 8.4l-7.3 4.5V9.6H3.2zM20.8 16.8H8.7v-3.3L1.4 15.6l7.3 4.5v-3.3h12.1z" />`,
+  bomb: html`<circle cx="12" cy="14.5" r="7" /><path d="M15.3 4.6l2.5 2.5-2.5 2.5-2.5-2.5z" /><path d="M17.5 5.1c.9-.7 1.8-1.1 2.8-1.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />${dot(21.2, 3.2, 1.6)}${cut('M8.6 12.4a4.3 4.3 0 0 1 2.3-3.3', 1.7)}`,
+  bowl: html`<circle cx="7.2" cy="16.6" r="5.1" />${dot(5.9, 15.3, 1.05)}${dot(8.6, 14.9, 1.05)}${dot(7, 18, 1.05)}<circle cx="15" cy="5.2" r="2.6" /><rect x="13.9" y="7.2" width="2.2" height="2.6" rx="1" /><path d="M12.6 12.6c0-1.9.9-3.4 2.4-4.4 1.5 1 2.4 2.5 2.4 4.4 0 2.5-1.6 4.3-2.4 6.2-.8-1.9-2.4-3.7-2.4-6.2z" />`,
+  target: html`<circle cx="12" cy="12" r="9.2" /><circle cx="12" cy="12" r="5.3" fill="none" stroke=${CUT} stroke-width="1.8" />${dot(12, 12, 1.7)}${cut('M12 2.6v4.2M12 17.2v4.2M2.6 12h4.2M17.2 12h4.2', 1.7)}`,
+  invader: html`<rect x="8.2" y="2.5" width="2.2" height="3.2" rx="1" /><rect x="13.6" y="2.5" width="2.2" height="3.2" rx="1" /><rect x="6.6" y="4.8" width="10.8" height="3.4" rx="1.4" /><rect x="5.4" y="8.6" width="13.2" height="5.8" rx="1.8" /><rect x="2.8" y="9.4" width="2.6" height="4.4" rx="1" /><rect x="18.6" y="9.4" width="2.6" height="4.4" rx="1" /><rect x="6.8" y="14.6" width="3" height="5.2" rx="1" /><rect x="14.2" y="14.6" width="3" height="5.2" rx="1" />${dot(9.8, 11.4, 1.3)}${dot(14.2, 11.4, 1.3)}`,
 };
 
 // Optical centring: measured offset of each glyph's bounding box from the 24×24 centre.
 const OFFSET = {
   back: [-0.6, 0], check: [0, 0.4], warn: [0, -0.5], refresh: [0.25, -0.35], bot: [0, -0.75], skull: [0, -0.45],
   book: [0, 0.5], plain: [0, -1.25], crown: [0, 1], fog: [-0.4, 0.1], bag: [0, 0.5], boot: [-0.75, -0.5],
+  bomb: [1.9, -0.45], bowl: [-2.15, 0.15], invader: [0, -0.85],
 };
 
 export function Icon({ name, size = 18 }) {

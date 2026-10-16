@@ -66,6 +66,11 @@
 }
 .node.boss .coin { width: 76px; height: 76px; background: var(--accent); color: var(--paper); --icon-cut: var(--accent); box-shadow: 0 3px 0 var(--accent-ink), 0 7px 0 var(--ink), var(--lift); }
 .node.mod-elite:not(.done) .coin { background: var(--ink); color: var(--brass); --icon-cut: var(--ink); }
+/* El troquel dice qué es el nodo: cuadrada y verde = minijuego (otro juego, otra caja);
+   latón = descanso (la hoguera); cuero = bolsa. Las partidas siguen redondas en papel. */
+.node.k-mini:not(.done) .coin { border-radius: 10px; background: var(--side-wild); color: var(--ink); --icon-cut: var(--side-wild); box-shadow: 0 3px 0 color-mix(in oklch, var(--side-wild), black 30%), 0 6px 0 var(--ink), var(--lift); }
+.node.k-rest:not(.done) .coin { background: var(--brass); --icon-cut: var(--brass); box-shadow: 0 3px 0 color-mix(in oklch, var(--brass), black 25%), 0 6px 0 var(--ink), var(--lift); }
+.node.k-bag:not(.done) .coin { background: var(--paper-3); --icon-cut: var(--paper-3); box-shadow: 0 3px 0 color-mix(in oklch, var(--paper-3), black 25%), 0 6px 0 var(--ink), var(--lift); }
 .node:disabled:not(.done) { opacity: 0.5; }
 .node.done .coin { background: var(--ink); color: var(--paper); --icon-cut: var(--ink); box-shadow: 0 2px 0 var(--ink); translate: 0 4px; }
 .node.open { cursor: pointer; }
@@ -113,6 +118,23 @@
 .game-top { position: absolute; z-index: 5; top: calc(14px + env(safe-area-inset-top)); left: 16px; display: flex; gap: 12px; align-items: center; }
 .game-top .title { font-size: 20px; font-weight: 800; }
 .board-host { flex: 1; display: flex; min-height: 0; }
+/* Organizar: barra de la fase previa, encima del tablero. */
+.place-bar {
+  position: absolute; z-index: 6; top: calc(62px + env(safe-area-inset-top)); left: 50%; translate: -50% 0;
+  display: flex; align-items: center; gap: 14px; width: min(440px, calc(100% - 24px));
+  padding: 10px 12px 10px 14px; border: 2px solid var(--ink); border-radius: var(--r-md);
+  background: var(--paper); background-image: var(--grain); box-shadow: var(--lift);
+}
+.place-bar strong { display: block; font-size: 15px; }
+.place-bar small { color: var(--ink-2); font-size: 12px; line-height: 1.35; }
+.place-bar .btn { flex-shrink: 0; }
+/* Pellizco: el botón cuadrado devuelve el encuadre cuando hay zoom. */
+.zoom-reset {
+  position: absolute; z-index: 6; top: 50%; right: 12px; translate: 0 -50%;
+  display: grid; place-items: center; width: 42px; height: 42px;
+  border: 2px solid var(--ink); border-radius: 10px; background: var(--paper); background-image: var(--grain);
+  color: var(--ink); box-shadow: var(--lift); cursor: pointer;
+}
 .hud { width: 300px; flex-shrink: 0; margin: 14px 14px 14px 0; padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow: auto; }
 .boss-bar { background: var(--ink); color: var(--paper); border-radius: 12px; padding: 12px; }
 .boss-row { display: flex; justify-content: space-between; align-items: center; font-size: 19px; font-weight: 800; }
@@ -320,6 +342,8 @@
 }
 .c4-token.won { outline: 3px solid var(--brass); outline-offset: 2px; }
 .minis-list { display: grid; gap: 12px; width: min(420px, 100%); }
+/* La ficha cuadrada del minijuego, versión lista: misma forma y verde que el nodo del mapa. */
+.mini-chip { display: grid; place-items: center; flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; background: var(--side-wild); color: var(--ink); --icon-cut: var(--side-wild); border: 2px solid var(--ink); box-shadow: 0 2px 0 color-mix(in oklch, var(--side-wild), black 30%); }
 /* Jardín Zen: las macetas usan el mismo tablero y los mismos tokens que los minijuegos. */
 .zen-pond { background-color: color-mix(in oklch, var(--tile-a), var(--side-dark) 22%); cursor: default; }
 .zn-plant { width: 74%; height: 74%; color: var(--ink); }
@@ -362,6 +386,13 @@
 .buy { gap: 6px; }
 .buy-cost { display: inline-grid; place-items: center; min-width: 18px; padding: 0 4px; border-radius: 6px; background: var(--ink); color: var(--paper); font-size: 12px; }
 .bm-actions { display: flex; gap: 10px; }
+/* Matamaecianos: la bola en vuelo, las vidas y el mando de dos teclas. */
+.mm-shot { position: absolute; z-index: 2; inset: 34%; border-radius: 50%; background: var(--brass); box-shadow: inset 0 0 0 2px var(--ink); }
+.mm-lives { display: inline-flex; gap: 4px; margin-left: 8px; vertical-align: -1px; }
+.mm-lives i { width: 12px; height: 12px; border-radius: 50%; background: oklch(1 0 0 / 0.16); box-shadow: inset 0 0 0 2px oklch(0 0 0 / 0.25); }
+.mm-lives i.on { background: var(--danger); }
+.mm-move { display: flex; gap: 8px; }
+.mm-move .btn { min-width: 52px; min-height: 44px; justify-content: center; font-size: 17px; }
 .br {
   --cell: max(16px, min(calc((100cqw - 10px) / var(--n)), calc((100cqh - 10px) / var(--n)), 64px));
   position: relative; display: grid; grid-template-columns: repeat(var(--n), var(--cell));
@@ -381,10 +412,18 @@
 .bm-cell.drop { box-shadow: inset 0 0 0 3px var(--brass); }
 .bm-cell.goal { background-color: color-mix(in oklch, var(--tile-a), var(--side-dark) 25%); }
 .bm-cell.goal.aim { box-shadow: inset 0 0 0 2px color-mix(in oklch, var(--brass), transparent 40%); }
-.mg-mark { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; color: var(--paper); text-shadow: 0 1px 0 var(--ink), 0 0 6px var(--ink); z-index: 2; pointer-events: none; }
+/* El aro de vida del tablero (pc-hp) a escala de casilla, dentro de ella para que la fila de arriba no lo recorte. */
+.bm .pc-hp { top: 1px; translate: -50% 0; gap: calc(var(--cell) * 0.06); padding: calc(var(--cell) * 0.05) calc(var(--cell) * 0.1); pointer-events: none; }
+.bm .pc-hp b { width: calc(var(--cell) * 0.16); height: calc(var(--cell) * 0.16); }
 .bm-actions { flex-wrap: wrap; justify-content: center; }
 .bm-cell.lane { background-color: color-mix(in oklch, var(--tile-a), var(--side-light) 45%); }
-.bm-cell.ball::after { content: ''; position: absolute; inset: 16%; border-radius: 50%; background: var(--side-light); box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 calc(var(--cell) * 0.08) color-mix(in oklch, var(--side-light), var(--ink) 35%); }
+/* La ficha que rueda va como elemento para que Motion la pueda mover entre casillas. */
+.bm-tok { position: absolute; inset: 16%; border-radius: 50%; background: var(--side-light); box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 calc(var(--cell) * 0.08) color-mix(in oklch, var(--side-light), var(--ink) 35%); pointer-events: none; z-index: 1; }
+/* Copias de un paso ya jugado: la pieza que cae y la ficha que sale rodando. */
+.bm-ghost { position: absolute; display: grid; place-items: center; z-index: 2; pointer-events: none; transform-origin: 50% 100%; }
+.bm-ghost svg { width: 92%; height: 92%; }
+.bm-pc.hit svg { filter: brightness(2.4) saturate(0.25); }
+.bm.lost { filter: saturate(0.35) brightness(0.85); transition: filter 0.8s var(--ease-out); }
 .bm-cell.mv::after { content: ''; position: absolute; width: 26%; height: 26%; border-radius: 50%; background: var(--legal); border: 2px solid var(--ink); z-index: 2; }
 .bm-cell.sel { box-shadow: inset 0 0 0 3px var(--brass); }
 .bm-cell.target { box-shadow: inset 0 0 0 calc(var(--cell) * 0.12) var(--brass); }

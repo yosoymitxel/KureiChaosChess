@@ -19,9 +19,10 @@ const BADGES = {
 };
 
 export class BoardView {
-  constructor(host, { camera = 'tilt', shake = true, speed = 1, onTap, onDrop, canDrag, onImpact, onHover } = {}) {
-    Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, onHover, shakeOn: shake, speed });
+  constructor(host, { camera = 'tilt', shake = true, speed = 1, onTap, onDrop, canDrag, onImpact, onHover, onZoom } = {}) {
+    Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, onHover, onZoom, shakeOn: shake, speed });
     this.tilt = CAMERAS[camera] ?? 40;
+    this.zoom = 1;
     host.classList.add('table');
     host.innerHTML = `<div class="stage"><div class="board"><div class="tiles"></div><svg class="goo" preserveAspectRatio="none" aria-hidden="true"></svg><div class="pieces"></div></div></div>`;
     this.stage = host.querySelector('.stage');
@@ -78,6 +79,15 @@ export class BoardView {
   d(ms) { return reduced() ? Math.min(ms, 120) : ms / this.speed; }
 
   setCamera(camera) { this.tilt = CAMERAS[camera] ?? 40; this.layout(); }
+
+  // Pellizco: --zoom escala la escena entera; resetZoom (botón del HUD) vuelve a 1.
+  setZoom(z) {
+    this.zoom = Math.max(1, Math.min(2.6, z));
+    this.host.style.setProperty('--zoom', this.zoom.toFixed(3));
+    this.onZoom?.(this.zoom);
+  }
+
+  resetZoom() { this.setZoom(1); }
 
   layout() {
     if (!this.board) return;
@@ -224,6 +234,15 @@ export class BoardView {
     for (const p of pieces) this.els.get(p)?.classList.add('eligible');
     this.host.classList.add('aiming');
   }
+  // Organizar: anillo discontinuo en las piezas con las que se puede intercambiar casilla.
+  showSwaps(piece, pieces) {
+    this.clearMarks();
+    for (const p of pieces) {
+      this.tiles.get(key(p.row, p.col))?.classList.add('target');
+      this.els.get(p)?.classList.add('eligible');
+    }
+    this.select(piece);
+  }
   // Preview of a card on one target: moves it keeps stay as normal dots, moves it gains are
   // drawn in their own colour, and the tiles the piece (or the tile card) will take are tinted.
   showPreview(targets, pieces, { cells = [], before = new Set(), footprint = [] }) {
@@ -289,8 +308,22 @@ export class BoardView {
 
   bindPointer() {
     let drag = null, over = '';
+    const touches = new Map(), pinch = { d: 0, zoom: 1 };
+    let pinching = false;
+    const spread = () => { const [a, b] = [...touches.values()]; return Math.hypot(a.x - b.x, a.y - b.y); };
     const down = (e) => {
       if (e.button > 0) return;
+      if (e.pointerType !== 'mouse') {
+        touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (touches.size === 2) {
+          // El segundo dedo arranca el pellizco: se descarta el arrastre y no hay toque.
+          Object.assign(pinch, { d: spread(), zoom: this.zoom });
+          pinching = true;
+          if (drag) { drag.ghost?.remove(); this.els.get(drag.piece)?.classList.remove('dragging'); drag = null; }
+          return;
+        }
+        if (pinching) return;
+      }
       const hit = this.hitAt(e.clientX, e.clientY);
       if (!hit) return;
       hit.touch = e.pointerType !== 'mouse';
@@ -298,6 +331,10 @@ export class BoardView {
       this.onTap?.(hit);
     };
     const move = (e) => {
+      if (pinching && e.pointerType !== 'mouse' && touches.has(e.pointerId)) {
+        touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (touches.size >= 2) return this.setZoom(pinch.zoom * (spread() / (pinch.d || 1)));
+      }
       if (!drag || e.pointerId !== drag.id) return;
       if (!drag.ghost && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 8) {
         const src = this.els.get(drag.piece);
@@ -311,6 +348,10 @@ export class BoardView {
       if (drag.ghost) drag.ghost.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
     };
     const up = (e) => {
+      if (e.pointerType !== 'mouse') {
+        touches.delete(e.pointerId);
+        if (touches.size < 2) pinching = false;
+      }
       if (!drag || e.pointerId !== drag.id) return;
       const d = drag; drag = null;
       if (!d.ghost) return;
@@ -398,6 +439,21 @@ export class BoardView {
     const stand = this.els.get(p)?.querySelector('.pc-fig');
     if (!stand) return;
     animate(stand, { scaleY: [amt, 1.08, 1], scaleX: [1 + (1 - amt) * 0.6, 0.96, 1], duration: this.d(380), ease: 'outQuad' });
+  }
+
+  // Organizar: dos piezas propias cambian de casilla con un arco corto y aterrizan con aplomo.
+  async swapPieces(a, b) {
+    const sa = this.state.get(a), sb = this.state.get(b);
+    const [ra, ca, rb, cb] = [a.row, a.col, b.row, b.col];
+    a.row = rb; a.col = cb;
+    b.row = ra; b.col = ca;
+    const dur = this.d(400);
+    await Promise.all([
+      animate(sa, { r: rb, c: cb, z: [0, this.sq * 0.8, 0], duration: dur, ease: 'inOutSine', onUpdate: () => this.apply(a) }),
+      animate(sb, { r: ra, c: ca, z: [0, this.sq * 0.8, 0], duration: dur, ease: 'inOutSine', onUpdate: () => this.apply(b) }),
+    ]);
+    this.squash(a);
+    this.squash(b);
   }
 
   // Animate a match result produced by Match.move().

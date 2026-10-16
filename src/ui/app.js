@@ -18,6 +18,7 @@ import { LastStandScreen } from './screens/laststand.js';
 import { MatesScreen } from './screens/mates.js';
 import { KnightScreen } from './screens/knight.js';
 import { QueensScreen } from './screens/queens.js';
+import { MarcianosScreen } from './screens/marcianos.js';
 import { MODIFIERS } from '../data/modifiers.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini } from '../game/run.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
@@ -41,7 +42,7 @@ const addCards = (r, ids) => ({ ...r, cards: [...(r.cards || []), ...ids].slice(
 const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3);
 // A won minigame pays a mutation or a piece the army already knows.
 const MINI_PRIZES = BAG_CARDS.filter((c) => ['mut', 'extra_rook', 'extra_pawn'].includes(c.id));
-const MINI_SCREENS = { connect4: Connect4Screen, bomber: BomberScreen, barrier: BarrierScreen, izombie: IZombieScreen, bowling: BowlingScreen, laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen };
+const MINI_SCREENS = { connect4: Connect4Screen, bomber: BomberScreen, barrier: BarrierScreen, izombie: IZombieScreen, bowling: BowlingScreen, laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen, marcianos: MarcianosScreen };
 const ONE_SHOT =['promoteOne', 'furyNow', 'extraPawn', 'extraRook'];
 
 export function App() {

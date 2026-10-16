@@ -12,7 +12,7 @@ export function MinisScreen({ unlocked, onBack, onPlay }) {
     <div class="mini-body">
       <div class="minis-list">
         ${unlocked.map((id) => MODIFIERS[id] && html`<button class="btn" data-enter onClick=${() => onPlay(id)}>
-          <${Icon} name=${MODIFIERS[id].icon} />${MODIFIERS[id].name}</button>`)}
+          <span class="mini-chip"><${Icon} name=${MODIFIERS[id].icon} /></span>${MODIFIERS[id].name}</button>`)}
       </div>
     </div>
   </div>`;

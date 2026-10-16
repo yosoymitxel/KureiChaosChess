@@ -62,6 +62,11 @@ export const CARDS = {
     desc: 'Este turno haces un movimiento más, pero ese no puede capturar.',
     apply: (m) => { m.turnBonus = (m.turnBonus || 0) + 1; },
   },
+  organize: {
+    id: 'organize', name: 'Organizar', rarity: 'common', icon: 'swap', target: 'none', preMatch: true,
+    desc: 'Antes del primer turno acomoda tu formación: intercambia hasta ocho piezas (las que quepan en el tablero).',
+    apply: () => {},
+  },
 };
 export const CARD_IDS = Object.keys(CARDS);
 export const HAND_LIMIT = 5;
@@ -102,7 +107,7 @@ export function previewMoves(m, card, piece) {
 // Plays a card for the current player. Returns a result for the view, or null if not allowed.
 export function playCard(m, id, target) {
   const card = CARDS[id];
-  if (!card || m.cardUsed || m.over) return null;
+  if (!card || card.preMatch || m.cardUsed || m.over) return null;
   const res = { card };
   if (card.target === 'piece') {
     if (!target?.piece || target.piece.color !== m.player.color || !card.can(m, target.piece)) return null;

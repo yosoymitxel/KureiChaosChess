@@ -41,6 +41,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   const [end, setEnd] = useState(null);
   const [cardSel, setCardSel] = useState(null); // index in the hand while aiming a card
   const [cardTip, setCardTip] = useState(null); // what the aimed card would do to the previewed target
+  const [placing, setPlacing] = useState(null); // fase previa de "Organizar": { left, total }
+  const [zoom, setZoom] = useState(1); // pellizco sobre el tablero; por encima de 1 asoma el botón de encuadre
   const mod = MODIFIERS[node.modifier];
   ref.current.hand = run.cards || [];
   ref.current.onUseCard = onUseCard;
@@ -84,6 +86,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const cancelCard = () => { d.cardSel = null; d.cardPick = null; setCardSel(null); setCardTip(null); d.view.clearMarks(); d.view.select(null); };
     d.pickCard = (i) => {
       if (!humanTurn() || match.cardUsed) return;
+      if (CARDS[d.hand[i]]?.preMatch) { addLog('Organizar: se juega al empezar la partida'); return; }
       if (d.cardSel === i) return cancelCard();
       clearSel();
       d.cardSel = i; d.cardPick = null; setCardSel(i); setCardTip(null);
@@ -277,7 +280,51 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (m) d.moments.callout({ text: m.name, sub: m.desc, icon: m.icon, tone: 'paper', tier: 'info' });
       return !!m;
     };
+    // Organizar: fase previa a la partida. Cada intercambio gasta dos piezas del presupuesto.
+    const mine = new Set(seats.filter((s) => s.kind === 'human').map((s) => s.color));
+    const placeClear = () => { d.psel = null; d.view.select(null); d.view.clearMarks(); };
+    const placeSwap = async (a, b) => {
+      if (d.swapping || !a || !b || a === b || !mine.has(a.color) || !mine.has(b.color)) return;
+      if (d.placing.left < 2) { addLog('Organizar: ya no quedan piezas por acomodar'); return placeClear(); }
+      d.swapping = true;
+      d.placing.left -= 2;
+      setPlacing({ ...d.placing });
+      placeClear();
+      addLog(`Organizar: ${PIECE_NAMES[a.type].toLowerCase()} ↔ ${PIECE_NAMES[b.type].toLowerCase()}`);
+      await d.view.swapPieces(a, b);
+      d.swapping = false;
+    };
+    const placeTap = (hit) => {
+      const piece = hit.piece || match.pieceAt(hit.row, hit.col);
+      if (!piece || !mine.has(piece.color)) return placeClear();
+      if (d.psel === piece) return placeClear();
+      if (d.psel) return placeSwap(d.psel, piece);
+      d.psel = piece;
+      d.view.showSwaps(piece, match.pieces.filter((o) => o !== piece && mine.has(o.color)));
+    };
+    const beginPlacing = () => {
+      if (d.hand.indexOf('organize') < 0 || !mine.size) { d.busy = false; return startTurn(); }
+      // Tableros de 9 a 12 casillas por lado: dos piezas por cada fila extra sobre ocho.
+      const total = 2 * Math.max(1, Math.min(4, Math.min(board.rows, board.cols) - 8));
+      d.placing = { total, left: total };
+      d.busy = true;
+      addLog(`Organizar: intercambia hasta ${total} piezas y pulsa Comenzar`);
+      d.moments.callout({ text: 'Organizar', sub: `Acomoda tu formación: hasta ${total} piezas`, icon: 'swap', tone: 'brass', tier: 'info' });
+      setPlacing({ total, left: total });
+    };
+    d.endPlacing = () => {
+      if (!d.placing) return;
+      const used = d.placing.total - d.placing.left;
+      const i = d.hand.indexOf('organize');
+      if (used > 0 && i >= 0) { d.onUseCard(i); addLog('Carta: Organizar'); }
+      d.placing = null;
+      placeClear();
+      setPlacing(null);
+      d.busy = false;
+      startTurn();
+    };
     const onTap = (hit) => {
+      if (d.placing) return placeTap(hit);
       if (!humanTurn()) return;
       if (d.cardSel != null) {
         const { card, keys } = aim();
@@ -303,11 +350,16 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (piece.color === me) select(piece); else inspectPiece(piece);
     };
     const onDrop = (piece, hit) => {
+      if (d.placing) {
+        const p = hit?.piece || (hit && match.pieceAt(hit.row, hit.col));
+        if (p && p !== piece) placeSwap(piece, p);
+        return;
+      }
       if (!hit || !humanTurn()) return;
       const anchor = anchorForCell(piece, hit.row, hit.col, match.legal(piece));
       if (anchor) doMove(piece, anchor);
     };
-    const canDrag = (p) => humanTurn() && d.cardSel == null && p.color === match.player.color;
+    const canDrag = (p) => d.placing ? mine.has(p.color) && d.placing.left >= 2 : humanTurn() && d.cardSel == null && p.color === match.player.color;
 
     // Every way out of the board has its own gesture before the screen changes.
     d.leave = async (kind, then) => {
@@ -329,7 +381,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.match = match;
     d.check = {};
     d.moments = new Moments(mainRef.current, { speed: settings.speed, enabled: settings.moments });
-    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, onTap, onDrop, canDrag, onImpact, onHover });
+    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
     d.view.setBoard(board);
     d.view.setPieces(pieces);
     d.busy = true;
@@ -346,7 +398,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       !boss && d.moments.cinematic({ title: `Piso ${node.floor + 1}`, sub: `${mod.name}. ${mod.desc}`, icon: mod.icon, wave: seats.flatMap((s) => ['pawn', 'knight', 'king'].map((t) => [t, s.color])) }),
     ])
       .then(() => boss && d.moments.cinematic({ title: boss.name, sub: bossSub, piece: { type: artOf(boss), side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger', anim: 'stomp' }))
-      .then(() => { d.busy = false; startTurn(); });
+      .then(() => beginPlacing());
     const onKey = (e) => e.key === 'Escape' && setPaused((v) => !v);
     addEventListener('keydown', onKey);
     return () => { clearTimeout(d.timer); removeEventListener('keydown', onKey); d.view.destroy(); d.moments.destroy(); };
@@ -365,13 +417,21 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         <h1 class="title">${node.isBoss ? 'Piso final' : `Piso ${node.floor + 1} de ${run.map.floors}`}</h1>
       </div>
       <div class="board-host" ref=${hostRef}></div>
+      ${placing && html`<div class="place-bar" role="group" aria-label="Fase Organizar">
+        <div>
+          <strong>Organizar</strong>
+          <small>${placing.left > 0 ? `Quedan ${placing.left} piezas por acomodar.` : 'Ya acomodaste tus piezas.'} Toca o arrastra una pieza tuya sobre otra para intercambiarlas.</small>
+        </div>
+        <button class="btn primary sm" autofocus onClick=${() => ref.current.endPlacing()}>Comenzar</button>
+      </div>`}
+      ${zoom > 1.01 && html`<button class="zoom-reset" aria-label="Quitar el zoom" title="Quitar el zoom" onClick=${() => ref.current.view?.resetZoom()}><${Icon} name="shrink" size=${18} /></button>`}
       ${banner && html`<${TurnBanner} key=${banner.key} text=${banner.text} side=${banner.side} />`}
       ${hand.length > 0 && html`<div class=${'hand' + (hud?.canCard ? '' : ' spent')} role="group" aria-label="Mano de cartas tácticas">
         ${hand.map((id, i) => html`<button key=${id + i} class=${'hand-card' + (cardSel === i ? ' on' : '')} style=${{ '--rot': (i - (hand.length - 1) / 2) * 7 + 'deg', '--drop': Math.abs(i - (hand.length - 1) / 2) * 7 + 'px' }}
-            disabled=${!hud?.canCard} aria-pressed=${cardSel === i} title=${CARDS[id].desc} onClick=${() => ref.current.pickCard(i)}>
+            disabled=${!hud?.canCard || !!placing} aria-pressed=${cardSel === i} title=${CARDS[id].desc} onClick=${() => ref.current.pickCard(i)}>
           <${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini />
         </button>`)}
-        <p class=${'hand-hint' + (cardTip ? ' tip' : '')} aria-live="polite">${cardSel != null ? cardTip || CARDS[hand[cardSel]]?.aim || '' : hud?.canCard ? 'Una carta por turno' : 'Ya jugaste carta este turno'}</p>
+        <p class=${'hand-hint' + (cardTip ? ' tip' : '')} aria-live="polite">${placing ? 'Organizar: acomoda tus piezas y pulsa Comenzar' : cardSel != null ? cardTip || CARDS[hand[cardSel]]?.aim || '' : hud?.canCard ? 'Una carta por turno' : 'Ya jugaste carta este turno'}</p>
       </div>`}
     </div>
     <aside class="hud panel">
