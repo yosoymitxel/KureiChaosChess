@@ -1,6 +1,6 @@
 // Bomberman por turnos: cada acción del jugador avanza un tic. Reglas puras, sin DOM.
 export const SIZE = 9;
-const FUSE = 4, RANGE = 2; // the fuse ticks on the turn you place it: three moves to clear radius 2
+const FUSE = 5, RANGE = 2; // the fuse ticks on the turn you place it: four moves to clear radius 2
 const DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
 export function newBomber(rng = Math.random) {
@@ -50,6 +50,37 @@ function explode(s, bomb, out) {
   }
 }
 
+// IA: primer paso del camino más corto hacia el jugador (BFS por casillas libres). Si no hay
+// ruta queda deambulando contra las cajas hasta que las rompas.
+function huntStep(s, e, p, opts, rng) {
+  if (!opts.length) return null;
+  const start = e.r * SIZE + e.c, goal = p.r * SIZE + p.c;
+  const prev = new Array(SIZE * SIZE).fill(-1);
+  const blocked = new Set(s.enemies.filter((o) => o !== e).map((o) => o.r * SIZE + o.c));
+  const q = [start];
+  prev[start] = start;
+  for (let i = 0; i < q.length && prev[goal] < 0; i++) {
+    const cur = q[i], r = (cur / SIZE) | 0, c = cur % SIZE;
+    for (const [dr, dc] of DIRS) {
+      const nr = r + dr, nc = c + dc;
+      if (!inside(nr, nc)) continue;
+      const id = nr * SIZE + nc;
+      if (prev[id] >= 0 || blocked.has(id) || !free(s, nr, nc)) continue;
+      prev[id] = cur;
+      q.push(id);
+    }
+  }
+  if (prev[goal] < 0) {
+    // Sin ruta (cajas sellando el paso): se aprieta hacia vos y espera a que abras.
+    const gm = ([r, c]) => Math.abs(r - p.r) + Math.abs(c - p.c);
+    const closer = opts.filter((o) => gm(o) === Math.min(...opts.map(gm)));
+    return closer[Math.floor(rng() * closer.length)];
+  }
+  let cur = goal;
+  while (prev[cur] !== start) cur = prev[cur];
+  return [Math.floor(cur / SIZE), cur % SIZE];
+}
+
 // action: { move: [dr, dc] } | { bomb: true } | { wait: true }. Devuelve false si no es válida.
 export function step(s, action, rng = Math.random) {
   if (s.over) return false;
@@ -70,8 +101,7 @@ export function step(s, action, rng = Math.random) {
   s.enemies = s.enemies.filter((e) => !hit(e.r, e.c));
   for (const e of s.enemies) {
     const opts = DIRS.map(([dr, dc]) => [e.r + dr, e.c + dc]).filter(([r, c]) => free(s, r, c) && !s.enemies.some((o) => o.r === r && o.c === c));
-    const chase = opts.find(([r, c]) => r === p.r && c === p.c);
-    const pick = chase || (rng() < 0.75 && opts[Math.floor(rng() * opts.length)]);
+    const pick = huntStep(s, e, p, opts, rng);
     if (pick) [e.r, e.c] = pick;
   }
   if (hit(p.r, p.c) || s.enemies.some((e) => e.r === p.r && e.c === p.c)) s.over = 'lose';
