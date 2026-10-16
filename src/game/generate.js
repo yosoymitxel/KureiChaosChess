@@ -136,6 +136,34 @@ const SECOND_RANK = {
 const pawnRank = (n) => Array.from({ length: n }, (_, i) => (n >= 4 && (i === 0 || i === n - 1) ? 'elephant' : 'pawn'));
 const centered = (cols, n) => (n >= cols.length ? cols.slice() : cols.slice(Math.floor((cols.length - n) / 2), Math.floor((cols.length - n) / 2) + n));
 
+// Aperturas: sobre la formación clásica, una doctrina intercambia piezas de valor parecido.
+// Cae la misma en los dos bandos, así que la variedad no rompe la justicia de la partida.
+const FORMATIONS = {
+  clasica: {},
+  caballeria: { bishop: 'knight' },
+  exotica: { knight: 'camel' },
+  asedio: { rook: 'cannon' },
+  fortaleza: { camel: 'guard' },
+};
+const FORMATION_POOL = ['clasica', 'clasica', 'clasica', 'caballeria', 'exotica', 'asedio', 'fortaleza'];
+
+// Formas de despliegue: de la pirámide clásica a la inversa (frente más ancho), a los flancos
+// cargados con un muro delante, o a dos líneas simples. La forma y el número de líneas (2 a 4)
+// se sortean una vez por partida y valen para los dos bandos.
+const DEPLOYS = {
+  piramide: (back, layers) => [back, back - 2, back - 4, back - 6].slice(0, layers),
+  inversa: (back, layers) => [Math.max(3, back - 4), back, back - 2, back - 4].slice(0, layers),
+  flancos: (back, layers) => [back - 2, back, back - 2, back - 4].slice(0, layers),
+  simple: (back) => [back, back - 2],
+};
+const DEPLOY_POOL = ['piramide', 'piramide', 'piramide', 'inversa', 'flancos', 'simple'];
+const spread = (cols, n) => {
+  if (n >= cols.length) return cols.slice();
+  const out = [];
+  for (let lo = 0, hi = cols.length - 1; out.length < n;) out.push(out.length % 2 === 0 ? cols[lo++] : cols[hi--]);
+  return out.sort((a, b) => a - b);
+};
+
 let nextId = 1;
 export function makePiece(type, color, row, col, extra = {}) {
   const p = { id: 'p' + nextId++, type, color, row, col, royal: type === 'king', ...extra };
@@ -159,31 +187,35 @@ function protectElites(pieces) {
 
 export function placePieces(board, { playerCount, isBoss, elite, seed, mutations, bonuses }) {
   const rng = mulberry32(seed + 7);
+  // La variedad nunca debe anular una mutación del jugador: fuera las doctrinas que le quitan su pieza.
+  const clash = (mut, formation) => (mutations?.includes(mut) ? formation : null);
+  const blocked = new Set([clash('bishopOrth', 'caballeria'), clash('knightBishop', 'exotica'), clash('towerDiag', 'asedio')].filter(Boolean));
+  const pool = FORMATION_POOL.filter((f) => !blocked.has(f));
+  const swaps = FORMATIONS[pickFrom(rng, pool.length ? pool : ['clasica'])];
+  const deploy = pickFrom(rng, DEPLOY_POOL);
+  const layers = 2 + Math.floor(rng() * 3);
   const { rows, cols } = board;
   const pieces = [];
   const valid = (r, c) => r >= 0 && r < rows && c >= 0 && c < cols && !board.holes.has(key(r, c));
   const occupied = (r, c) => pieces.some((p) => p.row === r && p.col === c);
 
-  function side(color, backRow, dir, layersWanted) {
+  function side(color, backRow, dir) {
     const backCols = [...Array(cols).keys()].filter((c) => valid(backRow, c));
     if (backCols.length < 2) return;
     let back = Math.min(backCols.length, 9);
     if ((backCols.length - back) % 2) back -= 1;
     back = Math.max(back, 3);
-    const counts = [back];
-    if (layersWanted >= 2 && back - 2 >= 3) counts.push(back - 2);
-    if (layersWanted >= 3 && back - 4 >= 3) counts.push(back - 4);
-    if (layersWanted >= 4 && back - 6 >= 2) counts.push(back - 6);
-    counts.forEach((n, l) => {
+    DEPLOYS[deploy](back, layers).forEach((n, l) => {
       const r = backRow + dir * l;
       const free = [...Array(cols).keys()].filter((c) => valid(r, c));
-      const sel = centered(free, Math.min(n, free.length));
-      const types = l === 0 ? BACK_RANK[sel.length] || BACK_RANK[8] : l === 1 ? SECOND_RANK[sel.length] : pawnRank(sel.length);
+      const take = Math.min(n, free.length);
+      const sel = deploy === 'flancos' && l === 0 ? spread(free, take) : centered(free, take);
+      const types = (l === 0 ? BACK_RANK[sel.length] || BACK_RANK[8] : l === 1 ? SECOND_RANK[sel.length] : pawnRank(sel.length)).map((t) => swaps[t] || t);
       sel.forEach((c, i) => pieces.push(makePiece(types[i] || 'pawn', color, r, c)));
     });
   }
-  side('dark', 0, 1, 2 + Math.floor(rng() * 3));
-  side('light', rows - 1, -1, 2 + Math.floor(rng() * 3));
+  side('dark', 0, 1);
+  side('light', rows - 1, -1);
 
   if (playerCount === 3) {
     const cr = Math.floor(rows / 2), cc = Math.floor(cols / 2);
