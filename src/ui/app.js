@@ -11,6 +11,7 @@ import { Connect4Screen } from './screens/connect4.js';
 import { MinisScreen } from './screens/minis.js';
 import { ZenScreen } from './screens/zen.js';
 import { GalleryScreen } from './screens/gallery.js';
+import { AchievementsScreen } from './screens/achievements.js';
 import { BomberScreen } from './screens/bomber.js';
 import { BarrierScreen } from './screens/barrier.js';
 import { IZombieScreen } from './screens/izombie.js';
@@ -23,6 +24,7 @@ import { MarcianosScreen } from './screens/marcianos.js';
 import { MODIFIERS } from '../data/modifiers.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini } from '../game/run.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
+import { award } from '../game/achievements.js';
 import { applyTheme } from '../data/themes.js';
 import { CARDS, HAND_LIMIT, pickCardChoices } from '../game/cards.js';
 
@@ -117,7 +119,8 @@ export function App() {
 
   // Slay the Spire rhythm: normal fights give a tactic card, elites give a mutation.
   const onWin = () => {
-    if (node.isBoss) { clearRun(); setRunState(null); return newRun(); }
+    award('first_win');
+    if (node.isBoss) { award('boss_slain'); clearRun(); setRunState(null); return newRun(); }
     const next = completeNode(run, node);
     setRun(next);
     if (node.modifier === 'elite') return mutationReward(next);
@@ -127,6 +130,7 @@ export function App() {
   // Minigame inside the run: a win unlocks it and pays a prize; a loss just spends the node.
   const onMiniEnd = (won) => {
     if (!won) { setRun(completeNode(run, node)); return goTo('map'); }
+    award('mini_won');
     unlockMini(node.modifier);
     setReward({ kind: 'mini', cards: MINI_PRIZES });
     goTo('reward');
@@ -164,7 +168,7 @@ export function App() {
   const FreeMini = MINI_SCREENS[freeMini];
 
   return html`
-    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${newRun} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onGallery=${() => goTo('gallery')} settings=${settings} setSettings=${setSettings} />`}
+    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${newRun} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onGallery=${() => goTo('gallery')} onAchievements=${() => goTo('achievements')} settings=${settings} setSettings=${setSettings} />`}
     ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} defaultCount=${seats?.length} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame} />`}
@@ -182,6 +186,7 @@ export function App() {
       endLabel="Otra partida" onEnd=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} />`}
     ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} />`}
+    ${screen === 'achievements' && html`<${AchievementsScreen} onBack=${() => goTo('menu')} />`}
     ${howTo && html`<${HowToOverlay} onClose=${() => setHowTo(false)} />`}
     <div class="curtain" ref=${curtain}><span>Zugzwang</span></div>
   `;

@@ -24,7 +24,7 @@ function Diorama() {
   return html`<div class="diorama" ref=${host} aria-hidden="true"></div>`;
 }
 
-export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onMinis, onZen, onGallery, settings, setSettings }) {
+export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onMinis, onZen, onGallery, onAchievements, settings, setSettings }) {
   const ref = useRef(null);
   useEnter(ref);
   const full = useFullscreen();
@@ -44,6 +44,7 @@ export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onM
         ${onMinis && html`<button class="btn" data-enter onClick=${onMinis}><${Icon} name="connect4" />Minijuegos</button>`}
         ${onZen && html`<button class="btn" data-enter onClick=${onZen}><${Icon} name="rest" />Jardín Zen</button>`}
         ${onGallery && html`<button class="btn" data-enter onClick=${onGallery}><${Icon} name="map" />Galería</button>`}
+        ${onAchievements && html`<button class="btn" data-enter onClick=${onAchievements}><${Icon} name="trophy" />Logros</button>`}
         <div class="menu-row" data-enter>
           <button class="btn ghost" onClick=${onHowTo}><${Icon} name="book" />Reglas</button>
           <button class="btn ghost" onClick=${onSettings}><${Icon} name="gear" />Ajustes</button>

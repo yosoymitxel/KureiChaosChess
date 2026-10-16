@@ -367,6 +367,12 @@
 .gal-item figcaption { font-size: 12px; font-weight: 700; color: var(--paper-3); }
 .gal-item.locked { opacity: 0.55; }
 .gal-item.locked .gal-art { border-style: dashed; }
+/* Logros: lista de hitos; los bloqueados se ven apagados. */
+.ach-list { display: grid; gap: 10px; width: min(480px, 100%); }
+.ach-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 2px solid var(--ink); border-radius: var(--r-md); background: var(--paper); background-image: var(--grain); color: var(--ink-2); }
+.ach-item b { display: block; font-size: 15px; }
+.ach-item p { margin: 0; font-size: 13px; color: var(--ink); }
+.ach-item.locked { opacity: 0.5; }
 .bm {
   --cell: max(16px, min(calc((100cqw - 10px) / var(--cols, var(--n))), calc((100cqh - 10px) / var(--rows, var(--n))), 64px));
   position: relative;

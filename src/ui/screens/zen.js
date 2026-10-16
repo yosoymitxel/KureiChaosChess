@@ -2,6 +2,7 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
 import { Topbar, useEnter } from '../components.js';
 import { ZEN_KINDS, zenStage, zenPlant, zenHarvest, loadZen, saveZen } from '../../game/zen.js';
+import { award } from '../../game/achievements.js';
 
 const NOMBRES = { romero: 'Romero', salvia: 'Salvia', lavanda: 'Lavanda' };
 const ETAPAS = { empty: 'vacía', sprout: 'con brote', bud: 'con capullo', bloom: 'flor lista para cortar' };
@@ -27,7 +28,14 @@ export function ZenScreen({ onBack }) {
   const tap = (i) => {
     const { stage } = zenStage(z, i, now);
     if (stage === 'empty') { apply(zenPlant(z, i, now)); setNote(null); }
-    else if (stage === 'bloom') { apply(zenHarvest(z, i, now)); setNote(null); }
+    else if (stage === 'bloom') {
+      const next = zenHarvest(z, i, now);
+      apply(next);
+      setNote(null);
+      award('flower_1');
+      const flores = ZEN_KINDS.reduce((n, k) => n + (next.flores[k] || 0), 0);
+      if (flores >= 3) award('flower_3');
+    }
     else setNote(i);
   };
 
