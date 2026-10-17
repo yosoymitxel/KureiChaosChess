@@ -27,10 +27,10 @@ export function zenStage(z, i, now = Date.now()) {
   return { stage: grown >= BUD_MS ? 'bud' : 'sprout', kind: pot.kind, msLeft: BLOOM_MS - grown };
 }
 
-export function zenPlant(z, i, now = Date.now()) {
+export function zenPlant(z, i, kind, now = Date.now()) {
   if (z.pots[i]) return z;
   const pots = z.pots.slice();
-  pots[i] = { kind: ZEN_KINDS[z.planted % ZEN_KINDS.length], t: now };
+  pots[i] = { kind, t: now };
   return { ...z, pots, planted: z.planted + 1 };
 }
 

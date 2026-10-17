@@ -75,6 +75,7 @@ export function ZenScreen({ onBack, onShop }) {
   const [z, setZ] = useState(loadZen);
   const [, tick] = useState(0);
   const [note, setNote] = useState(null); // maceta tocada que todavía no floreció
+  const [seed, setSeed] = useState(0); // especie elegida para sembrar
   const [coins, setCoins] = useState(() => loadShop().coins);
   const [gain, setGain] = useState(null); // última flor cortada, para el aviso de monedas
   const coinRef = useRef(null);
@@ -85,7 +86,7 @@ export function ZenScreen({ onBack, onShop }) {
   const apply = (next) => { if (next !== z) { saveZen(next); setZ(next); } };
   const tap = (i) => {
     const { stage, kind } = zenStage(z, i, now);
-    if (stage === 'empty') { apply(zenPlant(z, i, now)); setNote(null); }
+    if (stage === 'empty') { apply(zenPlant(z, i, ZEN_KINDS[seed], now)); setNote(null); }
     else if (stage === 'bloom') {
       const next = zenHarvest(z, i, now);
       apply(next);
@@ -101,13 +102,19 @@ export function ZenScreen({ onBack, onShop }) {
   };
 
   const total = ZEN_KINDS.reduce((n, k) => n + (z.flores[k] || 0), 0);
-  const nextKind = ZEN_KINDS[z.planted % ZEN_KINDS.length];
+  // El estatus cuenta lo más útil: la maceta tocada, la flor que florecerá antes o la semilla elegida.
+  const soon = z.pots
+    .map((pot, i) => (pot ? zenStage(z, i, now) : null))
+    .filter((x) => x && x.msLeft != null)
+    .reduce((a, x) => (a == null || x.msLeft < a.msLeft ? x : a), null);
   const wait = note == null ? null : zenStage(z, note, now);
   const status = gain
     ? `+${COINS_PER_FLOWER} monedas por la ${NOMBRES[gain]}.`
     : wait && wait.msLeft != null
       ? `${NOMBRES[wait.kind]}: florece en ${Math.ceil(wait.msLeft / 1000)} s.`
-      : `Lo próximo que plantas: ${NOMBRES[nextKind]} · En la colección: ${total}.`;
+      : soon
+        ? `Creciendo: ${NOMBRES[soon.kind]} florece en ${Math.ceil(soon.msLeft / 1000)} s. En la colección: ${total}.`
+        : `Semilla: ${NOMBRES[ZEN_KINDS[seed]]} · En la colección: ${total}.`;
 
   return html`<div class="screen mini" ref=${ref}>
     <${Topbar} title="Jardín Zen" sub="Un rincón tranquilo entre runs" onBack=${onBack}>
@@ -115,7 +122,10 @@ export function ZenScreen({ onBack, onShop }) {
     </${Topbar}>
     <div class="mini-body">
       <p class="mini-status" aria-live="polite">${status}</p>
-      <p class="mini-help">Toca una maceta vacía para sembrar; echa capullo al minuto y florece a los dos minutos y medio. Cuando la flor esté lista, la maceta se marca en latón: tócala y suma a tu colección; cada corte paga ${COINS_PER_FLOWER} monedas para la tienda.</p>
+      <p class="mini-help">Elige la semilla y toca una maceta vacía para sembrar; echa capullo al minuto y florece a los dos minutos y medio. Cuando la flor esté lista, la maceta se marca en latón: tócala y suma a tu colección; cada corte paga ${COINS_PER_FLOWER} monedas para la tienda.</p>
+      <div class="zen-seeds" role="group" aria-label="Semilla para sembrar">
+        ${ZEN_KINDS.map((k, ki) => html`<button class=${'zen-chip zen-seed zn-k-' + k + (seed === ki ? ' on' : '')} aria-pressed=${seed === ki} onClick=${() => setSeed(ki)}>${chipArt(k)}<span>${NOMBRES[k]}</span></button>`)}
+      </div>
       <div class="mini-stage">
         <div class="zn-yard">
           <div class="bm zn-tray" role="group" aria-label="Cantero del jardín">

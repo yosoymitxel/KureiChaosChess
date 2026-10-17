@@ -401,6 +401,11 @@
 .zen-chip.pending { opacity: 0.45; }
 .zen-chip svg { width: 24px; height: 24px; }
 .zen-chip b { font-size: 17px; }
+/* Elegir semilla: los mismos chips del estante, ahora pulsables; la elegida lleva aro de latón. */
+.zen-seeds { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.zen-seed { cursor: pointer; }
+.zen-seed:hover { filter: brightness(1.05); }
+.zen-seed.on { background: var(--paper-2); box-shadow: inset 0 0 0 2px var(--brass); color: var(--ink); }
 /* Galería: grupos de imágenes; las bloqueadas son placeholders honestos. */
 .gal-group { width: 100%; max-width: 560px; }
 .gal-title { margin: 0 0 8px; font-size: 16px; font-weight: 800; color: var(--paper); }
