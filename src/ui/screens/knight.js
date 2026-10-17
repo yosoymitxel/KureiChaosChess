@@ -1,12 +1,12 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd } from '../components.js';
+import { Topbar, MiniEnd, MiniDiff } from '../components.js';
 import { Icon } from '../icons.js';
 import { MiniGrid } from './mini-grid.js';
 import { hopPiece } from '../hop.js';
-import { SIZE, newRoute, jumps, jump, isTarget, isVisited, remaining } from '../../game/knight.js';
+import { SIZE, DIFFS, newRoute, jumps, jump, isTarget, isVisited, remaining } from '../../game/knight.js';
 
-export function KnightScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
-  const [s] = useState(newRoute);
+export function KnightScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
+  const [s] = useState(() => newRoute(Math.random, DIFFS[diff || settings.miniDiff?.knight] || DIFFS.normal));
   const [, redraw] = useState(0);
   const [order, setOrder] = useState(() => [{ r: s.pos.r, c: s.pos.c }]); // orden de la ruta, para numerar las casillas pisadas
   const gridRef = useRef(null);
@@ -50,6 +50,7 @@ export function KnightScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
       <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">El caballo salta en L. Pisa las casillas con aro dorado; las que ya pisaste quedan numeradas por orden y no se pueden repetir. Pierdes si te quedas sin saltos posibles.</p></details>
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="Ruta del caballo"
         gridRef=${gridRef} boardClass="bm-slab" onTap=${go} />
+      <${MiniDiff} mini="knight" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Completaste la ruta sin repetir casilla.' : 'El caballo se quedó sin saltos posibles.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
   </div>`;
