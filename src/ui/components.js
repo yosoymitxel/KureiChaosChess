@@ -23,6 +23,22 @@ export function MiniEnd({ win, title, note, label = 'Continuar', onEnd }) {
   </div>`;
 }
 
+// Dificultad del minijuego: en partida libre se elige y cada juego recuerda su nivel; en la run
+// el piso la fija y la pieza solo lo anuncia. Cambiar de nivel arranca tablero nuevo, así lo
+// que se juega es siempre lo que se ve marcado.
+export function MiniDiff({ mini, diffs, fixed, settings, setSettings, onRestart }) {
+  const value = settings.miniDiff?.[mini] || 'normal';
+  if (fixed) return html`<p class="mini-tier">Nivel del piso: <b>${(diffs[fixed] || diffs.normal).name}</b>.</p>`;
+  const pick = (id) => {
+    if (id === value) return;
+    setSettings((t) => ({ ...t, miniDiff: { ...t.miniDiff, [mini]: id } }));
+    onRestart();
+  };
+  return html`<div class="segmented sm" role="group" aria-label="Dificultad">
+    ${Object.entries(diffs).map(([id, d]) => html`<button class=${id === value ? 'on' : ''} aria-pressed=${id === value} onClick=${() => pick(id)}>${d.name}</button>`)}
+  </div>`;
+}
+
 // Destructive actions ask for a second press instead of a browser dialog.
 export function ConfirmButton({ class: cls = 'btn', onConfirm, confirmLabel = 'Pulsa otra vez para confirmar', children }) {
   const [armed, setArmed] = useState(false);

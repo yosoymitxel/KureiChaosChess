@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useLayoutEffect, useRef, motion } from '../lib.js';
-import { Topbar, MiniEnd } from '../components.js';
+import { Topbar, MiniEnd, MiniDiff } from '../components.js';
 import { MiniGrid } from './mini-grid.js';
 import { hopPiece, popPiece, reduced } from '../hop.js';
 import { Fx } from '../../view/fx.js';
@@ -10,7 +10,7 @@ const TICK_MS = 280;
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
-  const [s] = useState(() => newBowling(diff || settings.miniDiff));
+  const [s] = useState(() => newBowling(diff || settings.miniDiff?.bowling));
   const [, redraw] = useState(0);
   const gridRef = useRef(null);
   const fxRef = useRef(null);
@@ -26,13 +26,6 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
     before.current = was;
     redraw((n) => n + 1);
     return true;
-  };
-
-  // Elegir dificultad arranca tablero nuevo: lo que se juega es siempre lo que se ve marcado.
-  const pick = (id) => {
-    if (id === settings.miniDiff) return;
-    setSettings((t) => ({ ...t, miniDiff: id }));
-    onRestart();
   };
 
   useEffect(() => {
@@ -145,11 +138,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
       <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Las piezas carmesí cruzan de derecha a izquierda por cinco carriles. Lanza fichas desde la izquierda (toque o teclas 1-5): la ficha rebota en diagonal al chocar y sigue. Los peones caen al primer toque; caballo y alfil aguantan dos; la torre, tres. No dejes que ninguna llegue a tu borde.</p></details>
       <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${!!s.over} label="Bolera" gridRef=${gridRef} boardClass="bm-slab bw"
         onTap=${(r) => shoot(r)} />
-      ${diff
-        ? html`<p class="mini-tier">Nivel del piso: <b>${DIFFS[diff].name}</b>.</p>`
-        : html`<div class="segmented sm" role="group" aria-label="Dificultad">
-            ${Object.entries(DIFFS).map(([id, d]) => html`<button class=${id === settings.miniDiff ? 'on' : ''} aria-pressed=${id === settings.miniDiff} onClick=${() => pick(id)}>${d.name}</button>`)}
-          </div>`}
+      <${MiniDiff} mini="bowling" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Derribaste las ${s.diff.goal} piezas que hacían falta.` : 'Una pieza llegó a tu borde.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
   </div>`;
