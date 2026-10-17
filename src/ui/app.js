@@ -25,6 +25,7 @@ import { MarcianosScreen } from './screens/marcianos.js';
 import { MODIFIERS } from '../data/modifiers.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, claimTheme, consumeCard } from '../game/shop.js';
+import { ZEN_NAMES, addZenSeeds, pickSeed } from '../game/zen.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
 import { award } from '../game/achievements.js';
 import { applyTheme } from '../data/themes.js';
@@ -110,14 +111,14 @@ export function App() {
     }
   }, [screen, gameKey]);
 
-  const mutationReward = (r, coins = 0) => {
+  const mutationReward = (r, coins = 0, seed = null) => {
     const choices = pickMutationChoices(Date.now(), r.mutations);
     if (!choices.length) return goTo('map');
-    setReward({ kind: 'mutation', coins, cards: choices.map((id) => ({ ...MUTATIONS[id], kind: 'mutation', stack: r.mutations.filter((x) => x === id).length + 1 })) });
+    setReward({ kind: 'mutation', coins, seed, cards: choices.map((id) => ({ ...MUTATIONS[id], kind: 'mutation', stack: r.mutations.filter((x) => x === id).length + 1 })) });
     goTo('reward');
   };
-  const cardReward = (coins = 0) => {
-    setReward({ kind: 'tactic', coins, cards: pickCardChoices(Date.now()).map((id) => ({ ...CARDS[id], kind: 'tactic' })) });
+  const cardReward = (coins = 0, seed = null) => {
+    setReward({ kind: 'tactic', coins, seed, cards: pickCardChoices(Date.now()).map((id) => ({ ...CARDS[id], kind: 'tactic' })) });
     goTo('reward');
   };
 
@@ -127,13 +128,15 @@ export function App() {
     const kind = node.isBoss ? 'boss' : node.isMiniBoss ? 'miniBoss' : node.modifier === 'elite' ? 'elite' : 'normal';
     const coins = COINS_PER_NODE[kind];
     addCoins(coins);
+    const seed = pickSeed();
+    addZenSeeds(seed, 1);
     if (node.isBoss || node.isMiniBoss) unlockBoss(bossId);
     if (node.isBoss) { award('boss_slain'); clearRun(); setRunState(null); return newRun(); }
-    if (node.isMiniBoss) { const next = completeNode(run, node); setRun(next); return mutationReward(next, coins); }
+    if (node.isMiniBoss) { const next = completeNode(run, node); setRun(next); return mutationReward(next, coins, seed); }
     const next = completeNode(run, node);
     setRun(next);
-    if (node.modifier === 'elite') return mutationReward(next, coins);
-    cardReward(coins);
+    if (node.modifier === 'elite') return mutationReward(next, coins, seed);
+    cardReward(coins, seed);
   };
 
   // Minigame inside the run: a win unlocks it and pays a prize; a loss just spends the node.
@@ -183,7 +186,7 @@ export function App() {
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} defaultCount=${seats?.length} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame} />`}
     ${screen === 'reward' && reward && html`<${CardPick} key=${reward.kind + reward.cards.map((c) => c.id).join()}
       title=${REWARD_TEXT[reward.kind][0]}
-      subtitle=${REWARD_TEXT[reward.kind][1] + (reward.coins ? ` La victoria paga ${reward.coins} monedas del jardín.` : '')}
+      subtitle=${REWARD_TEXT[reward.kind][1] + (reward.coins ? ` La victoria paga ${reward.coins} monedas del jardín.` : '') + (reward.seed ? ` Cayó una semilla de ${ZEN_NAMES[reward.seed]}.` : '')}
       cards=${reward.cards} onConfirm=${onReward} />`}
     ${screen === 'game' && node && seats && run && html`<${GameScreen} key=${node.id + '-' + gameKey}
       node=${node} run=${run} seats=${seats} settings=${settings} setSettings=${setSettings}
