@@ -1,4 +1,4 @@
-import { html, useEffect, useRef } from '../lib.js';
+import { html, useEffect, useRef, useState } from '../lib.js';
 import { Icon } from '../icons.js';
 import { useEnter, ConfirmButton } from '../components.js';
 import { BoardView } from '../../view/board-view.js';
@@ -6,7 +6,7 @@ import { makePiece } from '../../game/generate.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
 
 // Decorative diorama: a small board with a boss facing a few pieces, gently swaying.
-function Diorama() {
+function Diorama({ onOpen }) {
   const host = useRef(null);
   useEffect(() => {
     const v = new BoardView(host.current, { camera: 'epic' });
@@ -21,18 +21,22 @@ function Diorama() {
     v.intro(pieces);
     return () => v.destroy();
   }, []);
-  return html`<div class="diorama" ref=${host} aria-hidden="true"></div>`;
+  return html`<div class="diorama" ref=${host} aria-hidden="true" onClick=${onOpen} title="Abrir extras" role="button" tabindex="0"
+    onKeyDown=${(e) => (e.key === 'Enter' || e.key === ' ') && onOpen()}></div>`;
 }
 
 export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onMinis, onZen, onGallery, onAchievements, settings, setSettings }) {
   const ref = useRef(null);
   useEnter(ref);
   const full = useFullscreen();
+  const [extras, setExtras] = useState(false);
   const toggleFull = () => { setFullscreen(!full); setSettings((s) => ({ ...s, fullscreen: !full })); };
   // Starting from the menu is a tap, so it can enter fullscreen right away when the setting asks for it.
   const go = (fn) => () => { if (settings.fullscreen) setFullscreen(true); fn(); };
+  const openExtras = () => setExtras(true);
+  const closeExtras = () => setExtras(false);
   return html`<div class="screen menu" ref=${ref}>
-    <${Diorama} />
+    <${Diorama} onOpen=${openExtras} />
     <div class="menu-col">
       <div class="logo" data-enter>
         <h1>Zug<span>zwang</span></h1>
@@ -42,9 +46,6 @@ export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onM
         <button class="btn primary" data-enter onClick=${go(hasRun ? onContinue : onNew)}>${hasRun ? 'Continuar run' : 'Empezar run'}</button>
         ${hasRun && html`<${ConfirmButton} class="btn" onConfirm=${onNew} confirmLabel="Se pierde la run actual. ¿Seguro?">Nueva run<//>`}
         ${onMinis && html`<button class="btn" data-enter onClick=${onMinis}><${Icon} name="connect4" />Minijuegos</button>`}
-        ${onZen && html`<button class="btn" data-enter onClick=${onZen}><${Icon} name="rest" />Jardín Zen</button>`}
-        ${onGallery && html`<button class="btn" data-enter onClick=${onGallery}><${Icon} name="map" />Galería</button>`}
-        ${onAchievements && html`<button class="btn" data-enter onClick=${onAchievements}><${Icon} name="trophy" />Logros</button>`}
         <div class="menu-row" data-enter>
           <button class="btn ghost" onClick=${onHowTo}><${Icon} name="book" />Reglas</button>
           <button class="btn ghost" onClick=${onSettings}><${Icon} name="gear" />Ajustes</button>
@@ -53,5 +54,18 @@ export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onM
         </div>
       </nav>
     </div>
+    ${extras && html`<div class="extras-overlay" onClick=${closeExtras}>
+      <div class="extras-panel" onClick=${(e) => e.stopPropagation()}>
+        <div class="extras-head">
+          <strong>Extras</strong>
+          <button class="btn ghost sm icon-only" aria-label="Cerrar" onClick=${closeExtras}><${Icon} name="back" size=${16} /></button>
+        </div>
+        <div class="extras-grid">
+          ${onZen && html`<button class="btn ghost" onClick=${() => { closeExtras(); onZen(); }}><${Icon} name="rest" />Jardín Zen</button>`}
+          ${onGallery && html`<button class="btn ghost" onClick=${() => { closeExtras(); onGallery(); }}><${Icon} name="map" />Galería</button>`}
+          ${onAchievements && html`<button class="btn ghost" onClick=${() => { closeExtras(); onAchievements(); }}><${Icon} name="trophy" />Logros</button>`}
+        </div>
+      </div>
+    </div>`}
   </div>`;
 }

@@ -1,4 +1,4 @@
-// Matamaecianos: oleadas retro, disparo y tres vidas. Reglas puras, sin DOM.
+// Matamarcianos: oleadas retro, disparo y tres vidas. Reglas puras, sin DOM.
 export const COLS = 8;
 export const ROWS = 8;
 export const PLAYER_ROW = ROWS - 1;

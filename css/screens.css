@@ -11,7 +11,9 @@
 
 /* Menu: asymmetric, the diorama is the focal point and the title sits beside it. */
 .menu { flex-direction: row; align-items: center; overflow: hidden; }
-.diorama { position: absolute; inset: 0 0 0 30%; }
+.diorama { position: absolute; inset: 0 0 0 30%; cursor: pointer; transition: filter 0.2s var(--ease-out); }
+.diorama:hover { filter: brightness(1.08); }
+.diorama:focus-visible { outline: 3px solid var(--brass); outline-offset: 4px; }
 .diorama .board { animation: settle 1.6s var(--ease-out) both; }
 @keyframes settle {
   from { transform: translateY(calc(var(--sq) * 0.35)) rotateX(var(--tilt)) rotateZ(-22deg); }
@@ -29,6 +31,13 @@
 .menu-actions { display: flex; flex-direction: column; gap: 14px; margin-top: 34px; max-width: 320px; }
 .menu-row { display: flex; gap: 10px; }
 .menu-row .btn { flex: 1; }
+/* Extras: panel compacto que se abre desde el diorama. */
+.extras-overlay { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; background: oklch(0 0 0 / 0.55); backdrop-filter: blur(2px); }
+.extras-panel { display: grid; gap: 12px; width: min(360px, calc(100% - 32px)); padding: 16px; border: 3px solid var(--ink); border-radius: var(--r-md); background: var(--paper); background-image: var(--grain); box-shadow: var(--lift); }
+.extras-head { display: flex; align-items: center; justify-content: space-between; }
+.extras-head strong { font-size: 18px; font-weight: 800; color: var(--ink); }
+.extras-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.extras-grid .btn { justify-content: center; }
 @media (max-width: 760px) {
   .menu { flex-direction: column; justify-content: flex-end; }
   .diorama { inset: 0 0 38% 0; }
