@@ -1,15 +1,15 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd } from '../components.js';
+import { Topbar, MiniEnd, MiniDiff } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { hopPiece } from '../hop.js';
-import { N, newBarrier, act, steps, canWall, botAction } from '../../game/barrier.js';
+import { N, DIFFS, newBarrier, act, steps, canWall, botAction } from '../../game/barrier.js';
 
 const KEYS = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
 const anchor = (o, r, c) => ({ o, r: Math.min(r, N - 2), c: Math.min(c, N - 2) });
 
-export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
-  const [s] = useState(newBarrier);
+export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
+  const [s] = useState(() => newBarrier(diff || settings.miniDiff?.barrier));
   const [mode, setMode] = useState('move');
   const [ghost, setGhost] = useState(null);
   const [, tick] = useState(0);
@@ -73,6 +73,7 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
           ${ghost && wallEl(ghost, canWall(s, ghost) ? 'ghost' : 'ghost bad')}
         </div>
       </div>
+      <${MiniDiff} mini="barrier" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
       ${s.over ? html`<${MiniEnd} win=${s.over === 'light'} note=${s.over === 'light' ? 'Tu peón cruzó antes que el carmesí.' : 'El peón carmesí cruzó primero.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'light')} />`
         : html`<div class="bm-actions" role="group" aria-label="Acción">
           <button class=${'btn sm' + (mode === 'move' ? ' on' : ' ghost')} aria-pressed=${mode === 'move'} onClick=${() => { setMode('move'); setGhost(null); }}>Mover</button>

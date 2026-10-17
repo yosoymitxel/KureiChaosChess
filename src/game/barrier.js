@@ -1,13 +1,22 @@
 // Barrera (tipo Quoridor): llega a la fila contraria; en vez de mover puedes poner una valla de dos casillas.
-export const N = 7, FENCES = 5;
+export const N = 7;
+// Más vallas premian a quien sabe tapar (tú); menos convierten la partida en carrera pura.
+export const DIFFS = {
+  facil: { name: 'Fácil', fences: 7 },
+  normal: { name: 'Normal', fences: 5 },
+  dificil: { name: 'Difícil', fences: 3 },
+};
 const DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
-export const newBarrier = () => ({
-  pos: { light: { r: N - 1, c: 3 }, dark: { r: 0, c: 3 } },
-  goal: { light: 0, dark: N - 1 },
-  left: { light: FENCES, dark: FENCES },
-  walls: [], turn: 'light', over: null,
-});
+export const newBarrier = (key = 'normal') => {
+  const fences = (DIFFS[key] || DIFFS.normal).fences;
+  return {
+    pos: { light: { r: N - 1, c: 3 }, dark: { r: 0, c: 3 } },
+    goal: { light: 0, dark: N - 1 },
+    left: { light: fences, dark: fences },
+    walls: [], turn: 'light', over: null,
+  };
+};
 
 // Valla h en (r,c): corta entre filas r y r+1, columnas c y c+1. Valla v: entre columnas c y c+1, filas r y r+1.
 const blocks = (walls, r, c, dr, dc) => walls.some((w) => (dr
