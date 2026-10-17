@@ -37,14 +37,15 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     const q = s.queens.find((x) => x.r === r && x.c === c);
     return { cls: q && bad.includes(q) ? 'clash' : '', piece: q && { type: 'queen', side: 'light' } };
   };
-  const status = `Reinas: ${s.queens.length}/${N} · ${time} s. Ninguna puede atacar a otra.`;
-
   return html`<div class="screen mini">
     <${Topbar} title="Ocho reinas" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
-      ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
+      ${!s.over && html`<div class="mini-stats" aria-live="polite">
+        <span class="chip" aria-label=${`Reinas colocadas: ${s.queens.length} de ${N}`}><span class="dots">${Array.from({ length: N }, (_, i) => html`<i class=${i < s.queens.length ? '' : 'off'} />`)}</span></span>
+        <span class=${'chip' + (time <= 30 ? ' danger' : '')} aria-label=${`Quedan ${time} segundos`}><b>${time}</b> s</span>
+      </div>`}
       <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Completa las ocho antes de que se acabe el tiempo.</p></details>
-      <${MiniGrid} rows=${N} cols=${N} cell=${cell} disabled=${!!s.over} label="Tablero de ocho reinas" gridRef=${gridRef}
+      <${MiniGrid} rows=${N} cols=${N} cell=${cell} disabled=${!!s.over} label="Tablero de ocho reinas" gridRef=${gridRef} boardClass="bm-slab"
         onTap=${tap} />
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Ocho reinas conviviendo sin atacarse.' : `Se acabó el tiempo con ${s.queens.length} de ${N} reinas.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>

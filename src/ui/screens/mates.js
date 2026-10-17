@@ -63,14 +63,17 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     const foe = p && p.type === 'king' && p.color === 'dark';
     return { cls: (t ? 'mv ' : '') + (foe ? 'foe ' : '') + (sel && p === sel ? 'sel' : ''), piece: p && { type: p.type, side: p.color } };
   };
-  const status = note && !over && !sel ? note : `Mate en ${st.n} · te queda${st.left > 1 ? `n ${st.left} jugadas` : ' 1 jugada'}.`;
-
   return html`<div class="screen mini">
     <${Topbar} title="Mate en 1 y 2" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
-      ${!over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
+      ${!over && html`<p class="mini-steps">${[1, 2].map((k) => html`<span class=${st.n === k ? 'on' : st.n > k ? 'done' : ''}>${k} Mate en ${k}</span>`)}</p>`}
+      ${!over && (note && !sel
+        ? html`<p class="mini-status" aria-live="polite">${note}</p>`
+        : html`<div class="mini-stats" aria-live="polite">
+          <span class="chip" aria-label=${`Te queda${st.left === 1 ? '' : 'n'} ${st.left} jugada${st.left === 1 ? '' : 's'}`}><span class="dots">${Array.from({ length: st.n }, (_, i) => html`<i class=${i < st.left ? '' : 'off'} />`)}</span></span>
+        </div>`)}
       <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Juegas con marfil y mueves primero: el rey carmesí marcado en rojo debe caer en ${st.n} jugada${st.n > 1 ? 's' : ''}, responda lo que responda. El carmesí juega siempre su mejor defensa.</p></details>
-      <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!over} label="Problema de mate" gridRef=${gridRef} onTap=${tap} />
+      <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!over} label="Problema de mate" gridRef=${gridRef} boardClass="bm-slab" onTap=${tap} />
       ${over && html`<${MiniEnd} win=${over === 'win'} note=${note} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
     </div>
   </div>`;

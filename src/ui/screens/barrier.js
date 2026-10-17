@@ -1,5 +1,6 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
 import { Topbar, MiniEnd } from '../components.js';
+import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { hopPiece } from '../hop.js';
 import { N, newBarrier, act, steps, canWall, botAction } from '../../game/barrier.js';
@@ -78,7 +79,10 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
           <button class=${'btn sm' + (mode === 'h' ? ' on' : ' ghost')} aria-pressed=${mode === 'h'} disabled=${!s.left.light} onClick=${() => setMode('h')}>Valla ─</button>
           <button class=${'btn sm' + (mode === 'v' ? ' on' : ' ghost')} aria-pressed=${mode === 'v'} disabled=${!s.left.light} onClick=${() => setMode('v')}>Valla │</button>
         </div>
-        <p class="br-left">Vallas: tú ${s.left.light} · bot ${s.left.dark}</p>`}
+        <div class="mini-stats" aria-live="polite">
+          <span class="chip" title="Tus vallas"><${Icon} name="fence" size=${13} />Tú <b>${s.left.light}</b></span>
+          <span class="chip" title="Vallas del bot"><${Icon} name="fence" size=${13} />Bot <b>${s.left.dark}</b></span>
+        </div>`}
     </div>
   </div>`;
 }

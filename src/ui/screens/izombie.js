@@ -3,7 +3,7 @@ import { Topbar, MiniEnd } from '../components.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { MiniGrid } from './mini-grid.js';
-import { hopPiece, popPiece, snapPieces, pieceDiffs } from '../hop.js';
+import { hopPiece, popPiece, snapPieces, pieceDiffs, fallPiece } from '../hop.js';
 import { ROWS, COLS, COST, newZombie, at, buy, canBuy, advance } from '../../game/izombie.js';
 
 export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
@@ -23,6 +23,9 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     const { hops, born } = pieceDiffs(grid, b, s.pieces, COLS);
     for (const h of hops) hopPiece(grid, h.el, { from: h.from, to: h.to, side: h.side, cols: COLS, rows: ROWS });
     for (const el of born) popPiece(grid, el);
+    // Las capturadas ya no están en el estado: su copia cae donde las mataron y se apaga.
+    for (const f of s.falls) fallPiece(grid, { row: f.row, col: f.col, type: f.type, side: f.color, cols: COLS });
+    s.falls = [];
   });
 
   const cell = (r, c) => {
@@ -48,7 +51,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
         onTap=${(r, c) => r === 0 && act(() => buy(s, pick, c))} />
       ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Una pieza tuya cruzó la defensa.' : 'Te quedaste sin piezas y sin monedas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
         : html`<div class="bm-actions" role="group" aria-label="Pieza a colocar">
-          ${Object.entries(COST).map(([t, cost]) => html`<button class=${'btn sm buy' + (pick === t ? ' on' : ' ghost')} aria-pressed=${pick === t}
+          ${Object.entries(COST).map(([t, cost]) => html`<button class=${'btn sm buy' + (pick === t ? ' on' : ' ghost')} aria-pressed=${pick === t} aria-label=${`${PIECE_NAMES[t]}: ${cost} moneda${cost === 1 ? '' : 's'}`}
             disabled=${cost > s.coins} onClick=${() => setPick(t)}><${PieceIcon} type=${t} side="dark" size=${22} /><span>${PIECE_NAMES[t]}</span><b class="buy-cost">${cost}</b></button>`)}
         </div>
         <button class="btn primary" onClick=${() => act(() => advance(s))}>Avanzar</button>`}

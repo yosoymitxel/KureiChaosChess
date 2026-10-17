@@ -3,6 +3,7 @@
 import { animate } from 'animejs';
 import { motion } from './lib.js';
 import { loadSettings } from '../game/run.js';
+import { pieceSVG } from '../view/piece-art.js';
 
 const OUT = [0.16, 1, 0.3, 1];
 export const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -93,8 +94,8 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows }) {
   liquid(grid, from, to, { side, cell: cw, cols, rows });
 }
 
-// Instantánea de posiciones (id -> casilla) para comparar antes y después de una acción.
-export const snapPieces = (pieces) => new Map(pieces.map((p) => [p.id, { row: p.row, col: p.col, color: p.color }]));
+// Instantánea de piezas (id -> casilla, bando y tipo) para comparar antes y después de una acción.
+export const snapPieces = (pieces) => new Map(pieces.map((p) => [p.id, { row: p.row, col: p.col, color: p.color, type: p.type }]));
 
 // Fichas que saltaron y fichas que entraron, medido ya sobre el tablero repintado:
 // el elemento de cada una vive en la casilla nueva, índice fila×columnas + columna.
@@ -116,4 +117,19 @@ export function pieceDiffs(grid, before, pieces, cols) {
 export function popPiece(grid, el) {
   if (!grid || !el || reduced()) return;
   motion(el, { scale: [0.35, 1.14, 1] }, { duration: 0.34 / speed(), ease: OUT });
+}
+
+// La pieza capturada cae: el estado ya la quitó, así que la copia se anima donde estaba,
+// volcada sobre su base, como el derribo de los bolos.
+export function fallPiece(grid, { row, col, type, side, cols }) {
+  if (!grid || reduced()) return;
+  const cellEl = grid.children[row * cols + col];
+  if (!cellEl) return;
+  const g = document.createElement('span');
+  g.className = `bm-ghost side-${side}`;
+  g.style.inset = '0';
+  g.innerHTML = pieceSVG(type);
+  cellEl.appendChild(g);
+  const dir = (row + col) % 2 ? 1 : -1;
+  motion(g, { rotate: dir * 88, x: dir * cellEl.offsetWidth * 0.3, opacity: [1, 1, 0] }, { duration: 0.5 / speed(), ease: 'easeIn', onComplete: () => g.remove() });
 }

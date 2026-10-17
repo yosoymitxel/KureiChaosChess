@@ -9,7 +9,7 @@ const WAVE = [['pawn', 'pawn', 'knight'], ['pawn', 'pawn', 'bishop', 'knight'], 
 
 export const newStand = () => ({
   board: { rows: ROWS, cols: COLS, holes: new Set(), terrain: new Map(), portals: new Map() },
-  pieces: [], budget: BUDGET, coins: Infinity, wave: 0, phase: 'setup', over: null,
+  pieces: [], budget: BUDGET, coins: Infinity, wave: 0, phase: 'setup', over: null, falls: [],
 });
 
 export const canPlace = (s, type, r, c) => s.phase === 'setup' && r >= ROWS - 3 && !at(s, r, c) && PRICES[type] <= s.budget;
