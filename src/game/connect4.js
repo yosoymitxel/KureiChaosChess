@@ -24,12 +24,18 @@ export function lineAt(grid, r, c, who) {
 
 export const isFull = (grid) => grid[0].every(Boolean);
 
-// Bot: alpha-beta search over the drop order, 6 plies deep (instant and still
+// Bot: alpha-beta search over the drop order, DEPTH plies deep (instant and still
 // beatable, by design). Every 4-cell window is scored, with extra weight on threes
 // that complete on move parity and on the centre, so it builds double threats
 // instead of only reacting to yours.
 const ORDER = [3, 2, 4, 1, 5, 0, 6]; // centre first: strongest play and best pruning
 const DEPTH = 6;
+// Profundidad de la búsqueda: somero se deja engañar; hondo ve venir las dobles amenazas.
+export const DIFFS = {
+  facil: { name: 'Fácil', depth: 4 },
+  normal: { name: 'Normal', depth: 6 },
+  dificil: { name: 'Difícil', depth: 8 },
+};
 const WIN = 1e6;
 
 // All 4-in-a-row windows, built once.
@@ -61,16 +67,16 @@ function evaluate(grid, me, foe) {
 }
 
 // Negamax: scores are always read from `who`'s point of view.
-function search(grid, me, foe, who, depth, alpha, beta) {
+function search(grid, me, foe, who, depth, alpha, beta, top) {
   let best = -Infinity, any = false;
   for (const c of ORDER) {
     const r = dropRow(grid, c);
     if (r < 0) continue;
     any = true;
     grid[r][c] = who;
-    const v = lineAt(grid, r, c, who) ? WIN - (DEPTH - depth)
+    const v = lineAt(grid, r, c, who) ? WIN - (top - depth)
       : depth <= 1 ? (who === me ? evaluate(grid, me, foe) : -evaluate(grid, me, foe))
-      : -search(grid, me, foe, who === me ? foe : me, depth - 1, -beta, -alpha);
+      : -search(grid, me, foe, who === me ? foe : me, depth - 1, -beta, -alpha, top);
     grid[r][c] = null;
     if (v > best) best = v;
     if (best > alpha) alpha = best;
@@ -82,7 +88,7 @@ function search(grid, me, foe, who, depth, alpha, beta) {
 // Best column for `me`, or null on a full board. Ties among exactly-equal moves break
 // randomly so games vary; a move whose search cut off on beta only offers a bound, so
 // it is dropped instead of being mistaken for a tie.
-export function botColumn(grid, me = 'dark', foe = 'light') {
+export function botColumn(grid, me = 'dark', foe = 'light', depth = DEPTH) {
   let best = -Infinity, cols = [];
   for (const c of ORDER) {
     const r = dropRow(grid, c);
@@ -91,7 +97,7 @@ export function botColumn(grid, me = 'dark', foe = 'light') {
     let v;
     if (lineAt(grid, r, c, me)) v = WIN;
     else {
-      const ret = search(grid, me, foe, foe, DEPTH - 1, -Infinity, -best);
+      const ret = search(grid, me, foe, foe, depth - 1, -Infinity, -best, depth);
       v = ret >= -best ? -Infinity : -ret;
     }
     grid[r][c] = null;

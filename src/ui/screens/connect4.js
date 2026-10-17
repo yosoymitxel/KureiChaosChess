@@ -1,12 +1,14 @@
 // Conecta 4 minigame screen: ivory (you) against crimson (bot), tokens drop with a bounce of weight.
 // Keyboard: arrows pick a column, Enter or Space drops.
 import { html, useState, useRef, useEffect, motion } from '../lib.js';
-import { Topbar, MiniEnd } from '../components.js';
-import { ROWS, COLS, emptyGrid, dropRow, lineAt, isFull, botColumn } from '../../game/connect4.js';
+import { Topbar, MiniEnd, MiniDiff } from '../components.js';
+import { ROWS, COLS, emptyGrid, dropRow, lineAt, isFull, botColumn, DIFFS } from '../../game/connect4.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
+export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
+  // Profundidad del bot según el nivel: en la run la fija el piso, en libre la elige el jugador.
+  const depth = (DIFFS[diff || settings.miniDiff?.connect4] || DIFFS.normal).depth;
   const [grid, setGrid] = useState(emptyGrid);
   const [col, setCol] = useState(3);
   const [turn, setTurn] = useState('light');
@@ -35,7 +37,7 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     if ((await drop(c, 'light')) === 'ok') {
       setTurn('dark');
       await wait(380);
-      if ((await drop(botColumn(grid), 'dark')) === 'ok') setTurn('light');
+      if ((await drop(botColumn(grid, 'dark', 'light', depth), 'dark')) === 'ok') setTurn('light');
     }
     busy.current = false;
   };
@@ -55,25 +57,30 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
 
   return html`<div class="screen mini">
     <${Topbar} title="Conecta 4" sub=${sub} onBack=${onBack} />
-    <div class="mini-body">
-      ${!result && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Elige columna con las flechas o pasando el ratón, y suelta la ficha con Enter o un toque. Ganas al conectar cuatro en línea antes que el carmesí.</p></details>
-      <div class="mini-stage">
-        <div class="c4" ref=${boardRef} style=${{ '--cols': COLS, '--rows': ROWS }} role="grid" aria-label="Tablero de Conecta 4">
-          ${Array.from({ length: COLS }, (_, c) => {
-            const land = dropRow(grid, c); // casilla donde caería la próxima ficha de esta columna
-            return html`<button class=${'c4-col' + (c === col && !result ? ' on' : '')} aria-label=${'Columna ' + (c + 1)}
-              disabled=${!!result || turn !== 'light' || land < 0} onPointerEnter=${() => setCol(c)} onClick=${() => play(c)}>
-              ${Array.from({ length: ROWS }, (_, r) => html`<span class="c4-cell" data-cell=${r + '-' + c}>
-                ${grid[r][c] && html`<i class=${'c4-token side-' + grid[r][c] + (won(r, c) ? ' won' : '')}></i>`}
-                ${!grid[r][c] && r === land && c === col && turn === 'light' && !result && html`<i class="c4-ghost side-light"></i>`}</span>`)}
-            </button>`;
-          })}
+    <div class="mini-body side-body">
+      <div class="mini-main">
+        <div class="mini-stage">
+          <div class="c4" ref=${boardRef} style=${{ '--cols': COLS, '--rows': ROWS }} role="grid" aria-label="Tablero de Conecta 4">
+            ${Array.from({ length: COLS }, (_, c) => {
+              const land = dropRow(grid, c); // casilla donde caería la próxima ficha de esta columna
+              return html`<button class=${'c4-col' + (c === col && !result ? ' on' : '')} aria-label=${'Columna ' + (c + 1)}
+                disabled=${!!result || turn !== 'light' || land < 0} onPointerEnter=${() => setCol(c)} onClick=${() => play(c)}>
+                ${Array.from({ length: ROWS }, (_, r) => html`<span class="c4-cell" data-cell=${r + '-' + c}>
+                  ${grid[r][c] && html`<i class=${'c4-token side-' + grid[r][c] + (won(r, c) ? ' won' : '')}></i>`}
+                  ${!grid[r][c] && r === land && c === col && turn === 'light' && !result && html`<i class="c4-ghost side-light"></i>`}</span>`)}
+              </button>`;
+            })}
+          </div>
+        </div>
+        <div class="mini-side">
+          ${!result && html`<p class="mini-status" aria-live="polite">${status}</p>`}
+          ${result && html`<${MiniEnd} win=${result.winner === 'light'} title=${result.winner ? undefined : 'Empate'}
+            note=${result.winner === 'light' ? 'Cuatro en línea antes que el bot.' : result.winner === 'dark' ? 'El bot conectó cuatro antes que tú.' : 'Tablero lleno: nadie conectó cuatro.'}
+            label=${endLabel} onEnd=${() => onEnd(result.winner === 'light')} />`}
+          <${MiniDiff} mini="connect4" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
+          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Elige columna con las flechas o pasando el ratón, y suelta la ficha con Enter o un toque. Ganas al conectar cuatro en línea antes que el carmesí.</p></details>
         </div>
       </div>
-      ${result && html`<${MiniEnd} win=${result.winner === 'light'} title=${result.winner ? undefined : 'Empate'}
-        note=${result.winner === 'light' ? 'Cuatro en línea antes que el bot.' : result.winner === 'dark' ? 'El bot conectó cuatro antes que tú.' : 'Tablero lleno: nadie conectó cuatro.'}
-        label=${endLabel} onEnd=${() => onEnd(result.winner === 'light')} />`}
     </div>
   </div>`;
 }
