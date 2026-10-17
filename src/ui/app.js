@@ -22,7 +22,7 @@ import { KnightScreen } from './screens/knight.js';
 import { QueensScreen } from './screens/queens.js';
 import { MarcianosScreen } from './screens/marcianos.js';
 import { MODIFIERS } from '../data/modifiers.js';
-import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini } from '../game/run.js';
+import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss } from '../game/run.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
 import { award } from '../game/achievements.js';
 import { applyTheme } from '../data/themes.js';
@@ -118,8 +118,9 @@ export function App() {
   };
 
   // Slay the Spire rhythm: normal fights give a tactic card, elites give a mutation.
-  const onWin = () => {
+  const onWin = (bossId) => {
     award('first_win');
+    if (node.isBoss || node.isMiniBoss) unlockBoss(bossId);
     if (node.isBoss) { award('boss_slain'); clearRun(); setRunState(null); return newRun(); }
     if (node.isMiniBoss) { award('boss_slain'); const next = completeNode(run, node); setRun(next); return mutationReward(next); }
     const next = completeNode(run, node);

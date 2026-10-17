@@ -1,5 +1,6 @@
 import { html, useState, useEffect, useRef, motion, motionStagger } from './lib.js';
-import { Icon } from './icons.js';
+import { Icon, PieceIcon } from './icons.js';
+import { MOVE_NAMES } from '../data/pieces.js';
 
 export function Topbar({ title, sub, onBack, backLabel = 'Volver', children }) {
   return html`<header class="topbar">
@@ -31,6 +32,19 @@ export function ConfirmButton({ class: cls = 'btn', onConfirm, confirmLabel = 'P
     return () => clearTimeout(t);
   }, [armed]);
   return html`<button class=${cls + (armed ? ' armed' : '')} onClick=${() => (armed ? onConfirm() : setArmed(true))}>${armed ? confirmLabel : children}</button>`;
+}
+
+// Boss card shared by the rules overlay and the gallery: locked until the boss falls once.
+export function BossCard({ boss, unlocked }) {
+  return html`<div class=${'rule' + (unlocked ? '' : ' locked')}>
+    ${unlocked
+      ? html`<${PieceIcon} type=${'boss-' + boss.id} side="dark" size=${44} />`
+      : html`<span class="rule-lock"><${Icon} name="lock" size=${22} /></span>`}
+    <div>
+      <strong>${unlocked ? boss.name : 'Jefe por descubrir'}</strong>
+      <span>${unlocked ? `${boss.desc} Se mueve como: ${boss.moves.map((m) => MOVE_NAMES[m]).join(' y ')}.` : 'Derriba a este coloso para estudiarlo.'}</span>
+    </div>
+  </div>`;
 }
 
 // Screen entrance: content rises in with a soft spring.

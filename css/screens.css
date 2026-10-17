@@ -288,6 +288,8 @@
 .rule { display: flex; gap: 10px; align-items: center; padding: 8px; border-radius: 10px; background: var(--paper-2); }
 .rule strong { display: block; }
 .rule span { font-size: 13px; color: var(--ink-2); }
+.rule.locked { opacity: 0.55; }
+.rule-lock { display: grid; place-items: center; width: 44px; height: 44px; color: var(--ink-2); }
 .end-card { align-items: center; text-align: center; padding: 34px 28px 28px !important; }
 .end-card h1 { font-size: 52px; }
 .end-card p { margin: 0; color: var(--ink-2); }

@@ -38,6 +38,11 @@ const MINIS_KEY = 'zugzwang.minis.v1';
 export const loadUnlocked = () => read(MINIS_KEY) || [];
 export const unlockMini = (id) => { const u = loadUnlocked(); if (!u.includes(id)) write(MINIS_KEY, [...u, id]); };
 
+// Bosses already defeated; their entry opens in the rules overlay and the gallery.
+const BOSSES_KEY = 'zugzwang.bosses.v1';
+export const loadBosses = () => read(BOSSES_KEY) || [];
+export const unlockBoss = (id) => { const u = loadBosses(); if (id && !u.includes(id)) write(BOSSES_KEY, [...u, id]); };
+
 export const DEFAULT_SETTINGS = { theme: 'walnut', camera: 'tilt', shake: true, moments: true, fullscreen: false, speed: 1 };
 export const loadSettings = () => ({ ...DEFAULT_SETTINGS, ...(read(SETTINGS_KEY) || {}) });
 export const saveSettings = (s) => write(SETTINGS_KEY, s);

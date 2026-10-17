@@ -1,9 +1,10 @@
 import { html, useEffect } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
-import { ConfirmButton } from '../components.js';
+import { ConfirmButton, BossCard } from '../components.js';
 import { PIECE_RULES, PIECE_NAMES } from '../../data/pieces.js';
-import { BOSSES } from '../../data/bosses.js';
+import { BOSSES, BOSS_IDS } from '../../data/bosses.js';
 import { THEMES } from '../../data/themes.js';
+import { loadBosses } from '../../game/run.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
 
 const closeOnBackdrop = (fn) => (e) => e.target === e.currentTarget && fn();
@@ -38,6 +39,7 @@ export function PauseOverlay({ onResume, onRestart, onExit, onAbandon, onHowTo, 
 
 export function HowToOverlay({ onClose }) {
   useEscape(onClose);
+  const beaten = loadBosses();
   return html`<div class="overlay" onClick=${closeOnBackdrop(onClose)}>
     <div class="panel howto" role="dialog" aria-modal="true" aria-label="Cómo se juega">
       <h1>Cómo se juega</h1>
@@ -48,8 +50,9 @@ export function HowToOverlay({ onClose }) {
       <h2>Jefes</h2>
       <p>Ocupan varias casillas. Al moverse aplastan todo lo que pisan. Cada golpe les quita una vida y tu pieza rebota; el último golpe los derriba.</p>
       <div class="rules">
-        ${Object.values(BOSSES).map((b) => html`<div class="rule"><${PieceIcon} type=${'boss-' + b.id} side="dark" size=${40} /><div><strong>${b.name}</strong><span>${b.desc}</span></div></div>`)}
+        ${BOSS_IDS.map((id) => html`<${BossCard} boss=${BOSSES[id]} unlocked=${beaten.includes(id)} />`)}
       </div>
+      <p>${beaten.length} de ${BOSS_IDS.length} jefes estudiados: cada jefe que derribas queda abierto acá y en la Galería.</p>
       <button class="btn primary" autofocus onClick=${onClose}>Entendido</button>
     </div>
   </div>`;

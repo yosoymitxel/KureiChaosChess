@@ -387,6 +387,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.busy = true;
     addLog(`Piso ${node.floor + 1}/${run.map.floors} · ${board.rows}×${board.cols} · ${mod.name}`);
     const boss = pieces.find((p) => p.boss);
+    d.bossId = boss?.boss;
     const learned = pieces.filter((p) => p.color !== 'light' && p.extraMoveTypes?.length).length;
     // On a boss floor enemy officers borrow moves: the star badge marks them and the entrance says so.
     const bossSub = boss && `${BOSSES[boss.boss].desc}${learned ? ' Sus oficiales llevan la estrella: movimientos prestados.' : ''}`;
@@ -475,7 +476,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     ${paused && !end && html`<${PauseOverlay} settings=${settings} setSettings=${setSettings}
       onResume=${() => setPaused(false)} onRestart=${() => leave('reset', onRestart)} onExit=${() => leave('exit', onExit)} onAbandon=${() => leave('resign', onAbandon)}
       onHowTo=${() => { setPaused(false); onHowTo(); }} />`}
-    ${end && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} onContinue=${() => leave('exit', onWin)} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)} />`}
+    ${end && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)} />`}
   </div>`;
 }
 
