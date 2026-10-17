@@ -57,6 +57,7 @@ export function HowToOverlay({ onClose }) {
         ${BOSS_IDS.map((id) => html`<${BossCard} boss=${BOSSES[id]} unlocked=${beaten.includes(id)} />`)}
       </div>
       <p>${beaten.length} de ${BOSS_IDS.length} jefes estudiados: cada jefe que derribas queda abierto acá y en la Galería.</p>
+      <p>La gema de una carta dice su rareza: <i class="gem"></i> común, <i class="gem rare"></i> rara, <i class="gem epic"></i> épica. El marco dice el tipo: táctica, mutación u objeto.</p>
       <button class="btn primary" autofocus onClick=${onClose}>Entendido</button>
     </div>
   </div>`;

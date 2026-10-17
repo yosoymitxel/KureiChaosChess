@@ -94,6 +94,10 @@ h2 { font-size: 17px; font-weight: 750; }
 .hand-card .face.kind-tactic, .card .face.kind-tactic { --frame: var(--accent); }
 .card .plate, .hand-card .plate { background: var(--paper); border: 2px solid var(--ink); font-weight: 800; line-height: 1.05; color: var(--ink); text-align: left; }
 .card .plate { padding: 7px 26px 7px 10px; border-radius: 8px; background: var(--paper); border: 2px solid var(--ink); font-size: 17px; font-weight: 800; line-height: 1.05; }
+/* Gema de rareza: común hueca, rara roja, épica de latón. La usan cartas, manos y listas. */
+.gem { display: inline-block; width: 12px; height: 12px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 2.5px; background: var(--paper-3); vertical-align: -1px; }
+.gem.rare { background: var(--accent); }
+.gem.epic { background: var(--brass); box-shadow: inset 0 0 0 2px var(--paper); }
 .card .gem { position: absolute; top: 15px; right: 15px; width: 16px; height: 16px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 3px; background: var(--paper-3); }
 .card .gem.rare { background: var(--accent); }
 .card .gem.epic { background: var(--brass); box-shadow: inset 0 0 0 3px var(--paper); }
@@ -109,7 +113,7 @@ h2 { font-size: 17px; font-weight: 750; }
 :is(.card, .hand-card) .art > svg, :is(.card, .hand-card) .art .piece-icon { width: 58% !important; height: 58% !important; filter: drop-shadow(0 4px 3px oklch(0.1 0.03 55 / 0.4)); }
 :is(.card, .hand-card) .art svg.icon :is(path, rect, circle, ellipse, polygon):not([stroke]) { stroke: var(--ink); stroke-width: 2; paint-order: stroke; stroke-linejoin: round; }
 :is(.card, .hand-card) .art .piece-icon { --pc: var(--paper); --pc-2: var(--paper-3); }
-.card .type { font-size: 11.5px; font-weight: 750; color: var(--frame-text); padding: 0 4px; }
+.card .type { font-size: 11.5px; font-weight: 800; color: var(--frame-text); padding: 0 4px; }
 .card .desc { margin: 0; padding: 8px 10px; border-radius: 8px; background: var(--paper); border: 2px solid var(--ink); font-size: 12.5px; line-height: 1.35; color: var(--ink-2); min-height: 5.6em; text-wrap: pretty; }
 /* Card back carries the pawn emblem: the box's identity mark. */
 .card .back {

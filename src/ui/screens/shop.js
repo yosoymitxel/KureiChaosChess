@@ -1,6 +1,6 @@
 // Tienda del jardín: las monedas que pagan tus flores se cambian por cartas y mesas.
 import { html, useRef, useState } from '../lib.js';
-import { Topbar, useEnter, CardFace } from '../components.js';
+import { Topbar, useEnter, CardFace, RARITY_LABEL } from '../components.js';
 import { Icon } from '../icons.js';
 import { CARDS, HAND_LIMIT } from '../../game/cards.js';
 import { THEMES } from '../../data/themes.js';
@@ -68,6 +68,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
             return html`<div class="shop-row">
               <span class="mod-icon"><${Icon} name=${c.icon} size=${22} /></span>
               <div class="shop-info"><strong>${c.name}</strong><small>${c.desc}</small></div>
+              <span class=${'gem ' + (c.rarity || 'common')} role="img" aria-label=${'Rareza ' + RARITY_LABEL[c.rarity || 'common']} title=${'Rareza: ' + RARITY_LABEL[c.rarity || 'common']}></span>
               <span class="price"><${Icon} name="coin" size=${14} />${price}</span>
               <button class="btn sm" disabled=${!can} title=${packed ? `El sobre ya tiene ${PENDING_LIMIT} cartas` : can ? '' : 'Faltan monedas'} onClick=${() => buyCard(c)}>Comprar</button>
             </div>`;

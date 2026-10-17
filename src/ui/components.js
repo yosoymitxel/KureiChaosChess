@@ -74,7 +74,7 @@ function Card({ card, chosen, onPick }) {
 }
 
 const KIND_LABEL = { tactic: 'Táctica', mutation: 'Mutación', boon: 'Objeto' };
-const RARITY_LABEL = { common: 'común', rare: 'rara', epic: 'épica' };
+export const RARITY_LABEL = { common: 'común', rare: 'rara', epic: 'épica' };
 
 // One card anatomy for every card in the game (rewards, hand, previews):
 // frame colour = kind, gem = rarity, title plate, art window, type line, rules box.
