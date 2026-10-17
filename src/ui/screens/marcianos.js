@@ -60,7 +60,7 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) 
     <div class="mini-body">
       ${!s.over && html`<p class="mini-status" aria-live="polite">Oleada ${s.wave + 1}/${WAVES.length} · quedan ${s.enemies.length}
         <span class="mm-lives" aria-label=${`Vidas ${s.lives} de ${MAX_LIVES}`}>${Array.from({ length: MAX_LIVES }, (_, i) => html`<i class=${i < s.lives ? 'on' : ''}></i>`)}</span></p>`}
-      <p class="mini-help">Mueve con las flechas, A/D o el mando; espacio o el botón disparan hacia arriba. Los carmesíes bajan en tres oleadas: si pisan tu fila, pierdes una vida.</p>
+      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Mueve con las flechas, A/D o el mando; espacio o el botón disparan hacia arriba. Los carmesíes bajan en tres oleadas: si pisan tu fila, pierdes una vida.</p></details>
       <div class="mini-stage">
         <div class="bm" ref=${gridRef} style=${{ '--cols': COLS, '--rows': ROWS }} role="grid" aria-label="Campo de Matamarcianos">
           ${Array.from({ length: ROWS }, (_, r) => Array.from({ length: COLS }, (_, c) => {

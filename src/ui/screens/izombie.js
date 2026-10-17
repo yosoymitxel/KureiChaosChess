@@ -41,7 +41,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
       ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
       ${!s.over && html`<p class="mini-steps">${STEPS.map((t, i) => html`<span class=${i + 1 === step ? 'on' : i + 1 < step ? 'done' : ''}>${i + 1} ${t}</span>`)}</p>`}
       ${!s.over && html`<p class="mini-step-hint">${HINTS[step]}</p>`}
-      <p class="mini-help">La defensa marfil no se mueve: tras cada avance captura toda pieza que tenga a tiro.</p>
+      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">La defensa marfil no se mueve: tras cada avance captura toda pieza que tenga a tiro.</p></details>
       <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${!!s.over} label="Tablero de Yo, Zombi" gridRef=${gridRef}
         onTap=${(r, c) => r === 0 && act(() => buy(s, pick, c))} />
       ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Una pieza tuya cruzó la defensa.' : 'Te quedaste sin piezas y sin monedas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`

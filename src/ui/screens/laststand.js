@@ -40,7 +40,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) 
     <${Topbar} title="Última resistencia" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
       ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-      <p class="mini-help">Compra piezas tocando las tres filas de abajo y pulsa Empezar oleadas. El carmesí ataca en ${WAVES} oleadas y tu defensa ya no se refuerza: aguanta sin ceder la línea.</p>
+      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Compra piezas tocando las tres filas de abajo y pulsa Empezar oleadas. El carmesí ataca en ${WAVES} oleadas y tu defensa ya no se refuerza: aguanta sin ceder la línea.</p></details>
       <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${s.phase !== 'setup'} label="Tablero de Última resistencia" gridRef=${gridRef}
         onTap=${(r, c) => canPlace(s, pick, r, c) && act(() => place(s, pick, r, c))} />
       ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Aguantaste las ${WAVES} oleadas sin ceder la línea.` : `El carmesí se abrió paso en la oleada ${s.wave}.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`

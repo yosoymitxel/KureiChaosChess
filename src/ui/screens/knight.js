@@ -42,7 +42,7 @@ export function KnightScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     <${Topbar} title="Ruta del caballo" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
       ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-      <p class="mini-help">El caballo salta en L. Pisa las casillas con aro dorado; las que ya pisaste quedan oscurecidas con un punto y no se pueden repetir. Pierdes si te quedas sin saltos posibles.</p>
+      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">El caballo salta en L. Pisa las casillas con aro dorado; las que ya pisaste quedan oscurecidas con un punto y no se pueden repetir. Pierdes si te quedas sin saltos posibles.</p></details>
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="Ruta del caballo"
         gridRef=${gridRef} onTap=${go} />
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Completaste la ruta sin repetir casilla.' : 'El caballo se quedó sin saltos posibles.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}

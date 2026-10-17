@@ -56,7 +56,7 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     <${Topbar} title="Barrera" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
       ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-      <p class="mini-help">Cruza a la fila de arriba antes que el peón carmesí, que baja hacia la suya. Muévete con las flechas o tocando una casilla, o gasta una valla para cerrar un borde.</p>
+      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Cruza a la fila de arriba antes que el peón carmesí, que baja hacia la suya. Muévete con las flechas o tocando una casilla, o gasta una valla para cerrar un borde.</p></details>
       <div class="mini-stage">
         <div class="br" ref=${gridRef} style=${{ '--n': N }}>
           ${Array.from({ length: N * N }, (_, i) => {

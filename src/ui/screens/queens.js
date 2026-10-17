@@ -43,7 +43,7 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     <${Topbar} title="Ocho reinas" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
       ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-      <p class="mini-help">Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Completa las ocho antes de que se acabe el tiempo.</p>
+      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Completa las ocho antes de que se acabe el tiempo.</p></details>
       <${MiniGrid} rows=${N} cols=${N} cell=${cell} disabled=${!!s.over} label="Tablero de ocho reinas" gridRef=${gridRef}
         onTap=${tap} />
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Ocho reinas conviviendo sin atacarse.' : `Se acabó el tiempo con ${s.queens.length} de ${N} reinas.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}

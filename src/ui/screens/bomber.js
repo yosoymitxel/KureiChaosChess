@@ -63,7 +63,7 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     <${Topbar} title="Bomberman" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
       ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-      <p class="mini-help">Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha da 5 turnos para salir del radio, las casillas con borde rojo estallan en la próxima jugada y algunas cajas sueltan bomba extra o más alcance.</p>
+      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha da 5 turnos para salir del radio, las casillas con borde rojo estallan en la próxima jugada y algunas cajas sueltan bomba extra o más alcance.</p></details>
       <div class="mini-stage">
         <div class="bm" ref=${gridRef} style=${{ '--n': SIZE }} role="grid" aria-label="Tablero de Bomberman">
           ${s.cells.map((row, r) => row.map((cell, c) => {

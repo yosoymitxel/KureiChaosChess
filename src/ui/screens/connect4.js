@@ -57,7 +57,7 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     <${Topbar} title="Conecta 4" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
       ${!result && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-      <p class="mini-help">Elige columna con las flechas o pasando el ratón, y suelta la ficha con Enter o un toque. Ganas al conectar cuatro en línea antes que el carmesí.</p>
+      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Elige columna con las flechas o pasando el ratón, y suelta la ficha con Enter o un toque. Ganas al conectar cuatro en línea antes que el carmesí.</p></details>
       <div class="mini-stage">
         <div class="c4" ref=${boardRef} style=${{ '--cols': COLS, '--rows': ROWS }} role="grid" aria-label="Tablero de Conecta 4">
           ${Array.from({ length: COLS }, (_, c) => html`<button class=${'c4-col' + (c === col && !result ? ' on' : '')} aria-label=${'Columna ' + (c + 1)}

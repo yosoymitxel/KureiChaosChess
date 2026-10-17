@@ -323,6 +323,15 @@
 .mini-stage { flex: 1; width: 100%; min-height: 0; display: grid; place-items: center; container-type: size; }
 .mini-status { margin: 0; font-size: 18px; font-weight: 750; color: var(--paper); text-align: center; }
 .mini-help { margin: -10px 0 0; max-width: 52ch; font-size: 14px; line-height: 1.45; color: var(--paper-3); text-align: center; }
+/* La ayuda de cada juego vive plegada: el botón avisa que hay reglas y el detalle no tapa el tablero. */
+.mini-helpbox { display: grid; justify-items: center; margin-top: -6px; }
+.mini-helpbox summary { display: inline-flex; align-items: center; gap: 7px; padding: 5px 13px; border: 1.5px solid color-mix(in oklch, var(--paper), transparent 68%); border-radius: 999px; color: var(--paper-3); font-size: 12.5px; font-weight: 750; cursor: pointer; list-style: none; transition: color 0.15s, border-color 0.15s; }
+.mini-helpbox summary::-webkit-details-marker { display: none; }
+.mini-helpbox summary:hover { color: var(--paper); border-color: color-mix(in oklch, var(--paper), transparent 40%); }
+.mini-helpbox summary:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
+.mini-helpbox summary::after { content: ''; width: 6px; height: 6px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translate(-1px, -1px); }
+.mini-helpbox[open] summary::after { transform: rotate(-135deg) translate(-2px, -1px); }
+.mini-helpbox .mini-help { margin: 8px 0 0; }
 /* Cierre de minijuego: misma superficie que los tableros (grano y borde de tinta) para que el
    resultado se lea como el final de la misma mesa. */
 .mini-end { display: grid; justify-items: center; gap: 10px; max-width: 46ch; padding: 16px 26px 18px; text-align: center; border-radius: var(--r-md); border: 3px solid var(--ink); background: var(--tile-b); background-image: var(--grain); box-shadow: var(--lift), inset 0 -6px 0 var(--tile-side); animation: end-in 0.4s var(--ease-out) both; }
@@ -486,6 +495,22 @@
 .shop-hand .hand-card:hover, .shop-hand .hand-card:focus-visible { transform: none; }
 .face .shop-mark { position: absolute; right: 4px; bottom: 4px; z-index: 2; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 999px; background: var(--brass); color: var(--ink); box-shadow: 0 0 0 2px var(--ink); }
 .hand-card .face .shop-mark { width: 15px; height: 15px; }
+/* Tienda en pantalla ancha: el catálogo de cartas a la izquierda y un carril con lo corto
+   (mano, semillas, mesas) a la derecha; la ayuda de economía cierra abajo. En angosto se
+   apila igual que siempre, ayuda primero. Mismo patrón que el Jardín Zen. */
+.shop-body { justify-content: flex-start; padding-inline: clamp(16px, 3vw, 40px); }
+.shop-main { width: min(1240px, 100%); flex: 1; min-height: 0; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; justify-items: center; align-content: start; }
+.shop-main .shop-card { width: min(480px, 100%); }
+.shop-main .mini-help { margin: 0; }
+@media (min-width: 900px) {
+  .shop-main { grid-template-columns: minmax(0, 1fr) clamp(300px, 30vw, 380px); justify-items: stretch; grid-template-areas: "cards hand" "cards seeds" "cards mesas" "help help"; column-gap: clamp(24px, 3.2vw, 48px); }
+  .shop-main .shop-card { width: 100%; }
+  .shop-pane-hand { grid-area: hand; }
+  .shop-pane-cards { grid-area: cards; }
+  .shop-pane-seeds { grid-area: seeds; }
+  .shop-pane-mesas { grid-area: mesas; }
+  .shop-main .mini-help { grid-area: help; width: 100%; max-width: none; padding-top: 14px; border-top: 1.5px dashed color-mix(in oklch, var(--paper), transparent 78%); }
+}
 /* Logros: lista de hitos; los bloqueados se ven apagados. */
 .ach-list { display: grid; gap: 10px; width: min(480px, 100%); }
 .ach-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 2px solid var(--ink); border-radius: var(--r-md); background: var(--paper); background-image: var(--grain); color: var(--ink-2); }

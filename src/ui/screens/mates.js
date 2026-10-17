@@ -69,7 +69,7 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     <${Topbar} title="Mate en 1 y 2" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
       ${!over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-      <p class="mini-help">Juegas con marfil y mueves primero: el rey carmesí marcado en rojo debe caer en ${st.n} jugada${st.n > 1 ? 's' : ''}, responda lo que responda. El carmesí juega siempre su mejor defensa.</p>
+      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Juegas con marfil y mueves primero: el rey carmesí marcado en rojo debe caer en ${st.n} jugada${st.n > 1 ? 's' : ''}, responda lo que responda. El carmesí juega siempre su mejor defensa.</p></details>
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!over} label="Problema de mate" gridRef=${gridRef} onTap=${tap} />
       ${over && html`<${MiniEnd} win=${over === 'win'} note=${note} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
     </div>
