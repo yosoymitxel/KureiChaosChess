@@ -46,6 +46,6 @@ const BOSSES_KEY = 'zugzwang.bosses.v1';
 export const loadBosses = () => read(BOSSES_KEY) || [];
 export const unlockBoss = (id) => { const u = loadBosses(); if (id && !u.includes(id)) write(BOSSES_KEY, [...u, id]); };
 
-export const DEFAULT_SETTINGS = { theme: 'walnut', camera: 'tilt', shake: true, moments: true, fullscreen: false, speed: 1 };
+export const DEFAULT_SETTINGS = { theme: 'walnut', camera: 'tilt', shake: true, moments: true, fullscreen: false, speed: 1, miniDiff: 'normal' };
 export const loadSettings = () => ({ ...DEFAULT_SETTINGS, ...(read(SETTINGS_KEY) || {}) });
 export const saveSettings = (s) => write(SETTINGS_KEY, s);

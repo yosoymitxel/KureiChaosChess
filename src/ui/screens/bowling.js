@@ -4,16 +4,14 @@ import { MiniGrid } from './mini-grid.js';
 import { hopPiece, popPiece, reduced } from '../hop.js';
 import { Fx } from '../../view/fx.js';
 import { pieceSVG } from '../../view/piece-art.js';
-import { loadSettings } from '../../game/run.js';
-import { ROWS, COLS, GOAL, newBowling, launch, tick } from '../../game/bowling.js';
+import { ROWS, COLS, DIFFS, newBowling, launch, tick } from '../../game/bowling.js';
 
 const TICK_MS = 280;
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
-  const [s] = useState(newBowling);
+export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart }) {
+  const [s] = useState(() => newBowling(settings.miniDiff));
   const [, redraw] = useState(0);
-  const [settings] = useState(loadSettings);
   const gridRef = useRef(null);
   const fxRef = useRef(null);
   const before = useRef(null); // posiciones del tick anterior
@@ -28,6 +26,13 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     before.current = was;
     redraw((n) => n + 1);
     return true;
+  };
+
+  // Elegir dificultad arranca tablero nuevo: lo que se juega es siempre lo que se ve marcado.
+  const pick = (id) => {
+    if (id === settings.miniDiff) return;
+    setSettings((t) => ({ ...t, miniDiff: id }));
+    onRestart();
   };
 
   useEffect(() => {
@@ -131,7 +136,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     const ball = s.balls.some((b) => b.r === r && b.c === c);
     return { cls: c === 0 ? 'lane' + (s.reload ? '' : ' drop') : '', tok: ball, piece: e && { type: e.type, side: 'dark' }, hp: e && e.maxHp > 1 ? { on: e.hp, max: e.maxHp } : null };
   };
-  const status = `Derribadas ${s.down}/${GOAL}. Toca un carril o pulsa su número para lanzar una ficha.`;
+  const status = `Derribadas ${s.down}/${s.diff.goal}. Toca un carril o pulsa su número para lanzar una ficha.`;
 
   return html`<div class="screen mini">
     <${Topbar} title="Bolos de nuez" sub=${sub} onBack=${onBack} />
@@ -140,7 +145,10 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
       <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Las piezas carmesí cruzan de derecha a izquierda por cinco carriles. Lanza fichas desde la izquierda (toque o teclas 1-5): la ficha rebota en diagonal al chocar y sigue. Los peones caen al primer toque; caballo y alfil aguantan dos; la torre, tres. No dejes que ninguna llegue a tu borde.</p></details>
       <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${!!s.over} label="Bolera" gridRef=${gridRef} boardClass="bm-slab bw"
         onTap=${(r) => shoot(r)} />
-      ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Derribaste las ${GOAL} piezas que hacían falta.` : 'Una pieza llegó a tu borde.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+      <div class="segmented sm" role="group" aria-label="Dificultad">
+        ${Object.entries(DIFFS).map(([id, d]) => html`<button class=${id === settings.miniDiff ? 'on' : ''} aria-pressed=${id === settings.miniDiff} onClick=${() => pick(id)}>${d.name}</button>`)}
+      </div>
+      ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Derribaste las ${s.diff.goal} piezas que hacían falta.` : 'Una pieza llegó a tu borde.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
   </div>`;
 }

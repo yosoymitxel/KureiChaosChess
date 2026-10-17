@@ -59,6 +59,7 @@ export function App() {
   const [howTo, setHowTo] = useState(false);
   const [freeMini, setFreeMini] = useState(null); // minigame played from the menu, outside a run
   const [freeKey, setFreeKey] = useState(0);
+  const [miniKey, setMiniKey] = useState(0); // remonta el minijuego del mapa al cambiar de dificultad
   const [shopFrom, setShopFrom] = useState('zen'); // a dónde vuelve la tienda
   const [settings, setSettings] = useState(loadSettings);
   const curtain = useRef(null);
@@ -193,10 +194,12 @@ export function App() {
       onExit=${() => goTo('map')} onAbandon=${() => { setRun(null); goTo('menu'); }}
       onUseCard=${(i) => setRun((r) => consumeCard(r, i))}
       onWin=${onWin} onRestart=${() => setGameKey((k) => k + 1)} onHowTo=${() => setHowTo(true)} />`}
-    ${screen === 'mini' && Mini && html`<${Mini} key=${node.id} sub=${'Piso ' + (node.floor + 1) + ' · minijuego'} onBack=${() => goTo('map')} onEnd=${onMiniEnd} />`}
+    ${screen === 'mini' && Mini && html`<${Mini} key=${node.id + '-' + miniKey} sub=${'Piso ' + (node.floor + 1) + ' · minijuego'} onBack=${() => goTo('map')} onEnd=${onMiniEnd}
+      settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />`}
     ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
     ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub="Partida libre" onBack=${() => goTo('minis')}
-      endLabel="Otra partida" onEnd=${() => setFreeKey((k) => k + 1)} />`}
+      endLabel="Otra partida" onEnd=${() => setFreeKey((k) => k + 1)}
+      settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => goTo(shopFrom)} />`}
     ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} />`}
