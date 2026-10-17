@@ -364,6 +364,7 @@
 }
 .c4-token.won { outline: 3px solid var(--brass); outline-offset: 2px; }
 .minis-list { display: grid; gap: 12px; width: min(420px, 100%); }
+@media (min-width: 900px) { .minis-list { grid-template-columns: repeat(2, minmax(0, 1fr)); width: min(880px, 100%); } }
 /* La ficha cuadrada del minijuego, versión lista: misma forma y verde que el nodo del mapa. */
 .mini-chip { display: grid; place-items: center; flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; background: var(--side-wild); color: var(--ink); --icon-cut: var(--side-wild); border: 2px solid var(--ink); box-shadow: 0 2px 0 color-mix(in oklch, var(--side-wild), black 30%); }
 /* Jardín Zen: cantero 2.5D sobre la mesa —marco de madera, tierra, pasto, estanque y piedras—;
