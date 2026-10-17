@@ -22,3 +22,9 @@ export const MODIFIERS = {
   queens: { id: 'queens', name: 'Ocho reinas', desc: 'Minijuego: coloca ocho reinas sin que se ataquen, en dos minutos. Premio: mutación o pieza.', icon: 'queen', mini: true },
   marcianos: { id: 'marcianos', name: 'Matamarcianos', desc: 'Minijuego: oleadas retro; dispara y aguanta tres oleadas con tres vidas. Premio: mutación o pieza.', icon: 'invader', mini: true },
 };
+
+// El minijefe reutiliza el modificador del jefe final: aquí se anuncia como lo que es, sin duplicar datos.
+export const nodeModifier = (node) => {
+  const mod = MODIFIERS[node.modifier];
+  return node.isMiniBoss ? { ...mod, name: 'Mini-jefe', desc: 'Un coloso menor con dos oficiales de movimientos prestados. Recompensa: mutación.' } : mod;
+};

@@ -2,7 +2,7 @@
 import { html, useRef, useEffect, motion } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { Topbar } from '../components.js';
-import { MODIFIERS } from '../../data/modifiers.js';
+import { nodeModifier } from '../../data/modifiers.js';
 import { isAvailable } from '../../game/run.js';
 import { loadShop } from '../../game/shop.js';
 
@@ -50,7 +50,7 @@ export function MapScreen({ run, onBack, onSelect, onShop }) {
         ${Array.from({ length: floors }, (_, f) => html`<div class="floor-tag" style=${{ top: H - PAD - f * ROW + 'px' }}>${f + 1}</div>`)}
         ${nodes.map((n) => {
           const open = isAvailable(run, n), done = !!run.completed[n.id];
-          const mod = MODIFIERS[n.modifier];
+          const mod = nodeModifier(n);
           const kind = mod.mini ? 'mini' : mod.kind; // familia visual: cada troquel dice qué es el nodo
           const p = pos(n);
           return html`<button key=${n.id} disabled=${!open}

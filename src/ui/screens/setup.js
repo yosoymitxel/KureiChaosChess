@@ -1,7 +1,7 @@
 import { html, useState, useRef } from '../lib.js';
 import { Icon } from '../icons.js';
 import { Topbar, useEnter, Toggle } from '../components.js';
-import { MODIFIERS } from '../../data/modifiers.js';
+import { nodeModifier } from '../../data/modifiers.js';
 import { THEMES } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
@@ -18,7 +18,7 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run }) {
   useEnter(ref);
   const [count, setCount] = useState(defaultCount || 2);
   const [kinds, setKinds] = useState(['human', 'bot', 'bot']);
-  const mod = MODIFIERS[node.modifier];
+  const mod = nodeModifier(node);
   const seats = SIDES.slice(0, count).map((s, i) => ({ color: s.color, kind: kinds[i], name: kinds[i] === 'bot' ? `Bot ${s.label}` : `Jugador ${i + 1}` }));
   const setKind = (i, kind) => setKinds((k) => k.map((v, j) => (j === i ? kind : v)));
   return html`<div class="screen setup" ref=${ref}>

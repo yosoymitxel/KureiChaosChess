@@ -129,7 +129,7 @@ export function App() {
     addCoins(coins);
     if (node.isBoss || node.isMiniBoss) unlockBoss(bossId);
     if (node.isBoss) { award('boss_slain'); clearRun(); setRunState(null); return newRun(); }
-    if (node.isMiniBoss) { award('boss_slain'); const next = completeNode(run, node); setRun(next); return mutationReward(next, coins); }
+    if (node.isMiniBoss) { const next = completeNode(run, node); setRun(next); return mutationReward(next, coins); }
     const next = completeNode(run, node);
     setRun(next);
     if (node.modifier === 'elite') return mutationReward(next, coins);

@@ -9,7 +9,7 @@ import { Match, botChooseMove } from '../../game/match.js';
 import { generateBoard, placePieces } from '../../game/generate.js';
 import { moveCells, cellsOf, key, anchorForCell, immune } from '../../game/rules.js';
 import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
-import { MODIFIERS } from '../../data/modifiers.js';
+import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { PIECE_NAMES, MOVE_NAMES } from '../../data/pieces.js';
 import { BOSSES } from '../../data/bosses.js';
@@ -44,7 +44,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   const [cardTip, setCardTip] = useState(null); // what the aimed card would do to the previewed target
   const [placing, setPlacing] = useState(null); // fase previa de "Organizar": { left, total }
   const [zoom, setZoom] = useState(1); // pellizco sobre el tablero; por encima de 1 asoma el botón de encuadre
-  const mod = MODIFIERS[node.modifier];
+  const mod = nodeModifier(node);
   ref.current.hand = run.cards || [];
   ref.current.onUseCard = onUseCard;
   const addLog = (m) => setLog((l) => [...l.slice(-30), m]);
