@@ -150,9 +150,8 @@ const FORMATIONS = {
 };
 const FORMATION_POOL = ['clasica', 'caballeria', 'exotica', 'asedio', 'fortaleza'];
 
-// Formas de despliegue: de la pirámide clásica a la inversa (frente más ancho), a los flancos
-// cargados con un muro delante, o a dos líneas simples. La forma y el número de líneas (2 a 4)
-// se sortean una vez por partida y valen para los dos bandos.
+// Formas de despliegue: pirámide, inversa (frente ancho), flancos con muro y dos líneas simples.
+// La forma y el número de líneas (2 a 4) se sortean una vez por partida y valen para los dos bandos.
 const DEPLOYS = {
   piramide: (back, layers) => [back, back - 2, back - 4, back - 6].slice(0, layers),
   inversa: (back, layers) => [Math.max(3, back - 4), back, back - 2, back - 4].slice(0, layers),

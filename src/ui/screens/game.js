@@ -275,7 +275,6 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (res.promoted) d.moments.callout({ text: '¡Coronación!', sub: 'El peón asciende a reina', tone: 'brass', piece: { type: 'pawn', side: res.piece.color }, pieceTo: { type: 'queen', side: res.piece.color }, anim: 'promote' });
     };
 
-    // Tapping a terrain tile (ice, portal…) explains what it does.
     const terrainInfo = (r, c) => {
       const m = MODIFIERS[board.terrain?.get(key(r, c))];
       if (m) d.moments.callout({ text: m.name, sub: m.desc, icon: m.icon, tone: 'paper', tier: 'info' });

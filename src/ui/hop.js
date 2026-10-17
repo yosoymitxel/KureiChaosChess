@@ -1,8 +1,5 @@
-// Movimiento de fichas en los minijuegos, con los mismos criterios que el tablero
-// (BoardView.playMove, liquid y squash): el charco llega primero a la casilla destino,
-// la ficha salta en arco y el aterrizaje la aplasta.
-// El charco se dibuja con anime.js —el motor y las curvas que ya usa el tablero— y el salto
-// con Motion, que es el motor de la interfaz.
+// Movimiento de fichas en los minijuegos, con los criterios del tablero (BoardView.playMove,
+// liquid y squash): el charco (anime.js) llega primero, la ficha salta en arco (Motion) y aterriza aplastada.
 import { animate } from 'animejs';
 import { motion } from './lib.js';
 import { loadSettings } from '../game/run.js';
@@ -26,9 +23,8 @@ function gooOf(grid, cols, rows) {
   return svg;
 }
 
-// El charco: la receta del tablero (desenfoque + umbral de alfa que funde las formas, y dos
-// erosiones que redibujan el contorno de tinta y el canto de la ficha). Se estira por el
-// recorrido —dobla la esquina de la L— y se recoge detrás de la ficha.
+// El charco: la receta del tablero (desenfoque + umbral de alfa que funde formas y dos erosiones
+// que redibujan contorno y canto). Se estira por el recorrido (dobla la esquina de la L) y se recoge detrás.
 function liquid(grid, from, to, { side, cell, cols, rows }) {
   const svg = gooOf(grid, cols, rows);
   const k = 0.27, rx = k, ry = k; // k acompaña el inset de la base de la ficha

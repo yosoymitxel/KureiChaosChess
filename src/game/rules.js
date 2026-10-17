@@ -99,8 +99,7 @@ function canMoveAs(piece, type, tr, tc, ctx) {
     case 'queen': return (!dr || !dc || adr === adc) && pathClear(piece, tr, tc, ctx);
     case 'cannon': {
       // Artillería corta: torre de alcance 4 que no captura al deslizarse. Mata saltando una
-      // pantalla (pieza propia o enemiga) y puede saltar sus propias piezas para caer en el
-      // hueco justo detrás de ellas.
+      // pantalla (propia o enemiga) y puede saltar sus piezas para caer en el hueco justo detrás.
       if (dr && dc) return false;
       if (adr + adc > 4) return false;
       const sr = Math.sign(dr), sc = Math.sign(dc);

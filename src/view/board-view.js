@@ -180,9 +180,8 @@ export class BoardView {
     return this.els.get(p);
   }
 
-  // Protected pieces wear a badge (lock = escorted, flag = falls last, star = borrowed moves)
-  // and escorts are tied to their ward with a rope on the board, so the rule is readable
-  // without opening the rules.
+  // Protected pieces wear a badge (lock = escorted, flag = falls last, star = borrowed moves);
+  // escorts are tied to their ward with a rope, so the rule is readable without the rules.
   setGuards(pieces, isImmune) {
     this.piecesEl.querySelectorAll('.tether').forEach((t) => t.remove());
     for (const [p, el] of this.els) {
