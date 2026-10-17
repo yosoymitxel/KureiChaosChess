@@ -121,6 +121,7 @@ export function App() {
   const onWin = () => {
     award('first_win');
     if (node.isBoss) { award('boss_slain'); clearRun(); setRunState(null); return newRun(); }
+    if (node.isMiniBoss) { award('boss_slain'); const next = completeNode(run, node); setRun(next); return mutationReward(next); }
     const next = completeNode(run, node);
     setRun(next);
     if (node.modifier === 'elite') return mutationReward(next);

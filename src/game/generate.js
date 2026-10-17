@@ -13,12 +13,12 @@ export function generateMap(seed) {
   const layouts = Array.from({ length: floors }, (_, f) => (f === 0 || f === floors - 1 ? 1 : 1 + Math.floor(rng() * 3)));
   const nodes = [], connections = [];
   layouts.forEach((nc, f) => {
-    const isBoss = f === floors - 1, isFirst = f === 0;
+    const isBoss = f === floors - 1, isFirst = f === 0, isMiniBoss = !isFirst && !isBoss && f > 1 && rng() < 0.15;
     for (let c = 0; c < nc; c++) {
       const nodeSeed = Math.floor(rng() * 1e6);
-      let modifier = isFirst ? 'none' : isBoss ? 'boss' : pickFrom(rng, MOD_POOL);
+      let modifier = isFirst ? 'none' : (isBoss || isMiniBoss) ? 'boss' : pickFrom(rng, MOD_POOL);
       if (modifier === 'elite' && f < 2) modifier = 'promote'; // elites only once the player has a few cards
-      nodes.push({ id: `f${f}c${c}`, floor: f, column: c, totalCols: nc, modifier, seed: nodeSeed, isBoss, isFirst });
+      nodes.push({ id: `f${f}c${c}`, floor: f, column: c, totalCols: nc, modifier, seed: nodeSeed, isBoss, isMiniBoss, isFirst });
     }
   });
   const nodeAt = (f, c) => nodes.find((n) => n.floor === f && n.column === c);
@@ -185,7 +185,7 @@ function protectElites(pieces) {
   }
 }
 
-export function placePieces(board, { playerCount, isBoss, elite, seed, mutations, bonuses }) {
+export function placePieces(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutations, bonuses }) {
   const rng = mulberry32(seed + 7);
   // La variedad nunca debe anular una mutación del jugador: fuera las doctrinas que le quitan su pieza.
   const clash = (mut, formation) => (mutations?.includes(mut) ? formation : null);
@@ -223,7 +223,7 @@ export function placePieces(board, { playerCount, isBoss, elite, seed, mutations
       if (valid(r, c)) pieces.push(makePiece(t, 'wild', r, c));
   }
 
-  if (isBoss) {
+  if (isBoss || isMiniBoss) {
     // Enemy officers learn borrowed moves…
     const extras = ['knight', 'bishop', 'rook', 'queen', 'king', 'camel', 'elephant'];
     for (const p of pieces) {

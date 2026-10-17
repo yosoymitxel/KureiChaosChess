@@ -51,9 +51,9 @@ export function MapScreen({ run, onBack, onSelect }) {
           const kind = mod.mini ? 'mini' : mod.kind; // familia visual: cada troquel dice qué es el nodo
           const p = pos(n);
           return html`<button key=${n.id} disabled=${!open}
-            class=${`node mod-${n.modifier}${kind ? ' k-' + kind : ''}${open ? ' open' : ''}${done ? ' done' : ''}${n.isBoss ? ' boss' : ''}`}
+            class=${`node mod-${n.modifier}${kind ? ' k-' + kind : ''}${open ? ' open' : ''}${done ? ' done' : ''}${n.isBoss || n.isMiniBoss ? ' boss' : ''}`}
             style=${{ left: p.x + '%', top: p.y + 'px' }} onClick=${() => open && pick(n)} title=${mod.name}>
-            <span class="coin"><${Icon} name=${done ? 'check' : mod.icon} size=${n.isBoss ? 36 : 26} /></span>
+            <span class="coin"><${Icon} name=${done ? 'check' : mod.icon} size=${n.isBoss || n.isMiniBoss ? 36 : 26} /></span>
             ${open && html`<span class="label">${mod.name}</span>`}
           </button>`;
         })}

@@ -51,7 +51,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   useEffect(() => {
     const d = ref.current;
     const board = generateBoard(node.seed, node.floor, run.map.floors, node.modifier);
-    const pieces = placePieces(board, { playerCount: seats.length, isBoss: node.isBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses });
+    const pieces = placePieces(board, { playerCount: seats.length, isBoss: node.isBoss, isMiniBoss: node.isMiniBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses });
     const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses });
     const humanTurn = () => match.player.kind === 'human' && !match.over && !d.busy && !d.paused;
 
@@ -414,7 +414,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     <div class="game-main" ref=${mainRef}>
       <div class="game-top">
         <button class="btn ghost sm icon-only" aria-label="Pausa" title="Pausa (Escape)" onClick=${() => setPaused(true)}><${Icon} name="pause" /></button>
-        <h1 class="title">${node.isBoss ? 'Piso final' : `Piso ${node.floor + 1} de ${run.map.floors}`}</h1>
+        <h1 class="title">${node.isBoss ? 'Piso final' : node.isMiniBoss ? 'Mini-jefe' : `Piso ${node.floor + 1} de ${run.map.floors}`}</h1>
       </div>
       <div class="board-host" ref=${hostRef}></div>
       ${placing && html`<div class="place-bar" role="group" aria-label="Fase Organizar">
