@@ -75,7 +75,7 @@ h2 { font-size: 17px; font-weight: 750; }
 .card-row { display: flex; gap: clamp(12px, 3vw, 32px); justify-content: center; flex-wrap: wrap; perspective: 1200px; }
 .card {
   --rx: 0deg; --ry: 0deg; --raise: 0px;
-  position: relative; width: clamp(160px, 24vw, 220px); aspect-ratio: 5 / 7.4;
+  position: relative; width: clamp(200px, 24vw, 220px); aspect-ratio: 5 / 7.4;
   transform-style: preserve-3d;
   transform: translateY(var(--raise)) rotateX(var(--rx)) rotateY(var(--ry));
   transition: transform 0.3s var(--ease-out);
