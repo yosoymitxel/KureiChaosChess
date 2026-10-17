@@ -39,23 +39,27 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
 
   return html`<div class="screen mini">
     <${Topbar} title="Yo, Zombi" sub=${sub} onBack=${onBack} />
-    <div class="mini-body">
-      ${!s.over && html`<div class="mini-stats" aria-live="polite">
-        <span class="coin-chip" title="Monedas"><${Icon} name="coin" size=${16} /><b>${s.coins}</b></span>
-        <span class="chip"><${PieceIcon} type="pawn" side="dark" size=${15} />${attackers.length} en pie</span>
-      </div>`}
-      ${!s.over && html`<p class="mini-steps">${STEPS.map((t, i) => html`<span class=${i + 1 === step ? 'on' : i + 1 < step ? 'done' : ''}>${i + 1} ${t}</span>`)}</p>`}
-      ${!s.over && html`<p class="mini-step-hint">${HINTS[step]}</p>`}
-      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">La defensa marfil no se mueve: tras cada avance captura toda pieza que tenga a tiro.</p></details>
-      <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${!!s.over} label="Tablero de Yo, Zombi" gridRef=${gridRef} boardClass="bm-slab iz"
-        onTap=${(r, c) => r === 0 && act(() => buy(s, pick, c))} />
-      <${MiniDiff} mini="izombie" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
-      ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Una pieza tuya cruzó la defensa.' : 'Te quedaste sin piezas y sin monedas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
-        : html`<div class="bm-actions" role="group" aria-label="Pieza a colocar">
-          ${Object.entries(COST).map(([t, cost]) => html`<button class=${'btn sm buy' + (pick === t ? ' on' : ' ghost')} aria-pressed=${pick === t} aria-label=${`${PIECE_NAMES[t]}: ${cost} moneda${cost === 1 ? '' : 's'}`}
-            disabled=${cost > s.coins} onClick=${() => setPick(t)}><${PieceIcon} type=${t} side="dark" size=${22} /><span>${PIECE_NAMES[t]}</span><b class="buy-cost">${cost}</b></button>`)}
+    <div class="mini-body side-body">
+      <div class="mini-main">
+        <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${!!s.over} label="Tablero de Yo, Zombi" gridRef=${gridRef} boardClass="bm-slab iz"
+          onTap=${(r, c) => r === 0 && act(() => buy(s, pick, c))} />
+        <div class="mini-side">
+          ${!s.over && html`<div class="mini-stats" aria-live="polite">
+            <span class="coin-chip" title="Monedas"><${Icon} name="coin" size=${16} /><b>${s.coins}</b></span>
+            <span class="chip"><${PieceIcon} type="pawn" side="dark" size=${15} />${attackers.length} en pie</span>
+          </div>`}
+          ${!s.over && html`<p class="mini-steps">${STEPS.map((t, i) => html`<span class=${i + 1 === step ? 'on' : i + 1 < step ? 'done' : ''}>${i + 1} ${t}</span>`)}</p>`}
+          ${!s.over && html`<p class="mini-step-hint">${HINTS[step]}</p>`}
+          ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Una pieza tuya cruzó la defensa.' : 'Te quedaste sin piezas y sin monedas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
+            : html`<div class="bm-actions" role="group" aria-label="Pieza a colocar">
+              ${Object.entries(COST).map(([t, cost]) => html`<button class=${'btn sm buy' + (pick === t ? ' on' : ' ghost')} aria-pressed=${pick === t} aria-label=${`${PIECE_NAMES[t]}: ${cost} moneda${cost === 1 ? '' : 's'}`}
+                disabled=${cost > s.coins} onClick=${() => setPick(t)}><${PieceIcon} type=${t} side="dark" size=${22} /><span>${PIECE_NAMES[t]}</span><b class="buy-cost">${cost}</b></button>`)}
+            </div>
+            <button class="btn primary" onClick=${() => act(() => advance(s))}>Avanzar</button>`}
+          <${MiniDiff} mini="izombie" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
+          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">La defensa marfil no se mueve: tras cada avance captura toda pieza que tenga a tiro.</p></details>
         </div>
-        <button class="btn primary" onClick=${() => act(() => advance(s))}>Avanzar</button>`}
+      </div>
     </div>
   </div>`;
 }

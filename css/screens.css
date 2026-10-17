@@ -344,6 +344,19 @@
 .mini-helpbox summary::after { content: ''; width: 6px; height: 6px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translate(-1px, -1px); }
 .mini-helpbox[open] summary::after { transform: rotate(-135deg) translate(-2px, -1px); }
 .mini-helpbox .mini-help { margin: 8px 0 0; }
+/* Minijuegos con tablero vertical: en pantalla ancha el tablero ocupa la izquierda a plena
+   altura y el estado, las opciones, los controles y la ayuda forman una columna a la derecha;
+   en angosto se apila con el tablero primero, como el jardín. */
+.side-body { padding-inline: clamp(16px, 3vw, 40px); }
+.mini-main { width: min(1140px, 100%); flex: 1; min-height: 0; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; justify-items: center; align-content: safe center; }
+.mini-main .mini-stage { min-height: min(54dvh, 440px); }
+.mini-side { display: flex; flex-direction: column; align-items: center; gap: 18px; width: 100%; min-width: 0; }
+@media (min-width: 900px) {
+  .mini-main { grid-template-columns: minmax(0, 1fr) clamp(280px, 26vw, 340px); grid-template-rows: minmax(0, 1fr); column-gap: clamp(24px, 3.2vw, 48px); align-content: stretch; }
+  .mini-main .mini-stage { grid-column: 1; grid-row: 1; min-height: 0; }
+  .mini-main .mini-side { grid-column: 2; grid-row: 1; align-self: safe center; }
+}
+@media (max-height: 720px) { .mini-main, .mini-side { gap: 10px; } }
 /* Cierre de minijuego: misma superficie que los tableros (grano y borde de tinta) para que el
    resultado se lea como el final de la misma mesa. */
 .mini-end { display: grid; justify-items: center; gap: 10px; max-width: 46ch; padding: 16px 26px 18px; text-align: center; border-radius: var(--r-md); border: 3px solid var(--ink); background: var(--tile-b); background-image: var(--grain); box-shadow: var(--lift), inset 0 -6px 0 var(--tile-side); animation: end-in 0.4s var(--ease-out) both; }

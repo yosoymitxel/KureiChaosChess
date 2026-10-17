@@ -39,16 +39,20 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
   };
   return html`<div class="screen mini">
     <${Topbar} title="Ocho reinas" sub=${sub} onBack=${onBack} />
-    <div class="mini-body">
-      ${!s.over && html`<div class="mini-stats" aria-live="polite">
-        <span class="chip" aria-label=${`Reinas colocadas: ${s.queens.length} de ${s.n}`}><span class="dots">${Array.from({ length: s.n }, (_, i) => html`<i class=${i < s.queens.length ? '' : 'off'} />`)}</span></span>
-        <span class=${'chip' + (time <= 30 ? ' danger' : '')} aria-label=${`Quedan ${time} segundos`}><b>${time}</b> s</span>
-      </div>`}
-      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Completa las ${s.n} antes de que se acabe el tiempo.</p></details>
-      <${MiniGrid} rows=${s.n} cols=${s.n} cell=${cell} disabled=${!!s.over} label=${`Tablero de ${s.n} reinas`} gridRef=${gridRef} boardClass="bm-slab"
-        onTap=${tap} />
-      <${MiniDiff} mini="queens" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
-      ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `${s.n} reinas conviviendo sin atacarse.` : `Se acabó el tiempo con ${s.queens.length} de ${s.n} reinas.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+    <div class="mini-body side-body">
+      <div class="mini-main">
+        <${MiniGrid} rows=${s.n} cols=${s.n} cell=${cell} disabled=${!!s.over} label=${`Tablero de ${s.n} reinas`} gridRef=${gridRef} boardClass="bm-slab"
+          onTap=${tap} />
+        <div class="mini-side">
+          ${!s.over && html`<div class="mini-stats" aria-live="polite">
+            <span class="chip" aria-label=${`Reinas colocadas: ${s.queens.length} de ${s.n}`}><span class="dots">${Array.from({ length: s.n }, (_, i) => html`<i class=${i < s.queens.length ? '' : 'off'} />`)}</span></span>
+            <span class=${'chip' + (time <= 30 ? ' danger' : '')} aria-label=${`Quedan ${time} segundos`}><b>${time}</b> s</span>
+          </div>`}
+          ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `${s.n} reinas conviviendo sin atacarse.` : `Se acabó el tiempo con ${s.queens.length} de ${s.n} reinas.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+          <${MiniDiff} mini="queens" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
+          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Completa las ${s.n} antes de que se acabe el tiempo.</p></details>
+        </div>
+      </div>
     </div>
   </div>`;
 }
