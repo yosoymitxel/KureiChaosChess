@@ -69,6 +69,8 @@
   transition: transform 0.2s var(--ease-out);
 }
 .node.boss .coin { width: 76px; height: 76px; background: var(--accent); color: var(--paper); --icon-cut: var(--accent); box-shadow: 0 3px 0 var(--accent-ink), 0 7px 0 var(--ink), var(--lift); }
+/* Mini-jefe: ficha de latón con rombo. El jefe final conserva el rojo y el trono como lo más duro del mapa. */
+.node.mboss:not(.done) .coin { background: var(--brass); color: var(--ink); --icon-cut: var(--brass); box-shadow: 0 3px 0 color-mix(in oklch, var(--brass), black 25%), 0 7px 0 var(--ink), var(--lift); }
 .node.mod-elite:not(.done) .coin { background: var(--ink); color: var(--brass); --icon-cut: var(--ink); }
 /* El troquel dice qué es el nodo: cuadrada y verde = minijuego (otro juego, otra caja);
    latón = descanso (la hoguera); cuero = bolsa. Las partidas siguen redondas en papel. */
