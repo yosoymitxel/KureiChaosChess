@@ -3,6 +3,7 @@ import { Icon } from '../icons.js';
 import { Topbar, useEnter, Toggle } from '../components.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { THEMES } from '../../data/themes.js';
+import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
 
 const SIDES = [
@@ -11,7 +12,7 @@ const SIDES = [
   { color: 'wild', label: 'Jade' },
 ];
 
-export function SetupScreen({ node, defaultCount, onBack, onStart }) {
+export function SetupScreen({ node, defaultCount, onBack, onStart, run }) {
   const ref = useRef(null);
   useEnter(ref);
   const [count, setCount] = useState(defaultCount || 2);
@@ -25,6 +26,13 @@ export function SetupScreen({ node, defaultCount, onBack, onStart }) {
       <section class="panel setup-card" data-enter>
         <div class="mod-card"><span class="mod-icon"><${Icon} name=${mod.icon} size=${24} /></span><div><h2>${mod.name}</h2><p>${mod.desc}</p></div></div>
       </section>
+      ${run?.mutations?.length ? html`<section class="panel setup-card" data-enter>
+        <h2>Mutaciones activas</h2>
+        <div class="chips">
+          ${Object.entries(countMutations(run.mutations)).map(([id, n]) => html`<span class="chip mut" title=${MUTATIONS[id]?.desc}>${MUTATIONS[id]?.name}${n > 1 ? ' ×' + n : ''}</span>`)}
+        </div>
+        <p class="setup-note">Se aplican a tu ejército durante toda la run.</p>
+      </section>` : ''}
       <section class="panel setup-card" data-enter>
         <h2>Jugadores</h2>
         <div class="segmented" role="group" aria-label="Número de bandos">
