@@ -21,8 +21,11 @@ function Diorama({ onOpen }) {
     v.intro(pieces);
     return () => v.destroy();
   }, []);
-  return html`<div class="diorama" ref=${host} aria-hidden="true" onClick=${onOpen} title="Abrir extras" role="button" tabindex="0"
-    onKeyDown=${(e) => (e.key === 'Enter' || e.key === ' ') && onOpen()}></div>`;
+  return html`<div class="diorama-wrap">
+    <div class="diorama" ref=${host} aria-label="Abrir extras" title="Abrir extras" role="button" tabindex="0"
+      onClick=${onOpen} onKeyDown=${(e) => (e.key === 'Enter' || e.key === ' ') && onOpen()}></div>
+    <span class="diorama-tag">Extras</span>
+  </div>`;
 }
 
 export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onMinis, onZen, onGallery, onAchievements, settings, setSettings }) {
