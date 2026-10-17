@@ -18,10 +18,9 @@
 /* Tag que indica que el diorama abre los extras. */
 .diorama-wrap { position: absolute; inset: 0 0 0 30%; }
 .diorama-wrap .diorama { inset: 0; }
-/* Placa integrada al diorama que indica que abre los extras. */
-.diorama-plaque { position: absolute; bottom: 16px; left: 50%; translate: -50% 0; z-index: 2; display: flex; align-items: center; gap: 8px; padding: 6px 14px; border: 2px solid var(--ink); border-radius: var(--r-md); background: var(--paper); background-image: var(--grain); box-shadow: var(--lift); pointer-events: none; }
-.diorama-plaque-label { font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
-.diorama-plaque-count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--brass); color: var(--ink); font-size: 11px; font-weight: 800; box-shadow: 0 1px 2px var(--ink); }
+/* Hint sutil integrado al diorama: no es un badge flotante, es parte del tablero. */
+.diorama-hint { position: absolute; bottom: 10px; right: 10px; z-index: 2; padding: 3px 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--paper); text-shadow: 0 1px 2px var(--ink); pointer-events: none; opacity: 0.7; transition: opacity 0.2s var(--ease-out); }
+.diorama:hover .diorama-hint { opacity: 1; }
 @keyframes settle {
   from { transform: translateY(calc(var(--sq) * 0.35)) rotateX(var(--tilt)) rotateZ(-22deg); }
   to { transform: translateY(calc(var(--sq) * 0.35)) rotateX(var(--tilt)) rotateZ(-8deg); }

@@ -26,10 +26,7 @@ function Diorama({ onOpen }) {
   return html`<div class="diorama-wrap">
     <div class="diorama" ref=${host} aria-label="Abrir extras" title="Abrir extras" role="button" tabindex="0"
       onClick=${onOpen} onKeyDown=${(e) => (e.key === 'Enter' || e.key === ' ') && onOpen()}></div>
-    <div class="diorama-plaque">
-      <span class="diorama-plaque-label">Extras</span>
-      ${unlocked > 0 && html`<span class="diorama-plaque-count">${unlocked}</span>`}
-    </div>
+    <span class="diorama-hint">${unlocked > 0 ? `Extras · ${unlocked}` : 'Extras'}</span>
   </div>`;
 }
 
