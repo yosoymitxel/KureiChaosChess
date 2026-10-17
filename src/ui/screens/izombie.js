@@ -33,7 +33,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
   const status = `Monedas: ${s.coins} · piezas en pie: ${attackers.length}.`;
   const step = !attackers.length ? 1 : s.moved ? 3 : 2;
   const STEPS = ['Compra', 'Avanza', 'Cruza'];
-  const HINTS = { 1: 'Toca una casilla de la fila de arriba para comprar tu primera pieza.', 2: 'Pulsa Avanzar: las piezas bajan y la defensa captura lo que tenga a tiro.', 3: 'Cruza una pieza hasta la última fila: esa es la salida.' };
+  const HINTS = { 1: 'Toca una casilla de la fila de arriba (resaltada) para comprar tu primera pieza.', 2: 'Pulsa Avanzar: las piezas bajan y la defensa captura lo que tenga a tiro.', 3: 'Cruza una pieza hasta la última fila (resaltada): esa es la salida.' };
 
   return html`<div class="screen mini">
     <${Topbar} title="Yo, Zombi" sub=${sub} onBack=${onBack} />
