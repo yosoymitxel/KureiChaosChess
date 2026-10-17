@@ -360,9 +360,10 @@
 /* Jardín Zen: cantero 2.5D sobre la mesa —marco de madera, tierra, pasto, estanque y piedras—;
    las macetas se dibujan y el aro de latón marca la flor lista (sin pulsos). */
 .zn-yard { position: relative; display: grid; place-items: center; perspective: 900px; perspective-origin: 50% 30%; }
+/* El cantero arranca en 4×4 y crece hasta 8×8: la pantalla manda `--n`. */
 .bm.zn-tray {
   --n: 4;
-  --cell: max(18px, min(calc((100cqw - 26px) / 4), calc((100cqh - 26px) / 4), 92px));
+  --cell: max(18px, min(calc((100cqw - 26px) / var(--n)), calc((100cqh - 26px) / var(--n)), 120px));
   transform: translateY(6%) rotateX(15deg);
   border-color: color-mix(in oklch, var(--tile-side), black 38%);
   box-shadow:
@@ -397,16 +398,40 @@
 .zn-k-romero { --zn: var(--side-light); }
 .zn-k-salvia { --zn: var(--side-dark); }
 .zn-k-lavanda { --zn: var(--brass); }
-.zen-shelf { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+/* El carril del jardín se ordena por bloques: rótulo, fichas de semilla, teclas de
+   herramienta, barra de ampliar y tienda; cada forma dice su rango sin leer nada. */
+.zen-seeds, .zen-tools { display: flex; flex-direction: column; align-items: center; width: 100%; gap: 8px; }
+.zen-label { font-size: 12.5px; font-weight: 800; color: var(--paper-3); }
+.zen-seedrow { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.zen-toolrow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; width: 100%; }
+/* Semillas: fichas contadas, la elegida con aro de latón. */
 .zen-chip { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 8px; border: 2px solid var(--ink); border-radius: 999px; background: var(--paper); background-image: var(--grain); font-weight: 700; font-size: 14px; color: var(--ink-2); }
-.zen-chip.pending { opacity: 0.45; }
+.zen-chip.off { opacity: 0.5; }
 .zen-chip svg { width: 24px; height: 24px; }
 .zen-chip b { font-size: 17px; }
-/* Elegir semilla: los mismos chips del estante, ahora pulsables; la elegida lleva aro de latón. */
-.zen-seeds { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .zen-seed { cursor: pointer; }
 .zen-seed:hover { filter: brightness(1.05); }
 .zen-seed.on { background: var(--paper-2); box-shadow: inset 0 0 0 2px var(--brass); color: var(--ink); }
+/* Herramientas: cuatro teclas de modo; la activa lleva aro de latón. */
+.zen-tool { display: grid; justify-items: center; gap: 4px; padding: 8px 2px 7px; border: 2px solid var(--ink); border-radius: 10px; background: var(--paper); background-image: var(--grain); font-weight: 750; font-size: 12.5px; line-height: 1; color: var(--ink-2); cursor: pointer; }
+.zen-tool .icon { width: 22px; height: 22px; }
+.zen-tool:hover { filter: brightness(1.05); }
+.zen-tool.on { background: var(--paper-2); box-shadow: inset 0 0 0 2px var(--brass); color: var(--ink); }
+/* Ampliar: barra con precio y confirmación; al armarse se pinta de latón. */
+.zen-expand { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border: 2px solid var(--ink); border-radius: 10px; background: var(--paper); background-image: var(--grain); font-weight: 750; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.zen-expand > .icon { width: 18px; height: 18px; flex: none; }
+.zen-expand-text { flex: 1; text-align: left; }
+.zen-expand:hover:not(:disabled) { filter: brightness(1.05); }
+.zen-expand.on { background: var(--brass); color: var(--ink); }
+.zen-expand:disabled { opacity: 0.55; cursor: default; }
+.zen-cost { display: inline-flex; align-items: center; gap: 3px; }
+.zen-cost .icon { width: 13px; height: 13px; }
+.zen-seed:focus-visible, .zen-tool:focus-visible, .zen-expand:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
+/* Tierra virgen de los anillos: se cava para hacer un tiesto; con la pala elegida se marca. */
+.bm-cell.zn-raw { background-color: color-mix(in oklch, var(--tile-side), black 24%); cursor: default; }
+.bm-cell.zn-raw::after { content: ''; position: absolute; inset: 13%; border: 2px dashed color-mix(in oklch, var(--paper), transparent 55%); border-radius: 7px; }
+.zn-yard.dig .bm-cell.zn-raw { cursor: pointer; }
+.zn-yard.dig .bm-cell.zn-raw::after { border-color: var(--brass); }
 /* Galería: grupos de imágenes; las bloqueadas son placeholders honestos. */
 .gal-group { width: 100%; max-width: 560px; }
 .gal-title { margin: 0 0 8px; font-size: 16px; font-weight: 800; color: var(--paper); }
@@ -425,7 +450,26 @@
 /* Tienda del jardín: monedero, estantería y la marca de lo comprado. */
 .coin-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 2px solid var(--ink); border-radius: 999px; background: var(--brass); color: var(--ink); font-weight: 800; }
 .coin-chip b { font-size: 16px; line-height: 1; }
-.zen-desk { display: flex; justify-content: center; }
+.zen-desk { display: flex; }
+.zen-desk .btn { flex: 1; }
+/* Jardín Zen en pantalla ancha: el cantero ocupa la izquierda y las herramientas forman
+   una columna a la derecha; en angosto se apila con el cantero primero. */
+.zen-body { justify-content: flex-start; padding-inline: clamp(16px, 3vw, 40px); }
+.zen-main { width: min(1240px, 100%); flex: 1; min-height: 0; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr auto auto auto auto auto; gap: 16px; }
+.zen-main .mini-stage { min-height: min(54dvh, 440px); }
+.zen-main .mini-help { margin: 0; max-width: 46ch; font-size: 13.5px; }
+@media (min-width: 900px) {
+  .zen-main { grid-template-columns: minmax(0, 1fr) clamp(280px, 26vw, 340px); grid-template-rows: auto auto auto auto 1fr; grid-template-areas: "stage seeds" "stage tools" "stage expand" "stage desk" "stage help"; column-gap: clamp(24px, 3.2vw, 48px); row-gap: 18px; }
+  .zen-main .mini-stage { grid-area: stage; min-height: 0; }
+  .zen-main .zen-seeds { grid-area: seeds; align-self: start; }
+  .zen-main .zen-tools { grid-area: tools; align-self: start; }
+  .zen-main .zen-expand { grid-area: expand; align-self: start; }
+  .zen-main .zen-desk { grid-area: desk; align-self: start; }
+  .zen-main .mini-help { grid-area: help; align-self: end; width: 100%; max-width: none; padding-top: 14px; border-top: 1.5px dashed color-mix(in oklch, var(--paper), transparent 78%); }
+}
+/* Semillas en la tienda: la flor recortada sobre el verde del tablero. */
+.seed-icon { background: var(--tile-b); background-image: var(--grain); }
+.seed-icon svg { width: 30px; height: 30px; }
 .shop-card { width: min(480px, 100%); padding: 18px 20px; }
 .shop-card h2 { margin: 0 0 8px; }
 .shop-note { margin: 0 0 8px; font-size: 13.5px; line-height: 1.4; color: var(--ink-2); }

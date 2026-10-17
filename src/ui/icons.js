@@ -45,6 +45,11 @@ const P = {
   connect4: html`<rect x="2.5" y="3.5" width="19" height="17" rx="2.5" />${[7, 12, 17].flatMap((x) => [8.5, 15.5].map((y) => dot(x, y, 2)))}`,
   expand: html`<path d="M3 3h7v3H6v4H3zM21 3h-7v3h4v4h3zM3 21h7v-3H6v-4H3zM21 21h-7v-3h4v-4h3z" />`,
   shrink: html`<path d="M7 3h3v7H3V7h4zM17 3h-3v7h7V7h-4zM7 21h3v-7H3v3h4zM17 21h-3v-7h7v3h-4z" />`,
+  // Herramientas del Jardín Zen
+  drop: html`<path d="M12 2.6c3.4 4.3 5.2 7.1 5.2 9.6a5.2 5.2 0 0 1-10.4 0c0-2.5 1.8-5.3 5.2-9.6z" />${cut('M9.4 12.6c0-1.3.7-2.8 2.1-4.8', 1.5)}`,
+  seed: html`<path d="M2.5 17c2.6-1.8 5.8-2.7 9.5-2.7s6.9.9 9.5 2.7v4.5H2.5z" /><path d="M12 3.2c1.7 2 2.5 3.5 2.5 5 0 1.7-1 2.9-2.5 2.9S9.5 9.9 9.5 8.2c0-1.5.8-3 2.5-5z" />${cut('M6.3 18.2c1.8-.9 3.7-1.3 5.7-1.3s3.9.4 5.7 1.3', 1.6)}`,
+  spade: html`<rect x="10.7" y="2" width="2.6" height="6.6" rx="1.2" /><path d="M8.2 7.6h7.6v3.5c0 3.2-2 5.7-3.8 7.2-1.8-1.5-3.8-4-3.8-7.2z" />${cut('M12 10.4v4.6', 1.4)}`,
+  shears: html`<path d="M5.3 2.1l2.3.5 9.8 13.2-2.2 1.7zM18.7 2.1l-2.3.5-9.8 13.2 2.2 1.7z" /><circle cx="7.2" cy="19.3" r="2.6" /><circle cx="16.8" cy="19.3" r="2.6" /><circle cx="7.2" cy="19.3" r="1.1" fill=${CUT} /><circle cx="16.8" cy="19.3" r="1.1" fill=${CUT} />`,
   flask: html`<path d="M9 2.5h6v2h-1v4.6l5.7 9.4c1 1.7-.2 3.5-2 3.5H6.3c-1.8 0-3-1.8-2-3.5L10 9.1V4.5H9z" />${cut('M7.5 15.5h9', 1.6)}${dot(10.5, 18.3, 1.1)}${dot(14, 17.8, 0.8)}`,
   swap: html`<path d="M3.2 7.2h12.1V3.9L22.6 8.4l-7.3 4.5V9.6H3.2zM20.8 16.8H8.7v-3.3L1.4 15.6l7.3 4.5v-3.3h12.1z" />`,
   bomb: html`<circle cx="12" cy="14.5" r="7" /><path d="M15.3 4.6l2.5 2.5-2.5 2.5-2.5-2.5z" /><path d="M17.5 5.1c.9-.7 1.8-1.1 2.8-1.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />${dot(21.2, 3.2, 1.6)}${cut('M8.6 12.4a4.3 4.3 0 0 1 2.3-3.3', 1.7)}`,
@@ -57,7 +62,7 @@ const P = {
 const OFFSET = {
   back: [-0.6, 0], check: [0, 0.4], warn: [0, -0.5], refresh: [0.25, -0.35], bot: [0, -0.75], skull: [0, -0.45],
   book: [0, 0.5], plain: [0, -1.25], crown: [0, 1], fog: [-0.4, 0.1], bag: [0, 0.5], boot: [-0.75, -0.5],
-  bomb: [1.9, -0.45], bowl: [-2.15, 0.15], invader: [0, -0.85],
+  bomb: [1.9, -0.45], bowl: [-2.15, 0.15], invader: [0, -0.85], spade: [0, -1.8],
 };
 
 export function Icon({ name, size = 18 }) {

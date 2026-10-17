@@ -1,19 +1,19 @@
-// Jardín Zen: el cantero en 2.5D sobre la mesa. Sembrar, esperar, cosechar, cobrar.
+// Jardín Zen: el cantero 2.5D sobre la mesa. Semillas reales, herramientas y tierra hasta 8×8.
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Topbar, useEnter } from '../components.js';
 import { Icon } from '../icons.js';
-import { ZEN_KINDS, zenStage, zenPlant, zenHarvest, loadZen, saveZen } from '../../game/zen.js';
+import { chipArt, HEAD } from '../zen-art.js';
+import { ZEN_KINDS, ZEN_NAMES, ZEN_MAX, ZEN_BASE, BASE_GRID, cellKey, expandCost, zenStage, zenSow, zenWater, zenDig, zenHarvest, zenExpand, loadZen, saveZen } from '../../game/zen.js';
 import { award } from '../../game/achievements.js';
-import { COINS_PER_FLOWER, addCoins, loadShop } from '../../game/shop.js';
+import { COINS_PER_FLOWER, addCoins, charge, loadShop } from '../../game/shop.js';
 
-const NOMBRES = { romero: 'Romero', salvia: 'Salvia', lavanda: 'Lavanda' };
-const ETAPAS = { empty: 'vacía', sprout: 'con brote', bud: 'con capullo', bloom: 'flor lista para cortar' };
-// El cantero, en orden de lectura: 8 macetas, un estanque de 2×2, dos matas de pasto y dos piedras de paso.
-const GARDEN = [
-  { t: 'pot', i: 0 }, { t: 'pot', i: 1 }, { t: 'pot', i: 2 }, { t: 'lawn' },
-  { t: 'pot', i: 3 }, { t: 'pot', i: 4 }, { t: 'pond' },
-  { t: 'lawn' }, { t: 'pot', i: 5 },
-  { t: 'pot', i: 6 }, { t: 'step' }, { t: 'step' }, { t: 'pot', i: 7 },
+const ETAPAS = { empty: 'vacía', sprout: 'con brote', bud: 'con capullo', bloom: 'lista para cortar' };
+// Sembrar es la herramienta por defecto; ampliar se paga en monedas y pide confirmación.
+const TOOLS = [
+  { id: 'sow', icon: 'seed', name: 'Sembrar' },
+  { id: 'water', icon: 'drop', name: 'Regar' },
+  { id: 'dig', icon: 'spade', name: 'Cavar' },
+  { id: 'cut', icon: 'shears', name: 'Cortar' },
 ];
 
 // El tiesto de cartón y su tierra se dibujan siempre; la tierra va al final para tapar el nacimiento del tallo.
@@ -31,13 +31,8 @@ const GROWN = {
   salvia: html`<path class="zn-leaf" d="M12 13.8C10.6 13.7 9.4 13 8.8 11.3 10.2 11.5 11.4 12.4 12 13.8Z"/><path class="zn-leaf" d="M12 13.8C13.4 13.7 14.6 13 15.2 11.3 13.8 11.5 12.6 12.4 12 13.8Z"/><path class="zn-leaf" d="M12 11.8C11 11.7 10.1 11.2 9.6 9.9 10.7 10.1 11.6 10.8 12 11.8Z"/><path class="zn-leaf" d="M12 11.8C13 11.7 13.9 11.2 14.4 9.9 13.3 10.1 12.4 10.8 12 11.8Z"/>`,
   lavanda: html`<path class="zn-leaf" d="M12 13.8C11.4 13.6 10.7 12.7 10.4 10.4 11.4 11.7 11.9 12.6 12 13.8Z"/><path class="zn-leaf" d="M12 13.8C12.6 13.6 13.3 12.7 13.6 10.4 12.6 11.7 12.1 12.6 12 13.8Z"/><path class="zn-leaf" d="M12 11.8C11.5 11.6 11 10.9 10.8 9.1 11.5 10.1 11.9 10.9 12 11.8Z"/><path class="zn-leaf" d="M12 11.8C12.5 11.6 13 10.9 13.2 9.1 12.5 10.1 12.1 10.9 12 11.8Z"/>`,
 };
-// El capullo cerrado y la flor abierta de cada especie: racimo menudito, espiga de verticilos y espiga alta.
+// El capullo cerrado: una yema con dos cortes de color.
 const BUD = html`<path class="zn-leaf" d="M12 5.2c1.5.5 2.4 1.8 2.4 3.4 0 1.7-1 2.8-2.4 2.8s-2.4-1.1-2.4-2.8c0-1.6.9-2.9 2.4-3.4z"/><path class="zn-cut" d="M10.4 6.7c-.4.8-.5 1.7-.3 2.5M13.6 6.7c.4.8.5 1.7.3 2.5"/>`;
-const HEAD = {
-  romero: html`<circle class="zn-leaf" cx="12" cy="5.9" r="1.5"/><circle class="zn-leaf" cx="9.8" cy="8.1" r="1.4"/><circle class="zn-leaf" cx="14.2" cy="8.1" r="1.4"/><circle class="zn-dot" cx="12" cy="5.8" r=".45"/><circle class="zn-dot" cx="9.8" cy="8" r=".45"/><circle class="zn-dot" cx="14.2" cy="8" r=".45"/>`,
-  salvia: html`<path class="zn-leaf" d="M12 4.6c.5 1.2 1.2 1.8 2 2.2-1 .5-1.7 1.2-2 2.6-.3-1.4-1-2.1-2-2.6.8-.4 1.5-1 2-2.2z"/><path class="zn-leaf" d="M12 8.2c.4 1 1 1.5 1.7 1.8-.8.4-1.4 1-1.7 2-.3-1-.9-1.6-1.7-2 .7-.3 1.3-.8 1.7-1.8z"/>`,
-  lavanda: html`<path class="zn-leaf" d="M12 3.9c1.2 1.3 1.8 2.9 1.8 4.7 0 1.5-.7 2.5-1.8 2.5s-1.8-1-1.8-2.5c0-1.8.6-3.4 1.8-4.7z"/><path class="zn-cut" d="M10.6 6.1h2.8"/><path class="zn-cut" d="M10.8 7.8h2.4"/>`,
-};
 // El estanque ocupa cuatro celdas: agua, ondas, nenúfar en flor, piedras en la orilla y juncos.
 const POND = html`<span class="bm-cell zen-pond zn-soil" aria-hidden="true"><svg class="zn-pondart" viewBox="0 0 48 48">
   <path class="zn-water" d="M4.5 29C4.5 15.5 12.6 6.4 24 6.4S43.5 15.5 43.5 29c0 8.4-6.7 14-19.5 14S4.5 37.4 4.5 29z"/>
@@ -66,92 +61,162 @@ function potArt(kind, stage) {
     ${SOIL}
   </svg>`;
 }
-// En la repisa la flor va sola, recortada por el viewBox, para que se lea a 24 px.
-const chipArt = (kind) => html`<svg viewBox="6.2 3.4 11.6 8.4" aria-hidden="true">${HEAD[kind]}<path class="zn-stem" d="M12 11.4V9.6"/></svg>`;
 
 export function ZenScreen({ onBack, onShop }) {
   const ref = useRef(null);
   useEnter(ref);
   const [z, setZ] = useState(loadZen);
   const [, tick] = useState(0);
-  const [note, setNote] = useState(null); // maceta tocada que todavía no floreció
   const [seed, setSeed] = useState(0); // especie elegida para sembrar
+  const [tool, setTool] = useState('sow');
+  const [msg, setMsg] = useState(null); // aviso de la última acción
+  const [armed, setArmed] = useState(false); // ampliar pide un segundo toque
   const [coins, setCoins] = useState(() => loadShop().coins);
   const [gain, setGain] = useState(null); // última flor cortada, para el aviso de monedas
   const coinRef = useRef(null);
   useEffect(() => { const id = setInterval(() => tick((n) => n + 1), 1000); return () => clearInterval(id); }, []);
   useEffect(() => { if (!gain) return; const t = setTimeout(() => setGain(null), 3200); return () => clearTimeout(t); }, [gain]);
+  useEffect(() => { if (!msg) return; const t = setTimeout(() => { setMsg(null); setArmed(false); }, 5000); return () => clearTimeout(t); }, [msg]);
 
   const now = Date.now();
+  const seedKind = ZEN_KINDS[seed];
   const apply = (next) => { if (next !== z) { saveZen(next); setZ(next); } };
-  const tap = (i) => {
-    const { stage, kind } = zenStage(z, i, now);
-    if (stage === 'empty') { apply(zenPlant(z, i, ZEN_KINDS[seed], now)); setNote(null); }
-    else if (stage === 'bloom') {
-      const next = zenHarvest(z, i, now);
-      apply(next);
-      setNote(null);
-      setCoins(addCoins(COINS_PER_FLOWER));
-      setGain(kind);
-      motion(coinRef.current, { scale: [1, 1.35, 1] }, { duration: 0.5, ease: [0.22, 1, 0.36, 1] });
-      award('flower_1');
-      const flores = ZEN_KINDS.reduce((n, k) => n + (next.flores[k] || 0), 0);
-      if (flores >= 3) award('flower_3');
+  const say = (s) => { setArmed(false); setMsg(s); };
+  const pickTool = (id) => { setTool(id); setArmed(false); setMsg(null); };
+
+  const harvest = (key, kind) => {
+    const next = zenHarvest(z, key, now);
+    apply(next);
+    setCoins(addCoins(COINS_PER_FLOWER));
+    setGain(kind);
+    motion(coinRef.current, { scale: [1, 1.35, 1] }, { duration: 0.5, ease: [0.22, 1, 0.36, 1] });
+    award('flower_1');
+    const flores = ZEN_KINDS.reduce((n, k) => n + (next.flores[k] || 0), 0);
+    if (flores >= 3) award('flower_3');
+  };
+
+  // Un toque aplica la herramienta elegida; el estatus cuenta la espera y las novedades.
+  const tap = (type, key) => {
+    if (type === 'raw') {
+      if (tool === 'dig') { apply(zenDig(z, key)); say('Tiesto nuevo: siembra cuando quieras.'); }
+      else say('Tierra virgen: elige Cavar para hacer un tiesto.');
+      return;
     }
-    else setNote(i);
+    const st = zenStage(z, key, now);
+    if (tool === 'sow') {
+      if (st.stage === 'empty') {
+        if (!(z.seeds[seedKind] > 0)) return say(`Sin semillas de ${ZEN_NAMES[seedKind]}: caen al ganar nodos y se venden en la tienda.`);
+        apply(zenSow(z, key, seedKind, now));
+        say(`Sembraste ${ZEN_NAMES[seedKind]}: riega para acortar la espera.`);
+      } else if (st.stage === 'bloom') say(`La ${ZEN_NAMES[st.kind]} está lista: córtala con las tijeras.`);
+      else say(`${ZEN_NAMES[st.kind]}: flor en ${Math.ceil(st.msLeft / 1000)} s${st.watered ? '' : ' · puedes regarla'}.`);
+    } else if (tool === 'water') {
+      if (st.stage === 'empty') say('Ahí no hay nada que regar.');
+      else if (st.stage === 'bloom') say(`La ${ZEN_NAMES[st.kind]} ya está lista: córtala.`);
+      else if (st.watered) say('Ya la regaste: cada planta se riega una vez.');
+      else {
+        const next = zenWater(z, key, now);
+        apply(next);
+        say(`Regaste la ${ZEN_NAMES[st.kind]}: flor en ${Math.ceil(zenStage(next, key, now).msLeft / 1000)} s.`);
+      }
+    } else if (tool === 'dig') {
+      say(st.stage === 'empty' ? 'Ese tiesto ya está cavado.' : 'Ahí ya hay una planta.');
+    } else if (tool === 'cut') {
+      if (st.stage === 'bloom') harvest(key, st.kind);
+      else if (st.stage === 'empty') say('Ahí no hay flor que cortar.');
+      else say(`${ZEN_NAMES[st.kind]}: la flor abre en ${Math.ceil(st.msLeft / 1000)} s.`);
+    }
+  };
+
+  // Ampliar: el primer toque avisa el precio, el segundo paga y suma el anillo.
+  const grow = () => {
+    if (z.size >= ZEN_MAX) return;
+    const cost = expandCost(z.size);
+    if (coins < cost) return say(`Ampliar cuesta ${cost} monedas: te faltan ${cost - coins}.`);
+    if (!armed) { setArmed(true); setMsg(`Ampliar a ${z.size + 1}×${z.size + 1} cuesta ${cost} monedas. Toca otra vez para confirmar.`); return; }
+    if (!charge(cost)) return say('Faltan monedas.');
+    setCoins(loadShop().coins);
+    apply(zenExpand(z));
+    say(`El cantero crece a ${z.size + 1}×${z.size + 1}: la tierra nueva pide cava.`);
   };
 
   const total = ZEN_KINDS.reduce((n, k) => n + (z.flores[k] || 0), 0);
-  // El estatus cuenta lo más útil: la maceta tocada, la flor que florecerá antes o la semilla elegida.
-  const soon = z.pots
-    .map((pot, i) => (pot ? zenStage(z, i, now) : null))
+  // El estatus cuenta lo más útil: la última acción o la flor que florecerá antes.
+  const soon = Object.entries(z.pots)
+    .map(([key, pot]) => (pot ? zenStage(z, key, now) : null))
     .filter((x) => x && x.msLeft != null)
     .reduce((a, x) => (a == null || x.msLeft < a.msLeft ? x : a), null);
-  const wait = note == null ? null : zenStage(z, note, now);
   const status = gain
-    ? `+${COINS_PER_FLOWER} monedas por la ${NOMBRES[gain]}.`
-    : wait && wait.msLeft != null
-      ? `${NOMBRES[wait.kind]}: florece en ${Math.ceil(wait.msLeft / 1000)} s.`
+    ? `+${COINS_PER_FLOWER} monedas por la ${ZEN_NAMES[gain]}.`
+    : msg
+      ? msg
       : soon
-        ? `Creciendo: ${NOMBRES[soon.kind]} florece en ${Math.ceil(soon.msLeft / 1000)} s. En la colección: ${total}.`
-        : `Semilla: ${NOMBRES[ZEN_KINDS[seed]]} · En la colección: ${total}.`;
+        ? `Creciendo: ${ZEN_NAMES[soon.kind]} florece en ${Math.ceil(soon.msLeft / 1000)} s. En la colección: ${total}.`
+        : `Semilla: ${ZEN_NAMES[seedKind]} ×${z.seeds[seedKind] || 0} · En la colección: ${total}.`;
+
+  const potCell = (key) => {
+    const st = zenStage(z, key, now);
+    const cls = 'bm-cell zen-pot zn-soil' + (st.kind ? ' zn-k-' + st.kind : '') + (st.stage === 'bloom' ? ' ready' : '');
+    const label = st.kind ? `${ZEN_NAMES[st.kind]}, ${ETAPAS[st.stage]}` : 'Tiesto vacío';
+    return html`<button key=${key} class=${cls} aria-label=${label} onClick=${() => tap('pot', key)}>${potArt(st.kind, st.stage)}</button>`;
+  };
+
+  // El cantero se arma fila por fila: el 4×4 base arriba a la izquierda y los anillos al sur y al este.
+  const cells = [];
+  for (let r = 0; r < z.size; r++) {
+    for (let c = 0; c < z.size; c++) {
+      const key = cellKey(r, c);
+      if (r < ZEN_BASE && c < ZEN_BASE) {
+        const t = BASE_GRID[r][c];
+        if (t === 'pond') { if (r === 1 && c === 2) cells.push(POND); continue; }
+        if (t === 'lawn') { cells.push(html`<span key=${key} class="bm-cell zn-lawn" aria-hidden="true"><svg class="zn-tuft" viewBox="0 0 24 24">${TUFT}</svg></span>`); continue; }
+        if (t === 'step') { cells.push(html`<span key=${key} class="bm-cell zn-step" aria-hidden="true"></span>`); continue; }
+        cells.push(potCell(key));
+      } else if (z.pots[key] !== undefined) cells.push(potCell(key));
+      else cells.push(html`<button key=${key} class="bm-cell zn-raw" aria-label="Tierra sin cavar" onClick=${() => tap('raw', key)}></button>`);
+    }
+  }
 
   return html`<div class="screen mini" ref=${ref}>
     <${Topbar} title="Jardín Zen" sub="Un rincón tranquilo entre runs" onBack=${onBack}>
       <span class="coin-chip" ref=${coinRef} title="Monedas del jardín"><${Icon} name="coin" size=${16} /><b>${coins}</b></span>
     </${Topbar}>
-    <div class="mini-body">
+    <div class="mini-body zen-body">
       <p class="mini-status" aria-live="polite">${status}</p>
-      <p class="mini-help">Elige la semilla y toca una maceta vacía para sembrar; echa capullo al minuto y florece a los dos minutos y medio. Cuando la flor esté lista, la maceta se marca en latón: tócala y suma a tu colección; cada corte paga ${COINS_PER_FLOWER} monedas para la tienda.</p>
-      <div class="zen-seeds" role="group" aria-label="Semilla para sembrar">
-        ${ZEN_KINDS.map((k, ki) => html`<button class=${'zen-chip zen-seed zn-k-' + k + (seed === ki ? ' on' : '')} aria-pressed=${seed === ki} onClick=${() => setSeed(ki)}>${chipArt(k)}<span>${NOMBRES[k]}</span></button>`)}
-      </div>
-      <div class="mini-stage">
-        <div class="zn-yard">
-          <div class="bm zn-tray" role="group" aria-label="Cantero del jardín">
-            ${GARDEN.map((cell) => {
-              if (cell.t === 'pond') return POND;
-              if (cell.t === 'lawn') return html`<span class="bm-cell zn-lawn" aria-hidden="true"><svg class="zn-tuft" viewBox="0 0 24 24">${TUFT}</svg></span>`;
-              if (cell.t === 'step') return html`<span class="bm-cell zn-step" aria-hidden="true"></span>`;
-              const i = cell.i;
-              const st = zenStage(z, i, now);
-              const cls = 'bm-cell zen-pot zn-soil' + (st.kind ? ' zn-k-' + st.kind : '') + (st.stage === 'bloom' ? ' ready' : '');
-              return html`<button class=${cls} aria-label=${`Maceta ${i + 1}: ${st.kind ? NOMBRES[st.kind] + ', ' : ''}${ETAPAS[st.stage]}`} onClick=${() => tap(i)}>${potArt(st.kind, st.stage)}</button>`;
+      <div class="zen-main">
+        <div class="mini-stage">
+          <div class=${'zn-yard' + (tool === 'dig' ? ' dig' : '')}>
+            <div class="bm zn-tray" style=${{ '--n': z.size }} role="group" aria-label="Cantero del jardín">
+              ${cells}
+            </div>
+          </div>
+        </div>
+        <div class="zen-seeds" role="group" aria-label="Semilla para sembrar">
+          <span class="zen-label">Semillas</span>
+          <div class="zen-seedrow">
+            ${ZEN_KINDS.map((k, ki) => {
+              const n = z.seeds[k] || 0;
+              return html`<button class=${'zen-chip zen-seed zn-k-' + k + (seed === ki ? ' on' : '') + (n ? '' : ' off')} aria-pressed=${seed === ki} aria-label=${`Semilla de ${ZEN_NAMES[k]}: tienes ${n}`} onClick=${() => setSeed(ki)}>${chipArt(k)}<span>${ZEN_NAMES[k]}</span><b>×${n}</b></button>`;
             })}
           </div>
         </div>
-      </div>
-      <div class="zen-shelf">
-        ${ZEN_KINDS.map((k) => {
-          const n = z.flores[k] || 0;
-          return html`<span class=${'zen-chip zn-k-' + k + (n ? '' : ' pending')}>
-            ${chipArt(k)}
-            <b>${n}</b><span>${NOMBRES[k]}</span>
-          </span>`;
-        })}
-      </div>
-      <div class="zen-desk">
-        <button class="btn sm" data-enter onClick=${onShop}><${Icon} name="coin" size=${16} />Tienda del jardín</button>
+        <div class="zen-tools" role="group" aria-label="Herramientas">
+          <span class="zen-label">Herramientas</span>
+          <div class="zen-toolrow">
+            ${TOOLS.map((t) => html`<button class=${'zen-tool' + (tool === t.id ? ' on' : '')} aria-pressed=${tool === t.id} onClick=${() => pickTool(t.id)}><${Icon} name=${t.icon} size=${22} /><span>${t.name}</span></button>`)}
+          </div>
+        </div>
+        <button class=${'zen-expand' + (armed ? ' on' : '')} disabled=${z.size >= ZEN_MAX}
+          title=${z.size >= ZEN_MAX ? 'El cantero ya llega a 8×8' : coins < expandCost(z.size) ? `Faltan ${expandCost(z.size) - coins} monedas` : ''}
+          onClick=${grow}>
+          <${Icon} name="expand" size=${18} />
+          <span class="zen-expand-text">${z.size >= ZEN_MAX ? 'Cantero al máximo · 8×8' : armed ? `Confirmar ${z.size + 1}×${z.size + 1}` : `Ampliar a ${z.size + 1}×${z.size + 1}`}</span>
+          ${z.size < ZEN_MAX && html`<b class="zen-cost"><${Icon} name="coin" size=${13} />${expandCost(z.size)}</b>`}
+        </button>
+        <div class="zen-desk">
+          <button class="btn sm ghost" data-enter onClick=${onShop}><${Icon} name="coin" size=${16} />Tienda del jardín</button>
+        </div>
+        <p class="mini-help">Las semillas caen al ganar un nodo y se compran en la tienda. Elige semilla y herramienta: siembra en un tiesto, riega una vez por planta para acortar la espera, cava la tierra virgen y corta la flor cuando abra; cada corte paga ${COINS_PER_FLOWER} monedas. El cantero crece hasta 8×8.</p>
       </div>
     </div>
   </div>`;

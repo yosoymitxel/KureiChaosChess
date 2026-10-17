@@ -20,6 +20,7 @@ src/
     match.js          turnos, capturas, vidas, derrumbes, fin de partida, bot
     run.js            guardado (localStorage) y progreso de la run
     shop.js           monedero del jardín: cartas compradas y mesas a la venta
+    zen.js            jardín: macetas, semillas, herramientas y terreno
   view/               render, sin reglas
     board-view.js     tablero 3D (DOM + CSS transforms) + coreografía con anime.js
     piece-art.js      siluetas SVG coloreadas por CSS vars
