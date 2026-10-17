@@ -36,7 +36,7 @@ const SCENES = {
     const at = { titan: [0, 0], ram: [0, 3], hydra: [0, 6], devourer: [0, 9], golem: [3, 0], rider: [3, 4], wall: [3, 7] };
     const pieces = Object.entries(at).map(([id, [r, c]]) => {
       const d = BOSSES[id];
-      return makePiece(d.art, 'dark', r, c, { boss: id, h: d.size[0], w: d.size[1], hp: d.hp, maxHp: d.hp, name: d.name, royal: true });
+      return makePiece('boss-' + id, 'dark', r, c, { boss: id, h: d.size[0], w: d.size[1], hp: d.hp, maxHp: d.hp, name: d.name, royal: true });
     });
     return { b, pieces };
   },

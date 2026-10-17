@@ -260,7 +260,7 @@ export function placeBoss(pieces, board, bossId) {
     const p = pieces[i];
     if (p.color === 'dark' && (p.type === 'king' || cells.includes(key(p.row, p.col)))) pieces.splice(i, 1);
   }
-  const boss = makePiece(def.art, 'dark', 0, col, {
+  const boss = makePiece('boss-' + def.id, 'dark', 0, col, {
     boss: def.id, h, w, hp: def.hp, maxHp: def.hp, moves: [...def.moves], royal: true, name: def.name, absorb: !!def.absorb,
   });
   pieces.push(boss);
