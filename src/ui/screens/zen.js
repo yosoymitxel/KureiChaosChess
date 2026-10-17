@@ -1,8 +1,10 @@
-// Jardín Zen: el apartado tranquilo entre runs. Sembrar, esperar, cosechar.
-import { html, useState, useEffect, useRef } from '../lib.js';
+// Jardín Zen: el apartado tranquilo entre runs. Sembrar, esperar, cosechar, cobrar.
+import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Topbar, useEnter } from '../components.js';
+import { Icon } from '../icons.js';
 import { ZEN_KINDS, zenStage, zenPlant, zenHarvest, loadZen, saveZen } from '../../game/zen.js';
 import { award } from '../../game/achievements.js';
+import { COINS_PER_FLOWER, addCoins, loadShop } from '../../game/shop.js';
 
 const NOMBRES = { romero: 'Romero', salvia: 'Salvia', lavanda: 'Lavanda' };
 const ETAPAS = { empty: 'vacía', sprout: 'con brote', bud: 'con capullo', bloom: 'flor lista para cortar' };
@@ -56,23 +58,30 @@ function potArt(kind, stage) {
 // En la repisa la flor va sola, recortada por el viewBox, para que se lea a 24 px.
 const chipArt = (kind) => html`<svg viewBox="6.2 3.4 11.6 8.4" aria-hidden="true">${HEAD[kind]}<path class="zn-stem" d="M12 11.4V9.6"/></svg>`;
 
-export function ZenScreen({ onBack }) {
+export function ZenScreen({ onBack, onShop }) {
   const ref = useRef(null);
   useEnter(ref);
   const [z, setZ] = useState(loadZen);
   const [, tick] = useState(0);
   const [note, setNote] = useState(null); // maceta tocada que todavía no floreció
+  const [coins, setCoins] = useState(() => loadShop().coins);
+  const [gain, setGain] = useState(null); // última flor cortada, para el aviso de monedas
+  const coinRef = useRef(null);
   useEffect(() => { const id = setInterval(() => tick((n) => n + 1), 1000); return () => clearInterval(id); }, []);
+  useEffect(() => { if (!gain) return; const t = setTimeout(() => setGain(null), 3200); return () => clearTimeout(t); }, [gain]);
 
   const now = Date.now();
   const apply = (next) => { if (next !== z) { saveZen(next); setZ(next); } };
   const tap = (i) => {
-    const { stage } = zenStage(z, i, now);
+    const { stage, kind } = zenStage(z, i, now);
     if (stage === 'empty') { apply(zenPlant(z, i, now)); setNote(null); }
     else if (stage === 'bloom') {
       const next = zenHarvest(z, i, now);
       apply(next);
       setNote(null);
+      setCoins(addCoins(COINS_PER_FLOWER));
+      setGain(kind);
+      motion(coinRef.current, { scale: [1, 1.35, 1] }, { duration: 0.5, ease: [0.22, 1, 0.36, 1] });
       award('flower_1');
       const flores = ZEN_KINDS.reduce((n, k) => n + (next.flores[k] || 0), 0);
       if (flores >= 3) award('flower_3');
@@ -83,17 +92,21 @@ export function ZenScreen({ onBack }) {
   const total = ZEN_KINDS.reduce((n, k) => n + (z.flores[k] || 0), 0);
   const nextKind = ZEN_KINDS[z.planted % ZEN_KINDS.length];
   const wait = note == null ? null : zenStage(z, note, now);
-  const status = wait && wait.msLeft != null
-    ? `${NOMBRES[wait.kind]}: florece en ${Math.ceil(wait.msLeft / 1000)} s.`
-    : `Lo próximo que plantas: ${NOMBRES[nextKind]} · En la colección: ${total}.`;
+  const status = gain
+    ? `+${COINS_PER_FLOWER} monedas por la ${NOMBRES[gain]}.`
+    : wait && wait.msLeft != null
+      ? `${NOMBRES[wait.kind]}: florece en ${Math.ceil(wait.msLeft / 1000)} s.`
+      : `Lo próximo que plantas: ${NOMBRES[nextKind]} · En la colección: ${total}.`;
 
   const pot = (cell) => (cell === 4 ? -1 : cell < 4 ? cell : cell - 1);
 
   return html`<div class="screen mini" ref=${ref}>
-    <${Topbar} title="Jardín Zen" sub="Un rincón tranquilo entre runs" onBack=${onBack} />
+    <${Topbar} title="Jardín Zen" sub="Un rincón tranquilo entre runs" onBack=${onBack}>
+      <span class="coin-chip" ref=${coinRef} title="Monedas del jardín"><${Icon} name="coin" size=${16} /><b>${coins}</b></span>
+    </${Topbar}>
     <div class="mini-body">
       <p class="mini-status" aria-live="polite">${status}</p>
-      <p class="mini-help">Toca una maceta vacía para sembrar; echa capullo al minuto y florece a los dos minutos y medio. Cuando la flor esté lista, la maceta se marca en latón: tócala y suma a tu colección.</p>
+      <p class="mini-help">Toca una maceta vacía para sembrar; echa capullo al minuto y florece a los dos minutos y medio. Cuando la flor esté lista, la maceta se marca en latón: tócala y suma a tu colección; cada corte paga ${COINS_PER_FLOWER} monedas para la tienda.</p>
       <div class="mini-stage">
         <div class="bm zn-tray" style=${{ '--n': 3 }} role="group" aria-label="Macetas del jardín">
           ${CELLS.map((cell) => {
@@ -113,6 +126,9 @@ export function ZenScreen({ onBack }) {
             <b>${n}</b><span>${NOMBRES[k]}</span>
           </span>`;
         })}
+      </div>
+      <div class="zen-desk">
+        <button class="btn sm" data-enter onClick=${onShop}><${Icon} name="coin" size=${16} />Tienda del jardín</button>
       </div>
     </div>
   </div>`;

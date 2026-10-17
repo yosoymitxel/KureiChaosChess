@@ -5,6 +5,7 @@ import { MODIFIERS } from '../../data/modifiers.js';
 import { THEMES } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
+import { themeOwned } from '../../game/shop.js';
 
 const SIDES = [
   { color: 'light', label: 'Marfil' },
@@ -62,8 +63,12 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
       <section class="panel setup-card" data-enter>
         <h2>Mesa</h2>
         <div class="theme-grid">
-          ${Object.values(THEMES).map((t) => html`<button class=${'theme' + (settings.theme === t.id ? ' on' : '')} aria-pressed=${settings.theme === t.id} onClick=${() => set('theme')(t.id)}>
-            <span class="swatch">${t.swatch.map((c) => html`<i style=${{ background: c }}></i>`)}</span>${t.name}</button>`)}
+          ${Object.values(THEMES).map((t) => {
+            const owned = themeOwned(t.id);
+            return html`<button class=${'theme' + (settings.theme === t.id ? ' on' : '')} aria-pressed=${settings.theme === t.id} disabled=${!owned}
+              title=${owned ? t.name : 'Se compra en la tienda del Jardín Zen'} onClick=${() => set('theme')(t.id)}>
+              <span class="swatch">${t.swatch.map((c) => html`<i style=${{ background: c }}></i>`)}</span>${t.name}${owned ? '' : html`<${Icon} name="lock" size=${13} />`}</button>`;
+          })}
         </div>
       </section>
       <section class="panel setup-card" data-enter>

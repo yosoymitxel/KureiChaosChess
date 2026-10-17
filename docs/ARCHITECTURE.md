@@ -19,6 +19,7 @@ src/
     generate.js       mapa de la run, forma del tablero, ejércitos, jefes
     match.js          turnos, capturas, vidas, derrumbes, fin de partida, bot
     run.js            guardado (localStorage) y progreso de la run
+    shop.js           monedero del jardín: cartas compradas y mesas a la venta
   view/               render, sin reglas
     board-view.js     tablero 3D (DOM + CSS transforms) + coreografía con anime.js
     piece-art.js      siluetas SVG coloreadas por CSS vars
@@ -26,7 +27,7 @@ src/
   ui/                 Preact + htm
     app.js            enrutado de pantallas y progreso de la run
     components.js     topbar, cartas con tilt, banner de turno, toggle
-    screens/          menú, mapa, preparación/ajustes, partida, overlays
+    screens/          menú, mapa, preparación/ajustes, partida, tienda, overlays
 legacy/index.v1.4.html  el monolito original, como referencia
 ```
 
@@ -88,7 +89,8 @@ misma dirección y el portal teletransporta al gemelo si está libre. Solo afect
 `src/game/cards.js` define cada carta con `target` (`piece`, `tile` o `none`), `can()` (a qué
 se puede aplicar, para que no haya usos rotos) y `apply()`. `previewMoves()` aplica la carta a
 una copia para enseñar al jugador el resultado antes de jugarla. Reglas: una carta por turno,
-no gasta movimiento, se consume. La mano vive en `run.cards` (máximo 5).
+no gasta movimiento, se consume. La mano vive en `run.cards` (máximo 5); las compradas en la
+tienda forman el tramo final (`run.shopCount`) y llevan marca de moneda.
 
 Ritmo de recompensas (Slay the Spire): victoria normal → elegir 1 de 3 cartas; élite →
 mutación; descanso → mutación u objeto; bolsa → objeto o mazo de dos cartas.

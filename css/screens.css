@@ -102,6 +102,7 @@
 .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .theme { display: flex; flex-direction: column; gap: 8px; align-items: center; padding: 10px; border: 2px solid oklch(0.2 0.02 55 / 0.2); border-radius: 12px; background: transparent; color: var(--ink); font-weight: 700; cursor: pointer; }
 .theme.on { border-color: var(--ink); background: var(--paper-2); }
+.theme:disabled { opacity: .55; cursor: default; }
 .swatch { display: inline-flex; border-radius: 8px; overflow: hidden; border: 2px solid var(--ink); padding: 0; background: none; cursor: pointer; }
 .swatch i { width: 16px; height: 26px; }
 .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 12px 0 0; border: 0; background: none; color: var(--ink); text-align: left; cursor: pointer; }
@@ -281,6 +282,7 @@
 .pause-grid .wide { grid-column: 1 / -1; }
 .theme-row { display: flex; gap: 8px; }
 .swatch.on { outline: 3px solid var(--accent); outline-offset: 2px; }
+.swatch:disabled { opacity: .5; cursor: default; }
 .overlay .panel.howto { width: min(640px, 100%); }
 .howto p { margin: 0; color: var(--ink-2); max-width: 65ch; }
 .howto h2 { font-size: 24px; margin-top: 6px; }
@@ -387,6 +389,29 @@
 .gal-item figcaption { font-size: 12px; font-weight: 700; color: var(--paper-3); }
 .gal-item.locked { opacity: 0.55; }
 .gal-item.locked .gal-art { border-style: dashed; }
+.gal-art.gal-table { gap: 5px; }
+.gal-art.gal-table > svg { width: 14px; height: 14px; }
+.gal-swatch { display: inline-flex; border-radius: 6px; overflow: hidden; border: 2px solid var(--ink); }
+.gal-swatch i { width: 15px; height: 30px; }
+
+/* Tienda del jardín: monedero, estantería y la marca de lo comprado. */
+.coin-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 2px solid var(--ink); border-radius: 999px; background: var(--brass); color: var(--ink); font-weight: 800; }
+.coin-chip b { font-size: 16px; line-height: 1; }
+.zen-desk { display: flex; justify-content: center; }
+.shop-card h2 { margin: 0 0 8px; }
+.shop-note { margin: 0 0 8px; font-size: 13.5px; line-height: 1.4; color: var(--ink-2); }
+.shop-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1.5px dashed color-mix(in oklch, var(--ink), transparent 72%); }
+.shop-row:first-of-type { border-top: 0; padding-top: 0; }
+.shop-info { flex: 1; min-width: 0; }
+.shop-info strong { display: block; }
+.shop-info small { display: block; color: var(--ink-2); font-size: 12.5px; line-height: 1.35; }
+.price { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; white-space: nowrap; }
+.shop-row .btn { flex: none; }
+.shop-hand { display: flex; gap: 8px; justify-content: center; padding-top: 4px; }
+.shop-hand .hand-card { width: 72px; margin-left: 0; cursor: default; }
+.shop-hand .hand-card:hover, .shop-hand .hand-card:focus-visible { transform: none; }
+.face .shop-mark { position: absolute; right: 4px; bottom: 4px; z-index: 2; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 999px; background: var(--brass); color: var(--ink); box-shadow: 0 0 0 2px var(--ink); }
+.hand-card .face .shop-mark { width: 15px; height: 15px; }
 /* Logros: lista de hitos; los bloqueados se ven apagados. */
 .ach-list { display: grid; gap: 10px; width: min(480px, 100%); }
 .ach-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 2px solid var(--ink); border-radius: var(--r-md); background: var(--paper); background-image: var(--grain); color: var(--ink-2); }

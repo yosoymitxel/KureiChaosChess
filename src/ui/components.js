@@ -78,7 +78,7 @@ const RARITY_LABEL = { common: 'común', rare: 'rara', epic: 'épica' };
 
 // One card anatomy for every card in the game (rewards, hand, previews):
 // frame colour = kind, gem = rarity, title plate, art window, type line, rules box.
-export function CardFace({ card, mini = false }) {
+export function CardFace({ card, mini = false, shop = false }) {
   const kind = card.kind || 'boon', rarity = card.rarity || 'common';
   return html`<div class=${`face kind-${kind} ${rarity}`}>
     <span class=${'gem ' + rarity} title=${RARITY_LABEL[rarity]}></span>
@@ -86,6 +86,7 @@ export function CardFace({ card, mini = false }) {
     <div class="art"><${Icon} name=${card.icon} size=${mini ? 34 : 72} /></div>
     <div class="type">${KIND_LABEL[kind]} · ${RARITY_LABEL[rarity]}${card.stack > 1 ? ` · ×${card.stack}` : ''}</div>
     ${!mini && html`<p class="desc">${card.desc}</p>`}
+    ${shop && html`<i class="shop-mark" title="Comprada en la tienda del jardín"><${Icon} name="coin" size=${mini ? 12 : 18} /></i>`}
   </div>`;
 }
 

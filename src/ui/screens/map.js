@@ -4,10 +4,11 @@ import { Icon, PieceIcon } from '../icons.js';
 import { Topbar } from '../components.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { isAvailable } from '../../game/run.js';
+import { loadShop } from '../../game/shop.js';
 
 const ROW = 110, PAD = 70;
 
-export function MapScreen({ run, onBack, onSelect }) {
+export function MapScreen({ run, onBack, onSelect, onShop }) {
   const { nodes, floors, connections } = run.map;
   const wrap = useRef(null), pawn = useRef(null);
   const H = PAD * 2 + (floors - 1) * ROW;
@@ -31,7 +32,9 @@ export function MapScreen({ run, onBack, onSelect }) {
   };
 
   return html`<div class="screen map">
-    <${Topbar} title="Elige tu ruta" sub=${`Piso ${run.currentFloor + 1} de ${floors}`} onBack=${onBack} backLabel="Menú" />
+    <${Topbar} title="Elige tu ruta" sub=${`Piso ${run.currentFloor + 1} de ${floors}`} onBack=${onBack} backLabel="Menú">
+      <button class="btn ghost sm" onClick=${onShop} title="Tienda del jardín"><${Icon} name="coin" size=${16} />${loadShop().coins}</button>
+    </${Topbar}>
     <div class="map-scroll" ref=${wrap}>
       <div class="map-sheet" style=${{ height: H + 'px' }}>
         <svg class="trails" viewBox=${`0 0 100 ${H}`} preserveAspectRatio="none">

@@ -2,6 +2,7 @@
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { TurnBanner, CardFace } from '../components.js';
+import { isShopCard } from '../../game/shop.js';
 import { BoardView } from '../../view/board-view.js';
 import { artOf } from '../../view/piece-art.js';
 import { Match, botChooseMove } from '../../game/match.js';
@@ -430,7 +431,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       ${hand.length > 0 && html`<div class=${'hand' + (hud?.canCard ? '' : ' spent')} role="group" aria-label="Mano de cartas tácticas">
         ${hand.map((id, i) => html`<button key=${id + i} class=${'hand-card' + (cardSel === i ? ' on' : '')} style=${{ '--rot': (i - (hand.length - 1) / 2) * 7 + 'deg', '--drop': Math.abs(i - (hand.length - 1) / 2) * 7 + 'px' }}
             disabled=${!hud?.canCard || !!placing} aria-pressed=${cardSel === i} title=${CARDS[id].desc} onClick=${() => ref.current.pickCard(i)}>
-          <${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini />
+          <${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini shop=${isShopCard(run, i)} />
         </button>`)}
         <p class=${'hand-hint' + (cardTip ? ' tip' : '')} aria-live="polite">${placing ? 'Organizar: acomoda tus piezas y pulsa Comenzar' : cardSel != null ? cardTip || CARDS[hand[cardSel]]?.aim || '' : hud?.canCard ? 'Una carta por turno' : 'Ya jugaste carta este turno'}</p>
       </div>`}

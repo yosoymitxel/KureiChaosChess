@@ -10,6 +10,7 @@ import { setFullscreen } from './fullscreen.js';
 import { Connect4Screen } from './screens/connect4.js';
 import { MinisScreen } from './screens/minis.js';
 import { ZenScreen } from './screens/zen.js';
+import { ShopScreen } from './screens/shop.js';
 import { GalleryScreen } from './screens/gallery.js';
 import { AchievementsScreen } from './screens/achievements.js';
 import { BomberScreen } from './screens/bomber.js';
@@ -23,6 +24,7 @@ import { QueensScreen } from './screens/queens.js';
 import { MarcianosScreen } from './screens/marcianos.js';
 import { MODIFIERS } from '../data/modifiers.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss } from '../game/run.js';
+import { addToHand, claimTheme, consumeCard } from '../game/shop.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
 import { award } from '../game/achievements.js';
 import { applyTheme } from '../data/themes.js';
@@ -40,8 +42,6 @@ const BAG_CARDS = [
   { id: 'fury', name: 'Furia menor', desc: '+1 movimiento permanente (máx. 3).', icon: 'boot', rarity: 'rare', kind: 'boon' },
   { id: 'extra_rook', name: 'Torre mercenaria', desc: '+1 torre en tu última fila en el próximo nodo.', icon: 'rook', kind: 'boon' },
 ];
-// The hand holds HAND_LIMIT cards; a new card pushes out the oldest one.
-const addCards = (r, ids) => ({ ...r, cards: [...(r.cards || []), ...ids].slice(-HAND_LIMIT) });
 const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3);
 // A won minigame pays a mutation or a piece the army already knows.
 const MINI_PRIZES = BAG_CARDS.filter((c) => ['mut', 'extra_rook', 'extra_pawn'].includes(c.id));
@@ -58,6 +58,7 @@ export function App() {
   const [howTo, setHowTo] = useState(false);
   const [freeMini, setFreeMini] = useState(null); // minigame played from the menu, outside a run
   const [freeKey, setFreeKey] = useState(0);
+  const [shopFrom, setShopFrom] = useState('zen'); // a dónde vuelve la tienda
   const [settings, setSettings] = useState(loadSettings);
   const curtain = useRef(null);
   const busy = useRef(false);
@@ -69,6 +70,8 @@ export function App() {
   }), []);
 
   useEffect(() => { applyTheme(settings.theme); saveSettings(settings); }, [settings]);
+  // La mesa ya puesta al estrenar la tienda sigue siendo del jugador.
+  useEffect(() => { claimTheme(settings.theme); }, []);
 
   // Curtain wipe between screens.
   const goTo = useCallback(async (next) => {
@@ -81,6 +84,7 @@ export function App() {
   }, []);
 
   const newRun = () => { const r = createRun(); setRun(r); setNode(r.map.nodes[0]); setSeats(null); goTo('setup'); };
+  const openShop = (from) => () => { setShopFrom(from); goTo('shop'); };
 
   const enterNode = (n) => {
     setNode(n);
@@ -140,7 +144,7 @@ export function App() {
 
   const onReward = (card) => {
     if (reward.kind === 'mutation') { setRun((r) => ({ ...r, mutations: [...r.mutations, card.id] })); return goTo('map'); }
-    if (reward.kind === 'tactic') { setRun((r) => addCards(r, [card.id])); return goTo('map'); }
+    if (reward.kind === 'tactic') { setRun((r) => addToHand(r, [card.id])); return goTo('map'); }
     if (reward.kind === 'rest') {
       if (card.id === 'extra_mut') { const next = completeNode(run, node); setRun(next); return mutationReward(next); }
       setRun((r) => completeNode(r, node, { bonuses: { ...r.bonuses, [card.id === 'promote_one' ? 'promoteOne' : 'furyNow']: true } }));
@@ -153,7 +157,7 @@ export function App() {
       if (card.id === 'extra_rook') bonuses.extraRook = true;
       if (card.id === 'fury' && mutations.filter((m) => m === 'fury').length < 3) mutations = [...mutations, 'fury'];
       if (card.id === 'mut') { const [m] = pickMutationChoices(Date.now(), mutations); if (m) mutations = [...mutations, m]; }
-      const withCards = card.id === 'deck' ? addCards(r, pickCardChoices(Date.now(), 2)) : r;
+      const withCards = card.id === 'deck' ? addToHand(r, pickCardChoices(Date.now(), 2)) : r;
       return completeNode(withCards, node, { mutations, bonuses });
     });
     goTo('map');
@@ -172,7 +176,7 @@ export function App() {
   return html`
     ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${newRun} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onGallery=${() => goTo('gallery')} onAchievements=${() => goTo('achievements')} settings=${settings} setSettings=${setSettings} />`}
     ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
-    ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} />`}
+    ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} onShop=${openShop('map')} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} defaultCount=${seats?.length} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame} />`}
     ${screen === 'reward' && reward && html`<${CardPick} key=${reward.kind + reward.cards.map((c) => c.id).join()}
       title=${REWARD_TEXT[reward.kind][0]} subtitle=${REWARD_TEXT[reward.kind][1]}
@@ -180,13 +184,14 @@ export function App() {
     ${screen === 'game' && node && seats && run && html`<${GameScreen} key=${node.id + '-' + gameKey}
       node=${node} run=${run} seats=${seats} settings=${settings} setSettings=${setSettings}
       onExit=${() => goTo('map')} onAbandon=${() => { setRun(null); goTo('menu'); }}
-      onUseCard=${(i) => setRun((r) => ({ ...r, cards: r.cards.filter((_, j) => j !== i) }))}
+      onUseCard=${(i) => setRun((r) => consumeCard(r, i))}
       onWin=${onWin} onRestart=${() => setGameKey((k) => k + 1)} onHowTo=${() => setHowTo(true)} />`}
     ${screen === 'mini' && Mini && html`<${Mini} key=${node.id} sub=${'Piso ' + (node.floor + 1) + ' · minijuego'} onBack=${() => goTo('map')} onEnd=${onMiniEnd} />`}
     ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
     ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub="Partida libre" onBack=${() => goTo('minis')}
       endLabel="Otra partida" onEnd=${() => setFreeKey((k) => k + 1)} />`}
-    ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} />`}
+    ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
+    ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => goTo(shopFrom)} />`}
     ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} />`}
     ${screen === 'achievements' && html`<${AchievementsScreen} onBack=${() => goTo('menu')} />`}
     ${howTo && html`<${HowToOverlay} onClose=${() => setHowTo(false)} />`}
