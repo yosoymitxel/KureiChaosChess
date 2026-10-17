@@ -24,7 +24,7 @@ import { QueensScreen } from './screens/queens.js';
 import { MarcianosScreen } from './screens/marcianos.js';
 import { MODIFIERS } from '../data/modifiers.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss } from '../game/run.js';
-import { addToHand, claimTheme, consumeCard } from '../game/shop.js';
+import { COINS_PER_NODE, addCoins, addToHand, claimTheme, consumeCard } from '../game/shop.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
 import { award } from '../game/achievements.js';
 import { applyTheme } from '../data/themes.js';
@@ -110,27 +110,30 @@ export function App() {
     }
   }, [screen, gameKey]);
 
-  const mutationReward = (r) => {
+  const mutationReward = (r, coins = 0) => {
     const choices = pickMutationChoices(Date.now(), r.mutations);
     if (!choices.length) return goTo('map');
-    setReward({ kind: 'mutation', cards: choices.map((id) => ({ ...MUTATIONS[id], kind: 'mutation', stack: r.mutations.filter((x) => x === id).length + 1 })) });
+    setReward({ kind: 'mutation', coins, cards: choices.map((id) => ({ ...MUTATIONS[id], kind: 'mutation', stack: r.mutations.filter((x) => x === id).length + 1 })) });
     goTo('reward');
   };
-  const cardReward = () => {
-    setReward({ kind: 'tactic', cards: pickCardChoices(Date.now()).map((id) => ({ ...CARDS[id], kind: 'tactic' })) });
+  const cardReward = (coins = 0) => {
+    setReward({ kind: 'tactic', coins, cards: pickCardChoices(Date.now()).map((id) => ({ ...CARDS[id], kind: 'tactic' })) });
     goTo('reward');
   };
 
-  // Slay the Spire rhythm: normal fights give a tactic card, elites give a mutation.
+  // Slay the Spire rhythm: normal fights give a tactic card, elites give a mutation; every win pays coins.
   const onWin = (bossId) => {
     award('first_win');
+    const kind = node.isBoss ? 'boss' : node.isMiniBoss ? 'miniBoss' : node.modifier === 'elite' ? 'elite' : 'normal';
+    const coins = COINS_PER_NODE[kind];
+    addCoins(coins);
     if (node.isBoss || node.isMiniBoss) unlockBoss(bossId);
     if (node.isBoss) { award('boss_slain'); clearRun(); setRunState(null); return newRun(); }
-    if (node.isMiniBoss) { award('boss_slain'); const next = completeNode(run, node); setRun(next); return mutationReward(next); }
+    if (node.isMiniBoss) { award('boss_slain'); const next = completeNode(run, node); setRun(next); return mutationReward(next, coins); }
     const next = completeNode(run, node);
     setRun(next);
-    if (node.modifier === 'elite') return mutationReward(next);
-    cardReward();
+    if (node.modifier === 'elite') return mutationReward(next, coins);
+    cardReward(coins);
   };
 
   // Minigame inside the run: a win unlocks it and pays a prize; a loss just spends the node.
@@ -179,7 +182,8 @@ export function App() {
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} onShop=${openShop('map')} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} defaultCount=${seats?.length} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame} />`}
     ${screen === 'reward' && reward && html`<${CardPick} key=${reward.kind + reward.cards.map((c) => c.id).join()}
-      title=${REWARD_TEXT[reward.kind][0]} subtitle=${REWARD_TEXT[reward.kind][1]}
+      title=${REWARD_TEXT[reward.kind][0]}
+      subtitle=${REWARD_TEXT[reward.kind][1] + (reward.coins ? ` La victoria paga ${reward.coins} monedas del jardín.` : '')}
       cards=${reward.cards} onConfirm=${onReward} />`}
     ${screen === 'game' && node && seats && run && html`<${GameScreen} key=${node.id + '-' + gameKey}
       node=${node} run=${run} seats=${seats} settings=${settings} setSettings=${setSettings}

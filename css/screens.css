@@ -352,14 +352,32 @@
 .minis-list { display: grid; gap: 12px; width: min(420px, 100%); }
 /* La ficha cuadrada del minijuego, versión lista: misma forma y verde que el nodo del mapa. */
 .mini-chip { display: grid; place-items: center; flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; background: var(--side-wild); color: var(--ink); --icon-cut: var(--side-wild); border: 2px solid var(--ink); box-shadow: 0 2px 0 color-mix(in oklch, var(--side-wild), black 30%); }
-/* Jardín Zen: el cantero es el mismo tablero de cartón de los minijuegos, con una sola tierra teñida;
+/* Jardín Zen: cantero 2.5D sobre la mesa —marco de madera, tierra, pasto, estanque y piedras—;
    las macetas se dibujan y el aro de latón marca la flor lista (sin pulsos). */
-.bm.zn-tray { --cell: max(24px, min(calc((100cqw - 10px) / 3), calc((100cqh - 10px) / 3), 112px)); }
-.bm-cell.zen-pot, .bm-cell.zen-pond { background-color: color-mix(in oklch, var(--tile-b), var(--side-wild) 26%); }
-.zen-pond { cursor: default; }
+.zn-yard { position: relative; display: grid; place-items: center; perspective: 900px; perspective-origin: 50% 30%; }
+.bm.zn-tray {
+  --n: 4;
+  --cell: max(18px, min(calc((100cqw - 26px) / 4), calc((100cqh - 26px) / 4), 92px));
+  transform: translateY(6%) rotateX(15deg);
+  border-color: color-mix(in oklch, var(--tile-side), black 38%);
+  box-shadow:
+    0 0 0 2px var(--ink),
+    0 0 0 7px color-mix(in oklch, var(--tile-side), black 8%),
+    0 13px 0 7px color-mix(in oklch, var(--tile-side), black 55%),
+    0 26px 30px oklch(0 0 0 / 0.5);
+}
+.bm-cell.zn-soil { background-color: color-mix(in oklch, var(--tile-side), black 6%); }
+.bm-cell.zn-lawn { background-color: color-mix(in oklch, var(--side-wild), var(--tile-side) 42%); cursor: default; }
+.bm-cell.zn-step { background-color: color-mix(in oklch, var(--tile-side), black 6%); cursor: default; }
+.zn-step::before { content: ''; position: absolute; inset: 12%; border-radius: 42%; background: var(--paper-3); box-shadow: inset 0 0 0 2px var(--ink), inset 0 -4px 0 oklch(0 0 0 / 0.2); }
+.zn-tuft { width: 64%; height: 64%; }
+.zn-blade { fill: none; stroke: color-mix(in oklch, var(--side-wild), black 32%); stroke-width: 1.7; stroke-linecap: round; }
+.bm-cell.zen-pond { grid-column: span 2; grid-row: span 2; width: auto; height: auto; cursor: default; }
+.zen-pot:hover { filter: brightness(1.06); }
 .zen-pot.ready { box-shadow: inset 0 0 0 3px var(--brass); }
-.zn-plant { width: 84%; height: 84%; }
-.zn-pondart { width: 90%; height: 90%; }
+.zn-plant { width: 84%; height: 84%; filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.35)); }
+.zn-pondart { width: 96%; height: 96%; filter: drop-shadow(0 4px 3px oklch(0.15 0.03 55 / 0.3)); }
+.zn-reed { --zn: color-mix(in oklch, var(--side-wild), black 10%); }
 .zn-potb { fill: var(--paper-2); stroke: var(--ink); stroke-width: .9; }
 .zn-soil { fill: var(--tile-side); stroke: var(--ink); stroke-width: 1; }
 .zn-stem { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; }
@@ -398,16 +416,18 @@
 .coin-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 2px solid var(--ink); border-radius: 999px; background: var(--brass); color: var(--ink); font-weight: 800; }
 .coin-chip b { font-size: 16px; line-height: 1; }
 .zen-desk { display: flex; justify-content: center; }
+.shop-card { width: min(480px, 100%); padding: 18px 20px; }
 .shop-card h2 { margin: 0 0 8px; }
 .shop-note { margin: 0 0 8px; font-size: 13.5px; line-height: 1.4; color: var(--ink-2); }
 .shop-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1.5px dashed color-mix(in oklch, var(--ink), transparent 72%); }
 .shop-row:first-of-type { border-top: 0; padding-top: 0; }
+.shop-row:last-of-type { padding-bottom: 0; }
 .shop-info { flex: 1; min-width: 0; }
 .shop-info strong { display: block; }
 .shop-info small { display: block; color: var(--ink-2); font-size: 12.5px; line-height: 1.35; }
 .price { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; white-space: nowrap; }
 .shop-row .btn { flex: none; }
-.shop-hand { display: flex; gap: 8px; justify-content: center; padding-top: 4px; }
+.shop-hand { display: flex; gap: 8px; justify-content: center; padding-top: 10px; }
 .shop-hand .hand-card { width: 72px; margin-left: 0; cursor: default; }
 .shop-hand .hand-card:hover, .shop-hand .hand-card:focus-visible { transform: none; }
 .face .shop-mark { position: absolute; right: 4px; bottom: 4px; z-index: 2; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 999px; background: var(--brass); color: var(--ink); box-shadow: 0 0 0 2px var(--ink); }

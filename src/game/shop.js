@@ -7,6 +7,8 @@ const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localSt
 
 export const COINS_PER_FLOWER = 10;
 export const CARD_PRICE = { common: 40, rare: 70 };
+// Lo que paga ganar una partida en la travesía; los nodos duros pagan más.
+export const COINS_PER_NODE = { normal: 15, elite: 25, miniBoss: 40, boss: 80 };
 export const THEME_SHOP = { pergamino: 160, corinto: 160, noche: 160 };
 export const PENDING_LIMIT = 5;
 

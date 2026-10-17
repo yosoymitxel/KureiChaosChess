@@ -4,7 +4,7 @@ import { Topbar, useEnter, CardFace } from '../components.js';
 import { Icon } from '../icons.js';
 import { CARDS, HAND_LIMIT } from '../../game/cards.js';
 import { THEMES } from '../../data/themes.js';
-import { CARD_PRICE, COINS_PER_FLOWER, PENDING_LIMIT, THEME_SHOP, addPending, addToHand, charge, grantTheme, isShopCard, loadShop, themeOwned } from '../../game/shop.js';
+import { CARD_PRICE, COINS_PER_FLOWER, COINS_PER_NODE, PENDING_LIMIT, THEME_SHOP, addPending, addToHand, charge, grantTheme, isShopCard, loadShop, themeOwned } from '../../game/shop.js';
 
 const CARD_LIST = Object.values(CARDS);
 
@@ -35,7 +35,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
       <span class="coin-chip" title="Monedas del jardín"><${Icon} name="coin" size=${16} /><b>${shop.coins}</b></span>
     </${Topbar}>
     <div class="mini-body">
-      <p class="mini-help">Cada flor del Jardín Zen paga ${COINS_PER_FLOWER} monedas. Aquí se cambian por cartas tácticas y por mesas que aún no son tuyas.</p>
+      <p class="mini-help">Cada flor del Jardín Zen paga ${COINS_PER_FLOWER} monedas y cada victoria de la travesía deja de ${COINS_PER_NODE.normal} a ${COINS_PER_NODE.boss}. Aquí se cambian por cartas y mesas.</p>
 
       <section class="panel shop-card" data-enter>
         <h2>${run ? 'Tu mano en la run' : 'Para la próxima run'}</h2>
