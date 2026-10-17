@@ -1,16 +1,25 @@
-// Última resistencia: colocas tu defensa con un presupuesto y aguantas 3 oleadas sin añadir nada.
+// Última resistencia: colocas tu defensa con un presupuesto y aguantas las oleadas sin añadir nada.
 // Usa el mismo avance que Yo, Zombi con los papeles cambiados.
 import { makePiece } from './generate.js';
 import { ROWS, COLS, COST, advance, at } from './izombie.js';
 
 export { ROWS, COLS, at };
-export const BUDGET = 15, WAVES = 3, PRICES = { pawn: 1, knight: 3, bishop: 3, rook: 5 };
-const WAVE = [['pawn', 'pawn', 'knight'], ['pawn', 'pawn', 'bishop', 'knight'], ['pawn', 'rook', 'knight', 'bishop', 'pawn']];
+// Presupuesto y cantidad de oleadas por nivel: Normal es el reto de siempre.
+export const DIFFS = {
+  facil: { name: 'Fácil', budget: 18, waves: 2 },
+  normal: { name: 'Normal', budget: 15, waves: 3 },
+  dificil: { name: 'Difícil', budget: 12, waves: 4 },
+};
+export const PRICES = { pawn: 1, knight: 3, bishop: 3, rook: 5 };
+const WAVE = [['pawn', 'pawn', 'knight'], ['pawn', 'pawn', 'bishop', 'knight'], ['pawn', 'rook', 'knight', 'bishop', 'pawn'], ['pawn', 'rook', 'knight', 'bishop', 'pawn', 'rook']];
 
-export const newStand = () => ({
-  board: { rows: ROWS, cols: COLS, holes: new Set(), terrain: new Map(), portals: new Map() },
-  pieces: [], budget: BUDGET, coins: Infinity, wave: 0, phase: 'setup', over: null, falls: [],
-});
+export const newStand = (key = 'normal') => {
+  const diff = DIFFS[key] || DIFFS.normal;
+  return {
+    board: { rows: ROWS, cols: COLS, holes: new Set(), terrain: new Map(), portals: new Map() },
+    pieces: [], budget: diff.budget, diff, coins: Infinity, wave: 0, phase: 'setup', over: null, falls: [],
+  };
+};
 
 export const canPlace = (s, type, r, c) => s.phase === 'setup' && r >= ROWS - 3 && !at(s, r, c) && PRICES[type] <= s.budget;
 
@@ -25,7 +34,7 @@ export function step(s, rng = Math.random) {
   if (s.over) return;
   s.phase = 'fight';
   if (!s.pieces.some((p) => p.color === 'dark')) {
-    if (s.wave >= WAVES) { s.over = 'win'; return; }
+    if (s.wave >= s.diff.waves) { s.over = 'win'; return; }
     const cols = [...Array(COLS).keys()].sort(() => rng() - 0.5);
     WAVE[s.wave].forEach((t, i) => s.pieces.push(makePiece(t, 'dark', i < COLS ? 0 : 1, cols[i % COLS])));
     s.wave++;
