@@ -1,13 +1,13 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd } from '../components.js';
+import { Topbar, MiniEnd, MiniDiff } from '../components.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { MiniGrid } from './mini-grid.js';
 import { hopPiece, popPiece, snapPieces, pieceDiffs, fallPiece } from '../hop.js';
-import { ROWS, COLS, COST, newZombie, at, buy, canBuy, advance } from '../../game/izombie.js';
+import { ROWS, COLS, COST, DIFFS, newZombie, at, buy, canBuy, advance } from '../../game/izombie.js';
 
-export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
-  const [s] = useState(newZombie);
+export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
+  const [s] = useState(() => newZombie(diff || settings.miniDiff?.izombie));
   const [pick, setPick] = useState('pawn');
   const [, tick] = useState(0);
   const gridRef = useRef(null);
@@ -49,6 +49,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
       <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">La defensa marfil no se mueve: tras cada avance captura toda pieza que tenga a tiro.</p></details>
       <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${!!s.over} label="Tablero de Yo, Zombi" gridRef=${gridRef} boardClass="bm-slab iz"
         onTap=${(r, c) => r === 0 && act(() => buy(s, pick, c))} />
+      <${MiniDiff} mini="izombie" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
       ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Una pieza tuya cruzó la defensa.' : 'Te quedaste sin piezas y sin monedas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
         : html`<div class="bm-actions" role="group" aria-label="Pieza a colocar">
           ${Object.entries(COST).map(([t, cost]) => html`<button class=${'btn sm buy' + (pick === t ? ' on' : ' ghost')} aria-pressed=${pick === t} aria-label=${`${PIECE_NAMES[t]}: ${cost} moneda${cost === 1 ? '' : 's'}`}

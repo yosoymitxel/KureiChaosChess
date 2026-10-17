@@ -3,18 +3,24 @@
 import { legalMoves } from './rules.js';
 import { makePiece } from './generate.js';
 
-export const ROWS = 7, COLS = 5, BUDGET = 14;
+export const ROWS = 7, COLS = 5;
+// Presupuesto de compra: más monedas compran más ataque y la defensa fija se queda corta.
+export const DIFFS = {
+  facil: { name: 'Fácil', budget: 20 },
+  normal: { name: 'Normal', budget: 14 },
+  dificil: { name: 'Difícil', budget: 10 },
+};
 export const COST = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 8 };
 const DEFENSE = [
   ['rook', 6, 0], ['knight', 6, 1], ['king', 6, 2], ['bishop', 6, 3], ['rook', 6, 4],
   ['pawn', 5, 0], ['pawn', 5, 2], ['pawn', 5, 4], ['knight', 4, 3], ['bishop', 4, 1],
 ];
 
-export function newZombie() {
+export function newZombie(key = 'normal') {
   return {
     board: { rows: ROWS, cols: COLS, holes: new Set(), terrain: new Map(), portals: new Map() },
     pieces: DEFENSE.map(([t, r, c]) => makePiece(t, 'light', r, c, { royal: false })),
-    coins: BUDGET, over: null, falls: [],
+    coins: (DIFFS[key] || DIFFS.normal).budget, over: null, falls: [],
   };
 }
 
