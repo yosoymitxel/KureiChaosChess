@@ -91,7 +91,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
 
         <section class="panel shop-card shop-pane-mesas" data-enter>
           <h2>Mesas</h2>
-          <p class="shop-note">Tres mesas de la casa se venden aquí; la comprada queda puesta.</p>
+          <p class="shop-note">Cuatro mesas de la casa se venden aquí; la comprada queda puesta.</p>
           <div class="theme-grid">
             ${Object.keys(THEME_SHOP).map((id) => {
               const t = THEMES[id], owned = themeOwned(id), on = settings.theme === id;

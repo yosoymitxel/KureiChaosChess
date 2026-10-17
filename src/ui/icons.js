@@ -74,5 +74,5 @@ export function Icon({ name, size = 18 }) {
 }
 
 export function PieceIcon({ type, size = 28, side = 'dark' }) {
-  return html`<span class=${'piece-icon side-' + side} style=${{ width: size + 'px', height: size + 'px' }} dangerouslySetInnerHTML=${{ __html: pieceSVG(type, { fit: true }) }} />`;
+  return html`<span class=${'piece-icon side-' + side} style=${{ width: size + 'px', height: size + 'px' }} dangerouslySetInnerHTML=${{ __html: pieceSVG(type, { fit: true, paper: true }) }} />`;
 }

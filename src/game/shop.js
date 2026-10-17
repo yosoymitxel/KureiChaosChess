@@ -11,7 +11,7 @@ export const CARD_PRICE = { common: 40, rare: 70 };
 export const SEED_PRICE = 12;
 // Lo que paga ganar una partida en la travesía; los nodos duros pagan más.
 export const COINS_PER_NODE = { normal: 15, elite: 25, miniBoss: 40, boss: 80 };
-export const THEME_SHOP = { pergamino: 160, corinto: 160, noche: 160 };
+export const THEME_SHOP = { pergamino: 160, corinto: 160, noche: 160, pixelada: 160 };
 export const PENDING_LIMIT = 5;
 
 export function loadShop() {

@@ -162,3 +162,20 @@
 .fx-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
 .float-text { position: absolute; z-index: 4; pointer-events: none; translate: -50% -50%; font: 800 28px/1 var(--font); color: var(--paper); -webkit-text-stroke: 2px var(--ink); paint-order: stroke; }
 .table.lost .stage { filter: saturate(0.3) brightness(0.8); transition: filter 1s; }
+
+/* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorno, así que el SVG apila los
+   tres bandos y acá se muestra el que toca; el damero corto reemplaza fibra y vetas. */
+.px-l, .px-d, .px-w { image-rendering: pixelated; }
+.px-d, .px-w { display: none; }
+.side-dark .px-l, .side-wild .px-l { display: none; }
+.side-dark .px-d, .side-wild .px-w { display: inline; }
+[data-art="pixel"] .tile:not(.ice):not(.cracking) {
+  background-image: repeating-conic-gradient(oklch(0 0 0 / 0.06) 0% 25%, transparent 0% 50%);
+  background-size: 8px 8px;
+}
+[data-art="pixel"] body {
+  background-image:
+    repeating-conic-gradient(oklch(0 0 0 / 0.05) 0% 25%, transparent 0% 50%),
+    radial-gradient(120% 90% at 50% 20%, var(--table-2), var(--table));
+  background-size: 16px 16px, auto;
+}

@@ -54,10 +54,24 @@ export const THEMES = {
       'side-light': 'oklch(0.94 0.02 250)', 'side-dark': 'oklch(0.58 0.2 18)', 'side-wild': 'oklch(0.72 0.13 200)',
     },
   },
+  // La mesa del set píxel: la paleta sale del arte (art/pixelada.px.js) y el modo "pixel"
+  // dibuja las piezas con esos PNG en vez de los cuerpos vectoriales.
+  pixelada: {
+    id: 'pixelada', name: 'Pixelada',
+    swatch: ['oklch(0.275 0.031 304)', 'oklch(0.83 0.062 81.5)', 'oklch(0.559 0.119 298)', 'oklch(0.833 0.131 88)'],
+    vars: {
+      'table': 'oklch(0.275 0.031 304)', 'table-2': 'oklch(0.323 0.028 306)',
+      'tile-a': 'oklch(0.83 0.062 81.5)', 'tile-b': 'oklch(0.661 0.076 71.4)', 'tile-side': 'oklch(0.495 0.063 67.3)',
+      'side-light': 'oklch(0.956 0.028 88.8)', 'side-dark': 'oklch(0.559 0.119 298)', 'side-wild': 'oklch(0.748 0.106 170.8)',
+    },
+    art: 'pixel',
+  },
 };
 
 export function applyTheme(id) {
   const t = THEMES[id] || THEMES.walnut;
   const s = document.documentElement.style;
   for (const [k, v] of Object.entries(t.vars)) s.setProperty('--' + k, v);
+  // El modo de arte viaja con el tema ("pixel" viste las piezas con el set de pxl).
+  document.documentElement.dataset.art = t.art || '';
 }
