@@ -23,7 +23,7 @@ import { KnightScreen } from './screens/knight.js';
 import { QueensScreen } from './screens/queens.js';
 import { MarcianosScreen } from './screens/marcianos.js';
 import { MODIFIERS } from '../data/modifiers.js';
-import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss } from '../game/run.js';
+import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, floorTier } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, claimTheme, consumeCard } from '../game/shop.js';
 import { ZEN_NAMES, addZenSeeds, pickSeed } from '../game/zen.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
@@ -195,6 +195,7 @@ export function App() {
       onUseCard=${(i) => setRun((r) => consumeCard(r, i))}
       onWin=${onWin} onRestart=${() => setGameKey((k) => k + 1)} onHowTo=${() => setHowTo(true)} />`}
     ${screen === 'mini' && Mini && html`<${Mini} key=${node.id + '-' + miniKey} sub=${'Piso ' + (node.floor + 1) + ' · minijuego'} onBack=${() => goTo('map')} onEnd=${onMiniEnd}
+      diff=${floorTier(node.floor, run.map.floors)}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />`}
     ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
     ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub="Partida libre" onBack=${() => goTo('minis')}

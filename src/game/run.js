@@ -36,6 +36,13 @@ export function isAvailable(run, node) {
   return run.map.connections.some((cn) => cn.to === node.id && run.completed[cn.from]);
 }
 
+// El nivel del minijuego lo manda el piso: primer tercio de la torre fácil, el medio normal
+// y el último difícil. En la run no se elige; en partida libre sí.
+export const floorTier = (floor, floors) => {
+  const t = floors > 1 ? floor / (floors - 1) : 0;
+  return t < 1 / 3 ? 'facil' : t < 2 / 3 ? 'normal' : 'dificil';
+};
+
 // Minigames won at least once; they stay playable from the menu across runs.
 const MINIS_KEY = 'zugzwang.minis.v1';
 export const loadUnlocked = () => read(MINIS_KEY) || [];
