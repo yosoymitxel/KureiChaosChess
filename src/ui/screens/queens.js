@@ -1,12 +1,12 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd } from '../components.js';
+import { Topbar, MiniEnd, MiniDiff } from '../components.js';
 import { MiniGrid } from './mini-grid.js';
 import { popPiece } from '../hop.js';
-import { N, SECONDS, newQueens, toggle, clashing } from '../../game/queens.js';
+import { DIFFS, newQueens, toggle, clashing } from '../../game/queens.js';
 
-export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
-  const [s] = useState(newQueens);
-  const [time, setTime] = useState(SECONDS);
+export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
+  const [s] = useState(() => newQueens(diff || settings.miniDiff?.queens));
+  const [time, setTime] = useState(() => s.seconds);
   const [, redraw] = useState(0);
   const gridRef = useRef(null);
   const born = useRef(null);
@@ -14,7 +14,7 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
   useEffect(() => {
     const q = born.current;
     born.current = null;
-    if (q) popPiece(gridRef.current, gridRef.current?.children[q.r * N + q.c]?.querySelector('.bm-pc'));
+    if (q) popPiece(gridRef.current, gridRef.current?.children[q.r * s.n + q.c]?.querySelector('.bm-pc'));
   });
   const tap = (r, c) => {
     const had = s.queens.some((q) => q.r === r && q.c === c);
@@ -41,13 +41,14 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
     <${Topbar} title="Ocho reinas" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
       ${!s.over && html`<div class="mini-stats" aria-live="polite">
-        <span class="chip" aria-label=${`Reinas colocadas: ${s.queens.length} de ${N}`}><span class="dots">${Array.from({ length: N }, (_, i) => html`<i class=${i < s.queens.length ? '' : 'off'} />`)}</span></span>
+        <span class="chip" aria-label=${`Reinas colocadas: ${s.queens.length} de ${s.n}`}><span class="dots">${Array.from({ length: s.n }, (_, i) => html`<i class=${i < s.queens.length ? '' : 'off'} />`)}</span></span>
         <span class=${'chip' + (time <= 30 ? ' danger' : '')} aria-label=${`Quedan ${time} segundos`}><b>${time}</b> s</span>
       </div>`}
-      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Completa las ocho antes de que se acabe el tiempo.</p></details>
-      <${MiniGrid} rows=${N} cols=${N} cell=${cell} disabled=${!!s.over} label="Tablero de ocho reinas" gridRef=${gridRef} boardClass="bm-slab"
+      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Completa las ${s.n} antes de que se acabe el tiempo.</p></details>
+      <${MiniGrid} rows=${s.n} cols=${s.n} cell=${cell} disabled=${!!s.over} label=${`Tablero de ${s.n} reinas`} gridRef=${gridRef} boardClass="bm-slab"
         onTap=${tap} />
-      ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Ocho reinas conviviendo sin atacarse.' : `Se acabó el tiempo con ${s.queens.length} de ${N} reinas.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+      <${MiniDiff} mini="queens" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
+      ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `${s.n} reinas conviviendo sin atacarse.` : `Se acabó el tiempo con ${s.queens.length} de ${s.n} reinas.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
   </div>`;
 }
