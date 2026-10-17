@@ -177,7 +177,7 @@ export function App() {
   const FreeMini = MINI_SCREENS[freeMini];
 
   return html`
-    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${newRun} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onGallery=${() => goTo('gallery')} onAchievements=${() => goTo('achievements')} settings=${settings} setSettings=${setSettings} />`}
+    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${newRun} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => goTo('achievements')} settings=${settings} setSettings=${setSettings} />`}
     ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} onShop=${openShop('map')} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} defaultCount=${seats?.length} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame} />`}

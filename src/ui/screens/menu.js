@@ -6,10 +6,10 @@ import { makePiece } from '../../game/generate.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
 
 // Decorative diorama: a small board with a boss facing a few pieces, gently swaying.
-// Three more pieces, labelled above, turn into the extras: Jardín Zen, Galería and Logros.
-function Diorama({ onZen, onGallery, onAchievements }) {
+// Four more pieces, labelled above, turn into the extras: Jardín Zen, Tienda, Galería and Logros.
+function Diorama({ onZen, onShop, onGallery, onAchievements }) {
   const host = useRef(null);
-  const open = { 'x-zen': onZen, 'x-galeria': onGallery, 'x-logros': onAchievements };
+  const open = { 'x-zen': onZen, 'x-tienda': onShop, 'x-galeria': onGallery, 'x-logros': onAchievements };
   useEffect(() => {
     const v = new BoardView(host.current, { camera: 'epic' });
     const board = { rows: 6, cols: 6, holes: new Set(['2,0', '3,5', '2,5']) };
@@ -20,11 +20,12 @@ function Diorama({ onZen, onGallery, onAchievements }) {
     ];
     v.setBoard(board);
     v.setPieces(pieces);
-    // Extras: three jade pieces wear the boss label and open a screen when tapped. Listed far to
+    // Extras: four jade pieces wear the boss label and open a screen when tapped. Listed far to
     // near so the near one paints over the one behind; the host resolves the tap by data-pid.
     for (const [id, label, type, row, col] of [
       ['x-zen', 'Jardín Zen', 'pawn', 3, 4],
       ['x-logros', 'Logros', 'rook', 4, 3],
+      ['x-tienda', 'Tienda', 'knight', 4, 5],
       ['x-galeria', 'Galería', 'bishop', 5, 5],
     ]) {
       if (!open[id]) continue;
@@ -54,7 +55,7 @@ function Diorama({ onZen, onGallery, onAchievements }) {
   </div>`;
 }
 
-export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onMinis, onZen, onGallery, onAchievements, settings, setSettings }) {
+export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onMinis, onZen, onShop, onGallery, onAchievements, settings, setSettings }) {
   const ref = useRef(null);
   useEnter(ref);
   const full = useFullscreen();
@@ -62,7 +63,7 @@ export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onM
   // Starting from the menu is a tap, so it can enter fullscreen right away when the setting asks for it.
   const go = (fn) => () => { if (settings.fullscreen) setFullscreen(true); fn(); };
   return html`<div class="screen menu" ref=${ref}>
-    <${Diorama} onZen=${onZen && go(onZen)} onGallery=${onGallery && go(onGallery)} onAchievements=${onAchievements && go(onAchievements)} />
+    <${Diorama} onZen=${onZen && go(onZen)} onShop=${onShop && go(onShop)} onGallery=${onGallery && go(onGallery)} onAchievements=${onAchievements && go(onAchievements)} />
     <div class="menu-col">
       <div class="logo" data-enter>
         <h1>Zug<span>zwang</span></h1>
