@@ -57,6 +57,7 @@ favicon y los iconos troquelados de la interfaz.
 | Minijuegos con el vocabulario del tablero | Salto con charco, brote, golpe y derribo son la coreografía de la mesa (MOTION 3); el minijuego los reutiliza en vez de inventar copia propia. La derrota apaga el color de la mesa. |
 | Troquel por tipo de nodo en el mapa | La forma y el color dicen qué es el nodo antes de leer el título: redonda de papel = partida de ajedrez (élite en tinta y latón, jefe bermellón y grande), cuadrada verde (`--side-wild`) = minijuego, latón = descanso, cuero (`--paper-3`) = bolsa. La lista de Minijuegos repite la ficha cuadrada. |
 | Un glifo por minijuego | Varios minijuegos enseñaban el icono de un evento de batalla (bomber el derrumbe, bolos la prisa, mate la coronación, marcianos la calavera) y dos cosas distintas parecían la misma; ahora cada uno tiene silueta propia (bomba, bolo, diana, invasor). |
+| Minijefes en un piso de un solo nodo | Es la antesala del jefe: no hay ruta que la esquive, y el minijefe enseña con dos oficiales la estrella que el jefe final reparte entre todos. |
 | Viñeta roja mientras dura el jaque | Estado real y continuo; no parpadea. |
 | Centrado óptico | Los iconos se compensan con su desvío medido; las piezas se encuadran por su caja real cuando son icono; los textos grandes recortan el interlineado a la altura de mayúscula (`text-box`). Verificado midiendo el centro de cada icono, texto y figura contra su contenedor en todas las pantallas, en escritorio y móvil. |
 

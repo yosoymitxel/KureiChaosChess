@@ -10,10 +10,13 @@ const MOD_POOL = ['none', 'promote', 'promote', 'chaos', 'chaos', 'rush', 'rush'
 export function generateMap(seed) {
   const rng = mulberry32(seed);
   const floors = 5 + Math.floor(rng() * 11);
-  const layouts = Array.from({ length: floors }, (_, f) => (f === 0 || f === floors - 1 ? 1 : 1 + Math.floor(rng() * 3)));
+  // Minijefes: un solo nodo, sin hermanos. Se sortean antes de los layouts.
+  const miniBoss = new Set();
+  for (let f = 2; f < floors - 1; f++) if (rng() < 0.15) miniBoss.add(f);
+  const layouts = Array.from({ length: floors }, (_, f) => (f === 0 || f === floors - 1 || miniBoss.has(f) ? 1 : 1 + Math.floor(rng() * 3)));
   const nodes = [], connections = [];
   layouts.forEach((nc, f) => {
-    const isBoss = f === floors - 1, isFirst = f === 0, isMiniBoss = !isFirst && !isBoss && f > 1 && rng() < 0.15;
+    const isBoss = f === floors - 1, isFirst = f === 0, isMiniBoss = miniBoss.has(f);
     for (let c = 0; c < nc; c++) {
       const nodeSeed = Math.floor(rng() * 1e6);
       let modifier = isFirst ? 'none' : (isBoss || isMiniBoss) ? 'boss' : pickFrom(rng, MOD_POOL);
@@ -224,16 +227,18 @@ export function placePieces(board, { playerCount, isBoss, isMiniBoss, elite, see
   }
 
   if (isBoss || isMiniBoss) {
-    // Enemy officers learn borrowed moves…
+    // El rey oscuro deja su sitio al jefe multi-casilla.
+    placeBoss(pieces, board, BOSS_IDS[Math.floor(rng() * BOSS_IDS.length)]);
+    // Los oficiales que sobreviven aprenden movimientos prestados: el minijefe enseña la mecánica
+    // con dos de ellos, el jefe final la reparte entre todos.
     const extras = ['knight', 'bishop', 'rook', 'queen', 'king', 'camel', 'elephant'];
-    for (const p of pieces) {
-      if (p.color === 'light' || !(p.row < board.protectRows || p.type === 'guard' || p.type === 'advisor')) continue;
+    const candidates = pieces.filter((p) => p.color === 'dark' && !p.boss && (p.row < board.protectRows || p.type === 'guard' || p.type === 'advisor'));
+    const targets = isMiniBoss ? [...candidates].sort(() => rng() - 0.5).slice(0, 2) : candidates;
+    for (const p of targets) {
       const set = new Set();
       while (set.size < (rng() < 0.35 ? 2 : 1)) { const t = pickFrom(rng, extras); if (t !== p.type) set.add(t); }
       p.extraMoveTypes = [...set];
     }
-    // …and the dark king is replaced by a multi-cell boss.
-    placeBoss(pieces, board, BOSS_IDS[Math.floor(rng() * BOSS_IDS.length)]);
   }
 
   if (elite) protectElites(pieces);
