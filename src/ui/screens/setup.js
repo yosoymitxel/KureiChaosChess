@@ -26,6 +26,7 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run }) {
     <div class="setup-body">
       <section class="panel setup-card" data-enter>
         <div class="mod-card"><span class="mod-icon"><${Icon} name=${mod.icon} size=${24} /></span><div><h2>${mod.name}</h2><p>${mod.desc}</p></div></div>
+        ${node.isBoss && !run?.mutations?.length ? html`<p class="setup-warn"><${Icon} name="boss" size=${15} />Sin mutaciones, solo una de cada cuatro veces se derriba al coloso. Esta mesa pide tus mejores cartas.</p>` : ''}
       </section>
       ${run?.mutations?.length ? html`<section class="panel setup-card" data-enter>
         <h2>Mutaciones activas</h2>
