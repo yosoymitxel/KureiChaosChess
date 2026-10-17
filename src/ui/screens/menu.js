@@ -15,18 +15,18 @@ function Diorama({ onZen, onShop, onGallery, onAchievements }) {
     const board = { rows: 6, cols: 6, holes: new Set(['2,0', '3,5', '2,5']) };
     const pieces = [
       makePiece('king', 'dark', 0, 2, { boss: 'titan', h: 2, w: 2, hp: 3, maxHp: 3, name: 'Titán' }),
-      makePiece('knight', 'light', 4, 1), makePiece('queen', 'light', 5, 3), makePiece('pawn', 'light', 3, 2),
-      makePiece('rook', 'light', 5, 0), makePiece('bishop', 'light', 4, 4), makePiece('pawn', 'dark', 2, 3),
+      makePiece('knight', 'light', 4, 1), makePiece('queen', 'light', 4, 3), makePiece('pawn', 'light', 3, 2),
+      makePiece('rook', 'light', 5, 0), makePiece('pawn', 'dark', 2, 3),
     ];
     v.setBoard(board);
     v.setPieces(pieces);
     // Extras: four jade pieces wear the boss label and open a screen when tapped. Listed far to
     // near so the near one paints over the one behind; the host resolves the tap by data-pid.
     for (const [id, label, type, row, col] of [
-      ['x-zen', 'Jardín Zen', 'pawn', 3, 4],
-      ['x-logros', 'Logros', 'rook', 4, 3],
+      ['x-zen', 'Jardín Zen', 'pawn', 4, 4],
       ['x-tienda', 'Tienda', 'knight', 4, 5],
-      ['x-galeria', 'Galería', 'bishop', 5, 5],
+      ['x-logros', 'Logros', 'rook', 5, 3],
+      ['x-galeria', 'Galería', 'bishop', 5, 1],
     ]) {
       if (!open[id]) continue;
       const p = makePiece(type, 'wild', row, col, { id });
