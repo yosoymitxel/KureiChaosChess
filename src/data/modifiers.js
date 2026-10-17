@@ -23,8 +23,8 @@ export const MODIFIERS = {
   marcianos: { id: 'marcianos', name: 'Matamarcianos', desc: 'Minijuego: oleadas retro; dispara y aguanta tres oleadas con tres vidas. Premio: mutación o pieza.', icon: 'invader', mini: true },
 };
 
-// El minijefe reutiliza el modificador del jefe final: aquí se anuncia como lo que es y lleva su propio rombo, sin duplicar datos.
+// El minijefe reutiliza el modificador del jefe final: aquí se anuncia como lo que es y el mapa lo dibuja como rombo, sin duplicar datos.
 export const nodeModifier = (node) => {
   const mod = MODIFIERS[node.modifier];
-  return node.isMiniBoss ? { ...mod, name: 'Mini-jefe', desc: 'Un coloso menor con dos oficiales de movimientos prestados. Recompensa: mutación.', icon: 'diamond' } : mod;
+  return node.isMiniBoss ? { ...mod, name: 'Mini-jefe', desc: 'Un coloso menor con dos oficiales de movimientos prestados. Recompensa: mutación.' } : mod;
 };
