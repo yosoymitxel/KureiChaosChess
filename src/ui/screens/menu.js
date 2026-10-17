@@ -23,7 +23,7 @@ function Diorama({ onZen, onShop, onGallery, onAchievements }) {
     // Extras: four jade pieces wear the boss label and open a screen when tapped. Listed far to
     // near so the near one paints over the one behind; the host resolves the tap by data-pid.
     for (const [id, label, type, row, col] of [
-      ['x-zen', 'Jardín Zen', 'pawn', 4, 4],
+      ['x-zen', 'Jardín Zen', 'pawn', 3, 4],
       ['x-tienda', 'Tienda', 'knight', 4, 5],
       ['x-logros', 'Logros', 'rook', 5, 3],
       ['x-galeria', 'Galería', 'bishop', 5, 1],
