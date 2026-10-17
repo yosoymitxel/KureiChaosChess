@@ -342,12 +342,12 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         const moves = match.legal(d.selected);
         const anchor = anchorForCell(d.selected, hit.row, hit.col, moves);
         if (anchor) { doMove(d.selected, anchor); return; }
-        if (piece) return inspectPiece(piece);
         terrainInfo(hit.row, hit.col);
+        if (piece) return inspectPiece(piece);
         return clearSel();
       }
       if (!piece) { terrainInfo(hit.row, hit.col); return clearSel(); }
-      if (piece.color === me) select(piece); else inspectPiece(piece);
+      if (piece.color === me) select(piece); else { terrainInfo(hit.row, hit.col); inspectPiece(piece); }
     };
     const onDrop = (piece, hit) => {
       if (d.placing) {
