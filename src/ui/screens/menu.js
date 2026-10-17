@@ -4,10 +4,12 @@ import { useEnter, ConfirmButton } from '../components.js';
 import { BoardView } from '../../view/board-view.js';
 import { makePiece } from '../../game/generate.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
+import { loadAchievements } from '../../game/achievements.js';
 
 // Decorative diorama: a small board with a boss facing a few pieces, gently swaying.
 function Diorama({ onOpen }) {
   const host = useRef(null);
+  const unlocked = loadAchievements().length;
   useEffect(() => {
     const v = new BoardView(host.current, { camera: 'epic' });
     const board = { rows: 6, cols: 6, holes: new Set(['2,0', '3,5', '2,5']) };
@@ -24,7 +26,7 @@ function Diorama({ onOpen }) {
   return html`<div class="diorama-wrap">
     <div class="diorama" ref=${host} aria-label="Abrir extras" title="Abrir extras" role="button" tabindex="0"
       onClick=${onOpen} onKeyDown=${(e) => (e.key === 'Enter' || e.key === ' ') && onOpen()}></div>
-    <span class="diorama-tag">Extras</span>
+    <span class="diorama-tag">Extras${unlocked > 0 ? html` <b>${unlocked}</b>` : ''}</span>
   </div>`;
 }
 
