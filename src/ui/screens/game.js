@@ -18,9 +18,12 @@ import { Moments } from '../moments.js';
 
 const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
 
+// Nombre visible: el propio (jefes, colosos) o el de su tipo. Las piezas fortificadas no llevan name.
+const pieceName = (p) => p.name || PIECE_NAMES[p.type] || p.type;
+
 // One line on what a card does to this piece, counted from the preview.
 function cardEffect(card, piece, pv) {
-  const name = piece.name || PIECE_NAMES[piece.type];
+  const name = pieceName(piece);
   const gained = [...pv.cells].filter((k) => !pv.before.has(k)).length;
   const reach = gained ? ` · ${gained} casilla${gained > 1 ? 's' : ''} nueva${gained > 1 ? 's' : ''} (en azul)` : '';
   if (card.id === 'ascend') return `${name} → Reina${reach}`;
@@ -153,22 +156,38 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       d.view.showMoves(cells, new Set([...cells].filter((k) => caps.has(k))), danger);
       return moves;
     };
+    // Detalle de una pieza para el panel: separa lo que añadieron las mutaciones, las cartas o un
+    // jefe de lo básico del tipo, que era lo que quedaba confuso al caer dos mejoras en la misma.
+    const detailOf = (p, count, threat) => {
+      const guarded = immune(p, match.pieces);
+      const escort = p.escort && match.pieces.find((o) => o.id === p.escort);
+      const mut = [];
+      const cards = [];
+      for (const t of p.extraMoveTypes || []) {
+        if (p.mutationFrom?.[t]) mut.push(p.mutationFrom[t]);
+        else cards.push('mount');
+      }
+      if (p.canCrown) mut.push('crown');
+      if (p.cannonHops) mut.push('cannonRange');
+      if (p.colossus) cards.push('colossus');
+      else if ((p.maxHp || 1) > 1 && !p.boss) cards.push('fortify');
+      if (p.ascended) cards.push('ascend');
+      return {
+        type: p.type, side: p.color, name: pieceName(p), color: SIDE_NAME[p.color], moves: count, threat,
+        boss: p.boss && BOSSES[p.boss].desc,
+        guard: guarded && (p.trait === 'last' ? 'Solo cae cuando sea la última pieza de su bando.' : `Protegida: no cae mientras viva su escolta (${(escort ? pieceName(escort) : 'pieza').toLowerCase()}).`),
+        mut: [...new Set(mut)],
+        cards: [...new Set(cards)],
+        copied: p.moves && !p.colossus ? p.moves.map((t) => MOVE_NAMES[t] || t) : [],
+      };
+    };
     const select = (p) => {
-      setInspect(null);
       d.selected = p; d.view.select(p);
-      show(p, false);
+      setInspect(detailOf(p, show(p, false).length, false));
     };
     const inspectPiece = (p) => {
       d.selected = null; d.view.select(null);
-      const moves = show(p, true);
-      const guarded = immune(p, match.pieces);
-      const escort = p.escort && match.pieces.find((o) => o.id === p.escort);
-      setInspect({
-        type: p.type, side: p.color, name: p.name || PIECE_NAMES[p.type], color: SIDE_NAME[p.color], moves: moves.length,
-        extra: (p.moves || p.extraMoveTypes || []).map((t) => ({ name: MOVE_NAMES[t] || t, mut: (p.mutationExtras || []).includes(t) })),
-        boss: p.boss && BOSSES[p.boss].desc,
-        guard: guarded && (p.trait === 'last' ? 'Solo cae cuando sea la última pieza de su bando.' : `Protegida: no cae mientras viva su escolta (${PIECE_NAMES[escort.type].toLowerCase()}).`),
-      });
+      setInspect(detailOf(p, show(p, true).length, true));
     };
 
     const finish = async () => {
@@ -186,9 +205,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       d.busy = true;
       clearSel();
       const tag = match.player.kind === 'bot' ? '◆ ' : '';
-      const nm = piece.boss ? piece.name : PIECE_NAMES[piece.type];
-      if (res.bounced) addLog(`${tag}${nm} golpea a ${res.victims[0].piece.name} (${res.victims[0].piece.hp} ${res.victims[0].piece.hp === 1 ? "vida" : "vidas"})`);
-      else if (res.victims.length) addLog(`${tag}${nm} captura ${res.victims.map((v) => v.piece.boss ? v.piece.name : PIECE_NAMES[v.piece.type].toLowerCase()).join(', ')}`);
+      const nm = pieceName(piece);
+      if (res.bounced) addLog(`${tag}${nm} golpea a ${pieceName(res.victims[0].piece)} (${res.victims[0].piece.hp} ${res.victims[0].piece.hp === 1 ? "vida" : "vidas"})`);
+      else if (res.victims.length) addLog(`${tag}${nm} captura ${res.victims.map((v) => (v.piece.boss ? v.piece.name : pieceName(v.piece).toLowerCase())).join(', ')}`);
       else addLog(`${tag}${nm} mueve`);
       if (res.promoted) addLog(`${tag}¡Coronación!`);
       await d.view.playMove(res);
@@ -460,15 +479,17 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       <div class="chips">
         ${hud?.threats > 0 && html`<span class="chip danger"><${Icon} name="warn" size=${12} /> ${hud.threats} en peligro</span>`}
         ${node.modifier === 'chaos' && hud && html`<span class="chip"><${Icon} name="collapse" size=${12} /> derrumbe en ${hud.chaosIn}</span>`}
-        ${muts.map(([id, n]) => html`<span class="chip mut" title=${MUTATIONS[id]?.desc}>${MUTATIONS[id]?.name}${n > 1 ? ' ×' + n : ''}</span>`)}
+        ${muts.map(([id, n]) => html`<span class="chip mut" title=${MUTATIONS[id]?.desc}><${Icon} name=${MUTATIONS[id]?.icon} size=${12} />${MUTATIONS[id]?.name}${n > 1 ? ' ×' + n : ''}</span>`)}
       </div>
-      ${inspect && html`<section class="inspector">
+      ${inspect && html`<section class=${'inspector' + (inspect.threat ? ' threat' : '')}>
         <${PieceIcon} type=${inspect.type} side=${inspect.side} size=${44} />
         <div>
           <strong>${inspect.name} <small>${inspect.color}</small></strong>
           <p>${inspect.boss || `Alcanza ${inspect.moves} casilla${inspect.moves === 1 ? '' : 's'}`}</p>
           ${inspect.guard && html`<p class="guard-note"><${Icon} name="lock" size=${13} /> ${inspect.guard}</p>`}
-          <div class="tags">${inspect.extra.map((t) => html`<span class=${'tag' + (t.mut ? ' mut' : '')}>${t.name}</span>`)}</div>
+          ${inspect.mut.length > 0 && html`<div class="insp-row"><span class="insp-key">Mutación</span><span class="tags">${inspect.mut.map((id) => html`<span class="tag mut" title=${MUTATIONS[id]?.desc}><${Icon} name=${MUTATIONS[id]?.icon} size=${11} />${MUTATIONS[id]?.name}</span>`)}</span></div>`}
+          ${inspect.cards.length > 0 && html`<div class="insp-row"><span class="insp-key">Carta</span><span class="tags">${inspect.cards.map((id) => html`<span class="tag carta" title=${CARDS[id]?.desc}><${Icon} name=${CARDS[id]?.icon} size=${11} />${CARDS[id]?.name}</span>`)}</span></div>`}
+          ${inspect.copied.length > 0 && html`<div class="insp-row"><span class="insp-key">Movimiento</span><span class="tags">${inspect.copied.map((n) => html`<span class="tag">${n}</span>`)}</span></div>`}
         </div>
       </section>`}
       <ol class="log" aria-live="polite" aria-label="Registro de jugadas">${log.slice(-6).map((l, i) => html`<li key=${log.length - 6 + i}>${l}</li>`)}</ol>

@@ -65,7 +65,7 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
       ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
       <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha da 5 turnos para salir del radio, las casillas con borde rojo estallan en la próxima jugada y algunas cajas sueltan bomba extra o más alcance.</p></details>
       <div class="mini-stage">
-        <div class="bm bm-diorama" ref=${gridRef} style=${{ '--n': SIZE }} role="grid" aria-label="Tablero de Bomberman">
+        <div class="bm bm-slab" ref=${gridRef} style=${{ '--n': SIZE }} role="grid" aria-label="Tablero de Bomberman">
           ${s.cells.map((row, r) => row.map((cell, c) => {
             const bomb = at(s.bombs, r, c), foe = at(s.enemies, r, c), item = at(s.items, r, c), me = s.player.r === r && s.player.c === c;
             return html`<button class=${'bm-cell ' + ((r + c) % 2 ? 'b' : 'a') + (cell ? ' ' + cell : '') + (at(s.blast, r, c) ? ' blast' : '') + (danger.has(r * SIZE + c) ? ' danger' : '')}

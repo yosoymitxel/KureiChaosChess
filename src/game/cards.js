@@ -26,7 +26,7 @@ export const CARDS = {
     desc: 'Un peón que ya cruzó a campo rival se convierte en reina.',
     // Only past the middle: a queen on turn one shortened matches by a sixth (tools/balance.mjs).
     can: (m, p) => p.type === 'pawn' && (p.color === 'light' ? p.row < m.board.rows / 2 : p.row >= m.board.rows / 2),
-    apply: (m, p) => { p.type = 'queen'; },
+    apply: (m, p) => { p.type = 'queen'; p.ascended = true; },
   },
   mount: {
     id: 'mount', aim: 'Elige una pieza que no sea rey, reina ni caballo.', name: 'Montura', rarity: 'common', icon: 'knight', target: 'piece',

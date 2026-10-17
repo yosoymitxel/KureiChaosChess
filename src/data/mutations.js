@@ -44,6 +44,7 @@ export function applyMutations(pieces, list, color) {
       if (c[mut] && p.type === type) {
         p.extraMoveTypes = [...(p.extraMoveTypes || []), extra];
         p.mutationExtras = [...(p.mutationExtras || []), extra];
+        p.mutationFrom = { ...(p.mutationFrom || {}), [extra]: mut };
       }
     }
   }

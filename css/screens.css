@@ -169,12 +169,16 @@
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip.danger { color: var(--danger); --icon-cut: var(--paper); }
 .chip.mut { color: var(--accent-ink); }
-.inspector { display: flex; gap: 12px; padding: 12px; border-radius: 12px; border: 2px dashed var(--danger); }
+.inspector { display: flex; gap: 12px; padding: 12px; border-radius: 12px; border: 2px dashed var(--brass); }
+.inspector.threat { border-color: var(--danger); }
 .inspector small { font-weight: 500; color: var(--muted); }
 .inspector p { margin: 2px 0 6px; font-size: 13px; }
+.insp-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.insp-key { flex: none; font-size: 10.5px; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted); }
 .tags { display: flex; flex-wrap: wrap; gap: 4px; }
-.tag { font-size: 11.5px; font-weight: 700; padding: 3px 6px; border-radius: 4px; background: var(--ink); color: var(--paper); }
-.tag.mut { background: var(--accent-ink); }
+.tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700; padding: 3px 6px; border-radius: 4px; background: var(--ink); color: var(--paper); --icon-cut: var(--ink); }
+.tag.mut { background: var(--accent-ink); --icon-cut: var(--accent-ink); }
+.tag.carta { background: var(--brass); color: var(--ink); --icon-cut: var(--brass); }
 .log { list-style: none; margin: auto 0 0; padding: 10px 0 0; border-top: 1.5px dashed oklch(0.2 0.02 55 / 0.25); font-size: 12.5px; line-height: 1.6; color: var(--ink-2); }
 .log li:last-child { color: var(--ink); font-weight: 700; }
 .piece-icon { display: inline-block; flex-shrink: 0; }
@@ -405,10 +409,11 @@
   transform: translateX(-50%); transform-origin: 50% 100%;
   filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.35));
 }
-.zen-pot::after { content: ''; position: absolute; left: 27%; right: 27%; top: 58%; height: 17%; border-radius: 50%; background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.5), transparent); }
+/* La sombra va al pie de la maceta (antes caía a media altura y la ensombrecía). */
+.zen-pot::after { content: ''; position: absolute; left: 26%; right: 26%; bottom: 4%; height: 15%; border-radius: 50%; background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.5), transparent); }
 .zn-stand { position: absolute; pointer-events: none; }
 .zn-stand svg { width: 100%; height: 100%; display: block; }
-.zn-stand::after { content: ''; position: absolute; left: 16%; right: 16%; bottom: 1%; height: 16%; border-radius: 50%; background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.45), transparent); }
+.zn-stand::after { content: ''; position: absolute; left: 16%; right: 16%; bottom: -6%; height: 16%; border-radius: 50%; background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.45), transparent); }
 .zn-reeds { left: 0%; top: -10%; width: 34%; height: 38%; }
 .zn-pebbles { left: 1%; bottom: 3%; width: 32%; height: 30%; }
 .zn-lantern { left: 45%; bottom: 20%; width: 48%; height: 78%; }
@@ -578,7 +583,7 @@
 .bm-actions { display: flex; gap: 10px; }
 /* Tablero del Bomberman con cuerpo: la losa del cantero, celdas biseladas, bloques con cara de
    arriba y frente, fichas de pie sobre su peana y explosiones con onda. */
-.bm.bm-diorama {
+.bm.bm-slab {
   transform: translateY(4%) rotateX(15deg);
   border-color: color-mix(in oklch, var(--tile-side), black 38%);
   box-shadow:
@@ -587,40 +592,40 @@
     0 13px 0 7px color-mix(in oklch, var(--tile-side), black 55%),
     0 26px 30px oklch(0 0 0 / 0.5);
 }
-.bm-diorama .bm-cell:not(.wall):not(.crate) {
+.bm-slab .bm-cell:not(.wall):not(.crate) {
   box-shadow: inset 0 2px 0 oklch(1 0 0 / 0.25), inset 0 -2px 0 oklch(0 0 0 / 0.18);
 }
-.bm-diorama .bm-cell.wall {
+.bm-slab .bm-cell.wall {
   background: linear-gradient(to bottom, color-mix(in oklch, var(--tile-side), black 38%) 0 74%, color-mix(in oklch, var(--tile-side), black 62%) 74%);
   box-shadow: inset 0 0 0 2px var(--ink);
 }
-.bm-diorama .bm-cell.crate {
+.bm-slab .bm-cell.crate {
   background: linear-gradient(to bottom, var(--paper-3) 0 74%, color-mix(in oklch, var(--paper-3), black 18%) 74%);
   box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 7px var(--paper-2);
 }
-.bm-diorama .bm-pc::before {
-  content: ''; position: absolute; left: 12%; right: 12%; top: 52%; height: 38%;
-  border-radius: 50%; background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.45), transparent);
+/* La figura va SOBRE su peana: sin z-index la peana la tapaba a media pierna y el manchón
+   difuminado le dejaba un halo turbio. Sombra de contacto como en el tablero grande. */
+.bm-slab .bm-pc::after {
+  content: ''; position: absolute; left: 26%; right: 26%; top: 58%; height: 28%;
+  border-radius: 50%; background: var(--pc);
+  box-shadow: inset 0 0 0 1.5px var(--ink), inset 0 0 0 4px var(--pc-2), 0 3px 4px oklch(0 0 0 / 0.35);
 }
-.bm-diorama .bm-pc::after {
-  content: ''; position: absolute; left: 26%; right: 26%; top: 60%; height: 26%;
-  border-radius: 50%; background: var(--pc-2);
-  box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 5px var(--pc);
-}
-.bm-diorama .bm-pc svg {
-  position: absolute; left: 50%; bottom: 18%; width: 88%; height: 116%;
+.bm-slab .bm-pc svg {
+  position: absolute; z-index: 1; left: 50%; bottom: 18%; width: 88%; height: 116%;
   transform: translateX(-50%); transform-origin: 50% 100%;
+  filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.35));
 }
 /* En la fila del fondo la figura se contiene para que la cabeza no toque el borde del tablero. */
-.bm-diorama .bm-cell:nth-child(-n+9) .bm-pc svg { height: 100%; bottom: 8%; }
-.bm-diorama .bm-bomb { position: relative; }
-.bm-diorama .bm-bomb::before { content: ''; position: absolute; left: 22%; top: 16%; width: 26%; height: 18%; border-radius: 50%; background: oklch(1 0 0 / 0.35); }
-.bm-diorama .bm-bomb.soon::after {
+.bm-slab .bm-cell:nth-child(-n+9) .bm-pc svg { height: 100%; bottom: 8%; }
+.bm-slab .bm-cell:nth-child(-n+9) .bm-pc::after { top: 68%; height: 28%; }
+.bm-slab .bm-bomb { position: relative; }
+.bm-slab .bm-bomb::before { content: ''; position: absolute; left: 22%; top: 16%; width: 26%; height: 18%; border-radius: 50%; background: oklch(1 0 0 / 0.35); }
+.bm-slab .bm-bomb.soon::after {
   content: ''; position: absolute; right: -10%; top: -12%; width: 38%; height: 38%; border-radius: 50%;
   background: var(--brass); box-shadow: 0 0 0 2px var(--ink); animation: fuse 0.8s ease-in-out infinite;
 }
-.bm-diorama .bm-cell.blast { z-index: 1; }
-.bm-diorama .bm-cell.blast::after {
+.bm-slab .bm-cell.blast { z-index: 1; }
+.bm-slab .bm-cell.blast::after {
   content: ''; position: absolute; inset: -2%; border: 4px solid var(--brass); border-radius: 50%;
   pointer-events: none; animation: shock 0.5s var(--ease-out);
 }
@@ -656,7 +661,15 @@
 .bm .pc-hp { top: 1px; translate: -50% 0; gap: calc(var(--cell) * 0.06); padding: calc(var(--cell) * 0.05) calc(var(--cell) * 0.1); pointer-events: none; }
 .bm .pc-hp b { width: calc(var(--cell) * 0.16); height: calc(var(--cell) * 0.16); }
 .bm-actions { flex-wrap: wrap; justify-content: center; }
+/* Estado de los minis sobre la losa: ficha de monedas y contador en pie, como el panel del jardín. */
+.mini-stats { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; }
+.mini-stats .chip { color: var(--paper); }
+/* En Yo, Zombi la fila de compra llama con un + en cada hueco donde cabe la pieza elegida. */
+.iz .bm-cell.drop::after { content: '+'; position: absolute; inset: 0; display: grid; place-items: center; font-size: calc(var(--cell) * 0.42); font-weight: 800; color: var(--brass); opacity: 0.9; pointer-events: none; }
 .bm-cell.lane { background-color: color-mix(in oklch, var(--tile-a), var(--side-light) 45%); }
+/* El número del carril en su esquina: es la tecla que lo lanza. */
+.bw { counter-reset: lane; }
+.bw .bm-cell.lane::before { counter-increment: lane; content: counter(lane); position: absolute; top: 0; left: 3px; z-index: 2; font-size: max(9px, calc(var(--cell) * 0.2)); font-weight: 800; color: color-mix(in oklch, var(--ink), transparent 42%); pointer-events: none; }
 /* La ficha que rueda va como elemento para que Motion la pueda mover entre casillas. */
 .bm-tok { position: absolute; inset: 16%; border-radius: 50%; background: var(--side-light); box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 calc(var(--cell) * 0.08) color-mix(in oklch, var(--side-light), var(--ink) 35%); pointer-events: none; z-index: 1; }
 /* Copias de un paso ya jugado: la pieza que cae y la ficha que sale rodando. */
