@@ -145,7 +145,7 @@ const FORMATIONS = {
   asedio: { rook: 'cannon' },
   fortaleza: { camel: 'guard' },
 };
-const FORMATION_POOL = ['clasica', 'clasica', 'clasica', 'caballeria', 'exotica', 'asedio', 'fortaleza'];
+const FORMATION_POOL = ['clasica', 'caballeria', 'exotica', 'asedio', 'fortaleza'];
 
 // Formas de despliegue: de la pirámide clásica a la inversa (frente más ancho), a los flancos
 // cargados con un muro delante, o a dos líneas simples. La forma y el número de líneas (2 a 4)
@@ -156,7 +156,7 @@ const DEPLOYS = {
   flancos: (back, layers) => [back - 2, back, back - 2, back - 4].slice(0, layers),
   simple: (back) => [back, back - 2],
 };
-const DEPLOY_POOL = ['piramide', 'piramide', 'piramide', 'inversa', 'flancos', 'simple'];
+const DEPLOY_POOL = ['piramide', 'inversa', 'flancos', 'simple', 'simple'];
 const spread = (cols, n) => {
   if (n >= cols.length) return cols.slice();
   const out = [];
