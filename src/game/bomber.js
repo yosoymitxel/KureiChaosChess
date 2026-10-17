@@ -5,17 +5,34 @@ const L_JUMP = [[-2, -1], [-2, 1], [2, -1], [2, 1], [-1, -2], [-1, 2], [1, -2], 
 const DIAG = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
 const DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
-export function newBomber(rng = Math.random) {
+// Enemigos y densidad de cajas: Normal es el tablero de siempre.
+export const DIFFS = {
+  facil: { name: 'Fácil', enemies: 1, crates: 0.3 },
+  normal: { name: 'Normal', enemies: 3, crates: 0.4 },
+  dificil: { name: 'Difícil', enemies: 5, crates: 0.5 },
+};
+// Salidas: las tres esquinas de siempre y, en Difícil, dos casillas intermedias.
+const CORNERS = [[0, SIZE - 1], [SIZE - 1, 0], [SIZE - 1, SIZE - 1], [0, 4], [4, 0]];
+const TYPES = ['pawn', 'knight', 'bishop', 'knight', 'bishop'];
+
+export function newBomber(rng = Math.random, key = 'normal') {
+  const diff = DIFFS[key] || DIFFS.normal;
   const wall = (r, c) => r % 2 === 1 && c % 2 === 1;
   // Crates keep out of the player's starting corner: the row and column ahead of it stay clear
   // wide enough to walk out of a radius-2 blast, so the opening bomb is never a forced suicide.
   const safe = (r, c) => r + c < 3 || (r === 0 && c < 4) || (c === 0 && r < 4);
-  const cells = Array.from({ length: SIZE }, (_, r) => Array.from({ length: SIZE }, (_, c) => (wall(r, c) ? 'wall' : !safe(r, c) && rng() < 0.4 ? 'crate' : null)));
-  const enemies = [[0, SIZE - 1], [SIZE - 1, 0], [SIZE - 1, SIZE - 1]].map(([r, c], i) => {
+  const cells = Array.from({ length: SIZE }, (_, r) => Array.from({ length: SIZE }, (_, c) => (wall(r, c) ? 'wall' : !safe(r, c) && rng() < diff.crates ? 'crate' : null)));
+  const spots = CORNERS.slice(0, diff.enemies);
+  const enemies = spots.map(([r, c], i) => {
     cells[r][c] = null;
-    return { id: i, r, c, type: ['pawn', 'knight', 'bishop'][i] };
+    return { id: i, r, c, type: TYPES[i] };
   });
-  for (const [r, c] of [[0, SIZE - 2], [1, SIZE - 1], [SIZE - 2, 0], [SIZE - 1, 1], [SIZE - 1, SIZE - 2], [SIZE - 2, SIZE - 1]]) if (cells[r][c] === 'crate') cells[r][c] = null;
+  // Las cajas no encierran a nadie: cada salida respira por sus cuatro lados.
+  for (const [er, ec] of spots)
+    for (const [dr, dc] of DIRS) {
+      const [r, c] = [er + dr, ec + dc];
+      if (cells[r]?.[c] === 'crate') cells[r][c] = null;
+    }
   return { cells, player: { r: 0, c: 0 }, enemies, bombs: [], blast: [], items: [], range: 2, maxBombs: 2, over: null };
 }
 
