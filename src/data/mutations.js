@@ -9,7 +9,7 @@ export const MUTATIONS = {
   kingRook: { id: 'kingRook', name: 'Rey blindado', icon: 'king', desc: 'Tu rey puede moverse 2 en línea recta.', rarity: 'common' },
   guardKnight: { id: 'guardKnight', name: 'Guardia montado', icon: 'guard', desc: 'Tus guardias saltan como caballos.', rarity: 'rare' },
   cannonRange: { id: 'cannonRange', name: 'Artillería', icon: 'cannon', desc: 'Tus cañones saltan 2 piezas propias.', rarity: 'common' },
-  queenKnight: { id: 'queenKnight', name: 'Reina estratega', icon: 'queen', desc: 'Tu reina también salta como caballo.', rarity: 'epic' },
+  queenKnight: { id: 'queenKnight', name: 'Reina estratega', icon: 'queenKnight', desc: 'Tu reina también salta como caballo.', rarity: 'epic' },
   bishopOrth: { id: 'bishopOrth', name: 'Alfil blindado', icon: 'bishop', desc: 'Tus alfiles también se mueven 1 ortogonal.', rarity: 'common' },
 };
 const KEYS = Object.keys(MUTATIONS);
