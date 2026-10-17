@@ -1,20 +1,27 @@
-// Matamarcianos: oleadas retro, disparo y tres vidas. Reglas puras, sin DOM.
+// Matamarcianos: oleadas retro, disparo y vidas. Reglas puras, sin DOM.
 export const COLS = 8;
 export const ROWS = 8;
 export const PLAYER_ROW = ROWS - 1;
-export const MAX_LIVES = 3;
 const SHOT_STEP = 4; // filas que sube cada disparo por jugada
 const MAX_SHOTS = 3; // disparos en vuelo a la vez
 
-// Oleada a oleada suben los enemigos y se acorta la pausa entre descensos.
+// El reparto de cada oleada: peones al principio y las piezas de salto entran en las siguientes.
 export const WAVES = [
-  { types: ['pawn', 'pawn', 'pawn', 'pawn', 'pawn'], every: 4 },
-  { types: ['pawn', 'knight', 'pawn', 'pawn', 'bishop', 'pawn', 'knight'], every: 3 },
-  { types: ['knight', 'bishop', 'pawn', 'pawn', 'elephant', 'pawn', 'bishop', 'pawn'], every: 2 },
+  { types: ['pawn', 'pawn', 'pawn', 'pawn', 'pawn'] },
+  { types: ['pawn', 'knight', 'pawn', 'pawn', 'bishop', 'pawn', 'knight'] },
+  { types: ['knight', 'bishop', 'pawn', 'pawn', 'elephant', 'pawn', 'bishop', 'pawn'] },
 ];
 
-export function newMarcianos(rng = Math.random) {
-  const s = { wave: 0, lives: MAX_LIVES, player: { col: Math.floor(COLS / 2) }, enemies: [], shots: [], zaps: [], tick: 0, over: null };
+// Vidas y pausa entre descensos (por oleada): Normal es el juego de siempre.
+export const DIFFS = {
+  facil: { name: 'Fácil', lives: 4, every: [5, 4, 3] },
+  normal: { name: 'Normal', lives: 3, every: [4, 3, 2] },
+  dificil: { name: 'Difícil', lives: 2, every: [3, 2, 2] },
+};
+
+export function newMarcianos(rng = Math.random, key = 'normal') {
+  const diff = DIFFS[key] || DIFFS.normal;
+  const s = { wave: 0, lives: diff.lives, diff, player: { col: Math.floor(COLS / 2) }, enemies: [], shots: [], zaps: [], tick: 0, over: null };
   spawnWave(s, rng);
   return s;
 }
@@ -70,7 +77,7 @@ export function step(s, action, rng = Math.random) {
   if (action.shoot) s.shots.push({ row: PLAYER_ROW - 1, col: s.player.col });
   s.shots = s.shots.flatMap((b) => climb(s, b));
   s.enemies = s.enemies.filter((e) => !e.pop);
-  if (s.tick % WAVES[s.wave].every === 0) descend(s);
+  if (s.tick % s.diff.every[s.wave] === 0) descend(s);
   if (s.lives <= 0) s.over = 'lose';
   else if (!s.enemies.length) {
     if (s.wave + 1 >= WAVES.length) s.over = 'win';
