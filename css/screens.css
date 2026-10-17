@@ -392,12 +392,27 @@
 .bm-cell.zn-lawn { background-color: color-mix(in oklch, var(--side-wild), var(--tile-side) 42%); cursor: default; }
 .bm-cell.zn-step { background-color: color-mix(in oklch, var(--tile-side), black 6%); cursor: default; }
 .zn-step::before { content: ''; position: absolute; inset: 12%; border-radius: 42%; background: var(--paper-3); box-shadow: inset 0 0 0 2px var(--ink), inset 0 -4px 0 oklch(0 0 0 / 0.2); }
-.zn-tuft { width: 64%; height: 64%; }
+.zn-tuft { width: 70%; height: 70%; }
 .zn-blade { fill: none; stroke: color-mix(in oklch, var(--side-wild), black 32%); stroke-width: 1.7; stroke-linecap: round; }
+.bm-cell.zen-lawn::after { content: ''; position: absolute; left: 26%; right: 26%; bottom: 15%; height: 14%; border-radius: 50%; background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.4), transparent); }
 .bm-cell.zen-pond { grid-column: span 2; grid-row: span 2; width: auto; height: auto; cursor: default; }
 .zen-pot:hover { filter: brightness(1.06); }
 .zen-pot.ready { box-shadow: inset 0 0 0 3px var(--brass); }
-.zn-plant { width: 84%; height: 84%; filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.35)); }
+/* Las piezas se paran como las fichas del diorama: figura anclada a su base y sombra de
+   contacto en la tierra. */
+.zn-plant {
+  position: absolute; left: 50%; bottom: 5%; width: 96%; height: 102%;
+  transform: translateX(-50%); transform-origin: 50% 100%;
+  filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.35));
+}
+.zen-pot::after { content: ''; position: absolute; left: 27%; right: 27%; top: 58%; height: 17%; border-radius: 50%; background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.5), transparent); }
+.zn-stand { position: absolute; pointer-events: none; }
+.zn-stand svg { width: 100%; height: 100%; display: block; }
+.zn-stand::after { content: ''; position: absolute; left: 16%; right: 16%; bottom: 1%; height: 16%; border-radius: 50%; background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.45), transparent); }
+.zn-reeds { left: 0%; top: -10%; width: 34%; height: 38%; }
+.zn-pebbles { left: 1%; bottom: 3%; width: 32%; height: 30%; }
+.zn-lantern { left: 45%; bottom: 20%; width: 48%; height: 78%; }
+.zn-window { fill: var(--brass); stroke: var(--ink); stroke-width: 0.7; }
 .zn-pondart { width: 96%; height: 96%; filter: drop-shadow(0 4px 3px oklch(0.15 0.03 55 / 0.3)); }
 .zn-reed { --zn: color-mix(in oklch, var(--side-wild), black 10%); }
 .zn-potb { fill: var(--paper-2); stroke: var(--ink); stroke-width: .9; }
@@ -444,7 +459,7 @@
 .zen-cost .icon { width: 13px; height: 13px; }
 .zen-seed:focus-visible, .zen-tool:focus-visible, .zen-expand:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
 /* Tierra virgen de los anillos: se cava para hacer un tiesto; con la pala elegida se marca. */
-.bm-cell.zn-raw { background-color: color-mix(in oklch, var(--tile-side), black 24%); cursor: default; }
+.bm-cell.zn-raw { background-color: color-mix(in oklch, var(--tile-side), black 24%); background-image: var(--grain), radial-gradient(2px 1.6px at 24% 32%, oklch(0 0 0 / 0.2), transparent), radial-gradient(2.6px 2px at 68% 56%, oklch(0 0 0 / 0.16), transparent), radial-gradient(1.8px 1.5px at 42% 78%, oklch(0 0 0 / 0.18), transparent); cursor: default; }
 .bm-cell.zn-raw::after { content: ''; position: absolute; inset: 13%; border: 2px dashed color-mix(in oklch, var(--paper), transparent 55%); border-radius: 7px; }
 .zn-yard.dig .bm-cell.zn-raw { cursor: pointer; }
 .zn-yard.dig .bm-cell.zn-raw::after { border-color: var(--brass); }
@@ -561,6 +576,56 @@
 .buy { gap: 6px; }
 .buy-cost { display: inline-grid; place-items: center; min-width: 18px; padding: 0 4px; border-radius: 6px; background: var(--ink); color: var(--paper); font-size: 12px; }
 .bm-actions { display: flex; gap: 10px; }
+/* Tablero del Bomberman con cuerpo: la losa del cantero, celdas biseladas, bloques con cara de
+   arriba y frente, fichas de pie sobre su peana y explosiones con onda. */
+.bm.bm-diorama {
+  transform: translateY(4%) rotateX(15deg);
+  border-color: color-mix(in oklch, var(--tile-side), black 38%);
+  box-shadow:
+    0 0 0 2px var(--ink),
+    0 0 0 7px color-mix(in oklch, var(--tile-side), black 8%),
+    0 13px 0 7px color-mix(in oklch, var(--tile-side), black 55%),
+    0 26px 30px oklch(0 0 0 / 0.5);
+}
+.bm-diorama .bm-cell:not(.wall):not(.crate) {
+  box-shadow: inset 0 2px 0 oklch(1 0 0 / 0.25), inset 0 -2px 0 oklch(0 0 0 / 0.18);
+}
+.bm-diorama .bm-cell.wall {
+  background: linear-gradient(to bottom, color-mix(in oklch, var(--tile-side), black 38%) 0 74%, color-mix(in oklch, var(--tile-side), black 62%) 74%);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+.bm-diorama .bm-cell.crate {
+  background: linear-gradient(to bottom, var(--paper-3) 0 74%, color-mix(in oklch, var(--paper-3), black 18%) 74%);
+  box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 7px var(--paper-2);
+}
+.bm-diorama .bm-pc::before {
+  content: ''; position: absolute; left: 12%; right: 12%; top: 52%; height: 38%;
+  border-radius: 50%; background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.45), transparent);
+}
+.bm-diorama .bm-pc::after {
+  content: ''; position: absolute; left: 26%; right: 26%; top: 60%; height: 26%;
+  border-radius: 50%; background: var(--pc-2);
+  box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 5px var(--pc);
+}
+.bm-diorama .bm-pc svg {
+  position: absolute; left: 50%; bottom: 18%; width: 88%; height: 116%;
+  transform: translateX(-50%); transform-origin: 50% 100%;
+}
+/* En la fila del fondo la figura se contiene para que la cabeza no toque el borde del tablero. */
+.bm-diorama .bm-cell:nth-child(-n+9) .bm-pc svg { height: 100%; bottom: 8%; }
+.bm-diorama .bm-bomb { position: relative; }
+.bm-diorama .bm-bomb::before { content: ''; position: absolute; left: 22%; top: 16%; width: 26%; height: 18%; border-radius: 50%; background: oklch(1 0 0 / 0.35); }
+.bm-diorama .bm-bomb.soon::after {
+  content: ''; position: absolute; right: -10%; top: -12%; width: 38%; height: 38%; border-radius: 50%;
+  background: var(--brass); box-shadow: 0 0 0 2px var(--ink); animation: fuse 0.8s ease-in-out infinite;
+}
+.bm-diorama .bm-cell.blast { z-index: 1; }
+.bm-diorama .bm-cell.blast::after {
+  content: ''; position: absolute; inset: -2%; border: 4px solid var(--brass); border-radius: 50%;
+  pointer-events: none; animation: shock 0.5s var(--ease-out);
+}
+@keyframes fuse { 50% { transform: scale(0.55); opacity: 0.7; } }
+@keyframes shock { from { transform: scale(0.35); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
 /* Matamaecianos: la bola en vuelo, las vidas y el mando de dos teclas. */
 .mm-shot { position: absolute; z-index: 2; inset: 34%; border-radius: 50%; background: var(--brass); box-shadow: inset 0 0 0 2px var(--ink); }
 .mm-lives { display: inline-flex; gap: 4px; margin-left: 8px; vertical-align: -1px; }

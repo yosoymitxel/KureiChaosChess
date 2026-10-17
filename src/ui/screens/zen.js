@@ -33,21 +33,37 @@ const GROWN = {
 };
 // El capullo cerrado: una yema con dos cortes de color.
 const BUD = html`<path class="zn-leaf" d="M12 5.2c1.5.5 2.4 1.8 2.4 3.4 0 1.7-1 2.8-2.4 2.8s-2.4-1.1-2.4-2.8c0-1.6.9-2.9 2.4-3.4z"/><path class="zn-cut" d="M10.4 6.7c-.4.8-.5 1.7-.3 2.5M13.6 6.7c.4.8.5 1.7.3 2.5"/>`;
-// El estanque ocupa cuatro celdas: agua, ondas, nenúfar en flor, piedras en la orilla y juncos.
+// Juncos y guijarros de la orilla: piezas de pie con sombra, recortadas a su contenido.
+const REEDS = html`<span class="zn-stand zn-reeds" aria-hidden="true"><svg viewBox="5.5 3.5 13 12" preserveAspectRatio="xMidYMax meet">
+  <path class="zn-stem" d="M8.6 11.6c-.7-2.3-.6-4.6.5-7M11.8 12.8c-.3-2.5.3-4.8 1.7-6.7M14.8 14.2c.2-2 .9-3.6 2-5"/>
+  <path class="zn-leaf zn-reed" d="M9.1 4.6c.4 1 .5 2 .2 3-.7-.8-.8-1.9-.2-3z"/>
+  <path class="zn-leaf zn-reed" d="M13.5 6.1c.5 1 .6 2 .5 3-.8-.7-1.1-1.8-.5-3z"/>
+</svg></span>`;
+const PEEBLES = html`<span class="zn-stand zn-pebbles" aria-hidden="true"><svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMax meet">
+  <circle class="zn-stone" cx="7.4" cy="16.6" r="3.4"/>
+  <circle class="zn-stone" cx="14.2" cy="18" r="2.5"/>
+  <circle class="zn-stone" cx="11.6" cy="13" r="1.9"/>
+</svg></span>`;
+// El estanque ocupa cuatro celdas: agua, ondas y nenúfar en flor; los juncos y los guijarros
+// van de pie en la orilla, como el resto de las piezas del cantero.
 const POND = html`<span class="bm-cell zen-pond zn-soil" aria-hidden="true"><svg class="zn-pondart" viewBox="0 0 48 48">
   <path class="zn-water" d="M4.5 29C4.5 15.5 12.6 6.4 24 6.4S43.5 15.5 43.5 29c0 8.4-6.7 14-19.5 14S4.5 37.4 4.5 29z"/>
   <path class="zn-rip" d="M14 27.5c0-4.4 4-7.3 9-7.3"/>
   <path class="zn-rip" d="M17.5 35.5c0-2.4 2.7-4.3 6.2-4.3"/>
   <path class="zn-lily" d="M30 34.6 34.3 32.9A4.1 4.1 0 1 1 33.8 37.7Z"/>
   <circle class="zn-petal" cx="30" cy="31" r="1.25"/><circle class="zn-petal" cx="31" cy="31.7" r="1.25"/><circle class="zn-petal" cx="30.6" cy="32.8" r="1.25"/><circle class="zn-petal" cx="29.4" cy="32.8" r="1.25"/><circle class="zn-petal" cx="29" cy="31.7" r="1.25"/><circle class="zn-dot" cx="30" cy="32" r=".75"/>
-  <circle class="zn-stone" cx="38.6" cy="23.4" r="2.5"/>
-  <circle class="zn-stone" cx="10.2" cy="37.8" r="1.9"/>
-  <path class="zn-stem" d="M8.6 11.6c-.7-2.3-.6-4.6.5-7M11.8 12.8c-.3-2.5.3-4.8 1.7-6.7M14.8 14.2c.2-2 .9-3.6 2-5"/>
-  <path class="zn-leaf zn-reed" d="M9.1 4.6c.4 1 .5 2 .2 3-.7-.8-.8-1.9-.2-3z"/>
-  <path class="zn-leaf zn-reed" d="M13.5 6.1c.5 1 .6 2 .5 3-.8-.7-1.1-1.8-.5-3z"/>
-</svg></span>`;
+</svg>${REEDS}${PEEBLES}</span>`;
 // Matas de pasto: tres briznas para romper la simetría del cantero.
 const TUFT = html`<path class="zn-blade" d="M7.2 19.4c0-3.4.7-6 2-8.2M12 19.4c.1-4.3.8-7 1.7-9.2M16.8 19.4c-.3-3.4-1-5.6-2-7.4"/><path class="zn-blade" d="M9.6 19.2c-.1-2.2-.6-3.9-1.4-5.3M14.3 19.3c.5-2.2.5-4 .1-5.5"/>`;
+// Farolillo de piedra del sendero: se para en el escalón con su ventana encendida.
+const LANTERN = html`<span class="zn-stand zn-lantern" aria-hidden="true"><svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMax meet">
+  <rect class="zn-stone" x="9" y="19.2" width="6" height="2.2" rx="0.8"/>
+  <rect class="zn-stone" x="10.7" y="14.8" width="2.6" height="4.4"/>
+  <rect class="zn-stone" x="8.4" y="11.2" width="7.2" height="3.6" rx="0.8"/>
+  <rect class="zn-window" x="10.2" y="12" width="3.6" height="2"/>
+  <path class="zn-stone" d="M7 11.4 12 8.4l5 3z"/>
+  <circle class="zn-stone" cx="12" cy="8" r="0.9"/>
+</svg></span>`;
 
 // Una maceta completa: el tiesto siempre, la planta encima según su etapa.
 function potArt(kind, stage) {
@@ -170,7 +186,7 @@ export function ZenScreen({ onBack, onShop }) {
         const t = BASE_GRID[r][c];
         if (t === 'pond') { if (r === 1 && c === 2) cells.push(POND); continue; }
         if (t === 'lawn') { cells.push(html`<span key=${key} class="bm-cell zn-lawn" aria-hidden="true"><svg class="zn-tuft" viewBox="0 0 24 24">${TUFT}</svg></span>`); continue; }
-        if (t === 'step') { cells.push(html`<span key=${key} class="bm-cell zn-step" aria-hidden="true"></span>`); continue; }
+        if (t === 'step') { cells.push(html`<span key=${key} class="bm-cell zn-step" aria-hidden="true">${key === 'r3c1' ? LANTERN : null}</span>`); continue; }
         cells.push(potCell(key));
       } else if (z.pots[key] !== undefined) cells.push(potCell(key));
       else cells.push(html`<button key=${key} class="bm-cell zn-raw" aria-label="Tierra sin cavar" onClick=${() => tap('raw', key)}></button>`);
