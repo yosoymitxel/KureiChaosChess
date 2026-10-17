@@ -1,15 +1,15 @@
-import { html, useEffect, useRef, useState } from '../lib.js';
+import { html, useEffect, useRef } from '../lib.js';
 import { Icon } from '../icons.js';
 import { useEnter, ConfirmButton } from '../components.js';
 import { BoardView } from '../../view/board-view.js';
 import { makePiece } from '../../game/generate.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
-import { loadAchievements } from '../../game/achievements.js';
 
 // Decorative diorama: a small board with a boss facing a few pieces, gently swaying.
-function Diorama({ onOpen }) {
+// Three more pieces, labelled above, turn into the extras: Jardín Zen, Galería and Logros.
+function Diorama({ onZen, onGallery, onAchievements }) {
   const host = useRef(null);
-  const unlocked = loadAchievements().length;
+  const open = { 'x-zen': onZen, 'x-galeria': onGallery, 'x-logros': onAchievements };
   useEffect(() => {
     const v = new BoardView(host.current, { camera: 'epic' });
     const board = { rows: 6, cols: 6, holes: new Set(['2,0', '3,5', '2,5']) };
@@ -20,13 +20,37 @@ function Diorama({ onOpen }) {
     ];
     v.setBoard(board);
     v.setPieces(pieces);
+    // Extras: three jade pieces wear the boss label and open a screen when tapped. Listed far to
+    // near so the near one paints over the one behind; the host resolves the tap by data-pid.
+    for (const [id, label, type, row, col] of [
+      ['x-zen', 'Jardín Zen', 'pawn', 3, 4],
+      ['x-logros', 'Logros', 'rook', 4, 3],
+      ['x-galeria', 'Galería', 'bishop', 5, 5],
+    ]) {
+      if (!open[id]) continue;
+      const p = makePiece(type, 'wild', row, col, { id });
+      const el = v.addPiece(p);
+      el.classList.add('extra');
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('aria-label', label);
+      el.querySelector('.pc-fig').insertAdjacentHTML('beforeend', `<div class="pc-hp"><span>${label}</span></div>`);
+      el.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        el.click();
+      });
+      pieces.push(p);
+    }
     v.intro(pieces);
     return () => v.destroy();
   }, []);
+  const pick = (e) => {
+    const fn = open[e.target.closest?.('[data-pid]')?.dataset.pid];
+    if (fn) fn();
+  };
   return html`<div class="diorama-wrap">
-    <div class="diorama" ref=${host} aria-label="Abrir extras" title="Abrir extras" role="button" tabindex="0"
-      onClick=${onOpen} onKeyDown=${(e) => (e.key === 'Enter' || e.key === ' ') && onOpen()}></div>
-    <span class="diorama-hint">${unlocked > 0 ? `Extras · ${unlocked}` : 'Extras'}</span>
+    <div class="diorama" ref=${host} role="group" aria-label="Extras" onClick=${pick}></div>
   </div>`;
 }
 
@@ -34,14 +58,11 @@ export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onM
   const ref = useRef(null);
   useEnter(ref);
   const full = useFullscreen();
-  const [extras, setExtras] = useState(false);
   const toggleFull = () => { setFullscreen(!full); setSettings((s) => ({ ...s, fullscreen: !full })); };
   // Starting from the menu is a tap, so it can enter fullscreen right away when the setting asks for it.
   const go = (fn) => () => { if (settings.fullscreen) setFullscreen(true); fn(); };
-  const openExtras = () => setExtras(true);
-  const closeExtras = () => setExtras(false);
   return html`<div class="screen menu" ref=${ref}>
-    <${Diorama} onOpen=${openExtras} />
+    <${Diorama} onZen=${onZen && go(onZen)} onGallery=${onGallery && go(onGallery)} onAchievements=${onAchievements && go(onAchievements)} />
     <div class="menu-col">
       <div class="logo" data-enter>
         <h1>Zug<span>zwang</span></h1>
@@ -59,18 +80,5 @@ export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onM
         </div>
       </nav>
     </div>
-    ${extras && html`<div class="extras-overlay" onClick=${closeExtras}>
-      <div class="extras-panel" onClick=${(e) => e.stopPropagation()}>
-        <div class="extras-head">
-          <strong>Extras</strong>
-          <button class="btn ghost sm icon-only" aria-label="Cerrar" onClick=${closeExtras}><${Icon} name="back" size=${16} /></button>
-        </div>
-        <div class="extras-grid">
-          ${onZen && html`<button class="btn ghost" onClick=${() => { closeExtras(); onZen(); }}><${Icon} name="rest" />Jardín Zen</button>`}
-          ${onGallery && html`<button class="btn ghost" onClick=${() => { closeExtras(); onGallery(); }}><${Icon} name="map" />Galería</button>`}
-          ${onAchievements && html`<button class="btn ghost" onClick=${() => { closeExtras(); onAchievements(); }}><${Icon} name="trophy" />Logros</button>`}
-        </div>
-      </div>
-    </div>`}
   </div>`;
 }
