@@ -73,7 +73,10 @@ export function App() {
     return v;
   }), []);
 
-  useEffect(() => { applyTheme(settings.theme); saveSettings(settings); }, [settings]);
+  // En el cuerpo, antes de montar: el diorama del menú construye su mesa en un efecto hijo
+  // y necesita data-art (y las variables) ya puestos para pintar las piezas a píxel.
+  applyTheme(settings.theme);
+  useEffect(() => { saveSettings(settings); }, [settings]);
   useEffect(() => { setSfxEnabled(settings.sound); setSfxVolume(settings.volume); }, [settings.sound, settings.volume]);
   // El navegador no deja sonar sin un gesto: el fondo arranca con el primer toque. El listener
   // se queda puesto: startAmbient() es idempotente y así vuelve al reactivar Sonidos.
