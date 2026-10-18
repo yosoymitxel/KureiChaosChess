@@ -67,6 +67,8 @@ favicon y los iconos troquelados de la interfaz.
 | Viñeta roja mientras dura el jaque | Estado real y continuo; no parpadea. |
 | Centrado óptico | Los iconos se compensan con su desvío medido; las piezas se encuadran por su caja real cuando son icono; los textos grandes recortan el interlineado a la altura de mayúscula (`text-box`). Verificado midiendo el centro de cada icono, texto y figura contra su contenedor en todas las pantallas, en escritorio y móvil. |
 | Mesa Pixelada | Una mesa de encargo: tablero de damero corto y las once piezas dibujadas a píxel en tres bandos sobre la peana y el contorno de tinta de siempre. El arte se escribe como código (art/pixelada.px.js, skill pxl) y la mesa se compra en la tienda como las demás. Las cartas y los iconos siguen dibujados en papel: son impresos, no fichas. |
+| Logros agrupados con aviso encolado, sin modales | Los hitos se otorgan donde pasan (partida, travesía, jardín, tienda) y `award()` avisa por evento de `window`; el aviso entra en cola abajo y se va solo, sin tapar la mesa; la pantalla agrupa por dónde se ganan con contador por grupo. |
+| Efectos y ambiente sintetizados, sin archivos | WebAudio con recetas como datos puros (capas de oscilador o ruido con envolvente) y fondo generativo discreto que arranca con el primer toque; interruptor de Sonidos y volumen Suave/Normal/Fuerte en Ajustes; `tools/sfx-check.mjs` valida recetas y el no-op en Node. |
 
 ## Lo que no se hace
 

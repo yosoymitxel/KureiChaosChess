@@ -6,6 +6,7 @@ import { chipArt, HEAD } from '../zen-art.js';
 import { ZEN_KINDS, ZEN_NAMES, ZEN_MAX, ZEN_BASE, BASE_GRID, cellKey, expandCost, zenStage, zenSow, zenWater, zenDig, zenHarvest, zenExpand, loadZen, saveZen } from '../../game/zen.js';
 import { award } from '../../game/achievements.js';
 import { COINS_PER_FLOWER, addCoins, charge, loadShop } from '../../game/shop.js';
+import { playSfx } from '../sfx.js';
 
 const ETAPAS = { empty: 'vacía', sprout: 'con brote', bud: 'con capullo', bloom: 'lista para cortar' };
 // Sembrar es la herramienta por defecto; ampliar se paga en monedas y pide confirmación.
@@ -107,6 +108,7 @@ export function ZenScreen({ onBack, onShop }) {
     setGain(kind);
     motion(coinRef.current, { scale: [1, 1.35, 1] }, { duration: 0.5, ease: [0.22, 1, 0.36, 1] });
     award('flower_1');
+    playSfx('flower');
     const flores = ZEN_KINDS.reduce((n, k) => n + (next.flores[k] || 0), 0);
     if (flores >= 3) award('flower_3');
     if (ZEN_KINDS.every((k) => (next.flores[k] || 0) > 0)) award('zen_all');
@@ -115,7 +117,7 @@ export function ZenScreen({ onBack, onShop }) {
   // Un toque aplica la herramienta elegida; el estatus cuenta la espera y las novedades.
   const tap = (type, key) => {
     if (type === 'raw') {
-      if (tool === 'dig') { apply(zenDig(z, key)); say('Tiesto nuevo: siembra cuando quieras.'); }
+      if (tool === 'dig') { apply(zenDig(z, key)); playSfx('tap'); say('Tiesto nuevo: siembra cuando quieras.'); }
       else say('Tierra virgen: elige Cavar para hacer un tiesto.');
       return;
     }
@@ -124,6 +126,7 @@ export function ZenScreen({ onBack, onShop }) {
       if (st.stage === 'empty') {
         if (!(z.seeds[seedKind] > 0)) return say(`Sin semillas de ${ZEN_NAMES[seedKind]}: caen al ganar nodos y se venden en la tienda.`);
         apply(zenSow(z, key, seedKind, now));
+        playSfx('tap');
         say(`Sembraste ${ZEN_NAMES[seedKind]}: riega para acortar la espera.`);
       } else if (st.stage === 'bloom') say(`La ${ZEN_NAMES[st.kind]} está lista: córtala con las tijeras.`);
       else say(`${ZEN_NAMES[st.kind]}: flor en ${Math.ceil(st.msLeft / 1000)} s${st.watered ? '' : ' · puedes regarla'}.`);
@@ -134,6 +137,7 @@ export function ZenScreen({ onBack, onShop }) {
       else {
         const next = zenWater(z, key, now);
         apply(next);
+        playSfx('tap');
         say(`Regaste la ${ZEN_NAMES[st.kind]}: flor en ${Math.ceil(zenStage(next, key, now).msLeft / 1000)} s.`);
       }
     } else if (tool === 'dig') {
@@ -154,6 +158,7 @@ export function ZenScreen({ onBack, onShop }) {
     if (!charge(cost)) return say('Faltan monedas.');
     setCoins(loadShop().coins);
     apply(zenExpand(z));
+    playSfx('coin');
     award('zen_ring');
     say(`El cantero crece a ${z.size + 1}×${z.size + 1}: la tierra nueva pide cava.`);
   };

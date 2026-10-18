@@ -7,6 +7,7 @@ import { THEMES } from '../../data/themes.js';
 import { CARD_PRICE, COINS_PER_FLOWER, COINS_PER_NODE, PENDING_LIMIT, SEED_PRICE, THEME_SHOP, addPending, addToHand, charge, grantTheme, isShopCard, loadShop, themeOwned } from '../../game/shop.js';
 import { ZEN_KINDS, ZEN_NAMES, addZenSeeds, loadZen } from '../../game/zen.js';
 import { chipArt } from '../zen-art.js';
+import { playSfx } from '../sfx.js';
 
 const CARD_LIST = Object.values(CARDS);
 
@@ -21,6 +22,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
     if (!charge(CARD_PRICE[card.rarity || 'common'])) return;
     if (run) setRun((r) => addToHand(r, [card.id], true));
     else addPending(card.id);
+    playSfx('coin');
     refresh();
   };
   const tapTheme = (id) => {
@@ -28,11 +30,13 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
     if (!charge(THEME_SHOP[id])) return;
     grantTheme(id);
     setSettings((s) => ({ ...s, theme: id }));
+    playSfx('coin');
     refresh();
   };
   const buySeed = (kind) => {
     if (!charge(SEED_PRICE)) return;
     setSeeds(addZenSeeds(kind, 1));
+    playSfx('coin');
     refresh();
   };
 

@@ -8,6 +8,7 @@ import { SetupScreen, SettingsScreen } from './screens/setup.js';
 import { GameScreen } from './screens/game.js';
 import { HowToOverlay } from './screens/overlays.js';
 import { setFullscreen } from './fullscreen.js';
+import { setSfxEnabled, setSfxVolume, startAmbient, playSfx } from './sfx.js';
 import { Connect4Screen } from './screens/connect4.js';
 import { MinisScreen } from './screens/minis.js';
 import { ZenScreen } from './screens/zen.js';
@@ -73,6 +74,14 @@ export function App() {
   }), []);
 
   useEffect(() => { applyTheme(settings.theme); saveSettings(settings); }, [settings]);
+  useEffect(() => { setSfxEnabled(settings.sound); setSfxVolume(settings.volume); }, [settings.sound, settings.volume]);
+  // El navegador no deja sonar sin un gesto: el fondo arranca con el primer toque. El listener
+  // se queda puesto: startAmbient() es idempotente y así vuelve al reactivar Sonidos.
+  useEffect(() => {
+    const wake = () => startAmbient();
+    window.addEventListener('pointerdown', wake);
+    return () => window.removeEventListener('pointerdown', wake);
+  }, []);
   // La mesa ya puesta al estrenar la tienda sigue siendo del jugador.
   useEffect(() => { claimTheme(settings.theme); }, []);
   // Hitos que dependen del avance de la run: se revisan al guardarla, en un solo lugar.
@@ -86,6 +95,7 @@ export function App() {
   const goTo = useCallback(async (next) => {
     if (busy.current) return;
     busy.current = true;
+    playSfx('tap');
     await motion(curtain.current, { clipPath: ['inset(0 0 100% 0)', 'inset(0 0 0% 0)'] }, { duration: 0.28, ease: [0.7, 0, 0.84, 0] });
     setScreen(next);
     await motion(curtain.current, { clipPath: ['inset(0% 0 0 0)', 'inset(100% 0 0 0)'] }, { duration: 0.36, delay: 0.05, ease: [0.16, 1, 0.3, 1] });
@@ -230,6 +240,7 @@ function AchievementToast() {
   useEffect(() => {
     if (show || !queue.length) return;
     setShow(queue[0]);
+    playSfx('achievement');
     setQueue((q) => q.slice(1));
   }, [queue, show]);
   useEffect(() => {

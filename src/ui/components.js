@@ -1,6 +1,7 @@
 import { html, useState, useEffect, useRef, motion, motionStagger } from './lib.js';
 import { Icon, PieceIcon } from './icons.js';
 import { MOVE_NAMES } from '../data/pieces.js';
+import { playSfx } from './sfx.js';
 
 export function Topbar({ title, sub, onBack, backLabel = 'Volver', children }) {
   return html`<header class="topbar">
@@ -16,6 +17,7 @@ export function Topbar({ title, sub, onBack, backLabel = 'Volver', children }) {
 
 // Cierre común de los minijuegos: resultado, motivo y botón en un solo bloque, en cada pantalla.
 export function MiniEnd({ win, title, note, label = 'Continuar', onEnd }) {
+  useEffect(() => { playSfx(win ? 'mini_win' : 'mini_lose'); }, []);
   return html`<div class=${'mini-end ' + (win ? 'win' : 'lose')} role="status">
     <p class="mini-end-title">${title ?? (win ? '¡Victoria!' : 'Derrota')}</p>
     ${note && html`<p class="mini-end-note">${note}</p>`}

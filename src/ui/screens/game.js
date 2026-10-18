@@ -16,6 +16,7 @@ import { PIECE_NAMES, MOVE_NAMES } from '../../data/pieces.js';
 import { BOSSES } from '../../data/bosses.js';
 import { PauseOverlay } from './overlays.js';
 import { Moments } from '../moments.js';
+import { playSfx } from '../sfx.js';
 import { award } from '../../game/achievements.js';
 
 const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
@@ -131,6 +132,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       d.busy = true;
       cancelCard();
       await flyCard(i, res);
+      playSfx('card');
       d.feats.cards++;
       d.onUseCard(i);
       addLog(`Carta: ${card.name}`);
@@ -201,6 +203,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
 
     const finish = async () => {
       const r = match.over;
+      if (r.victory) playSfx('win'); else if (!r.tie) playSfx('lose');
       const human = seats.find((s) => s.kind === 'human')?.color || 'light';
       if (r.victory) {
         // La pérdida se lee por identidad: toda pieza caída sale de match.pieces.
@@ -221,6 +224,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const doMove = async (piece, to) => {
       const res = match.move(piece, to);
       if (!res) return false;
+      playSfx(res.victims.length ? 'capture' : 'move');
       d.busy = true;
       clearSel();
       const tag = match.player.kind === 'bot' ? '◆ ' : '';
@@ -231,13 +235,18 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (res.promoted) {
         addLog(`${tag}¡Coronación!`);
         if (piece.color === d.feats.human) award('crowned');
+        playSfx('promote');
       }
       await d.view.playMove(res);
       const fallenBoss = res.victims.find((v) => v.killed && v.piece.boss)?.piece;
-      if (fallenBoss) await d.moments.cinematic({ title: `¡${fallenBoss.name} derribado!`, sub: 'El coloso cae y la torre es tuya.', piece: { type: artOf(fallenBoss), side: fallenBoss.color }, tone: 'brass', anim: 'down' });
+      if (fallenBoss) {
+        playSfx('shatter');
+        await d.moments.cinematic({ title: `¡${fallenBoss.name} derribado!`, sub: 'El coloso cae y la torre es tuya.', piece: { type: artOf(fallenBoss), side: fallenBoss.color }, tone: 'brass', anim: 'down' });
+      }
       const after = match.afterMove();
       if (after.collapse) {
         addLog('¡El borde se desploma!');
+        playSfx('shatter');
         d.moments.callout({ text: '¡Derrumbe!', sub: 'El borde cae al vacío', icon: 'collapse', tone: 'danger', anim: 'crumble', tier: 'major' });
         await d.view.collapse(after.collapse);
       }
