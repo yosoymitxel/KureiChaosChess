@@ -1,16 +1,22 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd } from '../components.js';
+import { Topbar, MiniEnd, MiniDiff } from '../components.js';
 import { MiniGrid } from './mini-grid.js';
 import { hopPiece, popPiece, snapPieces, pieceDiffs } from '../hop.js';
 import { legalMoves } from '../../game/rules.js';
-import { SIZE, board, fromSpec, play, defend, capturesKing } from '../../game/mates.js';
+import { SIZE, DIFFS, board, fromSpec, play, defend, capturesKing } from '../../game/mates.js';
 import { MATES } from '../../data/mates.js';
 
 const pickOne = (list) => list[Math.floor(Math.random() * list.length)];
-const load = (n) => ({ n, left: n, pieces: fromSpec(pickOne(MATES[n])) });
+// avoid salta el problema anterior cuando la secuencia usa el mismo largo dos veces.
+const load = (n, avoid) => {
+  const spec = pickOne(MATES[n].filter((sp) => sp !== avoid));
+  return { n, left: n, spec, pieces: fromSpec(spec) };
+};
 
-export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
-  const [st, setSt] = useState(() => load(1));
+export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
+  const seq = (DIFFS[diff || settings.miniDiff?.mates] || DIFFS.normal).steps;
+  const [at, setAt] = useState(0);
+  const [st, setSt] = useState(() => load(seq[0]));
   const [sel, setSel] = useState(null);
   const [over, setOver] = useState(null);
   const [note, setNote] = useState('');
@@ -50,9 +56,11 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
       setSt({ ...st, pieces, left }); setOver('lose'); return setNote('Se acabaron tus jugadas y el rey carmesí sigue libre.');
     }
     if (mate && (!left || st.n === 1 || kingTaken)) {
-      if (st.n === 2) { setSt({ ...st, pieces, left }); setOver('win'); return setNote('¡Mate en 2! Problema resuelto.'); }
-      setNote('¡Mate en 1! Ahora el mate en 2.');
-      return setSt(load(2));
+      const next = at + 1;
+      if (next >= seq.length) { setSt({ ...st, pieces, left }); setOver('win'); return setNote(`¡Mate en ${st.n}! Problema resuelto.`); }
+      setNote(`¡Mate en ${st.n}! Ahora el mate en ${seq[next]}.`);
+      setAt(next);
+      return setSt(load(seq[next], st.spec));
     }
     setSt({ ...st, pieces, left });
   };
@@ -65,16 +73,21 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar' }) {
   };
   return html`<div class="screen mini">
     <${Topbar} title="Mate en 1 y 2" sub=${sub} onBack=${onBack} />
-    <div class="mini-body">
-      ${!over && html`<p class="mini-steps">${[1, 2].map((k) => html`<span class=${st.n === k ? 'on' : st.n > k ? 'done' : ''}>${k} Mate en ${k}</span>`)}</p>`}
-      ${!over && (note && !sel
-        ? html`<p class="mini-status" aria-live="polite">${note}</p>`
-        : html`<div class="mini-stats" aria-live="polite">
-          <span class="chip" aria-label=${`Te queda${st.left === 1 ? '' : 'n'} ${st.left} jugada${st.left === 1 ? '' : 's'}`}><span class="dots">${Array.from({ length: st.n }, (_, i) => html`<i class=${i < st.left ? '' : 'off'} />`)}</span></span>
-        </div>`)}
-      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Juegas con marfil y mueves primero: el rey carmesí marcado en rojo debe caer en ${st.n} jugada${st.n > 1 ? 's' : ''}, responda lo que responda. El carmesí juega siempre su mejor defensa.</p></details>
-      <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!over} label="Problema de mate" gridRef=${gridRef} boardClass="bm-slab" onTap=${tap} />
-      ${over && html`<${MiniEnd} win=${over === 'win'} note=${note} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
+    <div class="mini-body side-body">
+      <div class="mini-main">
+        <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!over} label="Problema de mate" gridRef=${gridRef} boardClass="bm-slab" onTap=${tap} />
+        <div class="mini-side">
+          ${!over && html`<p class="mini-steps">${seq.map((n2, k) => html`<span class=${at === k ? 'on' : at > k ? 'done' : ''}>${k + 1} Mate en ${n2}</span>`)}</p>`}
+          ${!over && (note && !sel
+            ? html`<p class="mini-status" aria-live="polite">${note}</p>`
+            : html`<div class="mini-stats" aria-live="polite">
+              <span class="chip" aria-label=${`Te queda${st.left === 1 ? '' : 'n'} ${st.left} jugada${st.left === 1 ? '' : 's'}`}><span class="dots">${Array.from({ length: st.n }, (_, i) => html`<i class=${i < st.left ? '' : 'off'} />`)}</span></span>
+            </div>`)}
+          ${over && html`<${MiniEnd} win=${over === 'win'} note=${note} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
+          <${MiniDiff} mini="mates" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
+          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Juegas con marfil y mueves primero: el rey carmesí marcado en rojo debe caer en ${st.n} jugada${st.n > 1 ? 's' : ''}, responda lo que responda. El carmesí juega siempre su mejor defensa.</p></details>
+        </div>
+      </div>
     </div>
   </div>`;
 }

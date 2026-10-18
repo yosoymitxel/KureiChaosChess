@@ -6,6 +6,13 @@ import { makePiece } from './generate.js';
 export const SIZE = 6;
 export const board = () => ({ rows: SIZE, cols: SIZE, holes: new Set(), terrain: new Map(), portals: new Map() });
 
+// Secuencia de problemas por nivel: Normal conserva la de siempre (mate en 1 y luego mate en 2).
+export const DIFFS = {
+  facil: { name: 'Fácil', steps: [1, 1] },
+  normal: { name: 'Normal', steps: [1, 2] },
+  dificil: { name: 'Difícil', steps: [2, 2] },
+};
+
 export const fromSpec = (spec) => spec.map(([t, color, r, c]) => makePiece(t, color, r, c));
 
 export function play(pieces, p, m) {
