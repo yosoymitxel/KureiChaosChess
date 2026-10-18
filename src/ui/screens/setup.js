@@ -2,6 +2,7 @@ import { html, useState, useRef } from '../lib.js';
 import { Icon } from '../icons.js';
 import { Topbar, useEnter, Toggle } from '../components.js';
 import { nodeModifier } from '../../data/modifiers.js';
+import { rivalForFloor, DIFFICULTIES } from '../../game/difficulty.js';
 import { THEMES } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
@@ -13,12 +14,15 @@ const SIDES = [
   { color: 'wild', label: 'Jade' },
 ];
 
-export function SetupScreen({ node, defaultCount, onBack, onStart, run }) {
+export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings }) {
   const ref = useRef(null);
   useEnter(ref);
   const [count, setCount] = useState(defaultCount || 2);
   const [kinds, setKinds] = useState(['human', 'bot', 'bot']);
   const mod = nodeModifier(node);
+  // El peldaño del rival lo fija el tramo de la torre, el ajuste de dificultad lo corre entero
+  // y el piso de un mini-jefe sube uno.
+  const rival = rivalForFloor(node.floor, run?.map?.floors ?? 1, { up: node.isMiniBoss ? 1 : 0, difficulty: settings?.difficulty });
   const seats = SIDES.slice(0, count).map((s, i) => ({ color: s.color, kind: kinds[i], name: kinds[i] === 'bot' ? `Bot ${s.label}` : `Jugador ${i + 1}` }));
   const setKind = (i, kind) => setKinds((k) => k.map((v, j) => (j === i ? kind : v)));
   return html`<div class="screen setup" ref=${ref}>
@@ -26,6 +30,7 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run }) {
     <div class="setup-body">
       <section class="panel setup-card" data-enter>
         <div class="mod-card"><span class="mod-icon"><${Icon} name=${mod.icon} size=${24} /></span><div><h2>${mod.name}</h2><p>${mod.desc}</p></div></div>
+        <div class="rival-line"><${Icon} name="bot" size=${17} /><div><strong>Rival: ${rival.name}</strong><small>${rival.desc}</small></div></div>
         ${node.isBoss && !run?.mutations?.length ? html`<p class="setup-warn"><${Icon} name="boss" size=${15} />Sin mutaciones, solo una de cada cuatro veces se derriba al coloso. Esta mesa pide tus mejores cartas.</p>` : ''}
       </section>
       ${run?.mutations?.length ? html`<section class="panel setup-card" data-enter>
@@ -71,6 +76,13 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
               <span class="swatch">${t.swatch.map((c) => html`<i style=${{ background: c }}></i>`)}</span>${t.name}${owned ? '' : html`<${Icon} name="lock" size=${13} />`}</button>`;
           })}
         </div>
+      </section>
+      <section class="panel setup-card" data-enter>
+        <h2>Dificultad</h2>
+        <div class="segmented" role="group" aria-label="Dificultad del rival">
+          ${Object.values(DIFFICULTIES).map((d) => html`<button class=${settings.difficulty === d.id ? 'on' : ''} aria-pressed=${settings.difficulty === d.id} onClick=${() => set('difficulty')(d.id)}>${d.name}</button>`)}
+        </div>
+        <p class="setup-note">${(DIFFICULTIES[settings.difficulty] || DIFFICULTIES.normal).desc}</p>
       </section>
       <section class="panel setup-card" data-enter>
         <h2>Cámara</h2>

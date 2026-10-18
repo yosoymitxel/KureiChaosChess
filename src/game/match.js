@@ -3,13 +3,14 @@
 import { legalMoves, landing, buildOccupancy, hasAnyLegalMove, threatenedPieces, key, cellsOf, walkable } from './rules.js';
 import { countMutations } from '../data/mutations.js';
 import { PIECE_VALUE } from '../data/pieces.js';
+import { RIVALS } from './difficulty.js';
 
 // Turns per player without a capture before the game is decided on piece count.
 export const QUIET_LIMIT = 20;
 
 export class Match {
-  constructor({ board, pieces, players, modifier, mutations, bonuses }) {
-    Object.assign(this, { board, pieces, players, modifier });
+  constructor({ board, pieces, players, modifier, mutations, bonuses, rival, rivals }) {
+    Object.assign(this, { board, pieces, players, modifier, rival, rivals });
     this.current = 0;
     this.movesThisTurn = 0;
     this.turn = 0;
@@ -163,24 +164,47 @@ export class Match {
   }
 }
 
-// Greedy bot: captures by value, centralisation, pressure on the enemy royal.
+// La pieza enemiga más barata que podría comer en la casilla si mi pieza queda ahí. Se mira la
+// posición ya movida: la pieza que se va no tapa la línea, el hueco que deja una captura tampoco,
+// y los peones ven en diagonal aunque la casilla esté vacía. El perfil "maestro" no cuelga piezas.
+function cheapestAttacker(match, mover, row, col, hits) {
+  const virtual = match.pieces.filter((p) => p !== mover && !hits.includes(p)).concat([{ ...mover, row, col }]);
+  const enemies = virtual.filter((p) => p.color !== mover.color);
+  enemies.sort((a, b) => (PIECE_VALUE[a.type] || 20) - (PIECE_VALUE[b.type] || 20));
+  for (const e of enemies) {
+    for (const m of legalMoves(e, virtual, match.board)) {
+      if (m.row === row && m.col === col) return PIECE_VALUE[e.type] || 20;
+    }
+  }
+  return null;
+}
+
+// Greedy bot: captures by value, centralisation, pressure on the enemy royal. The rival profile
+// (difficulty.js) dials what it sees, what it protects and how often it blunders.
 export function botChooseMove(match) {
   const { pieces, board } = match;
+  const R = match.rivals?.[match.player.color] || match.rival || RIVALS.oficial;
   const color = match.player.color;
   const mine = pieces.filter((p) => p.color === color);
   const royal = pieces.find((p) => p.royal && p.color !== color);
-  let best = null;
+  const options = [];
   for (const p of mine) {
     if (p.royal && !p.boss && mine.length > 2) continue;
     for (const m of match.legal(p)) {
-      let score = Math.random() * 4;
-      for (const v of m.hits) score += v.royal ? 1000 : PIECE_VALUE[v.type] || 20;
+      let score = Math.random() * R.noise;
+      for (const v of m.hits) score += v.royal ? 1000 : (PIECE_VALUE[v.type] || 20) * R.capture;
       score += Math.max(board.rows, board.cols) - (Math.abs(m.row - (board.rows - 1) / 2) + Math.abs(m.col - (board.cols - 1) / 2));
-      if (royal) score += Math.max(0, 10 - (Math.abs(m.row - royal.row) + Math.abs(m.col - royal.col)));
+      if (royal && R.pressure) score += R.pressure * Math.max(0, 10 - (Math.abs(m.row - royal.row) + Math.abs(m.col - royal.col)));
       if (p.boss) score += m.hits.length * 15; // bosses love stomping
-      if (!best || score > best.score) best = { piece: p, target: { row: m.row, col: m.col }, score };
+      if (R.care) {
+        const attacker = cheapestAttacker(match, p, m.row, m.col, m.hits);
+        if (attacker != null) score -= R.care * Math.max(0, (PIECE_VALUE[p.type] || 20) - attacker);
+      }
+      options.push({ piece: p, target: { row: m.row, col: m.col }, score });
     }
   }
-  return best;
+  if (!options.length) return null;
+  if (R.blunder && Math.random() < R.blunder) return options[Math.floor(Math.random() * options.length)];
+  return options.reduce((best, o) => (o.score > best.score ? o : best));
 }
 

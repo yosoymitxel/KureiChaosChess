@@ -6,6 +6,7 @@ import { isShopCard } from '../../game/shop.js';
 import { BoardView } from '../../view/board-view.js';
 import { artOf } from '../../view/piece-art.js';
 import { Match, botChooseMove } from '../../game/match.js';
+import { rivalForFloor } from '../../game/difficulty.js';
 import { generateBoard, placePieces } from '../../game/generate.js';
 import { moveCells, cellsOf, key, anchorForCell, immune } from '../../game/rules.js';
 import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
@@ -55,8 +56,11 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   useEffect(() => {
     const d = ref.current;
     const board = generateBoard(node.seed, node.floor, run.map.floors, node.modifier);
-    const pieces = placePieces(board, { playerCount: seats.length, isBoss: node.isBoss, isMiniBoss: node.isMiniBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses });
-    const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses });
+    const pieces = placePieces(board, { playerCount: seats.length, isBoss: node.isBoss, isMiniBoss: node.isMiniBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses, floor: node.floor, totalFloors: run.map.floors });
+    // El rival lo manda el tramo de la torre (difficulty.js); el ajuste de dificultad corre la
+    // escalera y el mini-jefe sube un peldaño.
+    const rival = rivalForFloor(node.floor, run.map.floors, { up: node.isMiniBoss ? 1 : 0, difficulty: settings.difficulty });
+    const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses, rival });
     const humanTurn = () => match.player.kind === 'human' && !match.over && !d.busy && !d.paused;
 
     const refresh = () => {
@@ -404,7 +408,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.view.setBoard(board);
     d.view.setPieces(pieces);
     d.busy = true;
-    addLog(`Piso ${node.floor + 1}/${run.map.floors} · ${board.rows}×${board.cols} · ${mod.name}`);
+    addLog(`Piso ${node.floor + 1}/${run.map.floors} · ${board.rows}×${board.cols} · ${mod.name} · Rival ${rival.name}`);
     const boss = pieces.find((p) => p.boss);
     d.bossId = boss?.boss;
     const learned = pieces.filter((p) => p.color !== 'light' && p.extraMoveTypes?.length).length;

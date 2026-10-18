@@ -1,29 +1,46 @@
 // Procedural generation: run map, board shapes and starting armies.
 import { mulberry32, pickFrom } from '../core/rng.js';
 import { key } from './rules.js';
-import { BOSSES, BOSS_IDS } from '../data/bosses.js';
+import { BOSSES } from '../data/bosses.js';
 import { applyMutations } from '../data/mutations.js';
-
-
-const MOD_POOL = ['none', 'promote', 'promote', 'chaos', 'chaos', 'rush', 'rush', 'fog', 'ice', 'portal', 'rest', 'bag', 'elite', 'elite', 'connect4', 'bomber', 'barrier', 'izombie', 'bowling', 'laststand', 'mates', 'knight', 'queens', 'marcianos'];
+import { pickModifier, miniBossFloors, armyForFloor, ARMY_STEPS, isMiniModifier, RARE_TYPES, MINI_BOSSES, FINAL_BOSSES } from './difficulty.js';
 
 export function generateMap(seed) {
   const rng = mulberry32(seed);
   const floors = 5 + Math.floor(rng() * 11);
-  // Minijefes: un solo nodo, sin hermanos. Se sortean antes de los layouts.
-  const miniBoss = new Set();
-  for (let f = 2; f < floors - 1; f++) if (rng() < 0.15) miniBoss.add(f);
+  // Mini-jefes de control: un solo nodo, sin hermanos, en los tercios medio y tardío (ver difficulty.js).
+  const miniBoss = new Set(miniBossFloors(floors, rng));
   const layouts = Array.from({ length: floors }, (_, f) => (f === 0 || f === floors - 1 || miniBoss.has(f) ? 1 : 1 + Math.floor(rng() * 3)));
   const nodes = [], connections = [];
+  const usedMinis = []; // un minijuego no se repite dentro de la run
+  let prev = []; // mecánicas del piso anterior: no se repiten al bajar
   layouts.forEach((nc, f) => {
     const isBoss = f === floors - 1, isFirst = f === 0, isMiniBoss = miniBoss.has(f);
+    const here = [];
     for (let c = 0; c < nc; c++) {
       const nodeSeed = Math.floor(rng() * 1e6);
-      let modifier = isFirst ? 'none' : (isBoss || isMiniBoss) ? 'boss' : pickFrom(rng, MOD_POOL);
-      if (modifier === 'elite' && f < 2) modifier = 'promote'; // elites only once the player has a few cards
+      const modifier = isFirst ? 'none' : (isBoss || isMiniBoss) ? 'boss'
+        : pickModifier(rng, { floor: f, floors, skip: [...prev, ...here], usedMinis }) ?? 'rest';
+      if (isMiniModifier(modifier)) usedMinis.push(modifier);
+      here.push(modifier);
       nodes.push({ id: `f${f}c${c}`, floor: f, column: c, totalCols: nc, modifier, seed: nodeSeed, isBoss, isMiniBoss, isFirst });
     }
+    prev = here;
   });
+  // Garantía de ritmo: en runs de 8 pisos o más caen al menos dos minijuegos distintos. Si el
+  // sorteo no los trajo, un nodo común del camino se convierte en uno que falte.
+  if (floors >= 8) {
+    const count = () => nodes.filter((n) => isMiniModifier(n.modifier)).length;
+    const spare = nodes.filter((n) => n.floor >= 2 && !n.isBoss && !n.isMiniBoss && !isMiniModifier(n.modifier));
+    spare.sort((a, b) => (Number(['rest', 'bag', 'elite'].includes(a.modifier)) - Number(['rest', 'bag', 'elite'].includes(b.modifier))));
+    for (const n of spare) {
+      if (count() >= 2) break;
+      const id = pickModifier(rng, { floor: n.floor, floors, usedMinis, mini: true });
+      if (!id) break;
+      n.modifier = id;
+      usedMinis.push(id);
+    }
+  }
   const nodeAt = (f, c) => nodes.find((n) => n.floor === f && n.column === c);
   for (let f = 0; f < floors - 1; f++) {
     const cc = layouts[f], nc = layouts[f + 1];
@@ -187,15 +204,27 @@ function protectElites(pieces) {
   }
 }
 
-export function placePieces(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutations, bonuses }) {
+// La rareza no espera al final de la torre: cada bando lleva al menos una pieza de las de casa
+// (camello, cañón o elefante) desde el primer piso. El cambio es espejo en los dos bandos.
+function ensureRare(pieces, color, cols) {
+  const mine = pieces.filter((p) => p.color === color);
+  if (mine.some((p) => RARE_TYPES.includes(p.type))) return;
+  const cC = (cols - 1) / 2;
+  const cand = mine.filter((p) => p.type === 'guard' || p.type === 'advisor')
+    .sort((a, b) => Math.abs(a.col - cC) - Math.abs(b.col - cC))[0];
+  if (cand) cand.type = 'camel';
+}
+
+export function placePieces(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutations, bonuses, floor, totalFloors }) {
   const rng = mulberry32(seed + 7);
+  const guide = floor == null ? ARMY_STEPS[2] : armyForFloor(floor, totalFloors || 1);
   // La variedad nunca debe anular una mutación del jugador: fuera las doctrinas que le quitan su pieza.
   const clash = (mut, formation) => (mutations?.includes(mut) ? formation : null);
   const blocked = new Set([clash('bishopOrth', 'caballeria'), clash('knightBishop', 'exotica'), clash('towerDiag', 'asedio')].filter(Boolean));
   const pool = FORMATION_POOL.filter((f) => !blocked.has(f));
   const swaps = FORMATIONS[pickFrom(rng, pool.length ? pool : ['clasica'])];
   const deploy = pickFrom(rng, DEPLOY_POOL);
-  const layers = 2 + Math.floor(rng() * 3);
+  const layers = pickFrom(rng, guide.layers);
   const { rows, cols } = board;
   const pieces = [];
   const valid = (r, c) => r >= 0 && r < rows && c >= 0 && c < cols && !board.holes.has(key(r, c));
@@ -218,6 +247,8 @@ export function placePieces(board, { playerCount, isBoss, isMiniBoss, elite, see
   }
   side('dark', 0, 1);
   side('light', rows - 1, -1);
+  ensureRare(pieces, 'dark', cols);
+  ensureRare(pieces, 'light', cols);
 
   if (playerCount === 3) {
     const cr = Math.floor(rows / 2), cc = Math.floor(cols / 2);
@@ -226,8 +257,8 @@ export function placePieces(board, { playerCount, isBoss, isMiniBoss, elite, see
   }
 
   if (isBoss || isMiniBoss) {
-    // El rey oscuro deja su sitio al jefe multi-casilla.
-    placeBoss(pieces, board, BOSS_IDS[Math.floor(rng() * BOSS_IDS.length)]);
+    // El rey oscuro deja su sitio al jefe multi-casilla: menores custodian, mayores cierran.
+    placeBoss(pieces, board, pickFrom(rng, isMiniBoss ? MINI_BOSSES : FINAL_BOSSES));
     // Los oficiales que sobreviven aprenden movimientos prestados: el minijefe enseña la mecánica
     // con dos de ellos, el jefe final la reparte entre todos.
     const extras = ['knight', 'bishop', 'rook', 'queen', 'king', 'camel', 'elephant'];

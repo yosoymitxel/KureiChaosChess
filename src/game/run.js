@@ -37,11 +37,8 @@ export function isAvailable(run, node) {
 }
 
 // El nivel del minijuego lo manda el piso: primer tercio de la torre fácil, el medio normal
-// y el último difícil. En la run no se elige; en partida libre sí.
-export const floorTier = (floor, floors) => {
-  const t = floors > 1 ? floor / (floors - 1) : 0;
-  return t < 1 / 3 ? 'facil' : t < 2 / 3 ? 'normal' : 'dificil';
-};
+// y el último difícil. En la run no se elige; en partida libre sí. (La tabla vive en difficulty.js.)
+export { floorTier } from './difficulty.js';
 
 // Minigames won at least once; they stay playable from the menu across runs.
 const MINIS_KEY = 'zugzwang.minis.v1';
@@ -53,7 +50,7 @@ const BOSSES_KEY = 'zugzwang.bosses.v1';
 export const loadBosses = () => read(BOSSES_KEY) || [];
 export const unlockBoss = (id) => { const u = loadBosses(); if (id && !u.includes(id)) write(BOSSES_KEY, [...u, id]); };
 
-export const DEFAULT_SETTINGS = { theme: 'walnut', camera: 'tilt', shake: true, moments: true, fullscreen: false, speed: 1, miniDiff: {} };
+export const DEFAULT_SETTINGS = { theme: 'walnut', camera: 'tilt', shake: true, moments: true, fullscreen: false, speed: 1, difficulty: 'normal', miniDiff: {} };
 // El ajuste viejo guardaba un solo nivel global; ahora es un nivel por minijuego.
 export const loadSettings = () => {
   const s = { ...DEFAULT_SETTINGS, ...(read(SETTINGS_KEY) || {}) };

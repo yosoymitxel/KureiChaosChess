@@ -13,7 +13,7 @@ for (let g = 0; g < games; g++) {
   const seed = 1000 + g, isBoss = g % 3 === 0, three = g % 7 === 0;
   const modifier = isBoss ? 'boss' : MODS[g % MODS.length];
   const board = generateBoard(seed, isBoss ? 9 : 3, 10, modifier);
-  const pieces = placePieces(board, { playerCount: three ? 3 : 2, isBoss: false, elite: modifier === 'elite', seed, mutations: ['fury', 'knightBishop'], bonuses: {} });
+  const pieces = placePieces(board, { playerCount: three ? 3 : 2, isBoss: false, elite: modifier === 'elite', seed, mutations: ['fury', 'knightBishop'], bonuses: {}, floor: g % 12, totalFloors: 12 });
   if (isBoss) placeBoss(pieces, board, BOSS_IDS[g % BOSS_IDS.length]);
   const players = [{ color: 'light', kind: 'bot', name: 'A' }, { color: 'dark', kind: 'bot', name: 'B' }];
   if (three) players.push({ color: 'wild', kind: 'bot', name: 'C' });
