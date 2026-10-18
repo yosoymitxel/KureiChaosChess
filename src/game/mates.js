@@ -25,7 +25,14 @@ export const moves = (pieces, color, b = board()) =>
   pieces.filter((p) => p.color === color).flatMap((p) => legalMoves(p, pieces, b).map((m) => ({ p, m })));
 
 const kingDead = (pieces, color) => !pieces.some((p) => p.color === color && p.type === 'king');
-export const capturesKing = (pieces) => moves(pieces, 'light').some(({ m }) => m.hits.some((h) => h.type === 'king' && h.color === 'dark'));
+const kingCaps = (pieces) => moves(pieces, 'light').filter(({ m }) => m.hits.some((h) => h.type === 'king' && h.color === 'dark'));
+export const capturesKing = (pieces) => kingCaps(pieces).length > 0;
+
+// La captura que cobra el mate: la pieza recién movida si llega al rey; si no, la primera que llegue.
+export const captureMove = (pieces, prefer) => {
+  const caps = kingCaps(pieces);
+  return caps.find(({ p }) => prefer && p.id === prefer.id) || caps[0] || null;
+};
 
 // Jugada marfil que fuerza la captura del rey en n jugadas, o null.
 export function solve(pieces, n) {

@@ -1,9 +1,9 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
 import { Topbar, MiniEnd, MiniDiff } from '../components.js';
 import { MiniGrid } from './mini-grid.js';
-import { hopPiece, popPiece, snapPieces, pieceDiffs } from '../hop.js';
+import { hopPiece, popPiece, snapPieces, pieceDiffs, fallPiece } from '../hop.js';
 import { legalMoves } from '../../game/rules.js';
-import { SIZE, DIFFS, board, fromSpec, play, defend, capturesKing } from '../../game/mates.js';
+import { SIZE, DIFFS, board, fromSpec, play, defend, capturesKing, captureMove } from '../../game/mates.js';
 import { MATES } from '../../data/mates.js';
 
 const pickOne = (list) => list[Math.floor(Math.random() * list.length)];
@@ -23,6 +23,7 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settin
   const b = board();
   const gridRef = useRef(null);
   const before = useRef(null);
+  const fall = useRef(null);
   // Jugada y réplica se miden contra la instantánea: cada ficha que cambió de casilla salta.
   useEffect(() => {
     const was = before.current;
@@ -32,6 +33,12 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settin
     const { hops, born } = pieceDiffs(grid, was, st.pieces, SIZE);
     for (const h of hops) hopPiece(grid, h.el, { from: h.from, to: h.to, side: h.side, cols: SIZE, rows: SIZE });
     for (const el of born) popPiece(grid, el);
+    // El rey capturado cae donde estaba, como en el resto de los minijuegos.
+    const f = fall.current;
+    if (f) {
+      fall.current = null;
+      fallPiece(grid, { ...f, type: 'king', cols: SIZE });
+    }
   });
 
   const targets = sel ? legalMoves(sel, st.pieces, b) : [];
@@ -50,6 +57,8 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settin
     if (reply) pieces = play(pieces, reply.p, reply.m);
     const mate = kingTaken || capturesKing(pieces);
     if (!pieces.some((p) => p.type === 'king' && p.color === 'light')) {
+      const king = st.pieces.find((p) => p.type === 'king' && p.color === 'light');
+      if (king) fall.current = { row: king.row, col: king.col, side: 'light' };
       setSt({ ...st, pieces, left }); setOver('lose'); return setNote('El carmesí capturó a tu rey.');
     }
     if (!left && !mate) {
@@ -57,7 +66,16 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settin
     }
     if (mate && (!left || st.n === 1 || kingTaken)) {
       const next = at + 1;
-      if (next >= seq.length) { setSt({ ...st, pieces, left }); setOver('win'); return setNote(`¡Mate en ${st.n}! Problema resuelto.`); }
+      if (next >= seq.length) {
+        // Se cobra el mate: la estocada final captura al rey, que cae en su casilla.
+        const king = pieces.find((p) => p.type === 'king' && p.color === 'dark') || st.pieces.find((p) => p.type === 'king' && p.color === 'dark');
+        if (!kingTaken) {
+          const hit = captureMove(pieces, sel);
+          if (hit) pieces = play(pieces, hit.p, hit.m);
+        }
+        if (king) fall.current = { row: king.row, col: king.col, side: 'dark' };
+        setSt({ ...st, pieces, left }); setOver('win'); return setNote(`¡Mate en ${st.n}! Problema resuelto.`);
+      }
       setNote(`¡Mate en ${st.n}! Ahora el mate en ${seq[next]}.`);
       setAt(next);
       return setSt(load(seq[next], st.spec));
