@@ -1,5 +1,6 @@
 // Tienda del jardín: monedas que pagan las flores del Jardín Zen y lo que se compra con ellas.
 import { HAND_LIMIT } from './cards.js';
+import { award } from './achievements.js';
 
 const KEY = 'zugzwang.shop.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
@@ -24,7 +25,7 @@ export function loadShop() {
 }
 export const saveShop = (s) => write(KEY, s);
 
-export function addCoins(n) { const s = loadShop(); saveShop({ ...s, coins: s.coins + n }); return s.coins + n; }
+export function addCoins(n) { const s = loadShop(); const coins = s.coins + n; saveShop({ ...s, coins }); if (coins >= 100) award('rich'); return coins; }
 export function charge(n) { const s = loadShop(); if (s.coins < n) return false; saveShop({ ...s, coins: s.coins - n }); return true; }
 
 export const themeOwned = (id) => !THEME_SHOP[id] || loadShop().themes.includes(id);

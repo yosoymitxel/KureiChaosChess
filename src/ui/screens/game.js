@@ -16,6 +16,7 @@ import { PIECE_NAMES, MOVE_NAMES } from '../../data/pieces.js';
 import { BOSSES } from '../../data/bosses.js';
 import { PauseOverlay } from './overlays.js';
 import { Moments } from '../moments.js';
+import { award } from '../../game/achievements.js';
 
 const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
 
@@ -61,6 +62,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     // escalera y el mini-jefe sube un peldaño.
     const rival = rivalForFloor(node.floor, run.map.floors, { up: node.isMiniBoss ? 1 : 0, difficulty: settings.difficulty });
     const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses, rival });
+    // Foto del bando humano al repartir: decide los logros de fin de partida.
+    const human = seats.find((s) => s.kind === 'human')?.color || 'light';
+    d.feats = { human, mine: new Set(pieces.filter((p) => p.color === human)), cards: 0, hadCards: d.hand.length > 0 };
     const humanTurn = () => match.player.kind === 'human' && !match.over && !d.busy && !d.paused;
 
     const refresh = () => {
@@ -127,6 +131,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       d.busy = true;
       cancelCard();
       await flyCard(i, res);
+      d.feats.cards++;
       d.onUseCard(i);
       addLog(`Carta: ${card.name}`);
       d.moments.callout({ text: `¡${card.name}!`, sub: card.desc, tone: 'brass', icon: card.icon, anim: 'stomp', tier: 'info' });
@@ -197,6 +202,16 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const finish = async () => {
       const r = match.over;
       const human = seats.find((s) => s.kind === 'human')?.color || 'light';
+      if (r.victory) {
+        // La pérdida se lee por identidad: toda pieza caída sale de match.pieces.
+        const lost = [...d.feats.mine].filter((p) => !match.pieces.includes(p));
+        if (!lost.length) award('flawless');
+        else if (lost.some((p) => p.type === 'queen')) award('queen_win');
+        if (d.feats.cards === 0 && d.feats.hadCards) award('no_cards');
+        if (node.modifier === 'fog') award('fog_win');
+        if (node.modifier === 'elite') award('elite_slain');
+        if (node.isMiniBoss) award('mini_boss_slain');
+      }
       await d.moments.whenIdle(); // the closing callout (fallen king) plays before the end screen
       if (r.victory) await d.view.victory(human);
       else if (!r.tie) await d.view.defeat(human);
@@ -213,7 +228,10 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (res.bounced) addLog(`${tag}${nm} golpea a ${pieceName(res.victims[0].piece)} (${res.victims[0].piece.hp} ${res.victims[0].piece.hp === 1 ? "vida" : "vidas"})`);
       else if (res.victims.length) addLog(`${tag}${nm} captura ${res.victims.map((v) => (v.piece.boss ? v.piece.name : pieceName(v.piece).toLowerCase())).join(', ')}`);
       else addLog(`${tag}${nm} mueve`);
-      if (res.promoted) addLog(`${tag}¡Coronación!`);
+      if (res.promoted) {
+        addLog(`${tag}¡Coronación!`);
+        if (piece.color === d.feats.human) award('crowned');
+      }
       await d.view.playMove(res);
       const fallenBoss = res.victims.find((v) => v.killed && v.piece.boss)?.piece;
       if (fallenBoss) await d.moments.cinematic({ title: `¡${fallenBoss.name} derribado!`, sub: 'El coloso cae y la torre es tuya.', piece: { type: artOf(fallenBoss), side: fallenBoss.color }, tone: 'brass', anim: 'down' });
@@ -339,7 +357,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (!d.placing) return;
       const used = d.placing.total - d.placing.left;
       const i = d.hand.indexOf('organize');
-      if (used > 0 && i >= 0) { d.onUseCard(i); addLog('Carta: Organizar'); }
+      if (used > 0 && i >= 0) { d.feats.cards++; d.onUseCard(i); addLog('Carta: Organizar'); }
       d.placing = null;
       placeClear();
       setPlacing(null);

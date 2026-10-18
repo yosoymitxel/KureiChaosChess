@@ -109,6 +109,7 @@ export function ZenScreen({ onBack, onShop }) {
     award('flower_1');
     const flores = ZEN_KINDS.reduce((n, k) => n + (next.flores[k] || 0), 0);
     if (flores >= 3) award('flower_3');
+    if (ZEN_KINDS.every((k) => (next.flores[k] || 0) > 0)) award('zen_all');
   };
 
   // Un toque aplica la herramienta elegida; el estatus cuenta la espera y las novedades.
@@ -153,6 +154,7 @@ export function ZenScreen({ onBack, onShop }) {
     if (!charge(cost)) return say('Faltan monedas.');
     setCoins(loadShop().coins);
     apply(zenExpand(z));
+    award('zen_ring');
     say(`El cantero crece a ${z.size + 1}×${z.size + 1}: la tierra nueva pide cava.`);
   };
 

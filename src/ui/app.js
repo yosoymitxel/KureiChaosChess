@@ -1,6 +1,7 @@
 // Root: screen routing + run progression. Screens are dumb; all run mutations happen here.
 import { html, useState, useEffect, useRef, useCallback, motion } from './lib.js';
 import { CardPick } from './components.js';
+import { Icon } from './icons.js';
 import { MenuScreen } from './screens/menu.js';
 import { MapScreen } from './screens/map.js';
 import { SetupScreen, SettingsScreen } from './screens/setup.js';
@@ -74,6 +75,12 @@ export function App() {
   useEffect(() => { applyTheme(settings.theme); saveSettings(settings); }, [settings]);
   // La mesa ya puesta al estrenar la tienda sigue siendo del jugador.
   useEffect(() => { claimTheme(settings.theme); }, []);
+  // Hitos que dependen del avance de la run: se revisan al guardarla, en un solo lugar.
+  useEffect(() => {
+    if (!run) return;
+    if (run.currentFloor >= 10) award('deep_run');
+    if ((run.cards || []).length >= HAND_LIMIT) award('full_hand');
+  }, [run]);
 
   // Curtain wipe between screens.
   const goTo = useCallback(async (next) => {
@@ -207,5 +214,35 @@ export function App() {
     ${screen === 'achievements' && html`<${AchievementsScreen} onBack=${() => goTo('menu')} />`}
     ${howTo && html`<${HowToOverlay} onClose=${() => setHowTo(false)} />`}
     <div class="curtain" ref=${curtain}><span>Zugzwang</span></div>
+    <${AchievementToast} />
   `;
+}
+
+// Aviso de logro: se encola y sale uno por vez, sin interrumpir la mesa.
+function AchievementToast() {
+  const [queue, setQueue] = useState([]);
+  const [show, setShow] = useState(null);
+  useEffect(() => {
+    const onAward = (e) => setQueue((q) => [...q, e.detail]);
+    window.addEventListener('zugzwang:achievement', onAward);
+    return () => window.removeEventListener('zugzwang:achievement', onAward);
+  }, []);
+  useEffect(() => {
+    if (show || !queue.length) return;
+    setShow(queue[0]);
+    setQueue((q) => q.slice(1));
+  }, [queue, show]);
+  useEffect(() => {
+    if (!show) return;
+    const t = setTimeout(() => setShow(null), 4200);
+    return () => clearTimeout(t);
+  }, [show]);
+  if (!show) return null;
+  return html`<div class="ach-toast" role="status" onClick=${() => setShow(null)}>
+    <span class="ach-stamp"><${Icon} name=${show.icon} size=${20} /></span>
+    <div>
+      <small>Logro desbloqueado</small>
+      <b>${show.name}</b>
+    </div>
+  </div>`;
 }

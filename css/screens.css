@@ -579,6 +579,16 @@
 .ach-item b { display: block; font-size: 15px; }
 .ach-item p { margin: 0; font-size: 13px; color: var(--ink); }
 .ach-item.locked { opacity: 0.5; }
+.ach-group { width: min(480px, 100%); display: grid; gap: 8px; }
+.ach-group h3 { margin: 0; display: flex; align-items: baseline; justify-content: space-between; font-size: 15px; }
+.ach-group h3 small { font-size: 12px; font-weight: 800; color: var(--muted); }
+.ach-group .ach-list { width: 100%; }
+/* Aviso de logro: la ficha sube desde el borde inferior y se va sola. */
+.ach-toast { position: fixed; left: 50%; bottom: 22px; bottom: max(22px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 80; display: flex; align-items: center; gap: 12px; padding: 10px 18px 10px 10px; border: 2px solid var(--ink); border-radius: var(--r-md); background: var(--paper); background-image: var(--grain); color: var(--ink); box-shadow: var(--lift); cursor: pointer; animation: ach-in 0.4s var(--ease-out) both; }
+.ach-toast .ach-stamp { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; background: var(--ink); color: var(--brass); flex-shrink: 0; }
+.ach-toast small { display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.ach-toast b { font-size: 15px; }
+@keyframes ach-in { from { opacity: 0; transform: translate(-50%, 14px); } to { opacity: 1; transform: translate(-50%, 0); } }
 .bm {
   --cell: max(16px, min(calc((100cqw - 10px) / var(--cols, var(--n))), calc((100cqh - 10px) / var(--rows, var(--n))), 64px));
   position: relative;
