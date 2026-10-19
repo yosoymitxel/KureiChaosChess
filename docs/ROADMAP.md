@@ -73,20 +73,20 @@ Se actualiza al cerrar cada bloque. La revisión completa del 19/10 añade los b
 ## 5. Pedidos del 20/10 (por orden: menos esfuerzo y más impacto primero)
 
 Rápidos:
-- [ ] Chips del lateral explicables: tocar "N en peligro" resalta cuáles; tocar una mutación dice qué hace.
-- [ ] Doble caída: el jefe (y "Tu turno") cae, vuelve y cae otra vez con impacto; en el diorama y en la partida.
-- [ ] Diorama: las piezas de extras se pueden tocar, no solo las etiquetas.
-- [ ] Yo Zombi: vidas por pieza visibles (peón 1, alfil y caballo 2, torre 3, como zombi normal, de cono y de cubo) y zombis en verde.
-- [ ] Organizar: carta distinta al resto y que se ejecute sola al empezar, sin quedarse en la mano sin explicación.
-- [ ] Logros: grupos como al principio (Jardín Zen, Tienda…) al estilo Steam, en rejilla simétrica.
-- [ ] Generador: torres sin peón delante (se cambian torre por torre en la jugada 1), cañón delante del rey en niveles avanzados, elefantes y camellos sin ninguna jugada posible.
+- [x] Chips del lateral explicables: tocar "N en peligro" resalta cuáles; tocar una mutación dice qué hace.
+- [x] Doble caída: el jefe (y "Tu turno") cae, vuelve y cae otra vez con impacto; en el diorama y en la partida.
+- [x] Diorama: las piezas de extras se pueden tocar, no solo las etiquetas.
+- [x] Yo Zombi: vidas por pieza visibles (peón 1, alfil y caballo 2, torre 3, como zombi normal, de cono y de cubo) y zombis en verde.
+- [x] Organizar: carta distinta al resto y que se ejecute sola al empezar, sin quedarse en la mano sin explicación.
+- [x] Logros: grupos como al principio (Jardín Zen, Tienda…) al estilo Steam, en rejilla simétrica.
+- [x] Generador: torres sin peón delante (se cambian torre por torre en la jugada 1), cañón delante del rey en niveles avanzados, elefantes y camellos sin ninguna jugada posible.
 
 Medios:
-- [ ] Confeti solo al ganar; explosiones, bombas, caídas y choques con efectos propios.
-- [ ] Bolos: animación de rodar con su base siguiendo a la pieza y cayendo en su casilla; más carriles y más largo (dificultad en alto y en largo); la ficha como pieza de damas, no un círculo soso.
-- [ ] Cartas: escalar el bloque entero con transform en mano, tienda y premio (no tocar fuentes); al elegir premio, la carta avanza y las otras se juntan detrás, sin scroll doble en móvil.
-- [ ] Zoom en móvil: ampliar de verdad y desplazar con dos dedos.
-- [ ] Rótulos de jefe y reina caída: entrar también de derecha a izquierda y de arriba abajo.
+- [x] Confeti solo al ganar; explosiones, bombas, caídas y choques con efectos propios.
+- [x] Bolos: animación de rodar con su base siguiendo a la pieza y cayendo en su casilla; más carriles y más largo (dificultad en alto y en largo); la ficha como pieza de damas, no un círculo soso.
+- [x] Cartas: escalar el bloque entero con transform en mano, tienda y premio (no tocar fuentes); al elegir premio, la carta avanza y las otras se juntan detrás, sin scroll doble en móvil.
+- [x] Zoom en móvil: ampliar de verdad y desplazar con dos dedos.
+- [~] Rótulos de jefe y reina caída: entrar también de derecha a izquierda y de arriba abajo.
 - [ ] Panel lateral con más información (y para el tutorial).
 
 Grandes:
