@@ -212,6 +212,18 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700; padding: 3px 6px; border-radius: 4px; background: var(--ink); color: var(--paper); --icon-cut: var(--ink); }
 .tag.mut { background: var(--accent-ink); --icon-cut: var(--accent-ink); }
 .tag.carta { background: var(--brass); color: var(--ink); --icon-cut: var(--brass); }
+.captures { display: grid; gap: 6px; padding-top: 10px; border-top: 1.5px dashed oklch(0.2 0.02 55 / 0.25); }
+.cap-row { display: flex; align-items: center; gap: 8px; }
+.cap-row .token { width: 14px; height: 14px; flex: none; }
+.cap-list { display: flex; flex-wrap: wrap; }
+.cap-list .piece-icon { margin-right: -5px; }
+.hud-tip { display: flex; gap: 6px; align-items: baseline; margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--ink-2); }
+.hud-tip .icon { flex: none; translate: 0 2px; }
+.hand-list { display: grid; gap: 6px; padding-top: 10px; border-top: 1.5px dashed oklch(0.2 0.02 55 / 0.25); }
+.hl-row { display: flex; gap: 8px; align-items: baseline; font-size: 12.5px; line-height: 1.35; color: var(--ink-2); padding: 3px 6px; border-radius: 6px; }
+.hl-row b { color: var(--ink); }
+.hl-row .icon { flex: none; translate: 0 2px; color: var(--accent-ink); }
+.hl-row.on { background: var(--paper-2); outline: 2px solid var(--brass); }
 .log { list-style: none; margin: auto 0 0; padding: 10px 0 0; border-top: 1.5px dashed oklch(0.2 0.02 55 / 0.25); font-size: 12.5px; line-height: 1.6; color: var(--ink-2); }
 .log li:last-child { color: var(--ink); font-weight: 700; }
 .piece-icon { display: inline-block; flex-shrink: 0; }
@@ -318,7 +330,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
   .cine-text { align-items: center; }
   .game { flex-direction: column; }
   .hud { width: auto; margin: 0 10px calc(10px + env(safe-area-inset-bottom)); max-height: 34dvh; padding: 12px; gap: 10px; }
-  .hud .mod-card, .hud .log { display: none; }
+  .hud .mod-card, .hud .log, .hud .hud-tip, .hud .hand-list { display: none; }
   .seats { flex-direction: row; flex-wrap: wrap; }
   .seat { flex: 1; padding: 6px 8px; }
 }

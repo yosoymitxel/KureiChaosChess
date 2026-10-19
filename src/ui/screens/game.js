@@ -23,6 +23,14 @@ const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
 
 // Nombre visible: el propio (jefes, colosos) o el de su tipo. Las piezas fortificadas no llevan name.
 const pieceName = (p) => p.name || PIECE_NAMES[p.type] || p.type;
+// Consejos del panel: rotan por turno cuando no hay nada más urgente que decir.
+const TIPS = [
+  'Toca una pieza enemiga para ver su alcance en rojo.',
+  'Pellizca el tablero para ampliarlo y arrástralo para moverte.',
+  'Valen el enroque y la captura al paso.',
+  'Si la partida se estanca, gana quien tenga más piezas.',
+  'Toca un chip del panel para saber qué hace.',
+];
 
 // One line on what a card does to this piece, counted from the preview.
 function cardEffect(card, piece, pv) {
@@ -67,6 +75,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     // Foto del bando humano al repartir: decide los logros de fin de partida.
     const human = seats.find((s) => s.kind === 'human')?.color || 'light';
     d.feats = { human, mine: new Set(pieces.filter((p) => p.color === human)), cards: 0, hadCards: d.hand.length > 0 };
+    // Las piezas del reparto: el panel muestra como capturas las que ya no están en el tablero.
+    d.dealt = pieces.filter((p) => !p.boss);
     const humanTurn = () => match.player.kind === 'human' && !match.over && !d.busy && !d.paused;
 
     const refresh = () => {
@@ -87,6 +97,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         chaosIn: 3 - (match.turn % 3), boss: boss && { name: boss.name, hp: boss.hp, maxHp: boss.maxHp, id: boss.boss },
         counts: Object.fromEntries(seats.map((s) => [s.color, match.pieces.filter((x) => x.color === s.color).length])),
         canCard: p.kind === 'human' && !match.cardUsed && !match.over,
+        captured: Object.fromEntries(seats.map((s) => [s.color, d.dealt.filter((x) => x.color === s.color && !match.pieces.includes(x)).map((x) => x.type)])),
+        turn: match.turn,
       });
     };
 
@@ -547,6 +559,14 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
             ${inspect.cards.map((id) => html`<p class="insp-desc">${CARDS[id]?.desc}</p>`)}`}
           ${inspect.copied.length > 0 && html`<div class="insp-row"><span class="insp-key">Movimiento</span><span class="tags">${inspect.copied.map((n) => html`<span class="tag">${n}</span>`)}</span></div>`}
         </div>
+      </section>`}
+      ${hud && Object.values(hud.captured).some((l) => l.length) && html`<section class="captures" aria-label="Piezas capturadas">
+        ${seats.map((s) => hud.captured[s.color].length > 0 && html`<div class="cap-row"><span class=${'token side-' + s.color}></span>
+          <span class="cap-list">${hud.captured[s.color].map((t) => html`<${PieceIcon} type=${t} side=${s.color} size=${20} />`)}</span></div>`)}
+      </section>`}
+      ${hud && html`<p class="hud-tip"><${Icon} name="book" size=${13} /> ${hud.threats > 0 ? 'Tienes piezas en peligro: toca el chip rojo para ver cuáles.' : hud.canCard && hand.length ? 'Puedes jugar una carta de tu mano este turno.' : TIPS[hud.turn % TIPS.length]}</p>`}
+      ${hand.length > 0 && html`<section class="hand-list" aria-label="Qué hace cada carta de tu mano">
+        ${hand.map((id, i) => html`<div key=${id + i} class=${'hl-row' + (cardSel === i ? ' on' : '')}><${Icon} name=${CARDS[id].icon} size=${15} /><span><b>${CARDS[id].name}</b> ${CARDS[id].desc}</span></div>`)}
       </section>`}
       <ol class="log" aria-live="polite" aria-label="Registro de jugadas">${log.slice(-6).map((l, i) => html`<li key=${log.length - 6 + i}>${l}</li>`)}</ol>
     </aside>
