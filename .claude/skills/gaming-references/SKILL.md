@@ -44,7 +44,7 @@ Toma la idea y la curva, no el código tal cual: el proyecto usa Preact + htm si
 | --- | --- |
 | https://iconly.pro/ | Base para iconos de interfaz: partir de uno y ajustarlo al trazo del juego. |
 | Bancos de SVG citados en `docs/REFERENCE-GAMES.md` | Formas reutilizables para piezas y jefes. |
-| Skill de pixel art del dueño (Claude PXL, pendiente de instalar) | Tema píxel: personajes de fantasía medieval, no piezas de ajedrez; cada uno con una silueta muy distinta. |
+| https://github.com/crsolver/claude-pxl (skill `pxl-pixel-art`) | Tema píxel: DSL `.px.js` que genera PNG (espejo, contorno, variantes por paleta). Úsala para personajes de fantasía medieval, no piezas de ajedrez; cada uno con una silueta muy distinta. |
 | `art/` | Plantillas SVG para que el dueño dibuje piezas, tableros y fondos. |
 
 Reglas: comprueba la simetría de cada SVG (eje vertical) y reutiliza contornos que ya existen antes de trazar curvas nuevas.
@@ -52,10 +52,14 @@ Reglas: comprueba la simetría de cada SVG (eje vertical) y reutiliza contornos 
 ## Buscar más skills
 
 - Skill `find-skills` y https://skillshubmcp.com/skill/find-skills/: busca una skill antes de escribir una solución propia.
-- En la PC del dueño: LeanCTX y Graphify para buscar en repos clonados con menos tokens.
+- `lean-ctx`: siempre que uses la shell, para gastar menos tokens (instalado en la PC del dueño).
+- `graphify`: siempre que haya que relacionar archivos, para no investigar cada uno aislado (PC del dueño).
 
 ## Calidad (siempre al final)
 
+Dos errores mortales a evitar: reinventar lo que ya existe y escribir código de mala calidad.
+
+- `taste-skill` (https://github.com/leonxlnx/taste-skill): imprescindible para UI/UX, junto con antislop UI e impeccable.
 - `antislop` (https://github.com/miqdadbadjuber/anti-slop): sin relleno, sin comentarios de más; editar archivos con la herramienta de edición, no con scripts.
 - `ponytail` (https://github.com/dietrichgebert/ponytail): cambios mínimos y bien acotados.
 - `impeccable`: el detector debe quedar en 0 (`impeccable detect css src index.html lab.html`).
