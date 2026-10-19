@@ -94,8 +94,8 @@ Grandes:
 - [~] Simetría de los SVG revisada (rey, guardia y reina corregidos; medidor en el scratchpad); partir de SVG existentes (Iconly y bancos ya citados) y ajustarlos en vez de dibujar de cero.
 - [x] Tema píxel rehecho con personajes de fantasía medieval (skill de pixel art del dueño), muy distintos entre sí.
 - [x] Plaga zombi como mecánica de run para los dos bandos (20/10): la pieza tocada se vuelve verde y cambia de bando.
-- [ ] Minijuegos nuevos: Damas (por tamaño de tablero), 2048 (tablero chico y grande) y uno de combate por turnos estilo Pokémon con ataques por pieza.
-- [ ] Bomberman fiel: enemigos que solo vagan y otros que ponen bombas, tablero más ancho como el original.
+- [x] Minijuegos nuevos: Damas, Fusión (2048 con piezas) y Duelo (combate por turnos) (20/10).
+- [x] Bomberman fiel: enemigos que solo vagan y otros que ponen bombas, tablero más ancho como el original.
 - [~] Ajedrez de siempre: enroque y captura al paso hechos (20/10); faltan niveles de ajedrez clásico con nivel por Elo.
 - [ ] Tutorial: run corta de primera vez y acceso desde el diorama (cómo se mueve cada pieza, mecánicas).
 - [ ] Tableros chicos al principio para enseñar mutaciones y piezas nuevas; ritmo de cada run.
