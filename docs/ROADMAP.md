@@ -96,7 +96,7 @@ Grandes:
 - [ ] Mutación zombi para los dos bandos: la pieza tocada se vuelve verde y cambia de bando.
 - [ ] Minijuegos nuevos: Damas (por tamaño de tablero), 2048 (tablero chico y grande) y uno de combate por turnos estilo Pokémon con ataques por pieza.
 - [ ] Bomberman fiel: enemigos que solo vagan y otros que ponen bombas, tablero más ancho como el original.
-- [ ] Ajedrez de siempre: enroque, captura al paso, niveles de ajedrez clásico con nivel por Elo.
+- [~] Ajedrez de siempre: enroque y captura al paso hechos (20/10); faltan niveles de ajedrez clásico con nivel por Elo.
 - [ ] Tutorial: run corta de primera vez y acceso desde el diorama (cómo se mueve cada pieza, mecánicas).
 - [ ] Tableros chicos al principio para enseñar mutaciones y piezas nuevas; ritmo de cada run.
 - [ ] Animaciones: volver a mirar las librerías (anime.js, Motion) y referencias (componentry, skiper-ui, unlumen, smoothui) para subir el nivel.
