@@ -19,6 +19,7 @@ Antes de crear algo nuevo, busca primero una referencia aquí y adáptala. Parti
 | Fuente | Para qué |
 | --- | --- |
 | `docs/REFERENCE-PVZ.md` | Minijuegos al estilo Plants vs. Zombies: oleadas, banderas, hordas finales, Jardín Zen, Bolos de nuez, Yo Zombi, Última resistencia. |
+| https://gambonanza.fandom.com/wiki/Gambonanza_Wiki | Wiki de Gambonanza: piezas, jefes, objetos, desbloqueables. |
 | `docs/REFERENCE-GAMES.md` | Gambonanza (selector de mecánicas, desbloqueables), Slay the Spire (mapa, rarezas, ritmo), Bomberman (enemigos que vagan y que ponen bombas, tablero ancho), Chess Mayhem (modos Bomba, Gravedad, Zombi, Cartas, Caos; nivel de animación a igualar). |
 | https://github.com/gamedev-skills/awesome-gamedev-agent-skills | Catálogo de skills de desarrollo de juegos para agentes: diseño de niveles, balance, game feel. |
 | https://github.com/Donchitos/Claude-Code-Game-Studios | Flujo de estudio de juegos con Claude Code: roles, revisión de diseño, pulido. |

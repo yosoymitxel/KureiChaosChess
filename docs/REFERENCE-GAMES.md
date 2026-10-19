@@ -61,6 +61,21 @@ No hay ficha pública; esto es lo que muestra el tráiler según lo describe el 
 - 22 ejércitos con estética propia.
 - Modo RPG "Chessverse" con combate por turnos (Atacar, Magia, Huir) y jefes como "La Cabra".
 
+Capturas del tráiler (20/10), lo que se ve en cada modo:
+
+- **Bomb Chess** ("Todo explota"): bombas negras redondas con mecha encendida ocupan casillas; al
+  estallar dejan una nube circular tramada (dither) de 3×3 casillas y escombros naranjas que salen
+  disparados; las piezas cercanas salen volando del tablero.
+- **Gravity Chess** ("La gravedad también juega"): tablero violeta espacial, flechas verdes a los
+  lados indican la dirección; todas las piezas caen hasta apilarse en el borde.
+- **Zombie Chess** ("Los peones no se quedan muertos"): tablero verde; el peón capturado vuelve
+  como zombi verde del bando contrario, con partículas verdes al levantarse. Los zombis son piezas
+  verdes, no un tinte: el color dice el bando.
+- **Chaos Chess** ("Llueven meteoritos"): un círculo blanco marca la zona antes del impacto; tras
+  caer quedan llamas en casillas; las piezas golpeadas salen despedidas fuera del tablero.
+- Común a todos: piezas píxel con personaje (mago, rey con corona, caballero), cada modo con su
+  color de tablero y un rótulo grande en píxel arriba, y una frase corta abajo.
+
 **Para Zugzwang**: lo que ya tenemos en común (cartas, derrumbes, tableros raros) hay que
 **animarlo** al mismo nivel. Modos que encajan con lo existente: bomba (al capturar explota en
 cruz), gravedad (el tablero se inclina), zombi (el peón capturado vuelve una vez), meteoritos
@@ -80,6 +95,7 @@ personalización y la galería.
 
 ## Fuentes
 
+- [Gambonanza Wiki](https://gambonanza.fandom.com/wiki/Gambonanza_Wiki): piezas, jefes, objetos y desbloqueables, para inspirarse.
 - [Pocket Gamer: Gambonanza review](https://www.pocketgamer.com/gambonanza/review/)
 - [Destructoid: Gambonanza review](https://www.destructoid.com/reviews/gambonanza-review/)
 - [Boiling Steam: Gambonanza review](https://boilingsteam.com/gambonanza-review/)
