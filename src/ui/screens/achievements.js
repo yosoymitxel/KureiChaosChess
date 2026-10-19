@@ -7,7 +7,7 @@ import { ACHIEVEMENTS, ACHIEVEMENT_GROUPS, loadAchievements } from '../../game/a
 
 const Bar = ({ n, of }) => html`<span class="ach-bar" role="progressbar" aria-valuemin="0" aria-valuemax=${of} aria-valuenow=${n}><i style=${{ width: (100 * n) / of + '%' }}></i></span>`;
 
-export function AchievementsScreen({ onBack }) {
+export function AchievementsScreen({ onBack, onGallery }) {
   const ref = useRef(null);
   useEnter(ref);
   const got = loadAchievements();
@@ -19,7 +19,9 @@ export function AchievementsScreen({ onBack }) {
     .filter((g) => g.items.length);
   const total = ACHIEVEMENTS.filter((a) => got.includes(a.id)).length;
   return html`<div class="screen mini" ref=${ref}>
-    <${Topbar} title="Logros" sub="Hitos de tu progreso" onBack=${onBack} />
+    <${Topbar} title="Logros" sub="Hitos de tu progreso" onBack=${onBack}>
+      ${onGallery && html`<button class="btn ghost sm" onClick=${onGallery}><${Icon} name="book" size=${16} />Galería</button>`}
+    </${Topbar}>
     <div class="mini-body ach-body">
       <section class="ach-total" data-enter>
         <b>${total} de ${ACHIEVEMENTS.length}</b>

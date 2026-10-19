@@ -248,8 +248,8 @@ export function App() {
       settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => goTo(shopFrom)} />`}
-    ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} />`}
-    ${screen === 'achievements' && html`<${AchievementsScreen} onBack=${() => goTo('menu')} />`}
+    ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} onAchievements=${() => goTo('achievements')} />`}
+    ${screen === 'achievements' && html`<${AchievementsScreen} onBack=${() => goTo('menu')} onGallery=${() => goTo('gallery')} />`}
     ${howTo && html`<${HowToOverlay} onClose=${() => setHowTo(false)} />`}
     <div class="curtain" ref=${curtain}><span>Zugzwang</span></div>
     <${AchievementToast} />

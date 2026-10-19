@@ -590,6 +590,11 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .gal-art svg { width: 100%; height: 100%; }
 .gal-item figcaption { font-size: 12px; font-weight: 700; color: var(--paper-3); }
 .gal-item.locked { opacity: 0.55; }
+button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor: pointer; }
+.gal-cap { font-size: 12px; font-weight: 700; color: var(--paper-3); }
+.gal-item.on .gal-art { border-color: var(--brass); box-shadow: 0 0 0 2px var(--brass); }
+.gal-title small { margin-left: 6px; font-size: 0.7em; color: var(--paper-3); }
+.gal-note { margin: 10px 0 0; max-width: 60ch; font-size: 13.5px; line-height: 1.4; color: var(--paper-2); }
 .gal-item.locked .gal-art { border-style: dashed; }
 .gal-art.gal-table { gap: 5px; }
 .gal-art.gal-table > svg { width: 14px; height: 14px; }

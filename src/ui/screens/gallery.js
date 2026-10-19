@@ -1,11 +1,11 @@
 // Galería: grupos de imágenes según el progreso. Piezas, jefes, logros y mesas leen lo jugado; el resto llega después.
-import { html, useRef } from '../lib.js';
+import { html, useRef, useState } from '../lib.js';
 import { Topbar, useEnter, BossCard } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
-import { PIECE_TYPES, PIECE_NAMES } from '../../data/pieces.js';
+import { PIECE_TYPES, PIECE_NAMES, PIECE_RULES } from '../../data/pieces.js';
 import { BOSSES, BOSS_IDS } from '../../data/bosses.js';
-import { ACHIEVEMENTS, loadAchievements } from '../../game/achievements.js';
+import { ACHIEVEMENTS, loadAchievements, loadSeen } from '../../game/achievements.js';
 import { THEMES } from '../../data/themes.js';
 import { loadBosses } from '../../game/run.js';
 import { themeOwned } from '../../game/shop.js';
@@ -32,22 +32,33 @@ function ThemeGroup({ name, keys }) {
   </section>`;
 }
 
-export function GalleryScreen({ onBack }) {
+const RULE = Object.fromEntries(PIECE_RULES);
+
+export function GalleryScreen({ onBack, onAchievements }) {
   const ref = useRef(null);
   useEnter(ref);
   const beaten = loadBosses();
   const got = loadAchievements();
+  const seen = loadSeen();
+  const [piece, setPiece] = useState(null);
+  const done = ACHIEVEMENTS.filter((a) => got.includes(a.id)).length;
   return html`<div class="screen mini" ref=${ref}>
-    <${Topbar} title="Galería" sub="Imágenes desbloqueables, por grupos" onBack=${onBack} />
+    <${Topbar} title="Galería" sub="Imágenes desbloqueables, por grupos" onBack=${onBack}>
+      ${onAchievements && html`<button class="btn ghost sm" onClick=${onAchievements}><${Icon} name="trophy" size=${16} />Logros</button>`}
+    </${Topbar}>
     <div class="mini-body">
       <section class="gal-group">
-        <h2 class="gal-title">Piezas</h2>
+        <h2 class="gal-title">Piezas <small>${seen.length}/${PIECE_TYPES.length}</small></h2>
         <div class="gal-row">
-          ${PIECE_TYPES.map((t) => html`<figure class="gal-item">
-            <div class="gal-art side-light" dangerouslySetInnerHTML=${{ __html: pieceSVG(t) }}></div>
-            <figcaption>${PIECE_NAMES[t]}</figcaption>
-          </figure>`)}
+          ${PIECE_TYPES.map((t) => seen.includes(t)
+            ? html`<button class=${'gal-item' + (piece === t ? ' on' : '')} aria-pressed=${piece === t} onClick=${() => setPiece(piece === t ? null : t)}>
+                <div class="gal-art side-light" dangerouslySetInnerHTML=${{ __html: pieceSVG(t) }}></div>
+                <span class="gal-cap">${PIECE_NAMES[t]}</span>
+              </button>`
+            : html`<figure class="gal-item locked" title="Aparece al encontrarla en la torre"><div class="gal-art"><${Icon} name="lock" size=${26} /></div><figcaption>???</figcaption></figure>`)}
         </div>
+        ${piece && html`<p class="gal-note"><b>${PIECE_NAMES[piece]}.</b> ${RULE[piece]}</p>`}
+        ${seen.length < PIECE_TYPES.length && html`<p class="gal-note">Cada pieza se abre la primera vez que aparece en una mesa de la torre. Con todas cae el logro Enciclopedia.</p>`}
       </section>
       <section class="gal-group">
         <h2 class="gal-title">Jefes</h2>
@@ -56,7 +67,7 @@ export function GalleryScreen({ onBack }) {
         </div>
       </section>
       <section class="gal-group">
-        <h2 class="gal-title">Logros</h2>
+        <h2 class="gal-title">Logros <small>${done}/${ACHIEVEMENTS.length}</small></h2>
         <div class="gal-row">
           ${ACHIEVEMENTS.map((a) => got.includes(a.id)
             ? html`<figure class="gal-item"><div class="gal-art"><${Icon} name=${a.icon} size=${40} /></div><figcaption>${a.name}</figcaption></figure>`
@@ -74,7 +85,7 @@ export function GalleryScreen({ onBack }) {
           </figure>`)}
         </div>
       </section>`)}
-      <p class="mini-help">Los jefes y los logros se abren jugando; las mesas bloqueadas se compran en el Jardín Zen. El resto de los grupos llega cuando haya arte.</p>
+      <p class="mini-help">Las piezas, los jefes y los logros se abren jugando; las mesas bloqueadas se compran en el Jardín Zen. El resto de los grupos llega cuando haya arte.</p>
     </div>
   </div>`;
 }

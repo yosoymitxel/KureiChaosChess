@@ -17,7 +17,7 @@ import { BOSSES } from '../../data/bosses.js';
 import { PauseOverlay } from './overlays.js';
 import { Moments } from '../moments.js';
 import { playSfx } from '../sfx.js';
-import { award } from '../../game/achievements.js';
+import { award, seePieces } from '../../game/achievements.js';
 
 const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
 
@@ -470,6 +470,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
     d.view.setBoard(board);
     d.view.setPieces(pieces);
+    seePieces(pieces.filter((p) => !p.boss).map((p) => p.type));
     d.busy = true;
     addLog(`Piso ${node.floor + 1}/${run.map.floors} · ${board.rows}×${board.cols} · ${mod.name} · Rival ${rival.name}`);
     const boss = pieces.find((p) => p.boss);
