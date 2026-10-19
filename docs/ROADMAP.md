@@ -55,6 +55,14 @@ Se actualiza al cerrar cada bloque. La revisión completa del 19/10 añade los b
 - [ ] Visual de las piezas: revisar las nuevas (píxel) y la coherencia de la familia.
 - [ ] Ideas futuras: más retro (PvZ, Slay the Spire, Gambonanza).
 
+## 3c. Estructura de run (referencia: docs/REFERENCE-GAMES.md)
+
+- [ ] Selector de mecánicas al empezar la run: favoritas que salen mucho más (portal, niebla…) y una vetada.
+- [ ] Hordas finales en los minijuegos tipo PvZ (Bolos, Última resistencia, Matamarcianos, Yo Zombi): oleada grande anunciada al final, sin cortes en seco.
+- [ ] Logros de mitad y final de run.
+- [ ] Modos de juego por grupos de mecánicas (Caos, Hielo y portales, Bombas, Zombi), al estilo de Chess Mayhem.
+- [ ] Animación al nivel de Chess Mayhem en lo que ya existe (cartas, derrumbes, capturas).
+
 ## 4. Progreso y extras
 
 - [ ] Desbloqueables al estilo Gambonanza: jefes, piezas y temas que se abren al avanzar.
