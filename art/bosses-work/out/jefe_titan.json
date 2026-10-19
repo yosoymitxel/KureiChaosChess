@@ -1,0 +1,74 @@
+{
+ "frames": {
+  "boss-titan_l": {
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 20,
+    "h": 22
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 20,
+    "h": 22
+   },
+   "sourceSize": {
+    "w": 20,
+    "h": 22
+   }
+  },
+  "boss-titan_d": {
+   "frame": {
+    "x": 0,
+    "y": 23,
+    "w": 20,
+    "h": 22
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 20,
+    "h": 22
+   },
+   "sourceSize": {
+    "w": 20,
+    "h": 22
+   }
+  },
+  "boss-titan_w": {
+   "frame": {
+    "x": 0,
+    "y": 46,
+    "w": 20,
+    "h": 22
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 20,
+    "h": 22
+   },
+   "sourceSize": {
+    "w": 20,
+    "h": 22
+   }
+  }
+ },
+ "meta": {
+  "app": "pxl",
+  "image": "jefe_titan.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 20,
+   "h": 68
+  },
+  "scale": "1"
+ }
+}

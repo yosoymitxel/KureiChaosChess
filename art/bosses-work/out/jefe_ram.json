@@ -1,0 +1,74 @@
+{
+ "frames": {
+  "boss-ram_l": {
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 21,
+    "h": 21
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 21,
+    "h": 21
+   },
+   "sourceSize": {
+    "w": 21,
+    "h": 21
+   }
+  },
+  "boss-ram_d": {
+   "frame": {
+    "x": 0,
+    "y": 22,
+    "w": 21,
+    "h": 21
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 21,
+    "h": 21
+   },
+   "sourceSize": {
+    "w": 21,
+    "h": 21
+   }
+  },
+  "boss-ram_w": {
+   "frame": {
+    "x": 0,
+    "y": 44,
+    "w": 21,
+    "h": 21
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 21,
+    "h": 21
+   },
+   "sourceSize": {
+    "w": 21,
+    "h": 21
+   }
+  }
+ },
+ "meta": {
+  "app": "pxl",
+  "image": "jefe_ram.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 21,
+   "h": 65
+  },
+  "scale": "1"
+ }
+}

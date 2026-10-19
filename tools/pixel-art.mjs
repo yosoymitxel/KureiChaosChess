@@ -10,7 +10,8 @@ const DEST = fileURLToPath(new URL('../src/view/pixel-pieces.js', import.meta.ur
 const files = (await readdir(SRC)).filter((f) => f.endsWith('.png')).sort();
 const pieces = {};
 for (const file of files) {
-  const m = file.match(/^([a-z]+)_([ldw])\.png$/);
+  // El nombre puede traer guion (los jefes son boss-titan, boss-ram, ...).
+  const m = file.match(/^(.+)_([ldw])\.png$/);
   if (!m) throw new Error(`sprite sin pieza o bando: ${file}`);
   const [, piece, side] = m;
   const buf = await readFile(SRC + file);
