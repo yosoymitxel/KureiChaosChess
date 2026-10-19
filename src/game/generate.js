@@ -70,9 +70,12 @@ const SHAPES = ['diamond', 'hourglass', 'cross', 'fortress', 'random', 'stripes'
 export function generateBoard(seed, floor, totalFloors, modifier) {
   const rng = mulberry32(seed);
   const t = totalFloors > 1 ? floor / (totalFloors - 1) : 0;
+  // Los primeros pisos son un 8×8 de los de siempre para aprender piezas y mutaciones;
+  // de ahí el tablero crece hasta 12.
+  const small = t < 0.2;
   const base = 8 + Math.round(t * 4);
-  const rows = Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)));
-  const cols = Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)));
+  const rows = small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)));
+  const cols = small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)));
   const safe = rows <= 9 ? 2 : rows <= 10 ? 3 : 4;
   const shape = pickFrom(rng, SHAPES);
   const holes = new Set();
@@ -104,7 +107,7 @@ export function generateBoard(seed, floor, totalFloors, modifier) {
       if (out) addSym(r, c);
     }
   }
-  const maxHoles = Math.floor(rows * cols * 0.35);
+  const maxHoles = Math.floor(rows * cols * (small ? 0.12 : 0.35));
   if (holes.size > maxHoles) {
     const arr = [...holes];
     for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
