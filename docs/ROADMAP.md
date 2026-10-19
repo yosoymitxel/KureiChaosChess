@@ -103,11 +103,14 @@ Grandes:
 - [x] Niebla: las piezas rivales lejanas son solo bruma (20/10).
 - [x] Rótulos tipo "Reina caída" que se rompían de alto: la entrada "desde arriba" encogía la banda; ahora el rótulo cae entero. Usan el arte de la mesa (píxel).
 - [x] Insignias: frasco = mutación tuya, estrella = movimientos prestados por el jefe (antes eran la misma).
+- [x] Demo de piezas al empezar: mutación nueva o jefe sin derrotar enseñan cómo mueven en un tablerito (20/10).
+- [x] Minijuegos: ayuda y nivel en un solo botón con hoja encima del juego (20/10).
 - [~] Animaciones: volver a mirar las librerías (anime.js, Motion) y referencias (componentry, skiper-ui, unlumen, smoothui) para subir el nivel.
 
 ## Pendiente del lado del dueño (cuando tenga la PC)
 
-- [ ] Plantilla SVG para dibujar piezas, patrones de tablero y fondos: la prepara Claude en `art/`; el dueño dibuja y sube.
+- [x] Plantilla SVG para dibujar piezas, jefes, tablero, mesa y personaje: `art/plantillas/` (ver su LEEME); el dueño dibuja y sube a `art/entregas/`.
+- [ ] Personaje: nombre, carácter y hoja de gestos; con eso entran los diálogos y las cinemáticas de `docs/DIALOGOS-Y-CINEMATICAS.md`.
 - [ ] Bocetos y dibujos para la Galería (terror, temporadas).
 - [ ] Probar en su móvil y PC los cambios grandes y decir qué no le convence.
 - [ ] GitHub Pages ya publica la rama; cambiar la rama de Pages si algún día se renombra a `main`.
