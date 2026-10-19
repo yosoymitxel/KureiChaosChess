@@ -10,8 +10,8 @@
   display: grid; place-items: center;
   perspective: calc(var(--sq) * 24);
   perspective-origin: 50% 20%;
-  transform: scale(var(--zoom, 1));
-  transform-origin: 50% 42%;
+  translate: var(--px, 0px) var(--py, 0px); scale: var(--zoom, 1);
+  transform-origin: 50% 50%;
 }
 .board {
   position: relative;

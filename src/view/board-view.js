@@ -22,7 +22,7 @@ export class BoardView {
   constructor(host, { camera = 'tilt', shake = true, speed = 1, onTap, onDrop, canDrag, onImpact, onHover, onZoom } = {}) {
     Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, onHover, onZoom, shakeOn: shake, speed });
     this.tilt = CAMERAS[camera] ?? 40;
-    this.zoom = 1;
+    this.zoom = 1; this.pan = { x: 0, y: 0 };
     host.classList.add('table');
     host.innerHTML = `<div class="stage"><div class="board"><div class="tiles"></div><svg class="goo" preserveAspectRatio="none" aria-hidden="true"></svg><div class="pieces"></div></div></div>`;
     this.stage = host.querySelector('.stage');
@@ -80,14 +80,33 @@ export class BoardView {
 
   setCamera(camera) { this.tilt = CAMERAS[camera] ?? 40; this.layout(); }
 
-  // Pellizco: --zoom escala la escena entera; resetZoom (botón del HUD) vuelve a 1.
-  setZoom(z) {
-    this.zoom = Math.max(1, Math.min(2.6, z));
-    this.host.style.setProperty('--zoom', this.zoom.toFixed(3));
-    this.onZoom?.(this.zoom);
+  // Pellizco: --zoom escala la escena y --px/--py la desplazan. `at` es el punto de la pantalla que
+  // se queda quieto (el centro del pellizco); el desplazamiento nunca deja ver más allá del tablero.
+  setZoom(z, at) {
+    const z0 = this.zoom, z1 = Math.max(1, Math.min(3, z));
+    const r = this.host.getBoundingClientRect(), c = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    const p = this.pan || { x: 0, y: 0 };
+    const m = at || c;
+    this.zoom = z1;
+    this.setPan({ x: m.x - c.x - (z1 * (m.x - c.x - p.x)) / z0, y: m.y - c.y - (z1 * (m.y - c.y - p.y)) / z0 });
+    this.host.style.setProperty('--zoom', z1.toFixed(3));
+    this.onZoom?.(z1);
+  }
+  // El tablero no se va de la vista: su centro solo puede alejarse del centro lo que sobresale ampliado.
+  setPan({ x, y }) {
+    const r = this.host.getBoundingClientRect(), b = this.boardEl.getBoundingClientRect();
+    const a = this.applied || { z: 1, x: 0, y: 0 }, z = this.zoom;
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const ox = ((b.left + b.right) / 2 - cx - a.x) / a.z, oy = ((b.top + b.bottom) / 2 - cy - a.y) / a.z;
+    const lx = Math.max(0, (z * (b.width / a.z) - r.width) / 2) + 24, ly = Math.max(0, (z * (b.height / a.z) - r.height) / 2) + 24;
+    const clamp = (v, o, l) => (z <= 1.001 ? 0 : Math.max(-z * o - l, Math.min(-z * o + l, v)));
+    this.pan = { x: clamp(x, ox, lx), y: clamp(y, oy, ly) };
+    this.applied = { z, ...this.pan };
+    this.host.style.setProperty('--px', this.pan.x.toFixed(1) + 'px');
+    this.host.style.setProperty('--py', this.pan.y.toFixed(1) + 'px');
   }
 
-  resetZoom() { this.setZoom(1); }
+  resetZoom() { this.zoom = 1; this.setPan({ x: 0, y: 0 }); this.host.style.setProperty('--zoom', 1); this.onZoom?.(1); }
 
   layout() {
     if (!this.board) return;
@@ -316,32 +335,47 @@ export class BoardView {
 
   bindPointer() {
     let drag = null, over = '';
-    const touches = new Map(), pinch = { d: 0, zoom: 1 };
-    let pinching = false;
+    const touches = new Map(), pinch = { d: 0, zoom: 1, mid: null };
+    let pinching = false, pending = null; // pending: toque en casilla con zoom, que espera a saber si es desplazamiento
     const spread = () => { const [a, b] = [...touches.values()]; return Math.hypot(a.x - b.x, a.y - b.y); };
+    const mid = () => { const [a, b] = [...touches.values()]; return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
     const down = (e) => {
       if (e.button > 0) return;
       if (e.pointerType !== 'mouse') {
         touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
         if (touches.size === 2) {
           // El segundo dedo arranca el pellizco: se descarta el arrastre y no hay toque.
-          Object.assign(pinch, { d: spread(), zoom: this.zoom });
-          pinching = true;
+          Object.assign(pinch, { d: spread(), zoom: this.zoom, mid: mid() });
+          pinching = true; pending = null;
           if (drag) { drag.ghost?.remove(); this.els.get(drag.piece)?.classList.remove('dragging'); drag = null; }
           return;
         }
         if (pinching) return;
       }
       const hit = this.hitAt(e.clientX, e.clientY);
-      if (!hit) return;
+      const zoomed = e.pointerType !== 'mouse' && this.zoom > 1.01;
+      if (!hit) { if (zoomed) pending = { hit: null, id: e.pointerId, x: e.clientX, y: e.clientY, pan: { ...this.pan }, moved: false }; return; }
       hit.touch = e.pointerType !== 'mouse';
       if (hit.piece && this.canDrag?.(hit.piece)) drag = { piece: hit.piece, x: e.clientX, y: e.clientY, id: e.pointerId, ghost: null };
+      else if (zoomed) { pending = { hit, id: e.pointerId, x: e.clientX, y: e.clientY, pan: { ...this.pan }, moved: false }; return; }
       this.onTap?.(hit);
     };
     const move = (e) => {
       if (pinching && e.pointerType !== 'mouse' && touches.has(e.pointerId)) {
         touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
-        if (touches.size >= 2) return this.setZoom(pinch.zoom * (spread() / (pinch.d || 1)));
+        if (touches.size >= 2) {
+          // Ampliar desde el centro del pellizco y arrastrar con los dos dedos a la vez.
+          const m = mid();
+          this.setZoom(pinch.zoom * (spread() / (pinch.d || 1)), m);
+          this.setPan({ x: this.pan.x + m.x - pinch.mid.x, y: this.pan.y + m.y - pinch.mid.y });
+          pinch.mid = m; pinch.zoom = this.zoom; pinch.d = spread();
+          return;
+        }
+      }
+      if (pending && e.pointerId === pending.id) {
+        const dx = e.clientX - pending.x, dy = e.clientY - pending.y;
+        if (pending.moved || Math.hypot(dx, dy) > 10) { pending.moved = true; this.setPan({ x: pending.pan.x + dx, y: pending.pan.y + dy }); }
+        return;
       }
       if (!drag || e.pointerId !== drag.id) return;
       if (!drag.ghost && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 8) {
@@ -359,6 +393,11 @@ export class BoardView {
       if (e.pointerType !== 'mouse') {
         touches.delete(e.pointerId);
         if (touches.size < 2) pinching = false;
+      }
+      if (pending && e.pointerId === pending.id) {
+        const p = pending; pending = null;
+        if (p.hit && !p.moved && e.type === 'pointerup') this.onTap?.(p.hit);
+        return;
       }
       if (!drag || e.pointerId !== drag.id) return;
       const d = drag; drag = null;
