@@ -24,9 +24,9 @@ export const PIECE_RULES = [
   ['bishop', 'Se desliza en diagonal.'],
   ['queen', 'Torre + alfil.'],
   ['king', '1 paso en cualquier dirección. Si cae, su bando queda eliminado.'],
-  ['guard', '1 paso adelante, lateral o diagonal, o 2 en diagonal si el paso está libre. Nunca retrocede recto.'],
+  ['guard', 'Como el rey pero nunca retrocede: 1 paso adelante, a los lados o en diagonal hacia delante, o 2 en diagonal hacia delante si el paso está libre.'],
   ['advisor', '1 paso en diagonal.'],
   ['elephant', 'Salta 2 en diagonal.'],
   ['camel', 'Salta en L larga (3 y 1).'],
-  ['cannon', 'Como torre con alcance 4, pero no captura deslizándose: mata saltando 1 pieza por medio. También salta 1 pieza propia y cae en el hueco justo detrás.'],
+  ['cannon', 'Se mueve como torre, pero no captura deslizándose: mata saltando 1 pieza por medio. También salta 1 pieza propia y cae en el hueco justo detrás, así no queda encerrado.'],
 ];

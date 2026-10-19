@@ -84,9 +84,9 @@ function canMoveAs(piece, type, tr, tc, ctx) {
     }
     case 'pawnBack': return dc === 0 && dr === -forward(piece) && !hit;
     case 'guard': {
-      // Rey sin retroceso recto; en diagonal llega a 2 si el paso intermedio está libre.
-      if (adr <= 1 && adc <= 1) return !(dr === -forward(piece) && dc === 0);
-      return adr === 2 && adc === 2 && pathClear(piece, tr, tc, ctx);
+      // Rey que nunca retrocede (ni recto ni en diagonal); hacia delante en diagonal llega a 2 si el paso intermedio está libre.
+      if (adr <= 1 && adc <= 1) return dr !== -forward(piece);
+      return adr === 2 && adc === 2 && dr === 2 * forward(piece) && pathClear(piece, tr, tc, ctx);
     }
     case 'advisor': return adr === 1 && adc === 1;
     case 'elephant': return adr === 2 && adc === 2;
@@ -98,10 +98,9 @@ function canMoveAs(piece, type, tr, tc, ctx) {
     case 'rook2': return (!dr || !dc) && adr + adc <= 2 && pathClear(piece, tr, tc, ctx);
     case 'queen': return (!dr || !dc || adr === adc) && pathClear(piece, tr, tc, ctx);
     case 'cannon': {
-      // Artillería corta: torre de alcance 4 que no captura al deslizarse. Mata saltando una
-      // pantalla (propia o enemiga) y puede saltar sus piezas para caer en el hueco justo detrás.
+      // Se mueve como torre pero no captura al deslizarse. Mata saltando una pantalla (propia o
+      // enemiga) y puede saltar sus piezas para caer en el hueco justo detrás.
       if (dr && dc) return false;
-      if (adr + adc > 4) return false;
       const sr = Math.sign(dr), sc = Math.sign(dc);
       const ahead = []; // ocupantes entre el cañón y el destino (null = libre)
       for (let r = piece.row + sr, c = piece.col + sc; r !== tr || c !== tc; r += sr, c += sc) {

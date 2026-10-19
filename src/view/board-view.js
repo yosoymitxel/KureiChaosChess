@@ -479,7 +479,8 @@ export class BoardView {
       return;
     }
 
-    if (!reduced()) await this.liquid(piece, from, to, dur);
+    // Jumpers fly over what is in between: a puddle oozing along the L would hide the jump.
+    if (!reduced() && !jumper) await this.liquid(piece, from, to, dur);
     await animate(st, {
       r: to.row, c: to.col, z: [0, arc, 0], duration: dur,
       ease: 'inOutSine', onUpdate: () => this.apply(piece),
