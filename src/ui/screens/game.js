@@ -484,6 +484,14 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   }, []);
 
   useEffect(() => { ref.current.paused = paused; }, [paused]);
+  // La mano se reparte desde abajo, una carta tras otra (translate: no pisa el giro del abanico).
+  useEffect(() => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    mainRef.current?.querySelectorAll('.hand-card').forEach((el, i) => el.animate(
+      [{ translate: '0 70px', opacity: 0 }, { translate: '0 0', opacity: 1 }],
+      { duration: 420, delay: 700 + i * 70, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'backwards' },
+    ));
+  }, []);
   useEffect(() => { ref.current.view?.setCamera(settings.camera); if (ref.current.view) { ref.current.view.shakeOn = settings.shake; ref.current.view.speed = settings.speed; } if (ref.current.moments) Object.assign(ref.current.moments, { speed: settings.speed, enabled: settings.moments }); }, [settings]);
 
   const muts = Object.entries(countMutations(run.mutations || []));
