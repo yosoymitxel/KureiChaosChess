@@ -546,6 +546,12 @@ export class BoardView {
     await Promise.all(victims.map((v) => this.kill(v.piece, from, to)));
     if (res.slide) await this.slide(piece, res.slide);
     if (res.portal) await this.warp(piece, res.portal);
+    // Enroque: la torre salta por encima del rey a su lado, en arco corto.
+    if (res.castle) {
+      const st2 = this.state.get(res.castle.rook);
+      await animate(st2, { r: res.castle.to.row, c: res.castle.to.col, z: [0, this.sq * 0.9, 0], duration: this.d(380), ease: 'inOutSine', onUpdate: () => this.apply(res.castle.rook) });
+      this.squash(res.castle.rook, 0.8);
+    }
     if (promoted) await this.promote(piece);
   }
 

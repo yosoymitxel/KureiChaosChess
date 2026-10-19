@@ -27,8 +27,36 @@ export class Match {
   // fast (tools/balance.mjs).
   quietOnly() { return this.turnBonus > 0 && this.movesThisTurn >= this.movesFor(this.player.color) - this.turnBonus; }
   legal(piece) {
-    const all = legalMoves(piece, this.pieces, this.board);
+    const all = [...legalMoves(piece, this.pieces, this.board), ...this.special(piece)];
     return piece.color === this.player.color && this.quietOnly() ? all.filter((m) => !m.hits.length) : all;
+  }
+
+  // Ajedrez de siempre: captura al paso y enroque. Van aquí y no en las reglas porque piden
+  // historia: el último doble paso de peón y qué rey o torre ya se movió.
+  special(piece) {
+    const out = [], occ = buildOccupancy(this.pieces);
+    const open = (r, c) => walkable(this.board, r, c) && !occ.get(key(r, c));
+    const ep = this.ep, dir = piece.color === 'light' ? -1 : 1;
+    if (piece.type === 'pawn' && !piece.moves && ep && ep.pawn.color !== piece.color && this.pieces.includes(ep.pawn)
+      && ep.row === piece.row + dir && Math.abs(ep.col - piece.col) === 1 && open(ep.row, ep.col))
+      out.push({ row: ep.row, col: ep.col, hits: [ep.pawn], ep: true });
+    if (piece.type === 'king' && piece.royal && !piece.boss && !piece.moved && !this.inCheck(piece.color)) {
+      for (const rook of this.pieces) {
+        if (rook.color !== piece.color || rook.type !== 'rook' || rook.moved || rook.row !== piece.row) continue;
+        const s = Math.sign(rook.col - piece.col);
+        if (Math.abs(rook.col - piece.col) < 3) continue;
+        let clear = true;
+        for (let c = piece.col + s; c !== rook.col; c += s) if (!open(piece.row, c)) clear = false;
+        // El rey no enroca a través de una casilla atacada.
+        if (!clear || [1, 2].some((k) => this.attacked(piece, piece.row, piece.col + k * s))) continue;
+        out.push({ row: piece.row, col: piece.col + 2 * s, hits: [], castle: { rook, col: piece.col + s } });
+      }
+    }
+    return out;
+  }
+  attacked(king, row, col) {
+    const virtual = this.pieces.filter((p) => p !== king).concat([{ ...king, row, col }]);
+    return threatenedPieces(virtual, king.color, this.board, { royal: true }).size > 0;
   }
   pieceAt(r, c) { return buildOccupancy(this.pieces).get(key(r, c)) || null; }
   threats(color = this.player.color) { return threatenedPieces(this.pieces, color, this.board); }
@@ -41,10 +69,10 @@ export class Match {
   // Apply a move. Returns null if illegal.
   move(piece, to) {
     if (this.over || piece.color !== this.player.color) return null;
-    const ok = this.legal(piece).some((m) => m.row === to.row && m.col === to.col);
-    if (!ok) return null;
+    const m = this.legal(piece).find((x) => x.row === to.row && x.col === to.col);
+    if (!m) return null;
     const occ = buildOccupancy(this.pieces);
-    const hits = landing(piece, to.row, to.col, { board: this.board, occ, pieces: this.pieces });
+    const hits = m.ep ? m.hits : landing(piece, to.row, to.col, { board: this.board, occ, pieces: this.pieces });
     const from = { row: piece.row, col: piece.col };
     const victims = hits.map((v) => {
       v.hp = (v.hp ?? 1) - 1;
@@ -59,6 +87,13 @@ export class Match {
     const res = { piece, from, to, victims, bounced, promoted: false };
     if (!bounced) {
       piece.row = to.row; piece.col = to.col;
+      piece.moved = true;
+      if (m.castle) {
+        const rook = m.castle.rook;
+        res.castle = { rook, from: { row: rook.row, col: rook.col }, to: { row: rook.row, col: m.castle.col } };
+        rook.col = m.castle.col; rook.moved = true;
+      }
+      if (m.ep) res.enPassant = true;
       res.absorbed = this.absorb(piece, victims);
       this.terrainAfterMove(piece, from, res);
     }
@@ -66,6 +101,8 @@ export class Match {
       const last = piece.color === 'light' ? 0 : this.board.rows - 1;
       if (piece.row === last) { piece.type = 'queen'; res.promoted = true; }
     }
+    // El doble paso de un peón deja su casilla de paso abierta a la captura en la jugada siguiente.
+    this.ep = !bounced && piece.type === 'pawn' && Math.abs(to.row - from.row) === 2 ? { row: (from.row + to.row) / 2, col: from.col, pawn: piece } : null;
     this.movesThisTurn++;
     if (victims.length) this.quietTurns = 0;
     return res;

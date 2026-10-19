@@ -233,7 +233,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const tag = match.player.kind === 'bot' ? '◆ ' : '';
       const nm = pieceName(piece);
       if (res.bounced) addLog(`${tag}${nm} golpea a ${pieceName(res.victims[0].piece)} (${res.victims[0].piece.hp} ${res.victims[0].piece.hp === 1 ? "vida" : "vidas"})`);
+      else if (res.enPassant) addLog(`${tag}${nm} captura al paso`);
       else if (res.victims.length) addLog(`${tag}${nm} captura ${res.victims.map((v) => (v.piece.boss ? v.piece.name : pieceName(v.piece).toLowerCase())).join(', ')}`);
+      else if (res.castle) addLog(`${tag}Enroque`);
       else addLog(`${tag}${nm} mueve`);
       if (res.promoted) {
         addLog(`${tag}¡Coronación!`);
