@@ -1,6 +1,7 @@
 // Tienda del jardín: monedas que pagan las flores del Jardín Zen y lo que se compra con ellas.
 import { HAND_LIMIT } from './cards.js';
 import { award } from './achievements.js';
+import { THEMES } from '../data/themes.js';
 
 const KEY = 'zugzwang.shop.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
@@ -13,7 +14,8 @@ export const CARD_PRICE = { common: 40, rare: 70 };
 export const SEED_PRICE = 12;
 // Lo que paga ganar una partida en la travesía; los nodos duros pagan más.
 export const COINS_PER_NODE = { normal: 15, elite: 25, miniBoss: 40, boss: 80 };
-export const THEME_SHOP = { pergamino: 160, corinto: 160, noche: 160, pixelada: 160 };
+// Las mesas de pago salen de su `price` en src/data/themes.js.
+export const THEME_SHOP = Object.fromEntries(Object.values(THEMES).filter((t) => t.price).map((t) => [t.id, t.price]));
 export const PENDING_LIMIT = 5;
 
 export function loadShop() {

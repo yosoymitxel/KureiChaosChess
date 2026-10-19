@@ -32,6 +32,25 @@ hace falta conexión la primera vez.
 - [Investigación de herramientas](docs/RESEARCH.md): qué se usa de cada librería pedida y por qué.
 - `legacy/index.v1.4.html`: la versión monolítica anterior.
 
+## Agregar contenido
+
+Cada familia vive en un solo registro y el resto del juego (mapa, ayudas, galería, tienda,
+logros) lo lee de ahí:
+
+| Qué | Dónde se declara | Qué más pide |
+|---|---|---|
+| Pieza | `src/data/pieces.js` (nombre, movimiento, valor, regla) | dibujo en `src/view/piece-art.js`, set píxel, movimiento en `src/game/rules.js` |
+| Mecánica | `src/data/modifiers.js` (con `weights` por tramo) | su efecto en `src/game/match.js` |
+| Minijuego | `src/data/modifiers.js` (`mini: true` y `weights`) | pantalla en `MINI_SCREENS` (`src/ui/app.js`) con `MiniTools` |
+| Mutación | `src/data/mutations.js` | si presta movimiento, en `EXTRA_MOVES` |
+| Jefe | `src/data/bosses.js` | dibujo `boss-<id>` y estar en `MINI_BOSSES` o `FINAL_BOSSES` |
+| Mesa | `src/data/themes.js` (con `price` si se compra) | nada: tienda, pausa, ajustes y galería la leen solas |
+| Logro | `src/game/achievements.js` | un `award('<id>')` donde ocurre |
+
+`node tools/check-registry.mjs` revisa que nada quede a medias (pieza sin dibujo, minijuego sin
+pantalla, icono inexistente, logro que nadie otorga…). Correrlo junto con `node tools/simulate.mjs`
+antes de subir.
+
 ## Novedades v2
 
 - Mesa en 3D con CSS: plano inclinado, casillas con grosor, piezas como *standees* de cartón,

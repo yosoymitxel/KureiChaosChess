@@ -1,32 +1,27 @@
-export const PIECE_TYPES = ['pawn', 'guard', 'advisor', 'elephant', 'camel', 'cannon', 'rook', 'knight', 'bishop', 'queen', 'king'];
-
-export const PIECE_NAMES = {
-  pawn: 'Peón', guard: 'Guardia', advisor: 'Consejero', elephant: 'Elefante', camel: 'Camello',
-  cannon: 'Cañón', rook: 'Torre', knight: 'Caballo', bishop: 'Alfil', queen: 'Reina', king: 'Rey',
+// Una entrada por pieza: nombre, cómo se llama su movimiento, valor para el bot y regla para
+// las ayudas. Agregar una pieza es agregar su entrada aquí, su dibujo (src/view/piece-art.js)
+// y su movimiento (src/game/rules.js); tools/check-registry.mjs avisa si falta alguno.
+// El orden es el de las ayudas y la galería: primero las del ajedrez de siempre.
+export const PIECES = {
+  pawn: { name: 'Peón', move: 'peón', value: 10, rule: 'Avanza 1 (o 2 desde su fila inicial). Captura en diagonal hacia delante.' },
+  rook: { name: 'Torre', move: 'torre', value: 50, rule: 'Se desliza en cruz hasta chocar.' },
+  knight: { name: 'Caballo', move: 'caballo', value: 30, rule: 'Salta en L (2 y 1). Ignora lo que haya en medio.' },
+  bishop: { name: 'Alfil', move: 'alfil', value: 30, rule: 'Se desliza en diagonal.' },
+  queen: { name: 'Reina', move: 'reina', value: 90, rule: 'Torre + alfil.' },
+  king: { name: 'Rey', move: 'rey', value: 1000, rule: '1 paso en cualquier dirección. Si cae, su bando queda eliminado.' },
+  guard: { name: 'Guardia', move: 'guardia', value: 18, rule: 'Como el rey pero nunca retrocede: 1 paso adelante, a los lados o en diagonal hacia delante, o 2 en diagonal hacia delante si el paso está libre.' },
+  advisor: { name: 'Consejero', move: 'consejero', value: 18, rule: '1 paso en diagonal.' },
+  elephant: { name: 'Elefante', move: 'elefante', value: 22, rule: 'Salta 2 en diagonal.' },
+  camel: { name: 'Camello', move: 'camello', value: 30, rule: 'Salta en L larga (3 y 1).' },
+  cannon: { name: 'Cañón', move: 'cañón', value: 40, rule: 'Se mueve como torre, pero no captura deslizándose: mata saltando 1 pieza por medio. También salta 1 pieza propia y cae en el hueco justo detrás, así no queda encerrado.' },
 };
 
+// Patrones que no son una pieza propia: los prestan mutaciones y jefes.
+const EXTRA_PATTERNS = { pawnBack: 'retroceso', rook2: 'torre corta' };
+
+export const PIECE_TYPES = Object.keys(PIECES);
+export const PIECE_NAMES = Object.fromEntries(PIECE_TYPES.map((t) => [t, PIECES[t].name]));
+export const PIECE_VALUE = Object.fromEntries(PIECE_TYPES.map((t) => [t, PIECES[t].value]));
+export const PIECE_RULES = PIECE_TYPES.map((t) => [t, PIECES[t].rule]);
 // Names for movement patterns (a piece can borrow patterns from mutations / bosses).
-export const MOVE_NAMES = {
-  pawn: 'peón', pawnBack: 'retroceso', guard: 'guardia', advisor: 'consejero', elephant: 'elefante',
-  camel: 'camello', cannon: 'cañón', rook: 'torre', rook2: 'torre corta', knight: 'caballo',
-  bishop: 'alfil', queen: 'reina', king: 'rey',
-};
-
-export const PIECE_VALUE = {
-  pawn: 10, guard: 18, advisor: 18, elephant: 22, camel: 30, cannon: 40,
-  knight: 30, bishop: 30, rook: 50, queen: 90, king: 1000,
-};
-
-export const PIECE_RULES = [
-  ['pawn', 'Avanza 1 (o 2 desde su fila inicial). Captura en diagonal hacia delante.'],
-  ['rook', 'Se desliza en cruz hasta chocar.'],
-  ['knight', 'Salta en L (2 y 1). Ignora lo que haya en medio.'],
-  ['bishop', 'Se desliza en diagonal.'],
-  ['queen', 'Torre + alfil.'],
-  ['king', '1 paso en cualquier dirección. Si cae, su bando queda eliminado.'],
-  ['guard', 'Como el rey pero nunca retrocede: 1 paso adelante, a los lados o en diagonal hacia delante, o 2 en diagonal hacia delante si el paso está libre.'],
-  ['advisor', '1 paso en diagonal.'],
-  ['elephant', 'Salta 2 en diagonal.'],
-  ['camel', 'Salta en L larga (3 y 1).'],
-  ['cannon', 'Se mueve como torre, pero no captura deslizándose: mata saltando 1 pieza por medio. También salta 1 pieza propia y cae en el hueco justo detrás, así no queda encerrado.'],
-];
+export const MOVE_NAMES = { ...Object.fromEntries(PIECE_TYPES.map((t) => [t, PIECES[t].move])), ...EXTRA_PATTERNS };

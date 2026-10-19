@@ -10,7 +10,7 @@ export function generateMap(seed, prefs) {
   const floors = 5 + Math.floor(rng() * 11);
   // Mini-jefes de control: un solo nodo, sin hermanos, en los tercios medio y tardío (ver difficulty.js).
   const miniBoss = new Set(miniBossFloors(floors, rng));
-  const layouts = Array.from({ length: floors }, (_, f) => (f === 0 || f === floors - 1 || miniBoss.has(f) ? 1 : 1 + Math.floor(rng() * 3)));
+  const layouts = Array.from({ length: floors }, (_, f) => (f === 0 || f === floors - 1 || miniBoss.has(f) ? 1 : 2 + Math.floor(rng() * 2)));
   const nodes = [], connections = [];
   const usedMinis = []; // un minijuego no se repite dentro de la run
   let prev = []; // mecánicas del piso anterior: no se repiten al bajar
@@ -26,7 +26,7 @@ export function generateMap(seed, prefs) {
       const skip = [...prev, ...here, ...(f === 1 ? ['rest', 'bag'] : [])];
       let modifier = isFirst ? 'none' : (isBoss || isMiniBoss) ? 'boss'
         : pickModifier(rng, { floor: f, floors, skip, usedMinis, prefs, noMini: noMini() }) ?? 'rest';
-      if (c === nc - 1 && nc > 1 && bossNext(f) && !here.includes('rest')) modifier = 'rest';
+      if (c === nc - 1 && nc > 1 && bossNext(f) && !here.includes('rest') && !prev.includes('rest')) modifier = 'rest';
       if (isMiniModifier(modifier)) usedMinis.push(modifier);
       here.push(modifier);
       nodes.push({ id: `f${f}c${c}`, floor: f, column: c, totalCols: nc, modifier, seed: nodeSeed, isBoss, isMiniBoss, isFirst });
@@ -37,12 +37,14 @@ export function generateMap(seed, prefs) {
   // sorteo no los trajo, un nodo común del camino se convierte en uno que falte.
   if (floors >= 8) {
     const count = () => nodes.filter((n) => isMiniModifier(n.modifier)).length;
-    const miniNear = (f) => nodes.some((o) => Math.abs(o.floor - f) <= 1 && isMiniModifier(o.modifier));
+    // Primero lejos de otro minijuego; si no alcanza, vale el piso de al lado. Nunca dos en un piso
+    // ni en uno de un solo nodo: siempre queda una partida como alternativa.
+    const miniNear = (f, span) => nodes.some((o) => Math.abs(o.floor - f) <= span && isMiniModifier(o.modifier));
     const spare = nodes.filter((n) => n.floor >= 2 && n.totalCols > 1 && !n.isBoss && !n.isMiniBoss && n.modifier !== 'rest');
     spare.sort((a, b) => (Number(['bag', 'elite'].includes(a.modifier)) - Number(['bag', 'elite'].includes(b.modifier))));
-    for (const n of spare) {
+    for (const span of [1, 0]) for (const n of spare) {
       if (count() >= 2) break;
-      if (miniNear(n.floor)) continue;
+      if (isMiniModifier(n.modifier) || miniNear(n.floor, span)) continue;
       const id = pickModifier(rng, { floor: n.floor, floors, usedMinis, mini: true, prefs });
       if (!id) break;
       n.modifier = id;

@@ -1,4 +1,6 @@
 // Table moods. Values feed CSS custom properties (see css/tokens.css for the defaults).
+// `price`: the table is bought in the garden shop; without it, it comes with the game.
+// Shop, pause, settings and gallery all read this list, so a new table is one entry here.
 export const THEMES = {
   walnut: {
     id: 'walnut', name: 'Nogal',
@@ -28,7 +30,7 @@ export const THEMES = {
     },
   },
   pergamino: {
-    id: 'pergamino', name: 'Pergamino',
+    id: 'pergamino', name: 'Pergamino', price: 160,
     swatch: ['oklch(0.33 0.045 48)', 'oklch(0.94 0.035 92)', 'oklch(0.55 0.17 30)', 'oklch(0.68 0.11 165)'],
     vars: {
       'table': 'oklch(0.33 0.045 48)', 'table-2': 'oklch(0.4 0.05 48)',
@@ -37,7 +39,7 @@ export const THEMES = {
     },
   },
   corinto: {
-    id: 'corinto', name: 'Corinto',
+    id: 'corinto', name: 'Corinto', price: 160,
     swatch: ['oklch(0.24 0.055 340)', 'oklch(0.9 0.03 55)', 'oklch(0.55 0.19 22)', 'oklch(0.73 0.13 88)'],
     vars: {
       'table': 'oklch(0.24 0.055 340)', 'table-2': 'oklch(0.31 0.065 340)',
@@ -46,7 +48,7 @@ export const THEMES = {
     },
   },
   noche: {
-    id: 'noche', name: 'Noche',
+    id: 'noche', name: 'Noche', price: 160,
     swatch: ['oklch(0.18 0.05 270)', 'oklch(0.84 0.035 250)', 'oklch(0.58 0.2 18)', 'oklch(0.72 0.13 200)'],
     vars: {
       'table': 'oklch(0.18 0.05 270)', 'table-2': 'oklch(0.25 0.06 270)',
@@ -57,7 +59,7 @@ export const THEMES = {
   // La mesa del set píxel: la paleta sale del arte (art/pixelada.px.js) y el modo "pixel"
   // dibuja las piezas con esos PNG en vez de los cuerpos vectoriales.
   pixelada: {
-    id: 'pixelada', name: 'Pixelada',
+    id: 'pixelada', name: 'Pixelada', price: 160,
     swatch: ['oklch(0.275 0.031 304)', 'oklch(0.83 0.062 81.5)', 'oklch(0.559 0.119 298)', 'oklch(0.833 0.131 88)'],
     vars: {
       'table': 'oklch(0.275 0.031 304)', 'table-2': 'oklch(0.323 0.028 306)',

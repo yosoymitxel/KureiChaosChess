@@ -2,6 +2,7 @@
 // frentes: cómo juega el rival, qué mecánicas aparecen y con qué ejército se arma la mesa.
 // Generación y juego leen estas tablas; la preparación muestra al rival. Los criterios se
 // verifican en tools/ladder.mjs.
+import { MODIFIERS } from '../data/modifiers.js';
 
 // Tramo de la torre: fácil, normal o difícil. La misma partición que usan los minijuegos.
 export const floorTier = (floor, floors) => {
@@ -47,27 +48,12 @@ export function rivalForFloor(floor, floors, { up = 0, difficulty = 'normal' } =
   return RIVALS[RIVAL_STEPS[i]];
 }
 
-// Ritmo de mecánicas: peso de cada una por tramo (temprano, medio, tardío). El piso 1 va llano
-// aparte, la Élite espera a que haya cartas y cada minijuego estrena en su tramo.
-export const MOD_WEIGHTS = {
-  promote: [3, 2, 1],
-  rest: [3, 3, 2],
-  bag: [3, 2, 2],
-  ice: [2, 2, 1],
-  portal: [0, 2, 2],
-  rush: [1, 2, 2],
-  fog: [0, 1, 2],
-  chaos: [0, 1, 2],
-  zombie: [0, 1.5, 2],
-  elite: [0, 2, 3],
-};
-export const MINI_WEIGHTS = {
-  connect4: [0.7, 1, 1], knight: [0.7, 1, 1], bowling: [0.7, 1, 1],
-  mates: [0, 1, 1], queens: [0, 1, 1], marcianos: [0, 1, 1], bomber: [0, 1, 1],
-  checkers: [0.7, 1, 1], fusion: [0.7, 1, 1], duel: [0, 1, 1.2],
-  barrier: [0, 0.5, 1.5], izombie: [0, 0.5, 1.5], laststand: [0, 0.5, 1.5],
-};
-export const isMiniModifier = (id) => id in MINI_WEIGHTS;
+// Ritmo de mecánicas: el peso de cada una por tramo vive en su entrada de MODIFIERS; aquí solo
+// se separan mecánicas y minijuegos. El piso 1 va llano aparte y la Élite espera a que haya cartas.
+const weightsOf = (mini) => Object.fromEntries(Object.values(MODIFIERS).filter((m) => m.weights && !!m.mini === mini).map((m) => [m.id, m.weights]));
+export const MOD_WEIGHTS = weightsOf(false);
+export const MINI_WEIGHTS = weightsOf(true);
+export const isMiniModifier = (id) => !!MODIFIERS[id]?.mini;
 
 const draw = (rng, entries) => {
   let x = rng() * entries.reduce((s, e) => s + e[1], 0);
