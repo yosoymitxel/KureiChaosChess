@@ -21,6 +21,7 @@ export const MODIFIERS = {
   mates: { id: 'mates', name: 'Mate en 1 y 2', desc: 'Minijuego: resuelve un mate en 1 y uno en 2 con piezas mutantes. Premio: mutación o pieza.', icon: 'target', mini: true },
   knight: { id: 'knight', name: 'Ruta del caballo', desc: 'Minijuego: pisa todas las casillas marcadas con el caballo; lo pisado se cierra. Premio: mutación o pieza.', icon: 'map', mini: true },
   queens: { id: 'queens', name: 'Ocho reinas', desc: 'Minijuego: coloca ocho reinas sin que se ataquen, en dos minutos. Premio: mutación o pieza.', icon: 'queen', mini: true },
+  checkers: { id: 'checkers', name: 'Damas', desc: 'Minijuego: damas de siempre contra el bot; la captura es obligatoria y los saltos se encadenan. Premio: mutación o pieza.', icon: 'checkers', mini: true },
   marcianos: { id: 'marcianos', name: 'Matamarcianos', desc: 'Minijuego: oleadas retro; dispara y aguanta tres oleadas con tres vidas. Premio: mutación o pieza.', icon: 'invader', mini: true },
 };
 

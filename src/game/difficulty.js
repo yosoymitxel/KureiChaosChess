@@ -64,6 +64,7 @@ export const MOD_WEIGHTS = {
 export const MINI_WEIGHTS = {
   connect4: [0.7, 1, 1], knight: [0.7, 1, 1], bowling: [0.7, 1, 1],
   mates: [0, 1, 1], queens: [0, 1, 1], marcianos: [0, 1, 1], bomber: [0, 1, 1],
+  checkers: [0.7, 1, 1],
   barrier: [0, 0.5, 1.5], izombie: [0, 0.5, 1.5], laststand: [0, 0.5, 1.5],
 };
 export const isMiniModifier = (id) => id in MINI_WEIGHTS;
