@@ -1,5 +1,5 @@
 // Game screen: the "director" that wires Match (rules) to BoardView (3D) and the HUD.
-import { html, useState, useEffect, useRef, motion } from '../lib.js';
+import { html, useState, useEffect, useRef, motion, motionStagger } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { TurnBanner, CardFace } from '../components.js';
 import { isShopCard } from '../../game/shop.js';
@@ -580,7 +580,12 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
 function EndOverlay({ state, isFinal, onContinue, onRetry, onMap }) {
   const ref = useRef(null);
   useEffect(() => {
-    motion(ref.current, { scale: [0.85, 1], rotate: [-6, -2], opacity: [0, 1] }, { duration: 0.5, ease: [0.16, 1, 0.3, 1] });
+    const card = ref.current, OUT = [0.16, 1, 0.3, 1];
+    motion(card.parentElement, { opacity: [0, 1] }, { duration: 0.3 });
+    motion(card, { scale: [0.9, 1], rotate: [-6, -2], opacity: [0, 1] }, { duration: 0.5, ease: OUT });
+    // El sello cae como un tampón sobre la ficha: grande, girado, y asienta con un golpe seco.
+    motion(card.querySelector('.stamp'), { scale: [1.9, 0.92, 1], rotate: [-28, -6, -8], opacity: [0, 1, 1] }, { duration: 0.45, delay: 0.28, ease: OUT });
+    motion(card.querySelectorAll('h1, p, .end-actions .btn'), { y: [10, 0], opacity: [0, 1] }, { duration: 0.35, delay: motionStagger(0.06, { startDelay: 0.42 }), ease: OUT });
   }, []);
   const kind = state.tie ? 'tie' : state.victory ? 'win' : 'loss';
   const title = state.tie ? 'Tablas' : state.victory ? (isFinal ? 'Run completada' : 'Victoria') : 'Derrota';
