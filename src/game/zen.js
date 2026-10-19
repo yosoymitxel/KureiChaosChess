@@ -9,8 +9,10 @@ export const ZEN_KINDS = ['romero', 'salvia', 'lavanda'];
 export const ZEN_NAMES = { romero: 'Romero', salvia: 'Salvia', lavanda: 'Lavanda' };
 export const ZEN_BASE = 4; // el cantero de siempre
 export const ZEN_MAX = 8;  // casillas por lado al final
-const BUD_MS = 60_000;
-const BLOOM_MS = 150_000;
+// Diez minutos por flor: con 8 tiestos el jardín rinde ~300 monedas por hora, menos que jugar
+// (una run de unos 40 minutos paga ~240 más ~6 semillas); antes, a 2,5 minutos, cultivar pagaba el doble.
+const BUD_MS = 240_000;
+const BLOOM_MS = 600_000;
 
 // El cantero base, en orden de lectura; las cuatro celdas del estanque se dibujan como una pieza 2×2.
 export const BASE_GRID = [
