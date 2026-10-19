@@ -70,7 +70,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const pieces = placePieces(board, { playerCount: seats.length, isBoss: node.isBoss, isMiniBoss: node.isMiniBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses, floor: node.floor, totalFloors: run.map.floors });
     // El rival lo manda el tramo de la torre (difficulty.js); el ajuste de dificultad corre la
     // escalera y el mini-jefe sube un peldaño.
-    const rival = rivalForFloor(node.floor, run.map.floors, { up: node.isMiniBoss ? 1 : 0, difficulty: settings.difficulty });
+    const rival = rivalForFloor(node.floor, run.map.floors, { up: node.isMiniBoss ? 1 : 0, difficulty: run.tutorial ? 'facil' : settings.difficulty });
     const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses, rival });
     // Foto del bando humano al repartir: decide los logros de fin de partida.
     const human = seats.find((s) => s.kind === 'human')?.color || 'light';

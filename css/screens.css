@@ -39,6 +39,8 @@
 .menu-actions { display: flex; flex-direction: column; gap: 14px; margin-top: 34px; max-width: 320px; }
 .menu-row { display: flex; gap: 10px; }
 .menu-row .btn { flex: 1; }
+.menu-ask { display: grid; gap: 10px; color: var(--paper); }
+.menu-ask p { margin: 0; font-size: 14px; line-height: 1.4; }
 .menu-extras { flex-wrap: wrap; }
 .menu-extras .btn { flex: 1 1 40%; }
 @media (max-width: 760px) {
@@ -53,6 +55,11 @@
 
 /* Map: the run is a printed track on a game sheet. */
 .map-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
+.map-lesson { display: flex; gap: 10px; align-items: flex-start; margin: 0 16px 8px; padding: 12px 14px; border-radius: var(--r-md); background: var(--paper); color: var(--ink); font-size: 14px; line-height: 1.4; }
+.map-lesson svg, .lesson h2 svg { flex-shrink: 0; color: var(--accent-ink); }
+.lesson h2 { display: flex; align-items: center; gap: 8px; }
+.lesson p { margin: 0; font-size: 14.5px; line-height: 1.45; }
+.lesson .btn { align-self: flex-start; }
 .map-sheet {
   position: relative; width: min(560px, calc(100% - 32px)); margin: 8px auto 40px;
   background: var(--paper-2); background-image: var(--grain);

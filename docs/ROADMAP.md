@@ -16,13 +16,13 @@ Se actualiza al cerrar cada bloque. La revisión completa del 19/10 añade los b
 - [x] Cañón: hoy tiene alcance 4; debe moverse como torre. Guardia: el doble paso en diagonal no debe poder ir hacia atrás.
 - [x] Carta "Organizar": el cupo cuenta piezas y no intercambios (un tablero 9×9 da uno solo); título ilegible.
 - [x] Zoom: hace falta desplazar con dos dedos y ampliar desde el punto del pellizco.
-- [ ] Info de terreno al pasar o mantener pulsado, sin cola.
+- [x] Info de terreno al pasar o mantener pulsado, sin cola.
 - [ ] Menú: con una mesa de pago no comprada, el diorama se pinta a píxel antes de volver a la de serie.
 
 ## 1. Claridad de la partida
 
-- [ ] Info al tocar terreno (hielo, portal…) y piezas con reglas especiales.
-- [ ] Variantes de élite (escolta, reina última, jefe) explicadas antes de empezar, con color propio, y que aparezcan de a poco en la run.
+- [x] Info al tocar terreno (hielo, portal…) y piezas con reglas especiales.
+- [x] Variantes de élite (escolta, reina última, jefe) explicadas antes de empezar, con color propio (violeta), y que aparezcan de a poco en la run: escoltas solo en la segunda mitad.
 - [x] Cartas: rareza (gema y marco) y tipo (táctica, mutación, objeto) distinguibles de un vistazo.
 - [x] Zoom y desplazamiento con dos dedos en móvil para tableros grandes.
 
@@ -97,8 +97,8 @@ Grandes:
 - [x] Minijuegos nuevos: Damas, Fusión (2048 con piezas) y Duelo (combate por turnos) (20/10).
 - [x] Bomberman fiel: enemigos que solo vagan y otros que ponen bombas, tablero más ancho como el original.
 - [~] Ajedrez de siempre: enroque y captura al paso hechos (20/10); faltan niveles de ajedrez clásico con nivel por Elo.
-- [ ] Tutorial: run corta de primera vez y acceso desde el diorama (cómo se mueve cada pieza, mecánicas).
-- [ ] Tableros chicos al principio para enseñar mutaciones y piezas nuevas; ritmo de cada run.
+- [x] Tutorial: run corta de primera vez (4 pisos, una lección por piso, rival en fácil) y acceso desde el diorama.
+- [~] Tableros chicos al principio (8×8 en los primeros pisos); falta revisar el ritmo de cada run.
 - [~] Animaciones: volver a mirar las librerías (anime.js, Motion) y referencias (componentry, skiper-ui, unlumen, smoothui) para subir el nivel.
 
 ## Pendiente del lado del dueño (cuando tenga la PC)

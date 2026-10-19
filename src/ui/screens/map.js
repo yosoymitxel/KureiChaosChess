@@ -35,6 +35,7 @@ export function MapScreen({ run, onBack, onSelect, onShop }) {
     <${Topbar} title="Elige tu ruta" sub=${`Piso ${run.currentFloor + 1} de ${floors}`} onBack=${onBack} backLabel="Menú">
       <button class="btn ghost sm" onClick=${onShop} title="Tienda del jardín"><${Icon} name="coin" size=${16} />${loadShop().coins}</button>
     </${Topbar}>
+    ${run.tutorial && html`<p class="map-lesson"><${Icon} name="book" size=${16} />${nodes.find((n) => n.floor === run.currentFloor)?.lesson}</p>`}
     <div class="map-scroll" ref=${wrap}>
       <div class="map-sheet" style=${{ height: H + 'px' }}>
         <svg class="trails" viewBox=${`0 0 100 ${H}`} preserveAspectRatio="none">

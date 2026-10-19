@@ -64,6 +64,21 @@ export function generateMap(seed, prefs) {
   return { nodes, floors, connections, layouts };
 }
 
+// Run de aprendizaje: cuatro pisos en línea y cada uno enseña una sola cosa.
+const LESSONS = [
+  ['none', 'Toca una pieza tuya para ver adónde va y una rival para ver su alcance en rojo. Ganas al capturar su rey.'],
+  ['ice', 'Las casillas especiales se explican al tocarlas. Sobre el hielo las piezas resbalan hasta chocar.'],
+  ['mates', 'Entre partida y partida salen minijuegos. Si ganas, quedan abiertos para jugarlos sueltos desde el menú.'],
+  ['boss', 'Arriba de la torre espera un jefe: ocupa varias casillas y aguanta varios golpes. Las cartas de tu mano ayudan.'],
+];
+export function tutorialMap(seed) {
+  const rng = mulberry32(seed);
+  const last = LESSONS.length - 1;
+  const nodes = LESSONS.map(([modifier, lesson], f) => ({ id: `f${f}c0`, floor: f, column: 0, totalCols: 1, modifier, seed: Math.floor(rng() * 1e6), isBoss: f === last, isMiniBoss: false, isFirst: f === 0, lesson }));
+  const connections = nodes.slice(1).map((n, i) => ({ from: nodes[i].id, to: n.id }));
+  return { nodes, floors: nodes.length, connections, layouts: nodes.map(() => 1) };
+}
+
 
 const SHAPES = ['diamond', 'hourglass', 'cross', 'fortress', 'random', 'stripes', 'scatter', 'lake', 'canyon', 'islands', 'ring', 'bridges', 'checker'];
 

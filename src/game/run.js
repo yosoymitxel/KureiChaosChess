@@ -1,5 +1,5 @@
 // Run (roguelike map) persistence and progression helpers.
-import { generateMap } from './generate.js';
+import { generateMap, tutorialMap } from './generate.js';
 import { STARTER_CARDS } from './cards.js';
 import { addToHand, takePending } from './shop.js';
 import { randomSeed } from '../core/rng.js';
@@ -14,11 +14,11 @@ export const loadRun = () => read(RUN_KEY);
 export const saveRun = (run) => write(RUN_KEY, run);
 export const clearRun = () => write(RUN_KEY, null);
 
-export function createRun() {
+export function createRun({ tutorial = false } = {}) {
   const seed = randomSeed();
   // El sobre de la tienda entra al repartir: esas cartas quedan marcadas en la mano.
   const hand = addToHand({ cards: [...STARTER_CARDS], shopCount: 0 }, takePending(), true);
-  return { seed, map: generateMap(seed), currentFloor: 0, completed: {}, mutations: [], bonuses: {}, cards: hand.cards, shopCount: hand.shopCount, lastNode: null, prefs: { fav: [], ban: [] } };
+  return { seed, tutorial, map: tutorial ? tutorialMap(seed) : generateMap(seed), currentFloor: 0, completed: {}, mutations: [], bonuses: {}, cards: hand.cards, shopCount: hand.shopCount, lastNode: null, prefs: { fav: [], ban: [] } };
 }
 
 // Selector de la run: hasta 3 mecánicas favoritas y 1 vetada; mientras no se haya jugado nada,

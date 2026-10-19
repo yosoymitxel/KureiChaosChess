@@ -38,7 +38,7 @@ function PrefsCard({ prefs, onPrefs }) {
   </section>`;
 }
 
-export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings, onPrefs }) {
+export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings, onPrefs, onHowTo }) {
   const ref = useRef(null);
   useEnter(ref);
   const [count, setCount] = useState(defaultCount || 2);
@@ -46,12 +46,17 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
   const mod = nodeModifier(node);
   // El peldaño del rival lo fija el tramo de la torre, el ajuste de dificultad lo corre entero
   // y el piso de un mini-jefe sube uno.
-  const rival = rivalForFloor(node.floor, run?.map?.floors ?? 1, { up: node.isMiniBoss ? 1 : 0, difficulty: settings?.difficulty });
+  const rival = rivalForFloor(node.floor, run?.map?.floors ?? 1, { up: node.isMiniBoss ? 1 : 0, difficulty: run?.tutorial ? 'facil' : settings?.difficulty });
   const seats = SIDES.slice(0, count).map((s, i) => ({ color: s.color, kind: kinds[i], name: kinds[i] === 'bot' ? `Bot ${s.label}` : `Jugador ${i + 1}` }));
   const setKind = (i, kind) => setKinds((k) => k.map((v, j) => (j === i ? kind : v)));
   return html`<div class="screen setup" ref=${ref}>
     <${Topbar} title="Prepara la mesa" sub=${`Piso ${node.floor + 1}`} onBack=${onBack} />
     <div class="setup-body">
+      ${node.lesson && html`<section class="panel setup-card lesson" data-enter>
+        <h2><${Icon} name="book" size=${18} />Tutorial · ${node.floor + 1} de ${run.map.floors}</h2>
+        <p>${node.lesson}</p>
+        ${node.floor === 0 && onHowTo && html`<button class="btn sm" onClick=${onHowTo}>Cómo se mueve cada pieza</button>`}
+      </section>`}
       <section class="panel setup-card" data-enter>
         <div class="mod-card"><span class="mod-icon"><${Icon} name=${mod.icon} size=${24} /></span><div><h2>${mod.name}</h2><p>${mod.desc}</p></div></div>
         ${node.modifier === 'elite' && html`<ul class="elite-list">
