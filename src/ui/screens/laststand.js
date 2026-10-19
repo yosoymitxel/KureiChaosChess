@@ -20,10 +20,10 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
     before.current = null;
     const grid = gridRef.current;
     const { hops, born } = pieceDiffs(grid, b, s.pieces, COLS);
-    for (const h of hops) hopPiece(grid, h.el, { from: h.from, to: h.to, side: h.side, cols: COLS, rows: ROWS });
+    for (const h of hops) hopPiece(grid, h.el, { from: h.from, to: h.to, side: h.side === 'dark' ? 'zombie' : h.side, cols: COLS, rows: ROWS });
     for (const el of born) popPiece(grid, el);
     // Las caídas del choque: cada copia se vuelca donde cayó y la lista se vacía en el mismo pase.
-    for (const f of s.falls) fallPiece(grid, { row: f.row, col: f.col, type: f.type, side: f.color, cols: COLS });
+    for (const f of s.falls) fallPiece(grid, { row: f.row, col: f.col, type: f.type, side: f.color === 'dark' ? 'zombie' : f.color, cols: COLS });
     s.falls = [];
   });
 
@@ -48,7 +48,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
 
   const cell = (r, c) => {
     const p = at(s, r, c);
-    return { cls: canPlace(s, pick, r, c) ? 'drop' : '', piece: p && { type: p.type, side: p.color } };
+    return { cls: canPlace(s, pick, r, c) ? 'drop' : '', piece: p && { type: p.type, side: p.color === 'dark' ? 'zombie' : p.color } };
   };
   return html`<div class="screen mini">
     <${Topbar} title="Última resistencia" sub=${sub} onBack=${onBack} />

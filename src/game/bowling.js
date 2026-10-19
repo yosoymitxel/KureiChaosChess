@@ -10,7 +10,7 @@ export const DIFFS = {
 };
 // Vida por tipo, como cono, cubo y periódico en el original. El caballo salta la primera ficha
 // (el saltador de pértiga) y la reina acelera al perder su primera vida.
-export const HP = { pawn: 1, knight: 1, bishop: 2, rook: 3, queen: 4 };
+export const HP = { pawn: 1, knight: 2, bishop: 2, rook: 3, queen: 4 };
 // Qué entra según el avance: al principio peones; hacia el final, piezas duras.
 const MIX = [['pawn', 6, 1], ['knight', 1, 3], ['bishop', 1, 3], ['rook', 0, 3], ['queen', 0, 1.5]];
 const pickType = (s, rng) => {

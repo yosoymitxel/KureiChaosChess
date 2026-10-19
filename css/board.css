@@ -89,6 +89,8 @@
 .side-light { --pc: var(--side-light); --pc-2: color-mix(in oklch, var(--side-light), var(--ink) 35%); }
 .side-dark { --pc: var(--side-dark); --pc-2: color-mix(in oklch, var(--side-dark), black 40%); }
 .side-wild { --pc: var(--side-wild); --pc-2: color-mix(in oklch, var(--side-wild), black 40%); }
+/* Zombis de los minijuegos tipo PvZ: verde podrido, distinto del jade del tercer bando. */
+.side-zombie { --pc: var(--side-zombie); --pc-2: color-mix(in oklch, var(--side-zombie), black 45%); }
 
 .pc {
   position: absolute; left: 0; top: 0;
@@ -171,7 +173,7 @@
    tres bandos y acá se muestra el que toca; el damero corto reemplaza fibra y vetas. */
 .px-l, .px-d, .px-w { image-rendering: pixelated; }
 .px-d, .px-w { display: none; }
-.side-dark .px-l, .side-wild .px-l { display: none; }
-.side-dark .px-d, .side-wild .px-w { display: inline; }
+.side-dark .px-l, .side-wild .px-l, .side-zombie .px-l { display: none; }
+.side-dark .px-d, .side-zombie .px-d, .side-wild .px-w { display: inline; }
 [data-art="pixel"] .tile:not(.ice):not(.cracking) { background-image: none; }
 [data-art="pixel"] body { background-image: radial-gradient(120% 90% at 50% 20%, var(--table-2), var(--table)); }

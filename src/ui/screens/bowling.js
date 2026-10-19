@@ -77,10 +77,10 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
       return g;
     };
     const topple = (r, c, type, dir) => {
-      const g = ghost(r, Math.max(0, c), 'bm-ghost side-dark');
+      const g = ghost(r, Math.max(0, c), 'bm-ghost side-zombie');
       g.innerHTML = pieceSVG(type);
       const p = center(r, c);
-      fx.burst(p.x, p.y, { count: 22, color: [css('--side-dark'), '#fff', '#ffcf6b'], speed: [70, 260], size: [2, 5], gravity: 320, shape: 'chunk' });
+      fx.burst(p.x, p.y, { count: 22, color: [css('--side-zombie'), '#fff', '#ffcf6b'], speed: [70, 260], size: [2, 5], gravity: 320, shape: 'chunk' });
       shake();
       motion(g, { rotate: dir * 95, x: dir * cw * 0.5, opacity: [1, 1, 0] }, { duration: 0.55, ease: 'easeIn', onComplete: () => g.remove() });
     };
@@ -89,10 +89,10 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
       const p = was.get(e);
       if (!p) { popPiece(grid, pcOf(e.r, e.c)); continue; } // entra: brota
       if (e.c < 0) { topple(e.r, e.c, e.type, -1); continue; } // cruzó tu borde: cae hacia afuera
-      if (p.r !== e.r || p.c !== e.c) hopPiece(grid, pcOf(e.r, e.c), { from: { row: p.r, col: p.c }, to: { row: e.r, col: e.c }, side: 'dark', cols: COLS, rows: ROWS });
+      if (p.r !== e.r || p.c !== e.c) hopPiece(grid, pcOf(e.r, e.c), { from: { row: p.r, col: p.c }, to: { row: e.r, col: e.c }, side: 'zombie', cols: COLS, rows: ROWS });
       if (p.hp !== e.hp) {
         const c = center(e.r, e.c);
-        fx.burst(c.x, c.y, { count: 12, color: ['#fff', css('--side-dark')], speed: [60, 220], size: [2, 4], life: [0.25, 0.5] });
+        fx.burst(c.x, c.y, { count: 12, color: ['#fff', css('--side-zombie')], speed: [60, 220], size: [2, 4], life: [0.25, 0.5] });
         const el = pcOf(e.r, e.c);
         if (el && p.c === e.c) { // si saltó, el golpe de aterrizaje ya la aplasta
           el.classList.add('hit');
@@ -154,7 +154,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
     const e = s.enemies.find((x) => x.r === r && x.c === c);
     const ball = s.balls.find((b) => b.r === r && b.c === c);
     const zone = c < LAUNCH_COLS ? 'lane' + (c === LAUNCH_COLS - 1 ? ' line' : '') + (s.belt.length ? ' drop' : '') : '';
-    return { cls: zone + (ball?.kind === 'boom' ? ' boom' : ''), tok: !!ball, piece: e && { type: e.type, side: 'dark' }, hp: e && e.maxHp > 1 ? { on: e.hp, max: e.maxHp } : null };
+    return { cls: zone + (ball?.kind === 'boom' ? ' boom' : ''), tok: !!ball, piece: e && { type: e.type, side: 'zombie' }, hp: e && e.maxHp > 1 ? { on: e.hp, max: e.maxHp } : null };
   };
   const next = s.belt[0];
 

@@ -21,10 +21,10 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
     before.current = null;
     const grid = gridRef.current;
     const { hops, born } = pieceDiffs(grid, b, s.pieces, COLS);
-    for (const h of hops) hopPiece(grid, h.el, { from: h.from, to: h.to, side: h.side, cols: COLS, rows: ROWS });
+    for (const h of hops) hopPiece(grid, h.el, { from: h.from, to: h.to, side: h.side === 'dark' ? 'zombie' : h.side, cols: COLS, rows: ROWS });
     for (const el of born) popPiece(grid, el);
     // Las capturadas ya no están en el estado: su copia cae donde las mataron y se apaga.
-    for (const f of s.falls) fallPiece(grid, { row: f.row, col: f.col, type: f.type, side: f.color, cols: COLS });
+    for (const f of s.falls) fallPiece(grid, { row: f.row, col: f.col, type: f.type, side: f.color === 'dark' ? 'zombie' : f.color, cols: COLS });
     s.falls = [];
   });
 
@@ -33,7 +33,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
     const p = at(s, r, c);
     const trophy = r === ROWS - 1 && s.trophies.has(c);
     const cls = [r === 0 && !p && canBuy(s, pick, c) && 'drop', hot.has(r * COLS + c) && 'hot', r === ROWS - 1 && 'goal', trophy && 'trophy'].filter(Boolean).join(' ');
-    return { cls, piece: p && { type: p.type, side: p.color } };
+    return { cls, piece: p && { type: p.type, side: p.color === 'dark' ? 'zombie' : p.color } };
   };
   const attackers = s.pieces.filter((p) => p.color === 'dark');
   const step = !attackers.length ? 1 : s.moved ? 3 : 2;
@@ -53,7 +53,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">
             <span class="coin-chip" title="Monedas"><${Icon} name="coin" size=${16} /><b>${s.coins}</b></span>
-            <span class="chip"><${PieceIcon} type="pawn" side="dark" size=${15} />${attackers.length} en pie</span>
+            <span class="chip"><${PieceIcon} type="pawn" side="zombie" size=${15} />${attackers.length} en pie</span>
             <span class="chip" aria-label=${`Trofeos tomados: ${s.diff.trophies.length - s.trophies.size} de ${s.diff.trophies.length}`}><${Icon} name="trophy" size=${15} />${s.diff.trophies.length - s.trophies.size}/${s.diff.trophies.length}</span>
           </div>`}
           ${!s.over && html`<p class="mini-steps">${STEPS.map((t, i) => html`<span class=${i + 1 === step ? 'on' : i + 1 < step ? 'done' : ''}>${i + 1} ${t}</span>`)}</p>`}
@@ -61,7 +61,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
           ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Tomaste los ${s.diff.trophies.length} trofeos.` : `Te quedaste sin piezas y sin monedas con ${s.diff.trophies.length - s.trophies.size} de ${s.diff.trophies.length} trofeos.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
             : html`<div class="bm-actions" role="group" aria-label="Pieza a colocar">
               ${Object.entries(COST).map(([t, cost]) => html`<button class=${'btn sm buy' + (pick === t ? ' on' : ' ghost')} aria-pressed=${pick === t} aria-label=${`${PIECE_NAMES[t]}: ${cost} moneda${cost === 1 ? '' : 's'}`}
-                disabled=${cost > s.coins} onClick=${() => setPick(t)}><${PieceIcon} type=${t} side="dark" size=${22} /><span>${PIECE_NAMES[t]}</span><b class="buy-cost">${cost}</b></button>`)}
+                disabled=${cost > s.coins} onClick=${() => setPick(t)}><${PieceIcon} type=${t} side="zombie" size=${22} /><span>${PIECE_NAMES[t]}</span><b class="buy-cost">${cost}</b></button>`)}
             </div>
             <button class="btn primary" onClick=${() => act(() => advance(s))}>Avanzar</button>`}
           <${MiniDiff} mini="izombie" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />

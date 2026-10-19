@@ -24,6 +24,7 @@
   --side-light: oklch(0.95 0.025 90);
   --side-dark: oklch(0.6 0.19 32);
   --side-wild: oklch(0.65 0.13 160);
+  --side-zombie: oklch(0.63 0.12 128);
 
   --r-sm: 6px;
   --r-md: 12px;
