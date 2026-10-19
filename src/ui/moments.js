@@ -115,12 +115,12 @@ export class Moments {
     const el = this.mount(`cine tone-${tone}`, html`
       <i class="bar top"></i><i class="bar bottom"></i>
       <div class="cine-body">
-        <div class="cine-art">${piece ? html`<${PieceIcon} type=${piece.type} side=${piece.side} size=${220} />` : html`<span class="cine-icon"><${Icon} name=${icon} size=${88} /></span>`}</div>
+        <div class="cine-art">${piece ? html`<${PieceIcon} type=${piece.type} side=${piece.side} size=${220} paper=${false} />` : html`<span class="cine-icon"><${Icon} name=${icon} size=${88} /></span>`}</div>
         <div class="cine-text">
           <h2>${title}</h2>
           ${sub && html`<p>${sub}</p>`}
           ${hp && html`<div class="cine-hp" aria-label=${hp.hp + ' vidas'}>${Array.from({ length: hp.max }, (_, i) => html`<b class=${i < hp.hp ? 'on' : ''}></b>`)}</div>`}
-          ${wave && html`<div class="cine-wave">${wave.map(([type, side]) => html`<${PieceIcon} type=${type} side=${side} size=${40} />`)}</div>`}
+          ${wave && html`<div class="cine-wave">${wave.map(([type, side]) => html`<${PieceIcon} type=${type} side=${side} size=${40} paper=${false} />`)}</div>`}
         </div>
       </div>
       <span class="cine-skip">Toca o pulsa una tecla para seguir</span>`);
@@ -175,15 +175,19 @@ export class Moments {
     const el = this.mount(`callout tone-${tone}${tier ? ' tier-' + tier : ''}`, html`
       <span class="band"></span>
       ${(piece || icon) && html`<span class="callout-art">
-        ${piece ? html`<${PieceIcon} type=${piece.type} side=${piece.side} size=${72} />` : html`<${Icon} name=${icon} size=${52} />`}
-        ${pieceTo && html`<span class="swap-to"><${PieceIcon} type=${pieceTo.type} side=${pieceTo.side} size=${72} /></span>`}
+        ${piece ? html`<${PieceIcon} type=${piece.type} side=${piece.side} size=${72} paper=${false} />` : html`<${Icon} name=${icon} size=${52} />`}
+        ${pieceTo && html`<span class="swap-to"><${PieceIcon} type=${pieceTo.type} side=${pieceTo.side} size=${72} paper=${false} /></span>`}
       </span>`}
       <span class="callout-text"><strong>${text}</strong>${sub && html`<small>${sub}</small>`}</span>`);
-    // La banda se despliega desde la izquierda, la derecha o arriba y se va por el lado contrario.
+    // Entra por la izquierda o la derecha (la banda se despliega desde ese lado) o cae entera
+    // desde arriba, y se va por el lado contrario. La banda nunca se encoge en alto: se leía como rota.
     const dir = ['left', 'right', 'top'][Math.floor(Math.random() * 3)];
     const band = el.querySelector('.band');
-    band.style.transformOrigin = { left: '0 50%', right: '100% 50%', top: '50% 0' }[dir];
-    motion(band, dir === 'top' ? { scaleY: [0, 1] } : { scaleX: [0, 1] }, { duration: this.t(0.22), ease: OUT });
+    if (dir === 'top') motion(el, { y: [-this.host.clientHeight * 0.4, 0] }, { duration: this.t(0.3), ease: OUT });
+    else {
+      band.style.transformOrigin = dir === 'left' ? '0 50%' : '100% 50%';
+      motion(band, { scaleX: [0, 1] }, { duration: this.t(0.22), ease: OUT });
+    }
     motion(el.querySelectorAll('strong, small'), { scale: [1.5, 1], opacity: [0, 1] }, { duration: this.t(0.3), ease: OUT });
     const art = el.querySelector('.callout-art');
     await (art ? this.animate(anim, art, piece, this.t(hold)) : sleep(this.t(hold + 0.15)));

@@ -75,6 +75,7 @@ export function Icon({ name, size = 18 }) {
   return html`<svg class="icon" width=${size} height=${size} viewBox=${`${dx} ${dy} 24 24`} fill="currentColor" aria-hidden="true">${P[name]}</svg>`;
 }
 
-export function PieceIcon({ type, size = 28, side = 'dark' }) {
-  return html`<span class=${'piece-icon side-' + side} style=${{ width: size + 'px', height: size + 'px' }} dangerouslySetInnerHTML=${{ __html: pieceSVG(type, { fit: true, paper: true }) }} />`;
+// `paper` keeps the printed look (cards, lists); the moments pass false so they wear the table's art set.
+export function PieceIcon({ type, size = 28, side = 'dark', paper = true }) {
+  return html`<span class=${'piece-icon side-' + side} style=${{ width: size + 'px', height: size + 'px' }} dangerouslySetInnerHTML=${{ __html: pieceSVG(type, { fit: true, paper }) }} />`;
 }

@@ -188,8 +188,10 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const escort = p.escort && match.pieces.find((o) => o.id === p.escort);
       const mut = [];
       const cards = [];
+      const lent = [];
       for (const t of p.extraMoveTypes || []) {
         if (p.mutationFrom?.[t]) mut.push(p.mutationFrom[t]);
+        else if (p.lent) lent.push(MOVE_NAMES[t] || t);
         else cards.push('mount');
       }
       if (p.canCrown) mut.push('crown');
@@ -204,6 +206,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         mut: [...new Set(mut)],
         cards: [...new Set(cards)],
         copied: p.moves && !p.colossus ? p.moves.map((t) => MOVE_NAMES[t] || t) : [],
+        lent,
       };
     };
     const select = (p) => {
@@ -576,6 +579,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
           ${inspect.cards.length > 0 && html`<div class="insp-row"><span class="insp-key">Carta</span><span class="tags">${inspect.cards.map((id) => html`<span class="tag carta" title=${CARDS[id]?.desc}><${Icon} name=${CARDS[id]?.icon} size=${11} />${CARDS[id]?.name}</span>`)}</span></div>
             ${inspect.cards.map((id) => html`<p class="insp-desc">${CARDS[id]?.desc}</p>`)}`}
           ${inspect.copied.length > 0 && html`<div class="insp-row"><span class="insp-key">Movimiento</span><span class="tags">${inspect.copied.map((n) => html`<span class="tag">${n}</span>`)}</span></div>`}
+          ${inspect.lent.length > 0 && html`<div class="insp-row"><span class="insp-key">Prestado por el jefe</span><span class="tags">${inspect.lent.map((n) => html`<span class="tag">${n}</span>`)}</span></div>`}
         </div>
       </section>`}
       ${hud && Object.values(hud.captured).some((l) => l.length) && html`<section class="captures" aria-label="Piezas capturadas">

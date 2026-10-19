@@ -338,7 +338,7 @@ function placeOnce(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutati
         const set = new Set(), n = rng() < 0.35 ? 2 : 1;
         while (set.size < n) { const t = pickFrom(rng, extras); if (t !== p.type) set.add(t); }
         p.extraMoveTypes = [...set];
-        if (!legalMoves(p, pieces, board, ctx).some((m) => m.hits.some((v) => v.color === 'light'))) break;
+        if (!legalMoves(p, pieces, board, ctx).some((m) => m.hits.some((v) => v.color === 'light'))) { p.lent = true; break; }
         delete p.extraMoveTypes;
       }
     }

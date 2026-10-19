@@ -15,7 +15,8 @@ const css = (name) => getComputedStyle(document.documentElement).getPropertyValu
 const BADGES = {
   lock: '<svg viewBox="0 0 24 24"><path d="M7 10V7.5a5 5 0 0 1 10 0V10h-2.6V7.5a2.4 2.4 0 0 0-4.8 0V10z"/><rect x="4.5" y="10" width="15" height="11.5" rx="2.5"/></svg>',
   last: '<svg viewBox="0 0 24 24"><path d="M5 2.5h2.6v19H5z"/><path d="M7.6 3.5h11.9l-2.6 4 2.6 4H7.6z"/></svg>',
-  mut: '<svg viewBox="0 0 24 24"><path d="M12 1.8l2.6 7 7.4.4-5.7 4.7 1.9 7.2L12 17l-6.2 4.1 1.9-7.2L2 9.2l7.4-.4z"/></svg>',
+  lent: '<svg viewBox="0 0 24 24"><path d="M12 1.8l2.6 7 7.4.4-5.7 4.7 1.9 7.2L12 17l-6.2 4.1 1.9-7.2L2 9.2l7.4-.4z"/></svg>',
+  mut: '<svg viewBox="0 0 24 24"><path d="M9 2.5h6v2h-1v4.6l5.7 9.4c1 1.7-.2 3.5-2 3.5H6.3c-1.8 0-3-1.8-2-3.5L10 9.1V4.5H9z"/></svg>',
 };
 
 export class BoardView {
@@ -199,14 +200,15 @@ export class BoardView {
     return this.els.get(p);
   }
 
-  // Protected pieces wear a badge (lock = escorted, flag = falls last, star = borrowed moves);
+  // Protected pieces wear a badge (lock = escorted, flag = falls last, star = borrowed moves, flask = mutation);
   // escorts are tied to their ward with a rope, so the rule is readable without the rules.
   setGuards(pieces, isImmune) {
     this.piecesEl.querySelectorAll('.tether').forEach((t) => t.remove());
     for (const [p, el] of this.els) {
       const on = isImmune(p);
       const mut = !on && !!p.extraMoveTypes?.length;
-      const kind = on ? (p.trait === 'last' ? 'last' : 'lock') : mut ? 'mut' : '';
+      // Flask = the player's run mutation; star = moves lent by a card or a boss.
+      const kind = on ? (p.trait === 'last' ? 'last' : 'lock') : mut ? (p.mutationExtras?.length ? 'mut' : 'lent') : '';
       el.classList.toggle('guarded', on);
       el.classList.toggle('mutated', mut);
       const badge = el.querySelector('.pc-badge');
