@@ -365,6 +365,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const total = 2 * Math.max(1, Math.min(4, Math.min(board.rows, board.cols) - 7));
       d.feats.cards++;
       d.onUseCard(d.hand.indexOf('organize'));
+      award('organize');
       d.placing = { total, left: total };
       d.busy = true;
       addLog(`Carta Organizar: hasta ${total} intercambios antes de empezar`);

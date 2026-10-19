@@ -94,6 +94,7 @@ export function App() {
     if (run.currentFloor >= 10) award('deep_run');
     if (run.currentFloor >= 4) award('floor_5');
     if ((run.mutations || []).length >= 5) award('mut_5');
+    if ((run.mutations || []).some((id) => MUTATIONS[id]?.rarity === 'epic')) award('mut_epic');
     if ((run.minisWon || 0) >= 3) award('minis_3');
     if ((run.cards || []).length >= HAND_LIMIT) award('full_hand');
   }, [run]);
@@ -161,7 +162,7 @@ export function App() {
     }
     if (node.isBoss) {
       award('boss_slain');
-      if (bump('runs') >= 3) award('runs_3');
+      { const runs = bump('runs'); if (runs >= 3) award('runs_3'); if (runs >= 10) award('runs_10'); }
       clearRun(); setRunState(null); return newRun();
     }
     if (node.isMiniBoss) { const next = completeNode(run, node); setRun(next); return mutationReward(next, coins, seed); }
@@ -175,6 +176,7 @@ export function App() {
   const onMiniEnd = (won) => {
     if (!won) { setRun(completeNode(run, node)); return goTo('map'); }
     award('mini_won');
+    if (floorTier(node.floor, run.map.floors) === 'dificil') award('mini_hard');
     unlockMini(node.modifier);
     if (loadUnlocked().length >= Object.values(MODIFIERS).filter((m) => m.mini).length) award('all_minis');
     setRun((r) => ({ ...r, minisWon: (r.minisWon || 0) + 1 }));

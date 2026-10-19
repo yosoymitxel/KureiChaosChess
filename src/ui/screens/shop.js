@@ -4,6 +4,7 @@ import { Topbar, useEnter, CardFace, RARITY_LABEL } from '../components.js';
 import { Icon } from '../icons.js';
 import { CARDS, HAND_LIMIT } from '../../game/cards.js';
 import { THEMES } from '../../data/themes.js';
+import { award } from '../../game/achievements.js';
 import { CARD_PRICE, COINS_PER_FLOWER, COINS_PER_NODE, PENDING_LIMIT, SEED_PRICE, THEME_SHOP, addPending, addToHand, charge, grantTheme, isShopCard, loadShop, themeOwned } from '../../game/shop.js';
 import { ZEN_KINDS, ZEN_NAMES, addZenSeeds, loadZen } from '../../game/zen.js';
 import { chipArt } from '../zen-art.js';
@@ -20,6 +21,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
 
   const buyCard = (card) => {
     if (!charge(CARD_PRICE[card.rarity || 'common'])) return;
+    award('buy_card');
     if (run) setRun((r) => addToHand(r, [card.id], true));
     else addPending(card.id);
     playSfx('coin');
