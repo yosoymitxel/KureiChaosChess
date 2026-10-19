@@ -222,8 +222,10 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     };
 
     const doMove = async (piece, to) => {
+      const human = match.player.kind === 'human';
       const res = match.move(piece, to);
       if (!res) return false;
+      if (human) d.moments.dropWaiting();
       playSfx(res.victims.length ? 'capture' : 'move');
       d.busy = true;
       clearSel();
@@ -266,11 +268,15 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         return setTimeout(() => startTurn(a.ended), 400);
       }
       if (p.kind === 'bot') {
-        d.timer = setTimeout(function step() {
-          if (d.paused) { d.timer = setTimeout(step, 300); return; }
-          const mv = botChooseMove(match);
-          if (mv) doMove(mv.piece, mv.target);
-        }, 450 + Math.random() * 300);
+        // The bot waits for the labels on screen: its move used to land under a collapse or a capture.
+        d.moments.whenIdle().then(() => {
+          if (d.leaving || d.dead || match.over) return;
+          d.timer = setTimeout(function step() {
+            if (d.paused) { d.timer = setTimeout(step, 300); return; }
+            const mv = botChooseMove(match);
+            if (mv) doMove(mv.piece, mv.target);
+          }, 450 + Math.random() * 300);
+        });
       }
       const warned = announceChecks();
       if (p.kind === 'human' && newTurn && !warned) {
@@ -459,7 +465,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       .then(() => beginPlacing());
     const onKey = (e) => e.key === 'Escape' && setPaused((v) => !v);
     addEventListener('keydown', onKey);
-    return () => { clearTimeout(d.timer); removeEventListener('keydown', onKey); d.view.destroy(); d.moments.destroy(); };
+    return () => { d.dead = true; clearTimeout(d.timer); removeEventListener('keydown', onKey); d.view.destroy(); d.moments.destroy(); };
   }, []);
 
   useEffect(() => { ref.current.paused = paused; }, [paused]);

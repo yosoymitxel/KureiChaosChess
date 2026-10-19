@@ -16,7 +16,8 @@ const color = (side) => getComputedStyle(document.documentElement).getPropertyVa
 export class Moments {
   constructor(host, { speed = 1, enabled = true } = {}) {
     Object.assign(this, { host, speed, enabled });
-    this.queue = Promise.resolve();
+    this.waiting = [];
+    this.idle = [];
     this.fx = new Fx(host);
     this.fx.canvas.style.zIndex = 9;
   }
@@ -141,34 +142,50 @@ export class Moments {
     el.remove();
   }
 
-  // Short punch-in label with its piece animation; returns immediately and plays in order.
-  // `tier`: 'major' lands bigger and holds longer; 'info' reads small and quick.
-  callout({ text, sub, tone = 'paper', piece, pieceTo, icon, anim, tier }) {
+  // Short punch-in label with its piece animation; returns immediately and plays by importance.
+  // `tier`: 'major' (king, boss, check, collapse) lands bigger and holds longer and goes first;
+  // 'info' reads small and quick and is dropped when something bigger is waiting. At most 3 wait.
+  callout(opts) {
     if (!this.enabled) return;
-    this.pending = (this.pending || 0) + 1;
-    this.queue = this.queue.then(async () => {
-      try {
-        if (!this.enabled) return;
-        const hold = tier === 'major' ? 1 : tier === 'info' ? 0.4 : 0.7;
-        const el = this.mount(`callout tone-${tone}${tier ? ' tier-' + tier : ''}`, html`
-          <span class="band"></span>
-          ${(piece || icon) && html`<span class="callout-art">
-            ${piece ? html`<${PieceIcon} type=${piece.type} side=${piece.side} size=${72} />` : html`<${Icon} name=${icon} size=${52} />`}
-            ${pieceTo && html`<span class="swap-to"><${PieceIcon} type=${pieceTo.type} side=${pieceTo.side} size=${72} /></span>`}
-          </span>`}
-          <span class="callout-text"><strong>${text}</strong>${sub && html`<small>${sub}</small>`}</span>`);
-        motion(el.querySelector('.band'), { scaleX: [0, 1] }, { duration: this.t(0.22), ease: OUT });
-        motion(el.querySelectorAll('strong, small'), { scale: [1.5, 1], opacity: [0, 1] }, { duration: this.t(0.3), ease: OUT });
-        const art = el.querySelector('.callout-art');
-        await (art ? this.animate(anim, art, piece, this.t(hold)) : sleep(this.t(hold + 0.15)));
-        await motion(el, { opacity: [1, 0], y: [0, -24] }, { duration: this.t(0.25), ease: IN });
-        el.remove();
-      } finally { this.pending--; }
-    });
+    const prio = opts.tier === 'major' ? 2 : opts.tier === 'info' ? 0 : 1;
+    if (prio > 0) this.waiting = this.waiting.filter((it) => it.prio > 0);
+    this.waiting.push({ opts, prio });
+    this.waiting.sort((a, b) => b.prio - a.prio);
+    this.waiting.length = Math.min(this.waiting.length, 3);
+    if (!this.playing) this.pump();
   }
 
-  // Resolves when every callout queued so far has finished playing.
-  whenIdle() { return this.queue; }
+  async pump() {
+    this.playing = true;
+    while (this.waiting.length && this.enabled) await this.play(this.waiting.shift().opts);
+    this.playing = false;
+    const done = this.idle;
+    this.idle = [];
+    done.forEach((r) => r());
+  }
+
+  // A move was made: labels still waiting describe a board that no longer exists.
+  dropWaiting() { this.waiting = []; }
+
+  async play({ text, sub, tone = 'paper', piece, pieceTo, icon, anim, tier }) {
+    const hold = tier === 'major' ? 1 : tier === 'info' ? 0.4 : 0.7;
+    const el = this.mount(`callout tone-${tone}${tier ? ' tier-' + tier : ''}`, html`
+      <span class="band"></span>
+      ${(piece || icon) && html`<span class="callout-art">
+        ${piece ? html`<${PieceIcon} type=${piece.type} side=${piece.side} size=${72} />` : html`<${Icon} name=${icon} size=${52} />`}
+        ${pieceTo && html`<span class="swap-to"><${PieceIcon} type=${pieceTo.type} side=${pieceTo.side} size=${72} /></span>`}
+      </span>`}
+      <span class="callout-text"><strong>${text}</strong>${sub && html`<small>${sub}</small>`}</span>`);
+    motion(el.querySelector('.band'), { scaleX: [0, 1] }, { duration: this.t(0.22), ease: OUT });
+    motion(el.querySelectorAll('strong, small'), { scale: [1.5, 1], opacity: [0, 1] }, { duration: this.t(0.3), ease: OUT });
+    const art = el.querySelector('.callout-art');
+    await (art ? this.animate(anim, art, piece, this.t(hold)) : sleep(this.t(hold + 0.15)));
+    await motion(el, { opacity: [1, 0], y: [0, -24] }, { duration: this.t(0.25), ease: IN });
+    el.remove();
+  }
+
+  // Resolves when no callout is playing or waiting.
+  whenIdle() { return this.playing ? new Promise((r) => this.idle.push(r)) : Promise.resolve(); }
 
   destroy() { this.enabled = false; this.fx.destroy(); this.host.querySelectorAll('.moment').forEach((m) => m.remove()); }
 }
