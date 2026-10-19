@@ -125,6 +125,15 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
         fx.ring(c.x, c.y, { radius: cw * 1.6, color: css('--accent'), width: 6, life: 0.45 });
         fx.burst(c.x, c.y, { count: 40, color: [css('--accent'), '#ffcf6b', '#fff'], speed: [90, 320], size: [2, 6], gravity: 240, shape: 'chunk' });
         shake(10);
+      } else if (ev.kind === 'horde') {
+        // El banderín del original: aviso grande sobre la bolera antes de la última oleada.
+        const b = document.createElement('div');
+        b.className = 'bw-horde';
+        b.textContent = '¡Llega una gran horda!';
+        grid.appendChild(b);
+        motion(b, { scale: [1.4, 1], opacity: [0, 1] }, { duration: 0.3, ease: [0.16, 1, 0.3, 1] });
+        motion(b, { opacity: [1, 0] }, { duration: 0.4, delay: 1.6, onComplete: () => b.remove() });
+        shake(8);
       } else if (ev.kind === 'vault') {
         const el = pcOf(ev.e.r, ev.e.c);
         if (el) motion(el, { x: [cw, 0], y: [0, -ch * 0.8, 0] }, { duration: 0.32, ease: 'easeOut' });
@@ -157,14 +166,18 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
           onTap=${(r, c) => shoot(r, c)} />
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">
-            <span class="chip">${s.down} de ${s.diff.goal} derribadas</span>
+            <span class="bw-wave" aria-label=${s.horde == null ? `Oleada: ${Math.min(s.spawned, s.diff.goal)} de ${s.diff.goal} antes de la horda` : 'Gran horda en camino'}>
+              <span class="bw-wave-bar"><i style=${{ width: (s.horde == null ? (s.spawned / s.diff.goal) * 70 : 70 + (1 - s.horde / s.diff.horde) * 30) + '%' }} /></span>
+              <span class="bw-flag" aria-hidden="true">${s.horde == null ? 'Horda' : '¡Horda!'}</span>
+            </span>
+            <span class="chip">${s.down} derribadas</span>
             ${s.best > 1 && html`<span class="chip">Mejor cadena <b>×${s.best}</b></span>`}
           </div>
           <div class="bw-belt" role="status" aria-label=${s.belt.length ? `En la cinta: ${s.belt.map((k) => (k === 'boom' ? 'explosiva' : 'ficha')).join(', ')}` : 'La cinta está vacía'}>
             <span class="bw-belt-label">${next ? (next === 'boom' ? 'Sigue: explosiva' : 'Sigue: ficha') : 'Cinta vacía'}</span>
             <span class="bw-belt-row">${Array.from({ length: 4 }, (_, i) => html`<i class=${'bw-slot' + (s.belt[i] ? ' on ' + s.belt[i] : '') + (i === 0 ? ' first' : '')} />`)}</span>
           </div>`}
-          ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Derribaste las ${s.diff.goal} piezas que hacían falta${s.best > 1 ? `, con una cadena de ×${s.best}` : ''}.` : 'Una pieza llegó a tu borde.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+          ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Aguantaste la gran horda: ${s.down} piezas derribadas${s.best > 1 ? `, con una cadena de ×${s.best}` : ''}.` : 'Una pieza llegó a tu borde.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
           <${MiniDiff} mini="bowling" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
           <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Las piezas carmesí cruzan de derecha a izquierda. La cinta te trae fichas: toca una casilla antes de la línea roja (o pulsa 1-5) para lanzar la primera. Al chocar, la ficha rebota en diagonal y puede encadenar golpes. La explosiva, en bermellón, limpia un 3×3. Peón y caballo caen al primer golpe, pero el caballo salta la primera ficha; el alfil aguanta 2, la torre 3 y la reina 4, y se apura al recibir el primero.</p></details>
         </div>

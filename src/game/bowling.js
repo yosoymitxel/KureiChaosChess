@@ -4,9 +4,9 @@
 export const ROWS = 5, COLS = 9, LAUNCH_COLS = 3, BELT_MAX = 4;
 // La dificultad mueve cuántas piezas hay que derribar, el ritmo de entrada y el de la cinta.
 export const DIFFS = {
-  facil: { name: 'Fácil', goal: 8, enemyEvery: 6, spawnEvery: 9, beltEvery: 4 },
-  normal: { name: 'Normal', goal: 12, enemyEvery: 4, spawnEvery: 6, beltEvery: 5 },
-  dificil: { name: 'Difícil', goal: 16, enemyEvery: 3, spawnEvery: 5, beltEvery: 5 },
+  facil: { name: 'Fácil', goal: 8, horde: 5, enemyEvery: 6, spawnEvery: 9, beltEvery: 4 },
+  normal: { name: 'Normal', goal: 10, horde: 6, enemyEvery: 4, spawnEvery: 6, beltEvery: 4 },
+  dificil: { name: 'Difícil', goal: 14, horde: 8, enemyEvery: 3, spawnEvery: 5, beltEvery: 5 },
 };
 // Vida por tipo, como cono, cubo y periódico en el original. El caballo salta la primera ficha
 // (el saltador de pértiga) y la reina acelera al perder su primera vida.
@@ -30,7 +30,7 @@ const pickLane = (s, rng) => {
 const token = (rng) => (rng() < 1 / 7 ? 'boom' : 'nut');
 
 export const newBowling = (key = 'normal', rng = Math.random) => ({
-  t: 0, balls: [], enemies: [], down: 0, spawned: 0, over: null, nextId: 0, best: 0,
+  t: 0, balls: [], enemies: [], down: 0, spawned: 0, over: null, nextId: 0, best: 0, horde: null,
   belt: [token(rng), 'nut'], diff: DIFFS[key] || DIFFS.normal, events: [],
 });
 
@@ -80,12 +80,23 @@ export function tick(s, rng = Math.random) {
   const moved = s.enemies.filter((e) => s.t % (e.fast ? Math.max(1, every >> 1) : every) === 0);
   for (const e of moved) e.c--;
   if (moved.length) collide();
-  if (s.t % s.diff.spawnEvery === 1 && s.spawned < s.diff.goal + 6) {
+  const spawn = (r) => {
     const type = pickType(s, rng);
-    s.enemies.push({ id: s.nextId++, r: pickLane(s, rng), c: COLS - 1, type, hp: HP[type], maxHp: HP[type], vault: type === 'knight' });
+    s.enemies.push({ id: s.nextId++, r, c: COLS - 1, type, hp: HP[type], maxHp: HP[type], vault: type === 'knight' });
     s.spawned++;
+  };
+  // Como en PvZ: tras el goteo llega el banderín y una gran horda; la partida acaba al limpiarla,
+  // nunca de golpe al llegar a un número.
+  if (s.horde == null && s.spawned < s.diff.goal) {
+    if (s.t % s.diff.spawnEvery === 1) spawn(pickLane(s, rng));
+  } else if (s.horde == null && !s.enemies.some((e) => e.c > COLS - 4)) {
+    s.horde = s.diff.horde;
+    if (s.belt.length < BELT_MAX) s.belt.push('boom'); // la cinta te da una explosiva para recibirla
+    s.events.push({ kind: 'horde' });
+  } else if (s.horde > 0 && s.t % 3 === 0) {
+    spawn((s.spawned * 2) % ROWS);
+    s.horde--;
   }
   if (s.enemies.some((e) => e.c < 0)) s.over = 'lose';
-  else if (s.down >= s.diff.goal) s.over = 'win';
-  else if (s.spawned >= s.diff.goal + 6 && !s.enemies.length) s.over = 'lose';
+  else if (s.horde === 0 && !s.enemies.length) s.over = 'win';
 }
