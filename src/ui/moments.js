@@ -179,11 +179,16 @@ export class Moments {
         ${pieceTo && html`<span class="swap-to"><${PieceIcon} type=${pieceTo.type} side=${pieceTo.side} size=${72} /></span>`}
       </span>`}
       <span class="callout-text"><strong>${text}</strong>${sub && html`<small>${sub}</small>`}</span>`);
-    motion(el.querySelector('.band'), { scaleX: [0, 1] }, { duration: this.t(0.22), ease: OUT });
+    // La banda se despliega desde la izquierda, la derecha o arriba y se va por el lado contrario.
+    const dir = ['left', 'right', 'top'][Math.floor(Math.random() * 3)];
+    const band = el.querySelector('.band');
+    band.style.transformOrigin = { left: '0 50%', right: '100% 50%', top: '50% 0' }[dir];
+    motion(band, dir === 'top' ? { scaleY: [0, 1] } : { scaleX: [0, 1] }, { duration: this.t(0.22), ease: OUT });
     motion(el.querySelectorAll('strong, small'), { scale: [1.5, 1], opacity: [0, 1] }, { duration: this.t(0.3), ease: OUT });
     const art = el.querySelector('.callout-art');
     await (art ? this.animate(anim, art, piece, this.t(hold)) : sleep(this.t(hold + 0.15)));
-    await motion(el, { opacity: [1, 0], y: [0, -24] }, { duration: this.t(0.25), ease: IN });
+    const out = { left: { x: [0, 60] }, right: { x: [0, -60] }, top: { y: [0, 30] } }[dir];
+    await motion(el, { opacity: [1, 0], ...out }, { duration: this.t(0.25), ease: IN });
     el.remove();
   }
 

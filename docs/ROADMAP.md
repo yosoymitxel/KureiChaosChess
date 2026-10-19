@@ -86,7 +86,7 @@ Medios:
 - [x] Bolos: animación de rodar con su base siguiendo a la pieza y cayendo en su casilla; más carriles y más largo (dificultad en alto y en largo); la ficha como pieza de damas, no un círculo soso.
 - [x] Cartas: escalar el bloque entero con transform en mano, tienda y premio (no tocar fuentes); al elegir premio, la carta avanza y las otras se juntan detrás, sin scroll doble en móvil.
 - [x] Zoom en móvil: ampliar de verdad y desplazar con dos dedos.
-- [~] Rótulos de jefe y reina caída: entrar también de derecha a izquierda y de arriba abajo.
+- [x] Rótulos de jefe y reina caída: entrar también de derecha a izquierda y de arriba abajo.
 - [ ] Panel lateral con más información (y para el tutorial).
 
 Grandes:
