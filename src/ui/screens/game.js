@@ -390,6 +390,13 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         if (piece === d.selected) return clearSel();
         if (piece && piece.color === me) return select(piece);
         const moves = match.legal(d.selected);
+        // Tapping an enemy means "attack it": pick the legal move that hits it, nearest to the tap,
+        // so a 3×3 boss is one target instead of nine cells to aim at.
+        if (piece && piece.color !== me) {
+          const strike = moves.filter((m) => m.hits.includes(piece))
+            .sort((a, b) => Math.hypot(a.row - hit.row, a.col - hit.col) - Math.hypot(b.row - hit.row, b.col - hit.col))[0];
+          if (strike) { doMove(d.selected, { row: strike.row, col: strike.col }); return; }
+        }
         const anchor = anchorForCell(d.selected, hit.row, hit.col, moves);
         if (anchor) { doMove(d.selected, anchor); return; }
         terrainInfo(hit.row, hit.col);

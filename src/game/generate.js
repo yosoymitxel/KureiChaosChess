@@ -1,6 +1,6 @@
 // Procedural generation: run map, board shapes and starting armies.
 import { mulberry32, pickFrom } from '../core/rng.js';
-import { key } from './rules.js';
+import { key, threatenedPieces } from './rules.js';
 import { BOSSES } from '../data/bosses.js';
 import { applyMutations } from '../data/mutations.js';
 import { pickModifier, miniBossFloors, armyForFloor, ARMY_STEPS, isMiniModifier, RARE_TYPES, MINI_BOSSES, FINAL_BOSSES } from './difficulty.js';
@@ -215,7 +215,21 @@ function ensureRare(pieces, color, cols) {
   if (cand) cand.type = 'camel';
 }
 
-export function placePieces(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutations, bonuses, floor, totalFloors }) {
+// No match starts with a piece hanging: corner rooks on open files used to face each other on move 1.
+// Re-roll the deployment (new seed, same board) until no side has a piece under attack.
+// A boss's wide reach can make that impossible, so keep the least exposed try.
+export function placePieces(board, opts) {
+  let best = null, least = Infinity;
+  for (let k = 0; k < 30 && least > 0; k++) {
+    const pieces = placeOnce(board, { ...opts, seed: opts.seed + k * 101 });
+    const colors = [...new Set(pieces.map((p) => p.color))];
+    const exposed = colors.reduce((n, c) => n + threatenedPieces(pieces, c, board).size, 0);
+    if (exposed < least) { best = pieces; least = exposed; }
+  }
+  return best;
+}
+
+function placeOnce(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutations, bonuses, floor, totalFloors }) {
   const rng = mulberry32(seed + 7);
   const guide = floor == null ? ARMY_STEPS[2] : armyForFloor(floor, totalFloors || 1);
   // La variedad nunca debe anular una mutación del jugador: fuera las doctrinas que le quitan su pieza.

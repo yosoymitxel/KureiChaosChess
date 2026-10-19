@@ -295,11 +295,12 @@ export class BoardView {
   }
 
   // On a tilted board a standing figure covers the tile in front of it, so a tap on a figure
-  // over a marked tile (move, capture or card target) means that tile. A marked tile wins even
-  // when a big figure (boss) owns it, so aiming at its landing cells never falls back to its anchor.
+  // over a marked tile (move, capture or card target) means that tile. A multi-cell figure (boss)
+  // is the exception: it is one target, and the game resolves which move hits it.
   hitAt(x, y) {
     const stack = document.elementsFromPoint(x, y).filter((el) => this.host.contains(el));
     const first = this.cellFromEl(stack[0]);
+    if (first?.piece && sizeOf(first.piece).some((n) => n > 1)) return first;
     const tile = stack.find((el) => el.classList.contains('tile'));
     if (tile?.matches('.mv, .cap, .target')) return { row: +tile.dataset.r, col: +tile.dataset.c };
     return first;
