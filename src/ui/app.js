@@ -25,11 +25,12 @@ import { KnightScreen } from './screens/knight.js';
 import { QueensScreen } from './screens/queens.js';
 import { MarcianosScreen } from './screens/marcianos.js';
 import { MODIFIERS } from '../data/modifiers.js';
-import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, floorTier, DEFAULT_SETTINGS, withPrefs } from '../game/run.js';
+import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard } from '../game/shop.js';
 import { ZEN_NAMES, addZenSeeds, pickSeed } from '../game/zen.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
-import { award } from '../game/achievements.js';
+import { award, bump } from '../game/achievements.js';
+import { BOSS_IDS } from '../data/bosses.js';
 import { applyTheme } from '../data/themes.js';
 import { CARDS, HAND_LIMIT, pickCardChoices } from '../game/cards.js';
 
@@ -91,6 +92,9 @@ export function App() {
   useEffect(() => {
     if (!run) return;
     if (run.currentFloor >= 10) award('deep_run');
+    if (run.currentFloor >= 4) award('floor_5');
+    if ((run.mutations || []).length >= 5) award('mut_5');
+    if ((run.minisWon || 0) >= 3) award('minis_3');
     if ((run.cards || []).length >= HAND_LIMIT) award('full_hand');
   }, [run]);
 
@@ -151,8 +155,15 @@ export function App() {
     addCoins(coins);
     const seed = pickSeed();
     addZenSeeds(seed, 1);
-    if (node.isBoss || node.isMiniBoss) unlockBoss(bossId);
-    if (node.isBoss) { award('boss_slain'); clearRun(); setRunState(null); return newRun(); }
+    if (node.isBoss || node.isMiniBoss) {
+      unlockBoss(bossId);
+      if (loadBosses().length >= BOSS_IDS.length) award('all_bosses');
+    }
+    if (node.isBoss) {
+      award('boss_slain');
+      if (bump('runs') >= 3) award('runs_3');
+      clearRun(); setRunState(null); return newRun();
+    }
     if (node.isMiniBoss) { const next = completeNode(run, node); setRun(next); return mutationReward(next, coins, seed); }
     const next = completeNode(run, node);
     setRun(next);
@@ -165,6 +176,8 @@ export function App() {
     if (!won) { setRun(completeNode(run, node)); return goTo('map'); }
     award('mini_won');
     unlockMini(node.modifier);
+    if (loadUnlocked().length >= Object.values(MODIFIERS).filter((m) => m.mini).length) award('all_minis');
+    setRun((r) => ({ ...r, minisWon: (r.minisWon || 0) + 1 }));
     const coins = COINS_PER_NODE.normal, seed = pickSeed();
     addCoins(coins);
     addZenSeeds(seed, 1);

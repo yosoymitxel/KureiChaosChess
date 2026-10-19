@@ -208,7 +208,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (r.victory) {
         // La pérdida se lee por identidad: toda pieza caída sale de match.pieces.
         const lost = [...d.feats.mine].filter((p) => !match.pieces.includes(p));
-        if (!lost.length) award('flawless');
+        if (!lost.length) { award('flawless'); if (node.modifier === 'elite') award('elite_flawless'); }
         else if (lost.some((p) => p.type === 'queen')) award('queen_win');
         if (d.feats.cards === 0 && d.feats.hadCards) award('no_cards');
         if (node.modifier === 'fog') award('fog_win');

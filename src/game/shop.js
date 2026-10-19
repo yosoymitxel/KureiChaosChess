@@ -26,11 +26,23 @@ export function loadShop() {
 }
 export const saveShop = (s) => write(KEY, s);
 
-export function addCoins(n) { const s = loadShop(); const coins = s.coins + n; saveShop({ ...s, coins }); if (coins >= 100) award('rich'); return coins; }
+export function addCoins(n) {
+  const s = loadShop(); const coins = s.coins + n;
+  saveShop({ ...s, coins });
+  if (coins >= 100) award('rich');
+  if (coins >= 500) award('rich_500');
+  return coins;
+}
 export function charge(n) { const s = loadShop(); if (s.coins < n) return false; saveShop({ ...s, coins: s.coins - n }); return true; }
 
 export const themeOwned = (id) => !THEME_SHOP[id] || loadShop().themes.includes(id);
-export const grantTheme = (id) => { const s = loadShop(); if (!s.themes.includes(id)) saveShop({ ...s, themes: [...s.themes, id] }); };
+export function grantTheme(id) {
+  const s = loadShop();
+  if (s.themes.includes(id)) return;
+  const themes = [...s.themes, id];
+  saveShop({ ...s, themes });
+  if (Object.keys(THEME_SHOP).every((t) => themes.includes(t))) award('all_tables');
+}
 
 // Cartas compradas sin run: esperan en un sobre y entran al empezar la siguiente.
 export function addPending(id) {

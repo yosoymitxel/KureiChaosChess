@@ -6,7 +6,7 @@ const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null')
 const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
 // Los grupos se muestran en este orden en la pantalla de Logros.
-export const ACHIEVEMENT_GROUPS = ['Partida', 'Travesía', 'Jardín Zen', 'Tienda'];
+export const ACHIEVEMENT_GROUPS = ['Partida', 'Travesía', 'Mitad de run', 'Largo plazo', 'Jardín Zen', 'Tienda'];
 
 export const ACHIEVEMENTS = [
   { id: 'first_win', group: 'Partida', name: 'Primera victoria', desc: 'Gana tu primera partida.', icon: 'check' },
@@ -21,12 +21,26 @@ export const ACHIEVEMENTS = [
   { id: 'boss_slain', group: 'Travesía', name: 'Coloso caído', desc: 'Derriba al jefe final y completa una run.', icon: 'trophy' },
   { id: 'deep_run', group: 'Travesía', name: 'Piso diez', desc: 'Completa diez pisos en una run.', icon: 'map' },
   { id: 'full_hand', group: 'Travesía', name: 'Mano llena', desc: `Junta ${HAND_LIMIT} cartas a la vez.`, icon: 'scroll' },
+  { id: 'floor_5', group: 'Mitad de run', name: 'Medio camino', desc: 'Llega al piso cinco en una run.', icon: 'map' },
+  { id: 'mut_5', group: 'Mitad de run', name: 'Ejército mutante', desc: 'Junta cinco mutaciones en una misma run.', icon: 'flask' },
+  { id: 'minis_3', group: 'Mitad de run', name: 'Feria completa', desc: 'Gana tres minijuegos en una misma run.', icon: 'connect4' },
+  { id: 'elite_flawless', group: 'Mitad de run', name: 'Élite intacta', desc: 'Supera un piso de Élite sin perder ninguna pieza.', icon: 'swords' },
+  { id: 'runs_3', group: 'Largo plazo', name: 'Veterano', desc: 'Completa tres runs.', icon: 'trophy' },
+  { id: 'all_bosses', group: 'Largo plazo', name: 'Bestiario', desc: 'Derriba a todos los jefes al menos una vez.', icon: 'boss' },
+  { id: 'all_minis', group: 'Largo plazo', name: 'Todos los juegos', desc: 'Desbloquea todos los minijuegos.', icon: 'connect4' },
+  { id: 'all_tables', group: 'Largo plazo', name: 'Coleccionista', desc: 'Consigue todas las mesas de la tienda.', icon: 'coin' },
+  { id: 'rich_500', group: 'Largo plazo', name: 'Tesoro', desc: 'Ten 500 monedas a la vez.', icon: 'coin' },
   { id: 'flower_1', group: 'Jardín Zen', name: 'Primera flor', desc: 'Cosecha tu primera flor en el Jardín Zen.', icon: 'rest' },
   { id: 'flower_3', group: 'Jardín Zen', name: 'Jardín en flor', desc: 'Cosecha tres flores en el Jardín Zen.', icon: 'rest' },
   { id: 'zen_ring', group: 'Jardín Zen', name: 'Cantero nuevo', desc: 'Amplía el jardín con un anillo nuevo.', icon: 'expand' },
   { id: 'zen_all', group: 'Jardín Zen', name: 'Todo florece', desc: 'Cosecha una flor de cada especie.', icon: 'seed' },
   { id: 'rich', group: 'Tienda', name: 'Bolsillo lleno', desc: 'Ten 100 monedas a la vez.', icon: 'coin' },
 ];
+
+// Contadores que cruzan runs (runs completas): los logros de largo plazo los leen.
+const STATS_KEY = 'zugzwang.stats.v1';
+export const loadStats = () => read(STATS_KEY) || {};
+export function bump(stat) { const s = loadStats(); s[stat] = (s[stat] || 0) + 1; write(STATS_KEY, s); return s[stat]; }
 
 export const loadAchievements = () => read(KEY) || [];
 export const saveAchievements = (a) => write(KEY, a);
