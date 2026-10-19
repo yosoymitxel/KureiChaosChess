@@ -89,15 +89,19 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
       const p = was.get(e);
       if (!p) { popPiece(grid, pcOf(e.r, e.c)); continue; } // entra: brota
       if (e.c < 0) { topple(e.r, e.c, e.type, -1); continue; } // cruzó tu borde: cae hacia afuera
-      if (p.r !== e.r || p.c !== e.c) hopPiece(grid, pcOf(e.r, e.c), { from: { row: p.r, col: p.c }, to: { row: e.r, col: e.c }, side: 'zombie', cols: s.cols, rows: s.rows });
+      // Un paso se camina con la peana; el salto del caballo va con charco (hopPiece decide).
+      const el = pcOf(e.r, e.c);
+      if (p.r !== e.r || p.c !== e.c) hopPiece(grid, el, { from: { row: p.r, col: p.c }, to: { row: e.r, col: e.c }, side: 'zombie', cols: s.cols, rows: s.rows });
       if (p.hp !== e.hp) {
         const c = center(e.r, e.c);
-        fx.burst(c.x, c.y, { count: 10, color: ['#fff', '#ffe2a8'], speed: [200, 400], size: [1.5, 3], life: [0.15, 0.3], shape: 'spark', drag: 0.85 });
-        const el = pcOf(e.r, e.c);
-        if (el && p.c === e.c) { // si saltó, el golpe de aterrizaje ya la aplasta
+        fx.burst(c.x, c.y, { count: 14, color: ['#fff', '#ffe2a8', css('--side-zombie')], speed: [220, 460], size: [1.5, 3.5], life: [0.15, 0.35], shape: 'spark', drag: 0.85 });
+        fx.ring(c.x, c.y, { radius: cw * 0.55, color: '#fff', width: 3, life: 0.22 });
+        if (el) {
+          // Golpe: destello, retrocede medio paso por el empujón de la ficha y se aplasta al volver.
           el.classList.add('hit');
-          setTimeout(() => el.classList.remove('hit'), TICK_MS);
-          motion(el, { scaleY: [0.75, 1.08, 1], scaleX: [1.15, 0.96, 1] }, { duration: 0.38, ease: [0.16, 1, 0.3, 1] });
+          setTimeout(() => el.classList.remove('hit'), 120);
+          motion(el, { x: [0, cw * 0.22, 0], scaleY: [1, 0.72, 1.08, 1], scaleX: [1, 1.18, 0.96, 1], rotate: [0, 10, -3, 0] }, { duration: 0.36, ease: [0.16, 1, 0.3, 1] });
+          shake(3);
         }
       }
     }
@@ -109,10 +113,15 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
         fx.ring(c.x, c.y, { radius: cw * 0.7, color: css('--brass'), width: 3, life: 0.3 });
         continue;
       }
-      if (p.dr !== b.dr) { const c = center(b.r, b.c); fx.dust(c.x, c.y, 0.5); } // rebote contra una pieza o la banda
-      // Rueda en línea recta: el gesto dura un tick exacto, así que cubre una casilla por paso.
+      // Rueda: el gesto dura un tick exacto, así que cubre una casilla por paso.
       const el = tokOf(b.r, b.c);
+      const bounced = p.dr !== b.dr;
       if (el) motion(el, { x: [(p.c - b.c) * cw, 0], y: [(p.r - b.r) * ch, 0] }, { duration: TICK_MS / 1000, ease: 'linear' });
+      if (bounced) { // rebote contra una pieza o la banda: polvo y la ficha se aplasta contra el choque
+        const c = center(b.r, b.c);
+        fx.dust(c.x, c.y, 0.6);
+        if (el) motion(el, { scaleX: [0.7, 1.12, 1], scaleY: [1.25, 0.92, 1] }, { duration: 0.26, ease: [0.16, 1, 0.3, 1] });
+      }
     }
     // Lo que el tick contó aparte: cadenas de rebotes, explosiones y el salto del caballo.
     for (const ev of s.events) {
@@ -122,8 +131,9 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
         motion(g, { y: [0, -ch * 0.9], opacity: [1, 1, 0] }, { duration: 0.8, ease: 'easeOut', onComplete: () => g.remove() });
       } else if (ev.kind === 'boom') {
         const c = center(ev.r, ev.c);
-        fx.explosion(c.x, c.y, Math.max(1, cw / 40));
-        shake(10);
+        // La explosiva estalla como cae un rey en el tablero, con la onda abarcando su 3×3.
+        fx.bigBoom(c.x, c.y, { scale: Math.max(1, cw / 40), radius: cw * 1.8, color: css('--side-zombie') });
+        shake(16);
       } else if (ev.kind === 'horde') {
         // El banderín del original: aviso grande sobre la bolera antes de la última oleada.
         const b = document.createElement('div');

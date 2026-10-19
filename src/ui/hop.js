@@ -86,6 +86,19 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows }) {
   const dr = to.row - from.row, dc = to.col - from.col;
   if (!dr && !dc) return;
   const dx = -dc * cw, dy = -dr * chh;
+  // Un paso a la casilla de al lado se camina: la ficha se desliza con su peana y se balancea en
+  // dos pasitos. El charco y el arco quedan para los saltos, donde se leen; en un paso corto el
+  // charco solo dejaba una estela detrás de la pieza.
+  // Las vidas viven al lado de la ficha en la casilla: viajan con ella en vez de llegar antes.
+  const hp = pcEl.parentElement?.querySelector('.pc-hp');
+  if (Math.abs(dr) + Math.abs(dc) === 1) {
+    const dur = 0.26 / speed();
+    pcEl.style.transformOrigin = '50% 72%';
+    motion(pcEl, { x: [dx, dx / 2, 0], y: [dy, dy / 2 - chh * 0.07, 0, -chh * 0.07, 0], rotate: [0, -5, 0, 5, 0] }, { duration: dur, ease: 'linear' });
+    if (hp) motion(hp, { x: [dx, 0], y: [dy, 0] }, { duration: dur, ease: 'linear' });
+    return;
+  }
+  if (hp) motion(hp, { x: [dx, 0], y: [dy, 0] }, { duration: 0.4 / speed(), ease: 'easeInOut' });
   // El arco no asoma por encima del borde del tablero (el `<div class="bm">` recorta): en la fila
   // de arriba la ficha salta bajo, y en el resto del tablero salta alto.
   const lift = Math.min(chh * 0.45, (to.row + 0.06) * chh);

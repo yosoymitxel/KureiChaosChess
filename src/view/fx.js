@@ -59,6 +59,13 @@ export class Fx {
     this.burst(x, y, { count: Math.round(14 * scale), color: ['#ff8a3d', '#e2552b', '#ffcf6b'], speed: [80, 260 * scale], life: [0.6, 1.1], size: [2, 4], gravity: 420, shape: 'chunk' });
     this.smoke(x, y, scale);
   }
+  // La caída del rey: estallido grande, onda ancha y escombros. Las bombas de los minijuegos la usan
+  // a su escala (`scale` 1 = una casilla de unos 40 px) para que todo estalle igual en el juego.
+  bigBoom(x, y, { scale = 1, radius = 160 * scale, color = '#2a201a' } = {}) {
+    this.explosion(x, y, 1.6 * scale);
+    this.ring(x, y, { radius, width: 8, life: 0.7 });
+    this.debris(x, y, color, 1.4 * scale);
+  }
   smoke(x, y, scale = 1) {
     this.burst(x, y, { count: Math.round(9 * scale), color: ['rgba(70,60,55,.55)', 'rgba(110,100,92,.45)', 'rgba(150,140,130,.35)'], speed: [20, 90 * scale], life: [0.7, 1.3], size: [10 * scale, 22 * scale], gravity: -60, drag: 0.9, shape: 'smoke' });
   }

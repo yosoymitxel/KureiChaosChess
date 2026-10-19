@@ -58,9 +58,19 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
   useEffect(() => {
     const grid = gridRef.current, fx = fxRef.current;
     if (booms.current?.length && fx && !reduced()) {
-      for (const { r, c } of booms.current) { const p = fx.pointOf(grid.children[r * s.cols + c]); fx.explosion(p.x, p.y, 0.9); }
-      for (const [r, c] of s.blast) { const p = fx.pointOf(grid.children[r * s.cols + c]); fx.smoke(p.x, p.y, 0.5); }
-      if (settings.shake) motion(grid, { x: [0, -6, 5, -3, 0], y: [0, 3, -4, 2, 0] }, { duration: 0.35 });
+      // Estalla como cae un rey en el tablero (fx.bigBoom) y el fuego corre por la cruz casilla a casilla.
+      const cw = grid.children[0].offsetWidth, scale = cw / 40;
+      for (const { r, c } of booms.current) {
+        const p = fx.pointOf(grid.children[r * s.cols + c]);
+        fx.bigBoom(p.x, p.y, { scale: scale * 0.8, radius: cw * 2.5 });
+        for (const [br, bc] of s.blast) {
+          const d = Math.abs(br - r) + Math.abs(bc - c);
+          if (!d) continue;
+          const q = fx.pointOf(grid.children[br * s.cols + bc]);
+          setTimeout(() => fx.explosion(q.x, q.y, scale * 0.45), d * 45);
+        }
+      }
+      if (settings.shake) motion(grid, { x: [0, -12, 10, -7, 4, 0], y: [0, 6, -7, 3, 0] }, { duration: 0.5 });
     }
     booms.current = null;
     const moved = hops.current;

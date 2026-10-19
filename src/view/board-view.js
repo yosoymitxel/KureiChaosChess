@@ -795,9 +795,8 @@ export class BoardView {
     if (!el) return;
     const c = this.centerOf(p);
     const royal = p.royal;
-    if (royal) this.fx.explosion(c.x, c.y - this.sq * 0.4, 1.6);
-    this.fx.debris(c.x, c.y - this.sq * 0.4, css('--side-' + p.color), royal ? 1.8 : 1);
-    if (royal) { this.shake(26, 800); this.fx.ring(c.x, c.y, { radius: this.sq * 4, width: 8, life: 0.8 }); }
+    if (royal) { this.fx.bigBoom(c.x, c.y - this.sq * 0.4, { radius: this.sq * 4, color: css('--side-' + p.color) }); this.shake(26, 800); }
+    else this.fx.debris(c.x, c.y - this.sq * 0.4, css('--side-' + p.color));
     const dir = Math.sign(to.col - from.col) || (Math.random() < 0.5 ? -1 : 1);
     const stand = el.querySelector('.pc-fig');
     // Destello blanco del golpe antes de salir despedida: el impacto se lee aunque dure poco.
