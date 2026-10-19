@@ -258,11 +258,31 @@ function placeOnce(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutati
       const types = (l === 0 ? BACK_RANK[sel.length] || BACK_RANK[8] : l === 1 ? SECOND_RANK[sel.length] : pawnRank(sel.length)).map((t) => swaps[t] || t);
       sel.forEach((c, i) => pieces.push(makePiece(types[i] || 'pawn', color, r, c)));
     });
+    // La segunda capa es más estrecha: sin esto, las torres de las esquinas miran una columna
+    // abierta y la partida empieza cambiando torre por torre.
+    for (const p of pieces.filter((x) => x.color === color && x.row === backRow && x.type === 'rook')) {
+      const r = backRow + dir;
+      if (valid(r, p.col) && !occupied(r, p.col)) pieces.push(makePiece('pawn', color, r, p.col));
+    }
+    // En los pisos altos el cañón no se queda delante del rey: un paso al costado, si se puede.
+    const king = pieces.find((x) => x.color === color && x.type === 'king');
+    const front = king && pieces.find((x) => x.color === color && x.type === 'cannon' && x.col === king.col && x.row === king.row + dir);
+    if (front && floor >= 3) {
+      const side = pieces.find((x) => x.color === color && x.row === front.row && Math.abs(x.col - front.col) === 1 && x.type !== 'cannon');
+      if (side) [side.type, front.type] = [front.type, side.type];
+    }
   }
   side('dark', 0, 1);
   side('light', rows - 1, -1);
   ensureRare(pieces, 'dark', cols);
   ensureRare(pieces, 'light', cols);
+  // Con huecos, un elefante o un camello puede no tener ni una casilla a la que saltar en todo el
+  // nivel (se mira el tablero vacío): pasa a ser la primera pieza que sí pueda moverse.
+  for (const p of pieces) {
+    if (p.type !== 'elephant' && p.type !== 'camel') continue;
+    const alone = (t) => { const q = { ...p, type: t }; return legalMoves(q, [q], board).length; };
+    if (!alone(p.type)) p.type = ['knight', 'bishop', 'guard', 'pawn'].find((t) => alone(t)) || p.type;
+  }
 
   if (playerCount === 3) {
     const cr = Math.floor(rows / 2), cc = Math.floor(cols / 2);
