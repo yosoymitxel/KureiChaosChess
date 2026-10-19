@@ -1,6 +1,6 @@
 // Procedural generation: run map, board shapes and starting armies.
 import { mulberry32, pickFrom } from '../core/rng.js';
-import { key, threatenedPieces } from './rules.js';
+import { key, threatenedPieces, legalMoves, ctxOf } from './rules.js';
 import { BOSSES } from '../data/bosses.js';
 import { applyMutations } from '../data/mutations.js';
 import { pickModifier, miniBossFloors, armyForFloor, ARMY_STEPS, isMiniModifier, RARE_TYPES, MINI_BOSSES, FINAL_BOSSES } from './difficulty.js';
@@ -278,10 +278,16 @@ function placeOnce(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutati
     const extras = ['knight', 'bishop', 'rook', 'queen', 'king', 'camel', 'elephant'];
     const candidates = pieces.filter((p) => p.color === 'dark' && !p.boss && (p.row < board.protectRows || p.type === 'guard' || p.type === 'advisor'));
     const targets = isMiniBoss ? [...candidates].sort(() => rng() - 0.5).slice(0, 2) : candidates;
+    // Un préstamo que ya ataca en la jugada 1 se vuelve a sortear; si ninguno sirve, la pieza se queda sin él.
+    const ctx = ctxOf(pieces, board);
     for (const p of targets) {
-      const set = new Set();
-      while (set.size < (rng() < 0.35 ? 2 : 1)) { const t = pickFrom(rng, extras); if (t !== p.type) set.add(t); }
-      p.extraMoveTypes = [...set];
+      for (let k = 0; k < 6; k++) {
+        const set = new Set(), n = rng() < 0.35 ? 2 : 1;
+        while (set.size < n) { const t = pickFrom(rng, extras); if (t !== p.type) set.add(t); }
+        p.extraMoveTypes = [...set];
+        if (!legalMoves(p, pieces, board, ctx).some((m) => m.hits.some((v) => v.color === 'light'))) break;
+        delete p.extraMoveTypes;
+      }
     }
   }
 
