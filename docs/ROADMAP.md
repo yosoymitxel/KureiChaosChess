@@ -28,13 +28,24 @@ Se actualiza al cerrar cada bloque. La revisión completa del 19/10 añade los b
 - [ ] Bolos: piezas grandes con más vida según tipo.
 - [ ] Ritmo del mapa al estilo PvZ: niveles normales, minijuego y mini-jefe (variantes de élite), en orden aleatorio pero sensato.
 
-## 3. Minijuegos
+## 3. Minijuegos (referencia: docs/REFERENCE-PVZ.md)
 
 - [ ] Coherencia visual con el juego (tableros, piezas, fin de partida, ayuda, animaciones).
-- [ ] Yo, Zombi: que se entienda (tutorial corto, vista previa del avance).
-- [ ] Bomberman ampliado (cruceta en móvil, más mecánicas).
+- [ ] Móvil primero: los minijuegos muy verticales necesitan contenido o paneles a los lados en pantallas anchas, y menús propios en vez del carril genérico.
+- [ ] Mecánicas fieles al original y animadas: Bolos (cinta, línea roja, rebotes por carril, ficha explosiva, cadenas), Yo Zombi (trofeos por columna, monedas al capturar, avance animado), Última resistencia (asalto por banderas con pausa para reforzar), Mate en 2, Matamarcianos.
+- [ ] Bomberman y Jardín Zen: hoy casi sin animación (explosión, pasos, crecer, mecerse, monedas que saltan).
+- [ ] Dificultades de los minijuegos revisadas jugando, no solo con bots.
+- [x] Mate en 1 y 2: solo mates reales (19/10).
+- [~] Bomberman: alcance con tope y enemigos que esquivan (19/10); falta cruceta, animación y más mecánicas.
 - [ ] Matamarcianos.
-- [ ] Jardín Zen como modo tranquilo para conseguir mutaciones o puntos.
+- [ ] Jardín Zen como modo tranquilo para conseguir mutaciones o puntos, al estilo del original.
+
+## 3b. Audio, economía y generadores
+
+- [ ] Audio: los sonidos sintetizados actuales son pobres; rehacer con criterio (impacto, captura, interfaz, ambiente opcional y silencioso por defecto).
+- [~] Economía: semilla/flor y monedas por minijuego arregladas (19/10); revisar precios de cartas, mesas y ganancias por nodo de punta a punta.
+- [ ] Niveles de dificultad de la run, generador de niveles y generador de piezas (formaciones) revisados juntos.
+- [ ] Visual de las piezas: revisar las nuevas (píxel) y la coherencia de la familia.
 - [ ] Ideas futuras: más retro (PvZ, Slay the Spire, Gambonanza).
 
 ## 4. Progreso y extras
