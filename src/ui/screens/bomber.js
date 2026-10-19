@@ -101,7 +101,6 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
         </div>
         <div class="mini-side">
           ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-          ${!s.over && html`<ul class="bm-foes" aria-label="Enemigos de este nivel">${kinds.map((t) => html`<li><span class="bm-foe-ic side-dark" dangerouslySetInnerHTML=${{ __html: pieceSVG(t) }} /><span><b>${PIECE_NAMES[t]}</b> <small>${FOES[t]}</small></span></li>`)}</ul>`}
           ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Arena limpia y por la puerta: nivel superado.' : 'Te alcanzó la explosión o un enemigo.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
             : html`<div class="bm-controls">
               <div class="bm-pad" role="group" aria-label="Movimiento">
@@ -113,7 +112,7 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
                 <button class="btn sm ghost" onClick=${() => act({ wait: true })}>Esperar</button>
               </div>
             </div>`}
-          <${MiniTools} mini="bomber" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha da 5 turnos para salir del radio, las casillas con borde rojo estallan en la próxima jugada y algunas cajas sueltan bomba extra o más alcance. Como en el original, la puerta de salida está escondida bajo una caja: derriba a todos los enemigos y entra por ella. Ojo con el cañón: también pone bombas. ${kinds.map((t) => `${PIECE_NAMES[t]}: ${FOES[t].toLowerCase()}`).join(' ')}<//>
+          <${MiniTools} mini="bomber" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha da 5 turnos para salir del radio, las casillas con borde rojo estallan en la próxima jugada y algunas cajas sueltan bomba extra o más alcance. Como en el original, la puerta de salida está escondida bajo una caja: derriba a todos los enemigos y entra por ella. Enemigos de este nivel: ${kinds.map((t) => `${PIECE_NAMES[t].toLowerCase()} (${FOES[t].replace(/\.$/, '').toLowerCase()})`).join('; ')}.<//>
         </div>
       </div>
     </div>
