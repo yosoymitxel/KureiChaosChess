@@ -725,9 +725,24 @@
 .bm-cell.lane { background-color: color-mix(in oklch, var(--tile-a), var(--side-light) 45%); }
 /* El número del carril en su esquina: es la tecla que lo lanza. */
 .bw { counter-reset: lane; }
-.bw .bm-cell.lane::before { counter-increment: lane; content: counter(lane); position: absolute; top: 0; left: 3px; z-index: 2; font-size: max(9px, calc(var(--cell) * 0.2)); font-weight: 800; color: color-mix(in oklch, var(--ink), transparent 42%); pointer-events: none; }
+/* La bolera es apaisada: su escenario no reserva el alto pensado para tableros verticales. */
+.mini-main:has(.bw) { flex: none; align-content: start; }
+.mini-main .mini-stage:has(.bw) { flex: none; min-height: 0; height: min(50dvh, 400px); }
+.bw .bm-cell.lane:nth-child(9n + 1)::before { counter-increment: lane; content: counter(lane); position: absolute; top: 0; left: 3px; z-index: 2; font-size: max(11px, calc(var(--cell) * 0.24)); font-weight: 800; color: var(--ink-2); pointer-events: none; }
+/* La línea roja del original: hasta ahí se lanza. */
+.bw .bm-cell.line { border-right: 3px solid var(--accent); }
 /* La ficha que rueda va como elemento para que Motion la pueda mover entre casillas. */
-.bm-tok { position: absolute; inset: 16%; border-radius: 50%; background: var(--side-light); box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 calc(var(--cell) * 0.08) color-mix(in oklch, var(--side-light), var(--ink) 35%); pointer-events: none; z-index: 1; }
+.bm-tok { position: absolute; inset: 16%; border-radius: 50%; background: var(--side-light); border: calc(var(--cell) * 0.08) solid color-mix(in oklch, var(--side-light), var(--ink) 35%); outline: 2px solid var(--ink); outline-offset: -2px; pointer-events: none; z-index: 1; }
+.bm-cell.boom .bm-tok { background: var(--accent); border-color: var(--accent-ink); }
+.bw-chain { position: absolute; z-index: 4; display: grid; place-items: center; font-weight: 800; font-size: calc(var(--cell, 40px) * 0.5); color: var(--paper); -webkit-text-stroke: 2px var(--ink); paint-order: stroke; pointer-events: none; }
+/* La cinta: las fichas que vienen, la primera se lanza al tocar. */
+.bw-belt { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; background: var(--paper-2); background-image: var(--grain); color: var(--ink); }
+.bw-belt-label { font-weight: 750; font-size: 14px; }
+.bw-belt-row { display: flex; gap: 8px; padding: 6px 8px; border-radius: 8px; background: var(--tile-side); }
+.bw-slot { width: 30px; height: 30px; border-radius: 50%; border: 2px dashed color-mix(in oklch, var(--paper), transparent 50%); }
+.bw-slot.on { border: 4px solid color-mix(in oklch, var(--side-light), var(--ink) 35%); outline: 2px solid var(--ink); outline-offset: -2px; background: var(--side-light); }
+.bw-slot.on.boom { background: var(--accent); border-color: var(--accent-ink); }
+.bw-slot.first { scale: 1.15; }
 /* Copias de un paso ya jugado: la pieza que cae y la ficha que sale rodando. */
 .bm-ghost { position: absolute; display: grid; place-items: center; z-index: 2; pointer-events: none; transform-origin: 50% 100%; }
 .bm-ghost svg { width: 92%; height: 92%; }

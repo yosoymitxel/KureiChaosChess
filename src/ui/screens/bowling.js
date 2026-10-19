@@ -4,7 +4,7 @@ import { MiniGrid } from './mini-grid.js';
 import { hopPiece, popPiece, reduced } from '../hop.js';
 import { Fx } from '../../view/fx.js';
 import { pieceSVG } from '../../view/piece-art.js';
-import { ROWS, COLS, DIFFS, newBowling, launch, tick } from '../../game/bowling.js';
+import { ROWS, COLS, LAUNCH_COLS, DIFFS, newBowling, launch, tick } from '../../game/bowling.js';
 
 const TICK_MS = 280;
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -20,9 +20,10 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
   // El juego muta cada pieza en su sitio, así que el objeto mismo sirve de identidad en la instantánea.
   const snap = () => new Map([...s.enemies, ...s.balls].map((o) => [o, { r: o.r, c: o.c, hp: o.hp, dr: o.dr }]));
 
-  const shoot = (row) => {
+  // Se lanza desde la casilla tocada si está en la zona; fuera de ella, desde el borde de ese carril.
+  const shoot = (row, col = 0) => {
     const was = snap();
-    if (!launch(s, row)) return false;
+    if (!launch(s, row, col < LAUNCH_COLS ? col : 0)) return false;
     before.current = was;
     redraw((n) => n + 1);
     return true;
@@ -113,6 +114,22 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
       const el = tokOf(b.r, b.c);
       if (el) motion(el, { x: [(p.c - b.c) * cw, 0], y: [(p.r - b.r) * ch, 0] }, { duration: TICK_MS / 1000, ease: 'linear' });
     }
+    // Lo que el tick contó aparte: cadenas de rebotes, explosiones y el salto del caballo.
+    for (const ev of s.events) {
+      if (ev.kind === 'chain') {
+        const g = ghost(ev.r, ev.c, 'bw-chain');
+        g.textContent = '×' + ev.n;
+        motion(g, { y: [0, -ch * 0.9], opacity: [1, 1, 0] }, { duration: 0.8, ease: 'easeOut', onComplete: () => g.remove() });
+      } else if (ev.kind === 'boom') {
+        const c = center(ev.r, ev.c);
+        fx.ring(c.x, c.y, { radius: cw * 1.6, color: css('--accent'), width: 6, life: 0.45 });
+        fx.burst(c.x, c.y, { count: 40, color: [css('--accent'), '#ffcf6b', '#fff'], speed: [90, 320], size: [2, 6], gravity: 240, shape: 'chunk' });
+        shake(10);
+      } else if (ev.kind === 'vault') {
+        const el = pcOf(ev.e.r, ev.e.c);
+        if (el) motion(el, { x: [cw, 0], y: [0, -ch * 0.8, 0] }, { duration: 0.32, ease: 'easeOut' });
+      }
+    }
     for (const [o, p] of was) {
       if (s.enemies.includes(o) || s.balls.includes(o)) continue;
       if (o.type) topple(p.r, p.c, o.type, 1); // derribada: cae hacia donde empuja la ficha
@@ -126,20 +143,32 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
 
   const cell = (r, c) => {
     const e = s.enemies.find((x) => x.r === r && x.c === c);
-    const ball = s.balls.some((b) => b.r === r && b.c === c);
-    return { cls: c === 0 ? 'lane' + (s.reload ? '' : ' drop') : '', tok: ball, piece: e && { type: e.type, side: 'dark' }, hp: e && e.maxHp > 1 ? { on: e.hp, max: e.maxHp } : null };
+    const ball = s.balls.find((b) => b.r === r && b.c === c);
+    const zone = c < LAUNCH_COLS ? 'lane' + (c === LAUNCH_COLS - 1 ? ' line' : '') + (s.belt.length ? ' drop' : '') : '';
+    return { cls: zone + (ball?.kind === 'boom' ? ' boom' : ''), tok: !!ball, piece: e && { type: e.type, side: 'dark' }, hp: e && e.maxHp > 1 ? { on: e.hp, max: e.maxHp } : null };
   };
-  const status = `Derribadas ${s.down}/${s.diff.goal}. Toca un carril o pulsa su número para lanzar una ficha.`;
+  const next = s.belt[0];
 
   return html`<div class="screen mini">
     <${Topbar} title="Bolos de nuez" sub=${sub} onBack=${onBack} />
-    <div class="mini-body">
-      ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Las piezas carmesí cruzan de derecha a izquierda por cinco carriles. Lanza fichas desde la izquierda (toque o teclas 1-5): la ficha rebota en diagonal al chocar y sigue. Los peones caen al primer toque; caballo y alfil aguantan dos; la torre, tres. No dejes que ninguna llegue a tu borde.</p></details>
-      <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${!!s.over} label="Bolera" gridRef=${gridRef} boardClass="bm-slab bw"
-        onTap=${(r) => shoot(r)} />
-      <${MiniDiff} mini="bowling" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
-      ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Derribaste las ${s.diff.goal} piezas que hacían falta.` : 'Una pieza llegó a tu borde.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+    <div class="mini-body side-body">
+      <div class="mini-main">
+        <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${!!s.over} label="Bolera" gridRef=${gridRef} boardClass="bm-slab bw"
+          onTap=${(r, c) => shoot(r, c)} />
+        <div class="mini-side">
+          ${!s.over && html`<div class="mini-stats" aria-live="polite">
+            <span class="chip">${s.down} de ${s.diff.goal} derribadas</span>
+            ${s.best > 1 && html`<span class="chip">Mejor cadena <b>×${s.best}</b></span>`}
+          </div>
+          <div class="bw-belt" role="status" aria-label=${s.belt.length ? `En la cinta: ${s.belt.map((k) => (k === 'boom' ? 'explosiva' : 'ficha')).join(', ')}` : 'La cinta está vacía'}>
+            <span class="bw-belt-label">${next ? (next === 'boom' ? 'Sigue: explosiva' : 'Sigue: ficha') : 'Cinta vacía'}</span>
+            <span class="bw-belt-row">${Array.from({ length: 4 }, (_, i) => html`<i class=${'bw-slot' + (s.belt[i] ? ' on ' + s.belt[i] : '') + (i === 0 ? ' first' : '')} />`)}</span>
+          </div>`}
+          ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Derribaste las ${s.diff.goal} piezas que hacían falta${s.best > 1 ? `, con una cadena de ×${s.best}` : ''}.` : 'Una pieza llegó a tu borde.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+          <${MiniDiff} mini="bowling" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
+          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Las piezas carmesí cruzan de derecha a izquierda. La cinta te trae fichas: toca una casilla antes de la línea roja (o pulsa 1-5) para lanzar la primera. Al chocar, la ficha rebota en diagonal y puede encadenar golpes. La explosiva, en bermellón, limpia un 3×3. Peón y caballo caen al primer golpe, pero el caballo salta la primera ficha; el alfil aguanta 2, la torre 3 y la reina 4, y se apura al recibir el primero.</p></details>
+        </div>
+      </div>
     </div>
   </div>`;
 }
