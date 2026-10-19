@@ -1,12 +1,13 @@
-import { html, useState, useEffect, useRef } from '../lib.js';
+import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Topbar, MiniEnd, MiniDiff } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { COLS, ROWS, PLAYER_ROW, WAVES, DIFFS, newMarcianos, step } from '../../game/marcianos.js';
 import { hopPiece } from '../hop.js';
 
-// Flechas o A/D mueven el cañón; espacio o el botón disparan.
+// Flechas o A/D mueven el cañón; espacio dispara y S o flecha abajo esperan.
 const KEYS = { arrowleft: -1, a: -1, arrowright: 1, d: 1 };
+const WAIT = new Set(['s', 'arrowdown']);
 
 export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
   const [s, setS] = useState(() => newMarcianos(Math.random, diff || settings.miniDiff?.marcianos));
@@ -25,7 +26,17 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
       if (was && (was.row !== e.row || was.col !== e.col)) moved.push({ sel: `.bm-pc.foe[data-id="${e.id}"]`, from: was, to: e, side: 'dark' });
     }
     hops.current = moved;
+    if (s.events.some((e) => e.kind === 'horde')) banner();
     tick((n) => n + 1);
+  };
+  const banner = () => {
+    if (!gridRef.current) return;
+    const b = document.createElement('div');
+    b.className = 'mini-banner';
+    b.textContent = '¡Llega una gran horda!';
+    gridRef.current.appendChild(b);
+    motion(b, { scale: [1.4, 1], opacity: [0, 1] }, { duration: 0.3, ease: [0.16, 1, 0.3, 1] });
+    motion(b, { opacity: [1, 0] }, { duration: 0.4, delay: 1.6, onComplete: () => b.remove() });
   };
   const tap = (row, col) => {
     if (row !== PLAYER_ROW) return;
@@ -38,6 +49,7 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
       const k = e.key.toLowerCase();
       if (KEYS[k]) { e.preventDefault(); act({ move: KEYS[k] }); }
       else if (k === ' ') { e.preventDefault(); act({ shoot: true }); }
+      else if (WAIT.has(k)) { e.preventDefault(); act({ wait: true }); }
     };
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
@@ -62,11 +74,12 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
         <div class="mini-stage">
           <div class="bm bm-slab mm" ref=${gridRef} style=${{ '--cols': COLS, '--rows': ROWS }} role="grid" aria-label="Campo de Matamarcianos">
             ${Array.from({ length: ROWS }, (_, r) => Array.from({ length: COLS }, (_, c) => {
-              const foe = at(s.enemies, r, c), shot = at(s.shots, r, c), me = r === PLAYER_ROW && s.player.col === c;
+              const foe = at(s.enemies, r, c), shot = at(s.shots, r, c), bolt = at(s.bolts, r, c), me = r === PLAYER_ROW && s.player.col === c;
               return html`<button class=${'bm-cell ' + ((r + c) % 2 ? 'b' : 'a') + (r === PLAYER_ROW ? ' home' : '') + (zapped(r, c) ? ' blast' : '')}
                 disabled=${!!s.over} aria-label=${`Fila ${r + 1}, columna ${c + 1}`} onClick=${() => tap(r, c)}>
                 ${foe && html`<span class="bm-pc foe side-dark" data-id=${foe.id} dangerouslySetInnerHTML=${{ __html: pieceSVG(foe.type) }} />`}
                 ${shot && html`<span class="mm-shot"></span>`}
+                ${bolt && html`<span class="mm-bolt"></span>`}
                 ${me && html`<span class="bm-pc me side-light" dangerouslySetInnerHTML=${{ __html: pieceSVG('cannon') }} />`}
               </button>`;
             }))}
@@ -74,22 +87,23 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
         </div>
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">
-            <span class="chip"><${Icon} name="invader" size=${13} />Oleada ${s.wave + 1}/${WAVES.length}</span>
+            <span class="chip"><${Icon} name="invader" size=${13} />${WAVES[s.wave].horde ? 'Gran horda' : `Oleada ${s.wave + 1}/${WAVES.length - 1}`}</span>
             <span class="chip"><${Icon} name="skull" size=${13} />${s.enemies.length === 1 ? 'Queda 1' : `Quedan ${s.enemies.length}`}</span>
             <span class="chip" aria-label=${`Vidas ${s.lives} de ${s.diff.lives}`}>Vidas <span class="mm-lives">${Array.from({ length: s.diff.lives }, (_, i) => html`<i class=${i < s.lives ? 'on' : ''}></i>`)}</span></span>
           </div>`}
-          ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Tres oleadas y ni un carmesí en pie.' : 'Los carmesíes pisaron tu fila.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
+          ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Cayó la gran horda y ni un carmesí en pie.' : 'Los carmesíes pisaron tu fila.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
             : html`<div class="bm-controls">
               <div class="bm-actions mm-move" role="group" aria-label="Movimiento">
                 <button class="btn sm" aria-label="Izquierda" onClick=${() => act({ move: -1 })}>←</button>
                 <button class="btn sm" aria-label="Derecha" onClick=${() => act({ move: 1 })}>→</button>
               </div>
               <div class="bm-actions">
+                <button class="btn sm" onClick=${() => act({ wait: true })}>Esperar</button>
                 <button class="btn sm primary" onClick=${() => act({ shoot: true })}><${Icon} name="cannon" size=${16} />Disparar</button>
               </div>
             </div>`}
           <${MiniDiff} mini="marcianos" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
-          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Mueve con las flechas, A/D o el mando; espacio o el botón disparan hacia arriba. Los carmesíes bajan en tres oleadas: si pisan tu fila, pierdes una vida.</p></details>
+          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Mueve con las flechas o A/D, dispara con espacio y espera con S. Cada pieza baja a su manera: el peón recto, el caballo cambiando de columna, el alfil en diagonal y el elefante a veces de dos en dos. Desde la segunda oleada disparan proyectiles: apártate de su columna. Tras tres oleadas llega la gran horda; si un carmesí pisa tu fila, pierdes una vida.</p></details>
         </div>
       </div>
     </div>
