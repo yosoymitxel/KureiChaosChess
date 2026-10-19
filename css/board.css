@@ -138,6 +138,20 @@
   filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.35));
 }
 .pc.hit .pc-art svg { filter: brightness(2.5) saturate(0.2); }
+/* Las piezas respiran: un vaivén mínimo, cada una a su ritmo (--bd), para que el tablero no sea
+   una foto. En el set píxel es un bote de un píxel justo, a saltos, como los sprites clásicos. */
+.pc-art svg { transform-origin: 50% 100%; animation: pc-breathe 3.4s ease-in-out var(--bd, 0s) infinite alternate; }
+@keyframes pc-breathe { to { scale: 0.985 1.022; } }
+[data-art="pixel"] .pc-art svg { animation: px-bob 1.8s steps(1, end) var(--bd, 0s) infinite; }
+@keyframes px-bob { 50% { translate: 0 -2.4%; } }
+/* En el set píxel la peana también es de píxeles: disco escalonado con contorno de tinta y una
+   banda de sombra abajo, en vez del disco liso del set vectorial. */
+[data-art="pixel"] .pc-base {
+  --px-disc: polygon(30% 0, 70% 0, 70% 8%, 84% 8%, 84% 18%, 92% 18%, 92% 32%, 100% 32%, 100% 68%, 92% 68%, 92% 82%, 84% 82%, 84% 92%, 70% 92%, 70% 100%, 30% 100%, 30% 92%, 16% 92%, 16% 82%, 8% 82%, 8% 68%, 0 68%, 0 32%, 8% 32%, 8% 18%, 16% 18%, 16% 8%, 30% 8%);
+}
+[data-art="pixel"] .pc-base i { border-radius: 0; clip-path: var(--px-disc); }
+[data-art="pixel"] .pc-base i:nth-child(3) { background: var(--ink); box-shadow: none; }
+[data-art="pixel"] .pc-base i:nth-child(3)::after { content: ''; position: absolute; inset: 9%; clip-path: var(--px-disc); background: linear-gradient(var(--pc) 66%, var(--pc-2) 66%); }
 .pc.dragging { opacity: 0.35; }
 .pc.boss .pc-stand { width: calc(var(--sq) * 0.9 * max(var(--w), var(--s))); height: calc(var(--sq) * 0.95 * max(var(--h), var(--s))); }
 .pc.boss .pc-base { inset: 14%; }

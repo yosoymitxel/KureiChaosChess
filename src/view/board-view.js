@@ -177,6 +177,7 @@ export class BoardView {
     el.style.setProperty('--h', h); el.style.setProperty('--w', w);
     el.style.setProperty('--s', h * w > 1 ? Math.max(h, w) * 0.85 : 1); // multi-cell figures read bigger than one tile
     el.style.setProperty('--head', headTop(artOf(p)).toFixed(3));
+    el.style.setProperty('--bd', `-${(Math.random() * 3.4).toFixed(2)}s`); // cada pieza respira a su ritmo
     el.innerHTML = `<div class="pc-shadow"></div><div class="pc-base"><i></i><i></i><i></i></div>
       <div class="pc-stand"><div class="pc-fig"><div class="pc-art">${pieceSVG(artOf(p))}</div>${p.boss || p.maxHp > 1 ? this.hpHTML(p) : ''}<span class="pc-badge"></span></div></div>`;
     this.piecesEl.appendChild(el);
