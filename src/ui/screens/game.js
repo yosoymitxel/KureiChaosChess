@@ -8,10 +8,11 @@ import { artOf } from '../../view/piece-art.js';
 import { Match, botChooseMove } from '../../game/match.js';
 import { rivalForFloor } from '../../game/difficulty.js';
 import { generateBoard, placePieces, eliteVariants } from '../../game/generate.js';
-import { moveCells, cellsOf, key, anchorForCell, immune, walkable } from '../../game/rules.js';
+import { moveCells, cellsOf, key, anchorForCell, immune, walkable, reachPreview } from '../../game/rules.js';
 import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
 import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
-import { MUTATIONS, countMutations } from '../../data/mutations.js';
+import { MUTATIONS, EXTRA_MOVES, countMutations } from '../../data/mutations.js';
+import { takeNewDemos, loadBosses } from '../../game/run.js';
 import { PIECE_NAMES, MOVE_NAMES } from '../../data/pieces.js';
 import { BOSSES } from '../../data/bosses.js';
 import { PauseOverlay } from './overlays.js';
@@ -384,6 +385,21 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       d.psel = piece;
       d.view.showSwaps(piece, match.pieces.filter((o) => o !== piece && mine.has(o.color)));
     };
+    // Antes de jugar: cada mutación nueva de la run enseña cómo mueve (una vez) y un jefe aún no
+    // derrotado enseña su patrón. Todo se salta con un toque.
+    const playDemos = async (boss) => {
+      const human = seats.find((s) => s.kind === 'human')?.color || 'light';
+      for (const id of takeNewDemos(run)) {
+        const m = MUTATIONS[id], ex = EXTRA_MOVES[id];
+        if (!ex) { await d.moments.cinematic({ title: m.name, sub: m.desc, icon: m.icon }); continue; }
+        const { base, extra } = reachPreview({ type: ex[0], extra: [ex[1]] });
+        await d.moments.demo({ title: m.name, sub: m.desc, piece: { type: ex[0], side: human }, base, extra });
+      }
+      if (boss && !loadBosses().includes(boss.boss)) {
+        const { base } = reachPreview({ type: boss.type, moves: BOSSES[boss.boss].moves });
+        await d.moments.demo({ title: `Así se mueve ${boss.name}`, sub: BOSSES[boss.boss].desc, piece: { type: artOf(boss), side: boss.color }, base, tone: 'danger' });
+      }
+    };
     const beginPlacing = () => {
       if (d.hand.indexOf('organize') < 0 || !mine.size) { d.busy = false; return startTurn(); }
       // La carta se juega sola al empezar y sale de la mano: 2, 4, 6 u 8 intercambios según el tablero (8×8 a 11×11+).
@@ -489,6 +505,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       !boss && d.moments.cinematic({ title: `Piso ${node.floor + 1}`, sub: `${mod.name}. ${mod.desc}`, icon: mod.icon, wave: seats.flatMap((s) => ['pawn', 'knight', 'king'].map((t) => [t, s.color])) }),
     ])
       .then(() => boss && d.moments.cinematic({ title: boss.name, sub: bossSub, piece: { type: artOf(boss), side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger', anim: 'stomp' }))
+      .then(() => playDemos(boss))
       .then(() => beginPlacing());
     const onKey = (e) => e.key === 'Escape' && setPaused((v) => !v);
     addEventListener('keydown', onKey);

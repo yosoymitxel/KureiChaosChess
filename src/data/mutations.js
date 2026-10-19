@@ -27,7 +27,7 @@ export function pickMutationChoices(seed, owned) {
   return picks;
 }
 
-const EXTRA_MOVES = {
+export const EXTRA_MOVES = {
   knightBishop: ['knight', 'bishop'], towerDiag: ['rook', 'advisor'], kingRook: ['king', 'rook2'],
   guardKnight: ['guard', 'knight'], queenKnight: ['queen', 'knight'], bishopOrth: ['bishop', 'guard'],
   pawnBack: ['pawn', 'pawnBack'],

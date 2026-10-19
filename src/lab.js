@@ -2,7 +2,7 @@
 import { BoardView } from './view/board-view.js';
 import { makePiece, placeBoss } from './game/generate.js';
 import { Match } from './game/match.js';
-import { key } from './game/rules.js';
+import { key, reachPreview } from './game/rules.js';
 import { Moments } from './ui/moments.js';
 import { BOSSES } from './data/bosses.js';
 
@@ -22,6 +22,8 @@ const MOMENTS = {
   'Momento: piso': (m) => m.cinematic({ title: 'Piso 3', sub: 'Prisa. Cada jugador mueve dos veces por turno.', icon: 'rush', wave: ['pawn', 'knight', 'king'].flatMap((t) => [[t, 'light'], [t, 'dark']]) }),
   'Momento: jefe': (m) => m.cinematic({ title: 'Titán', sub: BOSSES.titan.desc, piece: { type: 'king', side: 'dark' }, hp: { hp: 3, max: 3 }, tone: 'danger', anim: 'stomp' }),
   'Momento: jefe derribado': (m) => m.cinematic({ title: '¡Titán derribado!', sub: 'El coloso cae y la torre es tuya.', piece: { type: 'king', side: 'dark' }, tone: 'brass', anim: 'down' }),
+  'Demo: mutación': (m) => m.demo({ title: 'Caballo loco', sub: 'Tus caballos también se mueven como alfiles.', piece: { type: 'knight', side: 'light' }, ...reachPreview({ type: 'knight', extra: ['bishop'] }) }),
+  'Demo: jefe': (m) => m.demo({ title: 'Así se mueve la Hidra', sub: BOSSES.hydra.desc, piece: { type: 'king', side: 'dark' }, base: reachPreview({ type: 'king', moves: BOSSES.hydra.moves }).base, tone: 'danger' }),
 };
 
 const SCENES = {

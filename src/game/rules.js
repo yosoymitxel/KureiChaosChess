@@ -175,3 +175,16 @@ export function anchorForCell(piece, r, c, moves) {
   }
   return best;
 }
+
+// Alcance de una pieza sola en un tablero vacío n×n (centro): lo que enseña la demo de
+// mutaciones y jefes. `extra` son los movimientos añadidos; se devuelven aparte de los de siempre.
+export function reachPreview({ type, moves, extra = [] }, n = 7) {
+  const board = { rows: n, cols: n, holes: new Set() };
+  const mid = (n - 1) / 2;
+  const at = (spec) => {
+    const p = { id: 'demo', color: 'light', row: mid, col: mid, startRow: mid, ...spec };
+    return legalMoves(p, [p], board).map((m) => key(m.row, m.col));
+  };
+  const base = new Set(at({ type, moves }));
+  return { base: [...base], extra: extra.length ? at({ type, moves, extraMoveTypes: extra }).filter((k) => !base.has(k)) : [] };
+}

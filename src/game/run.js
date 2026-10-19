@@ -62,3 +62,14 @@ export const loadSettings = () => {
   return typeof s.miniDiff === 'string' ? { ...s, miniDiff: { bowling: s.miniDiff } } : s;
 };
 export const saveSettings = (s) => write(SETTINGS_KEY, s);
+
+// Demos de mutaciones: cada mutación se enseña una vez por run, al empezar la primera partida
+// después de conseguirla. Se guarda aparte para no tocar la run desde la partida.
+const DEMO_KEY = 'zugzwang.demoed.v1';
+export function takeNewDemos(run) {
+  const prev = read(DEMO_KEY);
+  const done = prev?.seed === run.seed ? prev.ids : [];
+  const fresh = [...new Set(run.mutations || [])].filter((id) => !done.includes(id));
+  if (fresh.length) write(DEMO_KEY, { seed: run.seed, ids: [...done, ...fresh] });
+  return fresh;
+}

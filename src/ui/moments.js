@@ -1,5 +1,6 @@
 // Foreground moments over the board.
-// Cinematics (floor intro, boss entrance, boss down) block briefly and skip on any tap or key.
+// Cinematics (floor intro, boss entrance, boss down) and piece demos (new mutation, new boss)
+// block briefly and skip on any tap or key.
 // Callouts (check, big capture, crush, promotion, collapse) never block and queue one after another.
 // Each moment animates its piece too (the old animation gallery: spawn, fall, explode, promote,
 // tremble, stomp, crumble), with particles drawn on a layer above the board.
@@ -11,6 +12,15 @@ const OUT = [0.16, 1, 0.3, 1];
 const IN = [0.7, 0, 0.84, 0];
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep = (s) => new Promise((r) => setTimeout(r, s * 1000));
+// Any tap or key ends a blocking moment early; `release` removes the key listener afterwards.
+function skippable(el) {
+  let skip;
+  const skipped = new Promise((r) => (skip = r));
+  const onKey = (e) => { e.stopPropagation(); e.preventDefault(); skip(); };
+  el.addEventListener('pointerdown', skip);
+  addEventListener('keydown', onKey, true);
+  return { skipped, release: () => removeEventListener('keydown', onKey, true) };
+}
 const color = (side) => getComputedStyle(document.documentElement).getPropertyValue('--side-' + side).trim() || '#fff';
 
 export class Moments {
@@ -125,11 +135,7 @@ export class Moments {
       </div>
       <span class="cine-skip">Toca o pulsa una tecla para seguir</span>`);
     const q = (s) => el.querySelector(s);
-    let skip;
-    const skipped = new Promise((r) => (skip = r));
-    const onKey = (e) => { e.stopPropagation(); e.preventDefault(); skip(); };
-    el.addEventListener('pointerdown', skip);
-    addEventListener('keydown', onKey, true);
+    const { skipped, release } = skippable(el);
 
     motion(el.querySelectorAll('.bar'), { scaleY: [0, 1] }, { duration: this.t(0.35), ease: OUT });
     motion(q('.cine-text h2'), { clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)'] }, { duration: this.t(0.5), delay: this.t(0.12), ease: OUT });
@@ -140,8 +146,59 @@ export class Moments {
     const art = anim ? this.animate(anim, q('.cine-art'), piece, this.t(1.2)) : sleep(this.t(1.7));
     const waveDone = wave ? this.animate('spawn', q('.cine-wave'), null, 0) : null;
     await Promise.race([Promise.all([art, waveDone]), skipped]);
-    removeEventListener('keydown', onKey, true);
+    release();
     await motion(el, { opacity: [1, 0] }, { duration: this.t(0.28), ease: IN });
+    el.remove();
+  }
+
+  // Demo breve de una pieza (mutación nueva o jefe): tablerito con su alcance de siempre y, en azul,
+  // lo que se añade; la pieza salta a una casilla nueva. Se salta con un toque, como las cinemáticas.
+  async demo({ title, sub, piece, base, extra = [], n = 7, tone = 'paper' }) {
+    if (!this.enabled) return;
+    await this.whenIdle();
+    const mid = (n - 1) / 2;
+    const cells = Array.from({ length: n * n }, (_, i) => {
+      const r = Math.floor(i / n), c = i % n, k = r + ',' + c;
+      const kind = base.includes(k) ? ' base' : extra.includes(k) ? ' extra' : '';
+      return html`<i class=${'dm-cell' + ((r + c) % 2 ? ' dark' : '') + kind}>${kind && html`<b></b>`}</i>`;
+    });
+    const el = this.mount(`cine demo tone-${tone}`, html`
+      <i class="bar top"></i><i class="bar bottom"></i>
+      <div class="cine-body">
+        <div class="dm-board" style=${{ '--n': n }}>${cells}
+          <span class="dm-piece" style=${{ '--r': mid, '--c': mid }}><${PieceIcon} type=${piece.type} side=${piece.side} size=${64} paper=${false} /></span>
+        </div>
+        <div class="cine-text">
+          <h2>${title}</h2>
+          ${sub && html`<p>${sub}</p>`}
+          ${extra.length > 0 && html`<p class="dm-legend"><i></i>de siempre <i class="extra"></i>nuevo</p>`}
+        </div>
+      </div>
+      <span class="cine-skip">Toca o pulsa una tecla para seguir</span>`);
+    const q = (s) => el.querySelector(s);
+    const { skipped, release } = skippable(el);
+    const t = (s) => this.t(s);
+    const play = (async () => {
+      motion(el.querySelectorAll('.bar'), { scaleY: [0, 1] }, { duration: t(0.35), ease: OUT });
+      motion(q('.cine-text h2'), { clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)'] }, { duration: t(0.5), delay: t(0.12), ease: OUT });
+      motion(el.querySelectorAll('.cine-text p, .cine-skip'), { opacity: [0, 1], y: [10, 0] }, { duration: t(0.4), delay: t(0.3), ease: OUT });
+      await motion(q('.dm-board'), { scale: [0.85, 1], opacity: [0, 1] }, { duration: t(0.35), ease: OUT });
+      await motion(el.querySelectorAll('.dm-cell.base b'), { scale: [0, 1] }, { duration: t(0.25), delay: motionStagger(t(0.03)), ease: OUT });
+      if (extra.length) await motion(el.querySelectorAll('.dm-cell.extra b'), { scale: [0, 1.4, 1] }, { duration: t(0.35), delay: motionStagger(t(0.05)), ease: OUT });
+      // La pieza prueba una casilla: la nueva más lejana si la hay.
+      const pool = extra.length ? extra : base;
+      const far = pool.map((k) => k.split(',').map(Number)).sort((a, b) => Math.hypot(b[0] - mid, b[1] - mid) - Math.hypot(a[0] - mid, a[1] - mid))[0];
+      if (far) {
+        const to = { x: (far[1] - mid) * 100 + '%', y: (far[0] - mid) * 100 + '%' };
+        await motion(q('.dm-piece'), { x: ['0%', to.x], y: ['0%', to.y], scale: [1, 1.15, 1] }, { duration: t(0.5), ease: [0.45, 0, 0.55, 1] });
+        await sleep(t(0.35));
+        await motion(q('.dm-piece'), { x: [to.x, '0%'], y: [to.y, '0%'] }, { duration: t(0.4), ease: OUT });
+      }
+      await sleep(t(0.9));
+    })();
+    await Promise.race([play, skipped]);
+    release();
+    await motion(el, { opacity: [1, 0] }, { duration: t(0.28), ease: IN });
     el.remove();
   }
 
