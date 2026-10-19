@@ -70,6 +70,37 @@ Se actualiza al cerrar cada bloque. La revisión completa del 19/10 añade los b
 - [ ] Logros.
 - [ ] Galería por grupos y temporadas (Halloween, Navidad), con imágenes que se desbloquean.
 
+## 5. Pedidos del 20/10 (por orden: menos esfuerzo y más impacto primero)
+
+Rápidos:
+- [ ] Chips del lateral explicables: tocar "N en peligro" resalta cuáles; tocar una mutación dice qué hace.
+- [ ] Doble caída: el jefe (y "Tu turno") cae, vuelve y cae otra vez con impacto; en el diorama y en la partida.
+- [ ] Diorama: las piezas de extras se pueden tocar, no solo las etiquetas.
+- [ ] Yo Zombi: vidas por pieza visibles (peón 1, alfil y caballo 2, torre 3, como zombi normal, de cono y de cubo) y zombis en verde.
+- [ ] Organizar: carta distinta al resto y que se ejecute sola al empezar, sin quedarse en la mano sin explicación.
+- [ ] Logros: grupos como al principio (Jardín Zen, Tienda…) al estilo Steam, en rejilla simétrica.
+- [ ] Generador: torres sin peón delante (se cambian torre por torre en la jugada 1), cañón delante del rey en niveles avanzados, elefantes y camellos sin ninguna jugada posible.
+
+Medios:
+- [ ] Confeti solo al ganar; explosiones, bombas, caídas y choques con efectos propios.
+- [ ] Bolos: animación de rodar con su base siguiendo a la pieza y cayendo en su casilla; más carriles y más largo (dificultad en alto y en largo); la ficha como pieza de damas, no un círculo soso.
+- [ ] Cartas: escalar el bloque entero con transform en mano, tienda y premio (no tocar fuentes); al elegir premio, la carta avanza y las otras se juntan detrás, sin scroll doble en móvil.
+- [ ] Zoom en móvil: ampliar de verdad y desplazar con dos dedos.
+- [ ] Rótulos de jefe y reina caída: entrar también de derecha a izquierda y de arriba abajo.
+- [ ] Panel lateral con más información (y para el tutorial).
+
+Grandes:
+- [ ] Jardín Zen: rediseño completo.
+- [ ] Simetría de los SVG revisada; partir de SVG existentes (Iconly y bancos ya citados) y ajustarlos en vez de dibujar de cero.
+- [ ] Tema píxel rehecho con personajes de fantasía medieval (skill de pixel art del dueño), muy distintos entre sí.
+- [ ] Mutación zombi para los dos bandos: la pieza tocada se vuelve verde y cambia de bando.
+- [ ] Minijuegos nuevos: Damas (por tamaño de tablero), 2048 (tablero chico y grande) y uno de combate por turnos estilo Pokémon con ataques por pieza.
+- [ ] Bomberman fiel: enemigos que solo vagan y otros que ponen bombas, tablero más ancho como el original.
+- [ ] Ajedrez de siempre: enroque, captura al paso, niveles de ajedrez clásico con nivel por Elo.
+- [ ] Tutorial: run corta de primera vez y acceso desde el diorama (cómo se mueve cada pieza, mecánicas).
+- [ ] Tableros chicos al principio para enseñar mutaciones y piezas nuevas; ritmo de cada run.
+- [ ] Animaciones: volver a mirar las librerías (anime.js, Motion) y referencias (componentry, skiper-ui, unlumen, smoothui) para subir el nivel.
+
 ## Pendiente del lado del dueño (cuando tenga la PC)
 
 - [ ] Plantilla SVG para dibujar piezas, patrones de tablero y fondos: la prepara Claude en `art/`; el dueño dibuja y sube.
