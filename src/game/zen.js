@@ -44,7 +44,7 @@ export function loadZen() {
     return { size: ZEN_BASE, pots, seeds: seedsOf(), flores, planted };
   }
   const size = Math.min(ZEN_MAX, Math.max(ZEN_BASE, z.size || ZEN_BASE));
-  return { size, pots: z.pots || {}, seeds: seedsOf(z.seeds), flores, planted };
+  return { size, pots: z.pots || {}, seeds: seedsOf(z.seeds), flores, planted, leaves: z.leaves || [], leafT: z.leafT };
 }
 export const saveZen = (z) => write(KEY, z);
 
@@ -93,6 +93,28 @@ export function zenHarvest(z, key, now = Date.now()) {
 export function zenExpand(z) {
   if (z.size >= ZEN_MAX) return z;
   return { ...z, size: z.size + 1 };
+}
+
+// Hojas de arce: caen de la rama mientras no estás (una cada LEAF_MS, hasta LEAF_MAX) y se quedan
+// sobre la arena hasta que las barres; cada una paga una moneda. `x`, `y` en casillas, `r` en grados.
+export const LEAF_MS = 240_000;
+export const LEAF_MAX = 8;
+export const LEAF_COINS = 1;
+export function zenLeaves(z, now = Date.now(), rng = Math.random) {
+  const leaves = z.leaves || [];
+  if (z.leafT == null) return { ...z, leaves, leafT: now };
+  const due = Math.floor((now - z.leafT) / LEAF_MS);
+  if (due <= 0) return z;
+  const room = Math.max(0, LEAF_MAX - leaves.length);
+  const fresh = Array.from({ length: Math.min(due, room) }, () => ({ x: 0.3 + rng() * (z.size - 0.6), y: 0.3 + rng() * (z.size - 0.6), r: Math.floor(rng() * 360) }));
+  return { ...z, leaves: [...leaves, ...fresh], leafT: z.leafT + due * LEAF_MS };
+}
+export const zenSweep = (z, leaf) => ({ ...z, leaves: (z.leaves || []).filter((l) => l !== leaf) });
+
+// Mariposas: visitan una flor abierta mientras miras el jardín; si la tocas deja un regalo.
+export const BUTTERFLY_MS = [70_000, 150_000]; // espera entre visitas
+export function butterflyGift(rng = Math.random) {
+  return rng() < 0.25 ? { seed: ZEN_KINDS[Math.floor(rng() * ZEN_KINDS.length)] } : { coins: 2 };
 }
 
 // Semillas que caen al ganar un nodo de la travesía o se compran en la tienda.

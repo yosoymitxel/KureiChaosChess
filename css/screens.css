@@ -495,7 +495,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .bm-cell.zn-deco { cursor: default; }
 .zn-standart { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.3)); }
 .zn-tall .zn-lantern { inset: auto 0 6% 0; height: 140%; }
-.bm-cell.zen-pond { grid-column: span 2; grid-row: span 2; width: auto; height: auto; cursor: default; display: grid; place-items: center; }
+.bm-cell.zen-pond { grid-column: span 2; grid-row: span 2; width: auto; height: auto; cursor: pointer; display: grid; place-items: center; }
 /* Las plantas se mecen despacio, cada una a su ritmo (--d). */
 .zn-sway { transform-origin: 12px 15.4px; animation: sway 3.6s ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
 @keyframes sway { from { rotate: -3deg; } to { rotate: 3deg; } }
@@ -503,8 +503,9 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .zn-need {
   position: absolute; z-index: 3; right: -8%; top: -14%; width: 30%; aspect-ratio: 1; display: grid; place-items: center;
   border: 2px solid var(--ink); border-radius: 50% 50% 50% 8%; background: var(--paper); color: var(--ink); pointer-events: none;
-  animation: need-in 0.35s var(--ease-out) both;
+  animation: need-in 0.35s var(--ease-out) both, zn-bob 2.8s ease-in-out 0.35s infinite alternate;
 }
+@keyframes zn-bob { to { translate: 0 -3px; } }
 .zn-need .icon { width: 58%; height: 58%; }
 .zn-need.water { color: oklch(0.55 0.12 240); }
 .zn-need.cut { background: var(--brass); }
@@ -582,19 +583,39 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .zn-maple-a path:first-child { fill: oklch(0.6 0.19 32); }
 .zn-maple-b path:first-child { fill: oklch(0.72 0.15 58); }
 .zn-maple-c path:first-child { fill: oklch(0.5 0.17 22); }
-.zn-fall { position: absolute; z-index: 5; top: -2%; width: 16px; height: 16px; pointer-events: none; opacity: 0; animation: zn-fall 17s linear infinite; }
-.zn-fall svg { width: 100%; height: 100%; }
-.zn-fall-0 { left: 22%; animation-delay: -2s; }
-.zn-fall-1 { left: 38%; width: 13px; height: 13px; animation-duration: 23s; animation-delay: -11s; }
-.zn-fall-2 { left: 12%; width: 14px; height: 14px; animation-duration: 29s; animation-delay: -19s; }
-@keyframes zn-fall {
-  0% { top: 4%; translate: 0 0; rotate: 0deg; opacity: 0; }
-  6% { opacity: 1; }
-  30% { translate: 26px 0; rotate: 120deg; }
-  60% { translate: -10px 0; rotate: 250deg; }
-  88% { opacity: 1; }
-  100% { top: 92%; translate: 18px 0; rotate: 400deg; opacity: 0; }
+/* Hojas caídas sobre la arena: se tocan para barrerlas. */
+.zn-fallen { position: absolute; z-index: 2; width: calc(var(--cell) * 0.3); height: calc(var(--cell) * 0.3); margin: calc(var(--cell) * -0.15) 0 0 calc(var(--cell) * -0.15); padding: 0; border: 0; background: none; cursor: pointer; rotate: var(--r); filter: drop-shadow(0 2px 1px oklch(0 0 0 / 0.3)); }
+.zn-fallen svg { width: 100%; height: 100%; }
+.zn-fallen .zn-maple path:first-child { fill: oklch(0.6 0.19 32); }
+.zn-fallen:hover { scale: 1.15; }
+/* Asa de las animaciones de la planta: escala desde donde nace el tallo. */
+.zn-grow { transform-box: view-box; transform-origin: 12px 15.3px; }
+/* Tierra húmeda tras regar, hasta que la flor abre. */
+.zen-pot.wet .zn-soil { fill: oklch(0.22 0.035 45); }
+/* La regadera aparece sobre la maceta, se inclina, riega y se va. */
+.zn-canfx { position: absolute; z-index: 4; width: 54px; height: 41px; margin-left: -10px; pointer-events: none; transform-origin: 30% 70%; animation: zn-pour 1.4s var(--ease-out) both; filter: drop-shadow(0 4px 3px oklch(0 0 0 / 0.3)); }
+.zn-canfx svg { width: 100%; height: 100%; }
+@keyframes zn-pour {
+  0% { opacity: 0; translate: 14px -12px; rotate: 0deg; }
+  18% { opacity: 1; translate: 0 0; rotate: 0deg; }
+  32%, 72% { rotate: 32deg; }
+  86% { opacity: 1; rotate: 0deg; }
+  100% { opacity: 0; translate: 10px -10px; rotate: 0deg; }
 }
+.zn-can { fill: oklch(0.72 0.11 78); stroke: var(--ink); stroke-width: .8; stroke-linejoin: round; }
+.zn-can-handle { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; }
+/* Mariposa: vuela hasta la flor, bate las alas y se posa. */
+.zn-fly { position: absolute; z-index: 5; width: 46px; height: 46px; margin: -23px 0 0 -23px; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 4px 3px oklch(0 0 0 / 0.3)); }
+.zn-fly svg { width: 100%; height: 100%; overflow: visible; }
+.zn-wing path { fill: oklch(0.82 0.13 85); stroke: var(--ink); stroke-width: .35; stroke-linejoin: round; }
+.zn-wing path:nth-child(2) { fill: oklch(0.7 0.15 55); }
+.zn-wing { transform-box: view-box; transform-origin: 0 0; animation: zn-flap 0.22s ease-in-out infinite alternate; }
+.zn-fly.rest .zn-wing { animation-duration: 1.6s; }
+@keyframes zn-flap { from { scale: 1 1; } to { scale: 0.25 1; } }
+.zn-fly-body { fill: var(--ink); }
+.zn-antenna { fill: none; stroke: var(--ink); stroke-width: .3; stroke-linecap: round; }
+/* Alimento de los koi: bolitas que flotan hasta que se las comen. */
+.zn-pellet { fill: oklch(0.7 0.1 70); stroke: var(--ink); stroke-width: .2; }
 /* Estado del jardín: una línea tranquila bajo el cantero. */
 .zn-status { margin: clamp(22px, 4.5vh, 40px) 0 0; min-height: 1.4em; font-size: 15px; font-weight: 650; color: var(--paper-2); text-align: center; text-wrap: balance; }
 /* Panel: sobres de semillas, herramientas con mango redondo, ampliar y tienda. */

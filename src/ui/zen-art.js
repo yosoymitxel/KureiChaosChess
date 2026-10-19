@@ -92,7 +92,10 @@ const STONES = Array.from({ length: 15 }, (_, i) => {
   return [f(24 + Math.cos(t) * r), f(24.5 + Math.sin(t) * r * 0.9), f(s), f(s * 0.72), (i * 37) % 60 - 30];
 });
 const KOI = html`<path d="M3.2 0C1.8-1.3-.6-1.5-2.4-.6L-3.8-1.6-3.4 0-3.8 1.6-2.4.6C-.6 1.5 1.8 1.3 3.2 0Z"/>`;
-export const pondArt = (still) => html`<svg class="zn-pondart" viewBox="0 0 48 48" aria-hidden="true">
+// Órbita de un koi por el estanque (misma orilla ondulada que el agua): ángulo -> [x, y].
+export const orbit = (r, cx, cy) => (t) => { const rr = shore(r, t); return [cx + Math.cos(t) * rr, cy + Math.sin(t) * rr * 0.9]; };
+export const KOI_ORBITS = [{ r: 9.5, cx: 24, cy: 25, speed: 3.2, dir: 1 }, { r: 12.5, cx: 24, cy: 24, speed: 2.6, dir: -1 }];
+export const pondArt = (still) => html`<svg class="zn-pondart" viewBox="0 0 48 48">
   <defs>
     <radialGradient id="zn-water-g" cx="42%" cy="38%" r="70%"><stop offset="0" class="zn-shallow"/><stop offset=".7" class="zn-mid"/><stop offset="1" class="zn-deep"/></radialGradient>
     <clipPath id="zn-pond-clip"><path d=${loop(16.6)}/></clipPath>
@@ -101,8 +104,9 @@ export const pondArt = (still) => html`<svg class="zn-pondart" viewBox="0 0 48 4
   <path class="zn-water" d=${loop(16.6)}/>
   <g clip-path="url(#zn-pond-clip)">
     <path class="zn-depth" d=${loop(11, 25, 26)}/>
-    <g class="zn-koi zn-koi-a">${KOI}<circle class="zn-koi-spot" cx="1.1" cy="-.2" r=".8"/>${!still && html`<animateMotion dur="19s" repeatCount="indefinite" rotate="auto" path=${loop(9.5, 24, 25)}/>`}</g>
-    <g class="zn-koi zn-koi-b">${KOI}<circle class="zn-koi-spot" cx="-.6" cy=".1" r=".9"/>${!still && html`<animateMotion dur="27s" repeatCount="indefinite" rotate="auto" keyPoints="1;0" keyTimes="0;1" calcMode="linear" path=${loop(12.5, 24, 24)}/>`}</g>
+    <g class="zn-food"></g>
+    <g class="zn-koi zn-koi-a" transform="translate(30 20)">${KOI}<circle class="zn-koi-spot" cx="1.1" cy="-.2" r=".8"/></g>
+    <g class="zn-koi zn-koi-b" transform="translate(16 30) rotate(180)">${KOI}<circle class="zn-koi-spot" cx="-.6" cy=".1" r=".9"/></g>
     ${!still && html`<circle class="zn-ripple" cx="19" cy="29" r="2"/><circle class="zn-ripple zn-ripple-2" cx="29" cy="20" r="2"/>`}
     <path class="zn-glint" d="M14 18c2.5-2.6 6-3.8 9-3.6"/>
   </g>
@@ -157,6 +161,22 @@ export const BRANCH = html`<svg class="zn-branch" viewBox="0 0 60 40" aria-hidde
   <path class="zn-bark zn-twig-b" d="M17 7c4 4 6 9 5 14M33 12c3 3 7 5 11 5M42 13c1-3 3-5 6-6"/>
   ${[[22, 21, 1.15, 15, 'a'], [27, 14, 0.95, -15, 'b'], [47, 7, 0.9, 25, 'c'], [45, 18, 1, -30, 'a'], [11, 9, 0.9, 10, 'b'], [36, 15, 0.8, 45, 'c'], [18, 15, 0.75, -40, 'a'], [52, 13, 0.8, 60, 'b']]
     .map(([x, y, s, r, c]) => maple('zn-maple-' + c, `translate(${x} ${y}) rotate(${r}) scale(${s * 1.3})`))}
+</svg>`;
+
+// Mariposa: cuerpo, antenas y dos pares de alas que baten por CSS.
+export const BUTTERFLY = html`<svg viewBox="-6 -6 12 12" aria-hidden="true">
+  <g class="zn-wing zn-wing-l"><path d="M-.4-.6C-2.6-4.6-5.6-4-5.2-1.4-4.9.4-2.4.6-.4.2Z"/><path d="M-.4.4C-2.8 1-4 3.4-2.6 4.4-1.4 5-.4 3-.2 1Z"/></g>
+  <g class="zn-wing zn-wing-r"><path d="M.4-.6C2.6-4.6 5.6-4 5.2-1.4 4.9.4 2.4.6.4.2Z"/><path d="M.4.4C2.8 1 4 3.4 2.6 4.4 1.4 5 .4 3 .2 1Z"/></g>
+  <path class="zn-fly-body" d="M0-2.2C.5-2.2.6 2.8 0 3.4-.6 2.8-.5-2.2 0-2.2Z"/>
+  <path class="zn-antenna" d="M-.2-2.1C-.8-3.4-1.4-4-2-4.2M.2-2.1C.8-3.4 1.4-4 2-4.2"/>
+</svg>`;
+
+// Regadera de latón para el gesto de regar: cuerpo, asa y pico con su roseta.
+export const CAN = html`<svg viewBox="0 0 24 18" aria-hidden="true">
+  <path class="zn-can" d="M6 6h9l1 9c0 1-.6 1.6-1.6 1.6H6.6C5.6 16.6 5 16 5 15z"/>
+  <path class="zn-can-handle" d="M7.2 6C7 3 13.8 3 13.8 6"/>
+  <path class="zn-can" d="M15.4 9.4 21 4.6l1 1.2-5.4 5.4z"/>
+  <ellipse class="zn-can" cx="21.6" cy="5" rx="1.3" ry="1.8" transform="rotate(-40 21.6 5)"/>
 </svg>`;
 
 // Arena rastrillada: líneas paralelas cortadas alrededor de cada objeto y anillos que lo rodean.
