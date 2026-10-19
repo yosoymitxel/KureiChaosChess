@@ -25,9 +25,10 @@ export const DIFFS = {
 
 const dist = (a, b) => Math.abs(a.r - b.r) + Math.abs(a.c - b.c);
 
-export function newBomber(rng = Math.random, key = 'normal') {
+export function newBomber(rng = Math.random, key = 'normal', { tall = false } = {}) {
   const diff = DIFFS[key] || DIFFS.normal;
-  const { rows, cols } = diff;
+  // En pantalla vertical la arena se gira: mismas reglas, filas por columnas.
+  const [rows, cols] = tall ? [diff.cols, diff.rows] : [diff.rows, diff.cols];
   const wall = (r, c) => r % 2 === 1 && c % 2 === 1;
   // La esquina de salida queda despejada: la primera bomba nunca es un suicidio obligado.
   const safe = (r, c) => r + c < 3 || (r === 0 && c < 4) || (c === 0 && r < 4);

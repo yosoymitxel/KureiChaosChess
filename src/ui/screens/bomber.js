@@ -12,7 +12,7 @@ const KEYS = { arrowup: [-1, 0], w: [-1, 0], arrowdown: [1, 0], s: [1, 0], arrow
 const PAD = [[-1, 0, 'up', 'Arriba', '↑'], [0, -1, 'left', 'Izquierda', '←'], [0, 1, 'right', 'Derecha', '→'], [1, 0, 'down', 'Abajo', '↓']];
 
 export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
-  const [s, setS] = useState(() => newBomber(Math.random, diff || settings.miniDiff?.bomber));
+  const [s, setS] = useState(() => newBomber(Math.random, diff || settings.miniDiff?.bomber, { tall: innerHeight > innerWidth }));
   const [, tick] = useState(0);
   const gridRef = useRef(null);
   const hops = useRef(null); // saltos del último tic: quién se movió y de dónde a dónde
