@@ -609,6 +609,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .shop-info small { display: block; color: var(--ink-2); font-size: 12.5px; line-height: 1.35; }
 .price { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; white-space: nowrap; }
 .shop-row .btn { flex: none; }
+.shop-row .hand-card.shop-mini { --hs: 0.36; flex: none; margin: 0; transform: none; cursor: default; }
 /* Fila de tienda en teléfono: el nombre y la descripción ocupan la primera línea a ancho
    completo y los controles (gema, precio, botón) bajan a la segunda; el texto deja de ser un hilo. */
 @media (max-width: 600px) {

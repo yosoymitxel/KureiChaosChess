@@ -72,7 +72,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
             const packed = !run && pending.length >= PENDING_LIMIT;
             const can = shop.coins >= price && !packed;
             return html`<div class="shop-row">
-              <span class="mod-icon"><${Icon} name=${c.icon} size=${22} /></span>
+              <span class="hand-card shop-mini" aria-hidden="true"><${CardFace} card=${{ ...c, kind: 'tactic' }} mini /></span>
               <div class="shop-info"><strong>${c.name}</strong><small>${c.desc}</small></div>
               <span class=${'gem ' + (c.rarity || 'common')} role="img" aria-label=${'Rareza ' + RARITY_LABEL[c.rarity || 'common']} title=${'Rareza: ' + RARITY_LABEL[c.rarity || 'common']}></span>
               <span class="price"><${Icon} name="coin" size=${14} />${price}</span>
