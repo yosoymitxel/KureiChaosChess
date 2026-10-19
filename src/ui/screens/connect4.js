@@ -1,7 +1,7 @@
 // Conecta 4 minigame screen: ivory (you) against crimson (bot), tokens drop with a bounce of weight.
 // Keyboard: arrows pick a column, Enter or Space drops.
 import { html, useState, useRef, useEffect, motion } from '../lib.js';
-import { Topbar, MiniEnd, MiniDiff } from '../components.js';
+import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { ROWS, COLS, emptyGrid, dropRow, lineAt, isFull, botColumn, DIFFS } from '../../game/connect4.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -77,8 +77,7 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar', set
           ${result && html`<${MiniEnd} win=${result.winner === 'light'} title=${result.winner ? undefined : 'Empate'}
             note=${result.winner === 'light' ? 'Cuatro en línea antes que el bot.' : result.winner === 'dark' ? 'El bot conectó cuatro antes que tú.' : 'Tablero lleno: nadie conectó cuatro.'}
             label=${endLabel} onEnd=${() => onEnd(result.winner === 'light')} />`}
-          <${MiniDiff} mini="connect4" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
-          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Elige columna con las flechas o pasando el ratón, y suelta la ficha con Enter o un toque. Ganas al conectar cuatro en línea antes que el carmesí.</p></details>
+          <${MiniTools} mini="connect4" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Elige columna con las flechas o pasando el ratón, y suelta la ficha con Enter o un toque. Ganas al conectar cuatro en línea antes que el carmesí.<//>
         </div>
       </div>
     </div>

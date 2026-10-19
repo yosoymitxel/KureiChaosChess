@@ -1,7 +1,7 @@
 // Fusión: 2048 con piezas. Las fichas son elementos con posición propia y transición CSS, así el
 // deslizamiento se ve continuo y se puede encadenar sin esperar; la que nace brota y la fundida late.
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd, MiniDiff } from '../components.js';
+import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { DIFFS, LADDER, newFusion, slide } from '../../game/fusion.js';
@@ -53,8 +53,7 @@ export function FusionScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
             : html`<div class="bm-pad" role="group" aria-label="Empujar">
               ${PAD.map(([d, g, label]) => html`<button class=${'btn sm pad-' + d} aria-label=${label} onClick=${() => go(d)}>${g}</button>`)}
             </div>`}
-          <${MiniDiff} mini="fusion" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
-          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Desliza el dedo, usa las flechas o el mando: todas las piezas corren hacia ese lado. Dos piezas iguales que chocan se funden en la siguiente de la escalera, de peón a rey. Tras cada jugada entra un peón. Forma la pieza meta antes de que el tablero se llene.</p></details>
+          <${MiniTools} mini="fusion" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Desliza el dedo, usa las flechas o el mando: todas las piezas corren hacia ese lado. Dos piezas iguales que chocan se funden en la siguiente de la escalera, de peón a rey. Tras cada jugada entra un peón. Forma la pieza meta antes de que el tablero se llene.<//>
         </div>
       </div>
     </div>

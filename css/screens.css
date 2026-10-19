@@ -405,15 +405,13 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .mini-help { margin: -10px 0 0; max-width: 52ch; font-size: 14px; line-height: 1.45; color: var(--paper-3); text-align: center; }
 /* En la run el nivel lo fija el piso: se anuncia como dato, sin control que invite a tocarlo. */
 .mini-tier { margin: 0; font-size: 15px; font-weight: 700; color: var(--paper-2); text-align: center; }
-/* La ayuda de cada juego vive plegada: el botón avisa que hay reglas y el detalle no tapa el tablero. */
-.mini-helpbox { display: grid; justify-items: center; margin-top: -6px; }
-.mini-helpbox summary { display: inline-flex; align-items: center; gap: 7px; padding: 5px 13px; border: 1.5px solid color-mix(in oklch, var(--paper), transparent 68%); border-radius: 999px; color: var(--paper-3); font-size: 12.5px; font-weight: 750; cursor: pointer; list-style: none; transition: color 0.15s, border-color 0.15s; }
-.mini-helpbox summary::-webkit-details-marker { display: none; }
-.mini-helpbox summary:hover { color: var(--paper); border-color: color-mix(in oklch, var(--paper), transparent 40%); }
-.mini-helpbox summary:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
-.mini-helpbox summary::after { content: ''; width: 6px; height: 6px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translate(-1px, -1px); }
-.mini-helpbox[open] summary::after { transform: rotate(-135deg) translate(-2px, -1px); }
-.mini-helpbox .mini-help { margin: 8px 0 0; }
+/* Ayuda y nivel en un solo botón: las reglas y el selector viven en una hoja encima del juego. */
+.mini-tools { align-self: center; }
+.mini-sheet { display: grid; gap: 14px; justify-items: start; }
+.mini-sheet h2 { margin: 0; }
+.mini-sheet p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+.mini-sheet .mini-tier { color: var(--ink-2); text-align: left; }
+.mini-sheet .btn.primary { justify-self: stretch; }
 /* Minijuegos con tablero vertical: en pantalla ancha el tablero ocupa la izquierda a plena
    altura y el estado, las opciones, los controles y la ayuda forman una columna a la derecha;
    en angosto se apila con el tablero primero, como el jardín. */
@@ -734,6 +732,12 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .bm-foes { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; width: 100%; }
 .bm-foes li { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 1.3; color: var(--paper-2); }
 .bm-foes b { color: var(--paper); }
+.bm-foes small { font-size: inherit; }
+/* En móvil la leyenda queda en iconos y nombres; lo que hace cada uno está en "Cómo se juega". */
+@media (max-width: 860px) {
+  .bm-foes { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; }
+  .bm-foes small { display: none; }
+}
 .bm-foe-ic { flex: none; width: 26px; height: 26px; }
 .bm-foe-ic svg { width: 100%; height: 100%; }
 .bm-item { position: absolute; inset: 15%; display: grid; place-items: center; border-radius: 50%; background: var(--brass); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }

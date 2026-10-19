@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
-import { Topbar, MiniEnd, MiniDiff } from '../components.js';
+import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { MiniGrid } from './mini-grid.js';
@@ -70,8 +70,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
                 disabled=${cost > s.budget} title=${PIECE_NAMES[t]} onClick=${() => setPick(t)}><${PieceIcon} type=${t} side="light" size=${22} />${cost}</button>`)}
             </div>
             <button class="btn primary" disabled=${!s.pieces.length} onClick=${launch}>${s.phase === 'setup' ? 'Empezar el asalto' : last ? '¡Que venga la horda!' : 'Siguiente oleada'}</button>`}
-          <${MiniDiff} mini="laststand" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
-          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Compra piezas tocando las tres filas de abajo y empieza el asalto. El carmesí ataca en ${s.diff.waves} oleadas; la última es una gran horda. Entre oleadas cobras ${s.diff.bonus} monedas y puedes reforzar con lo que tengas: aguanta sin ceder la línea.</p></details>
+          <${MiniTools} mini="laststand" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Compra piezas tocando las tres filas de abajo y empieza el asalto. El carmesí ataca en ${s.diff.waves} oleadas; la última es una gran horda. Entre oleadas cobras ${s.diff.bonus} monedas y puedes reforzar con lo que tengas: aguanta sin ceder la línea.<//>
         </div>
       </div>
     </div>

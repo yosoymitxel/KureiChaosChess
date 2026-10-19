@@ -1,7 +1,7 @@
 // Duelo: arena de combate por turnos. Tu pieza abajo a la izquierda, la rival arriba a la derecha,
 // cada una con su barra de vida; los ataques embisten, el golpe destella y el daño salta en número.
 import { html, useState, useRef, motion } from '../lib.js';
-import { Topbar, MiniEnd, MiniDiff } from '../components.js';
+import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { DIFFS, MOVES, FIGHTERS, TYPE_NAME, newDuel, turn, active, effect } from '../../game/duel.js';
@@ -102,8 +102,7 @@ export function DuelScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setting
                 </button>`;
               })}
             </div>`}
-          <${MiniDiff} mini="duel" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
-          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Tres piezas por bando; elige un ataque y el rival responde. El tipo sale de cómo se mueve la pieza: Línea gana a Salto, Salto a Diagonal y Diagonal a Línea (golpe y medio); al revés, el golpe se queda en dos tercios. Guardia parte la próxima herida, Cargado sube el próximo golpe, y las curas valen dos veces por pieza.</p></details>
+          <${MiniTools} mini="duel" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Tres piezas por bando; elige un ataque y el rival responde. El tipo sale de cómo se mueve la pieza: Línea gana a Salto, Salto a Diagonal y Diagonal a Línea (golpe y medio); al revés, el golpe se queda en dos tercios. Guardia parte la próxima herida, Cargado sube el próximo golpe, y las curas valen dos veces por pieza.<//>
         </div>
       </div>
     </div>

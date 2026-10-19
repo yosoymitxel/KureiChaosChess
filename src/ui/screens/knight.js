@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd, MiniDiff } from '../components.js';
+import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { MiniGrid } from './mini-grid.js';
 import { hopPiece } from '../hop.js';
@@ -47,10 +47,9 @@ export function KnightScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
       ${!s.over && html`<div class="mini-stats" aria-live="polite">
         <span class="chip" aria-label=${`Faltan ${remaining(s)} casillas marcadas`}><${Icon} name="target" size=${12} />Falta${remaining(s) === 1 ? '' : 'n'} ${remaining(s)}</span>
       </div>`}
-      <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">El caballo salta en L. Pisa las casillas con aro dorado; las que ya pisaste quedan numeradas por orden y no se pueden repetir. Pierdes si te quedas sin saltos posibles.</p></details>
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="Ruta del caballo"
         gridRef=${gridRef} boardClass="bm-slab" onTap=${go} />
-      <${MiniDiff} mini="knight" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
+      <${MiniTools} mini="knight" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>El caballo salta en L. Pisa las casillas con aro dorado; las que ya pisaste quedan numeradas por orden y no se pueden repetir. Pierdes si te quedas sin saltos posibles.<//>
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Completaste la ruta sin repetir casilla.' : 'El caballo se quedó sin saltos posibles.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
   </div>`;

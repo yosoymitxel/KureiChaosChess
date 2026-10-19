@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd, MiniDiff } from '../components.js';
+import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { MiniGrid } from './mini-grid.js';
@@ -39,9 +39,9 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
   const step = !attackers.length ? 1 : s.moved ? 3 : 2;
   const STEPS = ['Compra', 'Avanza', 'Trofeos'];
   const HINTS = {
-    1: 'Toca una casilla de la fila de arriba para comprar una pieza. Las casillas teñidas de rojo son las que la defensa captura.',
-    2: 'Pulsa Avanzar: tus piezas bajan con su movimiento de ajedrez y la defensa captura lo que pare en casillas rojas.',
-    3: `Lleva una pieza a cada trofeo de la última fila. Capturar un peón marfil paga 2 monedas; otra pieza, 1.`,
+    1: 'Toca la fila de arriba para comprar una pieza. Evita las casillas rojas.',
+    2: 'Pulsa Avanzar: cada pieza da su paso de ajedrez.',
+    3: 'Lleva una pieza a cada trofeo de la última fila.',
   };
 
   return html`<div class="screen mini">
@@ -64,8 +64,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
                 disabled=${cost > s.coins} onClick=${() => setPick(t)}><${PieceIcon} type=${t} side="zombie" size=${22} /><span>${PIECE_NAMES[t]}</span><b class="buy-cost">${cost}</b></button>`)}
             </div>
             <button class="btn primary" onClick=${() => act(() => advance(s))}>Avanzar</button>`}
-          <${MiniDiff} mini="izombie" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
-          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Como Yo, Zombi de Plants vs. Zombies: atacas tú. La defensa marfil no se mueve, pero tras cada avance captura lo que pare en sus casillas (teñidas de rojo). Compra piezas en la fila de arriba; al pulsar Avanzar cada una da su paso de ajedrez más profundo. Lleva una pieza a cada trofeo de la última fila: la que llega lo toma y sale del tablero. Capturar defensas paga monedas. Pierdes si te quedas sin piezas y sin monedas para un peón.</p></details>
+          <${MiniTools} mini="izombie" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Como Yo, Zombi de Plants vs. Zombies: atacas tú. La defensa marfil no se mueve, pero tras cada avance captura lo que pare en sus casillas (teñidas de rojo). Compra piezas en la fila de arriba; al pulsar Avanzar cada una da su paso de ajedrez más profundo. Lleva una pieza a cada trofeo de la última fila: la que llega lo toma y sale del tablero. Capturar un peón marfil paga 2 monedas; otra pieza, 1. Pierdes si te quedas sin piezas y sin monedas para un peón.<//>
         </div>
       </div>
     </div>

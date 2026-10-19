@@ -41,6 +41,32 @@ export function MiniDiff({ mini, diffs, fixed, settings, setSettings, onRestart 
   </div>`;
 }
 
+// Ayuda y nivel del minijuego en un solo botón: abre una hoja encima del juego con cómo se juega
+// y el nivel (elegible en partida libre). La primera vez que se entra a cada minijuego se abre sola,
+// así debajo del tablero solo queda lo que se usa para jugar.
+export function MiniTools({ mini, diffs, fixed, settings, setSettings, onRestart, children }) {
+  const [open, setOpen] = useState(() => !settings.helpSeen?.[mini]);
+  useEffect(() => {
+    if (!settings.helpSeen?.[mini]) setSettings((t) => ({ ...t, helpSeen: { ...t.helpSeen, [mini]: true } }));
+  }, []);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => e.key === 'Escape' && (e.stopPropagation(), setOpen(false));
+    addEventListener('keydown', onKey, true);
+    return () => removeEventListener('keydown', onKey, true);
+  }, [open]);
+  const level = (diffs[fixed || settings.miniDiff?.[mini] || 'normal'] || diffs.normal).name;
+  return html`<button class="btn ghost sm mini-tools" aria-haspopup="dialog" onClick=${() => setOpen(true)}><${Icon} name="book" size=${16} />Cómo se juega · ${level}</button>
+    ${open && html`<div class="overlay" onClick=${(e) => e.target === e.currentTarget && setOpen(false)}>
+      <div class="panel mini-sheet" role="dialog" aria-modal="true" aria-label="Cómo se juega">
+        <h2>Cómo se juega</h2>
+        <p>${children}</p>
+        <${MiniDiff} mini=${mini} diffs=${diffs} fixed=${fixed} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
+        <button class="btn primary" autofocus onClick=${() => setOpen(false)}>Jugar</button>
+      </div>
+    </div>`}`;
+}
+
 // Destructive actions ask for a second press instead of a browser dialog.
 export function ConfirmButton({ class: cls = 'btn', onConfirm, confirmLabel = 'Pulsa otra vez para confirmar', children }) {
   const [armed, setArmed] = useState(false);
