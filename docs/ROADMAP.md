@@ -90,8 +90,8 @@ Medios:
 - [ ] Panel lateral con más información (y para el tutorial).
 
 Grandes:
-- [ ] Jardín Zen: rediseño completo.
-- [ ] Simetría de los SVG revisada; partir de SVG existentes (Iconly y bancos ya citados) y ajustarlos en vez de dibujar de cero.
+- [x] Jardín Zen: rediseño completo (20/10: jardín seco, animado).
+- [~] Simetría de los SVG revisada (rey, guardia y reina corregidos; medidor en el scratchpad); partir de SVG existentes (Iconly y bancos ya citados) y ajustarlos en vez de dibujar de cero.
 - [ ] Tema píxel rehecho con personajes de fantasía medieval (skill de pixel art del dueño), muy distintos entre sí.
 - [ ] Mutación zombi para los dos bandos: la pieza tocada se vuelve verde y cambia de bando.
 - [ ] Minijuegos nuevos: Damas (por tamaño de tablero), 2048 (tablero chico y grande) y uno de combate por turnos estilo Pokémon con ataques por pieza.
