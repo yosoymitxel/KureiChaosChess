@@ -44,7 +44,7 @@ function cardEffect(card, piece, pv) {
   return `${name}: ${card.desc}`;
 }
 
-export function GameScreen({ node, run, seats, settings, setSettings, onExit, onAbandon, onWin, onRestart, onHowTo, onUseCard }) {
+export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard }) {
   const hostRef = useRef(null);
   const mainRef = useRef(null);
   const ref = useRef({}); // mutable director state: view, match, busy, selected
@@ -587,13 +587,14 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       <ol class="log" aria-live="polite" aria-label="Registro de jugadas">${log.slice(-6).map((l, i) => html`<li key=${log.length - 6 + i}>${l}</li>`)}</ol>
     </aside>
     ${paused && !end && html`<${PauseOverlay} settings=${settings} setSettings=${setSettings}
-      onResume=${() => setPaused(false)} onRestart=${() => leave('reset', onRestart)} onExit=${() => leave('exit', onExit)} onAbandon=${() => leave('resign', onAbandon)}
+      onResume=${() => setPaused(false)} onRestart=${() => leave('reset', onRestart)} onExit=${() => leave('exit', onExit)} onMenu=${() => leave('exit', onMenu)} onAbandon=${() => leave('resign', onAbandon)}
       onHowTo=${() => { setPaused(false); onHowTo(); }} />`}
-    ${end && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)} />`}
+    ${end && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
+      onMenu=${() => leave('exit', end.victory ? () => onWin(ref.current.bossId, { toMenu: true }) : onMenu)} />`}
   </div>`;
 }
 
-function EndOverlay({ state, isFinal, onContinue, onRetry, onMap }) {
+function EndOverlay({ state, isFinal, onContinue, onRetry, onMap, onMenu }) {
   const ref = useRef(null);
   useEffect(() => {
     const card = ref.current, OUT = [0.16, 1, 0.3, 1];
@@ -617,6 +618,7 @@ function EndOverlay({ state, isFinal, onContinue, onRetry, onMap }) {
         ${state.victory && html`<button class="btn primary" autofocus onClick=${onContinue}>${isFinal ? 'Nueva run' : 'Reclamar recompensa'}</button>`}
         <button class="btn" onClick=${onRetry}><${Icon} name="refresh" size=${16} />Reintentar</button>
         ${!state.victory && html`<button class="btn ghost-ink" onClick=${onMap}><${Icon} name="map" size=${16} />Volver al mapa</button>`}
+        ${(!state.victory || isFinal) && html`<button class="btn ghost-ink" onClick=${onMenu}><${Icon} name="home" size=${16} />Menú principal</button>`}
       </div>
     </div>
   </div>`;

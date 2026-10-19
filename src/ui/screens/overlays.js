@@ -1,6 +1,6 @@
 import { html, useEffect } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
-import { ConfirmButton, BossCard } from '../components.js';
+import { ConfirmButton, BossCard, Toggle } from '../components.js';
 import { PIECE_RULES, PIECE_NAMES } from '../../data/pieces.js';
 import { BOSSES, BOSS_IDS } from '../../data/bosses.js';
 import { THEMES } from '../../data/themes.js';
@@ -15,9 +15,10 @@ const useEscape = (fn) => useEffect(() => {
   return () => removeEventListener('keydown', onKey, true);
 }, []);
 
-export function PauseOverlay({ onResume, onRestart, onExit, onAbandon, onHowTo, settings, setSettings }) {
+export function PauseOverlay({ onResume, onRestart, onExit, onMenu, onAbandon, onHowTo, settings, setSettings }) {
   useEscape(onResume);
   const full = useFullscreen();
+  const set = (k) => (v) => setSettings((s) => ({ ...s, [k]: v }));
   return html`<div class="overlay" onClick=${closeOnBackdrop(onResume)}>
     <div class="panel pause" role="dialog" aria-modal="true" aria-label="Pausa">
       <h1>Pausa</h1>
@@ -29,11 +30,17 @@ export function PauseOverlay({ onResume, onRestart, onExit, onAbandon, onHowTo, 
             onClick=${() => setSettings((s) => ({ ...s, theme: t.id }))}>${t.swatch.map((c) => html`<i style=${{ background: c }}></i>`)}</button>`;
         })}
       </div>
+      <div class="pause-toggles">
+        <${Toggle} on=${settings.sound} onChange=${set('sound')} label="Sonidos" />
+        <${Toggle} on=${settings.moments} onChange=${set('moments')} label="Momentos destacados" />
+        <${Toggle} on=${settings.shake} onChange=${set('shake')} label="Temblor de cámara" />
+      </div>
       <div class="pause-grid">
         <button class="btn sm" onClick=${onHowTo}><${Icon} name="book" size=${16} />Reglas</button>
         <button class="btn sm" onClick=${onRestart}><${Icon} name="refresh" size=${16} />Reiniciar</button>
         <button class="btn sm" onClick=${onExit}><${Icon} name="map" size=${16} />Al mapa</button>
-        <${ConfirmButton} class="btn sm danger" onConfirm=${onAbandon} confirmLabel="¿Seguro?"><${Icon} name="skull" size=${16} />Abandonar<//>
+        <button class="btn sm" onClick=${onMenu}><${Icon} name="home" size=${16} />Menú</button>
+        <${ConfirmButton} class="btn sm danger wide" onConfirm=${onAbandon} confirmLabel="¿Seguro? Se pierde la run"><${Icon} name="skull" size=${16} />Abandonar run<//>
         ${canFullscreen && html`<button class="btn sm wide" aria-pressed=${full} onClick=${() => { setFullscreen(!full); setSettings((s) => ({ ...s, fullscreen: !full })); }}>
           <${Icon} name=${full ? 'shrink' : 'expand'} size=${16} />${full ? 'Salir de pantalla completa' : 'Pantalla completa'}</button>`}
       </div>

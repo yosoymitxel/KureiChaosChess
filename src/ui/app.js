@@ -155,7 +155,7 @@ export function App() {
   };
 
   // Slay the Spire rhythm: normal fights give a tactic card, elites give a mutation; every win pays coins.
-  const onWin = (bossId) => {
+  const onWin = (bossId, { toMenu } = {}) => {
     award('first_win');
     const kind = node.isBoss ? 'boss' : node.isMiniBoss ? 'miniBoss' : node.modifier === 'elite' ? 'elite' : 'normal';
     const coins = COINS_PER_NODE[kind];
@@ -169,7 +169,7 @@ export function App() {
     if (node.isBoss) {
       award('boss_slain');
       { const runs = bump('runs'); if (runs >= 3) award('runs_3'); if (runs >= 10) award('runs_10'); }
-      clearRun(); setRunState(null); return newRun();
+      clearRun(); setRunState(null); return toMenu ? goTo('menu') : newRun();
     }
     if (node.isMiniBoss) { const next = completeNode(run, node); setRun(next); return mutationReward(next, coins, seed); }
     const next = completeNode(run, node);
@@ -236,7 +236,7 @@ export function App() {
       cards=${reward.cards} onConfirm=${onReward} />`}
     ${screen === 'game' && node && seats && run && html`<${GameScreen} key=${node.id + '-' + gameKey}
       node=${node} run=${run} seats=${seats} settings=${settings} setSettings=${setSettings}
-      onExit=${() => goTo('map')} onAbandon=${() => { setRun(null); goTo('menu'); }}
+      onExit=${() => goTo('map')} onMenu=${() => goTo('menu')} onAbandon=${() => { setRun(null); goTo('menu'); }}
       onUseCard=${(i) => setRun((r) => consumeCard(r, i))}
       onWin=${onWin} onRestart=${() => setGameKey((k) => k + 1)} onHowTo=${() => setHowTo(true)} />`}
     ${screen === 'mini' && Mini && html`<${Mini} key=${node.id + '-' + miniKey} sub=${'Piso ' + (node.floor + 1) + ' · minijuego'} onBack=${() => goTo('map')} onEnd=${onMiniEnd}
