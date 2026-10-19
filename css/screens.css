@@ -187,7 +187,7 @@
 .boss-row .hp b.on { background: var(--danger); }
 .seats { display: flex; flex-direction: column; gap: 6px; }
 .seat { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 2px solid transparent; transition: background 0.2s, border-color 0.2s; }
-.seat .nm { flex: 1; font-weight: 700; }
+.seat .nm { flex: 1; min-width: 0; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .seat .cnt { font-size: 13px; font-weight: 700; color: var(--muted); }
 .seat.cur { border-color: var(--ink); background: var(--paper-2); --icon-cut: var(--paper-2); }
 .seat.out { color: var(--muted); text-decoration: line-through; }
@@ -230,20 +230,22 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 
 /* Hand of tactic cards: fanned in the bottom-left corner, like a hand held over the table. */
 /* Its own strip under the board, so cards never cover pieces; raised cards overlap upwards only. */
-.hand { position: relative; flex-shrink: 0; height: 132px; z-index: 6; display: flex; align-items: flex-end; padding: 0 22px calc(26px + env(safe-area-inset-bottom)); }
+/* La carta de mano se dibuja siempre a 120px de ancho y el bloque entero se escala (--hs): así
+   bordes, texto y gema guardan sus proporciones en mano, tienda y móvil, sin tocar fuentes. */
+.hand { --hs: 0.62; position: relative; flex-shrink: 0; height: calc(178px * var(--hs) + 60px); z-index: 6; display: flex; align-items: flex-end; padding: 0 22px calc(44px + env(safe-area-inset-bottom)) 34px; }
 .hand-card {
-  position: relative; width: 86px; aspect-ratio: 5 / 7.4; margin-left: -18px; padding: 0; border: 0; background: none; cursor: pointer;
+  position: relative; width: calc(120px * var(--hs)); height: calc(177.6px * var(--hs)); margin-left: calc(-22px * var(--hs)); padding: 0; border: 0; background: none; cursor: pointer;
   transform: translateY(var(--drop)) rotate(var(--rot)); transform-origin: 50% 120%;
   transition: transform 0.22s var(--ease-out);
 }
 .hand-card:first-child { margin-left: 0; }
-.hand-card .face { position: absolute; inset: 0; border-radius: 9px; border: 2px solid var(--ink); overflow: hidden; display: flex; flex-direction: column; gap: 4px; padding: 5px; background: var(--frame); background-image: var(--grain); box-shadow: var(--lift); }
-.hand-card .plate { font-size: 11px; padding: 3px 5px; border-radius: 5px; border-width: 1.5px; }
-.hand-card .art { border-radius: 5px; border-width: 1.5px; }
+.hand-card .face { position: absolute; left: 0; top: 0; width: 120px; height: 177.6px; transform: scale(var(--hs)); transform-origin: 0 0; border-radius: 12px; border: 2px solid var(--ink); overflow: hidden; display: flex; flex-direction: column; gap: 6px; padding: 7px; background: var(--frame); background-image: var(--grain); box-shadow: var(--lift); }
+.hand-card .plate { font-size: 14px; padding: 4px 7px; border-radius: 6px; }
+.hand-card .art { border-radius: 6px; }
 .hand-card .type { display: none; }
 /* Rareza visible en la mano: la gema de la carta grande, en pequeño, en la esquina izquierda del
    arte. Ahí la ve el abanico (la derecha la tapa la vecina) y el nombre no pierde ancho. */
-.hand-card .gem { position: absolute; left: 5px; bottom: 5px; width: 15px; height: 15px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 2.5px; background: var(--paper-3); }
+.hand-card .gem { position: absolute; left: 8px; bottom: 8px; width: 20px; height: 20px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 2.5px; background: var(--paper-3); }
 .hand-card .gem.rare { background: var(--accent); }
 .hand-card .gem.epic { background: var(--brass); box-shadow: inset 0 0 0 2px var(--paper); }
 .hand-card:hover:not(:disabled), .hand-card:focus-visible { transform: translateY(-22px) rotate(0deg) scale(1.12); z-index: 2; }
@@ -310,9 +312,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .table.in-check::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, oklch(0.52 0.2 25 / 0.32)); }
 
 @media (max-width: 860px) {
-  .hand { height: 100px; padding: 0 14px 22px; }
-  .hand-card { width: 62px; margin-left: -12px; }
-  .hand-card .plate { font-size: 9px; padding: 2px 4px; }
+  .hand { --hs: 0.5; padding: 0 14px calc(40px + env(safe-area-inset-bottom)) 22px; }
   .hand-hint { left: 14px; font-size: 11.5px; }
   .cine-body { flex-direction: column; text-align: center; }
   .cine-text { align-items: center; }
@@ -580,11 +580,11 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
   .shop-row .gem, .shop-row .price { order: 2; }
   .shop-row .btn { order: 2; margin-left: auto; }
 }
-.shop-hand { display: flex; gap: 8px; justify-content: center; padding-top: 10px; }
-.shop-hand .hand-card { width: 72px; margin-left: 0; cursor: default; }
+.shop-hand { --hs: 0.5; display: flex; gap: 8px; justify-content: center; padding-top: 10px; }
+.shop-hand .hand-card { margin-left: 0; cursor: default; }
 .shop-hand .hand-card:hover, .shop-hand .hand-card:focus-visible { transform: none; }
 .face .shop-mark { position: absolute; right: 4px; bottom: 4px; z-index: 2; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 999px; background: var(--brass); color: var(--ink); box-shadow: 0 0 0 2px var(--ink); }
-.hand-card .face .shop-mark { width: 15px; height: 15px; }
+.hand-card .face .shop-mark { width: 22px; height: 22px; }
 /* Tienda en pantalla ancha: el catálogo de cartas a la izquierda y un carril con lo corto
    (mano, semillas, mesas) a la derecha; la ayuda de economía cierra abajo. En angosto se
    apila igual que siempre, ayuda primero. Mismo patrón que el Jardín Zen. */
