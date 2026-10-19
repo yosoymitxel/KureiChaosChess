@@ -5,7 +5,7 @@ import { BOSSES } from '../data/bosses.js';
 import { applyMutations } from '../data/mutations.js';
 import { pickModifier, miniBossFloors, armyForFloor, ARMY_STEPS, isMiniModifier, RARE_TYPES, MINI_BOSSES, FINAL_BOSSES } from './difficulty.js';
 
-export function generateMap(seed) {
+export function generateMap(seed, prefs) {
   const rng = mulberry32(seed);
   const floors = 5 + Math.floor(rng() * 11);
   // Mini-jefes de control: un solo nodo, sin hermanos, en los tercios medio y tardío (ver difficulty.js).
@@ -20,7 +20,7 @@ export function generateMap(seed) {
     for (let c = 0; c < nc; c++) {
       const nodeSeed = Math.floor(rng() * 1e6);
       const modifier = isFirst ? 'none' : (isBoss || isMiniBoss) ? 'boss'
-        : pickModifier(rng, { floor: f, floors, skip: [...prev, ...here], usedMinis }) ?? 'rest';
+        : pickModifier(rng, { floor: f, floors, skip: [...prev, ...here], usedMinis, prefs }) ?? 'rest';
       if (isMiniModifier(modifier)) usedMinis.push(modifier);
       here.push(modifier);
       nodes.push({ id: `f${f}c${c}`, floor: f, column: c, totalCols: nc, modifier, seed: nodeSeed, isBoss, isMiniBoss, isFirst });
@@ -35,7 +35,7 @@ export function generateMap(seed) {
     spare.sort((a, b) => (Number(['rest', 'bag', 'elite'].includes(a.modifier)) - Number(['rest', 'bag', 'elite'].includes(b.modifier))));
     for (const n of spare) {
       if (count() >= 2) break;
-      const id = pickModifier(rng, { floor: n.floor, floors, usedMinis, mini: true });
+      const id = pickModifier(rng, { floor: n.floor, floors, usedMinis, mini: true, prefs });
       if (!id) break;
       n.modifier = id;
       usedMinis.push(id);

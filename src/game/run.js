@@ -18,8 +18,13 @@ export function createRun() {
   const seed = randomSeed();
   // El sobre de la tienda entra al repartir: esas cartas quedan marcadas en la mano.
   const hand = addToHand({ cards: [...STARTER_CARDS], shopCount: 0 }, takePending(), true);
-  return { seed, map: generateMap(seed), currentFloor: 0, completed: {}, mutations: [], bonuses: {}, cards: hand.cards, shopCount: hand.shopCount, lastNode: null };
+  return { seed, map: generateMap(seed), currentFloor: 0, completed: {}, mutations: [], bonuses: {}, cards: hand.cards, shopCount: hand.shopCount, lastNode: null, prefs: { fav: [], ban: [] } };
 }
+
+// Selector de la run: hasta 3 mecánicas favoritas y 1 vetada; mientras no se haya jugado nada,
+// el mapa se vuelve a sortear con la misma semilla y las preferencias nuevas.
+export const PREF_LIMITS = { fav: 3, ban: 1 };
+export const withPrefs = (run, prefs) => ({ ...run, prefs, map: generateMap(run.seed, prefs) });
 
 export function completeNode(run, node, patch = {}) {
   return {

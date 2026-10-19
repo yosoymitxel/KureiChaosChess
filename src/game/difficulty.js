@@ -77,13 +77,18 @@ const draw = (rng, entries) => {
 // propio piso, sin Élite antes de tiempo y sin repetir un minijuego dentro de la run. Con
 // `mini` solo se sortean minijuegos (lo usa la garantía de ritmo de generateMap). Devuelve
 // null si no queda nada que sortear.
-export function pickModifier(rng, { floor, floors, skip = [], usedMinis = [], mini = false } = {}) {
+// prefs (selector de la run, como los gambitos de Gambonanza): las favoritas pesan ×FAV_WEIGHT y la vetada no sale.
+export const FAV_WEIGHT = 4;
+export function pickModifier(rng, { floor, floors, skip = [], usedMinis = [], mini = false, prefs } = {}) {
   const band = bandOf(floor, floors);
   const table = mini ? MINI_WEIGHTS : { ...MOD_WEIGHTS, ...MINI_WEIGHTS };
+  const fav = prefs?.fav || [], ban = prefs?.ban || [];
   const build = (memoriaMinis) => Object.entries(table).filter(([id, w]) =>
-    w[band] > 0 && !skip.includes(id) && (memoriaMinis || !usedMinis.includes(id)) && !(id === 'elite' && floor < 2));
-  let entries = build(false).map(([id, w]) => [id, w[band]]);
-  if (!entries.length && !mini) entries = build(true).map(([id, w]) => [id, w[band]]);
+    (w[band] > 0 || fav.includes(id)) && !skip.includes(id) && !ban.includes(id) && (memoriaMinis || !usedMinis.includes(id)) && !(id === 'elite' && floor < 2));
+  // Una favorita sale aunque su tramo la tenga apagada (portal y niebla no aparecen al principio).
+  const weigh = ([id, w]) => [id, fav.includes(id) ? Math.max(w[band], 1) * FAV_WEIGHT : w[band]];
+  let entries = build(false).map(weigh);
+  if (!entries.length && !mini) entries = build(true).map(weigh);
   return entries.length ? draw(rng, entries) : null;
 }
 

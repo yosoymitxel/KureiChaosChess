@@ -1,7 +1,8 @@
 import { html, useState, useRef } from '../lib.js';
 import { Icon } from '../icons.js';
 import { Topbar, useEnter, Toggle } from '../components.js';
-import { nodeModifier } from '../../data/modifiers.js';
+import { nodeModifier, MODIFIERS } from '../../data/modifiers.js';
+import { PREF_LIMITS } from '../../game/run.js';
 import { rivalForFloor, DIFFICULTIES } from '../../game/difficulty.js';
 import { THEMES } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
@@ -14,7 +15,29 @@ const SIDES = [
   { color: 'wild', label: 'Jade' },
 ];
 
-export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings }) {
+// Selector de mecánicas de la run (los gambitos de Gambonanza): cada toque pasa normal → favorita → vetada.
+const RUN_MECHANICS = ['ice', 'portal', 'fog', 'chaos', 'rush', 'promote', 'elite'];
+function PrefsCard({ prefs, onPrefs }) {
+  const state = (id) => (prefs.fav.includes(id) ? 'fav' : prefs.ban.includes(id) ? 'ban' : '');
+  const cycle = (id) => {
+    const fav = prefs.fav.filter((x) => x !== id), ban = prefs.ban.filter((x) => x !== id);
+    const now = state(id);
+    if (!now && fav.length < PREF_LIMITS.fav) fav.push(id);
+    else if ((!now || now === 'fav') && ban.length < PREF_LIMITS.ban) ban.push(id);
+    onPrefs({ fav, ban });
+  };
+  const label = { fav: 'favorita', ban: 'vetada', '': 'normal' };
+  return html`<section class="panel setup-card" data-enter>
+    <h2>Mecánicas de esta run</h2>
+    <p class="setup-note">Toca una mecánica: favorita (sale mucho más, hasta ${PREF_LIMITS.fav}), vetada (no sale, ${PREF_LIMITS.ban}) o normal. El mapa se vuelve a sortear.</p>
+    <div class="pref-grid">
+      ${RUN_MECHANICS.map((id) => html`<button class=${'pref ' + state(id)} aria-label=${`${MODIFIERS[id].name}: ${label[state(id)]}`} title=${MODIFIERS[id].desc} onClick=${() => cycle(id)}>
+        <${Icon} name=${MODIFIERS[id].icon} size=${20} /><span>${MODIFIERS[id].name}</span><small>${label[state(id)]}</small></button>`)}
+    </div>
+  </section>`;
+}
+
+export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings, onPrefs }) {
   const ref = useRef(null);
   useEnter(ref);
   const [count, setCount] = useState(defaultCount || 2);
@@ -33,6 +56,7 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
         <div class="rival-line"><${Icon} name="bot" size=${17} /><div><strong>Rival: ${rival.name}</strong><small>${rival.desc}</small></div></div>
         ${node.isBoss && !run?.mutations?.length ? html`<p class="setup-warn"><${Icon} name="boss" size=${15} />Sin mutaciones, solo una de cada cuatro veces se derriba al coloso. Esta mesa pide tus mejores cartas.</p>` : ''}
       </section>
+      ${onPrefs && html`<${PrefsCard} prefs=${run.prefs || { fav: [], ban: [] }} onPrefs=${onPrefs} />`}
       ${run?.mutations?.length ? html`<section class="panel setup-card" data-enter>
         <h2>Mutaciones activas</h2>
         <div class="chips">

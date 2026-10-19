@@ -776,3 +776,10 @@
 .bm-lbl { position: absolute; inset: 0; display: grid; place-items: center; z-index: 2; font-size: calc(var(--cell) * 0.34); font-weight: 800; color: color-mix(in oklch, var(--brass), var(--ink) 25%); pointer-events: none; }
 .bm-cell.clash { outline: calc(var(--cell) * 0.1) solid var(--danger); outline-offset: calc(var(--cell) * -0.1); }
 .bm-cell.foe { outline: calc(var(--cell) * 0.07) solid var(--danger); outline-offset: calc(var(--cell) * -0.07); }
+/* Selector de mecánicas de la run: favorita en latón, vetada tachada en rojo. */
+.pref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.pref { display: grid; justify-items: center; gap: 2px; min-height: 76px; padding: 8px 6px; border-radius: 10px; border: 2px solid var(--ink); background: var(--paper-2); color: var(--ink); font: inherit; font-weight: 750; cursor: pointer; }
+.pref small { font-size: 12px; font-weight: 650; color: var(--ink-2); }
+.pref.fav { background: var(--brass); }
+.pref.ban { background: var(--paper-3); color: var(--danger); text-decoration: line-through; border-style: dashed; }
+.pref:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
