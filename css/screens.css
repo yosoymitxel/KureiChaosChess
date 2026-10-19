@@ -718,6 +718,8 @@
 .dots { display: inline-flex; gap: 4px; }
 .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--brass); box-shadow: inset 0 0 0 1.5px oklch(0 0 0 / 0.3); }
 .dots i.off { background: oklch(1 0 0 / 0.14); }
+/* La última oleada es la horda: su punto es un banderín bermellón. */
+.dots i.flag { border-radius: 2px 6px 6px 2px; width: 12px; outline: 2px solid var(--accent); outline-offset: 1px; }
 /* En Yo, Zombi la fila de compra llama con un + en cada hueco donde cabe la pieza elegida. */
 .iz .bm-cell.drop::after { content: '+'; position: absolute; inset: 0; display: grid; place-items: center; font-size: calc(var(--cell) * 0.42); font-weight: 800; color: var(--brass); opacity: 0.9; pointer-events: none; }
 /* En Última resistencia la casilla admite un plano: borde discontinuo, sin signo. */
@@ -742,7 +744,7 @@
 .bw-wave-bar::after { content: ''; position: absolute; left: 70%; top: 0; bottom: 0; width: 2px; background: var(--paper); }
 .bw-wave-bar i { position: absolute; inset: 0 auto 0 0; background: var(--accent); transition: width 0.3s var(--ease-out); }
 .bw-flag { font-weight: 800; font-size: 13px; color: var(--paper); }
-.bw-horde { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; text-align: center; padding: 0 8%; font-weight: 800; font-size: clamp(22px, 5vw, 40px); color: var(--paper); -webkit-text-stroke: 3px var(--ink); paint-order: stroke; pointer-events: none; }
+.bw-horde, .mini-banner { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; text-align: center; padding: 0 8%; font-weight: 800; font-size: clamp(22px, 5vw, 40px); color: var(--paper); -webkit-text-stroke: 3px var(--ink); paint-order: stroke; pointer-events: none; }
 /* La cinta: las fichas que vienen, la primera se lanza al tocar. */
 .bw-belt { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; background: var(--paper-2); background-image: var(--grain); color: var(--ink); }
 .bw-belt-label { font-weight: 750; font-size: 14px; }
