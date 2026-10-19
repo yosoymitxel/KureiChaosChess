@@ -43,6 +43,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   const [hud, setHud] = useState(null);
   const [log, setLog] = useState([]);
   const [inspect, setInspect] = useState(null);
+  const [chipInfo, setChipInfo] = useState(null);
   const [banner, setBanner] = useState(null);
   const [paused, setPaused] = useState(false);
   const [end, setEnd] = useState(null);
@@ -472,6 +473,12 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   useEffect(() => { ref.current.view?.setCamera(settings.camera); if (ref.current.view) { ref.current.view.shakeOn = settings.shake; ref.current.view.speed = settings.speed; } if (ref.current.moments) Object.assign(ref.current.moments, { speed: settings.speed, enabled: settings.moments }); }, [settings]);
 
   const muts = Object.entries(countMutations(run.mutations || []));
+  // Un toque explica el chip; el de peligro además hace latir las piezas amenazadas.
+  const explain = (id, title, text) => {
+    if (chipInfo?.id === id) return setChipInfo(null);
+    setChipInfo({ id, title, text });
+    if (id === 'threats') ref.current.view?.pulseThreats();
+  };
   const hand = run.cards || [];
   const leave = (kind, then) => ref.current.leave(kind, then);
   return html`<div class="screen game">
@@ -521,18 +528,21 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         })}
       </section>
       <div class="chips">
-        ${hud?.threats > 0 && html`<span class="chip danger"><${Icon} name="warn" size=${12} /> ${hud.threats} en peligro</span>`}
-        ${node.modifier === 'chaos' && hud && html`<span class="chip"><${Icon} name="collapse" size=${12} /> derrumbe en ${hud.chaosIn}</span>`}
-        ${muts.map(([id, n]) => html`<span class="chip mut" title=${MUTATIONS[id]?.desc}><${Icon} name=${MUTATIONS[id]?.icon} size=${12} />${MUTATIONS[id]?.name}${n > 1 ? ' ×' + n : ''}</span>`)}
+        ${hud?.threats > 0 && html`<button class="chip danger" aria-pressed=${chipInfo?.id === 'threats'} onClick=${() => explain('threats', `${hud.threats} en peligro`, 'Las piezas que laten en rojo pueden ser capturadas en la próxima jugada rival. Muévelas o protégelas.')}><${Icon} name="warn" size=${12} /> ${hud.threats} en peligro</button>`}
+        ${node.modifier === 'chaos' && hud && html`<button class="chip" aria-pressed=${chipInfo?.id === 'chaos'} onClick=${() => explain('chaos', `Derrumbe en ${hud.chaosIn}`, `${mod.desc} Faltan ${hud.chaosIn} turnos para el próximo; lo que esté encima cae.`)}><${Icon} name="collapse" size=${12} /> derrumbe en ${hud.chaosIn}</button>`}
+        ${muts.map(([id, n]) => html`<button class="chip mut" aria-pressed=${chipInfo?.id === id} onClick=${() => explain(id, MUTATIONS[id]?.name + (n > 1 ? ' ×' + n : ''), MUTATIONS[id]?.desc + ' Es una mutación de tu ejército: dura toda la run.')}><${Icon} name=${MUTATIONS[id]?.icon} size=${12} />${MUTATIONS[id]?.name}${n > 1 ? ' ×' + n : ''}</button>`)}
       </div>
+      ${chipInfo && html`<p class="chip-info" role="status"><strong>${chipInfo.title}</strong> ${chipInfo.text}</p>`}
       ${inspect && html`<section class=${'inspector' + (inspect.threat ? ' threat' : '')}>
         <${PieceIcon} type=${inspect.type} side=${inspect.side} size=${44} />
         <div>
           <strong>${inspect.name} <small>${inspect.color}</small></strong>
           <p>${inspect.boss || `Alcanza ${inspect.moves} casilla${inspect.moves === 1 ? '' : 's'}`}</p>
           ${inspect.guard && html`<p class="guard-note"><${Icon} name="lock" size=${13} /> ${inspect.guard}</p>`}
-          ${inspect.mut.length > 0 && html`<div class="insp-row"><span class="insp-key">Mutación</span><span class="tags">${inspect.mut.map((id) => html`<span class="tag mut" title=${MUTATIONS[id]?.desc}><${Icon} name=${MUTATIONS[id]?.icon} size=${11} />${MUTATIONS[id]?.name}</span>`)}</span></div>`}
-          ${inspect.cards.length > 0 && html`<div class="insp-row"><span class="insp-key">Carta</span><span class="tags">${inspect.cards.map((id) => html`<span class="tag carta" title=${CARDS[id]?.desc}><${Icon} name=${CARDS[id]?.icon} size=${11} />${CARDS[id]?.name}</span>`)}</span></div>`}
+          ${inspect.mut.length > 0 && html`<div class="insp-row"><span class="insp-key">Mutación</span><span class="tags">${inspect.mut.map((id) => html`<span class="tag mut" title=${MUTATIONS[id]?.desc}><${Icon} name=${MUTATIONS[id]?.icon} size=${11} />${MUTATIONS[id]?.name}</span>`)}</span></div>
+            ${inspect.mut.map((id) => html`<p class="insp-desc">${MUTATIONS[id]?.desc}</p>`)}`}
+          ${inspect.cards.length > 0 && html`<div class="insp-row"><span class="insp-key">Carta</span><span class="tags">${inspect.cards.map((id) => html`<span class="tag carta" title=${CARDS[id]?.desc}><${Icon} name=${CARDS[id]?.icon} size=${11} />${CARDS[id]?.name}</span>`)}</span></div>
+            ${inspect.cards.map((id) => html`<p class="insp-desc">${CARDS[id]?.desc}</p>`)}`}
           ${inspect.copied.length > 0 && html`<div class="insp-row"><span class="insp-key">Movimiento</span><span class="tags">${inspect.copied.map((n) => html`<span class="tag">${n}</span>`)}</span></div>`}
         </div>
       </section>`}

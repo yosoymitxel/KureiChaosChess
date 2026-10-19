@@ -265,6 +265,14 @@ export class BoardView {
   setThreats(set) {
     for (const [p, el] of this.els) el.classList.toggle('threat', set.has(p));
   }
+  pulseThreats() {
+    for (const el of this.els.values()) {
+      if (!el.classList.contains('threat')) continue;
+      el.classList.remove('pulse');
+      void el.offsetWidth;
+      el.classList.add('pulse');
+    }
+  }
   setTurn(color) { this.host.dataset.turn = color; }
   // Fog: darken tiles far from the viewer's pieces.
   setFog(pieces, color) {

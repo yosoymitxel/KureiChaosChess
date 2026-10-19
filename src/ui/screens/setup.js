@@ -59,9 +59,9 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
       ${onPrefs && html`<${PrefsCard} prefs=${run.prefs || { fav: [], ban: [] }} onPrefs=${onPrefs} />`}
       ${run?.mutations?.length ? html`<section class="panel setup-card" data-enter>
         <h2>Mutaciones activas</h2>
-        <div class="chips">
-          ${Object.entries(countMutations(run.mutations)).map(([id, n]) => html`<span class="chip mut" title=${MUTATIONS[id]?.desc}>${MUTATIONS[id]?.name}${n > 1 ? ' ×' + n : ''}</span>`)}
-        </div>
+        <ul class="mut-list">
+          ${Object.entries(countMutations(run.mutations)).map(([id, n]) => html`<li><${Icon} name=${MUTATIONS[id]?.icon} size=${18} /><div><strong>${MUTATIONS[id]?.name}${n > 1 ? ' ×' + n : ''}</strong><span>${MUTATIONS[id]?.desc}</span></div></li>`)}
+        </ul>
         <p class="setup-note">Se aplican a tu ejército durante toda la run.</p>
       </section>` : ''}
       <section class="panel setup-card" data-enter>
