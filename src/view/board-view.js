@@ -306,9 +306,11 @@ export class BoardView {
     for (const [p, el] of this.els) {
       if (p.color === color) { el.style.opacity = ''; continue; }
       const t = this.tiles.get(key(p.row, p.col));
-      el.style.opacity = t && +t.style.getPropertyValue('--fog') > 0.6 ? 0.25 : '';
+      el.classList.toggle('fogged', !!t && +t.style.getPropertyValue('--fog') > 0.3);
     }
   }
+  // An enemy deep in the fog reads as "something is there", never as which piece it is.
+  fogged(p) { return !!this.els.get(p)?.classList.contains('fogged'); }
 
 
   cellFromEl(el) {

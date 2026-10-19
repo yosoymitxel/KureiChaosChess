@@ -212,6 +212,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     };
     const inspectPiece = (p) => {
       d.selected = null; d.view.select(null);
+      if (d.view.fogged(p)) return d.view.tileTip(p.row, p.col, 'Algo se mueve', 'La niebla no deja ver qué pieza es. Acércate para descubrirla.');
       setInspect(detailOf(p, show(p, true).length, true));
     };
 

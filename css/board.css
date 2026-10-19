@@ -142,6 +142,14 @@
 .pc.boss .pc-stand { width: calc(var(--sq) * 0.9 * max(var(--w), var(--s))); height: calc(var(--sq) * 0.95 * max(var(--h), var(--s))); }
 .pc.boss .pc-base { inset: 14%; }
 .pc.boss { pointer-events: auto; }
+/* Fog: an enemy far from your pieces is only a shape in the mist, never which piece it is. */
+.pc.fogged .pc-art, .pc.fogged .pc-hp, .pc.fogged .pc-badge { visibility: hidden; }
+.pc.fogged .pc-base { opacity: 0.5; }
+.pc.fogged .pc-fig::before {
+  content: ''; position: absolute; left: 18%; right: 18%; bottom: 8%; height: 58%;
+  border-radius: 50% 50% 40% 40%;
+  background: radial-gradient(closest-side, oklch(0.75 0.02 260 / 0.55), oklch(0.75 0.02 260 / 0));
+}
 .pc-hp { position: absolute; left: 50%; top: calc(var(--head, 0.1) * 100% - 4px); translate: -50% -100%; display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: var(--ink); border-radius: 6px; white-space: nowrap; }
 .pc-hp span { margin-right: 4px; font: 800 calc(var(--sq) * 0.26)/1 var(--font); color: var(--paper); text-box: trim-both cap alphabetic; }
 .pc-hp b { display: block; width: calc(var(--sq) * 0.18); height: calc(var(--sq) * 0.18); border-radius: 50%; background: oklch(1 0 0 / 0.15); }
