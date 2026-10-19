@@ -8,6 +8,7 @@ import { THEMES } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
 import { themeOwned } from '../../game/shop.js';
+import { eliteVariants } from '../../game/generate.js';
 
 const SIDES = [
   { color: 'light', label: 'Marfil' },
@@ -53,6 +54,9 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
     <div class="setup-body">
       <section class="panel setup-card" data-enter>
         <div class="mod-card"><span class="mod-icon"><${Icon} name=${mod.icon} size=${24} /></span><div><h2>${mod.name}</h2><p>${mod.desc}</p></div></div>
+        ${node.modifier === 'elite' && html`<ul class="elite-list">
+          ${eliteVariants(node.floor, run?.map?.floors ?? 1).map((v) => html`<li><span class="elite-ico"><${Icon} name=${v.icon} size=${15} /></span><div><strong>${v.name}</strong><span>${v.desc}</span></div></li>`)}
+        </ul>`}
         <div class="rival-line"><${Icon} name="bot" size=${17} /><div><strong>Rival: ${rival.name}</strong><small>${rival.desc}</small></div></div>
         ${node.isBoss && !run?.mutations?.length ? html`<p class="setup-warn"><${Icon} name="boss" size=${15} />Sin mutaciones, solo una de cada cuatro veces se derriba al coloso. Esta mesa pide tus mejores cartas.</p>` : ''}
       </section>

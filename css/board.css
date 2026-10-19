@@ -151,12 +151,15 @@
 .pc-badge { position: absolute; right: 0; bottom: 12%; width: calc(var(--sq) * 0.3); height: calc(var(--sq) * 0.3); display: none; place-items: center; border-radius: 50%; background: var(--ink); }
 .pc.guarded .pc-badge, .pc.mutated .pc-badge { display: grid; }
 .pc-badge svg { width: 62%; height: 62%; fill: var(--brass); }
+.pc.guarded .pc-badge { background: var(--elite); }
+.pc.guarded .pc-badge svg { fill: var(--paper); }
+.pc.guarded:not(.threat, .sel, .eligible) .pc-base::after { border: 3px solid var(--elite); }
 .pc.mutated .pc-badge svg { fill: var(--gain); }
 .tether {
   position: absolute; left: 0; top: 0; height: 0; width: calc(var(--len) * var(--sq));
   transform-origin: 0 50%;
   transform: translate3d(calc(var(--x) * var(--sq)), calc(var(--y) * var(--sq)), 3px) rotate(var(--ang));
-  border-top: calc(var(--sq) * 0.06) dashed var(--brass);
+  border-top: calc(var(--sq) * 0.06) dashed var(--elite);
   pointer-events: none;
 }
 

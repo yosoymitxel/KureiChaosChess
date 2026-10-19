@@ -14,6 +14,7 @@
   --legal: oklch(0.8 0.16 135);
   --gain: oklch(0.72 0.14 235); /* moves a card would add: clearly not a move you have now */
   --danger: oklch(0.52 0.2 25);
+  --elite: oklch(0.62 0.16 305); /* elite rules (falls last, escorted): never confused with brass selection */
 
   /* Table mood: overridden per theme by src/data/themes.js */
   --table: oklch(0.22 0.025 55);

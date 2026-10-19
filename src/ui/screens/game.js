@@ -7,7 +7,7 @@ import { BoardView } from '../../view/board-view.js';
 import { artOf } from '../../view/piece-art.js';
 import { Match, botChooseMove } from '../../game/match.js';
 import { rivalForFloor } from '../../game/difficulty.js';
-import { generateBoard, placePieces } from '../../game/generate.js';
+import { generateBoard, placePieces, eliteVariants } from '../../game/generate.js';
 import { moveCells, cellsOf, key, anchorForCell, immune, walkable } from '../../game/rules.js';
 import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
 import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
@@ -541,7 +541,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       </section>`}
       <section class="mod-card">
         <span class="mod-icon"><${Icon} name=${mod.icon} size=${22} /></span>
-        <div><h2>${mod.name}</h2><p>${mod.desc}</p></div>
+        <div><h2>${mod.name}</h2><p>${mod.desc}</p>
+          ${node.modifier === 'elite' && html`<ul class="elite-list">${eliteVariants(node.floor, run.map.floors).map((v) => html`<li><span class="elite-ico"><${Icon} name=${v.icon} size=${13} /></span><div><strong>${v.name}</strong><span>${v.desc}</span></div></li>`)}</ul>`}</div>
       </section>
       <section class="seats">
         ${seats.map((s, i) => {

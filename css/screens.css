@@ -113,6 +113,11 @@
 .mut-list li { display: flex; gap: 10px; align-items: flex-start; color: var(--accent-ink); }
 .mut-list strong { display: block; font-size: 14px; }
 .mut-list span { font-size: 13px; line-height: 1.35; color: var(--ink-2); }
+.elite-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.elite-list li { display: flex; gap: 10px; align-items: flex-start; }
+.elite-list strong { display: block; font-size: 14px; color: color-mix(in oklch, var(--elite), var(--ink) 30%); }
+.elite-list span { font-size: 13px; line-height: 1.35; color: var(--ink-2); }
+.elite-ico { width: 26px; height: 26px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; background: var(--elite); color: var(--paper); --icon-cut: var(--elite); }
 .segmented { display: flex; padding: 4px; gap: 4px; background: var(--paper-2); border: 2px solid var(--ink); border-radius: 12px; }
 .segmented button { flex: 1; display: inline-flex; gap: 6px; align-items: center; justify-content: center; padding: 9px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--ink); --icon-cut: var(--paper-2); font-weight: 700; cursor: pointer; }
 .segmented button.on { background: var(--ink); color: var(--paper); --icon-cut: var(--ink); }

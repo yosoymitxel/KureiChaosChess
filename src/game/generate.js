@@ -190,12 +190,19 @@ export function makePiece(type, color, row, col, extra = {}) {
   return p;
 }
 
-// Elite floors: the enemy queen holds out until she is the last piece standing,
-// and up to two heavy pieces are escorted (immune while their escort lives).
-function protectElites(pieces) {
+// Las reglas de élite llegan de a una: la reina última desde el primer piso de élite,
+// las escoltas solo en la segunda mitad de la torre.
+export function eliteVariants(floor, floors) {
+  const v = [{ id: 'last', icon: 'flag', name: 'Reina última', desc: 'Su reina (o una torre) no cae hasta que sea la última pieza de su bando.' }];
+  if (floors > 1 && floor / (floors - 1) >= 0.5) v.push({ id: 'escort', icon: 'lock', name: 'Escolta', desc: 'Hasta dos torres o cañones no caen mientras viva la guardia atada a ellos con la cuerda.' });
+  return v;
+}
+
+function protectElites(pieces, variants) {
   const dark = pieces.filter((p) => p.color === 'dark' && !p.royal);
   const last = dark.find((p) => p.type === 'queen') || dark.find((p) => p.type === 'rook');
   if (last) last.trait = 'last';
+  if (!variants.some((v) => v.id === 'escort')) return;
   const escorts = dark.filter((p) => p.type === 'guard' || p.type === 'advisor');
   const dist = (a, b) => Math.abs(a.row - b.row) + Math.abs(a.col - b.col);
   for (const p of dark.filter((p) => p !== last && (p.type === 'rook' || p.type === 'cannon')).slice(0, 2)) {
@@ -311,7 +318,7 @@ function placeOnce(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutati
     }
   }
 
-  if (elite) protectElites(pieces);
+  if (elite) protectElites(pieces, eliteVariants(floor ?? 0, totalFloors || 1));
   applyMutations(pieces, mutations, 'light');
 
   if (bonuses?.promoteOne) { const p = pieces.find((p) => p.type === 'pawn' && p.color === 'light'); if (p) p.type = 'queen'; }
