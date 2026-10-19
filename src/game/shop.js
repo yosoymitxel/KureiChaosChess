@@ -6,7 +6,8 @@ const KEY = 'zugzwang.shop.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
 const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
-export const COINS_PER_FLOWER = 10;
+// Una flor paga más de lo que cuesta su semilla: sembrar siempre deja ganancia.
+export const COINS_PER_FLOWER = 18;
 export const CARD_PRICE = { common: 40, rare: 70 };
 // Las semillas del Jardín Zen: también caen al ganar nodos (una por victoria).
 export const SEED_PRICE = 12;

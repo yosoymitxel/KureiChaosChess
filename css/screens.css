@@ -623,6 +623,8 @@
 /* Tablero del Bomberman con cuerpo: la losa del cantero, celdas biseladas, bloques con cara de
    arriba y frente, fichas de pie sobre su peana y explosiones con onda. */
 .bm.bm-slab {
+  /* The frame and its drop are shadows outside the box: leave room for them so the slab never covers what sits below. */
+  --cell: max(16px, min(calc((100cqw - 26px) / var(--cols, var(--n))), calc((100cqh - 56px) / var(--rows, var(--n))), 64px));
   transform: translateY(4%) rotateX(15deg);
   border-color: color-mix(in oklch, var(--tile-side), black 38%);
   box-shadow:

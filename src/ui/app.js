@@ -165,7 +165,10 @@ export function App() {
     if (!won) { setRun(completeNode(run, node)); return goTo('map'); }
     award('mini_won');
     unlockMini(node.modifier);
-    setReward({ kind: 'mini', cards: MINI_PRIZES });
+    const coins = COINS_PER_NODE.normal, seed = pickSeed();
+    addCoins(coins);
+    addZenSeeds(seed, 1);
+    setReward({ kind: 'mini', coins, seed, cards: MINI_PRIZES });
     goTo('reward');
   };
 
