@@ -6,7 +6,7 @@ import { makePiece } from '../../game/generate.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
 
 // Decorative diorama: a small board with a boss facing a few pieces, gently swaying.
-// Four more pieces, labelled above, turn into the extras: Jardín Zen, Tienda, Galería and Logros.
+// Four jade pieces also open the extras (Jardín Zen, Tienda, Galería, Logros); the menu lists them as buttons too.
 function Diorama({ onZen, onShop, onGallery, onAchievements }) {
   const host = useRef(null);
   const open = { 'x-zen': onZen, 'x-tienda': onShop, 'x-galeria': onGallery, 'x-logros': onAchievements };
@@ -20,8 +20,7 @@ function Diorama({ onZen, onShop, onGallery, onAchievements }) {
     ];
     v.setBoard(board);
     v.setPieces(pieces);
-    // Extras: four jade pieces wear the boss label and open a screen when tapped. Listed far to
-    // near so the near one paints over the one behind; the host resolves the tap by data-pid.
+    // Listed far to near so the near one paints over the one behind; the host resolves the tap by data-pid.
     for (const [id, label, type, row, col] of [
       ['x-zen', 'Jardín Zen', 'pawn', 3, 0],
       ['x-tienda', 'Tienda', 'knight', 4, 5],
@@ -35,7 +34,6 @@ function Diorama({ onZen, onShop, onGallery, onAchievements }) {
       el.setAttribute('role', 'button');
       el.setAttribute('tabindex', '0');
       el.setAttribute('aria-label', label);
-      el.querySelector('.pc-fig').insertAdjacentHTML('beforeend', `<div class="pc-hp"><span>${label}</span></div>`);
       el.addEventListener('keydown', (e) => {
         if (e.key !== 'Enter' && e.key !== ' ') return;
         e.preventDefault();
@@ -73,6 +71,12 @@ export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onM
         <button class="btn primary" data-enter onClick=${go(hasRun ? onContinue : onNew)}>${hasRun ? 'Continuar run' : 'Empezar run'}</button>
         ${hasRun && html`<${ConfirmButton} class="btn" onConfirm=${onNew} confirmLabel="Se pierde la run actual. ¿Seguro?">Nueva run<//>`}
         ${onMinis && html`<button class="btn" data-enter onClick=${onMinis}><${Icon} name="connect4" />Minijuegos</button>`}
+        <div class="menu-row menu-extras" data-enter role="group" aria-label="Extras">
+          ${onZen && html`<button class="btn ghost sm" onClick=${go(onZen)}>Jardín Zen</button>`}
+          ${onShop && html`<button class="btn ghost sm" onClick=${go(onShop)}>Tienda</button>`}
+          ${onGallery && html`<button class="btn ghost sm" onClick=${go(onGallery)}>Galería</button>`}
+          ${onAchievements && html`<button class="btn ghost sm" onClick=${go(onAchievements)}>Logros</button>`}
+        </div>
         <div class="menu-row" data-enter>
           <button class="btn ghost" onClick=${onHowTo}><${Icon} name="book" />Reglas</button>
           <button class="btn ghost" onClick=${onSettings}><${Icon} name="gear" />Ajustes</button>

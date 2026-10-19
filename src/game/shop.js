@@ -30,8 +30,6 @@ export function charge(n) { const s = loadShop(); if (s.coins < n) return false;
 
 export const themeOwned = (id) => !THEME_SHOP[id] || loadShop().themes.includes(id);
 export const grantTheme = (id) => { const s = loadShop(); if (!s.themes.includes(id)) saveShop({ ...s, themes: [...s.themes, id] }); };
-// La mesa ya puesta al estrenar la tienda sigue siendo del jugador.
-export const claimTheme = (id) => { if (THEME_SHOP[id]) grantTheme(id); };
 
 // Cartas compradas sin run: esperan en un sobre y entran al empezar la siguiente.
 export function addPending(id) {

@@ -44,7 +44,7 @@ export function GalleryScreen({ onBack }) {
         <h2 class="gal-title">Piezas</h2>
         <div class="gal-row">
           ${PIECE_TYPES.map((t) => html`<figure class="gal-item">
-            <div class="gal-art" dangerouslySetInnerHTML=${{ __html: pieceSVG(t) }}></div>
+            <div class="gal-art side-light" dangerouslySetInnerHTML=${{ __html: pieceSVG(t) }}></div>
             <figcaption>${PIECE_NAMES[t]}</figcaption>
           </figure>`)}
         </div>

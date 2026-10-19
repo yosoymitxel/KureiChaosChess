@@ -25,8 +25,8 @@ import { KnightScreen } from './screens/knight.js';
 import { QueensScreen } from './screens/queens.js';
 import { MarcianosScreen } from './screens/marcianos.js';
 import { MODIFIERS } from '../data/modifiers.js';
-import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, floorTier } from '../game/run.js';
-import { COINS_PER_NODE, addCoins, addToHand, claimTheme, consumeCard } from '../game/shop.js';
+import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, floorTier, DEFAULT_SETTINGS } from '../game/run.js';
+import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard } from '../game/shop.js';
 import { ZEN_NAMES, addZenSeeds, pickSeed } from '../game/zen.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
 import { award } from '../game/achievements.js';
@@ -85,8 +85,8 @@ export function App() {
     window.addEventListener('pointerdown', wake);
     return () => window.removeEventListener('pointerdown', wake);
   }, []);
-  // La mesa ya puesta al estrenar la tienda sigue siendo del jugador.
-  useEffect(() => { claimTheme(settings.theme); }, []);
+  // Una mesa guardada que no se compró vuelve a la de serie.
+  useEffect(() => { if (!themeOwned(settings.theme)) setSettings((s) => ({ ...s, theme: DEFAULT_SETTINGS.theme })); }, []);
   // Hitos que dependen del avance de la run: se revisan al guardarla, en un solo lugar.
   useEffect(() => {
     if (!run) return;
