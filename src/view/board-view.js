@@ -737,6 +737,32 @@ export class BoardView {
     this.floatText(c.x, c.y - this.sq * 1.2, '−1');
   }
 
+  // Etiqueta de casilla: aparece al momento junto a la casilla (sin pasar por la cola de rótulos)
+  // y se va sola; `twin` ilumina otra casilla relacionada (el portal gemelo).
+  tileTip(r, c, title, text, twin) {
+    this.tip?.remove();
+    clearTimeout(this.tipTimer);
+    this.host.querySelectorAll('.tile.twin').forEach((t) => t.classList.remove('twin'));
+    const t = this.tiles.get(key(r, c));
+    if (!t) return;
+    const p = this.fx.pointOf(t);
+    const n = document.createElement('div');
+    n.className = 'tile-tip' + (p.y < 120 ? ' below' : '');
+    n.innerHTML = `<b></b><span></span>`;
+    n.querySelector('b').textContent = title;
+    n.querySelector('span').textContent = text;
+    n.style.left = Math.max(110, Math.min(this.host.clientWidth - 110, p.x)) + 'px';
+    n.style.top = p.y + 'px';
+    this.host.appendChild(n);
+    this.tip = n;
+    if (twin) this.tiles.get(twin)?.classList.add('twin');
+    this.tipTimer = setTimeout(() => this.hideTip(), 3200);
+  }
+  hideTip() {
+    this.tip?.remove(); this.tip = null;
+    this.host.querySelectorAll('.tile.twin').forEach((t) => t.classList.remove('twin'));
+  }
+
   floatText(x, y, text) {
     const n = document.createElement('div');
     n.className = 'float-text';

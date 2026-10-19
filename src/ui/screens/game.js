@@ -8,7 +8,7 @@ import { artOf } from '../../view/piece-art.js';
 import { Match, botChooseMove } from '../../game/match.js';
 import { rivalForFloor } from '../../game/difficulty.js';
 import { generateBoard, placePieces } from '../../game/generate.js';
-import { moveCells, cellsOf, key, anchorForCell, immune } from '../../game/rules.js';
+import { moveCells, cellsOf, key, anchorForCell, immune, walkable } from '../../game/rules.js';
 import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
 import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
@@ -123,7 +123,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     };
     // Hover (mouse), keyboard cursor or first tap (touch) on a target: show what the card would do there.
     const onHover = (hit, touch = false) => {
-      if (d.cardSel == null) return;
+      // Con ratón y sin carta en la mano, pasar por encima de una casilla especial ya la explica.
+      if (d.cardSel == null) { if (!touch && hit && !(hit.piece || match.pieceAt(hit.row, hit.col)) && !terrainInfo(hit.row, hit.col)) d.view.hideTip(); return; }
       const { card, targets, keys, pieces } = aim();
       const piece = hit && (hit.piece || match.pieceAt(hit.row, hit.col));
       const again = touch ? ' Toca otra vez para jugarla.' : '';
@@ -347,10 +348,15 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (res.promoted) d.moments.callout({ text: '¡Coronación!', sub: 'El peón asciende a reina', tone: 'brass', piece: { type: 'pawn', side: res.piece.color }, pieceTo: { type: 'queen', side: res.piece.color }, anim: 'promote' });
     };
 
+    // Qué hace una casilla: etiqueta al momento junto a ella, no un rótulo en cola.
     const terrainInfo = (r, c) => {
-      const m = MODIFIERS[board.terrain?.get(key(r, c))];
-      if (m) d.moments.callout({ text: m.name, sub: m.desc, icon: m.icon, tone: 'paper', tier: 'info' });
-      return !!m;
+      const k = key(r, c), t = board.terrain?.get(k);
+      const edge = node.modifier === 'chaos' && [[-1, 0], [1, 0], [0, -1], [0, 1]].some(([dr, dc]) => !walkable(board, r + dr, c + dc));
+      if (t === 'ice') d.view.tileTip(r, c, 'Hielo', 'La pieza que acaba aquí resbala una casilla más en su dirección.');
+      else if (t === 'portal') d.view.tileTip(r, c, 'Portal', 'La pieza que acaba aquí sale por el portal gemelo, que ahora brilla.', board.portals.get(k));
+      else if (edge) d.view.tileTip(r, c, 'Borde inestable', `Las casillas del borde se desploman cada 3 turnos; faltan ${3 - (match.turn % 3)}.`);
+      else return false;
+      return true;
     };
     // Organizar: fase previa a la partida. Cada intercambio gasta dos piezas del presupuesto.
     const mine = new Set(seats.filter((s) => s.kind === 'human').map((s) => s.color));
