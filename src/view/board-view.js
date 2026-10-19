@@ -613,14 +613,14 @@ export class BoardView {
       const el = this.remake(p), fig = el.querySelector('.pc-fig'), c = this.centerOf(p);
       this.shake(12, 450);
       this.fx.dust(c.x, c.y, 1.8);
-      this.fx.burst(c.x, c.y - this.sq, { count: 36, color: [css('--side-' + p.color), '#fff', css('--brass')], speed: [80, 300], gravity: 200, shape: 'chunk' });
+      this.fx.ring(c.x, c.y, { radius: this.sq * 2.2, color: css('--side-' + p.color), width: 6, life: 0.5 });
       await animate(fig, { scaleY: [0.3, 1.12, 1], scaleX: [1.3, 0.94, 1], duration: this.d(560), ease: 'outExpo' });
     } else if (id === 'ascend') {
       await this.promote(p);
     } else if (id === 'mount' || id === 'fortify') {
       if (id === 'fortify') this.remake(p);
       const c = this.centerOf(p);
-      this.fx.burst(c.x, c.y - this.sq * 0.5, { count: 24, color: [css('--brass'), '#fff'], speed: [60, 220] });
+      this.fx.sparkle(c.x, c.y - this.sq * 0.6, css('--brass'), 12);
       this.floatText(c.x, c.y - this.sq * 1.1, id === 'mount' ? '+ salto en L' : '+1 escudo');
       await animate(this.els.get(p).querySelector('.pc-fig'), { y: [0, -this.sq * 0.4, 0], duration: this.d(420), ease: 'outQuad' });
     } else if (id === 'quake') {
@@ -676,7 +676,8 @@ export class BoardView {
     if (!el) return;
     const c = this.centerOf(p);
     this.shake(10, 300);
-    this.fx.burst(c.x, c.y - this.sq * 0.5, { count: 26, color: ['#fff', css('--side-dark')], speed: [90, 320], size: [2, 5] });
+    this.fx.burst(c.x, c.y - this.sq * 0.5, { count: 14, color: ['#fff', '#ffe2a8'], speed: [200, 420], size: [1.5, 3], life: [0.15, 0.3], shape: 'spark', drag: 0.85 });
+    this.fx.debris(c.x, c.y - this.sq * 0.3, css('--side-' + p.color), 0.6);
     el.classList.add('hit');
     setTimeout(() => el.classList.remove('hit'), this.d(260));
     const hp = el.querySelector('.pc-hp');
@@ -698,7 +699,8 @@ export class BoardView {
     if (!el) return;
     const c = this.centerOf(p);
     const royal = p.royal;
-    this.fx.burst(c.x, c.y - this.sq * 0.4, { count: royal ? 70 : 24, color: [css('--side-' + p.color), '#fff', '#ffcf6b'], speed: [80, royal ? 480 : 300], size: [2, royal ? 7 : 5], gravity: 300, shape: 'chunk' });
+    if (royal) this.fx.explosion(c.x, c.y - this.sq * 0.4, 1.6);
+    this.fx.debris(c.x, c.y - this.sq * 0.4, css('--side-' + p.color), royal ? 1.8 : 1);
     if (royal) { this.shake(26, 800); this.fx.ring(c.x, c.y, { radius: this.sq * 4, width: 8, life: 0.8 }); }
     const dir = Math.sign(to.col - from.col) || (Math.random() < 0.5 ? -1 : 1);
     const stand = el.querySelector('.pc-fig');
@@ -717,7 +719,7 @@ export class BoardView {
     const c = this.centerOf(p);
     await animate(stand, { rotateY: 360, duration: this.d(380), ease: 'inQuad' });
     this.setArt(p);
-    this.fx.burst(c.x, c.y - this.sq * 0.5, { count: 40, color: ['#ffcf6b', '#fff', css('--side-' + p.color)], speed: [80, 300], gravity: 120 });
+    this.fx.sparkle(c.x, c.y - this.sq * 0.6, '#ffcf6b', 16);
     await animate(stand, { rotateY: 720, scale: [1.3, 1], duration: this.d(420), ease: 'outExpo' });
     stand.style.transform = 'none';
   }

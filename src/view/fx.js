@@ -50,6 +50,27 @@ export class Fx {
   dust(x, y, scale = 1) {
     this.burst(x, y, { count: Math.round(10 * scale), color: ['rgba(240,230,210,.7)', 'rgba(200,190,170,.5)'], speed: [30 * scale, 110 * scale], life: [0.35, 0.7], size: [3, 7 * scale], spread: Math.PI, angle: Math.PI / 2 + Math.PI, gravity: -20, drag: 0.85 });
   }
+  // Explosión: destello, onda, chispas que dejan estela, brasas que caen y humo que sube y se abre.
+  explosion(x, y, scale = 1) {
+    this.parts.push({ x, y, vx: 0, vy: 0, life: 0.18, max: 0.18, g: 0, drag: 1, size: 34 * scale, color: '#fff6d8', shape: 'flash' });
+    this.parts.push({ x, y, vx: 0, vy: 0, life: 0.3, max: 0.3, g: 0, drag: 1, size: 52 * scale, color: '#ffb347', shape: 'flash' });
+    this.ring(x, y, { color: '#ffe2a8', radius: 90 * scale, life: 0.4, width: 5 });
+    this.burst(x, y, { count: Math.round(18 * scale), color: ['#fff2c2', '#ffcf6b', '#ff8a3d'], speed: [220 * scale, 520 * scale], life: [0.25, 0.5], size: [1.5, 3], shape: 'spark', drag: 0.86 });
+    this.burst(x, y, { count: Math.round(14 * scale), color: ['#ff8a3d', '#e2552b', '#ffcf6b'], speed: [80, 260 * scale], life: [0.6, 1.1], size: [2, 4], gravity: 420, shape: 'chunk' });
+    this.smoke(x, y, scale);
+  }
+  smoke(x, y, scale = 1) {
+    this.burst(x, y, { count: Math.round(9 * scale), color: ['rgba(70,60,55,.55)', 'rgba(110,100,92,.45)', 'rgba(150,140,130,.35)'], speed: [20, 90 * scale], life: [0.7, 1.3], size: [10 * scale, 22 * scale], gravity: -60, drag: 0.9, shape: 'smoke' });
+  }
+  // Escombros de una pieza capturada: solo su color y tinta, con peso; nada de confeti.
+  debris(x, y, color, scale = 1) {
+    this.burst(x, y, { count: Math.round(16 * scale), color: [color, color, '#2a201a'], speed: [90, 300 * scale], life: [0.5, 0.9], size: [3, 6 * scale], gravity: 700, shape: 'chunk', spread: Math.PI * 1.2, angle: -Math.PI / 2, drag: 0.94 });
+    this.dust(x, y + 6, 0.8 * scale);
+  }
+  // Destello de mejora (coronar, curar, carta): estrellas que giran y suben un poco.
+  sparkle(x, y, color = '#ffcf6b', count = 10) {
+    this.burst(x, y, { count, color: [color, '#fff'], speed: [70, 240], life: [0.6, 1.1], size: [6, 12], gravity: -40, shape: 'star', drag: 0.9 });
+  }
   confetti(colors) {
     for (let i = 0; i < 4; i++)
       this.burst(this.w * (0.2 + i * 0.2), -10, { count: 30, color: colors, speed: [60, 240], life: [1.4, 2.4], size: [4, 8], gravity: 260, shape: 'rect', spread: Math.PI * 0.8, angle: Math.PI / 2, drag: 0.97 });
@@ -71,7 +92,22 @@ export class Fx {
       p.rot += (p.vr || 0) * dt;
       const t = p.life / p.max;
       ctx.globalAlpha = Math.min(1, t * 1.6);
-      if (p.shape === 'ring') {
+      if (p.shape === 'flash') {
+        ctx.globalAlpha = t; ctx.fillStyle = p.color;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (1.2 - t * 0.6), 0, 6.283); ctx.fill();
+      } else if (p.shape === 'smoke') {
+        ctx.globalAlpha = t * 0.9; ctx.fillStyle = p.color;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (1.6 - t * 0.8), 0, 6.283); ctx.fill();
+      } else if (p.shape === 'spark') {
+        ctx.strokeStyle = p.color; ctx.lineWidth = p.size; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - p.vx * 0.05, p.y - p.vy * 0.05); ctx.stroke();
+      } else if (p.shape === 'star') {
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.color;
+        const r = p.size * (0.4 + t * 0.6);
+        ctx.beginPath();
+        for (let k = 0; k < 8; k++) { const a = (k * Math.PI) / 4, rr = k % 2 ? r * 0.3 : r; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+        ctx.closePath(); ctx.fill(); ctx.restore();
+      } else if (p.shape === 'ring') {
         ctx.strokeStyle = p.color; ctx.lineWidth = p.width * t;
         ctx.beginPath(); ctx.ellipse(p.x, p.y, p.size * (1 - t * 0.8), p.size * (1 - t * 0.8) * 0.55, 0, 0, 6.283); ctx.stroke();
       } else if (p.shape === 'rect' || p.shape === 'chunk') {

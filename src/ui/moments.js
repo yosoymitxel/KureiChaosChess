@@ -34,6 +34,7 @@ export class Moments {
 
   // Particle bursts centred on an element of the moment.
   burst(el, opts) { if (!reduced()) { const p = this.fx.pointOf(el); this.fx.burst(p.x, p.y, opts); } }
+  fx2(el, draw) { if (!reduced()) draw(this.fx, this.fx.pointOf(el)); }
   dust(el) { if (!reduced()) { const p = this.fx.pointOf(el, 0.95); this.fx.dust(p.x, p.y, 1.6); } }
 
   // Piece choreography, shared by cinematics and callouts. `el` is the art wrapper.
@@ -54,14 +55,13 @@ export class Moments {
       case 'fall': // captured: tips over, breaks apart, fades (old "capture")
         await motion(el, { scale: [1.3, 1], opacity: [0, 1] }, { duration: t(0.22), ease: OUT });
         await sleep(t(0.15));
-        this.burst(el, { count: 30, color: [side, '#fff', '#ffcf6b'], speed: [80, 320], gravity: 420, shape: 'chunk', size: [3, 7] });
+        this.fx2(el, (fx, p) => fx.debris(p.x, p.y, side, 1.6));
         await motion(el, { rotate: [0, -85], y: [0, 26], opacity: [1, 0] }, { duration: t(0.5), ease: IN });
         return sleep(Math.max(0, hold - 0.4));
       case 'explode': // royal falls: trembles, then bursts (old "king capture" / "explosion")
         await motion(el, { scale: [1.4, 1], opacity: [0, 1] }, { duration: t(0.22), ease: OUT });
         await motion(el, { x: [0, -6, 6, -5, 5, -3, 3, 0] }, { duration: t(0.4) });
-        this.burst(el, { count: 70, color: ['#fff', side, '#ffcf6b'], speed: [120, 520], size: [3, 8], gravity: 260, shape: 'chunk', life: [0.6, 1.2] });
-        this.burst(el, { count: 40, color: '#fff', speed: [160, 480], size: [2, 4] });
+        this.fx2(el, (fx, p) => { fx.explosion(p.x, p.y, 2.2); fx.debris(p.x, p.y, side, 2); });
         motion(this.host, { x: [0, -14, 12, -8, 6, 0] }, { duration: t(0.5) });
         await motion(el, { scale: [1, 1.5], opacity: [1, 0] }, { duration: t(0.28), ease: OUT });
         return sleep(Math.max(0, hold - 0.4));
@@ -70,7 +70,7 @@ export class Moments {
         await motion(el, { scale: [1.3, 1], opacity: [0, 1] }, { duration: t(0.22), ease: OUT });
         await motion(from, { rotateY: [0, 90] }, { duration: t(0.22), ease: IN });
         from.style.display = 'none'; to.style.display = 'grid';
-        this.burst(el, { count: 40, color: ['#ffcf6b', '#fff', side], speed: [80, 320], gravity: 120 });
+        this.fx2(el, (fx, p) => fx.sparkle(p.x, p.y, '#ffcf6b', 22));
         await motion(to, { rotateY: [-90, 0], scale: [1.25, 1] }, { duration: t(0.4), ease: OUT });
         return sleep(Math.max(0, hold - 0.3));
       }
@@ -81,7 +81,8 @@ export class Moments {
       case 'hit': // boss takes a blow: flash, recoil, splinters
         await motion(el, { opacity: [0, 1] }, { duration: t(0.12) });
         el.classList.add('flash');
-        this.burst(el, { count: 28, color: ['#fff', side], speed: [100, 340], size: [2, 5] });
+        this.burst(el, { count: 18, color: ['#fff', '#ffe2a8'], speed: [260, 560], size: [2, 4], life: [0.18, 0.35], shape: 'spark', drag: 0.85 });
+        this.fx2(el, (fx, p) => fx.debris(p.x, p.y, side, 0.8));
         await motion(el, { x: [0, 18, -10, 5, 0], scale: [1, 0.9, 1.04, 1] }, { duration: t(0.45), ease: OUT });
         el.classList.remove('flash');
         return sleep(Math.max(0, hold - 0.3));
@@ -93,7 +94,7 @@ export class Moments {
         return sleep(Math.max(0, hold - 0.4));
       case 'down': // boss defeated: cracks, topples, rains debris
         await motion(el, { x: [0, -8, 8, -6, 6, 0] }, { duration: t(0.5) });
-        this.burst(el, { count: 90, color: [side, '#fff', '#ffcf6b'], speed: [100, 480], size: [3, 9], gravity: 380, shape: 'chunk', life: [0.7, 1.4] });
+        this.fx2(el, (fx, p) => { fx.explosion(p.x, p.y, 2.6); fx.debris(p.x, p.y, side, 2.4); setTimeout(() => fx.smoke(p.x, p.y + 30, 2), 250); });
         await motion(el, { rotate: [0, -24], y: [0, 14], scale: [1, 0.9], opacity: [1, 0.2] }, { duration: t(0.7), ease: IN });
         return sleep(hold);
       case 'resign': // the classic gesture: the king is laid down on the board

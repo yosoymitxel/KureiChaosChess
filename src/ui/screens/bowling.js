@@ -80,7 +80,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
       const g = ghost(r, Math.max(0, c), 'bm-ghost side-zombie');
       g.innerHTML = pieceSVG(type);
       const p = center(r, c);
-      fx.burst(p.x, p.y, { count: 22, color: [css('--side-zombie'), '#fff', '#ffcf6b'], speed: [70, 260], size: [2, 5], gravity: 320, shape: 'chunk' });
+      fx.debris(p.x, p.y, css('--side-zombie'));
       shake();
       motion(g, { rotate: dir * 95, x: dir * cw * 0.5, opacity: [1, 1, 0] }, { duration: 0.55, ease: 'easeIn', onComplete: () => g.remove() });
     };
@@ -92,7 +92,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
       if (p.r !== e.r || p.c !== e.c) hopPiece(grid, pcOf(e.r, e.c), { from: { row: p.r, col: p.c }, to: { row: e.r, col: e.c }, side: 'zombie', cols: COLS, rows: ROWS });
       if (p.hp !== e.hp) {
         const c = center(e.r, e.c);
-        fx.burst(c.x, c.y, { count: 12, color: ['#fff', css('--side-zombie')], speed: [60, 220], size: [2, 4], life: [0.25, 0.5] });
+        fx.burst(c.x, c.y, { count: 10, color: ['#fff', '#ffe2a8'], speed: [200, 400], size: [1.5, 3], life: [0.15, 0.3], shape: 'spark', drag: 0.85 });
         const el = pcOf(e.r, e.c);
         if (el && p.c === e.c) { // si saltó, el golpe de aterrizaje ya la aplasta
           el.classList.add('hit');
@@ -122,8 +122,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
         motion(g, { y: [0, -ch * 0.9], opacity: [1, 1, 0] }, { duration: 0.8, ease: 'easeOut', onComplete: () => g.remove() });
       } else if (ev.kind === 'boom') {
         const c = center(ev.r, ev.c);
-        fx.ring(c.x, c.y, { radius: cw * 1.6, color: css('--accent'), width: 6, life: 0.45 });
-        fx.burst(c.x, c.y, { count: 40, color: [css('--accent'), '#ffcf6b', '#fff'], speed: [90, 320], size: [2, 6], gravity: 240, shape: 'chunk' });
+        fx.explosion(c.x, c.y, Math.max(1, cw / 40));
         shake(10);
       } else if (ev.kind === 'horde') {
         // El banderín del original: aviso grande sobre la bolera antes de la última oleada.
