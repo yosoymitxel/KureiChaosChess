@@ -531,6 +531,12 @@ export class BoardView {
       return;
     }
 
+    // Anticipación: la figura se agacha un instante antes de despegar y se estira al salir.
+    const fig = this.els.get(piece)?.querySelector('.pc-fig');
+    if (fig && !reduced()) {
+      await animate(fig, { scaleY: 0.86, scaleX: 1.08, duration: this.d(80), ease: 'outQuad' });
+      animate(fig, { scaleY: [0.86, 1.06, 1], scaleX: [1.08, 0.96, 1], duration: this.d(260), ease: 'outQuad' });
+    }
     // Jumpers fly over what is in between: a puddle oozing along the L would hide the jump.
     if (!reduced() && !jumper) await this.liquid(piece, from, to, dur);
     await animate(st, {
@@ -749,6 +755,9 @@ export class BoardView {
     if (royal) { this.shake(26, 800); this.fx.ring(c.x, c.y, { radius: this.sq * 4, width: 8, life: 0.8 }); }
     const dir = Math.sign(to.col - from.col) || (Math.random() < 0.5 ? -1 : 1);
     const stand = el.querySelector('.pc-fig');
+    // Destello blanco del golpe antes de salir despedida: el impacto se lee aunque dure poco.
+    el.classList.add('hit');
+    setTimeout(() => el.classList.remove('hit'), this.d(110));
     animate(stand, { rotate: dir * 95, x: dir * this.sq * 0.4, duration: this.d(380), ease: 'inQuad' });
     await animate(st, {
       c: st.c + dir * 0.6, z: [0, this.sq * 0.8, -this.sq * 0.2], duration: this.d(420), ease: 'outQuad',

@@ -36,7 +36,7 @@ h2 { font-size: 17px; font-weight: 750; }
   cursor: pointer;
   transition: transform 0.14s var(--ease-out), box-shadow 0.14s var(--ease-out), background 0.15s;
 }
-.btn:hover { transform: translateY(-1px); box-shadow: 0 5px 0 var(--edge), var(--lift); }
+@media (hover: hover) and (pointer: fine) { .btn:hover { transform: translateY(-1px); box-shadow: 0 5px 0 var(--edge), var(--lift); } }
 .btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--edge); }
 .btn[disabled] { opacity: 0.45; pointer-events: none; }
 .btn.primary { --bg: var(--accent); --fg: var(--paper); --edge: var(--accent-ink); }
