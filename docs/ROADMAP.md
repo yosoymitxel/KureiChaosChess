@@ -33,7 +33,7 @@ Se actualiza al cerrar cada bloque. La revisión completa del 19/10 añade los b
 - [ ] Formaciones variadas: de 2 a 4 filas, pirámide, pirámide invertida (esquinas fuertes), dos líneas simples; siempre con capa de protección delante del rey.
 - [x] Carta "Organizar": 2/4/6/8 intercambios antes de empezar y botón "Comenzar".
 - [x] Bolos: piezas grandes con más vida según tipo.
-- [ ] Ritmo del mapa al estilo PvZ: niveles normales, minijuego y mini-jefe (variantes de élite), en orden aleatorio pero sensato.
+- [x] Ritmo del mapa al estilo PvZ (20/10): sin descanso tras la primera pelea, nunca minijuegos en pisos seguidos ni obligatorios (como mucho uno por piso, siempre con alternativa) y descanso antes de cada jefe.
 
 ## 3. Minijuegos (referencia: docs/REFERENCE-PVZ.md)
 
@@ -50,7 +50,7 @@ Se actualiza al cerrar cada bloque. La revisión completa del 19/10 añade los b
 ## 3b. Audio, economía y generadores
 
 - [ ] Audio: los sonidos sintetizados actuales son pobres; rehacer con criterio (impacto, captura, interfaz, ambiente opcional y silencioso por defecto).
-- [~] Economía: semilla/flor y monedas por minijuego arregladas (19/10); revisar precios de cartas, mesas y ganancias por nodo de punta a punta.
+- [x] Economía de punta a punta (20/10): una run paga ~240 monedas (165-305) y ~6 semillas; la flor tarda 10 minutos para que el jardín (~300/hora) no pague más que jugar. Mesas 160, cartas 40/70.
 - [ ] Niveles de dificultad de la run, generador de niveles y generador de piezas (formaciones) revisados juntos.
 - [ ] Visual de las piezas: revisar las nuevas (píxel) y la coherencia de la familia.
 - [ ] Ideas futuras: más retro (PvZ, Slay the Spire, Gambonanza).
@@ -68,7 +68,7 @@ Se actualiza al cerrar cada bloque. La revisión completa del 19/10 añade los b
 - [ ] Desbloqueables al estilo Gambonanza: jefes, piezas y temas que se abren al avanzar.
 - [ ] Personalización de tablero, piezas y colores.
 - [x] Logros.
-- [ ] Galería por grupos y temporadas (Halloween, Navidad), con imágenes que se desbloquean.
+- [~] Galería por grupos y temporadas (Halloween, Navidad), con imágenes que se desbloquean. Piezas, logros y galería ya enlazados (20/10); faltan las temporadas.
 
 ## 5. Pedidos del 20/10 (por orden: menos esfuerzo y más impacto primero)
 
@@ -98,7 +98,10 @@ Grandes:
 - [x] Bomberman fiel: enemigos que solo vagan y otros que ponen bombas, tablero más ancho como el original.
 - [~] Ajedrez de siempre: enroque y captura al paso hechos (20/10); faltan niveles de ajedrez clásico con nivel por Elo.
 - [x] Tutorial: run corta de primera vez (4 pisos, una lección por piso, rival en fácil) y acceso desde el diorama.
-- [~] Tableros chicos al principio (8×8 en los primeros pisos); falta revisar el ritmo de cada run.
+- [x] Tableros chicos al principio (8×8 en los primeros pisos) y ritmo de cada run revisado.
+- [x] Pausa con ajustes rápidos y botón Menú; fin de partida con Menú principal (20/10).
+- [x] Niebla: las piezas rivales lejanas son solo bruma (20/10).
+- [ ] Rótulos tipo "Reina caída" que a veces se rompen de alto en PC: no se reproduce en 1280/1366/1920; falta captura del dueño.
 - [~] Animaciones: volver a mirar las librerías (anime.js, Motion) y referencias (componentry, skiper-ui, unlumen, smoothui) para subir el nivel.
 
 ## Pendiente del lado del dueño (cuando tenga la PC)
