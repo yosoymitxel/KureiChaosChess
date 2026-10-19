@@ -94,6 +94,16 @@ export class Match {
         rook.col = m.castle.col; rook.moved = true;
       }
       if (m.ep) res.enPassant = true;
+      // Plaga zombi: el peón derribado se levanta en la casilla que dejó el atacante, para su bando.
+      // Un zombi que cae ya no vuelve.
+      if (this.modifier === 'zombie') {
+        const risen = victims.find((v) => v.killed && v.piece.type === 'pawn' && !v.piece.zombie && !v.piece.royal);
+        if (risen) {
+          const z = { ...risen.piece, id: risen.piece.id + '-z', color: piece.color, row: from.row, col: from.col, hp: 1, zombie: true, moved: true, startRow: -1, extraMoveTypes: undefined, mutationExtras: undefined, canCrown: false };
+          this.pieces.push(z);
+          res.zombie = z;
+        }
+      }
       res.absorbed = this.absorb(piece, victims);
       this.terrainAfterMove(piece, from, res);
     }

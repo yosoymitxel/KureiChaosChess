@@ -91,6 +91,9 @@
 .side-wild { --pc: var(--side-wild); --pc-2: color-mix(in oklch, var(--side-wild), black 40%); }
 /* Zombis de los minijuegos tipo PvZ: verde podrido, distinto del jade del tercer bando. */
 .side-zombie { --pc: var(--side-zombie); --pc-2: color-mix(in oklch, var(--side-zombie), black 45%); }
+/* Peón zombi de la Plaga: figura verde podrida, base del color de su dueño (así se lee de quién es). */
+.pc.zombie .pc-art { --pc: var(--side-zombie); --pc-2: color-mix(in oklch, var(--side-zombie), black 45%); }
+[data-art="pixel"] .pc.zombie .pc-art image { filter: hue-rotate(80deg) saturate(0.7); }
 
 .pc {
   position: absolute; left: 0; top: 0;

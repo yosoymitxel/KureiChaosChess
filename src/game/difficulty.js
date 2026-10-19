@@ -58,6 +58,7 @@ export const MOD_WEIGHTS = {
   rush: [1, 2, 2],
   fog: [0, 1, 2],
   chaos: [0, 1, 2],
+  zombie: [0, 1.5, 2],
   elite: [0, 2, 3],
 };
 export const MINI_WEIGHTS = {

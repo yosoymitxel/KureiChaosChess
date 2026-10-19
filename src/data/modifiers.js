@@ -6,6 +6,7 @@ export const MODIFIERS = {
   fog: { id: 'fog', name: 'Niebla densa', desc: 'El tablero se oscurece lejos de tus piezas.', icon: 'fog' },
   ice: { id: 'ice', name: 'Lago helado', desc: 'Al acabar sobre hielo, la pieza resbala una casilla más.', icon: 'ice' },
   portal: { id: 'portal', name: 'Portales', desc: 'Una pieza que acaba en un portal sale por su gemelo, al otro lado.', icon: 'portal' },
+  zombie: { id: 'zombie', name: 'Plaga zombi', desc: 'Los peones no se quedan muertos: el capturado se levanta como zombi del bando que lo derribó.', icon: 'skull' },
   elite: { id: 'elite', name: 'Élite', desc: 'Su reina solo cae la última; sus torres solo tras su escolta. Recompensa: mutación.', icon: 'swords' },
   boss: { id: 'boss', name: 'El jefe', desc: 'Un coloso de varias casillas guarda el último piso.', icon: 'boss' },
   rest: { id: 'rest', name: 'Descanso', desc: 'Un respiro. Elige un beneficio.', icon: 'rest', kind: 'rest' },

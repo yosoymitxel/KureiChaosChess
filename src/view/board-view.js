@@ -171,7 +171,7 @@ export class BoardView {
   addPiece(p) {
     const el = document.createElement('div');
     const [h, w] = sizeOf(p);
-    el.className = `pc side-${p.color}${p.boss ? ' boss' : ''}`;
+    el.className = `pc side-${p.color}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}`;
     el.dataset.pid = p.id;
     el.style.setProperty('--h', h); el.style.setProperty('--w', w);
     el.style.setProperty('--s', h * w > 1 ? Math.max(h, w) * 0.85 : 1); // multi-cell figures read bigger than one tile
@@ -550,6 +550,7 @@ export class BoardView {
     this.onImpact?.(res);
     if (victims.length) await this.hitStop(victims, victims.some((v) => v.piece.royal) || victims.length > 1 ? 160 : 70);
     await Promise.all(victims.map((v) => this.kill(v.piece, from, to)));
+    if (res.zombie) await this.rise(res.zombie);
     if (res.slide) await this.slide(piece, res.slide);
     if (res.portal) await this.warp(piece, res.portal);
     // Enroque: la torre salta por encima del rey a su lado, en arco corto.
@@ -743,6 +744,20 @@ export class BoardView {
     n.style.left = x + 'px'; n.style.top = y + 'px';
     this.host.appendChild(n);
     animate(n, { y: [0, -50], opacity: [1, 0], scale: [1.4, 1], duration: this.d(900), ease: 'outCubic', onComplete: () => n.remove() });
+  }
+
+  // Plaga zombi: el peón sale de la tierra en verde, sacudiéndose, con esporas alrededor.
+  async rise(p) {
+    const el = this.addPiece(p), st = this.state.get(p);
+    const c = this.centerOf(p);
+    st.z = -this.sq * 0.9; this.apply(p);
+    el.style.opacity = 0;
+    this.fx.burst(c.x, c.y, { count: 18, color: [css('--side-zombie'), 'oklch(0.82 0.12 128)'], speed: [40, 140], life: [0.5, 0.9], size: [3, 6], gravity: -90, drag: 0.9 });
+    this.fx.dust(c.x, c.y, 1.2);
+    animate(el, { opacity: 1, duration: this.d(160) });
+    await animate(st, { z: 0, duration: this.d(420), ease: 'outBack', onUpdate: () => this.apply(p) });
+    const fig = el.querySelector('.pc-fig');
+    if (fig) await animate(fig, { rotate: [0, -8, 7, -4, 0], duration: this.d(360), ease: 'inOutSine' });
   }
 
   async kill(p, from, to) {

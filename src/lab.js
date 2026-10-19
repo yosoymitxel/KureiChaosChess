@@ -62,6 +62,10 @@ const SCENES = {
     const b = board(), pieces = [makePiece('king', 'light', 6, 3), makePiece('king', 'dark', 0, 3)];
     return { b, pieces, collapse: [[0, 0], [6, 6], [2, 6]] };
   },
+  'Plaga zombi': () => {
+    const b = board(), pieces = [makePiece('knight', 'light', 5, 2), makePiece('pawn', 'dark', 3, 3), makePiece('king', 'light', 6, 6), makePiece('king', 'dark', 0, 0)];
+    return { b, pieces, modifier: 'zombie', play: (m) => m.move(pieces[0], { row: 3, col: 3 }) };
+  },
   'Victoria': () => {
     const b = board(), pieces = [makePiece('queen', 'light', 4, 3), makePiece('king', 'light', 6, 3), ...[1, 2, 4, 5].map((c) => makePiece('pawn', 'dark', 1, c)), makePiece('king', 'dark', 0, 3)];
     return { b, pieces, victory: true };
@@ -76,7 +80,7 @@ async function run(name) {
   view.setPieces(s.pieces);
   await view.intro(s.pieces);
   const players = [{ color: 'light', kind: 'human' }, { color: 'dark', kind: 'bot' }];
-  const m = new Match({ board: s.b, pieces: s.pieces, players, modifier: 'none' });
+  const m = new Match({ board: s.b, pieces: s.pieces, players, modifier: s.modifier || 'none' });
   if (s.dark) m.current = 1;
   await new Promise((r) => setTimeout(r, 300));
   if (s.play) { const res = s.play(m); if (res) await view.playMove(res); }

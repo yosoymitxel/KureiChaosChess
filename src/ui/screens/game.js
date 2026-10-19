@@ -249,6 +249,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       else if (res.victims.length) addLog(`${tag}${nm} captura ${res.victims.map((v) => (v.piece.boss ? v.piece.name : pieceName(v.piece).toLowerCase())).join(', ')}`);
       else if (res.castle) addLog(`${tag}Enroque`);
       else addLog(`${tag}${nm} mueve`);
+      if (res.zombie) addLog(`${tag}El peón caído se levanta como zombi`);
       if (res.promoted) {
         addLog(`${tag}¡Coronación!`);
         if (piece.color === d.feats.human) award('crowned');
