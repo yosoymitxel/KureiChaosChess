@@ -53,9 +53,11 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settin
     before.current = was;
     setSel(null);
     const kingTaken = !pieces.some((p) => p.type === 'king' && p.color === 'dark');
+    // La última jugada tiene que dar jaque: forzar al carmesí a entregarse sin jaque es ahogado.
+    const check = capturesKing(pieces);
     const reply = !kingTaken && defend(pieces, left);
     if (reply) pieces = play(pieces, reply.p, reply.m);
-    const mate = kingTaken || capturesKing(pieces);
+    const mate = kingTaken || (capturesKing(pieces) && (check || left > 0));
     if (!pieces.some((p) => p.type === 'king' && p.color === 'light')) {
       const king = st.pieces.find((p) => p.type === 'king' && p.color === 'light');
       if (king) fall.current = { row: king.row, col: king.col, side: 'light' };

@@ -34,25 +34,27 @@ export const captureMove = (pieces, prefer) => {
   return caps.find(({ p }) => prefer && p.id === prefer.id) || caps[0] || null;
 };
 
-// Jugada marfil que fuerza la captura del rey en n jugadas, o null.
-export function solve(pieces, n) {
-  for (const { p, m } of moves(pieces, 'light')) {
+// Jugadas marfil que fuerzan la captura del rey en n. La última tiene que dar jaque: obligar al
+// carmesí a meterse en la captura sin jaque es un ahogado, no un mate.
+export function mateKeys(pieces, n) {
+  return moves(pieces, 'light').filter(({ p, m }) => {
     const a = play(pieces, p, m);
-    if (kingDead(a, 'dark')) continue;
+    if (kingDead(a, 'dark') || (n === 1 && !capturesKing(a))) return false;
     const replies = moves(a, 'dark');
-    const holds = replies.every(({ p: q, m: k }) => {
+    return replies.length > 0 && replies.every(({ p: q, m: k }) => {
       const b = play(a, q, k);
       if (kingDead(b, 'light')) return false;
-      return n === 1 ? capturesKing(b) : !!solve(b, n - 1);
+      return n === 1 ? capturesKing(b) : capturesKing(b) || mateKeys(b, n - 1).length > 0;
     });
-    if (replies.length && holds) return { p, m };
-  }
-  return null;
+  });
 }
+export const solve = (pieces, n) => mateKeys(pieces, n)[0] || null;
 
-// La defensa carmesí: una respuesta que no deje capturable al rey si existe; si no, cualquiera.
+// La defensa carmesí: si puede, captura al rey marfil; si no, una respuesta que no pierda.
 export function defend(pieces, n) {
   const all = moves(pieces, 'dark');
-  const ok = all.filter(({ p, m }) => { const b = play(pieces, p, m); return !(n <= 1 ? capturesKing(b) : solve(b, n - 1)); });
+  const regicide = all.find(({ m }) => m.hits.some((h) => h.type === 'king' && h.color === 'light'));
+  if (regicide) return regicide;
+  const ok = all.filter(({ p, m }) => { const b = play(pieces, p, m); return !(capturesKing(b) || (n > 1 && solve(b, n - 1))); });
   return (ok.length ? ok : all)[0] || null;
 }

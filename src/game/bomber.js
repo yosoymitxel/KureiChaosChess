@@ -1,6 +1,6 @@
 // Bomberman por turnos: cada acción del jugador avanza un tic. Reglas puras, sin DOM.
 export const SIZE = 9;
-const FUSE = 5; // the fuse ticks on the turn you place it: four moves before it blows
+const FUSE = 5, MAX_RANGE = 3;// the fuse ticks on the turn you place it: four moves before it blows
 const L_JUMP = [[-2, -1], [-2, 1], [2, -1], [2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2]];
 const DIAG = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
 const DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
@@ -128,7 +128,8 @@ export function step(s, action, rng = Math.random) {
     const i = s.items.findIndex((it) => it.r === r && it.c === c);
     if (i >= 0) {
       const [it] = s.items.splice(i, 1);
-      if (it.kind === 'bomb') s.maxBombs++; else s.range++;
+      // Alcance con tope: con la mecha de 4 jugadas, un pasillo recto de 4 ya no tiene salida.
+      if (it.kind === 'bomb') s.maxBombs++; else s.range = Math.min(MAX_RANGE, s.range + 1);
     }
   } else if (action.bomb) {
     if (s.bombs.some((b) => b.r === p.r && b.c === p.c) || s.bombs.length >= s.maxBombs) return false;
@@ -139,10 +140,15 @@ export function step(s, action, rng = Math.random) {
   for (const b of [...s.bombs]) if (b.t <= 0 && s.bombs.includes(b)) explode(s, b, s.blast, rng);
   const hit = (r, c) => s.blast.some(([a, b]) => a === r && b === c);
   s.enemies = s.enemies.filter((e) => !hit(e.r, e.c));
-  const clear = (r, c) => free(s, r, c) && !s.enemies.some((o) => o.r === r && o.c === c) && !s.blast.some(([a, b]) => a === r && b === c);
+  // Los enemigos ven venir las bombas a punto de estallar y no se meten en su cruz.
+  const danger = new Set(s.bombs.filter((b) => b.t <= 2).flatMap((b) => blastOf(s, b)).map(({ r, c }) => r * 99 + c));
+  const clear = (r, c) => free(s, r, c) && !s.enemies.some((o) => o.r === r && o.c === c) && !s.blast.some(([a, b]) => a === r && b === c) && !danger.has(r * 99 + c);
   for (const e of s.enemies) {
     const opts = DIRS.map(([dr, dc]) => [e.r + dr, e.c + dc]).filter(([r, c]) => clear(r, c));
-    const pick = e.type === 'pawn'
+    // Lejos del rey deambulan; solo cazan cuando lo tienen cerca, así hay tiempo de preparar la bomba.
+    const far = Math.abs(e.r - p.r) + Math.abs(e.c - p.c) > 4;
+    const pick = far ? (rng() < 0.7 ? opts[Math.floor(rng() * opts.length)] : null)
+      : e.type === 'pawn'
       ? huntStep(s, e, p, opts, clear, rng)
       : mutantStep(s, e, p, clear, rng) || huntStep(s, e, p, opts, clear, rng);
     if (pick) [e.r, e.c] = pick;
