@@ -721,6 +721,16 @@
 /* La última oleada es la horda: su punto es un banderín bermellón. */
 .dots i.flag { border-radius: 2px 6px 6px 2px; width: 12px; outline: 2px solid var(--accent); outline-offset: 1px; }
 /* En Yo, Zombi la fila de compra llama con un + en cada hueco donde cabe la pieza elegida. */
+/* Casillas que la defensa captura: tinte rojo, la lectura que le faltaba al minijuego. */
+.iz .bm-cell.hot { background-color: color-mix(in oklch, var(--tile-a), var(--danger) 48%); }
+.iz .bm-cell.b.hot { background-color: color-mix(in oklch, var(--tile-b), var(--danger) 48%); }
+/* Trofeo por tomar en su columna de la meta (los cerebros de I, Zombie). */
+.iz .bm-cell.trophy::before {
+  content: ''; position: absolute; right: 4%; bottom: 4%; width: 38%; height: 38%; z-index: 3; background: var(--ink);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 3h12v5.5a6 6 0 0 1-12 0zM6 5H3v2a4 4 0 0 0 3.6 4l.6-1.8A2 2 0 0 1 5 7V5zM18 5h3v2a4 4 0 0 1-3.6 4l-.6-1.8A2 2 0 0 0 19 7V5zM10.5 13.5h3v4h-3zM7 17.5h10v3.5H7z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 3h12v5.5a6 6 0 0 1-12 0zM6 5H3v2a4 4 0 0 0 3.6 4l.6-1.8A2 2 0 0 1 5 7V5zM18 5h3v2a4 4 0 0 1-3.6 4l-.6-1.8A2 2 0 0 0 19 7V5zM10.5 13.5h3v4h-3zM7 17.5h10v3.5H7z'/%3E%3C/svg%3E") center / contain no-repeat;
+  opacity: 0.85; pointer-events: none;
+}
 .iz .bm-cell.drop::after { content: '+'; position: absolute; inset: 0; display: grid; place-items: center; font-size: calc(var(--cell) * 0.42); font-weight: 800; color: var(--brass); opacity: 0.9; pointer-events: none; }
 /* En Última resistencia la casilla admite un plano: borde discontinuo, sin signo. */
 .ls .bm-cell.drop { box-shadow: none; outline: 2px dashed var(--brass); outline-offset: -4px; }
