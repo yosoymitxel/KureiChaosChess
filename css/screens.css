@@ -710,6 +710,42 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .bm-item { position: absolute; inset: 15%; display: grid; place-items: center; border-radius: 50%; background: var(--brass); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
 .bm-item .icon { width: 56%; height: 56%; }
 .bm-controls { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; }
+/* Duelo: arena de papel con dos peanas en diagonal, como los combates de Pokémon. */
+.du {
+  position: relative; width: min(100%, 560px); aspect-ratio: 4 / 3.4; max-height: calc(100cqh - 8px);
+  display: grid; grid-template-rows: 1fr 1fr auto; padding: 14px; box-sizing: border-box;
+  border: 3px solid var(--ink); border-radius: 16px; background-color: var(--paper-2); background-image: var(--grain), linear-gradient(to bottom, var(--paper-2), var(--paper-3)); box-shadow: var(--lift);
+}
+.du-foe, .du-me { position: relative; display: flex; align-items: center; gap: 10px; }
+.du-foe { justify-content: space-between; }
+.du-me { justify-content: space-between; }
+.du-fig { position: relative; display: grid; place-items: center; width: clamp(96px, 30%, 160px); aspect-ratio: 1; }
+.du-fig .piece-icon { position: relative; z-index: 1; width: 86% !important; height: 86% !important; filter: drop-shadow(0 6px 4px oklch(0.15 0.03 55 / 0.35)); }
+.du-pad { position: absolute; left: 4%; right: 4%; bottom: 2%; height: 26%; border-radius: 50%; background: color-mix(in oklch, var(--tile-b), var(--ink) 12%); box-shadow: inset 0 -5px 0 oklch(0 0 0 / 0.18), 0 0 0 2px var(--ink); }
+.du-fig.flash .piece-icon { filter: brightness(2.4) saturate(0.2); }
+.du-plate { flex: 1; max-width: 230px; padding: 8px 10px; border: 2px solid var(--ink); border-radius: 10px; background: var(--paper); color: var(--ink); box-shadow: 0 3px 0 var(--ink); }
+.du-name { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.du-name b { font-size: 15px; }
+.du-type { padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 800; color: var(--paper); background: var(--ink-2); }
+.t-linea { --tc: oklch(0.5 0.13 250); } .t-salto { --tc: oklch(0.55 0.13 145); } .t-diagonal { --tc: oklch(0.55 0.16 30); } .t-paso { --tc: oklch(0.5 0.03 70); }
+.du-type[class*="t-"] { background: var(--tc); }
+.du-hp { height: 10px; margin: 6px 0 4px; border-radius: 999px; background: var(--paper-3); border: 2px solid var(--ink); overflow: hidden; }
+.du-hp i { display: block; height: 100%; background: var(--gain); transition: width 0.45s var(--ease-out); }
+.du-hp i.mid { background: var(--brass); } .du-hp i.low { background: var(--danger); }
+.du-row { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--ink-2); }
+.du-tag { padding: 0 6px; border-radius: 6px; background: var(--paper-2); outline: 1.5px solid var(--ink-2); }
+.du-bench { display: flex; gap: 3px; margin-left: auto; }
+.du-bench i { width: 9px; height: 9px; border-radius: 50%; background: var(--ink); }
+.du-bench i.out { background: var(--paper-3); outline: 1.5px solid var(--ink-2); outline-offset: -1.5px; }
+.du-line { margin: 4px 0 0; min-height: 1.4em; padding: 8px 12px; border: 2px solid var(--ink); border-radius: 8px; background: var(--paper); font-weight: 750; color: var(--ink); }
+.du-float { position: absolute; z-index: 3; left: 18%; top: 10%; font: 800 26px/1 var(--font); color: var(--paper); -webkit-text-stroke: 3px var(--ink); paint-order: stroke; pointer-events: none; }
+.du-me .du-float { left: 12%; top: 0; }
+.du-float.crit { color: var(--brass); font-size: 32px; } .du-float.heal { color: var(--gain); } .du-float.miss, .du-float.buff { color: var(--paper-2); font-size: 20px; }
+.du-moves { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+.du-move { display: grid; gap: 2px; padding: 9px 10px; text-align: left; border: 2px solid var(--ink); border-left: 0; border-radius: 10px; background: var(--paper); background-image: linear-gradient(to right, var(--tc) 0 6px, transparent 6px), var(--grain); padding-left: 16px; color: var(--ink); cursor: pointer; box-shadow: 0 3px 0 var(--ink); }
+.du-move b { font-size: 14px; } .du-move small { font-size: 11.5px; color: var(--ink-2); line-height: 1.3; }
+.du-move:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.du-move:disabled { opacity: 0.5; cursor: default; }
 /* Fusión: bandeja de madera con huecos; cada ficha es una losa que sube de papel a latón según su peldaño. */
 .fu {
   --gap: 8px; --size: min(86vw, 440px, calc(100cqh - 16px));
