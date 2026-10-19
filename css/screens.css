@@ -16,6 +16,13 @@
 .diorama .board { animation: settle 1.6s var(--ease-out) both; }
 /* Extras: the labelled pieces show the brass ring on hover and keyboard focus. */
 .diorama .pc.extra:hover .pc-base::after, .diorama .pc.extra:focus-visible .pc-base::after { border-color: var(--brass); }
+.x-tags { position: absolute; inset: 0; pointer-events: none; }
+.x-tag {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, calc(-100% - 6px)); pointer-events: auto; cursor: pointer;
+  padding: 5px 10px; border: 2px solid var(--ink); border-radius: 8px; background: var(--paper); background-image: var(--grain);
+  font: 800 13px/1.1 var(--font); color: var(--ink); white-space: nowrap; box-shadow: 0 3px 0 var(--ink);
+}
+.x-tag:hover { background-color: var(--brass); }
 @keyframes settle {
   from { transform: translateY(calc(var(--sq) * 0.35)) rotateX(var(--tilt)) rotateZ(-22deg); }
   to { transform: translateY(calc(var(--sq) * 0.35)) rotateX(var(--tilt)) rotateZ(-8deg); }

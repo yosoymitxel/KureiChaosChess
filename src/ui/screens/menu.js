@@ -6,9 +6,9 @@ import { makePiece } from '../../game/generate.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
 
 // Decorative diorama: a small board with a boss facing a few pieces, gently swaying.
-// Four jade pieces also open the extras (Jardín Zen, Tienda, Galería, Logros); the menu lists them as buttons too.
+// Four more pieces, labelled above, turn into the extras: Jardín Zen, Tienda, Galería and Logros.
 function Diorama({ onZen, onShop, onGallery, onAchievements }) {
-  const host = useRef(null);
+  const host = useRef(null), tags = useRef(null);
   const open = { 'x-zen': onZen, 'x-tienda': onShop, 'x-galeria': onGallery, 'x-logros': onAchievements };
   useEffect(() => {
     const v = new BoardView(host.current, { camera: 'epic' });
@@ -20,7 +20,8 @@ function Diorama({ onZen, onShop, onGallery, onAchievements }) {
     ];
     v.setBoard(board);
     v.setPieces(pieces);
-    // Listed far to near so the near one paints over the one behind; the host resolves the tap by data-pid.
+    // Extras: four jade pieces wear the boss label and open a screen when tapped. Listed far to
+    // near so the near one paints over the one behind; the host resolves the tap by data-pid.
     for (const [id, label, type, row, col] of [
       ['x-zen', 'Jardín Zen', 'pawn', 3, 0],
       ['x-tienda', 'Tienda', 'knight', 4, 5],
@@ -34,6 +35,12 @@ function Diorama({ onZen, onShop, onGallery, onAchievements }) {
       el.setAttribute('role', 'button');
       el.setAttribute('tabindex', '0');
       el.setAttribute('aria-label', label);
+      const tag = document.createElement('button');
+      tag.className = 'x-tag';
+      tag.tabIndex = -1;
+      tag.textContent = label;
+      tag.dataset.pid = id;
+      tags.current.appendChild(tag);
       el.addEventListener('keydown', (e) => {
         if (e.key !== 'Enter' && e.key !== ' ') return;
         e.preventDefault();
@@ -42,7 +49,20 @@ function Diorama({ onZen, onShop, onGallery, onAchievements }) {
       pieces.push(p);
     }
     v.intro(pieces);
-    return () => v.destroy();
+    // Las etiquetas viven fuera del 3D (si no, el plano del tablero las corta) y siguen a su pieza.
+    let raf;
+    const follow = () => {
+      const box = tags.current.getBoundingClientRect();
+      for (const tag of tags.current.children) {
+        const fig = host.current.querySelector(`[data-pid="${tag.dataset.pid}"] .pc-fig`);
+        if (!fig) continue;
+        const r = fig.getBoundingClientRect();
+        tag.style.translate = `${r.left + r.width / 2 - box.left}px ${r.top + r.height * 0.28 - box.top}px`;
+      }
+      raf = requestAnimationFrame(follow);
+    };
+    follow();
+    return () => { cancelAnimationFrame(raf); tags.current?.replaceChildren(); v.destroy(); };
   }, []);
   const pick = (e) => {
     const fn = open[e.target.closest?.('[data-pid]')?.dataset.pid];
@@ -50,6 +70,7 @@ function Diorama({ onZen, onShop, onGallery, onAchievements }) {
   };
   return html`<div class="diorama-wrap">
     <div class="diorama" ref=${host} role="group" aria-label="Extras" onClick=${pick}></div>
+    <div class="x-tags" ref=${tags} aria-hidden="true" onClick=${pick}></div>
   </div>`;
 }
 
@@ -71,12 +92,6 @@ export function MenuScreen({ hasRun, onNew, onContinue, onHowTo, onSettings, onM
         <button class="btn primary" data-enter onClick=${go(hasRun ? onContinue : onNew)}>${hasRun ? 'Continuar run' : 'Empezar run'}</button>
         ${hasRun && html`<${ConfirmButton} class="btn" onConfirm=${onNew} confirmLabel="Se pierde la run actual. ¿Seguro?">Nueva run<//>`}
         ${onMinis && html`<button class="btn" data-enter onClick=${onMinis}><${Icon} name="connect4" />Minijuegos</button>`}
-        <div class="menu-row menu-extras" data-enter role="group" aria-label="Extras">
-          ${onZen && html`<button class="btn ghost sm" onClick=${go(onZen)}>Jardín Zen</button>`}
-          ${onShop && html`<button class="btn ghost sm" onClick=${go(onShop)}>Tienda</button>`}
-          ${onGallery && html`<button class="btn ghost sm" onClick=${go(onGallery)}>Galería</button>`}
-          ${onAchievements && html`<button class="btn ghost sm" onClick=${go(onAchievements)}>Logros</button>`}
-        </div>
         <div class="menu-row" data-enter>
           <button class="btn ghost" onClick=${onHowTo}><${Icon} name="book" />Reglas</button>
           <button class="btn ghost" onClick=${onSettings}><${Icon} name="gear" />Ajustes</button>
