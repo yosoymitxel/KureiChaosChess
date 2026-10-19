@@ -785,7 +785,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 }
 .bm-cell.boom .bm-tok { --tk: var(--accent); --tk-2: var(--accent-ink); }
 .bm-cell.boom .bm-tok::after { content: ''; position: absolute; left: 50%; top: -34%; width: 3px; height: 40%; background: var(--ink); translate: -50% 0; border-radius: 2px; }
-.bm-cell.boom .bm-tok::before { content: ''; position: absolute; left: 50%; top: -48%; width: 9px; height: 9px; translate: -50% 0; border-radius: 50%; background: #ffcf6b; box-shadow: 0 0 8px 2px #ff8a3d; animation: fuse 0.4s ease-in-out infinite; }
+.bm-cell.boom .bm-tok::before { content: ''; position: absolute; left: 50%; top: -48%; width: 12px; height: 12px; translate: -50% 0; background: radial-gradient(#fff2c2 0 30%, #ffcf6b 31% 60%, #ff8a3d 61%); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
 .bw-chain { position: absolute; z-index: 4; display: grid; place-items: center; font-weight: 800; font-size: calc(var(--cell, 40px) * 0.5); color: var(--paper); -webkit-text-stroke: 2px var(--ink); paint-order: stroke; pointer-events: none; }
 /* Avance de la oleada con el banderín de la horda al 70 %. */
 .bw-wave { display: flex; align-items: center; gap: 8px; flex: 1 1 180px; }
