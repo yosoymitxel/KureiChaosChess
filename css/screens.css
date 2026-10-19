@@ -772,9 +772,10 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 @keyframes fuse { 50% { transform: scale(0.55); opacity: 0.7; } }
 @keyframes shock { from { transform: scale(0.35); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
 /* Matamarcianos: la bola en vuelo, las vidas y el mando de dos teclas. */
-.mm-shot { position: absolute; z-index: 2; inset: 34%; border-radius: 50%; background: var(--brass); box-shadow: inset 0 0 0 2px var(--ink); }
-.mm-bolt { position: absolute; z-index: 2; inset: 18% 40%; border-radius: 6px; background: var(--danger); box-shadow: inset 0 0 0 2px var(--ink); animation: bolt 0.5s ease-in-out infinite alternate; }
-@keyframes bolt { to { transform: translateY(12%); } }
+.mm-shot { position: absolute; z-index: 2; inset: 34%; border-radius: 50%; background: var(--brass); box-shadow: inset 0 0 0 2px var(--ink); animation: shot-up 0.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes shot-up { from { translate: 0 calc(var(--cell) * 4); } }
+.mm-bolt { position: absolute; z-index: 2; inset: 18% 40%; border-radius: 6px; background: var(--danger); box-shadow: inset 0 0 0 2px var(--ink); animation: bolt-down 0.22s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes bolt-down { from { translate: 0 calc(var(--cell) * -2); } }
 /* Tu fila, marcada: pisarla cuesta una vida. */
 .mm .bm-cell.home { background-color: color-mix(in oklch, var(--tile-a), var(--side-light) 40%); }
 .mm-lives { display: inline-flex; gap: 4px; }
