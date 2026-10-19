@@ -710,6 +710,35 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .bm-item { position: absolute; inset: 15%; display: grid; place-items: center; border-radius: 50%; background: var(--brass); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
 .bm-item .icon { width: 56%; height: 56%; }
 .bm-controls { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; }
+/* Fusión: bandeja de madera con huecos; cada ficha es una losa que sube de papel a latón según su peldaño. */
+.fu {
+  --gap: 8px; --size: min(86vw, 440px, calc(100cqh - 16px));
+  --cell: calc((var(--size) - var(--gap) * (var(--n) + 1)) / var(--n)); --step: calc(var(--cell) + var(--gap));
+  position: relative; width: var(--size); height: var(--size); padding: var(--gap); box-sizing: border-box;
+  display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: var(--gap); touch-action: none;
+  border: 3px solid var(--ink); border-radius: 16px; background: color-mix(in oklch, var(--tile-side), black 12%); box-shadow: var(--lift);
+}
+.fu-cell { border-radius: 10px; background: color-mix(in oklch, var(--tile-side), black 30%); box-shadow: inset 0 3px 0 oklch(0 0 0 / 0.25); }
+.fu-tile {
+  position: absolute; left: var(--gap); top: var(--gap); width: var(--cell); height: var(--cell); display: grid; place-items: center;
+  border: 2px solid var(--ink); border-radius: 10px; background: var(--fu, var(--paper)); background-image: var(--grain);
+  box-shadow: 0 4px 0 color-mix(in oklch, var(--fu, var(--paper)), black 40%);
+  transition: translate 130ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 120ms ease 90ms;
+}
+.fu-tile .piece-icon { width: 72% !important; height: 72% !important; }
+.fu-tile.born { animation: fu-born 220ms cubic-bezier(0.16, 1, 0.3, 1) 110ms both; }
+.fu-tile.merged { animation: fu-merge 220ms cubic-bezier(0.16, 1, 0.3, 1) 110ms; z-index: 2; }
+.fu-tile.gone { opacity: 0; z-index: 1; }
+@keyframes fu-born { from { scale: 0.6; opacity: 0; } }
+@keyframes fu-merge { 50% { scale: 1.14; } }
+.fu-tile.lv1 { --fu: oklch(0.92 0.03 85); } .fu-tile.lv2 { --fu: oklch(0.89 0.05 82); } .fu-tile.lv3 { --fu: oklch(0.86 0.07 80); }
+.fu-tile.lv4 { --fu: oklch(0.83 0.09 78); } .fu-tile.lv5 { --fu: oklch(0.8 0.11 76); } .fu-tile.lv6 { --fu: oklch(0.77 0.12 72); }
+.fu-tile.lv7 { --fu: var(--brass); } .fu-tile.lv8 { --fu: color-mix(in oklch, var(--brass), var(--accent) 35%); }
+.fu-goal { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--paper); }
+.fu-goal span { font-size: 13px; color: var(--paper-3); }
+.fu-ladder { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.fu-ladder li { padding: 3px; border-radius: 6px; opacity: 0.4; }
+.fu-ladder li.on { opacity: 1; background: color-mix(in oklch, var(--paper), transparent 85%); }
 .bm-pad { display: grid; gap: 6px; grid-template-areas: '. up .' 'left . right' '. down .'; }
 .bm-pad .btn { min-width: 44px; min-height: 44px; justify-content: center; font-size: 16px; }
 .bm-pad .pad-up { grid-area: up; }
