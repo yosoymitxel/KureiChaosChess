@@ -74,7 +74,7 @@ export function useEnter(ref, selector = '[data-enter]') {
 }
 
 // Card tilts toward the pointer like a card held in hand (Magic UI / Kokonut tilt-card pattern).
-function Card({ card, chosen, onPick }) {
+function Card({ card, chosen, onPick, style }) {
   const ref = useRef(null);
   const onMove = (e) => {
     const r = ref.current.getBoundingClientRect();
@@ -83,7 +83,7 @@ function Card({ card, chosen, onPick }) {
     ref.current.style.setProperty('--rx', (0.5 - y) * 14 + 'deg');
   };
   const onLeave = () => { ref.current.style.setProperty('--rx', '0deg'); ref.current.style.setProperty('--ry', '0deg'); };
-  return html`<div ref=${ref} class=${'card' + (chosen ? ' chosen' : '')} data-deal
+  return html`<div ref=${ref} class=${'card' + (chosen ? ' chosen' : '')} data-deal style=${style}
       onPointerMove=${onMove} onPointerLeave=${onLeave} onClick=${() => onPick(card)} role="button" tabindex="0"
       onKeyDown=${(e) => (e.key === 'Enter' || e.key === ' ') && onPick(card)}>
     <${CardFace} card=${card} />
@@ -122,8 +122,13 @@ export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = 'Qu
     <${Topbar} title=${title} />
     <div class="pick-body">
       <p class="pick-sub">${subtitle}</p>
-      <div class="card-row" ref=${row}>
-        ${cards.map((c) => html`<${Card} key=${c.id} card=${c} chosen=${chosen?.id === c.id} onPick=${setChosen} />`)}
+      <div class=${'card-row' + (chosen ? ' has-sel' : '')} ref=${row}>
+        ${cards.map((c, i) => {
+          // --k: distancia a la elegida (o al centro): la elegida avanza y las demás se juntan detrás.
+          const sel = cards.findIndex((x) => x.id === chosen?.id);
+          const k = sel < 0 ? i - (cards.length - 1) / 2 : i - sel;
+          return html`<${Card} key=${c.id} card=${c} chosen=${chosen?.id === c.id} onPick=${setChosen} style=${{ '--k': k, zIndex: 10 - Math.round(Math.abs(k) * 2) }} />`;
+        })}
       </div>
       <button class="btn primary" disabled=${!chosen} onClick=${() => chosen && onConfirm(chosen)}>${confirmLabel}</button>
     </div>

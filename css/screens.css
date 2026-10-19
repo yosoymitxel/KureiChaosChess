@@ -139,11 +139,21 @@
 /* Rewards */
 .pick-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding: 0 16px 40px; overflow: auto; }
 .pick-sub { margin: 0; color: var(--paper-2); }
-/* En teléfono las tres cartas no entran a lo ancho: la fila pasa a carril con scroll horizontal
-   y cada carta conserva el ancho mínimo legible (200px), sin cortar la descripción. */
+/* Elegir premio: la carta tocada avanza y las otras se apagan y se juntan hacia ella. */
+.pick .card-row > .card { transition: translate 0.4s var(--ease-out), scale 0.4s var(--ease-out), rotate 0.4s var(--ease-out), filter 0.4s var(--ease-out); }
+.pick .card-row.has-sel > .card:not(.chosen) { scale: 0.9; translate: calc(var(--k) * -18px) 10px; filter: brightness(0.7) saturate(0.7); }
+.pick .card-row > .card.chosen { scale: 1.06; }
+/* En teléfono no caben a lo ancho: abanico superpuesto sin scroll. La del centro (o la elegida)
+   va delante a tamaño legible; las demás asoman detrás y se tocan para traerlas. */
 @media (max-width: 680px) {
-  .pick .card-row { width: 100%; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; overscroll-behavior-x: contain; padding-block: 26px 8px; }
-  .pick .card-row > .card { flex: none; width: min(84vw, 220px); }
+  .pick .card-row { --cw: min(70vw, 220px); position: relative; display: block; width: 100%; height: calc(var(--cw) * 1.48 + 34px); }
+  .pick .card-row > .card {
+    position: absolute; left: 50%; top: 18px; width: var(--cw); margin-left: calc(var(--cw) / -2);
+    translate: calc(var(--k) * 34%) calc(var(--k) * var(--k) * 8px); rotate: calc(var(--k) * 6deg); scale: 0.86;
+  }
+  .pick .card-row.has-sel > .card:not(.chosen) { translate: calc(var(--k) * 30%) 18px; rotate: calc(var(--k) * 9deg); scale: 0.74; }
+  .pick .card-row > .card.chosen { translate: 0 -4px; rotate: 0deg; scale: 1; }
+  .pick-body { justify-content: flex-start; padding-top: 8px; overflow-x: hidden; }
 }
 
 /* Game: the board is the focal point, the HUD is a score sheet beside it. */
