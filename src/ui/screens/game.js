@@ -342,9 +342,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const placeClear = () => { d.psel = null; d.view.select(null); d.view.clearMarks(); };
     const placeSwap = async (a, b) => {
       if (d.swapping || !a || !b || a === b || !mine.has(a.color) || !mine.has(b.color)) return;
-      if (d.placing.left < 2) { addLog('Organizar: ya no quedan piezas por acomodar'); return placeClear(); }
+      if (d.placing.left < 1) { addLog('Organizar: ya no quedan intercambios'); return placeClear(); }
       d.swapping = true;
-      d.placing.left -= 2;
+      d.placing.left -= 1;
       setPlacing({ ...d.placing });
       placeClear();
       addLog(`Organizar: ${PIECE_NAMES[a.type].toLowerCase()} ↔ ${PIECE_NAMES[b.type].toLowerCase()}`);
@@ -361,19 +361,18 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     };
     const beginPlacing = () => {
       if (d.hand.indexOf('organize') < 0 || !mine.size) { d.busy = false; return startTurn(); }
-      // Tableros de 9 a 12 casillas por lado: dos piezas por cada fila extra sobre ocho.
-      const total = 2 * Math.max(1, Math.min(4, Math.min(board.rows, board.cols) - 8));
+      // La carta se juega sola al empezar y sale de la mano: 2, 4, 6 u 8 intercambios según el tablero (8×8 a 11×11+).
+      const total = 2 * Math.max(1, Math.min(4, Math.min(board.rows, board.cols) - 7));
+      d.feats.cards++;
+      d.onUseCard(d.hand.indexOf('organize'));
       d.placing = { total, left: total };
       d.busy = true;
-      addLog(`Organizar: intercambia hasta ${total} piezas y pulsa Comenzar`);
-      d.moments.callout({ text: 'Organizar', sub: `Acomoda tu formación: hasta ${total} piezas`, icon: 'swap', tone: 'brass', tier: 'info' });
+      addLog(`Carta Organizar: hasta ${total} intercambios antes de empezar`);
+      d.moments.callout({ text: 'Organizar', sub: `Antes de empezar: intercambia hasta ${total} parejas de piezas tuyas`, icon: 'swap', tone: 'brass', tier: 'info' });
       setPlacing({ total, left: total });
     };
     d.endPlacing = () => {
       if (!d.placing) return;
-      const used = d.placing.total - d.placing.left;
-      const i = d.hand.indexOf('organize');
-      if (used > 0 && i >= 0) { d.feats.cards++; d.onUseCard(i); addLog('Carta: Organizar'); }
       d.placing = null;
       placeClear();
       setPlacing(null);
@@ -490,8 +489,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       <div class="board-host" ref=${hostRef}></div>
       ${placing && html`<div class="place-bar" role="group" aria-label="Fase Organizar">
         <div>
-          <strong>Organizar</strong>
-          <small>${placing.left > 0 ? `Quedan ${placing.left} piezas por acomodar.` : 'Ya acomodaste tus piezas.'} Toca o arrastra una pieza tuya sobre otra para intercambiarlas.</small>
+          <strong>Carta Organizar · ${placing.left} de ${placing.total} intercambios</strong>
+          <small>${placing.left > 0 ? 'Toca una pieza tuya y luego otra para cambiarlas de casilla.' : 'Ya no quedan intercambios.'} Pulsa Comenzar cuando quieras.</small>
         </div>
         <button class="btn primary sm" autofocus onClick=${() => ref.current.endPlacing()}>Comenzar</button>
       </div>`}

@@ -159,7 +159,7 @@
   padding: 10px 12px 10px 14px; border: 2px solid var(--ink); border-radius: var(--r-md);
   background: var(--paper); background-image: var(--grain); box-shadow: var(--lift);
 }
-.place-bar strong { display: block; font-size: 15px; }
+.place-bar strong { display: block; font-size: 15px; color: var(--ink); }
 .place-bar small { color: var(--ink-2); font-size: 12px; line-height: 1.35; }
 .place-bar .btn { flex-shrink: 0; }
 /* Pellizco: el botón cuadrado devuelve el encuadre cuando hay zoom. */

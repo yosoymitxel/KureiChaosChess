@@ -64,7 +64,7 @@ export const CARDS = {
   },
   organize: {
     id: 'organize', name: 'Organizar', rarity: 'common', icon: 'swap', target: 'none', preMatch: true,
-    desc: 'Antes del primer turno acomoda tu formación: intercambia hasta ocho piezas (las que quepan en el tablero).',
+    desc: 'Se juega sola al empezar la próxima partida: intercambia de casilla de 2 a 8 parejas de tus piezas (más cuanto más grande el tablero).',
     apply: () => {},
   },
 };
