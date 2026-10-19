@@ -683,6 +683,16 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .bm-pc svg { width: 100%; height: 100%; }
 .bm-bomb { display: grid; place-items: center; width: 62%; aspect-ratio: 1; border-radius: 50%; background: var(--ink); color: var(--paper); font-weight: 800; font-size: calc(var(--cell) * 0.32); box-shadow: inset 0 -3px 0 oklch(1 0 0 / 0.15); }
 .bm-bomb.soon { background: var(--danger); color: var(--paper); }
+/* La bomba del cañón enemigo lleva su color y un aro carmesí, para no confundirla con la tuya. */
+.bm-bomb.foe { background: color-mix(in oklch, var(--side-dark), black 45%); outline: 3px solid var(--side-dark); outline-offset: -1px; }
+/* Puerta de salida, como la del NES: un portón de piedra que se abre cuando no queda nadie. */
+.bm-door { position: absolute; inset: 12% 16% 8%; border-radius: 40% 40% 6px 6px; background: linear-gradient(to right, transparent 47%, var(--ink) 47% 53%, transparent 53%), oklch(0.42 0.04 60); box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 5px oklch(0.6 0.03 70); }
+.bm-cell.door.live .bm-door { background: radial-gradient(ellipse at 50% 70%, var(--brass), oklch(0.5 0.1 70) 70%); }
+.bm-foes { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; width: 100%; }
+.bm-foes li { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 1.3; color: var(--paper-2); }
+.bm-foes b { color: var(--paper); }
+.bm-foe-ic { flex: none; width: 26px; height: 26px; }
+.bm-foe-ic svg { width: 100%; height: 100%; }
 .bm-item { position: absolute; inset: 15%; display: grid; place-items: center; border-radius: 50%; background: var(--brass); color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
 .bm-item .icon { width: 56%; height: 56%; }
 .bm-controls { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; }
