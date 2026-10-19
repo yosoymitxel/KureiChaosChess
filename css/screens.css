@@ -751,7 +751,7 @@
 .mini-main .mini-stage:has(.bw) { flex: none; min-height: 0; height: min(50dvh, 400px); }
 .bw .bm-cell.lane:nth-child(9n + 1)::before { counter-increment: lane; content: counter(lane); position: absolute; top: 0; left: 3px; z-index: 2; font-size: max(11px, calc(var(--cell) * 0.24)); font-weight: 800; color: var(--ink-2); pointer-events: none; }
 /* La línea roja del original: hasta ahí se lanza. */
-.bw .bm-cell.line { border-right: 3px solid var(--accent); }
+.bw .bm-cell.line { background-image: linear-gradient(to left, var(--accent) 3px, transparent 3px); }
 .bw .bm-cell.drop { box-shadow: none; }
 /* La ficha que rueda va como elemento para que Motion la pueda mover entre casillas. */
 .bm-tok { position: absolute; inset: 16%; border-radius: 50%; background: var(--side-light); border: calc(var(--cell) * 0.08) solid color-mix(in oklch, var(--side-light), var(--ink) 35%); outline: 2px solid var(--ink); outline-offset: -2px; pointer-events: none; z-index: 1; }
