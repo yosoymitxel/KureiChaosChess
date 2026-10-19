@@ -217,7 +217,7 @@
 .hand-card .type { display: none; }
 /* Rareza visible en la mano: la gema de la carta grande, en pequeño, en la esquina izquierda del
    arte. Ahí la ve el abanico (la derecha la tapa la vecina) y el nombre no pierde ancho. */
-.hand-card .gem { position: absolute; left: 5px; bottom: 5px; width: 11px; height: 11px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 2.5px; background: var(--paper-3); }
+.hand-card .gem { position: absolute; left: 5px; bottom: 5px; width: 15px; height: 15px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 2.5px; background: var(--paper-3); }
 .hand-card .gem.rare { background: var(--accent); }
 .hand-card .gem.epic { background: var(--brass); box-shadow: inset 0 0 0 2px var(--paper); }
 .hand-card:hover:not(:disabled), .hand-card:focus-visible { transform: translateY(-22px) rotate(0deg) scale(1.12); z-index: 2; }

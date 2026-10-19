@@ -101,9 +101,11 @@ h2 { font-size: 17px; font-weight: 750; }
 .card .gem { position: absolute; top: 15px; right: 15px; width: 16px; height: 16px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 3px; background: var(--paper-3); }
 .card .gem.rare { background: var(--accent); }
 .card .gem.epic { background: var(--brass); box-shadow: inset 0 0 0 3px var(--paper); }
-/* Rareza visible en el borde de la carta: comun = tinta, rara = acento, epica = laton. */
-.card .face.rare, .hand-card .face.rare { border-color: var(--accent); }
-.card .face.epic, .hand-card .face.epic { border-color: var(--brass); }
+/* Rareza con canal propio, independiente del color del tipo (el relleno del marco): el canto.
+   Común con canto simple de tinta, rara con canto doble de tinta, épica con canto doble de latón y cartela de latón. */
+.card .face.rare, .hand-card .face.rare { border: 6px double var(--ink); }
+.card .face.epic, .hand-card .face.epic { border: 6px double var(--brass); }
+.card .face.epic .plate, .hand-card .face.epic .plate { background: var(--brass); color: var(--ink); }
 /* Every figure on a card is paper with an ink outline, so stamped icons and piece art read the same. */
 :is(.card, .hand-card) .art {
   flex: 1; display: grid; place-items: center; border-radius: 8px; border: 2px solid var(--ink);

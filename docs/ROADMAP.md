@@ -5,12 +5,19 @@ Se actualiza al cerrar cada bloque. La revisión completa del 19/10 añade los b
 
 ## 0. Bugs y parches (primero)
 
-- [ ] Jefes: tocar cualquier casilla del jefe debe elegirlo como un solo objetivo (hoy hay toques fallidos que acaban costando el rey).
-- [ ] Rótulos y banners: cola con prioridad (jaque > rey/reina caída > derrumbe > resto) y "Tu turno" siempre al final; nunca solapados.
-- [ ] Mate en 1 y 2: hay problemas que no son mate; revalidar todos.
-- [ ] Bomberman: la mecha no da tiempo a escapar; enemigos con algo de intención.
-- [ ] Detector de impeccable: 2 fallos nuevos (brillos de color) y rayas con gradiente repetido.
-- [ ] Animación del salto del caballo y la base líquida: comprobar que siguen.
+- [x] Jefes: tocar el jefe lo elige como un solo objetivo y se juega la jugada que lo golpea (19/10).
+- [x] Ninguna partida normal o de élite empieza con una pieza colgando (antes 117 de 300). Con jefe sigue pasando en 1 de cada 5: el jefe alcanza la primera fila de entrada; falta colocarlo más atrás.
+- [x] Rareza de cartas: canto doble de tinta (rara) o latón (épica), gema más grande (19/10).
+- [ ] Rótulos y banners: cola con prioridad (jaque > rey/reina caída > derrumbe > resto), el bot espera a que terminen y "Tu turno" siempre al final.
+- [x] Mate en 1 y 2: solo mates reales, 15+15 problemas verificados (19/10).
+- [~] Bomberman: alcance con tope y enemigos que esquivan (19/10).
+- [x] Detector de impeccable en 0 (19/10).
+- [ ] Salto del caballo: el efecto líquido corre antes del salto y lo tapa; quitarlo para los saltadores.
+- [ ] Cañón: hoy tiene alcance 4; debe moverse como torre. Guardia: el doble paso en diagonal no debe poder ir hacia atrás.
+- [ ] Carta "Organizar": el cupo cuenta piezas y no intercambios (un tablero 9×9 da uno solo); título ilegible.
+- [ ] Zoom: hace falta desplazar con dos dedos y ampliar desde el punto del pellizco.
+- [ ] Info de terreno al pasar o mantener pulsado, sin cola.
+- [ ] Menú: con una mesa de pago no comprada, el diorama se pinta a píxel antes de volver a la de serie.
 
 ## 1. Claridad de la partida
 
