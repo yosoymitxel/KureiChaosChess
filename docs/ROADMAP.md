@@ -101,7 +101,8 @@ Grandes:
 - [x] Tableros chicos al principio (8×8 en los primeros pisos) y ritmo de cada run revisado.
 - [x] Pausa con ajustes rápidos y botón Menú; fin de partida con Menú principal (20/10).
 - [x] Niebla: las piezas rivales lejanas son solo bruma (20/10).
-- [ ] Rótulos tipo "Reina caída" que a veces se rompen de alto en PC: no se reproduce en 1280/1366/1920; falta captura del dueño.
+- [x] Rótulos tipo "Reina caída" que se rompían de alto: la entrada "desde arriba" encogía la banda; ahora el rótulo cae entero. Usan el arte de la mesa (píxel).
+- [x] Insignias: frasco = mutación tuya, estrella = movimientos prestados por el jefe (antes eran la misma).
 - [~] Animaciones: volver a mirar las librerías (anime.js, Motion) y referencias (componentry, skiper-ui, unlumen, smoothui) para subir el nivel.
 
 ## Pendiente del lado del dueño (cuando tenga la PC)
