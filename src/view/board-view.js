@@ -412,12 +412,16 @@ export class BoardView {
       const d = Math.hypot(+t.dataset.r - (rows - 1) / 2, +t.dataset.c - (cols - 1) / 2);
       t.style.setProperty('--d', d);
     });
+    // Las piezas se ocultan ya: si no, se ven quietas mientras sube el tablero y luego "vuelven" a caer.
+    for (const p of pieces) this.els.get(p).style.opacity = 0;
     animate(tiles, {
       opacity: [0, 1], z: [-120, 0], duration: this.d(520), ease: 'outExpo',
       delay: (el) => this.d(+el.style.getPropertyValue('--d') * 45),
     });
     await wait(this.d(260));
-    const order = pieces.slice().sort((a, b) => (a.color === 'light' ? b.row - a.row : a.row - b.row));
+    // El jefe no baja con el resto: espera fuera de cuadro y cae una sola vez, con su impacto.
+    const boss = pieces.find((p) => p.boss);
+    const order = pieces.filter((p) => p !== boss).sort((a, b) => (a.color === 'light' ? b.row - a.row : a.row - b.row));
     order.forEach((p, i) => {
       const st = this.state.get(p), el = this.els.get(p);
       st.z = this.sq * 4; this.apply(p); el.style.opacity = 0;
@@ -429,12 +433,13 @@ export class BoardView {
       });
     });
     await wait(this.d(order.length * 22 + 480));
-    if (pieces.some((p) => p.boss)) await this.bossEntrance(pieces.find((p) => p.boss));
+    if (boss) await this.bossEntrance(boss);
   }
 
   async bossEntrance(boss) {
     const st = this.state.get(boss);
     st.z = this.sq * 6; this.apply(boss);
+    this.els.get(boss).style.opacity = 1;
     await animate(st, { z: 0, duration: this.d(520), ease: 'inCubic', onUpdate: () => this.apply(boss) });
     const c = this.centerOf(boss);
     this.shake(16, 600);

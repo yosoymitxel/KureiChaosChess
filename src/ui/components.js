@@ -133,7 +133,9 @@ export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = 'Qu
 export function TurnBanner({ text, side }) {
   const ref = useRef(null);
   useEffect(() => {
-    const a = motion(ref.current, { x: ['-110%', '0%', '0%', '110%'], opacity: [0, 1, 1, 0] }, { duration: 1.25, times: [0, 0.25, 0.75, 1], ease: 'easeInOut' });
+    // Entra por un lado al azar y sale por el contrario; empieza oculta (CSS) para no asomar antes.
+    const s = Math.random() < 0.5 ? 1 : -1;
+    const a = motion(ref.current, { x: [`${-110 * s}%`, '0%', '0%', `${110 * s}%`], opacity: [0, 1, 1, 0] }, { duration: 1.25, times: [0, 0.25, 0.75, 1], ease: 'easeInOut' });
     return () => a.stop?.();
   }, [text]);
   return html`<div class=${'turn-banner side-' + side} ref=${ref}><span>${text}</span></div>`;

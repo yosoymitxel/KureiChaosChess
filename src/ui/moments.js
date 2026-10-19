@@ -133,7 +133,9 @@ export class Moments {
     motion(el.querySelectorAll('.bar'), { scaleY: [0, 1] }, { duration: this.t(0.35), ease: OUT });
     motion(q('.cine-text h2'), { clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)'] }, { duration: this.t(0.5), delay: this.t(0.12), ease: OUT });
     motion(el.querySelectorAll('.cine-text p, .cine-hp, .cine-skip'), { opacity: [0, 1], y: [10, 0] }, { duration: this.t(0.4), delay: this.t(0.3), ease: OUT });
-    if (!anim) motion(q('.cine-art'), { x: [120, 0], opacity: [0, 1] }, { duration: this.t(0.55), ease: OUT });
+    // La figura entra por la derecha, la izquierda o desde arriba, para que no se repita siempre igual.
+    const from = [{ x: [120, 0] }, { x: [-120, 0] }, { y: [-140, 0] }][Math.floor(Math.random() * 3)];
+    if (!anim) motion(q('.cine-art'), { ...from, opacity: [0, 1] }, { duration: this.t(0.55), ease: OUT });
     const art = anim ? this.animate(anim, q('.cine-art'), piece, this.t(1.2)) : sleep(this.t(1.7));
     const waveDone = wave ? this.animate('spawn', q('.cine-wave'), null, 0) : null;
     await Promise.race([Promise.all([art, waveDone]), skipped]);
