@@ -48,6 +48,7 @@ export function HowToOverlay({ onClose }) {
     <div class="panel howto" role="dialog" aria-modal="true" aria-label="Cómo se juega">
       <h1>Cómo se juega</h1>
       <p>Captura el rey enemigo. Si la partida se estanca, gana quien tenga más piezas. Toca una pieza enemiga para ver su alcance en rojo. Con teclado: flechas para moverte por el tablero, Enter para elegir, Escape para pausar.</p>
+      <p>Valen el enroque (rey y torre sin mover, camino libre y sin pasar por casillas atacadas: el rey avanza dos hacia la torre y ella salta a su lado) y la captura al paso (tras el doble paso de un peón, el rival puede comérselo en la jugada siguiente como si hubiera avanzado uno).</p>
       <div class="rules">
         ${PIECE_RULES.map(([t, txt]) => html`<div class="rule"><${PieceIcon} type=${t} side="light" size=${40} /><div><strong>${PIECE_NAMES[t]}</strong><span>${txt}</span></div></div>`)}
       </div>
