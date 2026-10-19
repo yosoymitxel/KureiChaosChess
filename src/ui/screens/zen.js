@@ -47,10 +47,16 @@ const PEEBLES = html`<span class="zn-stand zn-pebbles" aria-hidden="true"><svg v
 </svg></span>`;
 // El estanque ocupa cuatro celdas: agua, ondas y nenúfar en flor; los juncos y los guijarros
 // van de pie en la orilla, como el resto de las piezas del cantero.
-const POND = html`<span class="bm-cell zen-pond zn-soil" aria-hidden="true"><svg class="zn-pondart" viewBox="0 0 48 48">
-  <path class="zn-water" d="M4.5 29C4.5 15.5 12.6 6.4 24 6.4S43.5 15.5 43.5 29c0 8.4-6.7 14-19.5 14S4.5 37.4 4.5 29z"/>
+// Orilla de piedras alrededor del agua, en orden (ángulo, radio, tamaño) para que no parezca un anillo.
+const RIM = [[0, 1, 2.6], [28, 1.04, 2.1], [55, 0.98, 2.8], [90, 1.03, 2.2], [122, 1, 2.9], [150, 1.05, 2], [182, 0.99, 2.7], [210, 1.04, 2.3], [240, 1, 3], [270, 1.03, 2.1], [300, 0.98, 2.6], [332, 1.04, 2.2]]
+  .map(([a, k, r]) => [24 + Math.cos((a * Math.PI) / 180) * 19.5 * k, 25 + Math.sin((a * Math.PI) / 180) * 17 * k, r]);
+const POND = html`<span class="bm-cell zen-pond" aria-hidden="true"><svg class="zn-pondart" viewBox="0 0 48 48">
+  <defs><radialGradient id="zn-water-g" cx="45%" cy="40%" r="65%"><stop offset="0" class="zn-shallow"/><stop offset="1" class="zn-deep"/></radialGradient></defs>
+  <ellipse class="zn-water" cx="24" cy="25" rx="19" ry="16.5"/>
+  <g class="zn-koi"><path d="M24 12.2c2.6.2 4.4 1 5.6 2.1-1.2 1.1-3 1.8-5.6 2-1 .1-1.9-.5-2.4-.9l-2.2 1.4.6-2.5-.6-2.5 2.2 1.4c.5-.4 1.4-1.1 2.4-1z"/><circle class="zn-koi-spot" cx="26.4" cy="13.9" r=".9"/></g>
   <path class="zn-rip" d="M14 27.5c0-4.4 4-7.3 9-7.3"/>
   <path class="zn-rip" d="M17.5 35.5c0-2.4 2.7-4.3 6.2-4.3"/>
+  ${RIM.map(([x, y, r]) => html`<ellipse class="zn-stone" cx=${x.toFixed(1)} cy=${y.toFixed(1)} rx=${r} ry=${(r * 0.78).toFixed(2)}/>`)}
   <path class="zn-lily" d="M30 34.6 34.3 32.9A4.1 4.1 0 1 1 33.8 37.7Z"/>
   <circle class="zn-petal" cx="30" cy="31" r="1.25"/><circle class="zn-petal" cx="31" cy="31.7" r="1.25"/><circle class="zn-petal" cx="30.6" cy="32.8" r="1.25"/><circle class="zn-petal" cx="29.4" cy="32.8" r="1.25"/><circle class="zn-petal" cx="29" cy="31.7" r="1.25"/><circle class="zn-dot" cx="30" cy="32" r=".75"/>
 </svg>${REEDS}${PEEBLES}</span>`;
@@ -67,14 +73,17 @@ const LANTERN = html`<span class="zn-stand zn-lantern" aria-hidden="true"><svg v
 </svg></span>`;
 
 // Una maceta completa: el tiesto siempre, la planta encima según su etapa.
-function potArt(kind, stage) {
+// El follaje va en su propio grupo para mecerse sobre el tiesto quieto; `d` desfasa cada planta.
+function potArt(kind, stage, d = 0) {
   const grown = stage === 'bud' || stage === 'bloom';
   const stem = grown ? 'M12 15.3V9.5' : stage === 'sprout' ? 'M12 15.3V12.6' : '';
   return html`<svg class="zn-plant" viewBox="0 0 24 24" aria-hidden="true">
     ${POT}
-    ${stem && html`<path class="zn-stem" d=${stem}/>`}
-    ${stage === 'sprout' ? SPROUT[kind] : grown ? GROWN[kind] : null}
-    ${stage === 'bud' ? BUD : stage === 'bloom' ? HEAD[kind] : null}
+    <g class="zn-sway" style=${{ '--d': `-${d}s` }}>
+      ${stem && html`<path class="zn-stem" d=${stem}/>`}
+      ${stage === 'sprout' ? SPROUT[kind] : grown ? GROWN[kind] : null}
+      ${stage === 'bud' ? BUD : stage === 'bloom' ? HEAD[kind] : null}
+    </g>
     ${SOIL}
   </svg>`;
 }
@@ -104,9 +113,22 @@ export function ZenScreen({ onBack, onShop }) {
   const harvest = (key, kind) => {
     const next = zenHarvest(z, key, now);
     apply(next);
-    setCoins(addCoins(COINS_PER_FLOWER));
     setGain(kind);
-    motion(coinRef.current, { scale: [1, 1.35, 1] }, { duration: 0.5, ease: [0.22, 1, 0.36, 1] });
+    // Las monedas saltan del tiesto en arco y vuelan al monedero; el contador sube al llegar.
+    const from = document.querySelector(`[data-k="${key}"]`)?.getBoundingClientRect(), to = coinRef.current?.getBoundingClientRect();
+    const land = () => { setCoins(addCoins(COINS_PER_FLOWER)); motion(coinRef.current, { scale: [1, 1.35, 1] }, { duration: 0.5, ease: [0.22, 1, 0.36, 1] }); };
+    if (!from || !to || matchMedia('(prefers-reduced-motion: reduce)').matches) land();
+    else {
+      const x0 = from.left + from.width / 2, y0 = from.top + from.height * 0.3, x1 = to.left + to.width * 0.3, y1 = to.top + to.height / 2;
+      for (let i = 0; i < 3; i++) {
+        const c = document.createElement('i');
+        c.className = 'zn-coinpop';
+        c.style.left = x0 + 'px'; c.style.top = y0 + 'px';
+        document.body.appendChild(c);
+        const sx = (i - 1) * 26;
+        motion(c, { x: [0, sx, x1 - x0], y: [0, -70 - i * 12, y1 - y0], scale: [0.4, 1.1, 0.7] }, { duration: 0.85, delay: i * 0.09, ease: 'easeInOut', onComplete: () => { c.remove(); if (i === 2) land(); } });
+      }
+    }
     award('flower_1');
     playSfx('flower');
     const flores = ZEN_KINDS.reduce((n, k) => n + (next.flores[k] || 0), 0);
@@ -179,9 +201,14 @@ export function ZenScreen({ onBack, onShop }) {
 
   const potCell = (key) => {
     const st = zenStage(z, key, now);
-    const cls = 'bm-cell zen-pot zn-soil' + (st.kind ? ' zn-k-' + st.kind : '') + (st.stage === 'bloom' ? ' ready' : '');
-    const label = st.kind ? `${ZEN_NAMES[st.kind]}, ${ETAPAS[st.stage]}` : 'Tiesto vacío';
-    return html`<button key=${key} class=${cls} aria-label=${label} onClick=${() => tap('pot', key)}>${potArt(st.kind, st.stage)}</button>`;
+    const cls = 'bm-cell zen-pot' + (st.kind ? ' zn-k-' + st.kind : '') + (st.stage === 'bloom' ? ' ready' : '');
+    const label = st.kind ? `${ZEN_NAMES[st.kind]}, ${ETAPAS[st.stage]}${st.stage !== 'bloom' && !st.watered ? ', pide agua' : ''}` : 'Tiesto vacío';
+    const need = st.stage === 'bloom' ? 'cut' : st.kind && !st.watered ? 'water' : null;
+    const d = (key.charCodeAt(1) * 7 + key.charCodeAt(3) * 3) % 10 / 3;
+    return html`<button key=${key} data-k=${key} class=${cls} aria-label=${label} onClick=${() => tap('pot', key)}>
+      ${potArt(st.kind, st.stage, d)}
+      ${need && html`<span class=${'zn-need ' + need}><${Icon} name=${need === 'cut' ? 'shears' : 'drop'} size=${14} /></span>`}
+    </button>`;
   };
 
   // El cantero se arma fila por fila: el 4×4 base arriba a la izquierda y los anillos al sur y al este.

@@ -45,6 +45,7 @@ Toma la idea y la curva, no el código tal cual: el proyecto usa Preact + htm si
 | https://iconly.pro/ | Base para iconos de interfaz: partir de uno y ajustarlo al trazo del juego. |
 | Bancos de SVG citados en `docs/REFERENCE-GAMES.md` | Formas reutilizables para piezas y jefes. |
 | https://github.com/crsolver/claude-pxl (skill `pxl-pixel-art`) | Tema píxel: DSL `.px.js` que genera PNG (espejo, contorno, variantes por paleta). Úsala para personajes de fantasía medieval, no piezas de ajedrez; cada uno con una silueta muy distinta. |
+| https://github.com/nickschuetz/o3de-diorama, https://github.com/blendi-remade/dioramas | Dioramas en 3D: composición, capas y luz para el diorama del menú y los tableros. |
 | `art/` | Plantillas SVG para que el dueño dibuje piezas, tableros y fondos. |
 
 Reglas: comprueba la simetría de cada SVG (eje vertical) y reutiliza contornos que ya existen antes de trazar curvas nuevas.

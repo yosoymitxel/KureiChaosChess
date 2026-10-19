@@ -433,25 +433,60 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 /* El cantero arranca en 4×4 y crece hasta 8×8: la pantalla manda `--n`. */
 .bm.zn-tray {
   --n: 4;
-  --cell: max(18px, min(calc((100cqw - 26px) / var(--n)), calc((100cqh - 26px) / var(--n)), 120px));
+  --cell: max(18px, min(calc((100cqw - 44px) / var(--n)), calc((100cqh - 70px) / var(--n)), 120px));
+  /* Jardín seco: arena rastrillada en líneas dentro de un marco de madera de tablones. */
+  --sand: oklch(0.87 0.03 85); --sand-2: oklch(0.76 0.04 78); --moss: oklch(0.58 0.1 135); --wood: oklch(0.45 0.07 55);
   transform: translateY(6%) rotateX(15deg);
-  border-color: color-mix(in oklch, var(--tile-side), black 38%);
+  border: 0; border-radius: 6px;
+  background-color: var(--sand);
+  background-image: var(--grain), repeating-linear-gradient(180deg, transparent 0 6px, color-mix(in oklch, var(--sand-2), transparent 40%) 6px 7.5px);
   box-shadow:
     0 0 0 2px var(--ink),
-    0 0 0 7px color-mix(in oklch, var(--tile-side), black 8%),
-    0 13px 0 7px color-mix(in oklch, var(--tile-side), black 55%),
-    0 26px 30px oklch(0 0 0 / 0.5);
+    0 0 0 12px var(--wood),
+    0 0 0 14px var(--ink),
+    0 14px 0 14px color-mix(in oklch, var(--wood), black 45%),
+    0 28px 34px oklch(0 0 0 / 0.5);
 }
-.bm-cell.zn-soil { background-color: color-mix(in oklch, var(--tile-side), black 6%); }
-.bm-cell.zn-lawn { background-color: color-mix(in oklch, var(--side-wild), var(--tile-side) 42%); cursor: default; }
-.bm-cell.zn-step { background-color: color-mix(in oklch, var(--tile-side), black 6%); cursor: default; }
-.zn-step::before { content: ''; position: absolute; inset: 12%; border-radius: 42%; background: var(--paper-3); box-shadow: inset 0 0 0 2px var(--ink), inset 0 -4px 0 oklch(0 0 0 / 0.2); }
-.zn-tuft { width: 70%; height: 70%; }
-.zn-blade { fill: none; stroke: color-mix(in oklch, var(--side-wild), black 32%); stroke-width: 1.7; stroke-linecap: round; }
-.bm-cell.zen-lawn::after { content: ''; position: absolute; left: 26%; right: 26%; bottom: 15%; height: 14%; border-radius: 50%; background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.4), transparent); }
+.zn-tray .bm-cell { background: transparent; }
+/* Alrededor de cada tiesto la arena se rastrilla en círculos, como en torno a las piedras. */
+.zn-tray .bm-cell.zen-pot::before {
+  content: ''; position: absolute; inset: -6%; border-radius: 50%; pointer-events: none;
+  background: repeating-radial-gradient(circle at 50% 72%, transparent 0 calc(var(--cell) * 0.07), color-mix(in oklch, var(--sand-2), transparent 25%) calc(var(--cell) * 0.07) calc(var(--cell) * 0.085));
+  mask: radial-gradient(circle at 50% 72%, #000 0 34%, transparent 46%);
+}
+/* Musgo en montículo con dos piedras: rompe la rejilla sin ser un cuadro de césped. */
+.bm-cell.zn-lawn { cursor: default; }
+.zn-lawn::before {
+  content: ''; position: absolute; inset: 12% 8% 14%; border-radius: 48% 52% 44% 56% / 62% 58% 42% 38%;
+  background: radial-gradient(circle at 36% 30%, color-mix(in oklch, var(--moss), white 18%), var(--moss) 60%);
+  box-shadow: 0 0 0 2px var(--ink), inset 0 -5px 0 color-mix(in oklch, var(--moss), black 30%), 0 5px 6px oklch(0 0 0 / 0.25);
+}
+.zn-tuft { position: relative; width: 56%; height: 56%; }
+.zn-blade { fill: none; stroke: color-mix(in oklch, var(--moss), black 40%); stroke-width: 1.7; stroke-linecap: round; }
+/* Piedras de paso: lajas grises de contorno irregular sobre la arena. */
+.bm-cell.zn-step { cursor: default; }
+.zn-step::before { content: ''; position: absolute; inset: 18% 12% 20%; border-radius: 44% 56% 52% 48% / 58% 46% 54% 42%; background: radial-gradient(circle at 40% 32%, oklch(0.78 0.012 80), oklch(0.62 0.015 75)); box-shadow: 0 0 0 2px var(--ink), inset 0 -4px 0 oklch(0 0 0 / 0.22), 0 4px 5px oklch(0 0 0 / 0.25); }
+.zn-step + .zn-step::before { inset: 22% 16% 16%; border-radius: 56% 44% 48% 52% / 46% 58% 42% 54%; }
 .bm-cell.zen-pond { grid-column: span 2; grid-row: span 2; width: auto; height: auto; cursor: default; }
+.zn-koi { transform-origin: 24px 25px; animation: koi 14s linear infinite; }
+.zn-koi path { fill: oklch(0.72 0.16 50); stroke: var(--ink); stroke-width: 0.8; }
+.zn-koi .zn-koi-spot { fill: var(--paper); stroke: none; }
+@keyframes koi { to { rotate: 360deg; } }
+/* Las plantas se mecen despacio, cada una a su ritmo (--d). */
+.zn-sway { transform-origin: 12px 15.4px; animation: sway 3.4s ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
+@keyframes sway { from { rotate: -4deg; } to { rotate: 4deg; } }
+/* Burbuja de necesidad, como en PvZ: gota si falta riego, tijeras si la flor está lista. */
+.zn-need {
+  position: absolute; z-index: 3; right: 2%; top: -4%; width: 42%; aspect-ratio: 1; display: grid; place-items: center;
+  border: 2px solid var(--ink); border-radius: 50% 50% 50% 8%; background: var(--paper); color: var(--ink); pointer-events: none;
+  animation: need-in 0.35s var(--ease-out) both;
+}
+.zn-need .icon { width: 58%; height: 58%; }
+.zn-need.water { color: oklch(0.55 0.12 240); }
+.zn-need.cut { background: var(--brass); }
+@keyframes need-in { from { scale: 0.2; opacity: 0; } }
+.zn-coinpop { position: fixed; z-index: 90; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: var(--brass); box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 5px color-mix(in oklch, var(--brass), white 30%); pointer-events: none; }
 .zen-pot:hover { filter: brightness(1.06); }
-.zen-pot.ready { box-shadow: inset 0 0 0 3px var(--brass); }
 /* Las piezas se paran como las fichas del diorama: figura anclada a su base y sombra de
    contacto en la tierra. */
 .zn-plant {
@@ -476,7 +511,9 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .zn-leaf { fill: var(--zn, var(--brass)); stroke: var(--ink); stroke-width: 1; stroke-linejoin: round; }
 .zn-cut { fill: none; stroke: var(--ink); stroke-width: .9; stroke-linecap: round; }
 .zn-dot { fill: var(--ink); }
-.zn-water { fill: color-mix(in oklch, var(--ink), var(--gain) 55%); }
+.zn-water { fill: url(#zn-water-g); stroke: var(--ink); stroke-width: 1.2; }
+.zn-deep { stop-color: oklch(0.38 0.07 220); }
+.zn-shallow { stop-color: oklch(0.62 0.08 200); }
 .zn-rip { fill: none; stroke: color-mix(in oklch, var(--tile-a), transparent 15%); stroke-width: 1.1; stroke-linecap: round; }
 .zn-lily { fill: var(--side-wild); stroke: var(--ink); stroke-width: 1; }
 .zn-petal { fill: var(--paper-2); stroke: var(--ink); stroke-width: .7; }
@@ -514,7 +551,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .zen-cost .icon { width: 13px; height: 13px; }
 .zen-seed:focus-visible, .zen-tool:focus-visible, .zen-expand:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
 /* Tierra virgen de los anillos: se cava para hacer un tiesto; con la pala elegida se marca. */
-.bm-cell.zn-raw { background-color: color-mix(in oklch, var(--tile-side), black 24%); background-image: var(--grain), radial-gradient(2px 1.6px at 24% 32%, oklch(0 0 0 / 0.2), transparent), radial-gradient(2.6px 2px at 68% 56%, oklch(0 0 0 / 0.16), transparent), radial-gradient(1.8px 1.5px at 42% 78%, oklch(0 0 0 / 0.18), transparent); cursor: default; }
+.zn-tray .bm-cell.zn-raw { background-color: color-mix(in oklch, var(--sand-2), black 8%); background-image: var(--grain), radial-gradient(2px 1.6px at 24% 32%, oklch(0 0 0 / 0.2), transparent), radial-gradient(2.6px 2px at 68% 56%, oklch(0 0 0 / 0.16), transparent), radial-gradient(1.8px 1.5px at 42% 78%, oklch(0 0 0 / 0.18), transparent); cursor: default; }
 .bm-cell.zn-raw::after { content: ''; position: absolute; inset: 13%; border: 2px dashed color-mix(in oklch, var(--paper), transparent 55%); border-radius: 7px; }
 .zn-yard.dig .bm-cell.zn-raw { cursor: pointer; }
 .zn-yard.dig .bm-cell.zn-raw::after { border-color: var(--brass); }
@@ -551,7 +588,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 }
 @media (min-width: 900px) {
   .zen-main { grid-template-columns: minmax(0, 1fr) clamp(280px, 26vw, 340px); grid-template-rows: auto auto auto auto 1fr; grid-template-areas: "stage seeds" "stage tools" "stage expand" "stage desk" "stage help"; column-gap: clamp(24px, 3.2vw, 48px); row-gap: 18px; }
-  .zen-main .mini-stage { grid-area: stage; min-height: 0; }
+  .zen-main .mini-stage { grid-area: stage; min-height: 0; max-height: calc(100dvh - 170px); }
   .zen-main .zen-seeds { grid-area: seeds; align-self: start; }
   .zen-main .zen-tools { grid-area: tools; align-self: start; }
   .zen-main .zen-expand { grid-area: expand; align-self: start; }
