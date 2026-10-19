@@ -68,7 +68,7 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
           <div class="bm bm-slab" ref=${gridRef} style=${{ '--n': SIZE }} role="grid" aria-label="Tablero de Bomberman">
             ${s.cells.map((row, r) => row.map((cell, c) => {
               const bomb = at(s.bombs, r, c), foe = at(s.enemies, r, c), item = at(s.items, r, c), me = s.player.r === r && s.player.c === c;
-              return html`<button class=${'bm-cell ' + ((r + c) % 2 ? 'b' : 'a') + (cell ? ' ' + cell : '') + (at(s.blast, r, c) ? ' blast' : '') + (danger.has(r * SIZE + c) ? ' danger' : '')}
+              return html`<button class=${'bm-cell ' + ((r + c) % 2 ? 'b' : 'a') + (r === 0 ? ' r0' : '') + (cell ? ' ' + cell : '') + (at(s.blast, r, c) ? ' blast' : '') + (danger.has(r * SIZE + c) ? ' danger' : '')}
                 disabled=${!!s.over} aria-label=${`Fila ${r + 1}, columna ${c + 1}` + (item ? (item.kind === 'bomb' ? ', bomba extra' : ', más alcance') : '')} onClick=${() => tap(r, c)}>
                 ${item && html`<span class=${'bm-item bm-item-' + item.kind}><${Icon} name=${item.kind === 'bomb' ? 'collapse' : 'expand'} size=${18} /></span>`}
                 ${bomb && html`<span class=${'bm-bomb' + (bomb.t <= 1 ? ' soon' : '')}>${bomb.t}</span>`}

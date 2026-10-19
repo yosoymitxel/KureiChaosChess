@@ -4,7 +4,7 @@ import { MiniGrid } from './mini-grid.js';
 import { hopPiece, popPiece, reduced } from '../hop.js';
 import { Fx } from '../../view/fx.js';
 import { pieceSVG } from '../../view/piece-art.js';
-import { ROWS, COLS, LAUNCH_COLS, DIFFS, newBowling, launch, tick } from '../../game/bowling.js';
+import { LAUNCH_COLS, DIFFS, newBowling, launch, tick } from '../../game/bowling.js';
 
 const TICK_MS = 280;
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -36,7 +36,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
 
   useEffect(() => {
     const id = setInterval(() => { before.current = snap(); tick(s); redraw((n) => n + 1); if (s.over) clearInterval(id); }, TICK_MS);
-    const onKey = (e) => { const n = +e.key; if (n >= 1 && n <= ROWS) shoot(n - 1); };
+    const onKey = (e) => { const n = +e.key; if (n >= 1 && n <= s.rows) shoot(n - 1); };
     addEventListener('keydown', onKey);
     return () => { clearInterval(id); removeEventListener('keydown', onKey); };
   }, []);
@@ -63,7 +63,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
 
     const cells = grid.children; // los botones van primero; las capas goo y fx se añaden al final
     const cw = cells[0].offsetWidth, ch = cells[0].offsetHeight;
-    const at = (r, c) => cells[r * COLS + Math.max(0, Math.min(COLS - 1, c))];
+    const at = (r, c) => cells[r * s.cols + Math.max(0, Math.min(s.cols - 1, c))];
     const pcOf = (r, c) => at(r, c)?.querySelector('.bm-pc');
     const tokOf = (r, c) => at(r, c)?.querySelector('.bm-tok');
     const center = (r, c) => fx.pointOf(at(r, c));
@@ -89,7 +89,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
       const p = was.get(e);
       if (!p) { popPiece(grid, pcOf(e.r, e.c)); continue; } // entra: brota
       if (e.c < 0) { topple(e.r, e.c, e.type, -1); continue; } // cruzó tu borde: cae hacia afuera
-      if (p.r !== e.r || p.c !== e.c) hopPiece(grid, pcOf(e.r, e.c), { from: { row: p.r, col: p.c }, to: { row: e.r, col: e.c }, side: 'zombie', cols: COLS, rows: ROWS });
+      if (p.r !== e.r || p.c !== e.c) hopPiece(grid, pcOf(e.r, e.c), { from: { row: p.r, col: p.c }, to: { row: e.r, col: e.c }, side: 'zombie', cols: s.cols, rows: s.rows });
       if (p.hp !== e.hp) {
         const c = center(e.r, e.c);
         fx.burst(c.x, c.y, { count: 10, color: ['#fff', '#ffe2a8'], speed: [200, 400], size: [1.5, 3], life: [0.15, 0.3], shape: 'spark', drag: 0.85 });
@@ -152,7 +152,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
   const cell = (r, c) => {
     const e = s.enemies.find((x) => x.r === r && x.c === c);
     const ball = s.balls.find((b) => b.r === r && b.c === c);
-    const zone = c < LAUNCH_COLS ? 'lane' + (c === LAUNCH_COLS - 1 ? ' line' : '') + (s.belt.length ? ' drop' : '') : '';
+    const zone = c < LAUNCH_COLS ? 'lane' + (c === 0 ? ' lane0' : '') + (c === LAUNCH_COLS - 1 ? ' line' : '') + (s.belt.length ? ' drop' : '') : '';
     return { cls: zone + (ball?.kind === 'boom' ? ' boom' : ''), tok: !!ball, piece: e && { type: e.type, side: 'zombie' }, hp: e && e.maxHp > 1 ? { on: e.hp, max: e.maxHp } : null };
   };
   const next = s.belt[0];
@@ -161,7 +161,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
     <${Topbar} title="Bolos de nuez" sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
-        <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${!!s.over} label="Bolera" gridRef=${gridRef} boardClass="bm-slab bw"
+        <${MiniGrid} rows=${s.rows} cols=${s.cols} cell=${cell} disabled=${!!s.over} label="Bolera" gridRef=${gridRef} boardClass="bm-slab bw"
           onTap=${(r, c) => shoot(r, c)} />
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">
@@ -178,7 +178,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
           </div>`}
           ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Aguantaste la gran horda: ${s.down} piezas derribadas${s.best > 1 ? `, con una cadena de ×${s.best}` : ''}.` : 'Una pieza llegó a tu borde.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
           <${MiniDiff} mini="bowling" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
-          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Las piezas carmesí cruzan de derecha a izquierda. La cinta te trae fichas: toca una casilla antes de la línea roja (o pulsa 1-5) para lanzar la primera. Al chocar, la ficha rebota en diagonal y puede encadenar golpes. La explosiva, en bermellón, limpia un 3×3. Peón y caballo caen al primer golpe, pero el caballo salta la primera ficha; el alfil aguanta 2, la torre 3 y la reina 4, y se apura al recibir el primero.</p></details>
+          <details class="mini-helpbox"><summary>Cómo se juega</summary><p class="mini-help">Las piezas carmesí cruzan de derecha a izquierda. La cinta te trae fichas: toca una casilla antes de la línea roja (o pulsa el número del carril) para lanzar la primera. Al chocar, la ficha rebota en diagonal y puede encadenar golpes. La explosiva, en bermellón, limpia un 3×3. El peón cae al primer golpe; el caballo aguanta 2 y salta la primera ficha, el alfil aguanta 2, la torre 3 y la reina 4, y se apura al recibir el primero.</p></details>
         </div>
       </div>
     </div>

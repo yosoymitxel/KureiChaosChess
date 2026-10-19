@@ -28,8 +28,9 @@ function gooOf(grid, cols, rows) {
 // que redibujan contorno y canto). Se estira por el recorrido (dobla la esquina de la L) y se recoge detrás.
 function liquid(grid, from, to, { side, cell, cols, rows }) {
   const svg = gooOf(grid, cols, rows);
-  const k = 0.27, rx = k, ry = k; // k acompaña el inset de la base de la ficha
-  const at = (r, c) => [c + 0.5, r + 0.5];
+  // Mismo sitio y tamaño que la peana (.bm-slab .bm-pc::after): elipse al 72 % de la casilla.
+  const rx = 0.25, ry = 0.15;
+  const at = (r, c) => [c + 0.5, r + 0.72];
   const dr = to.row - from.row, dc = to.col - from.col;
   const pts = [at(from.row, from.col)];
   if (dr && dc && Math.abs(dr) !== Math.abs(dc)) pts.push(Math.abs(dr) > Math.abs(dc) ? at(to.row, from.col) : at(from.row, to.col));
@@ -89,6 +90,9 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows }) {
   // de arriba la ficha salta bajo, y en el resto del tablero salta alto.
   const lift = Math.min(chh * 0.45, (to.row + 0.06) * chh);
   const dur = 0.4 / speed();
+  // La peana no vuela con la figura: el charco hace de base por el suelo y la peana reaparece al aterrizar.
+  pcEl.classList.add('hopping');
+  setTimeout(() => pcEl.classList.remove('hopping'), dur * 1000);
   motion(pcEl, { x: [dx, dx / 2, 0], y: [dy, dy / 2 - lift, 0] }, { duration: dur, ease: 'easeInOut' });
   motion(pcEl, { scaleY: [0.78, 1.08, 1], scaleX: [1.13, 0.96, 1] }, { duration: 0.32 / speed(), delay: dur - 0.06, ease: OUT });
   liquid(grid, from, to, { side, cell: cw, cols, rows });

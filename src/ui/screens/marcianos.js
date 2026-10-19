@@ -75,7 +75,7 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
           <div class="bm bm-slab mm" ref=${gridRef} style=${{ '--cols': COLS, '--rows': ROWS }} role="grid" aria-label="Campo de Matamarcianos">
             ${Array.from({ length: ROWS }, (_, r) => Array.from({ length: COLS }, (_, c) => {
               const foe = at(s.enemies, r, c), shot = at(s.shots, r, c), bolt = at(s.bolts, r, c), me = r === PLAYER_ROW && s.player.col === c;
-              return html`<button class=${'bm-cell ' + ((r + c) % 2 ? 'b' : 'a') + (r === PLAYER_ROW ? ' home' : '') + (zapped(r, c) ? ' blast' : '')}
+              return html`<button class=${'bm-cell ' + ((r + c) % 2 ? 'b' : 'a') + (r === 0 ? ' r0' : '') + (r === PLAYER_ROW ? ' home' : '') + (zapped(r, c) ? ' blast' : '')}
                 disabled=${!!s.over} aria-label=${`Fila ${r + 1}, columna ${c + 1}`} onClick=${() => tap(r, c)}>
                 ${foe && html`<span class="bm-pc foe side-dark" data-id=${foe.id} dangerouslySetInnerHTML=${{ __html: pieceSVG(foe.type) }} />`}
                 ${shot && html`<span class="mm-shot"></span>`}
