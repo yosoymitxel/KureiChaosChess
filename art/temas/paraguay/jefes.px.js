@@ -81,29 +81,39 @@ boss("boss-ram", { w: 40, h: 30 },
   px(13, 2, "e"), px(12, 1, "E"), px(13, 1, "F"), px(14, 1, "e"), px(13, 0, "E"), px(14, 2, "E"), px(12, 2, "E"), px(14, 0, "e"),
 );
 
-// Hidra: Teju Jagua, el lagarto de escamas del bando con siete cabezas de perro de ojos de fuego,
-// manchas azules en el lomo y el oro de las cuevas a sus pies. Simétrica con columna central.
-// Cabeza de perro mirando afuera (a la izquierda): cráneo, hocico con la nariz, oreja caída y ojo.
+// Hidra: Teju Jagua, el gran lagarto de las cuevas con cabezas de perro. Cuerpo de lagarto de
+// perfil, chato y largo, con las patas abiertas, las garras, la cola que se enrosca y las manchas
+// del lomo; de los hombros salen cinco cuellos con cinco cabezas de perro bien separadas (hocico
+// con la nariz, oreja parada y ojos de fuego), y el oro de la cueva a sus pies.
+// Cabeza de perro mirando a la izquierda: oreja parada, cráneo, hocico largo con la nariz negra,
+// la boca abierta con la lengua y la mandíbula.
 sprite("_dog", `
-  ...ww.o.
-  ..wwwWoo
-  .wwwewWo
-  kwwwwwWo
-  .kkWWW..`);
-boss("boss-hydra", { w: 37, h: 34, mx: "c" },
-  // el oro de la cueva
-  ellipse(18, 33, 8, 1, "y"), px(12, 32, "y"), px(15, 32, "Y"),
-  // cuellos finos que salen del lomo, separados entre sí
-  line(8, 24, 5, 21, "W", 2), line(11, 22, 8, 14, "W", 2), line(15, 21, 12, 8, "W", 2), rect(17, 6, 3, 16, "W"), vline(17, 6, 16, "w"),
-  // cuerpo de lagarto, chato y ancho, con las patas abiertas y las garras
-  rect(2, 27, 5, 4, "W"), rect(1, 31, 6, 2, "o"), px(0, 33, "g"), px(2, 33, "g"), px(4, 33, "g"),
-  ellipse(18, 27, 15, 5, "W"), ellipse(18, 26, 13, 3, "w"), ellipse(18, 31, 9, 1, "o"),
-  ...[[8, 26], [13, 24], [6, 29], [12, 28]].map(([x, y]) => rect(x, y, 2, 2, "a")), rect(17, 25, 3, 2, "a"), rect(17, 29, 3, 1, "A"),
-  // tres cabezas por lado
-  stamp("_dog", 0, 16), stamp("_dog", 3, 9), stamp("_dog", 7, 3),
-  // la cabeza del medio, de frente: orejas caídas, ojos de fuego, hocico y la lengua
-  rect(15, 1, 4, 5, "w"), rect(14, 1, 2, 4, "o"), px(14, 5, "o"), px(16, 3, "e"), rect(16, 5, 3, 2, "W"), px(18, 5, "k"), hline(17, 7, 2, "E"),
-  px(18, 0, "y"), px(17, 0, "Y"),
+  ......oo..
+  .....owwo.
+  ...wwwwwwW
+  .wwwwkewWW
+  kwwwwwwwWW
+  .kEEWWWWW.
+  ..WWoWW...`);
+boss("boss-hydra", { w: 42, h: 38 },
+  // cola larga que se arrastra a la derecha y enrosca la punta
+  line(31, 31, 38, 33, "W", 3), line(38, 33, 41, 32, "W", 2), line(41, 32, 41, 29, "W"), px(40, 29, "W"),
+  hline(32, 30, 5, "w"), hline(37, 35, 3, "o"),
+  // patas de lagarto abiertas: el codo arriba, el pie abajo con las garras
+  line(29, 31, 33, 28, "W", 2), line(33, 28, 35, 35, "W", 2), rect(33, 35, 4, 1, "o"), ...[33, 35, 37].map((x) => px(x, 36, "g")),
+  line(11, 31, 6, 28, "W", 2), line(6, 28, 4, 35, "W", 2), rect(2, 35, 4, 1, "o"), ...[1, 3, 5].map((x) => px(x, 36, "g")),
+  // cuerpo de lagarto, chato y largo: lomo claro, panza oscura y manchas del bando en el lomo
+  ellipse(20, 31, 13, 4, "W"), ellipse(19, 29, 11, 1, "w"), ellipse(20, 34, 10, 1, "o"),
+  ...[[10, 30], [15, 29], [20, 29], [25, 29], [29, 30]].map(([x, y]) => rect(x, y, 2, 2, "a")), ...[11, 16, 21, 26].map((x) => px(x, 33, "A")),
+  // patas de este lado, delante del cuerpo
+  line(14, 33, 11, 35, "o", 2), rect(9, 36, 4, 1, "o"), ...[8, 10, 12].map((x) => px(x, 37, "g")),
+  line(25, 33, 27, 35, "o", 2), rect(26, 36, 4, 1, "o"), ...[26, 28, 30].map((x) => px(x, 37, "g")),
+  // el oro de la cueva bajo la panza
+  hline(17, 37, 5, "y"), px(19, 37, "F"), px(18, 36, "Y"), px(20, 36, "y"),
+  // cinco cuellos finos que salen de los hombros y se abren en abanico, sin tocarse
+  line(14, 28, 7, 21, "W", 2), line(17, 27, 12, 12, "W", 2), line(20, 27, 21, 9, "W", 2), line(23, 27, 30, 12, "W", 2), line(26, 28, 34, 21, "W", 2),
+  // las cinco cabezas de perro: la mayor arriba y dos a cada lado
+  stamp("_dog", 0, 15), stamp("_dog", 5, 6), stamp("_dog", 14, 2), stamp("_dog", 28, 6, { flip: "x" }), stamp("_dog", 32, 15, { flip: "x" }),
 );
 
 // Gólem: Itá Pytã, el coloso de arenisca y tierra colorada (3×3). Hombros de roca con un lapacho
