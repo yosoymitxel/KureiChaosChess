@@ -92,19 +92,13 @@ function layout(type) {
   return { s, tx, ty, top: PLINTH_TOP - h * s, left: CX - (ax - x) * s, right: CX + (x + w - ax) * s };
 }
 
-// Volumen: la misma silueta otra vez, sin tinta y rellena con una luz que entra desde arriba a la
-// izquierda (como en el jardín): brillo de un lado, sombra del otro. Cada parte se ilumina por su
-// cuenta, así se lee la forma (el cuello del caballo, el cuerpo del rey, los escalones de la peana)
-// sin dibujar sombras a mano, y vale para cualquier dibujo nuevo.
-const SHADE = `<defs><linearGradient id="pc-shade" x1="0" y1="0" x2="1" y2=".35"><stop offset="0" stop-color="#fff" stop-opacity=".34"/><stop offset=".36" stop-color="#fff" stop-opacity="0"/><stop offset=".62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".24"/></linearGradient></defs>`;
 const cache = new Map();
 function art(type) {
   if (!BODIES[type]) type = 'pawn';
   if (!cache.has(type)) {
     const L = layout(type);
     const body = `<g transform="translate(${L.tx.toFixed(2)} ${L.ty.toFixed(2)}) scale(${L.s.toFixed(4)})" stroke-width="${(STROKE / L.s).toFixed(3)}">${BODIES[type]}</g>`;
-    const base = isBoss(type) ? BOSS_PLINTH : PLINTH;
-    cache.set(type, { L, svg: `${SHADE}<g fill="${F}" stroke="${S}" stroke-width="${STROKE}" stroke-linecap="round" stroke-linejoin="round">${body}${base}</g><g class="pc-light" fill="url(#pc-shade)" stroke="none" pointer-events="none">${body}${base}</g>` });
+    cache.set(type, { L, svg: `<g fill="${F}" stroke="${S}" stroke-width="${STROKE}" stroke-linecap="round" stroke-linejoin="round">${body}${isBoss(type) ? BOSS_PLINTH : PLINTH}</g>` });
   }
   return cache.get(type);
 }
