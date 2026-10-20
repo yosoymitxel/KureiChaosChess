@@ -46,7 +46,7 @@ boss("boss-titan", { w: 34, h: 37, mx: true },
   // cabeza de corteza con la barba de musgo y los ojos de brasa
   rect(10, 4, 7, 8, "d"), rect(10, 4, 1, 8, "D"), hline(11, 4, 6, "D"),
   rect(13, 7, 2, 1, "D"), px(14, 7, "e"), px(15, 7, "F"), hline(12, 6, 4, "D"),
-  rect(11, 10, 6, 3, "v"), rect(12, 12, 5, 2, "v"), px(11, 12, "V"), px(13, 13, "V"), px(15, 11, "V"), hline(14, 10, 3, "k"),
+  hline(14, 10, 3, "k"), rect(12, 11, 5, 2, "v"), rect(14, 13, 3, 1, "v"), px(12, 12, "V"), px(14, 12, "V"), px(16, 11, "V"), px(15, 14, "V"),
   // corona de ramas con hojas
   line(12, 4, 8, 0, "N"), line(10, 2, 7, 3, "N"), line(15, 4, 15, 0, "N"),
   px(7, 0, "v"), px(8, 1, "V"), px(6, 3, "v"), px(6, 2, "V"), px(14, 0, "v"), px(16, 1, "v"), px(15, 0, "V"),
@@ -55,53 +55,55 @@ boss("boss-titan", { w: 34, h: 37, mx: true },
 // Ariete: el toro candil del San Juan, de perfil y embistiendo a la izquierda, con la cabeza
 // gacha, los cuernos encendidos y una manta del bando con la guarda azul y los flecos.
 boss("boss-ram", { w: 40, h: 30 },
-  // cola y patas de atrás
-  line(36, 9, 38, 18, "R"), rect(37, 18, 2, 3, "N"),
-  rect(29, 20, 3, 7, "R"), rect(34, 19, 3, 8, "r"), rect(29, 27, 3, 2, "N"), rect(34, 27, 3, 2, "N"),
-  // cuerpo con la giba
-  ellipse(24, 14, 13, 8, "r"), ellipse(24, 18, 12, 4, "R"), ellipse(15, 9, 5, 3, "r"),
-  // patas de delante
-  rect(13, 20, 3, 7, "R"), rect(18, 21, 3, 6, "r"), rect(13, 27, 3, 2, "N"), rect(18, 27, 3, 2, "N"),
-  // manta del bando con la guarda y los flecos
-  poly([17, 7, 33, 7, 35, 19, 15, 19], "w"),
-  clip([17, 7, 33, 7, 35, 19, 15, 19], rect(30, 7, 6, 13, "W"), rect(0, 15, 40, 2, "a"), hline(0, 8, 40, "W"),
-    ...[[20, 10], [24, 10], [28, 10], [22, 12], [26, 12]].map(([x, y]) => px(x, y, "o"))),
-  ...[16, 19, 22, 25, 28, 31, 34].map((x) => px(x, 20, "o")),
-  // cuello y cabeza gacha
-  ellipse(11, 13, 5, 5, "r"), poly([1, 12, 8, 9, 11, 12, 10, 20, 4, 21, 1, 18], "r"), rect(0, 16, 4, 4, "R"),
-  px(1, 17, "k"), hline(1, 20, 3, "k"), rect(6, 13, 2, 1, "k"), px(7, 13, "e"),
-  // oreja y cuernos de hueso
-  px(10, 10, "R"), px(11, 9, "R"),
-  line(7, 10, 4, 6, "g", 2), line(4, 6, 3, 3, "g"), px(3, 3, "G"),
-  line(10, 10, 13, 6, "G", 2), line(13, 6, 14, 4, "G"),
+  // cola con la borla y patas de atrás
+  line(37, 10, 39, 19, "R"), rect(38, 19, 2, 3, "N"),
+  rect(29, 20, 4, 7, "R"), rect(34, 19, 3, 8, "r"), rect(29, 27, 4, 2, "N"), rect(34, 27, 3, 2, "N"),
+  // cuerpo con la giba en la cruz
+  ellipse(25, 15, 12, 7, "r"), ellipse(25, 19, 11, 3, "R"), circ(17, 10, 5, "r"), px(15, 6, "w"),
+  // patas de delante, con la rodilla
+  rect(14, 20, 4, 7, "R"), rect(19, 21, 3, 6, "r"), hline(14, 23, 4, "N"), rect(14, 27, 4, 2, "N"), rect(19, 27, 3, 2, "N"),
+  // manta del bando que cae sobre el lomo, con la guarda y los flecos
+  poly([19, 8, 33, 8, 36, 11, 36, 20, 17, 20, 17, 11], "w"),
+  clip([19, 8, 33, 8, 36, 11, 36, 20, 17, 20, 17, 11], rect(31, 8, 6, 13, "W"), rect(0, 16, 40, 2, "a"), hline(0, 9, 40, "W"),
+    ...[[21, 11], [25, 11], [29, 11], [23, 13], [27, 13]].map(([x, y]) => px(x, y, "o"))),
+  ...[18, 21, 24, 27, 30, 33].map((x) => px(x, 21, "o")),
+  // cabeza gacha para embestir: testuz ancho, hocico claro y la papada
+  poly([4, 10, 11, 9, 15, 12, 14, 18, 9, 22, 3, 23, 0, 20, 1, 14], "r"), line(13, 11, 13, 18, "R"),
+  rect(0, 19, 5, 4, "S"), px(0, 19, "r"), px(1, 21, "k"), hline(1, 23, 4, "k"), poly([9, 21, 14, 18, 15, 22, 11, 24], "R"),
+  rect(7, 13, 2, 2, "k"), px(8, 13, "e"), hline(6, 12, 4, "R"),
+  // oreja
+  rect(11, 10, 3, 2, "R"), px(13, 9, "R"),
+  // cuernos gruesos de hueso: el de delante hacia adelante y arriba, el otro detrás
+  line(10, 9, 13, 6, "G", 2), line(13, 6, 13, 3, "G", 2), px(12, 3, "G"),
+  line(6, 10, 3, 8, "g", 3), line(3, 8, 2, 4, "g", 2), px(4, 9, "G"), px(5, 10, "G"), px(3, 6, "w"),
   // las llamas en las puntas de los cuernos
-  px(3, 2, "e"), px(2, 1, "E"), px(3, 1, "F"), px(4, 1, "e"), px(3, 0, "E"), px(2, 2, "E"), px(4, 2, "E"),
-  px(14, 3, "e"), px(13, 2, "E"), px(14, 2, "F"), px(15, 2, "e"), px(14, 1, "E"), px(15, 3, "E"), px(13, 3, "E"),
-  glow("eEF", { where: [0, 0, 17, 5], r: 3, strength: 0.4, bands: 2 }),
+  px(2, 3, "e"), px(1, 2, "E"), px(2, 2, "F"), px(3, 2, "e"), px(2, 1, "E"), px(1, 3, "E"), px(3, 3, "E"), px(2, 0, "e"), px(3, 1, "E"),
+  px(13, 2, "e"), px(12, 1, "E"), px(13, 1, "F"), px(14, 1, "e"), px(13, 0, "E"), px(14, 2, "E"), px(12, 2, "E"), px(14, 0, "e"),
 );
 
 // Hidra: Teju Jagua, el lagarto de escamas del bando con siete cabezas de perro de ojos de fuego,
 // manchas azules en el lomo y el oro de las cuevas a sus pies. Simétrica con columna central.
-const dog = (x, y) => [
-  // cabeza de perro mirando afuera (a la izquierda): cráneo, hocico, oreja caída y ojo de fuego
-  rect(x, y, 5, 4, "w"), rect(x + 3, y, 2, 4, "W"), rect(x - 2, y + 2, 3, 2, "W"), px(x - 2, y + 2, "k"), hline(x - 1, y + 4, 3, "o"),
-  rect(x + 3, y - 1, 2, 3, "o"), px(x + 1, y + 1, "e"),
-];
+// Cabeza de perro mirando afuera (a la izquierda): cráneo, hocico con la nariz, oreja caída y ojo.
+sprite("_dog", `
+  ...ww.o.
+  ..wwwWoo
+  .wwwewWo
+  kwwwwwWo
+  .kkWWW..`);
 boss("boss-hydra", { w: 37, h: 34, mx: "c" },
   // el oro de la cueva
-  ellipse(18, 32, 7, 1, "y"), px(13, 31, "y"), px(16, 31, "Y"), px(14, 32, "Y"),
+  ellipse(18, 33, 8, 1, "y"), px(12, 32, "y"), px(15, 32, "Y"),
+  // cuellos finos que salen del lomo, separados entre sí
+  line(8, 24, 5, 21, "W", 2), line(11, 22, 8, 14, "W", 2), line(15, 21, 12, 8, "W", 2), rect(17, 6, 3, 16, "W"), vline(17, 6, 16, "w"),
   // cuerpo de lagarto, chato y ancho, con las patas abiertas y las garras
-  rect(3, 27, 5, 4, "W"), rect(2, 31, 6, 2, "o"), px(1, 33, "g"), px(3, 33, "g"), px(5, 33, "g"),
-  ellipse(18, 26, 14, 6, "W"), ellipse(18, 25, 12, 4, "w"), ellipse(18, 30, 9, 2, "o"),
-  ...[[10, 24], [14, 22], [18, 23], [8, 27]].map(([x, y]) => rect(x, y, 2, 2, "a")),
-  // cuellos que salen del lomo
-  line(10, 23, 4, 19, "W", 3), line(12, 22, 7, 12, "W", 3), line(15, 21, 12, 6, "W", 3), line(18, 21, 18, 4, "W", 3),
-  line(10, 22, 4, 18, "w"), line(12, 21, 7, 11, "w"), line(15, 20, 12, 5, "w"), line(17, 21, 17, 4, "w"),
+  rect(2, 27, 5, 4, "W"), rect(1, 31, 6, 2, "o"), px(0, 33, "g"), px(2, 33, "g"), px(4, 33, "g"),
+  ellipse(18, 27, 15, 5, "W"), ellipse(18, 26, 13, 3, "w"), ellipse(18, 31, 9, 1, "o"),
+  ...[[8, 26], [13, 24], [6, 29], [12, 28]].map(([x, y]) => rect(x, y, 2, 2, "a")), rect(17, 25, 3, 2, "a"), rect(17, 29, 3, 1, "A"),
   // tres cabezas por lado
-  ...dog(3, 15), ...dog(6, 8), ...dog(11, 2),
-  // la cabeza del medio, de frente: orejas caídas, hocico y ojos de fuego
-  rect(15, 1, 7, 5, "w"), rect(14, 1, 2, 4, "o"), rect(16, 5, 5, 2, "W"), px(18, 5, "k"), hline(17, 7, 3, "E"), px(16, 3, "e"),
-  px(18, 1, "y"), px(18, 0, "y"),
+  stamp("_dog", 0, 16), stamp("_dog", 3, 9), stamp("_dog", 7, 3),
+  // la cabeza del medio, de frente: orejas caídas, ojos de fuego, hocico y la lengua
+  rect(15, 1, 4, 5, "w"), rect(14, 1, 2, 4, "o"), px(14, 5, "o"), px(16, 3, "e"), rect(16, 5, 3, 2, "W"), px(18, 5, "k"), hline(17, 7, 2, "E"),
+  px(18, 0, "y"), px(17, 0, "Y"),
 );
 
 // Gólem: Itá Pytã, el coloso de arenisca y tierra colorada (3×3). Hombros de roca con un lapacho
@@ -147,9 +149,9 @@ boss("boss-rider", { w: 28, h: 40 },
   // pelero del bando
   rect(11, 21, 9, 3, "a"), hline(11, 21, 9, "A"), ...[12, 15, 18].map((x) => vline(x, 22, 2, "w")),
   // cuello largo, crin y cabeza
-  line(9, 24, 5, 14, "r", 3), line(8, 22, 6, 13, "N"),
-  ellipse(4, 14, 3, 2, "r"), rect(0, 14, 4, 3, "r"), rect(0, 15, 2, 2, "R"), px(1, 15, "k"), px(4, 13, "k"), px(5, 11, "r"), px(6, 11, "R"),
-  line(2, 16, 12, 17, "N"),
+  line(9, 25, 5, 18, "r", 4), line(9, 22, 6, 16, "N", 2),
+  ellipse(4, 18, 3, 2, "r"), poly([0, 19, 3, 18, 3, 23, 1, 23, 0, 21], "r"), rect(0, 21, 3, 2, "R"), px(0, 21, "k"), px(4, 17, "k"), px(5, 15, "r"), px(6, 15, "R"),
+  line(2, 20, 11, 17, "N"),
   // jinete: pierna larga con la bota y el estribo
   rect(14, 21, 3, 8, "o"), rect(14, 29, 3, 2, "N"), hline(13, 31, 5, "M"),
   // poncho del bando con las listas finas y la guarda
@@ -159,35 +161,38 @@ boss("boss-rider", { w: 28, h: 40 },
   // mano con las riendas
   rect(10, 15, 2, 2, "s"),
   // cara flaca y sombrero alto de ala ancha
-  rect(13, 4, 6, 5, "s"), rect(17, 4, 2, 5, "S"), px(14, 6, "k"), hline(14, 8, 3, "S"),
+  rect(14, 4, 4, 5, "s"), rect(17, 4, 1, 5, "S"), px(15, 6, "k"), px(14, 7, "S"), rect(13, 8, 6, 1, "o"),
   rect(13, 0, 6, 3, "h"), rect(17, 0, 2, 3, "H"), hline(13, 2, 6, "a"), rect(9, 3, 14, 1, "h"), hline(10, 4, 3, "H"), hline(19, 4, 3, "H"),
 );
 
 // Muralla: Moñái, la gran serpiente de los campos, con cuernos, tendida a lo ancho y en ondas
-// bajas. Escamas del bando con rombos azules en el lomo y el vientre claro. Ancha y baja (1×2).
+// bajas. Escamas del bando con bandas azules en el lomo y el vientre claro. Ancha y baja (1×2).
 boss("boss-wall", { w: 44, h: 26 },
-  // cuerpo en ondas, de la cola (derecha) al cuello (izquierda)
+  // cuerpo en ondas, de la cola (derecha) al cuello (izquierda): primero el relleno, después el
+  // vientre claro abajo y las bandas azules del lomo
   (c) => {
-    for (let x = 8; x < 44; x++) {
-      const t = (x - 8) / 35, r = Math.max(1, Math.round(5 - t * 3.6));
-      const y = Math.round(17 - Math.sin((x - 8) / 5.5) * 3 * (1 - t * 0.4));
-      c.circ(x, y, r, "w");
-      c.rect(x, y + Math.max(0, r - 1), 1, 1, "o");
-      if (r > 1) c.rect(x, y + r - 2, 1, 1, "W");
-      if ((x - 8) % 6 === 0 && r > 2) { c.px(x, y - r + 1, "a"); c.px(x - 1, y - r + 2, "a"); c.px(x + 1, y - r + 2, "a"); c.px(x, y - r + 3, "A"); }
+    const at = (x) => ({ y: Math.round(17 - Math.sin((x - 10) / 3.3) * 5), r: x > 36 ? 2 : 3 });
+    for (let x = 8; x < 41; x++) { const { y, r } = at(x); c.circ(x, y, r, "w"); }
+    for (let x = 4; x < 44; x++) {
+      let bottom = -1, top = -1;
+      for (let y = 0; y < 26; y++) if (c.is(x, y, "wWo")) { if (top < 0) top = y; bottom = y; }
+      if (bottom < 0) continue;
+      c.px(x, bottom, "o");
+      if (bottom - 1 > top) c.px(x, bottom - 1, "W");
+      if (x > 13 && x % 5 < 2) for (let y = top; y < bottom - 1; y++) c.px(x, y, x % 5 ? "A" : "a");
     }
   },
+  // la punta de la cola se levanta y se enrosca, como un cascabel que amenaza
+  line(40, 12, 42, 5, "w", 2), px(43, 5, "W"), px(43, 4, "o"), vline(43, 6, 6, "W"),
   // cuello levantado y la cabeza mirando a la izquierda
-  line(10, 17, 6, 10, "w", 5), line(10, 20, 7, 13, "W", 2),
-  ellipse(6, 8, 6, 4, "w"), rect(0, 8, 6, 4, "w"), ellipse(7, 11, 5, 1, "W"), hline(0, 11, 6, "W"),
-  px(0, 8, "k"), hline(0, 10, 4, "k"), px(5, 7, "k"), px(6, 7, "e"), rect(4, 4, 6, 1, "W"),
+  line(9, 20, 8, 12, "w", 3), line(10, 21, 10, 15, "W"),
+  poly([1, 8, 7, 6, 11, 7, 12, 13, 7, 14, 1, 12], "w"), hline(2, 12, 7, "W"), hline(2, 13, 6, "o"),
+  hline(1, 11, 4, "k"), px(1, 8, "k"), rect(5, 8, 2, 2, "k"), px(6, 8, "e"), hline(4, 7, 4, "W"),
   // lengua bífida
-  hline(0, 13, 1, "E"), px(1, 12, "E"),
-  // cuernos curvos de hueso
-  line(7, 5, 11, 1, "g", 2), line(11, 1, 13, 0, "g"), px(13, 0, "G"),
-  line(4, 5, 4, 1, "G", 2), px(3, 0, "G"),
-  // rombos del lomo en el cuello
-  px(8, 12, "a"), px(9, 13, "a"), px(7, 13, "a"), px(8, 14, "A"),
+  px(0, 11, "E"), px(0, 10, "E"),
+  // dos cuernos curvos de oro (Moñái es el ladrón de los tesoros), hacia atrás
+  ...[[7, 6], [8, 5], [9, 4], [10, 3], [11, 2], [12, 2], [13, 1], [8, 6], [9, 5], [10, 4], [11, 3]].map(([x, y]) => px(x, y, "y")), px(14, 1, "Y"), px(9, 4, "F"),
+  ...[[10, 7], [11, 6], [12, 5], [13, 4], [14, 4], [11, 7], [12, 6]].map(([x, y]) => px(x, y, "Y")), px(15, 3, "Y"),
 );
 
 // Devorador: Ao Ao, el bicho lanudo de los cerros. Una bola de lana del bando con rizos, la boca
@@ -199,7 +204,6 @@ boss("boss-devourer", { w: 38, h: 32, mx: true },
   ellipse(19, 17, 17, 12, "w"), ellipse(19, 21, 16, 8, "W"),
   ...[[3, 12], [2, 17], [3, 22], [6, 7], [10, 4], [15, 3], [6, 26], [11, 28]].map(([x, y]) => circ(x, y, 2, "w")),
   ...[[4, 13], [3, 18], [7, 8], [11, 5], [4, 23]].map(([x, y]) => ring(x, y, 1, "W")),
-  ...[[8, 18], [6, 13]].map(([x, y]) => ring(x, y, 1, "o")),
   // guarda del bando bajo la boca
   hline(6, 27, 26, "a"), hline(8, 28, 22, "A"),
   // fauces enormes, dientes y lengua
@@ -207,7 +211,7 @@ boss("boss-devourer", { w: 38, h: 32, mx: true },
   ...[8, 11, 14, 17].map((x) => poly([x, 12, x + 3, 12, x + 1, 15], "g")),
   ...[10, 13, 16].map((x) => poly([x, 25, x + 3, 25, x + 1, 22], "g")),
   // ojillos de brasa y orejas
-  circ(14, 7, 2, "D"), px(14, 7, "e"), px(15, 7, "F"), circ(9, 9, 1, "D"), px(9, 9, "e"),
+  circ(14, 7, 2, "D"), px(14, 7, "e"), px(15, 7, "F"), px(13, 6, "e"),
   poly([7, 4, 9, 0, 11, 4], "W"), px(9, 2, "o"),
 );
 

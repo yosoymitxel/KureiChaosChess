@@ -1,0 +1,31 @@
+{
+  "nombre": "Ñandutí",
+  "precio": 160,
+  "descripcion": "Paraguay de siesta y San Juan: campesinos de sombrero pirí, galoperas y seres del monte sobre baldosa con ñandutí y ladrillo de tierra colorada.",
+  "colores": {
+    "table": "#2c1d15",
+    "table-2": "#36251b",
+    "tile-a": "#e2d6ba",
+    "tile-b": "#8e5440",
+    "tile-side": "#55301f",
+    "side-light": "#f4ecda",
+    "side-dark": "#d4532f",
+    "side-wild": "#2f7a48"
+  },
+  "interfaz": {
+    "paper": "#f4ecd8",
+    "paper-2": "#e7dabd",
+    "paper-3": "#d4c299",
+    "ink": "#1e1612",
+    "ink-2": "#3e2c20",
+    "accent": "#a3201c",
+    "accent-ink": "#5a0f0c",
+    "brass": "#d4a53a",
+    "muted": "#6e5c46"
+  },
+  "bandos": {
+    "claro": ["#f4ecda", "#ddd0b2", "#b8a27a", "#2f5fc4", "#1b2f7e"],
+    "oscuro": ["#f09068", "#d4532f", "#9a2e1a", "#e0a232", "#8a5a14"],
+    "salvaje": ["#5fae74", "#2f7a48", "#1a4a2c", "#ee74ae", "#a83c72"]
+  }
+}
