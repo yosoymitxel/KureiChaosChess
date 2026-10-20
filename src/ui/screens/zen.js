@@ -6,7 +6,7 @@ import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Topbar, useEnter } from '../components.js';
 import { Icon } from '../icons.js';
 import { Fx } from '../../view/fx.js';
-import { chipArt, POT, SOIL, plantArt, pondArt, MOSS, STEP, LANTERN, BRANCH, mapleLeaf, rakeArt, orbit, KOI_ORBITS, BUTTERFLY, CAN, SHEARS, SHOVEL, POUCH } from '../zen-art.js';
+import { chipArt, POT, SOIL, plantArt, pondArt, MOSS, STEP, LANTERN, BRANCH, mapleLeaf, rakeArt, orbit, KOI_ORBITS, BUTTERFLY, CAN, SHEARS, SHOVEL, POUCH, px } from '../zen-art.js';
 import { ZEN_KINDS, ZEN_NAMES, ZEN_MAX, ZEN_BASE, BASE_GRID, cellKey, expandCost, zenStage, zenSow, zenWater, zenDig, zenHarvest, zenExpand, zenLeaves, zenSweep, LEAF_COINS, BUTTERFLY_MS, butterflyGift, loadZen, saveZen } from '../../game/zen.js';
 import { award } from '../../game/achievements.js';
 import { COINS_PER_FLOWER, addCoins, charge, loadShop } from '../../game/shop.js';
@@ -35,10 +35,11 @@ const OUT = [0.16, 1, 0.3, 1];
 // Una maceta completa: el tiesto quieto y la planta encima según su etapa, meciéndose a su ritmo.
 // `.zn-grow` es el asa de las animaciones (brotar, estirón, cortar) sin pisar el balanceo.
 function potArt(kind, stage, d = 0) {
+  const sprite = kind && ['sprout', 'bud', 'bloom'].includes(stage);
   return html`<svg class=${'zn-plant' + (kind ? ' zn-k-' + kind : ' zn-empty')} viewBox="0 0 24 24" aria-hidden="true">
-    ${POT}
-    <g class="zn-sway" style=${{ '--d': `-${d}s` }}><g class="zn-grow"><g transform="translate(12 15.3) scale(1.28) translate(-12 -15.3)">${kind && plantArt(kind, stage)}</g></g></g>
-    ${SOIL}
+    <g class="zn-vec">${POT}</g>${px('pot', 24, 24)}
+    <g class="zn-sway" style=${{ '--d': `-${d}s` }}><g class="zn-grow"><g class="zn-vec" transform="translate(12 15.3) scale(1.28) translate(-12 -15.3)">${kind && plantArt(kind, stage)}</g>${sprite && px(`${kind}-${stage}`, 24, 24)}</g></g>
+    <g class="zn-vec">${SOIL}</g>
   </svg>`;
 }
 

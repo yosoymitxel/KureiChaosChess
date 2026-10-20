@@ -39,3 +39,13 @@
 [data-art="pixel"] :is(.bm-cell.a, .br-cell, .dm-cell) { background-image: var(--px-tile-a); background-size: 100% 100%; image-rendering: pixelated; }
 [data-art="pixel"] :is(.bm-cell.b, .dm-cell.dark) { background-image: var(--px-tile-b); }
 [data-art="pixel"] :is(.bm-cell, .br-cell):is(.hot, .lane, .goal, .home, .goal-light, .goal-dark) { background-image: none; }
+
+/* Jardín Zen: cada dibujo trae su sprite (zen-art.js) y aquí se elige cuál se ve. La arena y la
+   tierra sin cavar son losetas del mismo set, una por casilla; el rastrillado vectorial se apaga. */
+.zn-px { display: none; }
+[data-art="pixel"] .zn-px { display: inline; }
+[data-art="pixel"] .zn-vec { display: none; }
+[data-art="pixel"] .bm.zn-tray { background-image: url(../assets/zen/sand.png); background-size: var(--cell) var(--cell); image-rendering: pixelated; }
+[data-art="pixel"] .zn-tray .bm-cell.zn-raw { background-image: url(../assets/zen/raw.png); background-size: 100% 100%; }
+[data-art="pixel"] .zn-rake { display: none; }
+[data-art="pixel"] :is(.zn-plant, .zn-standart) { filter: drop-shadow(0 2px 0 oklch(0.15 0.03 55 / 0.35)); }
