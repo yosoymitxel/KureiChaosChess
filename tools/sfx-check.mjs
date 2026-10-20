@@ -3,7 +3,7 @@
 // AudioContext de mentira para revisar lo que cada receta agenda de verdad.
 import { SFX_NAMES, SFX_VOLUMES, setSfxEnabled, setSfxVolume, playSfx, startAmbient, stopAmbient, sfxState } from '../src/ui/sfx.js';
 
-const NAMES = ['move', 'capture', 'promote', 'card', 'win', 'lose', 'coin', 'flower', 'tap', 'achievement', 'mini_win', 'mini_lose', 'shatter'];
+const NAMES = ['move', 'capture', 'select', 'invalid', 'step', 'land', 'hit', 'stomp', 'boom', 'bigboom', 'crunch', 'pop', 'whoosh', 'warp', 'laser', 'zombie', 'water', 'snip', 'dig', 'splash', 'leaf', 'promote', 'card', 'win', 'lose', 'coin', 'flower', 'tap', 'achievement', 'mini_win', 'mini_lose', 'shatter'];
 const LEVELS = ['suave', 'normal', 'fuerte'];
 const WAVES = ['sine', 'triangle', 'square', 'sawtooth'];
 
@@ -37,7 +37,7 @@ class MockAudioContext {
   createBuffer(ch, len, rate) { return { length: len, sampleRate: rate, getChannelData: () => new Float32Array(len) }; }
   createGain() { return this.node('gain', { gain: param(1) }); }
   createOscillator() { return this.node('osc', { type: 'sine', frequency: param(440) }); }
-  createBiquadFilter() { return this.node('filter', { type: 'lowpass', frequency: param(350) }); }
+  createBiquadFilter() { return this.node('filter', { type: 'lowpass', frequency: param(350), Q: param(1) }); }
   createBufferSource() { return this.node('noise', { buffer: null, loop: false }); }
   node(kind, extra) {
     const n = {

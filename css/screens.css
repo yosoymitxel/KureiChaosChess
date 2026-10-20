@@ -604,6 +604,47 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 }
 .zn-can { fill: oklch(0.72 0.11 78); stroke: var(--ink); stroke-width: .8; stroke-linejoin: round; }
 .zn-can-handle { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; }
+/* El chorro sale del pico mientras la regadera está inclinada; se contrarrota para caer recto. */
+.zn-stream { position: absolute; left: 90%; top: 27%; width: 3px; height: 40px; transform-origin: top; rotate: -32deg; opacity: 0;
+  background: linear-gradient(oklch(0.8 0.09 230) 0 5px, transparent 5px) 0 0 / 3px 8px; animation: zn-stream 1.4s linear both, zn-flow 0.25s linear infinite; }
+@keyframes zn-stream { 0%, 30% { opacity: 0; scale: 1 0.2; } 38%, 70% { opacity: 1; scale: 1 1; } 78%, 100% { opacity: 0; scale: 1 1; } }
+@keyframes zn-flow { to { background-position: 0 8px; } }
+/* Herramientas: dibujo común. */
+.zn-steel { fill: oklch(0.86 0.015 250); stroke: var(--ink); stroke-width: .7; stroke-linejoin: round; }
+.zn-grip { fill: none; stroke: oklch(0.55 0.17 30); stroke-width: 1.4; }
+.zn-grip-bar { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }
+.zn-pivot { fill: oklch(0.72 0.11 78); stroke: var(--ink); stroke-width: .5; }
+.zn-shaft { fill: none; stroke: oklch(0.55 0.08 60); stroke-width: 2; stroke-linecap: round; }
+.zn-pouch { fill: oklch(0.72 0.07 75); stroke: var(--ink); stroke-width: .8; stroke-linejoin: round; }
+.zn-pouch-tie { fill: none; stroke: var(--ink); stroke-width: .8; stroke-linecap: round; }
+.zn-seed { fill: oklch(0.5 0.08 60); }
+.zn-blade { transform-box: view-box; transform-origin: 12px 12px; }
+/* La mano: la herramienta elegida acompaña al ratón sobre el jardín, con su punta en el puntero. */
+.zn-hand { position: absolute; left: 0; top: 0; z-index: 6; pointer-events: none; opacity: 0; transition: opacity 0.15s; filter: drop-shadow(0 6px 4px oklch(0 0 0 / 0.3)); }
+.zn-hand.on { opacity: 1; }
+.zn-yard.acting .zn-hand { opacity: 0; }
+.zn-hand svg, .zn-toolfx svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.zn-hand.t-cut { width: 50px; height: 50px; margin: -25px 0 0 -47px; }
+.zn-hand.t-water { width: 44px; height: 33px; margin: -9px 0 0 -40px; }
+.zn-hand.t-dig { width: 18px; height: 42px; margin: -40px 0 0 -9px; }
+.zn-hand.t-sow { width: 26px; height: 29px; margin: 6px 0 0 6px; }
+.zn-hand.t-cut .zn-blade-a { rotate: -16deg; } .zn-hand.t-cut .zn-blade-b { rotate: 16deg; }
+/* El gesto al tocar: las tijeras bajan al tallo y cortan dos veces; la pala se clava y palanquea. */
+.zn-toolfx { position: absolute; z-index: 6; pointer-events: none; filter: drop-shadow(0 6px 4px oklch(0 0 0 / 0.3)); }
+.zn-toolfx.t-cut { width: 58px; height: 58px; margin: -29px 0 0 -52px; animation: zn-cut-in 0.9s var(--ease-out) both; }
+.zn-toolfx.t-cut .zn-blade-a { animation: zn-snip-a 0.9s linear both; }
+.zn-toolfx.t-cut .zn-blade-b { animation: zn-snip-b 0.9s linear both; }
+@keyframes zn-cut-in { 0% { opacity: 0; translate: 22px -26px; } 22% { opacity: 1; translate: 0 0; } 70% { opacity: 1; translate: 0 0; } 100% { opacity: 0; translate: 18px -16px; } }
+@keyframes zn-snip-a { 0%, 20% { rotate: -22deg; } 37% { rotate: 0deg; } 43% { rotate: -18deg; } 49%, 100% { rotate: 0deg; } }
+@keyframes zn-snip-b { 0%, 20% { rotate: 22deg; } 37% { rotate: 0deg; } 43% { rotate: 18deg; } 49%, 100% { rotate: 0deg; } }
+.zn-toolfx.t-dig { width: 22px; height: 51px; margin: -49px 0 0 -11px; transform-origin: 50% 100%; animation: zn-dig 0.9s var(--ease-out) both; }
+@keyframes zn-dig {
+  0% { opacity: 0; translate: 0 -34px; rotate: 0deg; }
+  25% { opacity: 1; translate: 0 6px; rotate: 0deg; }
+  38% { translate: 0 6px; rotate: -24deg; }
+  62% { opacity: 1; translate: 0 -22px; rotate: -12deg; }
+  100% { opacity: 0; translate: 0 -40px; rotate: 0deg; }
+}
 /* Mariposa: vuela hasta la flor, bate las alas y se posa. */
 .zn-fly { position: absolute; z-index: 5; width: 46px; height: 46px; margin: -23px 0 0 -23px; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 4px 3px oklch(0 0 0 / 0.3)); }
 .zn-fly svg { width: 100%; height: 100%; overflow: visible; }

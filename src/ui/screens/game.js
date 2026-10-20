@@ -245,7 +245,6 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const res = match.move(piece, to);
       if (!res) return false;
       if (human) d.moments.dropWaiting();
-      playSfx(res.victims.length ? 'capture' : 'move');
       d.busy = true;
       clearSel();
       const tag = match.player.kind === 'bot' ? '◆ ' : '';
@@ -259,7 +258,6 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (res.promoted) {
         addLog(`${tag}¡Coronación!`);
         if (piece.color === d.feats.human) award('crowned');
-        playSfx('promote');
       }
       await d.view.playMove(res);
       const fallenBoss = res.victims.find((v) => v.killed && v.piece.boss)?.piece;

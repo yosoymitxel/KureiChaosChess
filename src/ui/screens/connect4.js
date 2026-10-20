@@ -1,6 +1,7 @@
 // Conecta 4 minigame screen: ivory (you) against crimson (bot), tokens drop with a bounce of weight.
 // Keyboard: arrows pick a column, Enter or Space drops.
 import { html, useState, useRef, useEffect, motion } from '../lib.js';
+import { playSfx } from '../sfx.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { ROWS, COLS, emptyGrid, dropRow, lineAt, isFull, botColumn, DIFFS } from '../../game/connect4.js';
 
@@ -25,6 +26,7 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar', set
     await wait(0);
     const el = boardRef.current?.querySelector(`[data-cell="${r}-${c}"] .c4-token`);
     if (el) await motion(el, { y: [-(r + 1) * el.offsetHeight * 1.15, 0] }, { duration: 0.25 + r * 0.05, ease: [0.55, 0, 1, 0.45] });
+    playSfx('land');
     if (el) motion(el, { scaleY: [0.82, 1], scaleX: [1.12, 1] }, { duration: 0.18, ease: [0.16, 1, 0.3, 1] });
     const line = lineAt(grid, r, c, who);
     if (line || isFull(grid)) { setResult({ winner: line ? who : null, line }); return 'over'; }

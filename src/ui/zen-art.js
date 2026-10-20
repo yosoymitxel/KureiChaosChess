@@ -179,6 +179,24 @@ export const CAN = html`<svg viewBox="0 0 24 18" aria-hidden="true">
   <ellipse class="zn-can" cx="21.6" cy="5" rx="1.3" ry="1.8" transform="rotate(-40 21.6 5)"/>
 </svg>`;
 
+// Tijeras de podar: dos hojas que giran sobre el perno (12,12); el CSS las abre y las cierra.
+export const SHEARS = html`<svg viewBox="0 0 24 24" aria-hidden="true">
+  <g class="zn-blade zn-blade-a"><path class="zn-grip-bar" d="M12 12 7.4 14.6"/><circle class="zn-grip" cx="5.6" cy="15.6" r="2.4"/><path class="zn-steel" d="M11.4 11.2 22.6 10.6 22.8 11.6 12 12.8z"/></g>
+  <g class="zn-blade zn-blade-b"><path class="zn-grip-bar" d="M12 12 7.4 9.4"/><circle class="zn-grip" cx="5.6" cy="8.4" r="2.4"/><path class="zn-steel" d="M11.4 12.8 22.6 13.4 22.8 12.4 12 11.2z"/></g>
+  <circle class="zn-pivot" cx="12" cy="12" r="1"/>
+</svg>`;
+// Pala de jardín: mango arriba, hoja abajo (la punta en el fondo del lienzo, donde se clava).
+export const SHOVEL = html`<svg viewBox="0 0 12 28" aria-hidden="true">
+  <path class="zn-grip-bar" d="M3.4 2.2h5.2"/><path class="zn-shaft" d="M6 2.2v14"/>
+  <path class="zn-steel" d="M2.6 15.6h6.8v4.6c0 2.8-1.6 5.2-3.4 6.6-1.8-1.4-3.4-3.8-3.4-6.6z"/>
+</svg>`;
+// Bolsita de semillas, abierta por arriba.
+export const POUCH = html`<svg viewBox="0 0 16 18" aria-hidden="true">
+  <path class="zn-pouch" d="M3.6 5.4h8.8l1.4 9.4c.2 1.4-.8 2.4-2.2 2.4H4.4c-1.4 0-2.4-1-2.2-2.4z"/>
+  <path class="zn-pouch-tie" d="M3.4 5.6 5 3.2M12.6 5.6 11 3.2"/>
+  <circle class="zn-seed" cx="7" cy="3.4" r=".9"/><circle class="zn-seed" cx="9.4" cy="2.6" r=".8"/>
+</svg>`;
+
 // Arena rastrillada: líneas paralelas cortadas alrededor de cada objeto y anillos que lo rodean.
 // `objs`: { x, y, r } en unidades de casilla (centro y radio libre); `raw`: casillas sin cavar.
 export function rakeArt(n, objs, raw) {

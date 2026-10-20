@@ -1,6 +1,7 @@
 // Duelo: arena de combate por turnos. Tu pieza abajo a la izquierda, la rival arriba a la derecha,
 // cada una con su barra de vida; los ataques embisten, el golpe destella y el daño salta en número.
 import { html, useState, useRef, motion } from '../lib.js';
+import { playSfx } from '../sfx.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
@@ -46,6 +47,7 @@ export function DuelScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setting
     if (ev.swap) {
       setLine(`¡Entra ${PIECE_NAMES[ev.to].toLowerCase()}!`);
       redraw(); await wait(30);
+      playSfx('pop');
       const f = fig(ev.swap);
       if (f && !still) await motion(f, { y: [-60, 0], scale: [0.8, 1], opacity: [0, 1] }, { duration: 0.42, ease: OUT });
       return;
@@ -54,18 +56,21 @@ export function DuelScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setting
     const a = fig(ev.by), d = fig(ev.by === 'light' ? 'dark' : 'light');
     const dir = ev.by === 'light' ? 1 : -1;
     setLine(`${who} usa ${m.name}.`);
+    playSfx(m.power ? 'whoosh' : 'select');
     if (m.power && a && !still) await motion(a, { x: [0, 26 * dir, 0], y: [0, -18 * dir, 0] }, { duration: 0.32, ease: 'easeInOut' });
     else if (a && !still) await motion(a, { scale: [1, 1.12, 1] }, { duration: 0.3, ease: OUT });
     redraw();
     const target = ev.by === 'light' ? 'dark' : 'light';
-    if (ev.miss) { float(target, 'Falla', 'miss'); setLine(`${who} usa ${m.name}… y falla.`); await wait(500); return; }
-    if (ev.heal) { float(ev.by, '+' + ev.heal, 'heal'); await wait(450); return; }
-    if (!m.power) { float(ev.by, m.guard ? 'Guardia' : 'Cargado', 'buff'); await wait(450); return; }
+    if (ev.miss) { playSfx('invalid'); float(target, 'Falla', 'miss'); setLine(`${who} usa ${m.name}… y falla.`); await wait(500); return; }
+    if (ev.heal) { playSfx('flower'); float(ev.by, '+' + ev.heal, 'heal'); await wait(450); return; }
+    if (!m.power) { playSfx(m.guard ? 'hit' : 'promote'); float(ev.by, m.guard ? 'Guardia' : 'Cargado', 'buff'); await wait(450); return; }
+    playSfx(ev.eff > 1 ? 'capture' : ev.guarded ? 'hit' : 'land');
     if (d && !still) { d.classList.add('flash'); motion(d, { x: [0, 10 * dir, -6 * dir, 0] }, { duration: 0.3 }); setTimeout(() => d.classList.remove('flash'), 140); }
     float(target, '−' + ev.dmg, ev.eff > 1 ? 'crit' : 'dmg');
     if (ev.recoil) float(ev.by, '−' + ev.recoil, 'dmg');
     setLine(ev.eff > 1 ? '¡Es muy eficaz!' : ev.eff < 1 ? 'No es muy eficaz…' : ev.guarded ? 'La guardia amortigua el golpe.' : `${who} acierta.`);
     await wait(520);
+    if (ev.ko) playSfx('crunch');
     if (ev.ko && d && !still) await motion(d, { y: [0, 30], rotate: [0, 20 * dir], opacity: [1, 0] }, { duration: 0.45, ease: 'easeIn' });
   };
 

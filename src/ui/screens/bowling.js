@@ -3,6 +3,7 @@ import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { MiniGrid } from './mini-grid.js';
 import { hopPiece, popPiece, reduced } from '../hop.js';
 import { Fx } from '../../view/fx.js';
+import { playSfx } from '../sfx.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { LAUNCH_COLS, DIFFS, newBowling, launch, tick } from '../../game/bowling.js';
 
@@ -93,6 +94,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
       const el = pcOf(e.r, e.c);
       if (p.r !== e.r || p.c !== e.c) hopPiece(grid, el, { from: { row: p.r, col: p.c }, to: { row: e.r, col: e.c }, side: 'zombie', cols: s.cols, rows: s.rows });
       if (p.hp !== e.hp) {
+        playSfx('hit');
         const c = center(e.r, e.c);
         fx.burst(c.x, c.y, { count: 14, color: ['#fff', '#ffe2a8', css('--side-zombie')], speed: [220, 460], size: [1.5, 3.5], life: [0.15, 0.35], shape: 'spark', drag: 0.85 });
         fx.ring(c.x, c.y, { radius: cw * 0.55, color: '#fff', width: 3, life: 0.22 });
@@ -119,6 +121,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
       if (el) motion(el, { x: [(p.c - b.c) * cw, 0], y: [(p.r - b.r) * ch, 0] }, { duration: TICK_MS / 1000, ease: 'linear' });
       if (bounced) { // rebote contra una pieza o la banda: polvo y la ficha se aplasta contra el choque
         const c = center(b.r, b.c);
+        playSfx('land');
         fx.dust(c.x, c.y, 0.6);
         if (el) motion(el, { scaleX: [0.7, 1.12, 1], scaleY: [1.25, 0.92, 1] }, { duration: 0.26, ease: [0.16, 1, 0.3, 1] });
       }
