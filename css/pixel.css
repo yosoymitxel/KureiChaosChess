@@ -3,20 +3,21 @@
    los juegos de 8 bits), sombras duras sin desenfoque, movimiento a saltos y marcos de nueve
    partes dibujados por el tema (panel.png y boton.png de art/temas/<tema>). El tablero, las
    piezas y la mesa están en board.css. */
-/* Pixelify Sans (OFL), servida desde el juego: el subconjunto latino trae ñ y tildes. */
+/* Jersey 10 (OFL), servida desde el juego: el subconjunto latino trae ñ y tildes. Se eligió por
+   legible: en Pixelify la Z parece un 2, la C una O y la "fi" una A. Tiene un solo peso y es
+   chica de ojo, así que no se inventa negrita y se agranda con font-size-adjust. */
 @font-face {
-  font-family: 'Pixelify Sans'; font-style: normal; font-weight: 400 700; font-display: swap;
-  src: url(../assets/fonts/pixelify-sans-latin.woff2) format('woff2');
+  font-family: 'Jersey 10'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url(../assets/fonts/jersey10-latin.woff2) format('woff2');
 }
 [data-art="pixel"] {
-  --font: 'Pixelify Sans', 'Trebuchet MS', sans-serif;
+  --font: 'Jersey 10', 'Trebuchet MS', sans-serif;
   --r-sm: 0px; --r-md: 0px; --r-lg: 0px;
   --lift: 4px 4px 0 oklch(0.1 0.03 300 / 0.45);
   --ease-out: steps(4, end);
   --grain: none; --wood: none;
 }
-/* Sin ligaduras: la "fi" de Pixelify se lee como una A ("Anal" por "final"). */
-[data-art="pixel"] body { -webkit-font-smoothing: none; font-variant-ligatures: none; }
+[data-art="pixel"] body { -webkit-font-smoothing: none; font-synthesis: none; font-size-adjust: 0.56; }
 [data-art="pixel"] :is(*, *::before, *::after) { border-radius: 0 !important; }
 [data-art="pixel"] :is(h1, h2, h3) { letter-spacing: 0; }
 /* Los dibujos vectoriales (iconos, jardín, minijuegos) sin suavizado: borde de píxel. */
