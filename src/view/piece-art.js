@@ -33,32 +33,32 @@ const LADDER = {
 // Caja del dibujo [x, y, w, h] medida en el navegador: cada forma por su rectángulo en pantalla
 // (con su transform), sin el contorno, salvo los trazos gruesos sin relleno (cuellos, patas,
 // lanzas), que son parte del cuerpo. Sin DOM (las herramientas de Node) vale el lienzo entero.
-const boxes = new Map();
-let probe = null;
+// Se miden todas juntas la primera vez: una sola pasada de maquetado en vez de una por figura
+// (medir de a una, en pleno reparto de piezas, trababa la animación en teléfonos).
+let boxes = null;
 function measure(type) {
-  if (boxes.has(type)) return boxes.get(type);
+  if (boxes) return boxes[type];
   if (typeof document === 'undefined' || !document.body) return [0, 0, 45, 41];
-  if (!probe) {
-    probe = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    probe.setAttribute('viewBox', '0 0 45 41');
-    probe.setAttribute('width', '450'); probe.setAttribute('height', '410');
-    probe.setAttribute('aria-hidden', 'true');
-    probe.style.cssText = 'position:fixed;left:0;top:0;visibility:hidden;pointer-events:none';
-  }
+  const probe = document.createElement('div');
+  probe.setAttribute('aria-hidden', 'true');
+  probe.style.cssText = 'position:fixed;left:0;top:0;visibility:hidden;pointer-events:none';
+  const types = Object.keys(BODIES);
+  probe.innerHTML = types.map((t) => `<svg viewBox="0 0 45 41" width="450" height="410" style="position:absolute;left:0;top:0"><g fill="#000" stroke="#000" stroke-width="${STROKE}">${BODIES[t]}</g></svg>`).join('');
   document.body.appendChild(probe);
-  probe.innerHTML = `<g fill="#000" stroke="#000" stroke-width="${STROKE}">${BODIES[type]}</g>`;
-  const base = probe.getBoundingClientRect(), u = 45 / base.width;
-  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-  for (const el of probe.querySelectorAll('path, circle, ellipse, rect, polygon, polyline, line')) {
-    const r = el.getBoundingClientRect(), cs = getComputedStyle(el), sw = parseFloat(cs.strokeWidth);
-    const pad = cs.fill === 'none' && cs.stroke !== 'none' && sw > 2.5 ? sw / 2 : 0;
-    x0 = Math.min(x0, (r.left - base.left) * u - pad); y0 = Math.min(y0, (r.top - base.top) * u - pad);
-    x1 = Math.max(x1, (r.right - base.left) * u + pad); y1 = Math.max(y1, (r.bottom - base.top) * u + pad);
-  }
+  const base = probe.firstChild.getBoundingClientRect(), u = 45 / base.width;
+  boxes = {};
+  types.forEach((t, i) => {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const el of probe.children[i].querySelectorAll('path, circle, ellipse, rect, polygon, polyline, line')) {
+      const r = el.getBoundingClientRect(), cs = getComputedStyle(el), sw = parseFloat(cs.strokeWidth);
+      const pad = cs.fill === 'none' && cs.stroke !== 'none' && sw > 2.5 ? sw / 2 : 0;
+      x0 = Math.min(x0, (r.left - base.left) * u - pad); y0 = Math.min(y0, (r.top - base.top) * u - pad);
+      x1 = Math.max(x1, (r.right - base.left) * u + pad); y1 = Math.max(y1, (r.bottom - base.top) * u + pad);
+    }
+    boxes[t] = [x0, y0, x1 - x0, y1 - y0];
+  });
   probe.remove();
-  const box = [x0, y0, x1 - x0, y1 - y0];
-  boxes.set(type, box);
-  return box;
+  return boxes[type];
 }
 
 function layout(type) {

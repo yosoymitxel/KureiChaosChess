@@ -235,7 +235,10 @@ export class BoardView {
     if (!el) return;
     el.style.setProperty('--r', st.r);
     el.style.setProperty('--c', st.c);
-    el.style.setProperty('--z', st.z.toFixed(2));
+    const z = st.z.toFixed(2);
+    el.style.setProperty('--z', z);
+    // La sombra se achica con la altura; --z no se hereda (board.css), así que va aparte.
+    (el.shadowEl ||= el.querySelector('.pc-shadow'))?.style.setProperty('--z', z);
   }
 
   setArt(p) {
@@ -457,6 +460,10 @@ export class BoardView {
   }
 
   async intro(pieces) {
+    this.host.classList.add('dealing');
+    try { await this.deal(pieces); } finally { this.host.classList.remove('dealing'); }
+  }
+  async deal(pieces) {
     const tiles = [...this.tiles.values()];
     const { rows, cols } = this.board;
     tiles.forEach((t) => {
@@ -473,14 +480,17 @@ export class BoardView {
     // El jefe no baja con el resto: espera fuera de cuadro y cae una sola vez, con su impacto.
     const boss = pieces.find((p) => p.boss);
     const order = pieces.filter((p) => p !== boss).sort((a, b) => (a.color === 'light' ? b.row - a.row : a.row - b.row));
+    // Dónde cae el polvo, medido todo de una vez: medir en cada aterrizaje obligaba al navegador
+    // a recalcular la página a mitad de la animación (el reparto se trababa en teléfonos).
+    const dustAt = new Map(order.filter((p, i) => i % 3 === 0).map((p) => [p, this.centerOf(p)]));
     order.forEach((p, i) => {
       const st = this.state.get(p), el = this.els.get(p);
       st.z = this.sq * 4; this.apply(p); el.style.opacity = 0;
-      animate(el, { opacity: 1, duration: this.d(120), delay: this.d(i * 22) });
+      animate(el, { opacity: [0, 1], duration: this.d(120), delay: this.d(i * 22) });
       animate(st, {
         z: 0, duration: this.d(420), delay: this.d(i * 22), ease: 'inQuad',
         onUpdate: () => this.apply(p),
-        onComplete: () => { this.squash(p, 0.7); playSfx('step'); if (i % 3 === 0) { const c = this.centerOf(p); this.fx.dust(c.x, c.y, 0.6); } },
+        onComplete: () => { this.squash(p, 0.7); playSfx('step'); const c = dustAt.get(p); if (c) this.fx.dust(c.x, c.y, 0.6); },
       });
     });
     await wait(this.d(order.length * 22 + 480));
@@ -669,7 +679,7 @@ export class BoardView {
     this.addPiece(p);
     const st = this.state.get(p), el = this.els.get(p);
     st.z = this.sq * 4; this.apply(p); el.style.opacity = 0;
-    animate(el, { opacity: 1, duration: this.d(120) });
+    animate(el, { opacity: [0, 1], duration: this.d(120) });
     await animate(st, { z: 0, duration: this.d(420), ease: 'inQuad', onUpdate: () => this.apply(p) });
     playSfx('land');
     const c = this.centerOf(p); this.fx.dust(c.x, c.y, 0.9); this.squash(p, 0.7);
@@ -802,7 +812,7 @@ export class BoardView {
     this.fx.burst(c.x, c.y, { count: 18, color: [css('--side-zombie'), 'oklch(0.82 0.12 128)'], speed: [40, 140], life: [0.5, 0.9], size: [3, 6], gravity: -90, drag: 0.9 });
     this.fx.dust(c.x, c.y, 1.2);
     playSfx('zombie');
-    animate(el, { opacity: 1, duration: this.d(160) });
+    animate(el, { opacity: [0, 1], duration: this.d(160) });
     await animate(st, { z: 0, duration: this.d(420), ease: 'outBack', onUpdate: () => this.apply(p) });
     const fig = el.querySelector('.pc-fig');
     if (fig) await animate(fig, { rotate: [0, -8, 7, -4, 0], duration: this.d(360), ease: 'inOutSine' });

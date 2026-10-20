@@ -18,7 +18,9 @@
   --grain: none; --wood: none;
 }
 [data-art="pixel"] body { -webkit-font-smoothing: none; font-synthesis: none; font-size-adjust: 0.56; }
-[data-art="pixel"] :is(*, *::before, *::after) { border-radius: 0 !important; }
+/* Solo elementos: con ::before y ::after el navegador calculaba un pseudoelemento por cada nodo en
+   cada recálculo (el reparto de piezas se trababa); los pocos pseudo redondos quedan como están. */
+[data-art="pixel"] * { border-radius: 0 !important; }
 [data-art="pixel"] :is(h1, h2, h3) { letter-spacing: 0; }
 /* Los dibujos vectoriales (iconos, jardín, minijuegos) sin suavizado: borde de píxel. */
 [data-art="pixel"] svg { shape-rendering: crispEdges; }
