@@ -117,7 +117,22 @@ for (const key of Object.keys(DIFFS)) {
   }
   ok(!stuck.length, `bot ${key} atascado con el disco en ${stuck.join(' ')}`);
 }
-console.log('bot sin atascos OK');
+// En el saque el disco está clavado: el bot no lo atraviesa ni, al soltarlo, se lo mete en su portería.
+{
+  let own = 0;
+  for (let g = 0; g < 5; g++) {
+    const s = newHockey('dificil', rngOf(50 + g));
+    aim(s, 10, H - 10); // tu torre, quieta en un rincón
+    run(s, 900, ['bot'], (s) => {
+      if (s.pause > 0) ok(Math.hypot(s.bot.x - s.puck.x, s.bot.y - s.puck.y) >= PUCK_R + MALLET_R - 1e-6, 'la torre del bot atravesó el disco en el saque');
+      return s.over;
+    });
+    ok(s.over === 'lose', 'el bot no le ganó a una torre quieta');
+    own += s.score.me;
+  }
+  ok(own <= 1, `el bot difícil se metió ${own} goles en contra en 5 partidos`);
+}
+console.log('bot sin atascos ni autogoles OK');
 
 // Partidos enteros bot contra bot (tu torre la lleva otro bot): terminan, con marcador válido.
 const games = +(process.argv[2] || 6);

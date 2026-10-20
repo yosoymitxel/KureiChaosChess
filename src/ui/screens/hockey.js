@@ -14,7 +14,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
   const [s] = useState(() => newHockey(diff || settings.miniDiff?.hockey));
   const [score, setScore] = useState({ me: 0, bot: 0 });
   const [over, setOver] = useState(null);
-  const tableRef = useRef(null), wrapRef = useRef(null);
+  const tableRef = useRef(null), wrapRef = useRef(null), screenRef = useRef(null);
   const meRef = useRef(null), botRef = useRef(null), puckRef = useRef(null);
   const rect = useRef(null); // caja de la mesa: se mide al tocar y al cambiar de tamaño, nunca por fotograma
   const drag = useRef(null);
@@ -109,7 +109,8 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
         const reach = PLAYER_MAX * 0.12;
         aim(s, s.me.x + dx * reach, s.me.y + dy * reach);
       }
-      step(s, dt);
+      // Con la hoja de ayuda abierta la mesa espera: ni corre el reloj de los siete segundos.
+      if (!screenRef.current?.querySelector('.overlay')) step(s, dt);
       place(meRef.current, s.me);
       place(botRef.current, s.bot);
       place(puckRef.current, s.puck);
@@ -139,7 +140,9 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
       else keys.current.delete(key);
     };
     const blur = () => keys.current.clear();
+    const scrolled = () => (rect.current = null);
     addEventListener('keydown', onKey);
+    addEventListener('scroll', scrolled, true);
     addEventListener('keyup', onKey);
     addEventListener('blur', blur);
     return () => {
@@ -149,14 +152,18 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
       removeEventListener('keydown', onKey);
       removeEventListener('keyup', onKey);
       removeEventListener('blur', blur);
+      removeEventListener('scroll', scrolled, true);
     };
   }, []);
+
+  // En el teléfono el cierre cae bajo la mesa: se trae a la vista.
+  useEffect(() => { if (over) screenRef.current?.querySelector('.mini-end')?.scrollIntoView({ block: 'nearest', behavior: reduced() ? 'auto' : 'smooth' }); }, [over]);
 
   const pc = (side, ref) => html`<span class=${'ah-pc ' + (side === 'me' ? 'me side-light' : 'foe side-dark')} ref=${ref}>
     <span class="ah-body"><i class="ah-base"></i><span class="ah-fig" dangerouslySetInnerHTML=${{ __html: pieceSVG('rook') }} /></span>
   </span>`;
 
-  return html`<div class="screen mini">
+  return html`<div class="screen mini" ref=${screenRef}>
     <${Topbar} title="Hockey de mesa" sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
@@ -181,7 +188,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
             <span class="chip"><i class="ah-dot foe"></i>Bot <b>${score.bot}</b></span>
           </div>`}
           ${over && html`<${MiniEnd} win=${over === 'win'} note=${over === 'win' ? `Ganaste ${score.me} a ${score.bot}: el disco ya es tuyo.` : `El bot llegó a ${GOALS}: perdiste ${score.me} a ${score.bot}.`} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
-          <${MiniTools} mini="hockey" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Arrastra tu torre marfil con el dedo o el ratón (o muévela con las flechas) por tu mitad de la mesa y golpea el disco hacia la portería de arriba. Cuanto más rápido lo golpeas, más fuerte sale, y las bandas sirven para tiros al rebote. Gana quien meta ${GOALS} goles; tras cada gol saca quien lo encajó. No retengas el disco en tu mitad más de siete segundos o el saque pasa al rival.<//>
+          <${MiniTools} mini="hockey" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Arrastra tu torre, la de abajo, con el dedo o el ratón (o muévela con las flechas) por tu mitad de la mesa y golpea el disco hacia la portería de arriba. Cuanto más rápido lo golpeas, más fuerte sale, y las bandas sirven para tiros al rebote. Gana quien meta cinco goles; tras cada gol saca quien lo encajó. No retengas el disco en tu mitad más de siete segundos o el saque pasa al rival.<//>
         </div>
       </div>
     </div>

@@ -184,7 +184,15 @@ function sub(s, dt, bots) {
   }
   drive(s.me, bots.includes('me') ? (s.foeDiff || s.diff).speed : PLAYER_MAX, dt);
   drive(s.bot, s.diff.speed, dt);
-  if (s.pause > 0) { s.pause -= dt; return; }
+  if (s.pause > 0) {
+    // En el saque el disco está clavado: las torres no lo atraviesan (si no, al soltarlo salía hacia atrás).
+    for (const m of [s.me, s.bot]) {
+      const dx = m.x - s.puck.x, dy = m.y - s.puck.y, d = Math.hypot(dx, dy), min = PUCK_R + MALLET_R;
+      if (d < min) { const L = limits(m.side), k = d ? min / d : 0; m.x = clamp(s.puck.x + (d ? dx * k : 0), L.x0, L.x1); m.y = clamp(s.puck.y + (d ? dy * k : (m.side === 'me' ? min : -min)), L.y0, L.y1); m.vx = m.vy = 0; }
+    }
+    s.pause -= dt;
+    return;
+  }
   const p = s.puck, f = Math.exp(-FRICTION * dt);
   p.vx *= f; p.vy *= f;
   p.x += p.vx * dt;
