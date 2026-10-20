@@ -55,7 +55,8 @@ const P = {
   spade: html`<rect x="10.7" y="2" width="2.6" height="6.6" rx="1.2" /><path d="M8.2 7.6h7.6v3.5c0 3.2-2 5.7-3.8 7.2-1.8-1.5-3.8-4-3.8-7.2z" />${cut('M12 10.4v4.6', 1.4)}`,
   shears: html`<path d="M5.3 2.1l2.3.5 9.8 13.2-2.2 1.7zM18.7 2.1l-2.3.5-9.8 13.2 2.2 1.7z" /><circle cx="7.2" cy="19.3" r="2.6" /><circle cx="16.8" cy="19.3" r="2.6" /><circle cx="7.2" cy="19.3" r="1.1" fill=${CUT} /><circle cx="16.8" cy="19.3" r="1.1" fill=${CUT} />`,
   flask: html`<path d="M9 2.5h6v2h-1v4.6l5.7 9.4c1 1.7-.2 3.5-2 3.5H6.3c-1.8 0-3-1.8-2-3.5L10 9.1V4.5H9z" />${cut('M7.5 15.5h9', 1.6)}${dot(10.5, 18.3, 1.1)}${dot(14, 17.8, 0.8)}`,
-  swap: html`<path d="M3.2 7.2h12.1V3.9L22.6 8.4l-7.3 4.5V9.6H3.2zM20.8 16.8H8.7v-3.3L1.4 15.6l7.3 4.5v-3.3h12.1z" />`,
+  // La flecha de abajo es la de arriba girada 180° sobre el centro (12,12).
+  swap: html`<path d="M3.2 7.2h12.1V3.9L22.6 8.4l-7.3 4.5V9.6H3.2zM20.8 16.8H8.7v3.3L1.4 15.6l7.3-4.5v3.3h12.1z" />`,
   bomb: html`<circle cx="12" cy="14.5" r="7" /><path d="M15.3 4.6l2.5 2.5-2.5 2.5-2.5-2.5z" /><path d="M17.5 5.1c.9-.7 1.8-1.1 2.8-1.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />${dot(21.2, 3.2, 1.6)}${cut('M8.6 12.4a4.3 4.3 0 0 1 2.3-3.3', 1.7)}`,
   checkers: html`<ellipse cx="12" cy="16.4" rx="8.6" ry="3.6" /><rect x="3.4" y="11.6" width="17.2" height="4.8" /><ellipse cx="12" cy="11.6" rx="8.6" ry="3.6" />${cut('M7.6 11.6a4.4 1.8 0 0 0 8.8 0a4.4 1.8 0 0 0-8.8 0', 1.3)}`,
   bowl: html`<circle cx="7.2" cy="16.6" r="5.1" />${dot(5.9, 15.3, 1.05)}${dot(8.6, 14.9, 1.05)}${dot(7, 18, 1.05)}<circle cx="15" cy="5.2" r="2.6" /><rect x="13.9" y="7.2" width="2.2" height="2.6" rx="1" /><path d="M12.6 12.6c0-1.9.9-3.4 2.4-4.4 1.5 1 2.4 2.5 2.4 4.4 0 2.5-1.6 4.3-2.4 6.2-.8-1.9-2.4-3.7-2.4-6.2z" />`,
