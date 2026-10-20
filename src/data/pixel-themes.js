@@ -51,10 +51,42 @@ export const PIXEL_THEMES = {
       "accent": "#a8400c",
       "accent-ink": "#6a2608",
       "brass": "#f0a23a",
-      "muted": "#5e5168"
+      "muted": "#4e4258"
     },
     "art": "pixel",
     "pack": "halloween"
+  },
+  "piratas": {
+    "id": "piratas",
+    "name": "Piratas",
+    "price": 160,
+    "swatch": [
+      "#13223a",
+      "#d6ae7a",
+      "#cc4652",
+      "#42c6bc"
+    ],
+    "vars": {
+      "table": "#13223a",
+      "table-2": "#192d4b",
+      "tile-a": "#d6ae7a",
+      "tile-b": "#9a6a42",
+      "tile-side": "#5e3d26",
+      "side-light": "#f6efdc",
+      "side-dark": "#cc4652",
+      "side-wild": "#42c6bc",
+      "paper": "#f3ead2",
+      "paper-2": "#e6d8b6",
+      "paper-3": "#d2bf94",
+      "ink": "#1f1812",
+      "ink-2": "#3d2b1b",
+      "accent": "#a3282f",
+      "accent-ink": "#5e1218",
+      "brass": "#d9a93a",
+      "muted": "#6e5c44"
+    },
+    "art": "pixel",
+    "pack": "piratas"
   },
   "scifi": {
     "id": "scifi",

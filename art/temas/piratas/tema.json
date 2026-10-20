@@ -1,0 +1,31 @@
+{
+  "nombre": "Piratas",
+  "precio": 160,
+  "descripcion": "Al abordaje: grumetes, capitanes y krakens sobre la cubierta de un barco en mar abierto.",
+  "colores": {
+    "table": "#13223a",
+    "table-2": "#192d4b",
+    "tile-a": "#d6ae7a",
+    "tile-b": "#9a6a42",
+    "tile-side": "#5e3d26",
+    "side-light": "#f6efdc",
+    "side-dark": "#cc4652",
+    "side-wild": "#42c6bc"
+  },
+  "interfaz": {
+    "paper": "#f3ead2",
+    "paper-2": "#e6d8b6",
+    "paper-3": "#d2bf94",
+    "ink": "#1f1812",
+    "ink-2": "#3d2b1b",
+    "accent": "#a3282f",
+    "accent-ink": "#5e1218",
+    "brass": "#d9a93a",
+    "muted": "#6e5c44"
+  },
+  "bandos": {
+    "claro": ["#f6efdc", "#e2d3ae", "#c3a878", "#94784c", "#665032"],
+    "oscuro": ["#ec8a8e", "#cc4652", "#9c2838", "#661a28", "#4a1220"],
+    "salvaje": ["#9eeae0", "#42c6bc", "#1f938e", "#13615f", "#0e4645"]
+  }
+}
