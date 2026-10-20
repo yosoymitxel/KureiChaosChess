@@ -88,9 +88,9 @@ piece("knight", { w: 30, h: 31 },
 );
 
 // Alfil: bruja de sombrero picudo con la punta doblada, nariz larga, melena de brasa y escoba.
-piece("bishop", { w: 26, h: 32 },
+piece("bishop", { w: 26, h: 31 },
   // escoba: palo y paja
-  rect(20, 4, 2, 21, "n"), vline(21, 4, 21, "N"), poly([18, 25, 23, 25, 25, 31, 16, 31], "z"), vline(19, 26, 5, "Z"), vline(22, 26, 5, "Z"), hline(18, 25, 6, "N"),
+  rect(20, 4, 2, 21, "n"), vline(21, 4, 21, "N"), poly([18, 25, 23, 25, 25, 31, 16, 31], "z"), vline(19, 26, 4, "Z"), vline(22, 26, 4, "Z"), hline(18, 25, 6, "N"),
   // vestido con el bajo hecho jirones
   poly([5, 17, 14, 17, 18, 29, 1, 29], "O"), poly([12, 18, 14, 17, 18, 29, 14, 29], "b"),
   ...[1, 5, 9, 13].map((x) => poly([x, 29, x + 4, 29, x + 2, 31], "O")),

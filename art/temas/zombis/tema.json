@@ -1,0 +1,31 @@
+{
+  "nombre": "Zombis",
+  "precio": 160,
+  "descripcion": "Apocalipsis zombi de risa: oficinistas, científicos y novias con hambre de cerebros por una ciudad en ruinas.",
+  "colores": {
+    "table": "#1c211d",
+    "table-2": "#283028",
+    "tile-a": "#b7b6a2",
+    "tile-b": "#686d68",
+    "tile-side": "#3e433e",
+    "side-light": "#e6dbb8",
+    "side-dark": "#c0403c",
+    "side-wild": "#4378c4"
+  },
+  "interfaz": {
+    "paper": "#e8e3cb",
+    "paper-2": "#d6d0b2",
+    "paper-3": "#bfb894",
+    "ink": "#1d221b",
+    "ink-2": "#363f30",
+    "accent": "#3d641f",
+    "accent-ink": "#18240e",
+    "brass": "#f08a2a",
+    "muted": "#6f735f"
+  },
+  "bandos": {
+    "claro": ["#efe6cc", "#d6c69e", "#b3a074", "#857550", "#5a4e35"],
+    "oscuro": ["#ee8c7a", "#d24b44", "#a23234", "#6e1f28", "#6e1f28"],
+    "salvaje": ["#a3cdf2", "#5b95d6", "#3a68ad", "#253f75", "#253f75"]
+  }
+}

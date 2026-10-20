@@ -47,7 +47,7 @@ sprite("_titan0", { w: 34, h: 37, mx: true },
 boss("boss-titan", { base: "_titan0" },
   // remiendos y sombra del abrigo a la derecha
   recolor({ w: "W", W: "o" }, [19, 14, 15, 20]),
-  rect(9, 17, 4, 4, "o"), hline(9, 17, 4, "k"), hline(9, 20, 4, "k"), px(10, 18, "k"), px(10, 19, "k"),
+  rect(9, 17, 4, 4, "o"), hline(9, 17, 4, "O"), hline(9, 20, 4, "O"), px(9, 18, "k"), px(12, 19, "k"),
   rect(21, 25, 3, 3, "O"), px(22, 26, "k"),
   // corte en el ala del sombrero y tallo
   px(28, 4, "_"), px(27, 4, "_"), rect(16, 0, 2, 2, "n"),
@@ -73,12 +73,14 @@ boss("boss-ram", { w: 40, h: 30 },
   rect(12, 19, 4, 8, "O"), rect(17, 20, 3, 7, "b"), rect(12, 26, 4, 2, "G"), rect(17, 26, 3, 2, "G"),
   // llamas en las pezuñas
   ...[12, 17, 29, 34].map((x) => [px(x, 28, "e"), px(x + 2, 28, "E"), px(x + 1, 29, "y")]).flat(),
-  // calavera gacha de perfil
-  poly([2, 10, 10, 9, 12, 14, 9, 19, 4, 19, 1, 15], "g"), rect(1, 15, 4, 4, "G"), poly([7, 9, 12, 10, 12, 14, 9, 13], "G"),
-  rect(5, 11, 3, 3, "k"), px(6, 12, "e"), px(5, 12, "y"), rect(1, 16, 2, 1, "k"), hline(3, 18, 4, "k"), ...[3, 5].map((x) => px(x, 19, "g")),
-  // cuernos que se curvan hacia delante
-  line(9, 9, 14, 4, "g", 2), line(14, 4, 12, 1, "g", 1), px(11, 0, "G"),
-  line(7, 9, 4, 5, "G", 2), line(4, 5, 1, 4, "G", 1),
+  // calavera de toro de frente, gacha para embestir: cráneo ancho, hocico largo y ojos de brasa
+  rect(2, 7, 13, 6, "k"), poly([3, 12, 15, 12, 12, 20, 5, 20], "k"),
+  rect(3, 8, 11, 4, "g"), poly([4, 12, 13, 12, 11, 19, 6, 19], "g"), rect(11, 8, 3, 4, "G"), poly([10, 12, 13, 12, 11, 19, 9, 19], "G"),
+  rect(4, 10, 3, 2, "k"), rect(10, 10, 3, 2, "k"), px(5, 10, "e"), px(11, 10, "e"), px(5, 11, "y"),
+  vline(8, 13, 3, "G"), px(7, 17, "k"), px(9, 17, "k"), hline(5, 8, 7, "w"),
+  // cuernos largos que salen a los lados y suben
+  line(3, 9, 0, 7, "g", 2), line(0, 6, 1, 2, "g", 1), px(2, 1, "G"),
+  line(14, 9, 17, 7, "G", 2), line(17, 6, 16, 2, "G", 1), px(15, 1, "G"),
 );
 
 // Hidra: planta carnívora de calabazas. Una calabaza enorme por raíz, hojas, y tres tallos con
@@ -145,11 +147,11 @@ boss("boss-rider", { w: 28, h: 40 },
   // brazo con la mano en el mango
   poly([14, 14, 19, 16, 21, 21, 17, 22], "W"), rect(20, 18, 3, 3, "g"), px(20, 21, "g"),
   // capucha alta en punta, con la calavera en la sombra
-  poly([5, 13, 7, 4, 12, 0, 17, 4, 19, 13], "w"), poly([14, 2, 17, 4, 19, 13, 16, 13], "W"),
+  poly([5, 13, 7, 6, 12, 3, 17, 6, 19, 13], "w"), poly([14, 4, 17, 6, 19, 13, 16, 13], "W"),
   ellipse(12, 9, 4, 4, "k"), rect(10, 8, 5, 4, "g"), px(11, 9, "k"), px(13, 9, "k"), px(11, 9, "e"),
   hline(10, 12, 5, "G"), px(11, 12, "k"), px(13, 12, "k"),
   // hoja de la guadaña
-  poly([22, 2, 15, 1, 7, 3, 2, 7, 9, 5, 16, 4, 22, 5], "m"), line(7, 4, 21, 3, "M"), px(3, 6, "g"),
+  poly([22, 0, 14, 0, 6, 1, 1, 5, 8, 3, 15, 2, 22, 3], "m"), line(6, 2, 21, 1, "M"), px(2, 4, "g"),
 );
 
 // Muralla: verja de cementerio (1×2) entre dos pilares de piedra del bando, con calaveras en lo

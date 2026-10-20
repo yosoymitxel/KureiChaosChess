@@ -1,0 +1,31 @@
+{
+  "nombre": "Halloween",
+  "precio": 160,
+  "descripcion": "Noche de cementerio: calabazas talladas, brujas, vampiros y colosos de ultratumba sobre losas de lápida.",
+  "colores": {
+    "table": "#231a2d",
+    "table-2": "#2e2339",
+    "tile-a": "#aba7b6",
+    "tile-b": "#584a3c",
+    "tile-side": "#3a3028",
+    "side-light": "#f3ecda",
+    "side-dark": "#9d6fcc",
+    "side-wild": "#84e0b0"
+  },
+  "interfaz": {
+    "paper": "#f2ebdf",
+    "paper-2": "#e2d7c6",
+    "paper-3": "#cbbca6",
+    "ink": "#1e1428",
+    "ink-2": "#3c2c48",
+    "accent": "#a8400c",
+    "accent-ink": "#6a2608",
+    "brass": "#f0a23a",
+    "muted": "#5e5168"
+  },
+  "bandos": {
+    "claro": ["#f3ecda", "#dccfb2", "#b9a684", "#8c7a5c", "#5e4f3c"],
+    "oscuro": ["#c9a3e6", "#9d6fcc", "#7347a3", "#4d2a75", "#4d2a75"],
+    "salvaje": ["#c8f7dc", "#84e0b0", "#46b384", "#2a7a5c", "#2a7a5c"]
+  }
+}
