@@ -110,8 +110,7 @@ const PX = 1; // unidades del lienzo (45×41) por píxel de arte
 const PX_BOTTOM = 40.5; // la misma línea de apoyo que la peana vectorial
 const pixelMode = () => document.documentElement?.dataset?.art === 'pixel';
 
-function pixelArt(type) {
-  const want = document.documentElement.dataset.pack;
+function pixelArt(type, want = document.documentElement.dataset.pack) {
   const pack = PIXEL_PACKS[want]?.sprites[type] ? want : PIXEL_BASE;
   const size = PIXEL_PACKS[pack].sprites[type];
   if (!size) return null;
@@ -121,12 +120,16 @@ function pixelArt(type) {
   return { L, svg: img('l') + img('d') + img('w') };
 }
 
-// En un tema píxel todo va a píxel, también cartas, galería e iconos.
-const pick = (type) => (pixelMode() ? pixelArt(type) || art(type) : art(type));
+// En un tema píxel todo va a píxel, también cartas, galería e iconos. `pack` fuerza el arte de
+// otra mesa (la tienda enseña cada mesa con su pieza): un id de tema píxel, o '' para el vectorial.
+const pick = (type, pack) => {
+  const pixel = pack === undefined ? pixelMode() : !!pack;
+  return pixel ? pixelArt(type, pack || undefined) || art(type) : art(type);
+};
 
 // On the board the foot sits on the base (bottom-aligned); as an icon (`fit`) the piece is centred in a square.
-export function pieceSVG(type, { fit = false } = {}) {
-  const { L, svg } = pick(type);
+export function pieceSVG(type, { fit = false, pack } = {}) {
+  const { L, svg } = pick(type, pack);
   let vb = '0 0 45 41', align = 'xMidYMax';
   if (fit) {
     const base = isBoss(type) ? [4.5, 40.5] : [9.5, 35.5];

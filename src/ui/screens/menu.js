@@ -24,10 +24,10 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
     // near so the near one paints over the one behind; the host resolves the tap by data-pid.
     for (const [id, label, type, row, col] of [
       ['x-zen', 'Jardín Zen', 'pawn', 3, 0],
-      ['x-tienda', 'Tienda', 'knight', 4, 5],
+      ['x-tutorial', 'Tutorial', 'king', 4, 5],
       ['x-logros', 'Logros', 'rook', 5, 2],
       ['x-galeria', 'Galería', 'bishop', 2, 4],
-      ['x-tutorial', 'Tutorial', 'king', 5, 4],
+      ['x-tienda', 'Tienda', 'knight', 5, 4],
     ]) {
       if (!open[id]) continue;
       const p = makePiece(type, 'wild', row, col, { id });

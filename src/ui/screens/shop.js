@@ -9,6 +9,17 @@ import { CARD_PRICE, COINS_PER_FLOWER, COINS_PER_NODE, PENDING_LIMIT, SEED_PRICE
 import { ZEN_KINDS, ZEN_NAMES, addZenSeeds, loadZen } from '../../game/zen.js';
 import { chipArt } from '../zen-art.js';
 import { playSfx } from '../sfx.js';
+import { pieceSVG } from '../../view/piece-art.js';
+
+// Muestra de una mesa sin texto: su mesa y sus dos casillas de fondo, y el rey dibujado con el
+// arte de esa mesa (píxel o vectorial) y el color de su bando claro.
+function ThemeLook({ t }) {
+  const v = t.vars;
+  const style = { '--lk-t': v.table, '--lk-a': v['tile-a'], '--lk-b': v['tile-b'], '--pc': v['side-light'], '--pc-2': `color-mix(in oklch, ${v['side-light']}, black 28%)` };
+  return html`<span class="theme-look" style=${style}>
+    <span class="piece-icon" dangerouslySetInnerHTML=${{ __html: pieceSVG('king', { fit: true, pack: t.pack || '' }) }} />
+  </span>`;
+}
 
 const CARD_LIST = Object.values(CARDS);
 
@@ -97,13 +108,13 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
 
         <section class="panel shop-card shop-pane-mesas" data-enter>
           <h2>Mesas</h2>
-          <p class="shop-note">Cuatro mesas de la casa se venden aquí; la comprada queda puesta.</p>
+          <p class="shop-note">Cada mesa con su pieza: las de arte píxel cambian también los sonidos. La comprada queda puesta.</p>
           <div class="theme-grid">
             ${Object.keys(THEME_SHOP).map((id) => {
               const t = THEMES[id], owned = themeOwned(id), on = settings.theme === id;
               return html`<button class=${'theme' + (on ? ' on' : '') + (owned ? ' owned' : '')} aria-pressed=${on} aria-label=${t.name}
                 disabled=${!owned && shop.coins < THEME_SHOP[id]} title=${owned ? t.name : `Se compra por ${THEME_SHOP[id]} monedas`} onClick=${() => tapTheme(id)}>
-                <span class="swatch">${t.swatch.map((c) => html`<i style=${{ background: c }}></i>`)}</span>
+                <${ThemeLook} t=${t} />
                 ${owned ? (on ? 'En uso' : 'Usar') : html`<span class="price"><${Icon} name="coin" size=${13} />${THEME_SHOP[id]}</span>`}
               </button>`;
             })}

@@ -4,7 +4,6 @@ export const PIXEL_THEMES = {
   "pixelada": {
     "id": "pixelada",
     "name": "Pixelada",
-    "price": 160,
     "swatch": [
       "oklch(0.275 0.031 304)",
       "oklch(0.83 0.062 81.5)",
