@@ -1,6 +1,6 @@
 import { html, useEffect } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
-import { ConfirmButton, BossCard, Toggle } from '../components.js';
+import { ConfirmButton, BossCard, Toggle, ThemeLook } from '../components.js';
 import { PIECE_RULES, PIECE_NAMES } from '../../data/pieces.js';
 import { BOSSES, BOSS_IDS } from '../../data/bosses.js';
 import { THEMES } from '../../data/themes.js';
@@ -23,12 +23,9 @@ export function PauseOverlay({ onResume, onRestart, onExit, onMenu, onAbandon, o
     <div class="panel pause" role="dialog" aria-modal="true" aria-label="Pausa">
       <h1>Pausa</h1>
       <button class="btn primary" autofocus onClick=${onResume}>Seguir jugando</button>
-      <div class="theme-row" role="group" aria-label="Mesa">
-        ${Object.values(THEMES).map((t) => {
-          const owned = themeOwned(t.id);
-          return html`<button class=${'swatch' + (settings.theme === t.id ? ' on' : '')} disabled=${!owned} title=${owned ? t.name : 'Se compra en la tienda del Jardín Zen'} aria-label=${'Mesa ' + t.name + (owned ? '' : ' (bloqueada)')} aria-pressed=${settings.theme === t.id}
-            onClick=${() => setSettings((s) => ({ ...s, theme: t.id }))}>${t.swatch.map((c) => html`<i style=${{ background: c }}></i>`)}</button>`;
-        })}
+      <div class="theme-strip" role="group" aria-label="Mesa">
+        ${Object.values(THEMES).filter((t) => themeOwned(t.id)).map((t) => html`<button class=${'theme-pick' + (settings.theme === t.id ? ' on' : '')} title=${t.name} aria-label=${'Mesa ' + t.name} aria-pressed=${settings.theme === t.id}
+          onClick=${() => setSettings((s) => ({ ...s, theme: t.id }))}><${ThemeLook} t=${t} /></button>`)}
       </div>
       <div class="pause-toggles">
         <${Toggle} on=${settings.sound} onChange=${set('sound')} label="Sonidos" />

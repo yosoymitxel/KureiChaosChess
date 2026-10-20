@@ -54,6 +54,13 @@ h2 { font-size: 17px; font-weight: 750; }
 }
 .topbar .title { font-size: 22px; font-weight: 800; }
 .topbar .sub { margin: 3px 0 0; font-size: 13px; color: var(--paper-3); }
+/* Teléfonos de 360 px: título en una línea al lado del Volver y del monedero. */
+@media (max-width: 400px) {
+  .topbar { gap: 10px; padding-inline: 14px; }
+  .topbar .title { font-size: 19px; }
+  .topbar > div { min-width: 0; }
+  .topbar .sub { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
 .topbar .spacer { flex: 1; }
 
 /* Paper panels: the rulebook and score sheets of the box. */

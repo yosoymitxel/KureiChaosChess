@@ -1,6 +1,6 @@
 // Tienda del jardín: las monedas que pagan tus flores se cambian por cartas y mesas.
 import { html, useRef, useState } from '../lib.js';
-import { Topbar, useEnter, CardFace, RARITY_LABEL } from '../components.js';
+import { Topbar, useEnter, CardFace, RARITY_LABEL, ThemeLook } from '../components.js';
 import { Icon } from '../icons.js';
 import { CARDS, HAND_LIMIT } from '../../game/cards.js';
 import { THEMES } from '../../data/themes.js';
@@ -9,17 +9,6 @@ import { CARD_PRICE, COINS_PER_FLOWER, COINS_PER_NODE, PENDING_LIMIT, SEED_PRICE
 import { ZEN_KINDS, ZEN_NAMES, addZenSeeds, loadZen } from '../../game/zen.js';
 import { chipArt } from '../zen-art.js';
 import { playSfx } from '../sfx.js';
-import { pieceSVG } from '../../view/piece-art.js';
-
-// Muestra de una mesa sin texto: su mesa y sus dos casillas de fondo, y el rey dibujado con el
-// arte de esa mesa (píxel o vectorial) y el color de su bando claro.
-function ThemeLook({ t }) {
-  const v = t.vars;
-  const style = { '--lk-t': v.table, '--lk-a': v['tile-a'], '--lk-b': v['tile-b'], '--pc': v['side-light'], '--pc-2': `color-mix(in oklch, ${v['side-light']}, black 28%)` };
-  return html`<span class="theme-look" style=${style}>
-    <span class="piece-icon" dangerouslySetInnerHTML=${{ __html: pieceSVG('king', { fit: true, pack: t.pack || '' }) }} />
-  </span>`;
-}
 
 const CARD_LIST = Object.values(CARDS);
 

@@ -2,6 +2,17 @@ import { html, useState, useEffect, useRef, motion, motionStagger } from './lib.
 import { Icon, PieceIcon } from './icons.js';
 import { MOVE_NAMES } from '../data/pieces.js';
 import { playSfx } from './sfx.js';
+import { pieceSVG } from '../view/piece-art.js';
+
+// Muestra de una mesa sin texto: su mesa y sus dos casillas de fondo, y el rey dibujado con el
+// arte de esa mesa (píxel o vectorial) y el color de su bando claro. Tienda, ajustes y pausa.
+export function ThemeLook({ t }) {
+  const v = t.vars;
+  const style = { '--lk-t': v.table, '--lk-a': v['tile-a'], '--lk-b': v['tile-b'], '--pc': v['side-light'], '--pc-2': `color-mix(in oklch, ${v['side-light']}, black 28%)` };
+  return html`<span class="theme-look" style=${style}>
+    <span class="piece-icon" dangerouslySetInnerHTML=${{ __html: pieceSVG('king', { fit: true, pack: t.pack || '' }) }} />
+  </span>`;
+}
 
 export function Topbar({ title, sub, onBack, backLabel = 'Volver', children }) {
   return html`<header class="topbar">

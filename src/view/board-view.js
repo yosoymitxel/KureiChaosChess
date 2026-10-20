@@ -242,6 +242,10 @@ export class BoardView {
     const art = this.els.get(p)?.querySelector('.pc-art');
     if (art) art.innerHTML = pieceSVG(artOf(p));
   }
+  // Cambio de mesa a mitad de partida (pausa): las piezas pasan al arte de la nueva mesa.
+  restyle() {
+    for (const p of this.els.keys()) this.setArt(p);
+  }
 
 
   clearMarks() {
