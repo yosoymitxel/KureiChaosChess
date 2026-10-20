@@ -56,6 +56,38 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "halloween"
   },
+  "marcianitos": {
+    "id": "marcianitos",
+    "name": "Marcianitos",
+    "price": 160,
+    "swatch": [
+      "#0e0a1e",
+      "#d99a76",
+      "#d466f0",
+      "#ffac48"
+    ],
+    "vars": {
+      "table": "#0e0a1e",
+      "table-2": "#1c1536",
+      "tile-a": "#d99a76",
+      "tile-b": "#a65640",
+      "tile-side": "#6c3226",
+      "side-light": "#b4ec4c",
+      "side-dark": "#d466f0",
+      "side-wild": "#ffac48",
+      "paper": "#f1fadf",
+      "paper-2": "#e0efc4",
+      "paper-3": "#c8dea6",
+      "ink": "#1a1030",
+      "ink-2": "#3a2c58",
+      "accent": "#5b2a8c",
+      "accent-ink": "#2a0f48",
+      "brass": "#ff9a3c",
+      "muted": "#5c5474"
+    },
+    "art": "pixel",
+    "pack": "marcianitos"
+  },
   "piratas": {
     "id": "piratas",
     "name": "Piratas",

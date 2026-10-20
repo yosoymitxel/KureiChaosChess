@@ -69,29 +69,29 @@ piece("rook", { w: 27, h: 30, mx: "c",
 
 // Caballo: marcianito con su pecera montado en un bicho saltarín de seis patas, con ojos en
 // pedúnculos y las patas de atrás de saltamontes. De perfil, mirando a la izquierda.
-piece("knight", { w: 30, h: 29 },
+piece("knight", { w: 30, h: 31 },
   // pata trasera de saltamontes (detrás)
-  line(23, 18, 28, 10, "b", 2), line(28, 10, 28, 26, "b", 1), rect(27, 27, 3, 2, "b"),
+  line(23, 20, 28, 11, "b", 2), line(28, 11, 28, 28, "b", 1), rect(27, 29, 3, 2, "b"),
   // patas del lado de atrás
-  line(12, 20, 9, 27, "b"), line(18, 21, 18, 27, "b"),
+  line(12, 23, 10, 30, "b"), line(19, 24, 19, 30, "b"),
   // cuerpo del bicho con lunares
-  ellipse(17, 17, 10, 6, "o"), clip([0, 18, 30, 6], ellipse(17, 17, 10, 6, "O")), clip([0, 0, 30, 14], ellipse(17, 17, 10, 6, "W")),
-  circ(21, 18, 1, "Y"), circ(25, 15, 1, "Y"), px(15, 21, "Y"), px(20, 18, "y"), px(25, 15, "y"),
+  ellipse(17, 20, 10, 5, "W"), clip([0, 21, 30, 6], ellipse(17, 20, 10, 5, "o")), clip([0, 0, 30, 17], ellipse(17, 20, 10, 5, "w")),
+  hline(10, 24, 15, "O"), circ(22, 20, 1, "O"), px(26, 18, "O"), px(14, 21, "O"), px(21, 19, "W"),
   // cabeza del bicho, boca y pedúnculos con ojos
-  circ(6, 16, 5, "o"), clip([0, 0, 30, 14], circ(6, 16, 5, "W")), clip([0, 19, 30, 4], circ(6, 16, 5, "O")),
-  hline(1, 18, 4, "k"), px(5, 17, "k"), px(2, 19, "g"),
-  line(4, 12, 1, 6, "O"), line(7, 12, 7, 5, "O"),
-  circ(1, 5, 2, "g"), px(0, 5, "k"), px(1, 5, "k"), circ(7, 4, 2, "g"), px(6, 4, "k"), px(6, 5, "k"),
+  circ(6, 19, 4, "W"), clip([0, 0, 30, 17], circ(6, 19, 4, "w")), clip([0, 21, 30, 3], circ(6, 19, 4, "o")),
+  hline(2, 21, 3, "k"), px(5, 20, "k"), px(3, 22, "g"), clip([8, 16, 4, 8], ring(6, 19, 4, "o")),
+  line(4, 15, 2, 11, "O"), line(7, 15, 8, 10, "O"),
+  rect(0, 9, 3, 3, "g"), px(0, 10, "k"), rect(7, 7, 3, 3, "g"), px(7, 8, "k"),
   // patas del lado de delante, con rodilla
-  line(9, 21, 6, 24, "O"), line(6, 24, 6, 27, "O"), line(16, 22, 15, 27, "O"), line(23, 21, 24, 27, "O"),
-  rect(5, 28, 3, 1, "b"), rect(14, 28, 3, 1, "b"), rect(23, 28, 3, 1, "b"),
+  line(9, 24, 6, 27, "O"), line(6, 27, 6, 29, "O"), line(16, 25, 15, 29, "O"), line(23, 24, 24, 29, "O"),
+  rect(5, 30, 3, 1, "b"), rect(14, 30, 3, 1, "b"), rect(23, 30, 3, 1, "b"),
   // silla roja
-  rect(13, 10, 9, 2, "R"), hline(13, 10, 9, "r"),
+  rect(13, 14, 9, 2, "R"), hline(13, 14, 9, "r"),
   // jinete: cuerpo, brazo con las riendas y cabeza en la pecera
-  rect(15, 5, 6, 5, "W"), rect(15, 5, 2, 5, "w"), rect(19, 5, 2, 5, "o"),
-  line(14, 7, 10, 9, "W"), line(10, 9, 5, 13, "Y"),
-  circ(18, 0, 4, "c"), clip([18, -5, 10, 10], circ(18, 0, 4, "C")),
-  circ(18, 1, 2, "W"), px(17, 0, "w"), px(17, 1, "k"), px(19, 1, "k"), px(15, -2, "g"),
+  rect(15, 9, 5, 5, "W"), rect(15, 9, 2, 5, "w"), rect(19, 9, 1, 5, "o"),
+  line(15, 11, 12, 13, "W"), line(12, 13, 8, 16, "Y"),
+  circ(17, 4, 4, "c"), clip([18, 0, 10, 9], circ(17, 4, 4, "C")),
+  circ(17, 5, 2, "W"), px(16, 4, "w"), px(16, 5, "k"), px(18, 5, "k"), vline(17, 1, 2, "O"), px(17, 1, "r"), px(15, 2, "g"),
 );
 
 // Alfil: marciano cabezón con el cerebro a la vista dentro de un casco de pecera, collar de cromo
@@ -117,26 +117,27 @@ piece("bishop", { w: 23, h: 30, mx: "c",
   rect(7, 22, 2, 2, "o"), circ(11, 24, 2, "C"), circ(11, 24, 1, "c"), px(11, 24, "g"),
 );
 
-// Reina: reina marciana de cuatro brazos, diadema de latón con dos antenas de bolita, pestañas,
-// vestido de campana y un anillo de Saturno a la cadera.
+// Reina: reina marciana de cuatro brazos (los de arriba alzados, los de abajo abiertos),
+// diadema de latón con dos antenas de bolita, pestañas, collar y vestido de campana con estrellas.
 piece("queen", { w: 29, h: 31, mx: "c",
-  post: [px(11, 6, "g"), clip([15, 16, 14, 14], poly([10, 16, 14, 16, 14, 30, 4, 30], "W")),
-    poly([15, 16, 18, 16, 24, 30, 15, 30], "W"), vline(17, 18, 12, "o"), vline(21, 24, 6, "o")] },
-  // anillo de Saturno, mitad de atrás
-  ellipse(14, 23, 13, 3, "Y", true),
-  // brazos de arriba alzados y brazos de abajo en jarras
-  line(10, 17, 6, 14, "W"), line(6, 14, 5, 9, "W"), rect(4, 7, 2, 2, "w"),
-  line(10, 19, 6, 21, "o"), line(6, 21, 8, 24, "o"),
-  // vestido de campana
-  poly([10, 16, 14, 16, 14, 30, 4, 30], "w"), vline(11, 18, 12, "W"), vline(7, 24, 6, "W"),
-  hline(10, 16, 5, "Y"), px(14, 17, "r"),
-  // anillo de Saturno, mitad de delante
-  clip([0, 23, 29, 4], ellipse(14, 23, 13, 3, "y", true)),
+  post: [poly([15, 16, 18, 16, 24, 30, 15, 30], "W"), vline(17, 18, 12, "o"), vline(21, 24, 6, "o"),
+    clip([15, 0, 14, 16], circ(14, 9, 5, "W")), clip([0, 12, 29, 3], circ(14, 9, 5, "o")),
+    rect(16, 8, 2, 2, "g"), px(16, 9, "k"), px(12, 9, "g"), px(11, 9, "k"), hline(13, 12, 3, "r"), px(14, 13, "R"),
+    px(11, 4, "g")] },
+  // brazos de arriba alzados
+  line(10, 17, 5, 15, "W", 2), line(4, 15, 3, 10, "W", 2), rect(2, 8, 3, 2, "w"), px(2, 7, "w"), px(4, 7, "w"),
+  // brazos de abajo abiertos
+  line(10, 20, 4, 22, "o", 2), rect(1, 21, 3, 3, "W"),
+  // vestido de campana con estrellas y bajo de latón
+  poly([10, 16, 14, 16, 14, 30, 5, 30], "w"), vline(11, 19, 11, "W"), vline(8, 24, 6, "W"),
+  hline(5, 29, 10, "Y"), px(9, 22, "y"), px(12, 26, "y"), px(14, 20, "y"),
+  // collar de latón con gema
+  hline(11, 16, 4, "Y"), px(14, 17, "r"),
   // cuello y cabeza
   rect(13, 14, 2, 2, "W"),
-  circ(14, 9, 5, "W"), clip([0, 0, 14, 9], circ(14, 9, 5, "w")), clip([0, 12, 29, 3], circ(14, 9, 5, "o")),
-  // ojos con pestañas y labios
-  rect(11, 8, 2, 2, "g"), px(12, 9, "k"), px(11, 7, "k"), px(10, 7, "k"), hline(13, 12, 2, "r"),
+  circ(14, 9, 5, "W"), clip([0, 0, 14, 9], circ(14, 9, 5, "w")),
+  // ojos con pestañas
+  rect(11, 8, 2, 2, "g"), px(10, 7, "k"), px(11, 6, "k"),
   // diadema con gema y antenas de bolita
   rect(10, 4, 5, 2, "y"), hline(10, 5, 5, "Y"), px(12, 3, "y"), px(14, 2, "y"), px(14, 3, "y"), px(14, 4, "r"),
   line(10, 4, 7, 1, "Y"), ...ball(7, 1),
@@ -215,9 +216,10 @@ piece("elephant", { w: 32, h: 26 },
   rect(9, 18, 4, 6, "W"), rect(22, 18, 4, 6, "W"), rect(9, 18, 1, 6, "w"), rect(22, 18, 1, 6, "w"),
   ...[9, 14, 22, 27].map((x) => hline(x, 24, x === 14 || x === 27 ? 3 : 4, "b")), px(9, 23, "g"), px(11, 23, "g"), px(22, 23, "g"), px(24, 23, "g"),
   // cabeza, trompa y colmillo
-  circ(8, 10, 6, "W"), clip([0, 0, 32, 8], circ(8, 10, 6, "w")),
-  line(4, 13, 2, 21, "W", 3), px(2, 23, "W"), px(3, 23, "W"), px(4, 22, "W"), px(1, 15, "o"), px(1, 18, "o"),
-  line(6, 16, 3, 18, "m"), px(3, 19, "M"),
+  circ(8, 10, 6, "W"), clip([0, 0, 32, 8], circ(8, 10, 6, "w")), clip([10, 9, 6, 9], ring(8, 10, 6, "o")), clip([0, 14, 16, 3], circ(8, 10, 6, "o")),
+  line(4, 13, 2, 20, "W", 3), line(2, 20, 2, 24, "W", 2), rect(3, 24, 2, 1, "W"), px(5, 23, "W"), px(5, 22, "w"),
+  px(1, 15, "o"), px(1, 18, "o"), px(1, 21, "o"),
+  line(7, 15, 5, 19, "m", 2), px(5, 20, "M"), px(8, 15, "M"),
   // tres ojos y antenas de bolita
   rect(4, 8, 2, 2, "g"), px(4, 9, "k"), rect(7, 7, 2, 2, "g"), px(7, 8, "k"), rect(10, 8, 2, 2, "g"), px(10, 9, "k"),
   line(6, 4, 5, 1, "O"), ...ball(5, 1), line(10, 4, 11, 1, "O"), ...ball(11, 1),
@@ -226,16 +228,17 @@ piece("elephant", { w: 32, h: 26 },
 // Camello: marciano zancudo, un cuerpo con dos jorobas y ojos saltones sobre cuatro patas
 // larguísimas y flacas con rodillas.
 piece("camel", { w: 25, h: 32, mx: "c",
-  post: [clip([13, 0, 12, 14], ellipse(12, 9, 7, 4, "o")), clip([13, 0, 12, 7], circ(15, 5, 2, "W")),
-    px(9, 8, "k"), px(10, 8, "k"), px(14, 8, "k"), px(15, 8, "k"), px(7, 6, "g")] },
+  post: [clip([13, 0, 12, 14], ellipse(12, 9, 7, 4, "o")), clip([13, 0, 12, 8], ellipse(12, 9, 7, 4, "W")), clip([13, 0, 12, 7], circ(16, 5, 3, "W")),
+    circ(15, 8, 2, "g"), hline(11, 11, 3, "b"), px(10, 10, "b"), px(14, 10, "b"),
+    rect(8, 8, 2, 2, "k"), rect(14, 8, 2, 2, "k"), px(8, 8, "g"), px(14, 8, "g"), px(6, 4, "g")] },
   // jorobas
-  circ(9, 5, 2, "w"),
+  circ(8, 5, 3, "w"),
   // cuerpo
   ellipse(12, 9, 7, 4, "W"), clip([0, 0, 25, 8], ellipse(12, 9, 7, 4, "w")), clip([0, 11, 25, 3], ellipse(12, 9, 7, 4, "o")),
-  // ojos saltones y sonrisa
-  circ(9, 8, 2, "g"), hline(11, 11, 2, "b"), px(10, 10, "b"),
-  // antenita
-  vline(12, 2, 3, "O"), px(12, 1, "r"),
+  // ojos saltones
+  circ(9, 8, 2, "g"),
+  // antenita entre las jorobas
+  vline(12, 2, 4, "O"), ...ball(12, 1),
   // patas larguísimas con rodilla y pies planos
   line(8, 12, 4, 20, "o"), line(4, 20, 6, 30, "o"), px(4, 20, "W"),
   line(11, 13, 10, 21, "O"), line(10, 21, 11, 30, "O"),

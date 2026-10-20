@@ -91,10 +91,11 @@ piece("knight", { w: 26, h: 28 },
   ellipse(18, 21, 6, 5, "Z"), ellipse(17, 21, 5, 4, "z"), rect(18, 25, 6, 2, "Z"), px(19, 26, "x"),
   // lomo y pecho
   poly([7, 13, 13, 11, 20, 15, 22, 22, 9, 24], "z"),
-  // chaquetilla del bando con el ribete
-  poly([11, 12, 17, 13, 22, 18, 21, 22, 13, 21], "w"), poly([17, 13, 22, 18, 21, 22, 18, 20], "W"), line(11, 12, 13, 21, "o"),
-  // costillas que asoman por un roto
-  px(15, 18, "x"), px(16, 19, "x"), px(17, 18, "z"),
+  // chaquetilla del bando que tapa lomo y anca, con el ribete y un roto
+  poly([10, 11, 16, 11, 22, 15, 24, 21, 21, 24, 12, 22], "w"), poly([18, 12, 22, 15, 24, 21, 21, 24, 19, 21], "W"),
+  line(10, 11, 12, 22, "o"), hline(12, 22, 9, "O"), px(14, 16, "o"), px(15, 17, "o"),
+  // costillas que asoman por el roto
+  px(16, 18, "x"), px(17, 19, "z"), px(16, 20, "x"),
   // patas de delante
   rect(8, 20, 3, 6, "z"), rect(12, 21, 3, 5, "Z"), rect(7, 26, 4, 2, "Z"), rect(12, 26, 4, 2, "x"), px(7, 27, "z"),
   // cuello
@@ -107,7 +108,7 @@ piece("knight", { w: 26, h: 28 },
   // ojo saltón y ojo hundido
   rect(5, 3, 2, 2, "i"), px(5, 4, "k"), px(8, 3, "x"),
   // orejas tiesas, la de atrás mordida
-  poly([7, 2, 9, -2, 11, 3], "z"), px(9, 0, "Z"), poly([10, 3, 13, 0, 13, 4], "Z"), px(12, 1, "x"),
+  poly([6, 3, 7, -1, 10, 2], "z"), px(7, 1, "Z"), poly([10, 3, 13, -1, 13, 5], "Z"), px(12, 2, "x"), px(13, 0, "."),
 );
 
 // Alfil: científico loco con la bata del bando, gafas de soldar en la frente, pelo canoso de
@@ -177,42 +178,46 @@ piece("king", { w: 28, h: 32 },
   px(9, 3, "r"), px(12, 3, "F"), px(15, 3, "V"),
 );
 
-// Guardia: obrero zombi con casco amarillo, escondido detrás de la puerta de un coche con su
-// ventanilla rota y su manilla.
+// Guardia: obrero zombi con casco amarillo, escondido detrás de la puerta naranja de un coche,
+// con la ventanilla rota, el retrovisor, la manilla y la pintura saltada.
 piece("guard", { w: 24, h: 28 },
   // piernas y botas
   rect(10, 22, 3, 4, "O"), rect(15, 22, 3, 4, "O"), rect(9, 26, 5, 2, "N"), rect(15, 26, 5, 2, "N"),
   // cuerpo con chaleco del bando y la tira reflectante
   rect(9, 11, 11, 11, "w"), rect(17, 11, 3, 11, "W"), hline(9, 17, 11, "y"), hline(17, 17, 3, "Y"),
-  // brazo de atrás asomando por encima de la puerta
+  // brazo de atrás
   rect(18, 12, 3, 6, "W"), rect(18, 18, 3, 2, "Z"),
   // cabeza y casco de obra
   ...head(9, 3, 10, 8), rect(9, 1, 10, 3, "y"), rect(8, 3, 12, 1, "Y"), rect(11, 0, 6, 1, "y"), px(11, 1, "i"), vline(14, 0, 3, "Y"),
-  // puerta del coche: chapa, ventanilla rota, manilla y abolladuras
-  poly([0, 10, 9, 10, 12, 13, 12, 26, 0, 26], "M"), rect(0, 10, 11, 1, "m"), vline(0, 11, 15, "m"), hline(0, 25, 12, "X"), vline(11, 13, 13, "X"),
-  poly([1, 11, 8, 11, 10, 14, 10, 17, 1, 17], "F"), px(2, 12, "f"), px(3, 12, "f"), px(2, 13, "f"),
-  line(6, 12, 8, 16, "X"), px(7, 14, "f"),
-  hline(1, 18, 10, "X"), rect(7, 20, 3, 1, "X"), px(7, 19, "m"),
-  px(3, 22, "X"), px(4, 23, "X"), px(3, 23, "m"),
+  // puerta: marco de la ventanilla inclinado delante, chapa con la panza redonda abajo
+  poly([7, 8, 12, 8, 12, 25, 2, 25, 0, 23, 0, 16], "c"), vline(11, 9, 16, "C"), hline(2, 24, 9, "C"), px(1, 23, "C"),
+  poly([7, 9, 11, 9, 11, 15, 2, 15], "F"), px(7, 10, "f"), px(6, 11, "f"),
+  line(8, 10, 10, 14, "M"),
+  hline(0, 16, 12, "C"),
+  rect(7, 19, 3, 1, "X"), px(7, 18, "m"),
+  // pintura saltada que deja ver la chapa
+  px(3, 21, "M"), px(4, 21, "M"), px(4, 22, "m"), px(10, 22, "M"),
+  // retrovisor
+  rect(1, 13, 3, 2, "C"), px(1, 13, "c"), px(2, 13, "c"),
   // mano agarrando el canto de la puerta
-  rect(10, 12, 2, 2, "z"),
+  rect(11, 12, 2, 2, "z"),
 );
 
 // Consejero: un cerebro con patitas, birrete de graduado y pajarita del bando. El que piensa.
-piece("advisor", { w: 22, h: 26 },
+piece("advisor", { w: 22, h: 27 },
   // patitas y zapatillas
-  rect(7, 19, 2, 4, "Z"), rect(13, 19, 2, 4, "x"), rect(5, 23, 5, 2, "w"), rect(12, 23, 5, 2, "W"), hline(5, 24, 5, "W"), hline(12, 24, 5, "o"),
+  rect(7, 20, 2, 4, "Z"), rect(13, 20, 2, 4, "x"), rect(5, 24, 5, 3, "w"), rect(12, 24, 5, 3, "W"), hline(5, 26, 5, "W"), hline(12, 26, 5, "o"),
   // cerebro: lóbulos, surcos y sombra
-  ellipse(10, 12, 9, 7, "p"), ellipse(13, 14, 6, 5, "P"), ellipse(10, 11, 8, 6, "p"),
-  line(10, 5, 10, 13, "P"), line(4, 9, 8, 11, "P"), line(13, 8, 17, 10, "P"), line(3, 14, 6, 13, "P"), line(14, 13, 16, 16, "P"),
-  px(5, 7, "i"), px(4, 8, "i"), px(12, 6, "i"),
+  ellipse(10, 13, 9, 7, "p"), ellipse(13, 15, 6, 5, "P"), ellipse(10, 12, 8, 6, "p"),
+  line(10, 6, 10, 14, "P"), line(4, 10, 8, 12, "P"), line(13, 9, 17, 11, "P"), line(3, 15, 6, 14, "P"), line(14, 14, 16, 17, "P"),
+  px(4, 9, "i"), px(5, 8, "i"), px(13, 7, "i"),
   // ojos y boca
-  rect(5, 12, 3, 3, "i"), px(5, 13, "k"), px(6, 13, "k"), rect(10, 13, 2, 2, "i"), px(10, 14, "k"), hline(6, 17, 4, "R"), px(7, 17, "i"),
+  rect(5, 13, 3, 3, "i"), px(5, 14, "k"), px(6, 14, "k"), rect(10, 14, 2, 2, "i"), px(10, 15, "k"), hline(6, 18, 4, "R"), px(7, 18, "i"),
   // pajarita
-  rect(8, 18, 6, 2, "w"), px(10, 18, "o"), px(11, 19, "o"), px(8, 19, "W"), px(13, 18, "W"),
-  // birrete y borla
-  rect(7, 3, 8, 3, "o"), poly([1, 2, 11, -1, 21, 2, 11, 5], "w"), poly([11, 2, 21, 2, 11, 5], "W"),
-  px(11, 2, "y"), line(12, 2, 18, 3, "y"), vline(18, 3, 4, "y"), px(18, 7, "Y"),
+  rect(8, 19, 6, 2, "w"), px(10, 19, "o"), px(11, 20, "o"), px(8, 20, "W"), px(13, 19, "W"),
+  // birrete: tabla en rombo, gorro y borla colgando
+  rect(7, 4, 9, 3, "O"), poly([1, 3, 11, 0, 21, 3, 11, 6], "w"), poly([11, 3, 21, 3, 11, 6], "W"), hline(2, 3, 19, "W"),
+  px(11, 2, "y"), line(12, 2, 18, 4, "y"), vline(18, 4, 4, "y"), px(18, 8, "Y"), px(17, 8, "Y"),
 );
 
 // Elefante: zombi gordísimo con la camiseta del bando que no le tapa la barriga, venda en la
@@ -250,20 +255,24 @@ piece("camel", { w: 22, h: 30 },
   ...head(7, 0, 9, 7), rect(5, 1, 2, 3, "c"), rect(16, 1, 2, 3, "C"), px(5, 0, "c"), px(17, 0, "C"), circ(7, 3, 1, "r"), px(6, 2, "i"),
 );
 
-// Cañón: zombi artificiero con un mortero de fuegos artificiales del bando sobre una caja,
-// el cohete asomando y la mecha encendida.
-piece("cannon", { w: 30, h: 26 },
+// Cañón: zombi artificiero, con la cabeza vendada, que enciende la mecha de un tubo de fuegos
+// artificiales del bando tumbado sobre una caja; el cohete ya asoma por la boca.
+piece("cannon", { w: 31, h: 25 },
   // caja de madera
-  rect(2, 17, 16, 9, "n"), rect(2, 17, 16, 1, "Y"), hline(2, 21, 16, "N"), vline(9, 17, 9, "N"), hline(2, 25, 16, "N"), px(5, 19, "r"), px(13, 23, "r"),
-  // mortero inclinado con estrellas
-  poly([2, 5, 7, 1, 17, 14, 11, 18], "w"), poly([7, 1, 17, 14, 15, 16, 6, 4], "W"), line(4, 6, 13, 16, "o"),
-  px(9, 7, "y"), px(12, 12, "y"), px(11, 11, "Y"),
-  // boca del mortero y el cohete asomando
-  poly([1, 4, 6, 0, 8, 2, 3, 6], "O"), poly([3, 1, 5, 0, 4, -1], "r"), px(4, 0, "r"), px(3, 2, "R"),
-  // mecha encendida
-  line(14, 15, 18, 13, "N"), px(19, 12, "y"), px(20, 11, "c"), px(19, 10, "y"), px(21, 13, "c"),
-  // zombi detrás: cuerpo, brazo con la cerilla y cabeza
-  rect(19, 15, 8, 9, "w"), rect(25, 15, 2, 9, "W"), rect(19, 24, 3, 2, "N"), rect(24, 24, 3, 2, "N"),
-  rect(19, 14, 3, 2, "w"), rect(21, 13, 2, 2, "z"),
-  ...head(19, 6, 9, 8), rect(18, 4, 10, 2, "G"), px(20, 4, "g"), px(26, 5, "G"),
+  rect(8, 16, 12, 9, "n"), hline(8, 16, 12, "Y"), hline(8, 20, 12, "N"), vline(13, 16, 9, "N"), hline(8, 24, 12, "N"), px(10, 18, "r"), px(17, 22, "r"),
+  // tubo con dos aros y una estrella
+  rect(6, 8, 15, 8, "w"), hline(6, 8, 15, "W"), hline(6, 9, 15, "w"), rect(6, 13, 15, 2, "W"), hline(6, 15, 15, "o"),
+  rect(9, 8, 2, 8, "O"), rect(16, 8, 2, 8, "O"), px(9, 9, "o"), px(16, 9, "o"),
+  px(13, 10, "y"), px(12, 11, "y"), px(14, 11, "y"), px(13, 12, "y"), px(13, 11, "Y"),
+  // culata y mecha encendida
+  rect(20, 8, 2, 8, "O"), line(20, 7, 21, 4, "N"), px(22, 3, "y"), px(21, 2, "c"), px(23, 2, "c"), px(22, 1, "y"),
+  // boca del tubo y el cohete con la punta
+  rect(4, 7, 2, 10, "o"), vline(4, 7, 10, "W"), rect(4, 16, 2, 1, "O"),
+  poly([0, 12, 4, 9, 4, 15], "r"), hline(2, 14, 2, "R"), px(1, 11, "i"), px(2, 10, "i"),
+  // zombi: piernas, cuerpo y el brazo con la cerilla
+  rect(22, 21, 3, 2, "O"), rect(26, 21, 3, 2, "O"), rect(21, 23, 4, 2, "N"), rect(26, 23, 4, 2, "N"),
+  rect(22, 12, 8, 9, "w"), rect(28, 12, 2, 9, "W"), hline(22, 20, 8, "o"),
+  rect(21, 12, 2, 4, "w"), rect(22, 5, 2, 3, "z"), rect(21, 8, 2, 4, "w"), px(22, 4, "n"), px(22, 3, "c"),
+  // cabeza vendada
+  ...head(23, 4, 8, 8), hline(23, 4, 8, "g"), hline(24, 3, 6, "g"), line(25, 5, 30, 5, "G"), px(29, 6, "g"),
 );

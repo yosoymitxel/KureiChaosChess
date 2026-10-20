@@ -31,3 +31,12 @@
 [data-art="pixel"] .btn.sm { padding: 2px 10px; }
 [data-art="pixel"] .btn.icon-only { padding: 0; }
 [data-art="pixel"] .btn.ghost { border: 2px solid var(--edge); border-image: none; }
+
+/* El jardín Zen está dibujado en vectorial: el filtro de index.html lo rasteriza en cuadros de 4 px. */
+[data-art="pixel"] .zen-scene .mini-stage { filter: url(#px-filter); }
+
+/* Tableros de los minijuegos: las mismas losas del tema que el tablero de la partida. Las
+   casillas con un estado de color (meta, carril, peligro, casa) quedan lisas para que se lean. */
+[data-art="pixel"] :is(.bm-cell.a, .br-cell, .dm-cell) { background-image: var(--px-tile-a); background-size: 100% 100%; image-rendering: pixelated; }
+[data-art="pixel"] :is(.bm-cell.b, .dm-cell.dark) { background-image: var(--px-tile-b); }
+[data-art="pixel"] :is(.bm-cell, .br-cell):is(.hot, .lane, .goal, .home, .goal-light, .goal-dark) { background-image: none; }
