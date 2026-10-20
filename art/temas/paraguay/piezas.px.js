@@ -184,12 +184,14 @@ piece("guard", { w: 22, h: 26 },
   // piernas peludas y pies
   rect(6, 21, 3, 3, "p"), rect(12, 21, 3, 3, "p"), rect(5, 24, 5, 2, "P"), rect(11, 24, 5, 2, "P"),
   // cuerpo peludo y brazos largos hasta las rodillas
-  ellipse(10, 17, 7, 6, "p"), ellipse(12, 19, 5, 3, "P"),
-  rect(1, 13, 3, 8, "p"), vline(1, 15, 6, "P"), rect(1, 21, 3, 2, "P"),
-  rect(16, 13, 2, 3, "p"), rect(16, 14, 3, 3, "P"),
-  // ponchito del bando con su guarda
-  poly([5, 11, 15, 11, 18, 17, 2, 17], "w"), clip([5, 11, 15, 11, 18, 17, 2, 17], rect(13, 11, 6, 7, "W"), rect(0, 15, 22, 1, "a")),
-  ...[3, 6, 9, 12, 15].map((x) => px(x, 17, "o")),
+  ellipse(10, 18, 7, 5, "p"), ellipse(12, 20, 5, 2, "P"),
+  rect(1, 17, 3, 5, "p"), vline(1, 18, 4, "P"), rect(1, 21, 3, 2, "P"),
+  // ponchito del bando que lo cubre hasta las rodillas, con las listas, la guarda y los flecos
+  poly([5, 11, 15, 11, 18, 20, 2, 20], "w"),
+  clip([5, 11, 15, 11, 18, 20, 2, 20], rect(13, 11, 6, 10, "W"), ...[6, 9, 12].map((x) => vline(x, 12, 4, "W")), rect(0, 16, 22, 1, "a"), rect(0, 18, 22, 1, "A")),
+  ...[3, 5, 7, 9, 11, 13, 15, 17].map((x) => px(x, 20, "o")),
+  // la mano peluda que agarra el bastón
+  rect(16, 13, 3, 3, "P"), px(16, 13, "p"),
   // cara peluda con ojos que brillan y la sonrisa
   rect(4, 6, 12, 6, "p"), rect(5, 7, 10, 4, "P"), rect(6, 7, 3, 2, "y"), rect(11, 7, 3, 2, "y"), px(7, 8, "k"), px(12, 8, "k"),
   hline(7, 10, 6, "k"), px(8, 10, "g"), px(11, 10, "g"), px(6, 9, "k"), px(13, 9, "k"),
