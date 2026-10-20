@@ -486,7 +486,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .bm.zn-tray {
   --n: 4;
   /* Margen para el marco de madera y para lo que la perspectiva agranda abajo. */
-  --cell: max(18px, min(calc((100cqw - 76px) / var(--n)), calc((100cqh - 120px) / var(--n)), 120px));
+  --cell: max(18px, min(calc((100cqw - 76px) / var(--n)), calc((100cqh - 160px) / var(--n)), 120px));
   position: relative;
   transform: translateY(6%) rotateX(15deg);
   border: 0; border-radius: 4px; overflow: visible; /* las plantas de la fila de arriba asoman sobre el marco */
@@ -712,7 +712,9 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 /* Tierra virgen de los anillos: se cava para hacer un tiesto; con la pala elegida se marca. */
 /* Tierra virgen de los anillos: arena sin rastrillar, más oscura y con guijarros sueltos. */
 .zn-tray .bm-cell.zn-raw { background-color: var(--sand-raw); background-image: var(--grain), radial-gradient(2px 1.6px at 24% 32%, oklch(0 0 0 / 0.22), transparent), radial-gradient(2.6px 2px at 68% 56%, oklch(0 0 0 / 0.18), transparent), radial-gradient(1.8px 1.5px at 42% 78%, oklch(0 0 0 / 0.2), transparent); cursor: default; }
-.bm-cell.zn-raw::after { content: ''; position: absolute; inset: 13%; border: 2px dashed transparent; border-radius: 7px; }
+/* La tierra sin cavar se marca siempre con su recuadro punteado tenue: sin él, el anillo nuevo
+   parecía un trozo de jardín sin dibujar. Con la pala elegida se enciende en latón. */
+.bm-cell.zn-raw::after { content: ''; position: absolute; inset: 13%; border: 2px dashed oklch(0.35 0.04 60 / 0.28); border-radius: 7px; }
 .zn-yard.dig .bm-cell.zn-raw { cursor: pointer; }
 .zn-yard.dig .bm-cell.zn-raw::after { border-color: var(--brass); }
 /* Galería: grupos de imágenes; las bloqueadas son placeholders honestos. */
