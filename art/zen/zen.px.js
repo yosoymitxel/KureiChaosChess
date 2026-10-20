@@ -66,31 +66,45 @@ obj("pot", 24, 24,
 // ── Plantas ───────────────────────────────────────────────────────────────────────────────────
 // Cada planta: `under` sin contorno (tallos finos), `over` con contorno, y se borra todo lo que
 // quede por debajo de la tierra (y >= 16) para que asiente en la maceta.
-const plant = (name, under, over) => {
-  sprite(`_${name}-o`, { w: 22, h: 22, outline: "k" }, F(...over));
+const plant = (name, under, over, { outline = true } = {}) => {
+  if (outline) sprite(`_${name}-o`, { w: 22, h: 22, outline: "k" }, F(...over));
+  else sprite(`_${name}-o`, { w: 24, h: 24 }, ...over.flat(Infinity));
   sprite(name, { w: 24, h: 24 }, ...under.flat(Infinity), stamp(`_${name}-o`, 0, 0), rect(0, 16, 24, 8, "_"));
 };
 const lerp = (a, b, t) => a + (b - a) * t;
 
-// Romero: ramitas erguidas que salen de la base, con agujas alternas (luz a la izquierda).
-// `flowers`: cuántos pares de agujas, desde la punta, llevan flor; `bud`: capullo en vez de flor.
-const sprig = (tx, ty, { flowers = 0, bud = false, by = 15 } = {}) => (c) => {
-  for (let y = ty; y <= by; y++) {
-    const x = Math.round(lerp(tx, 12, (y - ty) / (by - ty)));
-    c.px(x, y, y === ty ? "h" : "G");
-    const n = (y - ty) / 2;
-    if (y > ty && y < by - 1 && Number.isInteger(n)) {
-      const fl = n <= flowers;
-      c.px(x - 1, y, fl ? (bud ? "B" : "B") : "h");
-      c.px(x + 1, y, fl ? (bud ? "b" : "B") : "g");
-      if (fl && !bud) { c.px(x - 1, y - 1, "c"); c.px(x + 1, y - 1, "b"); }
+// Romero: cinco ramitas erguidas de agujas apretadas (luz a la izquierda, sombra a la derecha,
+// el tallo asomando cada dos filas) separadas por una rendija que cierra el contorno; abajo se
+// juntan en la cepa leñosa. Capullo: puntitos claros en las puntas. Flor: florecitas azules a lo
+// largo de la mitad de arriba de cada ramita, algunas asomando fuera.
+// [y de la punta, centros por fila hasta y = 12]
+const ROMERO = [[8, [4, 4, 4, 4, 6]], [4, [8, 8, 8, 8, 8, 8, 8, 8, 9]], [2, [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]],
+  [4, [16, 16, 16, 16, 16, 16, 16, 16, 15]], [8, [20, 20, 20, 20, 18]]];
+const romero = (stage) => (c) => {
+  for (const [ty, xs] of ROMERO) xs.forEach((x, i) => {
+    const y = ty + i;
+    if (i === 0) { c.px(x, y, "h"); return; }
+    c.hline(x - 1, y, 3, "g"); c.px(x - 1, y, "h"); c.px(x + 1, y, "G");
+    if (i % 2 === 0) c.px(x, y, "G");
+    if (i === 1) c.px(x, y - 1, "H");
+    if (stage === "bud" && (i === 1 || i === 3)) c.px(i === 1 ? x + 1 : x - 1, y, "c");
+    if (stage === "bloom" && i % 2 === 1 && i < 7) {
+      const s = (i >> 1) % 2 ? 1 : -1;
+      c.px(x + s, y, "B"); c.px(x + s * 2, y, s < 0 ? "B" : "b"); c.px(x + s, y - 1, s < 0 ? "c" : "B");
     }
-  }
+  });
+  c.hline(6, 13, 13, "G"); c.hline(7, 13, 4, "g"); c.px(8, 13, "h"); c.hline(10, 14, 5, "G"); c.px(10, 14, "g"); c.hline(11, 15, 3, "q");
 };
-const ROMERO = [[7, 7], [9, 5], [12, 3], [15, 5], [17, 7]];
-plant("romero-sprout", [], [sprig(10, 10, { by: 15 }), sprig(14, 10, { by: 15 })]);
-plant("romero-bud", [], ROMERO.map(([x, y], i) => sprig(x, y, { flowers: i % 2 ? 1 : 0, bud: true })));
-plant("romero-bloom", [], ROMERO.map(([x, y], i) => sprig(x, y, { flowers: 2 + (i % 2) })));
+const romeroSprout = (c) => {
+  for (const [x, ty] of [[10, 10], [14, 11]]) for (let y = ty; y <= 13; y++) {
+    if (y === ty) { c.px(x, y, "h"); continue; }
+    c.hline(x - 1, y, 3, "g"); c.px(x - 1, y, "h"); c.px(x + 1, y, "G"); if ((y - ty) % 2 === 0) c.px(x, y, "G");
+  }
+  c.hline(10, 14, 5, "G"); c.hline(11, 15, 3, "q");
+};
+plant("romero-sprout", [], [romeroSprout]);
+plant("romero-bud", [], [romero("bud")]);
+plant("romero-bloom", [], [romero("bloom")]);
 
 // Salvia: roseta de hojas anchas con nervio y una espiga central con verticilos.
 // Cada hoja es una pieza con su propio contorno, así se separan unas de otras.
@@ -116,16 +130,16 @@ const salviaLeaves = (big) => big
   ]
   : [stamp("_sal-small", 6, 11), stamp("_sal-small", 12, 11, { flip: "x", swap: DIM }), row(15, "11-13:G")];
 const SAL_BLOOM = `
-  ....e....
-  ...eRr...
-  ....G....
-  ..eRGRr..
-  ...r.r...
-  .eRRGRRr.
-  ..r.G.r..
-  eRR.G.RRr
-  .r..G..r.
-  ....G....`;
+  .....e.....
+  ....eRr....
+  .....r.....
+  ...eRRRr...
+  ....rGr....
+  ..eRRGRRr..
+  ...r.G.r...
+  .eRRRGRRRr.
+  ..r..G..r..
+  .....G.....`;
 const SAL_BUD = `
   ....r....
   ....g....
@@ -137,17 +151,23 @@ const SAL_BUD = `
   .rhgGgGr.
   ....G....
   ....G....`;
-const salviaSpike = (open) => [grid(8, 2, open ? SAL_BLOOM : SAL_BUD), vline(12, 12, 3, "G")];
-plant("salvia-sprout", [], salviaLeaves(false));
-plant("salvia-bud", [], [...salviaSpike(false), ...salviaLeaves(true)]);
-plant("salvia-bloom", [], [...salviaSpike(true), ...salviaLeaves(true)]);
+sprite("_sal-bloom", { outline: "k" }, SAL_BLOOM);
+sprite("_sal-bud", { outline: "k" }, SAL_BUD);
+const salviaSpike = (open) => [stamp(open ? "_sal-bloom" : "_sal-bud", open ? 6 : 7, 1), vline(12, 11, 4, "G"), vline(11, 12, 3, "k"), vline(13, 12, 3, "k")];
+// Las hojas y la espiga llevan su propio contorno; sin contorno común para que no se rellenen
+// de tinta los huecos entre ellas.
+const SAL = { outline: false };
+plant("salvia-sprout", [], salviaLeaves(false), SAL);
+plant("salvia-bud", [], [...salviaSpike(false), ...salviaLeaves(true)], SAL);
+plant("salvia-bloom", [], [...salviaSpike(true), ...salviaLeaves(true)], SAL);
 
 // Lavanda: mata de hojas finas gris verdosas en abanico; tallos altos (sin contorno) con
 // espigas de verticilos violetas.
+// Hojas: arrancan juntas en la base y se abren hacia arriba, así el contorno cierra los huecos
+// entre ellas y cada hoja se lee suelta.
 const lavTuft = (h) => [
-  ...[[-6, 0.45, "i"], [-4, 0.75, "i"], [-2, 1, "V"], [0, 0.9, "V"], [2, 1, "V"], [4, 0.75, "v"], [6, 0.45, "v"]]
-    .map(([dx, k, col]) => line(12, 15, 12 + dx, 15 - Math.round(h * k), col)),
-  row(15, "10-14:v"), row(14, "11-13:V"),
+  ...[[-3, -7, 0.45, "i"], [-2, -5, 0.8, "i"], [-1, -2, 1, "i"], [0, 0, 0.85, "V"], [1, 2, 1, "V"], [2, 5, 0.8, "v"], [3, 7, 0.45, "v"]]
+    .map(([d0, d1, k, col]) => line(12 + d0, 15, 12 + d1, 15 - Math.round(h * k), col)),
 ];
 const LAV = [[5, 6], [8, 4], [11, 2], [14, 3], [17, 5]];
 const lavStems = () => LAV.map(([x, y]) => line(x + 1, y + 5, 12, 12, "v"));
@@ -157,6 +177,18 @@ plant("lavanda-bud", lavStems(), [...lavSpikes(false), ...lavTuft(6)]);
 plant("lavanda-bloom", lavStems(), [...lavSpikes(true), ...lavTuft(6)]);
 
 // ── Piezas del jardín ─────────────────────────────────────────────────────────────────────────
+// Canto rodado del borde: óvalo con contorno de 1 px (4-vecinos), luz arriba a la izquierda y
+// sombra abajo a la derecha.
+const pebble = (cx, cy, s) => (c) => {
+  const rx = s, ry = s * 0.7, inside = (x, y) => ((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1;
+  const x0 = Math.floor(cx - rx - 1), x1 = Math.ceil(cx + rx + 1), y0 = Math.floor(cy - ry - 1), y1 = Math.ceil(cy + ry + 1);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    if (inside(x, y)) {
+      const u = (x + 0.5 - cx) / rx, v = (y + 0.5 - cy) / ry;
+      c.px(x, y, u + v < -0.9 ? "8" : u + v > 0.8 || v > 0.55 ? "6" : "7");
+    } else if (inside(x - 1, y) || inside(x + 1, y) || inside(x, y - 1) || inside(x, y + 1)) c.px(x, y, "k");
+  }
+};
 // Musgo: tres cojines (el de atrás y dos delante) con luz arriba a la izquierda, un helecho
 // pequeño asomando detrás y una piedrita delante.
 const cushion = (cx, cy, rx, ry) => [
@@ -165,12 +197,18 @@ const cushion = (cx, cy, rx, ry) => [
   px(cx - Math.round(rx / 2), cy - ry + 1, "H"),
 ];
 obj("moss", 24, 24,
-  line(15, 12, 19, 5, "G"), px(17, 8, "g"), px(18, 9, "g"), px(16, 9, "h"), px(17, 7, "h"), px(18, 6, "h"), px(20, 5, "h"),
+  grid(15, 4, `
+    ....h.
+    ..h.Gg
+    ..hGg.
+    .h.G.g
+    .hhGg.
+    ..hG..
+    ...G..`),
   ...cushion(13, 15, 7, 5),
   ...cushion(7, 19, 5, 4),
   ...cushion(17, 19, 5, 3),
-  ellipse(5, 20, 3, 2, "k"), ellipse(5, 20, 2, 1, "7"), px(4, 19, "8"), px(5, 19, "9"), px(6, 21, "6"), px(7, 20, "6"),
-  rect(0, 22, 24, 2, "_"),
+  rect(0, 22, 24, 2, "_"), pebble(5.5, 20, 2.8),
 );
 
 // Pisadera: laja de granito plana, cara de arriba clara y canto en sombra, con vetas.
@@ -216,19 +254,10 @@ const polar = (x, y, cx = 24, cy = 24.5) => {
   const dx = x + 0.5 - cx, dy = (y + 0.5 - cy) / 0.9;
   return [Math.hypot(dx, dy), Math.atan2(dy, dx)];
 };
-const STONES = Array.from({ length: 15 }, (_, i) => {
-  const t = (i / 15) * Math.PI * 2 + (i % 3) * 0.08, r = shore(18.6, t), s = 2 + ((i * 7) % 5) * 0.32;
+const STONES = Array.from({ length: 14 }, (_, i) => {
+  const t = (i / 14) * Math.PI * 2 + (i % 3) * 0.1, r = shore(18.4, t), s = 2.3 + ((i * 7) % 5) * 0.3;
   return [24 + Math.cos(t) * r, 24.5 + Math.sin(t) * r * 0.9, s];
 });
-const pebble = (cx, cy, s) => (c) => {
-  const rx = Math.max(2, Math.round(s)), ry = Math.max(1, Math.round(s * 0.72)), x = Math.round(cx), y = Math.round(cy);
-  c.ellipse(x, y, rx + 1, ry + 1, "k");
-  c.ellipse(x, y, rx, ry, "7");
-  c.hline(x - rx + 1, y + ry, rx * 2 - 1, "6");
-  c.px(x + rx, y, "6");
-  c.hline(x - rx + 1, y - ry, Math.max(1, rx - 1), "8");
-  c.px(x - rx, y, "8");
-};
 const pad = (cx, cy, r, notch) => (c) => {
   c.circ(cx, cy, r + 1, "k");
   c.circ(cx, cy, r, "h");
@@ -241,12 +270,13 @@ obj("pond", 48, 48,
     for (let y = 1; y < 47; y++) for (let x = 1; x < 47; x++) {
       const [r, t] = polar(x, y);
       if (r < shore(16.4, t)) {
-        const [rl] = polar(x, y, 20, 19.5), [rd] = polar(x, y, 25.5, 26.5);
-        let col = rl < 6.5 ? "x" : "W";
-        if (rd < 9 && rl >= 6.5) col = "w";
-        if (r > shore(14.8, t) && Math.sin(t) < 0.2 && Math.cos(t) < 0.6) col = "w"; // sombra de la orilla
+        // agua: clara arriba a la izquierda (donde da el cielo), más honda hacia el borde de abajo
+        const [rl] = polar(x, y, 20, 19);
+        let col = rl < 7 ? "x" : rl < 13.5 ? "W" : "w";
+        if (r > shore(15.2, t) && Math.sin(t) < 0 && Math.cos(t) < 0.5) col = "w"; // sombra de la orilla
+        if (r > shore(15.6, t)) col = "k";
         c.px(x, y, col);
-      } else if (r < shore(18.6, t)) c.px(x, y, r < shore(17.2, t) ? "k" : Math.sin(t - 2.4) > 0 ? "h" : "g");
+      } else if (r < shore(20.2, t)) c.px(x, y, Math.sin(t + 0.8) < -0.3 ? "h" : "g"); // orilla de musgo
     }
   },
   // brillo del cielo
@@ -255,8 +285,6 @@ obj("pond", 48, 48,
   // loto sobre el nenúfar grande
   rows(31, "33:o", "32:o 33:O 34:o", "31-35:o"), px(32, 33, "O"), px(34, 33, "O"), px(33, 30, "o"), row(30, "32:k 34:k"),
   ...STONES.map(([x, y, s]) => pebble(x, y, s)),
-  // matas de musgo en la orilla
-  rows(29, "5-7:h", "4-8:g"), rows(12, "39-41:h", "38-42:g"),
 );
 
 // Koi 8×5 blanco y naranja mirando a la derecha.
@@ -269,8 +297,8 @@ sprite("sand", { w: 24, h: 24 }, rect(0, 0, 24, 24, "t"),
 
 // Tierra sin cavar: más oscura, con terrones en tresbolillo (luz arriba, sombra debajo).
 sprite("raw", { w: 24, h: 24 }, rect(0, 0, 24, 24, "j"), (c) => {
-  for (let gy = 0; gy < 4; gy++) for (let gx = 0; gx < 4; gx++) {
-    const x = gx * 6 + (gy % 2) * 3 + 1, y = gy * 6 + 2;
+  for (let gy = 0; gy < 6; gy++) for (let gx = 0; gx < 4; gx++) {
+    const x = gx * 6 + (gy % 2) * 3 + 1, y = gy * 4 + 1;
     c.hline(x % 24, y, 2, "f"); c.hline((x + 1) % 24, y + 1, 2, "J"); c.px((x + 2) % 24, y, "j");
   }
 });

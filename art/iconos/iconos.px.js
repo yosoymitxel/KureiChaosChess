@@ -146,16 +146,16 @@ icon("refresh", `
 icon("bot", `
   ......##......
   ......##......
-  ..##########..
   .############.
   .############.
-  ####..##..####
-  ####..##..####
-  ##############
   .############.
-  .###......###.
+  ###..####..###
+  ###..####..###
   .############.
-  ..##########..`);
+  .############.
+  .##.#.##.#.##.
+  .############.
+  .############.`);
 
 icon("human", `
   .....####.....
@@ -173,18 +173,21 @@ icon("human", `
   ##############
   ##############`);
 
-// Mapa plegado en tres paños en zigzag, con la cruz del tesoro recortada en el del medio.
-drawn("map", (g) => {
-  const tops = [[2, 2, 1, 1], [0, 0, 1, 1], [2, 2, 1, 1]];
-  [[0, 0], [5, 1], [10, 2]].forEach(([x0, p]) => {
-    const t = p === 1 ? [0, 0, 1, 1] : [2, 2, 1, 1];
-    for (let i = 0; i < 4; i++) {
-      const top = p === 1 ? i < 2 ? 0 : 1 : i < 2 ? 1 : 0;
-      g.rect(x0 + i, top + (p === 1 ? 0 : 1), 1, 11);
-    }
-  });
-  for (const [x, y] of [[6, 5], [8, 5], [7, 6], [6, 7], [8, 7]]) g.set(x, y, 0);
-});
+// Mapa plegado en tres paños en zigzag; las juntas del pliegue son transparencia.
+icon("map", `
+  ...#.#.......#
+  ..##.##.....##
+  .###.###...###
+  ####.####.####
+  ####.####.####
+  ####.####.####
+  ####.####.####
+  ####.####.####
+  ####.####.####
+  ####.####.####
+  ###...###.###.
+  ##.....##.##..
+  #.......#.#...`);
 
 icon("home", `
   ......##......
@@ -322,13 +325,22 @@ icon("queenKnight", `
   ....#########.
   ...##########.`);
 
-// Derrumbe: un bloque vuelca y se parte, cascotes caen y el suelo queda roto.
-drawn("collapse", (g) => {
-  const a = (22 * Math.PI) / 180, cx = 9, cy = 4.5, h = 3.3;
-  g.poly([[-h, -h], [h, -h], [h, h], [-h, h]].flatMap(([x, y]) => [cx + x * Math.cos(a) - y * Math.sin(a), cy + x * Math.sin(a) + y * Math.cos(a)]));
-  g.rect(2, 3, 2, 2); g.rect(3, 7, 2, 2); g.set(6, 10); g.set(1, 6);   // cascotes
-  g.rect(0, 11, 6, 3); g.rect(7, 12, 7, 2); g.set(7, 11); g.set(13, 11); // suelo hundido
-});
+// Derrumbe: un bloque vuelca, caen cascotes y el suelo se parte y se hunde.
+icon("collapse", `
+  .......##.....
+  ......#####...
+  .....#######..
+  ......#######.
+  .......#####..
+  .##......##...
+  .##...........
+  ......##......
+  ......##......
+  ..............
+  ######........
+  ######.#######
+  ######.#######
+  ######.#######`);
 
 icon("rush", `
   ############
@@ -440,34 +452,39 @@ icon("ice", `
   ....#.##.#....
   ......##......`);
 
-// Espiral de dos vueltas: un portal que gira, distinto de la diana. Brazo de ~2 px y hueco de 1.
-drawn("portal", (g) => {
-  const step = 3.3, r0 = 0.6, tmax = 2 * Math.PI * 1.85;
-  for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
-    const dx = x + 0.5 - 8, dy = y + 0.5 - 8, rho = Math.hypot(dx, dy);
-    const th = (Math.atan2(dy, dx) + 2 * Math.PI) % (2 * Math.PI);
-    for (let k = 0; k < 3; k++) {
-      const t = th + 2 * Math.PI * k;
-      if (t > tmax) break;
-      if (Math.abs(rho - (r0 + (step * t) / (2 * Math.PI))) < 1.0) { g.set(x, y); break; }
-    }
-    if (rho < 1.6) g.set(x, y);
-  }
-});
+// Espiral cuadrada: el camino entra dando vueltas hasta el centro (distinta de la diana).
+icon("portal", `
+  .############.
+  ##############
+  ............##
+  ###########.##
+  ###########.##
+  ##.......##.##
+  ##.#####.##.##
+  ##.#####.##.##
+  ##.##....##.##
+  ##.########.##
+  ##.########.##
+  ##..........##
+  ##############
+  .############.`);
 
-// Dos espadas cruzadas: hoja en diagonal, guarda perpendicular y empuñadura en la esquina de abajo.
-drawn("swords", (g) => {
-  for (const m of [false, true]) {
-    const put = (x, y) => g.set(m ? 13 - x : x, y);
-    for (let y = 0; y < 14; y++) for (let x = 0; x < 14; x++) {
-      const d = x - y, s = x + y;
-      if (Math.abs(d) <= 1 && s <= 17) put(x, y);           // hoja
-      if ((s === 19 || s === 20) && Math.abs(d) <= 3) put(x, y); // guarda
-      if (d === 0 && s >= 22) put(x, y);                         // puño
-    }
-    put(13, 12); put(12, 13);                                    // pomo
-  }
-});
+// Dos espadas cruzadas: hojas de 3 px en diagonal, guarda en aspa y pomo en la esquina.
+icon("swords", `
+  ##..........##
+  ###........###
+  .###......###.
+  ..###....###..
+  ...###..###...
+  ....######....
+  .....####.....
+  .....####.....
+  ....######....
+  .#.###..###.#.
+  ..###....###..
+  ..##......##..
+  .#..#....#..#.
+  ##..........##`);
 
 icon("shield", `
   .############.
@@ -535,14 +552,15 @@ icon("last", `
 // Tres cartas en abanico; la del centro lleva un rombo de palo recortado.
 icon("hand", `
   ....######....
-  #...######...#
-  ##..######..##
+  .##.######.##.
+  ###.######.###
   ###.###.##.###
   ###.##...#.###
-  .##.###.##.##.
+  ###.###.##.###
+  ###.######.###
+  ###.######.###
+  ###.######.###
   .##.######.##.
-  .##.######.##.
-  ..#.######.#..
   ..#.######.#..
   ....######....`);
 
