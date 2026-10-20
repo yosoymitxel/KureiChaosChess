@@ -57,33 +57,35 @@ const P = {
   last: html`<path d="M4.5 2.5h3.2v2.7h2.7V2.5h3.2v2.7h2.7V2.5h3.2v6.3l-2.4 2.4v7.3h1.8v3H5.1v-3h1.8v-7.3L4.5 8.8z" /><path d="M10 18.5v-3a2 2 0 0 1 4 0v3z" fill=${CUT} />${cut('M7 9.4h10', 1.6)}`,
   hand: html`<rect x="7.8" y="4" width="8.4" height="14" rx="1.6" transform="rotate(-20 12 22)" /><rect x="7.8" y="4" width="8.4" height="14" rx="1.6" transform="rotate(20 12 22)" /><rect x="7.8" y="2.6" width="8.4" height="14" rx="1.6" stroke=${CUT} stroke-width="1.8" /><path d="M12 6.2l2.3 3.4-2.3 3.4-2.3-3.4z" fill=${CUT} />`,
   // Rewards
-  scroll: html`<rect x="5.5" y="5" width="13" height="14" /><rect x="3" y="2.5" width="18" height="4" rx="2" /><rect x="3" y="17.5" width="18" height="4" rx="2" />${cut('M8.5 10h7M8.5 13.5h5', 1.5)}`,
-  boot: html`<path d="M7 2.5h6.5l-.5 9 6.5 3.3c1.3.7 2 1.8 2 3.2v2.5H4.5V16c0-1.5.8-2.2 1.5-3z" />${cut('M7.5 7h4M7 10.5h4', 1.4)}<path d="M1.5 6.5h4M1 10h4.5M2 13.5h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />`,
-  connect4: html`<rect x="2.5" y="3.5" width="19" height="17" rx="2.5" />${[7, 12, 17].flatMap((x) => [8.5, 15.5].map((y) => dot(x, y, 2)))}`,
-  expand: html`<path d="M3 3h7v3H6v4H3zM21 3h-7v3h4v4h3zM3 21h7v-3H6v-4H3zM21 21h-7v-3h4v-4h3z" />`,
-  shrink: html`<path d="M7 3h3v7H3V7h4zM17 3h-3v7h7V7h-4zM7 21h3v-7H3v3h4zM17 21h-3v-7h7v3h-4z" />`,
+  scroll: html`<rect x="6" y="5" width="12" height="14" /><rect x="3" y="2.5" width="18" height="4" rx="2" /><rect x="3" y="17.5" width="18" height="4" rx="2" />${cut('M6.2 7.4h11.6M6.2 16.6h11.6', 1.5)}${cut('M9 10.5h6M9 13.5h4', 1.9)}`,
+  boot: html`<path d="M7.5 3.45h5.85l-.45 8.1 5.85 2.97c1.17.63 1.8 1.62 1.8 2.88v2.25H5.25V15.6c0-1.35.72-1.98 1.35-2.7z" />${cut('M8 7.5h3.6M7.6 10.6h3.6', 1.6)}<path d=${bar([[1.9, 7.2], [4.6, 7.2]], 2) + bar([[1.5, 10.6], [4.6, 10.6]], 2) + bar([[2.4, 14], [4.4, 14]], 2)} />`,
+  connect4: html`<rect x="2.5" y="4" width="19" height="16" rx="2.5" />${[7, 12, 17].flatMap((x) => [8.3, 15.7].map((y) => dot(x, y, 2.3)))}`,
+  expand: html`<path d="M2.5 2.5h7.5v3.2H5.7v4.3H2.5zM21.5 2.5H14v3.2h4.3v4.3h3.2zM2.5 21.5h7.5v-3.2H5.7V14H2.5zM21.5 21.5H14v-3.2h4.3V14h3.2z" />`,
+  shrink: html`<path d="M6.8 2.5H10V10H2.5V6.8h4.3zM17.2 2.5H14V10h7.5V6.8h-4.3zM6.8 21.5H10V14H2.5v3.2h4.3zM17.2 21.5H14V14h7.5v3.2h-4.3z" />`,
   // Herramientas del Jardín Zen
-  drop: html`<path d="M12 2.6c3.4 4.3 5.2 7.1 5.2 9.6a5.2 5.2 0 0 1-10.4 0c0-2.5 1.8-5.3 5.2-9.6z" />${cut('M9.4 12.6c0-1.3.7-2.8 2.1-4.8', 1.5)}`,
-  seed: html`<path d="M2.5 17c2.6-1.8 5.8-2.7 9.5-2.7s6.9.9 9.5 2.7v4.5H2.5z" /><path d="M12 3.2c1.7 2 2.5 3.5 2.5 5 0 1.7-1 2.9-2.5 2.9S9.5 9.9 9.5 8.2c0-1.5.8-3 2.5-5z" />${cut('M6.3 18.2c1.8-.9 3.7-1.3 5.7-1.3s3.9.4 5.7 1.3', 1.6)}`,
-  spade: html`<rect x="10.7" y="2" width="2.6" height="6.6" rx="1.2" /><path d="M8.2 7.6h7.6v3.5c0 3.2-2 5.7-3.8 7.2-1.8-1.5-3.8-4-3.8-7.2z" />${cut('M12 10.4v4.6', 1.4)}`,
-  shears: html`<path d="M5.3 2.1l2.3.5 9.8 13.2-2.2 1.7zM18.7 2.1l-2.3.5-9.8 13.2 2.2 1.7z" /><circle cx="7.2" cy="19.3" r="2.6" /><circle cx="16.8" cy="19.3" r="2.6" /><circle cx="7.2" cy="19.3" r="1.1" fill=${CUT} /><circle cx="16.8" cy="19.3" r="1.1" fill=${CUT} />`,
+  drop: html`<path d="M12 1.65c4.52 5.72 6.93 9.45 6.93 12.78a6.93 6.93 0 0 1-13.86 0c0-3.33 2.41-7.06 6.93-12.78z" />${cut('M8.54 14.96c0-1.73.94-3.72 2.8-6.39', 1.9)}`,
+  seed: html`<path d="M3 21.5c1-3.4 4.6-5.6 9-5.6s8 2.2 9 5.6z" /><path d=${bar([[12, 17], [12, 9]], 2.4)} /><path d="M11.4 11.6C11 7.6 8.4 5 3.6 5c0 4.4 3 6.8 7.8 6.6zM12.6 9.6c.2-4.3 3-7 8-7 0 4.8-3 7.2-8 7z" />${cut('M10.4 10.6L6.4 7.4M13.6 8.6l4.2-3.6', 1.4)}`,
+  // Pala de jardín (Cavar): mango en D con su hueco, astil macizo y hoja ancha acabada en punta.
+  spade: html`<path d="M8.2 2h7.6v1.8c0 2-1.6 3.6-3.6 3.6h-.4c-2 0-3.6-1.6-3.6-3.6z" /><rect x="10.8" y="6" width="2.4" height="6" /><path d="M6 12.2c0-.7.5-1.2 1.2-1.2h9.6c.7 0 1.2.5 1.2 1.2v3.6c0 2.7-2.6 4.8-6 6-3.4-1.2-6-3.3-6-6z" />${cut('M10.2 3.6h3.6', 1.6)}${cut('M12 14v4', 1.8)}`,
+  shears: html`<path d="M4.6 2l3.3.5 10 13.3-2.9 2.2zM19.4 2l-3.3.5-10 13.3 2.9 2.2z" /><circle cx="7" cy="18.5" r="3.4" /><circle cx="17" cy="18.5" r="3.4" />${dot(7, 18.5, 1.5)}${dot(17, 18.5, 1.5)}`,
   flask: html`<path d="M9 2.5h6v2h-1v4.6l5.7 9.4c1 1.7-.2 3.5-2 3.5H6.3c-1.8 0-3-1.8-2-3.5L10 9.1V4.5H9z" />${cut('M7.5 15.5h9', 1.6)}${dot(10.5, 18.3, 1.1)}${dot(14, 17.8, 0.8)}`,
   // La flecha de abajo es la de arriba girada 180° sobre el centro (12,12).
-  swap: html`<path d="M3.2 7.2h12.1V3.9L22.6 8.4l-7.3 4.5V9.6H3.2zM20.8 16.8H8.7v3.3L1.4 15.6l7.3-4.5v3.3h12.1z" />`,
-  bomb: html`<circle cx="12" cy="14.5" r="7" /><path d="M15.3 4.6l2.5 2.5-2.5 2.5-2.5-2.5z" /><path d="M17.5 5.1c.9-.7 1.8-1.1 2.8-1.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />${dot(21.2, 3.2, 1.6)}${cut('M8.6 12.4a4.3 4.3 0 0 1 2.3-3.3', 1.7)}`,
-  checkers: html`<ellipse cx="12" cy="16.4" rx="8.6" ry="3.6" /><rect x="3.4" y="11.6" width="17.2" height="4.8" /><ellipse cx="12" cy="11.6" rx="8.6" ry="3.6" />${cut('M7.6 11.6a4.4 1.8 0 0 0 8.8 0a4.4 1.8 0 0 0-8.8 0', 1.3)}`,
+  swap: html`<path d=${bar([[4.8, 8], [15, 8]], 3.6) + bar([[19.2, 16], [9, 16]], 3.6)} /><path d="M14.2 3.2L21.5 8l-7.3 4.8zM9.8 20.8L2.5 16l7.3-4.8z" />`,
+  bomb: html`<circle cx="12" cy="14.5" r="7" /><path d="M15.3 4.6l2.5 2.5-2.5 2.5-2.5-2.5z" /><path d=${bar([[17.4, 5.4], [19.4, 4.1]], 2)} /><circle cx="21" cy="3.2" r="1.6" />${cut('M8.6 12.4a4.3 4.3 0 0 1 2.3-3.3', 1.8)}`,
+  // Dos fichas de damas apiladas (la dama coronada), vistas de canto con su surco.
+  checkers: html`<path d="M2.5 9.4a9.5 5.4 0 0 1 19 0v5.2a9.5 5.4 0 0 1-19 0z" />${cut('M2.9 10.3a9.1 5 0 0 0 18.2 0M3 13.1a9 5 0 0 0 18 0', 1.4)}<ellipse cx="12" cy="9.4" rx="6.4" ry="3.3" fill="none" stroke=${CUT} stroke-width="1.3" />`,
   bowl: html`<circle cx="7.2" cy="16.6" r="5.1" />${dot(5.9, 15.3, 1.05)}${dot(8.6, 14.9, 1.05)}${dot(7, 18, 1.05)}<circle cx="15" cy="5.2" r="2.6" /><rect x="13.9" y="7.2" width="2.2" height="2.6" rx="1" /><path d="M12.6 12.6c0-1.9.9-3.4 2.4-4.4 1.5 1 2.4 2.5 2.4 4.4 0 2.5-1.6 4.3-2.4 6.2-.8-1.9-2.4-3.7-2.4-6.2z" />`,
-  target: html`<circle cx="12" cy="12" r="9.2" /><circle cx="12" cy="12" r="5.3" fill="none" stroke=${CUT} stroke-width="1.8" />${dot(12, 12, 1.7)}${cut('M12 2.6v4.2M12 17.2v4.2M2.6 12h4.2M17.2 12h4.2', 1.7)}`,
-  invader: html`<rect x="8.2" y="2.5" width="2.2" height="3.2" rx="1" /><rect x="13.6" y="2.5" width="2.2" height="3.2" rx="1" /><rect x="6.6" y="4.8" width="10.8" height="3.4" rx="1.4" /><rect x="5.4" y="8.6" width="13.2" height="5.8" rx="1.8" /><rect x="2.8" y="9.4" width="2.6" height="4.4" rx="1" /><rect x="18.6" y="9.4" width="2.6" height="4.4" rx="1" /><rect x="6.8" y="14.6" width="3" height="5.2" rx="1" /><rect x="14.2" y="14.6" width="3" height="5.2" rx="1" />${dot(9.8, 11.4, 1.3)}${dot(14.2, 11.4, 1.3)}`,
+  target: html`<circle cx="12" cy="12" r="9.4" /><circle cx="12" cy="12" r="5.4" fill="none" stroke=${CUT} stroke-width="1.9" />${dot(12, 12, 1.7)}${cut('M12 2.4v4.2M12 17.4v4.2M2.4 12h4.2M17.4 12h4.2', 1.8)}`,
+  invader: html`<rect x="7.9" y="2.66" width="2.38" height="3.46" rx="1.08" /><rect x="13.72" y="2.66" width="2.38" height="3.46" rx="1.08" /><rect x="6.17" y="5.14" width="11.66" height="3.67" rx="1.51" /><rect x="4.87" y="9.25" width="14.26" height="6.26" rx="1.94" /><rect x="2.06" y="10.11" width="2.81" height="4.75" rx="1.08" /><rect x="19.13" y="10.11" width="2.81" height="4.75" rx="1.08" /><rect x="6.38" y="15.73" width="3.24" height="5.62" rx="1.08" /><rect x="14.38" y="15.73" width="3.24" height="5.62" rx="1.08" />${dot(9.62, 12.27, 1.4)}${dot(14.38, 12.27, 1.4)}`,
   // Hockey de mesa: la torre-mazo (pomo, mango y peana) y el disco.
   hockey: html`<circle cx="9" cy="4.6" r="2.6" /><rect x="7.6" y="5.5" width="2.8" height="7" rx="1" /><ellipse cx="9" cy="16.2" rx="7" ry="3" /><rect x="2" y="12.8" width="14" height="3.4" /><ellipse cx="9" cy="12.8" rx="7" ry="3" />${cut('M2.6 13.4a6.4 2.6 0 0 0 12.8 0', 1.2)}<ellipse cx="19" cy="19.6" rx="3.6" ry="1.6" /><rect x="15.4" y="17.6" width="7.2" height="2" /><ellipse cx="19" cy="17.6" rx="3.6" ry="1.6" />${cut('M15.8 18a3.2 1.3 0 0 0 6.4 0', 1)}`,
 };
 
-// Optical centring: measured offset of each glyph's bounding box from the 24×24 centre.
+// Optical centring: measured offset of each glyph's bounding box from the 24×24 centre (viewBox shift;
+// positive moves the drawing up/left). The lopsided ones (back, flag, boot, bomb, bowl) are centred by mass.
 const OFFSET = {
-  back: [-0.6, 0], check: [0, 0.4], warn: [0, -0.5], refresh: [0.25, -0.35], bot: [0, -0.75], skull: [0, -0.45],
-  book: [0, 0.5], plain: [0, -1.25], crown: [0, 1], fog: [-0.4, 0.1], bag: [0, 0.5], boot: [-0.75, -0.5],
-  bomb: [1.9, -0.45], bowl: [-2.15, 0.15], invader: [0, -0.85], spade: [0, -1.8],
+  back: [-0.6, 0], flag: [-0.8, -1], boot: [-1.5, 0], bomb: [1.9, -0.45], bowl: [-2.15, 0.15], collapse: [0, 0.38], plain: [0, -1.5], hand: [0, -0.63],
+  drop: [0, -0.5], bag: [0, 0.5], bot: [0, -0.38], fog: [0, 0.5], boss: [0, 0.62], crown: [0, 1.1], book: [0, 0.5], skull: [0, -0.25], shield: [0, 0.25], flask: [0, 0.5],
 };
 
 // Cada icono lleva sus dos versiones y el CSS muestra la del tema: la vectorial en las mesas
