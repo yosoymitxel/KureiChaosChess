@@ -138,8 +138,8 @@ boss("boss-rider", { w: 28, h: 40 },
   rect(12, 19, 5, 3, "O"), rect(12, 22, 2, 6, "O"), rect(11, 28, 3, 1, "u"), hline(12, 19, 5, "o"),
   // cuello y cabeza grande de ojos negros
   rect(14, 8, 2, 2, "V"),
-  ellipse(15, 4, 5, 4, "v"), ellipse(16, 5, 3, 3, "V"), clip([10, 0, 7, 5], ellipse(15, 4, 5, 4, "v")),
-  poly([11, 4, 14, 4, 13, 7, 11, 6], "z"), poly([16, 4, 19, 4, 18, 6, 17, 7], "z"), px(12, 5, "g"), px(17, 5, "g"),
+  ellipse(15, 4, 5, 4, "v"), clip([17, 0, 5, 9], ellipse(15, 4, 5, 4, "V")), poly([11, 6, 20, 6, 17, 10, 14, 10], "v"), poly([17, 6, 20, 6, 17, 10], "V"),
+  rect(11, 4, 3, 2, "z"), px(12, 6, "z"), rect(16, 4, 3, 2, "z"), px(17, 6, "z"), px(11, 4, "g"), px(16, 4, "g"), px(12, 1, "g"),
 );
 
 // Muralla: barrera de escudos (1×2), ancha y baja. Dos pilones emisores del bando con su ojo rojo
