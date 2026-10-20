@@ -2,7 +2,7 @@
 // parent (--pc body, --pc-2 detail, --ink outline), so themes recolour without rebuilding.
 // Every piece is a body standing on one shared plinth; the body is normalised by code
 // (measured box -> target height on a fixed ladder) so the set reads as a single family.
-import { PIXEL_PIECES, PIXEL_META } from './pixel-pieces.js';
+import { PIXEL_PACKS, PIXEL_BASE } from '../data/pixel-packs.js';
 
 const F = 'var(--pc)', F2 = 'var(--pc-2)', S = 'var(--ink)';
 const STROKE = 1.6;
@@ -103,27 +103,30 @@ function art(type) {
   return cache.get(type);
 }
 
-// Set píxel de la mesa Pixelada (arte en art/pixelada.px.js, PNG incrustados por tools/pixel-art.mjs).
-// El PNG ya trae color y contorno: el SVG apila los tres bandos y board.css muestra el que toca.
-const PX = 1; // unidades del lienzo (45×41) por píxel de arte: el set va a doble resolución
+// Temas píxel (art/temas/<tema>, importados por tools/pixel-art.mjs): cada figura es un PNG por
+// bando en assets/pixel/<tema>/. El PNG ya trae color y contorno: el SVG apila los tres bandos y
+// board.css muestra el que toca. Lo que el tema no dibujó se toma del tema base.
+const PX = 1; // unidades del lienzo (45×41) por píxel de arte
 const PX_BOTTOM = 40.5; // la misma línea de apoyo que la peana vectorial
 const pixelMode = () => document.documentElement?.dataset?.art === 'pixel';
 
 function pixelArt(type) {
-  const meta = PIXEL_META[type];
-  if (!meta) return null;
-  const half = (meta.w * PX) / 2, w = meta.w * PX, h = meta.h * PX;
-  const L = { left: CX - half, right: CX + half, top: PX_BOTTOM - h };
-  const img = (side) => `<image class="px-${side}" href="${PIXEL_PIECES[type][side]}" x="${L.left}" y="${L.top}" width="${w}" height="${h}"/>`;
+  const want = document.documentElement.dataset.pack;
+  const pack = PIXEL_PACKS[want]?.sprites[type] ? want : PIXEL_BASE;
+  const size = PIXEL_PACKS[pack].sprites[type];
+  if (!size) return null;
+  const w = size[0] * PX, h = size[1] * PX;
+  const L = { left: CX - w / 2, right: CX + w / 2, top: PX_BOTTOM - h };
+  const img = (side) => `<image class="px-${side}" href="assets/pixel/${pack}/${type}_${side}.png" x="${L.left}" y="${L.top}" width="${w}" height="${h}"/>`;
   return { L, svg: img('l') + img('d') + img('w') };
 }
 
-// El tema decide; las cartas e iconos impresos (`paper`) van siempre en papel.
-const pick = (type, paper = false) => (pixelMode() && !paper ? pixelArt(type) || art(type) : art(type));
+// En un tema píxel todo va a píxel, también cartas, galería e iconos.
+const pick = (type) => (pixelMode() ? pixelArt(type) || art(type) : art(type));
 
 // On the board the foot sits on the base (bottom-aligned); as an icon (`fit`) the piece is centred in a square.
-export function pieceSVG(type, { fit = false, paper = false } = {}) {
-  const { L, svg } = pick(type, paper);
+export function pieceSVG(type, { fit = false } = {}) {
+  const { L, svg } = pick(type);
   let vb = '0 0 45 41', align = 'xMidYMax';
   if (fit) {
     const base = isBoss(type) ? [4.5, 40.5] : [9.5, 35.5];

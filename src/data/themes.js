@@ -1,6 +1,9 @@
 // Table moods. Values feed CSS custom properties (see css/tokens.css for the defaults).
 // `price`: the table is bought in the garden shop; without it, it comes with the game.
 // Shop, pause, settings and gallery all read this list, so a new table is one entry here.
+import { PIXEL_THEMES } from './pixel-themes.js';
+import { PIXEL_PACKS, PIXEL_BASE } from './pixel-packs.js';
+
 export const THEMES = {
   walnut: {
     id: 'walnut', name: 'Nogal',
@@ -56,24 +59,35 @@ export const THEMES = {
       'side-light': 'oklch(0.94 0.02 250)', 'side-dark': 'oklch(0.58 0.2 18)', 'side-wild': 'oklch(0.72 0.13 200)',
     },
   },
-  // La mesa del set píxel: la paleta sale del arte (art/pixelada.px.js) y el modo "pixel"
-  // dibuja las piezas con esos PNG en vez de los cuerpos vectoriales.
-  pixelada: {
-    id: 'pixelada', name: 'Pixelada', price: 160,
-    swatch: ['oklch(0.275 0.031 304)', 'oklch(0.83 0.062 81.5)', 'oklch(0.559 0.119 298)', 'oklch(0.833 0.131 88)'],
-    vars: {
-      'table': 'oklch(0.275 0.031 304)', 'table-2': 'oklch(0.323 0.028 306)',
-      'tile-a': 'oklch(0.83 0.062 81.5)', 'tile-b': 'oklch(0.661 0.076 71.4)', 'tile-side': 'oklch(0.495 0.063 67.3)',
-      'side-light': 'oklch(0.956 0.028 88.8)', 'side-dark': 'oklch(0.559 0.119 298)', 'side-wild': 'oklch(0.748 0.106 170.8)',
-    },
-    art: 'pixel',
-  },
+  // Las mesas píxel: una por carpeta de art/temas (tools/pixel-art.mjs las genera). El modo
+  // "pixel" pasa a píxel todo el juego: piezas, losas, mesa, marcos y letra.
+  ...PIXEL_THEMES,
 };
 
+// Fondos y marcos del tema píxel como variables de CSS. Una variante que el tema no dibujó usa su
+// losa lisa; si tampoco la tiene, la del tema base.
+const PX_IMAGES = { 'tile-a': [], 'tile-a2': ['tile-a'], 'tile-a3': ['tile-a'], 'tile-b': [], 'tile-b2': ['tile-b'], 'tile-b3': ['tile-b'], table: [], panel: [], boton: [] };
+function pixelImages(pack) {
+  const has = (p, n) => PIXEL_PACKS[p] && [...PIXEL_PACKS[p].bg, ...PIXEL_PACKS[p].ui].includes(n);
+  const out = {};
+  for (const [name, alts] of Object.entries(PX_IMAGES)) {
+    const own = [name, ...alts].find((n) => has(pack, n));
+    const [p, n] = own ? [pack, own] : [PIXEL_BASE, name];
+    out['px-' + name] = `url(../assets/pixel/${p}/${n}.png)`; // relativa a css/, donde se usa
+  }
+  return out;
+}
+
+let applied = [];
 export function applyTheme(id) {
   const t = THEMES[id] || THEMES.walnut;
   const s = document.documentElement.style;
-  for (const [k, v] of Object.entries(t.vars)) s.setProperty('--' + k, v);
-  // El modo de arte viaja con el tema ("pixel" viste las piezas con el set de pxl).
+  // Un tema puede traer variables que otro no (la interfaz de un tema píxel): se limpian antes.
+  for (const k of applied) s.removeProperty(k);
+  const vars = { ...t.vars, ...(t.pack ? pixelImages(t.pack) : {}) };
+  applied = Object.keys(vars).map((k) => '--' + k);
+  for (const [k, v] of Object.entries(vars)) s.setProperty('--' + k, v);
+  // El modo de arte viaja con el tema ("pixel" viste el juego con el set de pxl del tema).
   document.documentElement.dataset.art = t.art || '';
+  document.documentElement.dataset.pack = t.pack || '';
 }

@@ -2,7 +2,7 @@
 // CSS estira a la casilla (cada píxel de arte queda del tamaño de los de las piezas), con bisel de
 // luz arriba a la izquierda y la junta abajo a la derecha; las marcas tienen causa (grieta, esquina
 // gastada, desgaste del paso), nada de ruido. El ladrillo es de 32×32 y empalma consigo mismo.
-// Reconstruir:  node <pxl>/bin/pxl.js build art/fondos/fondos.px.js  &&  node tools/pixel-art.mjs
+// Reconstruir:  node <pxl>/bin/pxl.js build art/temas/pixelada/fondos.px.js  &&  node tools/pixel-art.mjs
 
 pal({
   a: "#dcc49a", A: "#ead8b2", c: "#c7ab7c", C: "#a68b60", // losa clara (--tile-a)
@@ -27,12 +27,12 @@ const crack = (t) => [px(13, 1, t.deep), px(12, 2, t.deep), px(12, 3, t.deep), p
 // Esquina de abajo a la izquierda gastada por los pasos.
 const chip = (t) => [px(0, 13, t.lo), px(0, 14, t.deep), px(1, 14, t.deep), px(1, 13, t.lo), px(4, 6, t.lo)];
 
-slab("bg-tile-a", LIGHT, plain);
-slab("bg-tile-a2", LIGHT, crack);
-slab("bg-tile-a3", LIGHT, chip);
-slab("bg-tile-b", DARK, plain);
-slab("bg-tile-b2", DARK, crack);
-slab("bg-tile-b3", DARK, chip);
+slab("tile-a", LIGHT, plain);
+slab("tile-a2", LIGHT, crack);
+slab("tile-a3", LIGHT, chip);
+slab("tile-b", DARK, plain);
+slab("tile-b2", DARK, crack);
+slab("tile-b3", DARK, chip);
 
 // Mesa: ladrillos de 16×8 a soga, cada hilada corrida media pieza. Luz en el canto de arriba,
 // sombra en el de abajo; algunos ladrillos un tono más hondo para que el muro no parezca papel.
@@ -46,4 +46,18 @@ for (let row = 0; row < 4; row++) {
   bricks.push(hline(0, y + 7, 32, "j"));
   for (let x = off - 1; x < 32; x += 16) if (x >= 0) bricks.push(vline(x, y, 7, "j"));
 }
-sprite("bg-table", { w: 32, h: 32 }, rect(0, 0, 32, 32, "j"), ...bricks);
+sprite("table", { w: 32, h: 32 }, rect(0, 0, 32, 32, "j"), ...bricks);
+
+// Marcos de la interfaz, en nueve partes (esquinas de 4×4): el CSS los estira por los lados y el
+// relleno lo pone el color del panel o del botón, así un mismo marco sirve para todos. La luz y
+// la sombra son translúcidas por eso mismo. Esquinas escalonadas, nada redondo.
+const H = "#ffffff66", L = "#00000040";
+const frame = (name, ...extra) => sprite(name, { w: 12, h: 12 },
+  hline(2, 0, 8, "j"), hline(2, 11, 8, "j"), vline(0, 2, 8, "j"), vline(11, 2, 8, "j"),
+  px(1, 1, "j"), px(10, 1, "j"), px(1, 10, "j"), px(10, 10, "j"),
+  hline(2, 1, 8, H), vline(1, 2, 7, H), hline(2, 10, 8, L), vline(10, 2, 8, L), px(1, 9, L),
+  ...extra,
+);
+// Panel: remaches de latón en las cuatro esquinas.
+frame("panel", px(2, 2, "#b08530"), px(9, 2, "#b08530"), px(2, 9, "#b08530"), px(9, 9, "#b08530"));
+frame("boton");

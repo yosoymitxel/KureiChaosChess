@@ -22,7 +22,7 @@ const { ACHIEVEMENTS } = await import('../src/game/achievements.js');
 const { CARDS } = await import('../src/game/cards.js');
 const { MINI_BOSSES, FINAL_BOSSES } = await import('../src/game/difficulty.js');
 const { RAW_BODIES } = await import('../src/view/piece-art.js');
-const { PIXEL_META } = await import('../src/view/pixel-pieces.js');
+const { PIXEL_PACKS, PIXEL_BASE } = await import('../src/data/pixel-packs.js');
 const { reachPreview } = await import('../src/game/rules.js');
 
 const errors = [];
@@ -36,7 +36,7 @@ const hasIcon = (name) => icons.has(name) || PIECE_TYPES.includes(name);
 // Piezas: dibujo vectorial, set píxel, movimiento y datos.
 for (const t of PIECE_TYPES) {
   if (!RAW_BODIES[t]) fail(`pieza ${t}: falta su dibujo en src/view/piece-art.js`);
-  if (!PIXEL_META[t]) fail(`pieza ${t}: falta en el set píxel (art/pixelada.px.js + tools/pixel-art.mjs)`);
+  if (!PIXEL_PACKS[PIXEL_BASE].sprites[t]) fail(`pieza ${t}: falta en el tema píxel base (art/temas/${PIXEL_BASE} + tools/pixel-art.mjs)`);
   if (!reachPreview({ type: t }).base.length) fail(`pieza ${t}: src/game/rules.js no le da ningún movimiento`);
   for (const k of ['name', 'move', 'value', 'rule']) if (PIECES[t][k] == null) fail(`pieza ${t}: falta "${k}" en src/data/pieces.js`);
 }

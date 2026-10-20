@@ -4,7 +4,7 @@
 // almenado, jinete, mago con sombrero, hechicera, rey con capa, escudero, monje con farol, elefante
 // de guerra, camello con jinete y enano artillero. La ropa usa la rampa del bando (w W o O b) y se
 // recolorea; piel, metal, madera, barba y latón son fijos para los tres bandos.
-// Reconstruir:  node <pxl>/bin/pxl.js build art/pixelada.px.js  &&  node tools/pixel-art.mjs
+// Reconstruir:  node <pxl>/bin/pxl.js build art/temas/pixelada/piezas.px.js  &&  node tools/pixel-art.mjs
 
 pal({
   k: "#2a2233", // tinta: contorno e interiores

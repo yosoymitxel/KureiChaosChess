@@ -1,0 +1,32 @@
+/* Modo píxel: con un tema píxel (data-art="pixel", ver src/data/themes.js) todo el juego pasa a
+   píxel, no solo el tablero. Letra de píxel, nada redondo (lo redondo pasa a cuadrado, como en
+   los juegos de 8 bits), sombras duras sin desenfoque, movimiento a saltos y marcos de nueve
+   partes dibujados por el tema (panel.png y boton.png de art/temas/<tema>). El tablero, las
+   piezas y la mesa están en board.css. */
+/* Pixelify Sans (OFL), servida desde el juego: el subconjunto latino trae ñ y tildes. */
+@font-face {
+  font-family: 'Pixelify Sans'; font-style: normal; font-weight: 400 700; font-display: swap;
+  src: url(../assets/fonts/pixelify-sans-latin.woff2) format('woff2');
+}
+[data-art="pixel"] {
+  --font: 'Pixelify Sans', 'Trebuchet MS', sans-serif;
+  --r-sm: 0px; --r-md: 0px; --r-lg: 0px;
+  --lift: 4px 4px 0 oklch(0.1 0.03 300 / 0.45);
+  --ease-out: steps(4, end);
+  --grain: none; --wood: none;
+}
+/* Sin ligaduras: la "fi" de Pixelify se lee como una A ("Anal" por "final"). */
+[data-art="pixel"] body { -webkit-font-smoothing: none; font-variant-ligatures: none; }
+[data-art="pixel"] :is(*, *::before, *::after) { border-radius: 0 !important; }
+[data-art="pixel"] :is(h1, h2, h3) { letter-spacing: 0; }
+/* Los dibujos vectoriales (iconos, jardín, minijuegos) sin suavizado: borde de píxel. */
+[data-art="pixel"] svg { shape-rendering: crispEdges; }
+[data-art="pixel"] :is(img, image) { image-rendering: pixelated; }
+
+/* Marcos del tema: el borde es la imagen cortada en nueve (esquinas de 4 píxeles de arte, a 2 px
+   de pantalla cada uno); el relleno sigue siendo el color de cada caja. */
+[data-art="pixel"] .panel { border: 8px solid var(--ink); border-image: var(--px-panel) 4 / 8px stretch; }
+[data-art="pixel"] .btn { border: 8px solid var(--edge); border-image: var(--px-boton) 4 / 8px stretch; padding: 6px 16px; }
+[data-art="pixel"] .btn.sm { padding: 2px 10px; }
+[data-art="pixel"] .btn.icon-only { padding: 0; }
+[data-art="pixel"] .btn.ghost { border: 2px solid var(--edge); border-image: none; }

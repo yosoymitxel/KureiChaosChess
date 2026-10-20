@@ -213,18 +213,19 @@
 .px-d, .px-w { display: none; }
 .side-dark .px-l, .side-wild .px-l, .side-zombie .px-l { display: none; }
 .side-dark .px-d, .side-zombie .px-d, .side-wild .px-w { display: inline; }
-/* Fondos pxl (art/fondos): losas con su bisel ya pintado y mesa de ladrillo. Las variantes con
-   grieta o esquina gastada salen salteadas; el :where deja ganar a cursor, objetivo y pisada. */
-[data-art="pixel"] .tile { --px-tile: url(../assets/pixel/bg-tile-a.png); image-rendering: pixelated; }
-[data-art="pixel"] .tile.b { --px-tile: url(../assets/pixel/bg-tile-b.png); }
-[data-art="pixel"] .tile:nth-child(7n+3) { --px-tile: url(../assets/pixel/bg-tile-a2.png); }
-[data-art="pixel"] .tile.b:nth-child(7n+3) { --px-tile: url(../assets/pixel/bg-tile-b2.png); }
-[data-art="pixel"] .tile:nth-child(5n+4) { --px-tile: url(../assets/pixel/bg-tile-a3.png); }
-[data-art="pixel"] .tile.b:nth-child(5n+4) { --px-tile: url(../assets/pixel/bg-tile-b3.png); }
+/* Fondos del tema píxel (art/temas/<tema>, variables puestas por applyTheme): losas con su bisel
+   ya pintado y la mesa en mosaico. Las variantes con grieta o esquina gastada salen salteadas; el
+   :where deja ganar a cursor, objetivo y pisada. */
+[data-art="pixel"] .tile { --px-tile: var(--px-tile-a); image-rendering: pixelated; }
+[data-art="pixel"] .tile.b { --px-tile: var(--px-tile-b); }
+[data-art="pixel"] .tile:nth-child(7n+3) { --px-tile: var(--px-tile-a2); }
+[data-art="pixel"] .tile.b:nth-child(7n+3) { --px-tile: var(--px-tile-b2); }
+[data-art="pixel"] .tile:nth-child(5n+4) { --px-tile: var(--px-tile-a3); }
+[data-art="pixel"] .tile.b:nth-child(5n+4) { --px-tile: var(--px-tile-b3); }
 [data-art="pixel"] .tile:not(.ice):not(.cracking) { background-image: var(--px-tile); background-size: 100% 100%; }
 :where([data-art="pixel"]) .tile { box-shadow: inset 0 0 0 999px oklch(0.12 0.03 260 / var(--fog, 0)); }
 [data-art="pixel"] .tile.edge::after { background: linear-gradient(var(--tile-side) 55%, color-mix(in oklch, var(--tile-side), black 35%) 55%); }
 [data-art="pixel"] body::before {
   content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; image-rendering: pixelated;
-  background: radial-gradient(120% 90% at 50% 20%, transparent 30%, oklch(0.16 0.03 304 / 0.75)), url(../assets/pixel/bg-table.png) 0 0 / 128px 128px;
+  background: radial-gradient(120% 90% at 50% 20%, transparent 30%, color-mix(in oklch, color-mix(in oklch, var(--table), black 40%) 75%, transparent)), var(--px-table) 0 0 / 128px 128px;
 }

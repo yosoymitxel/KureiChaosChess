@@ -2,7 +2,7 @@
 // píxeles por casilla que las piezas (el juego los dibuja a 1 píxel de arte por unidad, no a 2).
 // Mismas reglas que art/pixelada.px.js: la ropa, la armadura pintada y las escamas usan la rampa
 // del bando (w W o O b) y se recolorean; piel, metal, latón, hueso y piedra son fijos.
-// Reconstruir:  node <pxl>/bin/pxl.js build art/jefes.px.js  &&  node tools/pixel-art.mjs
+// Reconstruir:  node <pxl>/bin/pxl.js build art/temas/pixelada/jefes.px.js  &&  node tools/pixel-art.mjs
 
 pal({
   k: "#2a2233",
