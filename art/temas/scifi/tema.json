@@ -1,0 +1,31 @@
+{
+  "nombre": "Galaxia",
+  "precio": 160,
+  "descripcion": "Ciencia ficción: droides, mechas y una IA emperadora sobre las placas de una estación espacial.",
+  "colores": {
+    "table": "#0c1226",
+    "table-2": "#141d38",
+    "tile-a": "#8f9db4",
+    "tile-b": "#3a4562",
+    "tile-side": "#232c44",
+    "side-light": "#f4f8fc",
+    "side-dark": "#ec4f86",
+    "side-wild": "#b4f25a"
+  },
+  "interfaz": {
+    "paper": "#e9eff7",
+    "paper-2": "#d6dfec",
+    "paper-3": "#bccadc",
+    "ink": "#0e1426",
+    "ink-2": "#28334d",
+    "accent": "#0a6a84",
+    "accent-ink": "#06394a",
+    "brass": "#e45ccc",
+    "muted": "#4f5b74"
+  },
+  "bandos": {
+    "claro": ["#f4f8fc", "#cdd8e6", "#9daac0", "#6b7891", "#475069"],
+    "oscuro": ["#ec4f86", "#c02f6c", "#8e1f55", "#5f143c", "#3c0c27"],
+    "salvaje": ["#b4f25a", "#7cc83a", "#4e9628", "#2f631c", "#1c4113"]
+  }
+}
