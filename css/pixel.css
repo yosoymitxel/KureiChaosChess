@@ -34,10 +34,10 @@
 [data-art="pixel"] .btn.icon-only { padding: 0; }
 [data-art="pixel"] .btn.ghost { border: 2px solid var(--edge); border-image: none; }
 
-/* El jardín Zen está dibujado en vectorial: el filtro de index.html lo rasteriza en cuadros de 4 px. */
-[data-art="pixel"] .zen-scene .mini-stage { filter: url(#px-filter); }
-/* Los iconos (cartas, mapa, herramientas, botones) salen todos de icons.js: en cuadros de 2 px. */
-[data-art="pixel"] :is(svg.icon, .seed-icon svg, .zn-packet-art svg) { filter: url(#px-icon); }
+/* Los dibujos de vector (iconos, jardín Zen, minijuegos) no pasan por un filtro de cuadros: con el
+   grano fijo en píxeles de pantalla se comía los trazos finos de los pictogramas y en pantalla
+   grande no crecía con el dibujo, y en el jardín rompía el rastrillo y los anillos de arena. El
+   borde de píxel lo da crispEdges. */
 
 /* Tableros de los minijuegos: las mismas losas del tema que el tablero de la partida. Las
    casillas con un estado de color (meta, carril, peligro, casa) quedan lisas para que se lean. */
