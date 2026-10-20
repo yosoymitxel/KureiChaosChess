@@ -254,7 +254,8 @@ export function setSfxVolume(l) {
   if (master) master.gain.value = SFX_VOLUMES[l];
 }
 
-export function playSfx(name) {
+// pitch: afinación extra (1 = la de serie); el hockey la sube con la velocidad del golpe.
+export function playSfx(name, pitch = 1) {
   if (!enabled) return;
   const layers = RECIPES[name];
   if (!layers) return;
@@ -264,7 +265,7 @@ export function playSfx(name) {
   const now = c.currentTime;
   if (now - (last[name] || -1) < 0.03) return;
   last[name] = now;
-  const tune = 1 + (Math.random() * 2 - 1) * JITTER;
+  const tune = (1 + (Math.random() * 2 - 1) * JITTER) * pitch;
   const pixel = typeof document !== 'undefined' && document.documentElement.dataset.art === 'pixel';
   const takes = !pixel && buffers[name];
   if (takes?.length) return playSample(takes[Math.floor(Math.random() * takes.length)], now, tune, SAMPLE_GAIN[name] ?? 0.7);

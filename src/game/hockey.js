@@ -170,7 +170,7 @@ export function step(s, dt, bots = ['bot']) {
   s.events = [];
   if (s.over) return s;
   dt = Math.min(dt, 1 / 20);
-  for (let t = 0; t < dt - 1e-9; t += DT) sub(s, Math.min(DT, dt - t), bots);
+  for (let t = 0; t < dt - 1e-9 && !s.over; t += DT) sub(s, Math.min(DT, dt - t), bots);
   return s;
 }
 

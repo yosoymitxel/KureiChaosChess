@@ -62,6 +62,8 @@ const P = {
   bowl: html`<circle cx="7.2" cy="16.6" r="5.1" />${dot(5.9, 15.3, 1.05)}${dot(8.6, 14.9, 1.05)}${dot(7, 18, 1.05)}<circle cx="15" cy="5.2" r="2.6" /><rect x="13.9" y="7.2" width="2.2" height="2.6" rx="1" /><path d="M12.6 12.6c0-1.9.9-3.4 2.4-4.4 1.5 1 2.4 2.5 2.4 4.4 0 2.5-1.6 4.3-2.4 6.2-.8-1.9-2.4-3.7-2.4-6.2z" />`,
   target: html`<circle cx="12" cy="12" r="9.2" /><circle cx="12" cy="12" r="5.3" fill="none" stroke=${CUT} stroke-width="1.8" />${dot(12, 12, 1.7)}${cut('M12 2.6v4.2M12 17.2v4.2M2.6 12h4.2M17.2 12h4.2', 1.7)}`,
   invader: html`<rect x="8.2" y="2.5" width="2.2" height="3.2" rx="1" /><rect x="13.6" y="2.5" width="2.2" height="3.2" rx="1" /><rect x="6.6" y="4.8" width="10.8" height="3.4" rx="1.4" /><rect x="5.4" y="8.6" width="13.2" height="5.8" rx="1.8" /><rect x="2.8" y="9.4" width="2.6" height="4.4" rx="1" /><rect x="18.6" y="9.4" width="2.6" height="4.4" rx="1" /><rect x="6.8" y="14.6" width="3" height="5.2" rx="1" /><rect x="14.2" y="14.6" width="3" height="5.2" rx="1" />${dot(9.8, 11.4, 1.3)}${dot(14.2, 11.4, 1.3)}`,
+  // Hockey de mesa: la torre-mazo (pomo, mango y peana) y el disco.
+  hockey: html`<circle cx="9" cy="4.6" r="2.6" /><rect x="7.6" y="5.5" width="2.8" height="7" rx="1" /><ellipse cx="9" cy="16.2" rx="7" ry="3" /><rect x="2" y="12.8" width="14" height="3.4" /><ellipse cx="9" cy="12.8" rx="7" ry="3" />${cut('M2.6 13.4a6.4 2.6 0 0 0 12.8 0', 1.2)}<ellipse cx="19" cy="19.6" rx="3.6" ry="1.6" /><rect x="15.4" y="17.6" width="7.2" height="2" /><ellipse cx="19" cy="17.6" rx="3.6" ry="1.6" />${cut('M15.8 18a3.2 1.3 0 0 0 6.4 0', 1)}`,
 };
 
 // Optical centring: measured offset of each glyph's bounding box from the 24×24 centre.
