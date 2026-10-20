@@ -3,6 +3,7 @@
 import { html } from './lib.js';
 import { pieceSVG } from '../view/piece-art.js';
 import { PIECE_TYPES } from '../data/pieces.js';
+import { PIXEL_ICONS } from './pixel-icons.js';
 
 const CUT = 'var(--icon-cut, var(--paper))';
 const cut = (d, w = 1.8) => html`<path d=${d} fill="none" stroke=${CUT} stroke-width=${w} stroke-linecap="round" stroke-linejoin="round" />`;
@@ -69,10 +70,12 @@ const OFFSET = {
   bomb: [1.9, -0.45], bowl: [-2.15, 0.15], invader: [0, -0.85], spade: [0, -1.8],
 };
 
+// Cada icono lleva sus dos versiones y el CSS muestra la del tema: la vectorial en las mesas
+// normales y la píxel 16×16 (art/iconos/) en las píxel. Así cambiar de mesa no obliga a repintar.
 export function Icon({ name, size = 18 }) {
   if (PIECE_TYPES.includes(name)) return html`<${PieceIcon} type=${name} size=${size} />`;
   const [dx, dy] = OFFSET[name] || [0, 0];
-  return html`<svg class="icon" width=${size} height=${size} viewBox=${`${dx} ${dy} 24 24`} fill="currentColor" aria-hidden="true">${P[name]}</svg>`;
+  return html`<svg class="icon icon-vec" width=${size} height=${size} viewBox=${`${dx} ${dy} 24 24`} fill="currentColor" aria-hidden="true">${P[name]}</svg>${PIXEL_ICONS[name] && html`<svg class="icon icon-px" width=${size} height=${size} viewBox="0 0 16 16" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d=${PIXEL_ICONS[name]} /></svg>`}`;
 }
 
 // `paper` keeps the printed look (cards, lists); the moments pass false so they wear the table's art set.

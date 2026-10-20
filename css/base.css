@@ -19,6 +19,9 @@ button { font: inherit; color: inherit; }
 * { scrollbar-width: thin; scrollbar-color: var(--paper-3) transparent; caret-color: var(--accent); }
 :focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
 .icon { flex-shrink: 0; vertical-align: middle; }
+/* Icon() pinta las dos versiones; cada mesa muestra la suya (píxel en las mesas píxel). */
+.icon-px, [data-art="pixel"] .icon-vec { display: none; }
+[data-art="pixel"] .icon-px { display: inline; }
 
 .screen { position: absolute; inset: 0; display: flex; flex-direction: column; min-height: 0; }
 h1, h2, h3 { margin: 0; line-height: 1.05; letter-spacing: -0.02em; text-wrap: balance; }
@@ -138,7 +141,7 @@ h2 { font-size: 17px; font-weight: 750; }
   color: var(--paper); --icon-cut: var(--window);
 }
 :is(.card, .hand-card) .art > svg, :is(.card, .hand-card) .art .piece-icon { width: 58% !important; height: 58% !important; filter: drop-shadow(0 4px 3px oklch(0.1 0.03 55 / 0.4)); }
-:is(.card, .hand-card) .art svg.icon :is(path, rect, circle, ellipse, polygon):not([stroke]) { stroke: var(--ink); stroke-width: 2; paint-order: stroke; stroke-linejoin: round; }
+:is(.card, .hand-card) .art svg.icon-vec :is(path, rect, circle, ellipse, polygon):not([stroke]) { stroke: var(--ink); stroke-width: 2; paint-order: stroke; stroke-linejoin: round; }
 :is(.card, .hand-card) .art .piece-icon { --pc: var(--paper); --pc-2: var(--paper-3); }
 .card .type { font-size: 11.5px; font-weight: 800; color: var(--frame-text); padding: 0 4px; }
 .card .desc { margin: 0; padding: 8px 10px; border-radius: 8px; background: var(--paper); border: 2px solid var(--ink); font-size: 12.5px; line-height: 1.35; color: var(--ink-2); min-height: 5.6em; text-wrap: pretty; }
