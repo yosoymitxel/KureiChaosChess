@@ -1,0 +1,35 @@
+Procedencia de cada archivo (todos CC0 1.0, atribucion NO obligatoria).
+Kenney (kenney.nl) via github.com/series-ai/jam-ready-assets; OpenGameArt via github.com/novincode/atomcut-library (pack.json con license CC0-1.0 y homepage); Ninja Adventure (Pixel-boy & AAA, CC0) via jam-ready-assets.
+
+move <- impact-sounds/impactWood_light_002.ogg | alt: impact-sounds/impactWood_medium_000.ogg
+capture <- impact-sounds/impactWood_heavy_000.ogg | alt: impact-sounds/impactPlank_medium_002.ogg
+select <- interface-sounds/select_002.ogg | alt: casino-audio/chip-lay-3.ogg
+invalid <- interface-sounds/error_004.ogg | alt: interface-sounds/error_008.ogg
+step <- impact-sounds/impactSoft_medium_000.ogg | alt: impact-sounds/footstep_concrete_000.ogg
+land <- impact-sounds/impactSoft_heavy_000.ogg | alt: impact-sounds/impactWood_heavy_002.ogg
+hit <- impact-sounds/impactMetal_heavy_001.ogg | alt: impact-sounds/impactPlate_heavy_000.ogg
+stomp <- sci-fi-sounds/lowFrequency_explosion_001.ogg | alt: impact-sounds/impactPunch_heavy_002.ogg
+boom <- sci-fi-sounds/explosionCrunch_000.ogg | alt: oga-100-cc0-sfx/explosion.m4a
+bigboom <- sci-fi-sounds/explosionCrunch_001.ogg | alt: sci-fi-sounds/lowFrequency_explosion_000.ogg
+crunch <- oga-75-cc0-breaking-falling-hit-sfx/bfh1-rock-breaking-03.m4a | alt: foley-sounds/stonesHit2.ogg
+pop <- oga-100-cc0-sfx/plop-01.m4a | alt: interface-sounds/pluck_002.ogg
+whoosh <- foley-sounds/woosh4.ogg | alt: oga-rpg-sound-pack/swing.m4a
+warp <- digital-audio/phaseJump1.ogg | alt: sci-fi-sounds/forceField_000.ogg
+laser <- sci-fi-sounds/laserSmall_000.ogg | alt: sci-fi-sounds/laserRetro_002.ogg
+zombie <- oga-zombies-sound-pack/zombie-5.m4a | alt: oga-zombies-sound-pack/zombie-24.m4a
+water <- ninja-adventure/Elemental__Water4.wav | alt: foley-sounds/sinkWater2.ogg
+snip <- rpg-audio/knifeSlice2.ogg | alt: oga-100-cc0-sfx/tools-02.m4a
+dig <- oga-25-cc0-mud-sfx/mud-08.m4a | alt: impact-sounds/footstep_snow_001.ogg
+splash <- oga-40-cc0-water-splash-slime-sfx/splash-10.m4a | alt: oga-40-cc0-water-splash-slime-sfx/splash-02.m4a
+leaf <- oga-20-rustles-dry-leaves/rustle10.m4a | alt: oga-20-rustles-dry-leaves/rustle09.m4a
+promote <- ninja-adventure/Bonus__PowerUp1.wav | alt: music-jingles/jingles-hit_00.ogg
+card <- casino-audio/card-place-1.ogg | alt: casino-audio/card-slide-4.ogg
+win <- ninja-adventure/Jingles__Success3.wav | alt: music-jingles/jingles-steel_16.ogg
+lose <- ninja-adventure/Jingles__GameOver4.wav | alt: ninja-adventure/Jingles__GameOver3.wav
+coin <- oga-rpg-sound-pack/coin3.m4a | alt: rpg-audio/handleCoins2.ogg
+flower <- ninja-adventure/Magic-Skill__Heal.wav | alt: interface-sounds/maximize_007.ogg
+tap <- ui-audio/click3.ogg | alt: interface-sounds/click_001.ogg
+achievement <- ninja-adventure/Jingles__LevelUp1.wav | alt: ninja-adventure/Bonus__Bonus.wav
+mini_win <- music-jingles/jingles-hit_06.ogg | alt: ninja-adventure/Jingles__Success1.wav
+mini_lose <- retro-sounds-1/lose4.ogg | alt: desert-shooter-pack/lose-d.ogg
+shatter <- oga-75-cc0-breaking-falling-hit-sfx/bfh1-glass-breaking-06.m4a | alt: oga-75-cc0-breaking-falling-hit-sfx/bfh1-glass-breaking-02.m4a

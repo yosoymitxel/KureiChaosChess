@@ -267,12 +267,20 @@ export function playSfx(name) {
   const tune = 1 + (Math.random() * 2 - 1) * JITTER;
   const pixel = typeof document !== 'undefined' && document.documentElement.dataset.art === 'pixel';
   const takes = !pixel && buffers[name];
-  if (takes?.length) return playSample(takes[Math.floor(Math.random() * takes.length)], now, tune);
+  if (takes?.length) return playSample(takes[Math.floor(Math.random() * takes.length)], now, tune, SAMPLE_GAIN[name] ?? 0.7);
   for (const layer of layers) playLayer(layer, now, tune);
 }
 const last = {};
 
 // Muestras: se cargan todas al crear el contexto (pesan poco) y cada efecto elige una toma al azar.
+// El importador las deja a todas igual de fuertes; esto devuelve la jerarquía (un clic no suena
+// como una explosión). Lo que no figura va a 0.7.
+const SAMPLE_GAIN = {
+  select: 0.35, tap: 0.4, step: 0.35, invalid: 0.4, leaf: 0.45, pop: 0.5, card: 0.55, coin: 0.55, snip: 0.6, dig: 0.6,
+  move: 0.65, land: 0.7, water: 0.55, splash: 0.6, flower: 0.55, whoosh: 0.5, warp: 0.6, laser: 0.45, zombie: 0.6,
+  capture: 0.85, hit: 0.8, crunch: 0.75, shatter: 0.85, boom: 0.85, stomp: 0.95, bigboom: 1,
+  promote: 0.7, mini_win: 0.6, mini_lose: 0.6, achievement: 0.7, win: 0.75, lose: 0.75,
+};
 const buffers = {};
 function loadSamples(c) {
   for (const [name, urls] of Object.entries(SFX_SAMPLES)) {
@@ -282,11 +290,12 @@ function loadSamples(c) {
     }
   }
 }
-function playSample(buf, t, tune) {
-  const src = ctx.createBufferSource();
+function playSample(buf, t, tune, gain) {
+  const src = ctx.createBufferSource(), g = ctx.createGain();
   src.buffer = buf;
   src.playbackRate.value = tune;
-  src.connect(master);
+  g.gain.value = gain;
+  src.connect(g).connect(master);
   src.start(t);
 }
 
@@ -341,5 +350,5 @@ export function stopAmbient() {
 }
 
 export function sfxState() {
-  return { enabled, level, ambient: !!ambient, context: ctx ? ctx.state : null };
+  return { enabled, level, ambient: !!ambient, context: ctx ? ctx.state : null, samples: Object.values(buffers).flat().length };
 }
