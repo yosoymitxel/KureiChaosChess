@@ -527,7 +527,8 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 /* Maceta con planta: anclada a su base, sombra de contacto en la arena. */
 .zn-plant {
   position: absolute; left: 50%; bottom: 3%; width: 104%; height: 112%;
-  transform: translateX(-50%); transform-origin: 50% 100%; overflow: visible;
+  /* Centrado con translate y no con transform: la animación de cavar escribe transform y lo pisaría. */
+  translate: -50% 0; transform-origin: 50% 100%; overflow: visible;
   filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.32));
 }
 .zen-pot::after { content: ''; position: absolute; left: 22%; right: 22%; bottom: 2%; height: 12%; border-radius: 50%; background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.45), transparent); }

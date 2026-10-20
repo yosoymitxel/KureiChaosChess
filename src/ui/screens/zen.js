@@ -83,7 +83,14 @@ export function ZenScreen({ onBack, onShop }) {
   // Posiciones en la capa de efectos (la del patio) y piezas de cada maceta.
   const cellOf = (key) => yardRef.current?.querySelector(`[data-k="${key}"]`);
   const at = (el, bias = 0.5) => fxRef.current.pointOf(el, bias);
-  const growOf = (key) => cellOf(key)?.querySelector('.zn-grow');
+  // Anima la planta de un tiesto. Motion recuerda el último fotograma (tras cortar: subida, giro y
+  // escala 0), así que se vuelve a cero antes de cada animación o la siguiente planta nacería desplazada.
+  const growFx = (key, frames, opts) => {
+    const g = cellOf(key)?.querySelector('.zn-grow');
+    if (!g) return opts?.onComplete?.();
+    motion(g, { y: 0, rotate: 0, scale: 1, scaleY: 1 }, { duration: 0 });
+    motion(g, frames, opts);
+  };
   // Punto de una casilla en coordenadas del jardín (para las herramientas, que viven en él).
   const spot = (cell, fx = 0.5, fy = 0.5) => {
     const c = cell.getBoundingClientRect(), y = yardRef.current.getBoundingClientRect();
@@ -127,7 +134,7 @@ export function ZenScreen({ onBack, onShop }) {
     if (!cell || reduced()) return;
     const p = at(cell, 0.66);
     fxRef.current.burst(p.x, p.y, { count: 10, color: SOIL_COLORS, speed: [40, 140], life: [0.3, 0.6], size: [2, 4], gravity: 500, shape: 'chunk', spread: Math.PI, angle: -Math.PI / 2 });
-    motion(growOf(key), { scale: [0, 1.25, 1] }, { duration: 0.6, ease: OUT });
+    growFx(key, { scale: [0, 1.25, 1] }, { duration: 0.6, ease: OUT });
   });
   const fxWater = (key) => {
     const cell = cellOf(key), yard = yardRef.current;
@@ -137,7 +144,7 @@ export function ZenScreen({ onBack, onShop }) {
     setPour({ x: c.left - y.left + c.width * 0.5 - 39, y: c.top - y.top - c.height * 0.38, id: Date.now() });
     setTimeout(() => {
       playSfx('water');
-      motion(growOf(key), { rotate: [0, -6, 4, 0], scaleY: [1, 0.94, 1.05, 1] }, { duration: 0.9, ease: 'easeInOut' }); // la planta agradece el agua
+      growFx(key, { rotate: [0, -6, 4, 0], scaleY: [1, 0.94, 1.05, 1] }, { duration: 0.9, ease: 'easeInOut' }); // la planta agradece el agua
       const p = at(cell, 0.42);
       for (let i = 0; i < 3; i++) setTimeout(() => fxRef.current.burst(p.x + 6, p.y - 8, { count: 8, color: ['#9fd3ff', '#5aa9e6', '#e6f6ff'], speed: [30, 90], life: [0.35, 0.6], size: [1.5, 3], gravity: 900, spread: 0.7, angle: Math.PI / 2 + 0.3 }), i * 140);
     }, 420);
@@ -162,7 +169,7 @@ export function ZenScreen({ onBack, onShop }) {
     if (!cell || reduced()) return;
     const p = at(cell, 0.25), fl = getComputedStyle(cell.querySelector('.zn-plant')).getPropertyValue('--fl').trim() || '#ffcf6b';
     fxRef.current.sparkle(p.x, p.y, fl, 8);
-    motion(growOf(key), { scale: [1, 1.18, 0.96, 1] }, { duration: 0.6, ease: OUT });
+    growFx(key, { scale: [1, 1.18, 0.96, 1] }, { duration: 0.6, ease: OUT });
   };
 
   // Al cortar, la planta se recoge, vuelan pétalos de su color y las monedas van al monedero.
@@ -188,7 +195,7 @@ export function ZenScreen({ onBack, onShop }) {
       busyCut.current = false;
       const p = at(cell, 0.25), fl = getComputedStyle(cell.querySelector('.zn-plant')).getPropertyValue('--fl').trim() || '#ffcf6b';
       fxRef.current.burst(p.x, p.y, { count: 18, color: [fl, fl, '#fff'], speed: [60, 220], life: [0.6, 1.1], size: [2, 4], gravity: 160, drag: 0.9, shape: 'chunk' });
-      motion(growOf(key), { scale: [1, 1.15, 0], y: [0, -4, -10], rotate: [0, 0, 40] }, { duration: 0.35, ease: [0.7, 0, 0.84, 0], onComplete: done });
+      growFx(key, { scale: [1, 1.15, 0], y: [0, -4, -10], rotate: [0, 0, 40] }, { duration: 0.35, ease: [0.7, 0, 0.84, 0], onComplete: done });
     }, 560);
   };
   const busyCut = useRef(false);
