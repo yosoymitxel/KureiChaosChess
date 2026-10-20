@@ -105,17 +105,14 @@ function art(type) {
 
 // Set píxel de la mesa Pixelada (arte en art/pixelada.px.js, PNG incrustados por tools/pixel-art.mjs).
 // El PNG ya trae color y contorno: el SVG apila los tres bandos y board.css muestra el que toca.
-const PX = 2; // unidades del lienzo (45×41) por píxel de arte
+const PX = 1; // unidades del lienzo (45×41) por píxel de arte: el set va a doble resolución
 const PX_BOTTOM = 40.5; // la misma línea de apoyo que la peana vectorial
 const pixelMode = () => document.documentElement?.dataset?.art === 'pixel';
 
 function pixelArt(type) {
   const meta = PIXEL_META[type];
   if (!meta) return null;
-  // Los jefes llevan el doble de píxeles de arte en el mismo lienzo (art/jefes.px.js): más detalle,
-  // mismo tamaño en pantalla.
-  const px = isBoss(type) ? PX / 2 : PX;
-  const half = (meta.w * px) / 2, w = meta.w * px, h = meta.h * px;
+  const half = (meta.w * PX) / 2, w = meta.w * PX, h = meta.h * PX;
   const L = { left: CX - half, right: CX + half, top: PX_BOTTOM - h };
   const img = (side) => `<image class="px-${side}" href="${PIXEL_PIECES[type][side]}" x="${L.left}" y="${L.top}" width="${w}" height="${h}"/>`;
   return { L, svg: img('l') + img('d') + img('w') };
