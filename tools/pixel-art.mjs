@@ -1,6 +1,7 @@
 // Incrusta el set de pxl (art/pixelada.px.js) en un módulo de la app: los PNG como data URI
 // y el tamaño en píxeles de arte de cada pieza. El arte se edita en el .px.js; acá solo se copia.
-// Reconstruir:  node <pxl>/bin/pxl.js build art/pixelada.px.js  &&  node tools/pixel-art.mjs
+// Reconstruir:  node <pxl>/bin/pxl.js build art/pixelada.px.js  &&  node <pxl>/bin/pxl.js build art/jefes.px.js
+//               &&  node tools/pixel-art.mjs   (los dos escriben en art/out/sprites)
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
