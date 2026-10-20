@@ -35,8 +35,8 @@ cuarto color a la paleta.
 
 ## Píxel
 
-El set píxel vive aparte (`art/pixelada.px.js`, `art/bosses-work/`) y se construye con la skill
-de pixel art; estas plantillas son para el set vectorial.
+Los temas píxel viven aparte, en `art/temas/` (cada carpeta, un tema), con su propia plantilla de
+PNG en `art/temas/_plantilla/`: ver `art/temas/LEEME.md`. Estas plantillas son para el set vectorial.
 
 ## Cómo entregar
 

@@ -1,0 +1,39 @@
+{
+  "nombre": "Mi tema",
+  "precio": 0,
+  "descripcion": "Una frase que cuente de qué va el tema.",
+  "colores": {
+    "table": "oklch(0.275 0.031 304)",
+    "table-2": "oklch(0.323 0.028 306)",
+    "tile-a": "oklch(0.83 0.062 81.5)",
+    "tile-b": "oklch(0.661 0.076 71.4)",
+    "tile-side": "oklch(0.495 0.063 67.3)",
+    "side-light": "oklch(0.956 0.028 88.8)",
+    "side-dark": "oklch(0.559 0.119 298)",
+    "side-wild": "oklch(0.748 0.106 170.8)"
+  },
+  "interfaz": {},
+  "bandos": {
+    "claro": [
+      "#f8f0dc",
+      "#e8d5ac",
+      "#c9a468",
+      "#9a7440",
+      "#6b4d2c"
+    ],
+    "oscuro": [
+      "#a48fce",
+      "#7d63b0",
+      "#5a4487",
+      "#3a2a5c",
+      "#3a2a5c"
+    ],
+    "salvaje": [
+      "#a8e8cd",
+      "#5ec3a4",
+      "#338f77",
+      "#1f6152",
+      "#1f6152"
+    ]
+  }
+}

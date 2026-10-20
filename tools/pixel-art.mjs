@@ -84,7 +84,7 @@ for (const id of ids) {
     const raw = read(name) || read(name + '_l');
     if (!raw) continue;
     const light = trim(raw);
-    if (!light) { warn(`${name}: el PNG está vacío`); continue; }
+    if (!light) continue; // lienzo de la plantilla sin dibujar: va el del tema base
     const [mw, mh] = MAX[name.startsWith('boss-') ? 'boss' : 'piece'];
     if (light.w > mw || light.h > mh) warn(`${name}: mide ${light.w}×${light.h}, se sale del lienzo de ${mw}×${mh}`);
     if (!usesSide(light, claro) && !files.has(name + '_d')) warn(`${name}: no usa ningún color del bando claro, los tres bandos se verán iguales`);
@@ -98,7 +98,7 @@ for (const id of ids) {
   }
   for (const name of [...BG, ...UI]) {
     const img = read(name);
-    if (!img) continue;
+    if (!img || !trim(img)) continue;
     // Tamaños fijos que el CSS da por hechos: la mesa va en mosaico de 128 px y los marcos se
     // cortan en nueve partes de 4 píxeles.
     const size = { table: 32, panel: 12, boton: 12 }[name];
