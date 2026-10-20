@@ -1,7 +1,7 @@
 // Comprobación del motor de sonido: `node tools/sfx-check.mjs`.
 // Primero importa en Node puro (sin AudioContext, todo no-op), después monta un
 // AudioContext de mentira para revisar lo que cada receta agenda de verdad.
-import { SFX_NAMES, SFX_VOLUMES, setSfxEnabled, setSfxVolume, playSfx, startAmbient, stopAmbient, sfxState } from '../src/ui/sfx.js';
+import { SFX_NAMES, SFX_VOLUMES, MUSIC_TRACKS, setSfxEnabled, setSfxVolume, setMusicScene, playSfx, startAmbient, stopAmbient, sfxState } from '../src/ui/sfx.js';
 
 const NAMES = ['move', 'capture', 'select', 'invalid', 'step', 'land', 'hit', 'stomp', 'boom', 'bigboom', 'crunch', 'pop', 'whoosh', 'warp', 'laser', 'zombie', 'water', 'snip', 'dig', 'splash', 'leaf', 'promote', 'card', 'win', 'lose', 'coin', 'flower', 'tap', 'achievement', 'mini_win', 'mini_lose', 'shatter'];
 const LEVELS = ['suave', 'normal', 'fuerte'];
@@ -119,32 +119,40 @@ try {
   if (mock.made[0].gain.value !== SFX_VOLUMES.fuerte) throw new Error('el volumen global no llega al master');
   setSfxVolume('normal');
 
-  // 3. Ambiente: dos drones, ruido filtrado y LFO; no se duplica y se corta entero.
+  // 3. Música: la pista de la escena, en bucle y a nivel de fondo; no se duplica, al cambiar de
+  // escena entra la otra y la anterior se corta, y al parar no queda nada sonando.
+  mock.decodeAudioData = async (url) => ({ url });
+  const asked = [];
+  globalThis.fetch = async (url) => { asked.push(url); return { arrayBuffer: async () => url }; };
+  const tick = () => new Promise((r) => setTimeout(r, 0));
+  const playing = (nodes) => nodes.find((n) => n.kind === 'noise' && n.loop);
+  if (MUSIC_TRACKS.join() !== 'normal,pixel,zen') throw new Error(`MUSIC_TRACKS inesperado: ${MUSIC_TRACKS}`);
+  setMusicScene(false);
   from = mock.made.length;
   startAmbient();
-  const amb = mock.made.slice(from);
-  if (!sfxState().ambient) throw new Error('el ambiente no quedó encendido');
-  if (amb.filter((n) => n.kind === 'osc' && n.frequency.value <= 200).length < 2) throw new Error('ambiente: faltan los dos osciladores graves');
-  if (!amb.some((n) => n.kind === 'osc' && n.frequency.value < 1)) throw new Error('ambiente: falta el LFO lento');
-  if (!amb.some((n) => n.kind === 'noise')) throw new Error('ambiente: falta el lecho de ruido');
-  if (!amb.some((n) => n.kind === 'filter' && Number.isFinite(n.frequency.value) && n.frequency.value > 0)) throw new Error('ambiente: falta el pasabajos');
-  if (!amb.some((n) => n.kind === 'gain' && n.gain.value <= 0.1)) throw new Error('ambiente: sin nivel base bajo');
-  for (const s of sources(amb)) {
-    if (s.starts.length !== 1) throw new Error('ambiente: fuente sin start');
-  }
+  if (!sfxState().ambient) throw new Error('la música no quedó encendida');
+  await tick();
+  const song = playing(mock.made.slice(from));
+  if (asked.at(-1) !== 'assets/musica/normal.mp3' || song?.buffer?.url !== 'assets/musica/normal.mp3') throw new Error('música: no suena la pista de las mesas normales');
+  if (song.starts.length !== 1) throw new Error('música: la pista no arrancó');
+  if (!mock.made.slice(from).some((n) => n.kind === 'gain' && n.gain.value > 0 && n.gain.value <= 0.5)) throw new Error('música: nivel fuera de (0, 0.5]');
   from = mock.made.length;
   startAmbient();
-  if (mock.made.length !== from) throw new Error('startAmbient duplicó el ambiente');
+  if (mock.made.length !== from) throw new Error('startAmbient duplicó la música');
+  setMusicScene(true);
+  await tick();
+  const zen = playing(mock.made.slice(from));
+  if (song.stops.length !== 1) throw new Error('música: al entrar al jardín la anterior siguió sonando');
+  if (zen?.buffer?.url !== 'assets/musica/zen.mp3') throw new Error('música: no entró la del jardín');
   stopAmbient();
-  if (sfxState().ambient) throw new Error('stopAmbient no apagó el ambiente');
-  for (const s of sources(amb)) {
-    if (s.stops.length !== 1 || s.stops[0] <= s.starts[0]) throw new Error('al parar quedaron fuentes vivas');
-  }
+  if (sfxState().ambient) throw new Error('stopAmbient no apagó la música');
+  if (zen.stops.length !== 1 || zen.stops[0] <= zen.starts[0]) throw new Error('al parar quedó la música viva');
   stopAmbient();
 
-  // 4. Apagado: nada suena ni crea nodos, y el ambiente en curso se corta.
+  // 4. Apagado: nada suena ni crea nodos, y la música en curso se corta.
   from = mock.made.length;
   startAmbient();
+  await tick();
   const off = mock.made.length;
   setSfxEnabled(false);
   playSfx('coin');

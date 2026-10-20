@@ -9,6 +9,7 @@ import { decodePNG, encodePNG } from './png.mjs';
 globalThis.document = { documentElement: { dataset: {} } };
 const { PIXEL_PACKS } = await import('../src/data/pixel-packs.js');
 const { SFX_SAMPLES } = await import('../src/data/sfx-samples.js');
+const { MUSIC_TRACKS } = await import('../src/ui/sfx.js');
 const { BODIES } = await import('../src/view/piece-bodies.js');
 const { PIECE_TYPES } = await import('../src/data/pieces.js');
 const { BOSS_IDS } = await import('../src/data/bosses.js');
@@ -25,6 +26,7 @@ for (const [id, pack] of Object.entries(PIXEL_PACKS)) {
   for (const name of [...pack.bg, ...pack.ui]) if (!existsSync(`${root}assets/pixel/${id}/${name}.png`)) errors.push(`${id}: falta ${name}.png`);
 }
 for (const urls of Object.values(SFX_SAMPLES)) for (const u of urls) if (!existsSync(root + u)) errors.push(`falta ${u} (node tools/sfx-import.mjs)`);
+for (const t of MUSIC_TRACKS) if (!existsSync(`${root}assets/musica/${t}.mp3`)) errors.push(`falta la música assets/musica/${t}.mp3`);
 for (const t of [...PIECE_TYPES, ...BOSS_IDS.map((b) => 'boss-' + b)]) if (!BODIES[t]) errors.push(`${t}: sin cuerpo vectorial (node tools/vector-art.mjs)`);
 
 if (errors.length) { console.error(errors.join('\n')); process.exit(1); }

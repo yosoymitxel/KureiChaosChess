@@ -8,7 +8,7 @@ import { SetupScreen, SettingsScreen } from './screens/setup.js';
 import { GameScreen } from './screens/game.js';
 import { HowToOverlay } from './screens/overlays.js';
 import { setFullscreen } from './fullscreen.js';
-import { setSfxEnabled, setSfxVolume, startAmbient, playSfx } from './sfx.js';
+import { setSfxEnabled, setSfxVolume, startAmbient, setMusicScene, playSfx } from './sfx.js';
 import { Connect4Screen } from './screens/connect4.js';
 import { MinisScreen } from './screens/minis.js';
 import { ZenScreen } from './screens/zen.js';
@@ -89,6 +89,8 @@ export function App() {
     window.addEventListener('pointerdown', wake);
     return () => window.removeEventListener('pointerdown', wake);
   }, []);
+  // La música sigue a la pantalla y a la mesa (applyTheme ya puso data-art en este render).
+  useEffect(() => { setMusicScene(screen === 'zen'); }, [screen, settings.theme]);
   // Una mesa guardada que no se compró vuelve a la de serie.
   useEffect(() => { if (!themeOwned(settings.theme)) setSettings((s) => ({ ...s, theme: DEFAULT_SETTINGS.theme })); }, []);
   // Hitos que dependen del avance de la run: se revisan al guardarla, en un solo lugar.

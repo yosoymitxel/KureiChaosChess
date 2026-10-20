@@ -299,42 +299,43 @@ function playSample(buf, t, tune, gain) {
   src.start(t);
 }
 
+// Música de fondo: un bucle por ambiente (assets/musica/, créditos en CREDITOS.txt). Las mesas
+// normales llevan lo-fi, las píxel chiptune y el jardín zen el suyo. Se decodifica entera y suena con
+// AudioBufferSource.loop, que empalma sin el hueco que deja <audio loop>; cada pista se baja la
+// primera vez que hace falta. Al cambiar de ambiente, la que sale se apaga mientras entra la otra.
+export const MUSIC_TRACKS = ['normal', 'pixel', 'zen'];
+const MUSIC_GAIN = 0.32;
+const tracks = {};
+let scene = 'normal';
+const track = (name) => (tracks[name] ||= fetch(`assets/musica/${name}.mp3`)
+  .then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b))
+  .catch(() => { delete tracks[name]; return null; }));
+
+// La pantalla avisa si es el jardín; la mesa (píxel o no) se lee del documento.
+export function setMusicScene(zen) {
+  scene = zen ? 'zen' : typeof document !== 'undefined' && document.documentElement.dataset.art === 'pixel' ? 'pixel' : 'normal';
+  if (ambient && ambient.name !== scene) { stopAmbient(); startAmbient(); }
+}
+
 export function startAmbient() {
   if (ambient || !enabled) return;
   const c = ensureCtx();
   if (!c) return;
-  const t = c.currentTime;
   const bus = c.createGain();
-  bus.gain.setValueAtTime(0.0001, t);
-  bus.gain.linearRampToValueAtTime(1, t + 2.5);
-  const trem = c.createGain();
-  trem.gain.value = 0.05;
-  const lp = c.createBiquadFilter();
-  lp.type = 'lowpass';
-  lp.frequency.value = 260;
-  lp.connect(trem).connect(bus).connect(master);
-  const noise = c.createBufferSource();
-  noise.buffer = noiseBuffer(c);
-  noise.loop = true;
-  const bed = c.createGain();
-  bed.gain.value = 0.12;
-  noise.connect(bed).connect(lp);
-  const srcs = [noise];
-  for (const hz of [110, 165]) {
-    const osc = c.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.value = hz;
-    osc.connect(lp);
-    srcs.push(osc);
-  }
-  const lfo = c.createOscillator();
-  lfo.frequency.value = 0.07;
-  const depth = c.createGain();
-  depth.gain.value = 0.012;
-  lfo.connect(depth).connect(trem.gain);
-  srcs.push(lfo);
-  for (const s of srcs) s.start(t);
-  ambient = { bus, srcs };
+  bus.gain.value = 0.0001;
+  bus.connect(master);
+  const a = (ambient = { name: scene, bus, srcs: [] });
+  track(a.name).then((buf) => {
+    if (!buf || ambient !== a) return;
+    const src = c.createBufferSource(), t = c.currentTime;
+    src.buffer = buf;
+    src.loop = true;
+    src.connect(bus);
+    src.start(t);
+    a.srcs.push(src);
+    bus.gain.setValueAtTime(0.0001, t);
+    bus.gain.linearRampToValueAtTime(MUSIC_GAIN, t + 2.5);
+  });
 }
 
 export function stopAmbient() {

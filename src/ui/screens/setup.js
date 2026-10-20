@@ -119,12 +119,12 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
       </section>
       <section class="panel setup-card" data-enter>
         <h2>Efectos y ambiente</h2>
-        <${Toggle} on=${settings.sound} onChange=${set('sound')} label="Sonidos" hint="Efectos de la mesa y fondo generativo" />
+        <${Toggle} on=${settings.sound} onChange=${set('sound')} label="Sonidos" hint="Efectos de la mesa y música de fondo" />
         <h2>Volumen</h2>
         <div class="segmented" role="group" aria-label="Volumen del sonido">
           ${[['suave', 'Suave'], ['normal', 'Normal'], ['fuerte', 'Fuerte']].map(([id, label]) => html`<button class=${settings.volume === id ? 'on' : ''} aria-pressed=${settings.volume === id} onClick=${() => set('volume')(id)}>${label}</button>`)}
         </div>
-        <p class="setup-note">El fondo generativo arranca con tu primer toque.</p>
+        <p class="setup-note">La música arranca con tu primer toque.</p>
       </section>
       <section class="panel setup-card" data-enter>
         <h2>Cámara</h2>

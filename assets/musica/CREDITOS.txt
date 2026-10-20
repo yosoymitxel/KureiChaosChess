@@ -1,0 +1,11 @@
+normal.mp3 <- "Stacks of Quiet Books" (Open Lo-Fi, btahir, generado con Suno v5), CC0-1.0
+  https://github.com/btahir/open-lofi  (release v1.0.0, openlofi.zip -> stacks-of-quiet-books.mp3)
+  Bucle: 41.958 s -> 146.054 s del original, fundido cruzado de 1.5 s, loudnorm I=-20 lineal, MP3 96k estereo.
+zen.mp3 <- "Teacup Morning Fog" (Open Lo-Fi, categoria Asian & Zen Lo-Fi, btahir, Suno v5), CC0-1.0
+  https://github.com/btahir/open-lofi  (teacup-morning-fog.mp3)
+  Bucle: 21.583 s -> 107.044 s, fundido cruzado de 1.5 s, loudnorm I=-20 lineal, MP3 96k estereo.
+pixel.mp3 <- "33 - Calm Village", Ninja Adventure Asset Pack (musica de Pixel-boy), CC0-1.0
+  https://pixel-boy.itch.io/ninja-adventure-asset-pack
+  espejo: https://github.com/series-ai/jam-ready-assets/tree/main/ninja-adventure/2D/top-down-rpg/Audio/Musics
+  Bucle original completo de 72.0 s; fundido de 3 ms al inicio y 5 ms al final, loudnorm I=-20 lineal, MP3 112k estereo.
+Atribucion no obligatoria (CC0). Se agradece credito.
