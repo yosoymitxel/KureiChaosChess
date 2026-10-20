@@ -8,17 +8,18 @@ import { artOf } from '../../view/piece-art.js';
 import { Match, botChooseMove } from '../../game/match.js';
 import { rivalForFloor } from '../../game/difficulty.js';
 import { generateBoard, placePieces, eliteVariants } from '../../game/generate.js';
-import { moveCells, cellsOf, key, anchorForCell, immune, walkable, reachPreview } from '../../game/rules.js';
+import { moveCells, cellsOf, key, anchorForCell, immune, walkable } from '../../game/rules.js';
+import { playDemo, mutationDemo, bossDemo } from '../demos.js';
 import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
 import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
-import { MUTATIONS, EXTRA_MOVES, countMutations } from '../../data/mutations.js';
+import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { takeNewDemos, loadBosses } from '../../game/run.js';
 import { PIECE_NAMES, MOVE_NAMES } from '../../data/pieces.js';
 import { BOSSES } from '../../data/bosses.js';
 import { PauseOverlay } from './overlays.js';
 import { Moments } from '../moments.js';
 import { playSfx } from '../sfx.js';
-import { award, seePieces } from '../../game/achievements.js';
+import { award, seePieces, seeMutations } from '../../game/achievements.js';
 
 const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
 
@@ -387,19 +388,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     // derrotado enseña su patrón. Todo se salta con un toque.
     const playDemos = async (boss) => {
       const human = seats.find((s) => s.kind === 'human')?.color || 'light';
-      for (const id of takeNewDemos(run)) {
-        const m = MUTATIONS[id], ex = EXTRA_MOVES[id];
-        if (!ex) { await d.moments.cinematic({ title: m.name, sub: m.desc, icon: m.icon }); continue; }
-        const { base, extra } = reachPreview({ type: ex[0], extra: [ex[1]] });
-        await d.moments.demo({ title: m.name, sub: m.desc, piece: { type: ex[0], side: human }, base, extra });
-      }
-      if (boss && !loadBosses().includes(boss.boss)) {
-        // Margen para que se vea el recorrido entero; un 2×2 va en 8×8 para quedar centrado con el
-        // mismo margen a cada lado (en 9×9 sobraba una fila y una columna). El tablerito mide lo mismo.
-        const { size } = BOSSES[boss.boss], n = size[0] === 2 && size[1] === 2 ? 8 : Math.max(7, size[0] + 6, size[1] + 6) | 1;
-        const look = reachPreview({ type: boss.type, moves: BOSSES[boss.boss].moves, size }, n);
-        await d.moments.demo({ title: `Así se mueve ${boss.name}`, sub: BOSSES[boss.boss].desc, piece: { type: artOf(boss), side: boss.color }, ...look, n, tone: 'danger' });
-      }
+      seeMutations(run.mutations || []);
+      for (const id of takeNewDemos(run)) await playDemo(d.moments, mutationDemo(id, human));
+      if (boss && !loadBosses().includes(boss.boss)) await playDemo(d.moments, bossDemo(boss.boss, boss.color));
     };
     const beginPlacing = () => {
       if (d.hand.indexOf('organize') < 0 || !mine.size) { d.busy = false; return startTurn(); }

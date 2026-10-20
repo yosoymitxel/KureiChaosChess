@@ -68,6 +68,7 @@ export function App() {
   const [freeKey, setFreeKey] = useState(0);
   const [miniKey, setMiniKey] = useState(0); // remonta el minijuego del mapa al cambiar de dificultad
   const [shopFrom, setShopFrom] = useState('zen'); // a dónde vuelve la tienda
+  const [achFrom, setAchFrom] = useState({ back: 'menu' }); // a dónde vuelven los Logros y qué logro enfocar
   const [settings, setSettings] = useState(loadSettings);
   const curtain = useRef(null);
   const busy = useRef(false);
@@ -228,7 +229,7 @@ export function App() {
   const FreeMini = MINI_SCREENS[freeMini];
 
   return html`
-    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => goTo('achievements')} settings=${settings} setSettings=${setSettings} />`}
+    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} settings=${settings} setSettings=${setSettings} />`}
     ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} onShop=${openShop('map')} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} settings=${settings} defaultCount=${seats?.length} onHowTo=${() => setHowTo(true)} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame}
@@ -251,8 +252,8 @@ export function App() {
       settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => goTo(shopFrom)} />`}
-    ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} onAchievements=${() => goTo('achievements')} />`}
-    ${screen === 'achievements' && html`<${AchievementsScreen} onBack=${() => goTo('menu')} onGallery=${() => goTo('gallery')} />`}
+    ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} onAchievements=${(focus) => { setAchFrom({ back: 'gallery', focus }); goTo('achievements'); }} />`}
+    ${screen === 'achievements' && html`<${AchievementsScreen} focus=${achFrom.focus} onBack=${() => goTo(achFrom.back)} onGallery=${() => goTo('gallery')} />`}
     ${howTo && html`<${HowToOverlay} onClose=${() => setHowTo(false)} />`}
     <div class="curtain" ref=${curtain}><span>Zugzwang</span></div>
     <${AchievementToast} />
