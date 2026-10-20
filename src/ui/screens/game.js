@@ -394,8 +394,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         await d.moments.demo({ title: m.name, sub: m.desc, piece: { type: ex[0], side: human }, base, extra });
       }
       if (boss && !loadBosses().includes(boss.boss)) {
-        const { base } = reachPreview({ type: boss.type, moves: BOSSES[boss.boss].moves });
-        await d.moments.demo({ title: `Así se mueve ${boss.name}`, sub: BOSSES[boss.boss].desc, piece: { type: artOf(boss), side: boss.color }, base, tone: 'danger' });
+        const { size } = BOSSES[boss.boss], n = Math.max(7, size[0] + 6, size[1] + 6) | 1; // margen para que se vea el recorrido entero
+        const look = reachPreview({ type: boss.type, moves: BOSSES[boss.boss].moves, size }, n);
+        await d.moments.demo({ title: `Así se mueve ${boss.name}`, sub: BOSSES[boss.boss].desc, piece: { type: artOf(boss), side: boss.color }, ...look, n, tone: 'danger' });
       }
     };
     const beginPlacing = () => {

@@ -337,7 +337,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .dm-cell.dark { background: var(--tile-b); }
 .dm-cell b { width: 36%; aspect-ratio: 1; border-radius: 50%; background: oklch(0.2 0.02 55 / 0.5); }
 .dm-cell.extra b { background: var(--gain); box-shadow: 0 0 0 2px var(--paper); }
-.dm-piece { position: absolute; left: calc(var(--c) * 100% / var(--n)); top: calc(var(--r) * 100% / var(--n)); width: calc(100% / var(--n)); aspect-ratio: 1; display: grid; place-items: center; }
+.dm-piece { position: absolute; left: calc(var(--c) * 100% / var(--n)); top: calc(var(--r) * 100% / var(--n)); width: calc(var(--w, 1) * 100% / var(--n)); height: calc(var(--h, 1) * 100% / var(--n)); display: grid; place-items: center; }
 .dm-piece .piece-icon { width: 96% !important; height: 96% !important; }
 .dm-legend { display: flex; align-items: center; gap: 6px; font-weight: 700; }
 .dm-legend i { width: 12px; height: 12px; border-radius: 50%; background: oklch(0.2 0.02 55 / 0.5); }

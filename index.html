@@ -35,11 +35,14 @@
   <script type="module" src="src/main.js"></script>
 </head>
 <body>
-  <!-- Filtro de modo píxel (css/pixel.css): toma un punto cada 4 px y lo agranda a un cuadro de
-       4×4, así los dibujos vectoriales (el jardín Zen) quedan a la misma escala que el arte píxel. -->
+  <!-- Filtros de modo píxel (css/pixel.css): toman un punto cada 4 px (o 2, para iconos) y lo agrandan
+       a un cuadro, así los dibujos vectoriales (jardín Zen, iconos) quedan a la escala del arte píxel. -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="px-filter" x="0" y="0" width="1" height="1">
     <feFlood x="2" y="2" width="1" height="1"/><feComposite width="4" height="4"/><feTile result="dots"/>
     <feComposite in="SourceGraphic" in2="dots" operator="in"/><feMorphology operator="dilate" radius="2"/>
+  </filter><filter id="px-icon" x="0" y="0" width="1" height="1">
+    <feFlood x="1" y="1" width="1" height="1"/><feComposite width="2" height="2"/><feTile result="dots"/>
+    <feComposite in="SourceGraphic" in2="dots" operator="in"/><feMorphology operator="dilate" radius="1"/>
   </filter></svg>
   <div id="root"></div>
   <noscript>Zugzwang necesita JavaScript.</noscript>
