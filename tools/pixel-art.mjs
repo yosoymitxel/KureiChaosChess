@@ -1,8 +1,9 @@
 // Incrusta el set de pxl (art/pixelada.px.js) en un módulo de la app: los PNG como data URI
 // y el tamaño en píxeles de arte de cada pieza. El arte se edita en el .px.js; acá solo se copia.
 // Reconstruir:  node <pxl>/bin/pxl.js build art/pixelada.px.js  &&  node <pxl>/bin/pxl.js build art/jefes.px.js
-//               &&  node tools/pixel-art.mjs   (los dos escriben en art/out/sprites)
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+//               &&  node <pxl>/bin/pxl.js build art/fondos/fondos.px.js
+//               &&  node tools/pixel-art.mjs   (piezas y jefes escriben en art/out/sprites)
+import { copyFile, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const SRC = fileURLToPath(new URL('../art/out/sprites/', import.meta.url));
@@ -36,3 +37,11 @@ export const PIXEL_META = ${JSON.stringify(meta, null, 2)};
 export const PIXEL_PIECES = ${JSON.stringify(art, null, 2)};
 `);
 console.log(`pixel-pieces.js: ${Object.keys(art).length} piezas, ${files.length} sprites`);
+
+// Los fondos (art/fondos/fondos.px.js) van como archivo aparte: el CSS los pide por URL.
+const BG = fileURLToPath(new URL('../art/fondos/out/sprites/', import.meta.url));
+const BG_DEST = fileURLToPath(new URL('../assets/pixel/', import.meta.url));
+await mkdir(BG_DEST, { recursive: true });
+const bgs = (await readdir(BG)).filter((f) => f.endsWith('.png'));
+for (const file of bgs) await copyFile(BG + file, BG_DEST + file);
+console.log(`assets/pixel: ${bgs.length} fondos`);
