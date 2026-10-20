@@ -1,5 +1,9 @@
-// Motor de sonido por WebAudio: recetas como datos puros, sin archivos de audio.
+// Motor de sonido por WebAudio. Dos fuentes: muestras grabadas (assets/sfx/, importadas por
+// tools/sfx-import.mjs desde art/sonidos/) y recetas sintetizadas como datos puros. Con una mesa
+// normal suena la muestra si la hay; con una mesa píxel suena la receta, que ya es de maquinita.
+// Lo que no tenga muestra, o no haya cargado todavía, suena sintetizado.
 // Sin window.AudioContext (Node) todo es no-op silencioso.
+import { SFX_SAMPLES } from '../data/sfx-samples.js';
 export const SFX_VOLUMES = { suave: 0.45, normal: 0.7, fuerte: 1 };
 
 // Capas: { osc, from, to, dur, gain, attack?, at? } o { noise: true, dur, gain, cutoff, at? }.
@@ -194,6 +198,7 @@ function ensureCtx() {
     master = ctx.createGain();
     master.gain.value = SFX_VOLUMES[level];
     master.connect(ctx.destination);
+    loadSamples(ctx);
   }
   if (ctx.state === 'suspended') ctx.resume();
   return ctx;
@@ -260,9 +265,30 @@ export function playSfx(name) {
   if (now - (last[name] || -1) < 0.03) return;
   last[name] = now;
   const tune = 1 + (Math.random() * 2 - 1) * JITTER;
+  const pixel = typeof document !== 'undefined' && document.documentElement.dataset.art === 'pixel';
+  const takes = !pixel && buffers[name];
+  if (takes?.length) return playSample(takes[Math.floor(Math.random() * takes.length)], now, tune);
   for (const layer of layers) playLayer(layer, now, tune);
 }
 const last = {};
+
+// Muestras: se cargan todas al crear el contexto (pesan poco) y cada efecto elige una toma al azar.
+const buffers = {};
+function loadSamples(c) {
+  for (const [name, urls] of Object.entries(SFX_SAMPLES)) {
+    buffers[name] = [];
+    for (const url of urls) {
+      fetch(url).then((r) => r.arrayBuffer()).then((b) => c.decodeAudioData(b)).then((buf) => buffers[name].push(buf)).catch(() => {});
+    }
+  }
+}
+function playSample(buf, t, tune) {
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  src.playbackRate.value = tune;
+  src.connect(master);
+  src.start(t);
+}
 
 export function startAmbient() {
   if (ambient || !enabled) return;
