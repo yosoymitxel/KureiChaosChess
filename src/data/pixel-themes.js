@@ -87,6 +87,38 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "marcianitos"
   },
+  "paraguay": {
+    "id": "paraguay",
+    "name": "Ñandutí",
+    "price": 160,
+    "swatch": [
+      "#2c1d15",
+      "#e2d6ba",
+      "#d4532f",
+      "#2f7a48"
+    ],
+    "vars": {
+      "table": "#2c1d15",
+      "table-2": "#36251b",
+      "tile-a": "#e2d6ba",
+      "tile-b": "#8e5440",
+      "tile-side": "#55301f",
+      "side-light": "#f4ecda",
+      "side-dark": "#d4532f",
+      "side-wild": "#2f7a48",
+      "paper": "#f4ecd8",
+      "paper-2": "#e7dabd",
+      "paper-3": "#d4c299",
+      "ink": "#1e1612",
+      "ink-2": "#3e2c20",
+      "accent": "#a3201c",
+      "accent-ink": "#5a0f0c",
+      "brass": "#d4a53a",
+      "muted": "#6e5c46"
+    },
+    "art": "pixel",
+    "pack": "paraguay"
+  },
   "piratas": {
     "id": "piratas",
     "name": "Piratas",

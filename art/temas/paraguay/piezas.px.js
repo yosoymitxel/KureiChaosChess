@@ -194,7 +194,7 @@ piece("guard", { w: 22, h: 26 },
   rect(4, 6, 12, 6, "p"), rect(5, 7, 10, 4, "P"), rect(6, 7, 3, 2, "y"), rect(11, 7, 3, 2, "y"), px(7, 8, "k"), px(12, 8, "k"),
   hline(7, 10, 6, "k"), px(8, 10, "g"), px(11, 10, "g"), px(6, 9, "k"), px(13, 9, "k"),
   // sombrero de paja hundido, con el ala deshilachada
-  rect(6, 0, 9, 4, "h"), rect(13, 0, 2, 4, "H"), hline(6, 3, 9, "H"),
+  rect(6, 0, 9, 4, "h"), rect(13, 0, 2, 4, "H"), hline(6, 3, 9, "a"),
   rect(1, 4, 19, 2, "h"), hline(2, 5, 17, "H"), px(1, 5, "."), px(19, 5, "."), px(4, 6, "h"), px(15, 6, "H"), px(17, 6, "h"),
 );
 

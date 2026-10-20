@@ -34,11 +34,6 @@
 [data-art="pixel"] .btn.icon-only { padding: 0; }
 [data-art="pixel"] .btn.ghost { border: 2px solid var(--edge); border-image: none; }
 
-/* Los dibujos de vector (iconos, jardín Zen, minijuegos) no pasan por un filtro de cuadros: con el
-   grano fijo en píxeles de pantalla se comía los trazos finos de los pictogramas y en pantalla
-   grande no crecía con el dibujo, y en el jardín rompía el rastrillo y los anillos de arena. El
-   borde de píxel lo da crispEdges. */
-
 /* Tableros de los minijuegos: las mismas losas del tema que el tablero de la partida. Las
    casillas con un estado de color (meta, carril, peligro, casa) quedan lisas para que se lean. */
 [data-art="pixel"] :is(.bm-cell.a, .br-cell, .dm-cell) { background-image: var(--px-tile-a); background-size: 100% 100%; image-rendering: pixelated; }
