@@ -25,10 +25,21 @@ const blocks = (walls, r, c, dr, dc) => walls.some((w) => (dr
 
 const other = (who) => (who === 'light' ? 'dark' : 'light');
 
+const inside = (r, c) => r >= 0 && c >= 0 && r < N && c < N;
+// Pasos de una casilla y, con el rival pegado, el salto por encima como en Quoridor: recto si
+// detrás no hay valla ni borde; si lo hay, en diagonal a uno de sus costados.
 export function steps(s, who) {
-  const { r, c } = s.pos[who], o = s.pos[other(who)];
-  return DIRS.map(([dr, dc]) => ({ r: r + dr, c: c + dc, dr, dc }))
-    .filter((m) => m.r >= 0 && m.c >= 0 && m.r < N && m.c < N && !blocks(s.walls, r, c, m.dr, m.dc) && !(m.r === o.r && m.c === o.c));
+  const { r, c } = s.pos[who], o = s.pos[other(who)], out = [];
+  for (const [dr, dc] of DIRS) {
+    const rr = r + dr, cc = c + dc;
+    if (!inside(rr, cc) || blocks(s.walls, r, c, dr, dc)) continue;
+    if (rr !== o.r || cc !== o.c) { out.push({ r: rr, c: cc, dr, dc }); continue; }
+    if (inside(rr + dr, cc + dc) && !blocks(s.walls, rr, cc, dr, dc)) { out.push({ r: rr + dr, c: cc + dc, dr, dc, jump: true }); continue; }
+    for (const [sr, sc] of dr ? [[0, -1], [0, 1]] : [[-1, 0], [1, 0]]) {
+      if (inside(rr + sr, cc + sc) && !blocks(s.walls, rr, cc, sr, sc)) out.push({ r: rr + sr, c: cc + sc, dr, dc, jump: true });
+    }
+  }
+  return out;
 }
 
 // Casillas hasta la meta ignorando al rival (BFS); Infinity si no hay camino.

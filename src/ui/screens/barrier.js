@@ -3,6 +3,7 @@ import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { hopPiece } from '../hop.js';
+import { playSfx } from '../sfx.js';
 import { N, DIFFS, newBarrier, act, steps, canWall, botAction } from '../../game/barrier.js';
 
 const KEYS = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
@@ -29,21 +30,52 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
   });
 
   const play = (action) => {
-    if (s.turn !== 'light' || !act(s, action)) return;
+    if (s.turn !== 'light' || !act(s, action)) return playSfx('invalid');
+    if (action.wall) playSfx('land');
     setGhost(null); setMode('move'); tick((n) => n + 1);
     setTimeout(() => {
-      while (!s.over && s.turn === 'dark') { const a = botAction(s); if (!a || !act(s, a)) break; }
+      while (!s.over && s.turn === 'dark') { const a = botAction(s); if (!a || !act(s, a)) break; if (a.wall) playSfx('land'); }
       tick((n) => n + 1);
     }, 420);
   };
   const tap = (r, c) => (mode === 'move' ? play({ move: { r, c } }) : play({ wall: anchor(mode, r, c) }));
 
+  // Ratón y dedo por igual: al apretar se muestra la valla (o se levanta el peón), al arrastrar
+  // la valla sigue al dedo y al soltar se pone (o el peón va a esa casilla). Un toque corto es lo mismo.
+  const [drag, setDrag] = useState(null); // { r, c } bajo el dedo mientras se arrastra
+  const cellAt = (e) => {
+    const el = document.elementFromPoint(e.clientX, e.clientY)?.closest('.br-cell');
+    return el && gridRef.current?.contains(el) ? { r: +el.dataset.r, c: +el.dataset.c } : null;
+  };
+  const down = (e) => {
+    if (s.over || s.turn !== 'light' || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    const at = cellAt(e);
+    if (!at) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDrag(at);
+    if (mode !== 'move') setGhost(anchor(mode, at.r, at.c));
+  };
+  const moveTo = (e) => {
+    const at = cellAt(e);
+    if (!at) return;
+    if (drag) setDrag(at);
+    if (mode !== 'move' && (drag || e.pointerType === 'mouse')) setGhost(anchor(mode, at.r, at.c));
+  };
+  const up = (e) => {
+    if (!drag) return;
+    const at = cellAt(e) || drag, me = s.pos.light;
+    setDrag(null);
+    if (mode === 'move' && at.r === me.r && at.c === me.c) return; // tocar el propio peón no es jugada
+    tap(at.r, at.c);
+  };
+
   useEffect(() => {
     const onKey = (e) => {
       if (!KEYS[e.key]) return;
       e.preventDefault();
-      const p = s.pos.light;
-      play({ move: { r: p.r + KEYS[e.key][0], c: p.c + KEYS[e.key][1] } });
+      // Hacia el rival pegado, la flecha salta (recto si se puede; si no, la primera diagonal).
+      const [dr, dc] = KEYS[e.key], m = steps(s, 'light').find((x) => x.dr === dr && x.dc === dc);
+      if (m) play({ move: { r: m.r, c: m.c } });
     };
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
@@ -58,13 +90,15 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
     <div class="mini-body side-body">
       <div class="mini-main">
         <div class="mini-stage">
-          <div class="br" ref=${gridRef} style=${{ '--n': N }}>
+          <div class=${'br' + (drag && mode === 'move' ? ' lifting' : '')} ref=${gridRef} style=${{ '--n': N }}
+            onPointerDown=${down} onPointerMove=${moveTo} onPointerUp=${up} onPointerCancel=${() => setDrag(null)} onPointerLeave=${(e) => e.pointerType === 'mouse' && !drag && setGhost(null)}>
             ${Array.from({ length: N * N }, (_, i) => {
               const r = Math.floor(i / N), c = i % N;
               const who = ['light', 'dark'].find((k) => s.pos[k].r === r && s.pos[k].c === c);
-              return html`<button class=${'br-cell' + (reach.has(i) ? ' mv' : '') + (r === 0 ? ' goal-light' : r === N - 1 ? ' goal-dark' : '')}
-                disabled=${!!s.over || s.turn !== 'light'} aria-label=${`Fila ${r + 1}, columna ${c + 1}`}
-                onPointerEnter=${() => mode !== 'move' && setGhost(anchor(mode, r, c))} onClick=${() => tap(r, c)}>
+              const aim = drag && mode === 'move' && drag.r === r && drag.c === c && reach.has(i);
+              return html`<button class=${'br-cell' + (reach.has(i) ? ' mv' : '') + (aim ? ' aim' : '') + (r === 0 ? ' goal-light' : r === N - 1 ? ' goal-dark' : '')}
+                data-r=${r} data-c=${c} disabled=${!!s.over || s.turn !== 'light'} aria-label=${`Fila ${r + 1}, columna ${c + 1}`}
+                onClick=${(e) => e.detail === 0 && tap(r, c)}>
                 ${who && html`<span class=${'bm-pc side-' + who} dangerouslySetInnerHTML=${{ __html: pieceSVG('pawn') }} />`}
               </button>`;
             })}
