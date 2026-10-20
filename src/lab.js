@@ -23,7 +23,7 @@ const MOMENTS = {
   'Momento: jefe': (m) => m.cinematic({ title: 'Titán', sub: BOSSES.titan.desc, piece: { type: 'king', side: 'dark' }, hp: { hp: 3, max: 3 }, tone: 'danger', anim: 'stomp' }),
   'Momento: jefe derribado': (m) => m.cinematic({ title: '¡Titán derribado!', sub: 'El coloso cae y la torre es tuya.', piece: { type: 'king', side: 'dark' }, tone: 'brass', anim: 'down' }),
   'Demo: mutación': (m) => m.demo({ title: 'Caballo loco', sub: 'Tus caballos también se mueven como alfiles.', piece: { type: 'knight', side: 'light' }, ...reachPreview({ type: 'knight', extra: ['bishop'] }) }),
-  'Demo: jefe': (m) => m.demo({ title: 'Así se mueve el Ariete', sub: BOSSES.ram.desc, piece: { type: 'boss-ram', side: 'dark' }, ...reachPreview({ type: 'king', moves: BOSSES.ram.moves, size: BOSSES.ram.size }, 9), n: 9, tone: 'danger' }),
+  'Demo: jefe': (m) => m.demo({ title: 'Así se mueve el Ariete', sub: BOSSES.ram.desc, piece: { type: 'boss-ram', side: 'dark' }, ...reachPreview({ type: 'king', moves: BOSSES.ram.moves, size: BOSSES.ram.size }, 8), n: 8, tone: 'danger' }),
 };
 
 const SCENES = {
