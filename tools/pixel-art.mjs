@@ -6,13 +6,14 @@
 // Uso:  node <pxl>/bin/pxl.js build art/temas/<id>/<archivo>.px.js   (si el tema tiene .px.js)
 //       node tools/pixel-art.mjs
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { decodePNG, encodePNG, hex, rgb } from './png.mjs';
 
 globalThis.document = { documentElement: { dataset: {} } };
 const { PIECE_TYPES } = await import('../src/data/pieces.js');
 const { BOSS_IDS } = await import('../src/data/bosses.js');
 
-const root = new URL('../', import.meta.url).pathname;
+const root = fileURLToPath(new URL('../', import.meta.url));
 const TEMAS = root + 'art/temas/';
 const BASE = 'pixelada'; // el tema completo: lo que le falte a otro tema se toma de acá
 const FIGURES = [...PIECE_TYPES, ...BOSS_IDS.map((b) => 'boss-' + b)];

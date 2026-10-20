@@ -7,12 +7,13 @@
 //       node tools/vector-art.mjs --exportar   escribir art/vector/ desde el juego (solo los que falten;
 //                                              --forzar los rehace todos, pisando lo editado)
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 globalThis.document = { documentElement: { dataset: {} } };
 const { PIECE_TYPES, PIECES } = await import('../src/data/pieces.js');
 const { BOSSES, BOSS_IDS } = await import('../src/data/bosses.js');
 
-const root = new URL('../', import.meta.url).pathname;
+const root = fileURLToPath(new URL('../', import.meta.url));
 const DIR = root + 'art/vector/';
 const OUT = root + 'src/view/piece-bodies.js';
 // Colores de trabajo ↔ variables del juego.

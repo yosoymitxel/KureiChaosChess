@@ -3,6 +3,7 @@
 // assets/pixel/, que cada toma de sonido exista en assets/sfx/ y que haya cuerpo vectorial para
 // cada figura. Sale con código 1 si falta algo (un importador sin correr, un archivo sin subir).
 import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { decodePNG, encodePNG } from './png.mjs';
 
 globalThis.document = { documentElement: { dataset: {} } };
@@ -12,7 +13,7 @@ const { BODIES } = await import('../src/view/piece-bodies.js');
 const { PIECE_TYPES } = await import('../src/data/pieces.js');
 const { BOSS_IDS } = await import('../src/data/bosses.js');
 
-const root = new URL('../', import.meta.url).pathname;
+const root = fileURLToPath(new URL('../', import.meta.url));
 const errors = [];
 
 const img = { w: 3, h: 2, px: new Uint8Array([255, 0, 0, 255, 0, 255, 0, 128, 0, 0, 255, 0, 9, 9, 9, 255, 200, 100, 50, 255, 0, 0, 0, 0]) };

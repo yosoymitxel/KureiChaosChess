@@ -6,9 +6,10 @@
 // Uso:  node tools/sfx-import.mjs
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { SFX_NAMES } from '../src/ui/sfx.js';
 
-const root = new URL('../', import.meta.url).pathname;
+const root = fileURLToPath(new URL('../', import.meta.url));
 const SRC = root + 'art/sonidos/', OUT = root + 'assets/sfx/';
 const AUDIO = /\.(wav|ogg|mp3|flac|m4a|aiff?)$/i;
 
