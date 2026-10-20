@@ -8,18 +8,16 @@
 pal({
   a: "#d6ae7a", A: "#e6c497", c: "#bf9462", C: "#93683f", // tablón claro (--tile-a)
   d: "#9a6a42", D: "#ad7d52", e: "#83583a", E: "#5e3d26", // tablón oscuro (--tile-b)
-  j: "#0c1626", r: "#13223a", R: "#192d4b", z: "#24406a", Z: "#33577f", // mar de noche
+  j: "#0c1626", r: "#13223a", R: "#192d4b", z: "#203a60", Z: "#2d4d75", // mar de noche
 });
 
-// Tablón: base, bisel, las dos juntas entre tablones con su canto de luz, y los clavos.
+// Tablón: base, bisel y las dos juntas entre tablones con su canto de luz.
 const plank = (name, [base, hi, lo, deep], ...marks) => sprite(name, { w: 16, h: 16 },
   rect(0, 0, 16, 16, base),
   hline(0, 0, 15, hi), vline(0, 0, 15, hi),
   ...[5, 10].flatMap((y) => [hline(0, y, 15, deep), hline(1, y + 1, 13, hi)]),
   hline(1, 14, 15, lo), vline(14, 1, 14, lo),
   hline(0, 15, 16, deep), vline(15, 0, 16, deep),
-  // clavos en las testas de cada tablón
-  ...[2, 7, 12].flatMap((y) => [px(2, y + 1, deep), px(12, y + 1, deep)]),
   ...marks.flatMap((m) => m({ base, hi, lo, deep })),
 );
 const LIGHT = ["a", "A", "c", "C"], DARK = ["d", "D", "e", "E"];
@@ -29,8 +27,8 @@ const grain = (t) => [hline(4, 2, 5, t.lo), hline(7, 8, 4, t.lo), hline(4, 12, 3
 // Nudo de la madera con la veta que lo rodea.
 const knot = (t) => [hline(4, 2, 5, t.lo), hline(3, 12, 4, t.lo),
   px(8, 8, t.deep), px(9, 8, t.deep), px(7, 8, t.lo), px(10, 8, t.lo), hline(8, 7, 2, t.lo), hline(5, 7, 2, t.lo), hline(11, 9, 2, t.lo), hline(8, 9, 2, t.hi)];
-// Empalme: el tablón del centro está hecho de dos piezas, con sus clavos a cada lado.
-const joint = (t) => [hline(4, 2, 5, t.lo), hline(9, 13, 3, t.lo), vline(8, 6, 4, t.deep), vline(9, 7, 3, t.hi), px(6, 8, t.deep), px(11, 8, t.deep), px(4, 8, t.lo)];
+// Empalme: el tablón del centro está hecho de dos piezas, con un par de clavos a cada lado.
+const joint = (t) => [hline(4, 2, 5, t.lo), hline(9, 13, 3, t.lo), vline(8, 6, 4, t.deep), vline(9, 7, 3, t.hi), px(6, 7, t.deep), px(6, 9, t.deep), px(11, 7, t.deep), px(11, 9, t.deep), hline(2, 8, 3, t.lo)];
 
 plank("tile-a", LIGHT, grain);
 plank("tile-a2", LIGHT, knot);
