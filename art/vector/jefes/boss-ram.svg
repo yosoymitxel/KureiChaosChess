@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Zugzwang · Ariete (boss-ram). Dibuja solo dentro del grupo "pieza"; la capa "guia" no entra al juego.
+     Colores: cuerpo #f3ead8, detalle #8a7a66, contorno #2a2233, ojos y luces #d9a441 (ver art/vector/LEEME.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="450" height="410" viewBox="0 0 45 41">
+  <g id="guia" opacity="0.4"><rect width="45" height="41" fill="none" stroke="#9fb7d8" stroke-width="0.1"/></g>
+  <g id="pieza" fill="#f3ead8" stroke="#2a2233" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 34c0-6 4-8.5 8.5-9h9c4.5.5 8.5 3 8.5 9z"/><path d="M17.5 12.5c-5.5-4-12-1-11 5.5.6 4 5 5.2 7.2 2.6 1.6-2-.2-4.2-2-3.6" fill="none" stroke="#2a2233" stroke-width="6.2"/><path d="M17.5 12.5c-5.5-4-12-1-11 5.5.6 4 5 5.2 7.2 2.6 1.6-2-.2-4.2-2-3.6" fill="none" stroke="#f3ead8" stroke-width="4"/><path d="M27.5 12.5c5.5-4 12-1 11 5.5-.6 4-5 5.2-7.2 2.6-1.6-2 .2-4.2 2-3.6" fill="none" stroke="#2a2233" stroke-width="6.2"/><path d="M27.5 12.5c5.5-4 12-1 11 5.5-.6 4-5 5.2-7.2 2.6-1.6-2 .2-4.2 2-3.6" fill="none" stroke="#f3ead8" stroke-width="4"/><path d="M17 13.5c0-4 2.5-6 5.5-6s5.5 2 5.5 6l-1 10.5c-.5 3.5-2.2 5.5-4.5 5.5s-4-2-4.5-5.5z"/><circle cx="20" cy="15" r="1.1" fill="#d9a441" stroke="#2a2233" stroke-width="0.7"/><circle cx="25" cy="15" r="1.1" fill="#d9a441" stroke="#2a2233" stroke-width="0.7"/><path d="M21 26.5h3M22.5 18v5" fill="none" stroke="#8a7a66" stroke-width="1.4"/></g>
+</svg>

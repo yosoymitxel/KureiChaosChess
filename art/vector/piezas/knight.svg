@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Zugzwang · Caballo (knight). Dibuja solo dentro del grupo "pieza"; la capa "guia" no entra al juego.
+     Colores: cuerpo #f3ead8, detalle #8a7a66, contorno #2a2233, ojos y luces #d9a441 (ver art/vector/LEEME.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="450" height="410" viewBox="0 0 45 41">
+  <g id="guia" opacity="0.4"><rect width="45" height="41" fill="none" stroke="#9fb7d8" stroke-width="0.1"/></g>
+  <g id="pieza" fill="#f3ead8" stroke="#2a2233" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/><path d="M24 19c.4 2.9-5.6 7.4-8 9-3 2-2.8 4.3-5 4-1-.9 1.4-3 0-3-1 0 .2 1.2-1 2-1 0-4 1-4-4 0-2 6-12 6-12s1.9-1.9 2-3.5c-.7-1-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.8-2 2.5-3c1 0 1 3 1 3"/><circle cx="14.5" cy="16.5" r="1" fill="#2a2233"/><path d="M27 14c3 1.5 6.5 6 7 20" fill="none" stroke="#8a7a66" stroke-width="1.4"/></g>
+</svg>
