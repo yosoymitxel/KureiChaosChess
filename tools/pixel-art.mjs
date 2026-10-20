@@ -28,21 +28,39 @@ const pngsIn = (dir) => !existsSync(dir) ? [] : readdirSync(dir).flatMap((f) => 
   return statSync(p).isDirectory() ? pngsIn(p) : f.toLowerCase().endsWith('.png') ? [p] : [];
 });
 
-// Recorta lo vacío: arriba y abajo entero (los pies apoyan en el suelo), a los lados lo mismo
-// por cada lado para no correr el centro.
+// Recorta todo lo vacío alrededor: los pies quedan en la última fila, que es el suelo.
 function trim(img) {
   const { w, h, px } = img, solid = (x, y) => px[(y * w + x) * 4 + 3] > 0;
   const rowEmpty = (y) => [...Array(w).keys()].every((x) => !solid(x, y));
   const colEmpty = (x) => [...Array(h).keys()].every((y) => !solid(x, y));
-  let top = 0, bottom = h, side = 0;
+  let top = 0, bottom = h, left = 0, right = w;
   while (top < h && rowEmpty(top)) top++;
   if (top === h) return null;
   while (rowEmpty(bottom - 1)) bottom--;
-  while (side < w / 2 && colEmpty(side) && colEmpty(w - 1 - side)) side++;
-  const nw = w - side * 2, nh = bottom - top, out = new Uint8Array(nw * nh * 4);
-  for (let y = 0; y < nh; y++) out.set(px.subarray(((y + top) * w + side) * 4, ((y + top) * w + side + nw) * 4), y * nw * 4);
+  while (colEmpty(left)) left++;
+  while (colEmpty(right - 1)) right--;
+  return crop(img, left, top, right - left, bottom - top);
+}
+// Copia un rectángulo; lo que cae fuera de la imagen queda transparente (sirve para agregar márgenes).
+function crop({ w, h, px }, x0, y0, nw, nh) {
+  const out = new Uint8Array(nw * nh * 4);
+  for (let y = 0; y < nh; y++) for (let x = 0; x < nw; x++) {
+    const sx = x + x0, sy = y + y0;
+    if (sx >= 0 && sy >= 0 && sx < w && sy < h) out.set(px.subarray((sy * w + sx) * 4, (sy * w + sx) * 4 + 4), (y * nw + x) * 4);
+  }
   return { w: nw, h: nh, px: out };
 }
+// El juego pone el centro del PNG sobre el centro de la peana. Centrar la caja no basta: un mago
+// a la izquierda con su vara a la derecha queda corrido, porque el peso está en el cuerpo. Se
+// agregan columnas vacías del lado liviano hasta que el centro de masa (cada píxel opaco pesa
+// igual) quede en el medio. Devuelve cuántas columnas van a la izquierda y a la derecha.
+function balance({ w, h, px }) {
+  let mass = 0, sum = 0;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (px[(y * w + x) * 4 + 3]) { mass++; sum += x + 0.5; }
+  const shift = Math.round(w - (2 * sum) / mass); // > 0: pesa a la izquierda, sobra a la derecha
+  return shift > 0 ? [shift, 0] : [0, -shift];
+}
+const pad = (img, [left, right]) => crop(img, -left, 0, img.w + left + right, img.h);
 
 // Cambia los colores del bando claro por los de otro bando (coincidencia exacta).
 function recolor(img, from, to) {
@@ -83,12 +101,13 @@ for (const id of ids) {
   for (const name of FIGURES) {
     const raw = read(name) || read(name + '_l');
     if (!raw) continue;
-    const light = trim(raw);
-    if (!light) continue; // lienzo de la plantilla sin dibujar: va el del tema base
+    const tight = trim(raw);
+    if (!tight) continue; // lienzo de la plantilla sin dibujar: va el del tema base
+    const margins = balance(tight), light = pad(tight, margins);
     const [mw, mh] = MAX[name.startsWith('boss-') ? 'boss' : 'piece'];
     if (light.w > mw || light.h > mh) warn(`${name}: mide ${light.w}×${light.h}, se sale del lienzo de ${mw}×${mh}`);
     if (!usesSide(light, claro) && !files.has(name + '_d')) warn(`${name}: no usa ningún color del bando claro, los tres bandos se verán iguales`);
-    const side = (s, to) => { const own = read(name + '_' + s); return own ? trim(own) : recolor(light, claro, to); };
+    const side = (s, to) => { const own = read(name + '_' + s); return own ? pad(trim(own), margins) : recolor(light, claro, to); };
     const sides = { l: light, d: side('d', oscuro), w: side('w', salvaje) };
     for (const [s, img] of Object.entries(sides)) {
       if (img.w !== light.w || img.h !== light.h) throw new Error(`${id}/${name}: los bandos no miden igual`);
