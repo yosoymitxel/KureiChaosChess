@@ -102,9 +102,9 @@ piece("bishop", { w: 26, h: 32 },
   poly([3, 10, 15, 10, 16, 19, 13, 16, 6, 16, 2, 19], "E"), vline(4, 12, 6, "e"), vline(14, 12, 4, "e"),
   rect(6, 10, 7, 6, "v"), px(7, 12, "k"), px(10, 12, "k"), rect(10, 13, 3, 1, "V"), px(13, 13, "V"), px(9, 15, "V"), px(8, 15, "k"),
   // sombrero: copa doblada, cinta y hebilla, ala ancha
-  poly([6, 9, 9, 1, 13, 0, 16, 2, 12, 2, 13, 9], "w"), poly([11, 3, 12, 2, 16, 2, 15, 3, 13, 9, 12, 9], "W"), px(16, 3, "W"),
+  poly([6, 9, 9, 1, 13, 0, 16, 2, 12, 2, 13, 9], "O"), poly([11, 3, 12, 2, 16, 2, 15, 3, 13, 9, 12, 9], "b"), px(16, 3, "b"), px(9, 2, "o"), px(8, 4, "o"),
   rect(7, 7, 7, 2, "R"), rect(9, 7, 2, 2, "z"),
-  rect(1, 9, 17, 2, "o"), hline(2, 9, 15, "W"),
+  rect(1, 9, 17, 2, "b"), hline(2, 9, 15, "O"),
 );
 
 // Reina: vampiresa con el cuello alto de la capa abierto detrás, pelo negro de pico, diadema
@@ -207,11 +207,11 @@ piece("elephant", { w: 32, h: 27 },
 sprite("_camel0", { w: 32, h: 25, mx: true },
   // hilo
   vline(15, 0, 3, "G"),
-  // patas: de la de atrás a la de delante
-  line(11, 9, 4, 3, "b", 2), line(4, 3, 1, 12, "b", 2), line(1, 12, 0, 22, "b"),
-  line(11, 11, 6, 7, "O", 2), line(6, 7, 3, 16, "O", 2), line(3, 16, 2, 24, "O"),
-  line(12, 14, 8, 12, "b", 2), line(8, 12, 5, 19, "b", 2), line(5, 19, 5, 24, "b"),
-  line(13, 16, 10, 15, "O", 2), line(10, 15, 8, 20, "O", 2), line(8, 20, 9, 24, "O"),
+  // patas: de la de atrás a la de delante, rodilla alta y pie en el suelo
+  line(11, 8, 5, 2, "b"), line(5, 2, 1, 16, "b"),
+  line(11, 10, 6, 6, "O"), line(6, 6, 3, 24, "O"),
+  line(12, 13, 8, 10, "b"), line(8, 10, 6, 24, "b"),
+  line(13, 16, 10, 14, "O"), line(10, 14, 10, 24, "O"),
   // abdomen
   ellipse(16, 9, 6, 6, "O"), ellipse(15, 7, 4, 3, "o"), ellipse(14, 6, 2, 1, "W"),
   // cabeza
