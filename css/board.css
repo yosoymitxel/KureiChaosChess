@@ -95,6 +95,11 @@
 .pc.zombie .pc-art { --pc: var(--side-zombie); --pc-2: color-mix(in oklch, var(--side-zombie), black 45%); }
 [data-art="pixel"] .pc.zombie .pc-art image { filter: hue-rotate(80deg) saturate(0.7); }
 
+/* Posición de casillas y piezas: no se heredan. Heredadas, mover una pieza (que cambia --r, --c
+   y --z en cada fotograma) obligaba a recalcular el estilo de todo su dibujo por dentro. */
+@property --r { syntax: '*'; inherits: false; }
+@property --c { syntax: '*'; inherits: false; }
+@property --z { syntax: '*'; inherits: false; }
 .pc {
   position: absolute; left: 0; top: 0;
   width: calc(var(--w, 1) * var(--sq)); height: calc(var(--h, 1) * var(--sq));
@@ -141,6 +146,11 @@
 /* En el set píxel las piezas botan un píxel justo, a saltos y cada una a su ritmo (--bd), como
    los sprites clásicos; el set vectorial se queda quieto. */
 [data-art="pixel"] .pc-art svg { animation: px-bob 1.8s steps(1, end) var(--bd, 0s) infinite; }
+/* El sprite ya trae contorno y la peana su sombra: sin drop-shadow, que en el tablero 3D era lo
+   que más costaba dibujar (el reparto de piezas pasaba de 20 a 28 fps en un móvil lento). */
+[data-art="pixel"] .pc-art svg { filter: none; }
+/* Mientras caen las piezas al empezar, quietas: el bote de 32 piezas a la vez encarecía el reparto. */
+[data-art="pixel"] .dealing .pc-art svg { animation: none; }
 @keyframes px-bob { 50% { translate: 0 -2.4%; } }
 /* En el set píxel la peana también es de píxeles: disco escalonado con contorno de tinta y una
    banda de sombra abajo, en vez del disco liso del set vectorial. */

@@ -153,10 +153,11 @@ export class Moments {
 
   // Demo breve de una pieza (mutación nueva o jefe): tablerito con su alcance de siempre y, en azul,
   // lo que se añade; la pieza salta a una casilla nueva. Se salta con un toque, como las cinemáticas.
-  async demo({ title, sub, piece, base, extra = [], n = 7, tone = 'paper' }) {
+  async demo({ title, sub, piece, base, extra = [], n = 7, at, size = [1, 1], anchors, tone = 'paper' }) {
     if (!this.enabled) return;
     await this.whenIdle();
     const mid = (n - 1) / 2;
+    const [h, w] = size, [ar, ac] = at || [mid, mid];
     const cells = Array.from({ length: n * n }, (_, i) => {
       const r = Math.floor(i / n), c = i % n, k = r + ',' + c;
       const kind = base.includes(k) ? ' base' : extra.includes(k) ? ' extra' : '';
@@ -166,7 +167,7 @@ export class Moments {
       <i class="bar top"></i><i class="bar bottom"></i>
       <div class="cine-body">
         <div class="dm-board" style=${{ '--n': n }}>${cells}
-          <span class="dm-piece" style=${{ '--r': mid, '--c': mid }}><${PieceIcon} type=${piece.type} side=${piece.side} size=${64} paper=${false} /></span>
+          <span class="dm-piece" style=${{ '--r': ar, '--c': ac, '--h': h, '--w': w }}><${PieceIcon} type=${piece.type} side=${piece.side} size=${64} paper=${false} /></span>
         </div>
         <div class="cine-text">
           <h2>${title}</h2>
@@ -185,11 +186,11 @@ export class Moments {
       await motion(q('.dm-board'), { scale: [0.85, 1], opacity: [0, 1] }, { duration: t(0.35), ease: OUT });
       await motion(el.querySelectorAll('.dm-cell.base b'), { scale: [0, 1] }, { duration: t(0.25), delay: motionStagger(t(0.03)), ease: OUT });
       if (extra.length) await motion(el.querySelectorAll('.dm-cell.extra b'), { scale: [0, 1.4, 1] }, { duration: t(0.35), delay: motionStagger(t(0.05)), ease: OUT });
-      // La pieza prueba una casilla: la nueva más lejana si la hay.
-      const pool = extra.length ? extra : base;
-      const far = pool.map((k) => k.split(',').map(Number)).sort((a, b) => Math.hypot(b[0] - mid, b[1] - mid) - Math.hypot(a[0] - mid, a[1] - mid))[0];
+      // La pieza prueba una casilla: la nueva más lejana si la hay (un jefe, su destino más lejano).
+      const pool = anchors || (extra.length ? extra : base).map((k) => k.split(',').map(Number));
+      const far = [...pool].sort((a, b) => Math.hypot(b[0] - ar, b[1] - ac) - Math.hypot(a[0] - ar, a[1] - ac))[0];
       if (far) {
-        const to = { x: (far[1] - mid) * 100 + '%', y: (far[0] - mid) * 100 + '%' };
+        const to = { x: ((far[1] - ac) * 100) / w + '%', y: ((far[0] - ar) * 100) / h + '%' };
         await motion(q('.dm-piece'), { x: ['0%', to.x], y: ['0%', to.y], scale: [1, 1.15, 1] }, { duration: t(0.5), ease: [0.45, 0, 0.55, 1] });
         await sleep(t(0.35));
         await motion(q('.dm-piece'), { x: [to.x, '0%'], y: [to.y, '0%'] }, { duration: t(0.4), ease: OUT });

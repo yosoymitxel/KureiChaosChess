@@ -65,3 +65,11 @@ Dos errores mortales a evitar: reinventar lo que ya existe y escribir código de
 - `ponytail` (https://github.com/dietrichgebert/ponytail): cambios mínimos y bien acotados.
 - `impeccable`: el detector debe quedar en 0 (`impeccable detect css src index.html lab.html`).
 - Skill `web-design-guidelines`: accesibilidad y pautas de interfaz.
+
+## Rendimiento (instaladas en `.claude/skills/`)
+
+- `fixing-motion-performance` (ibelick/ui-skills, MIT): reglas contra tirones; antes de tocar una animación.
+- `web-performance`, `web-core-web-vitals`, `web-accessibility` (addyosmani/web-quality-skills, MIT): carga, LCP/INP/CLS, accesibilidad.
+- `memory-leak-debugging` (ChromeDevTools, Apache-2.0): fugas tras varias runs seguidas (necesita chrome-devtools-mcp).
+- Medir con la CPU 4× más lenta y una pantalla de 360×800 (el teléfono del dueño) antes y después; la receta está en el commit "Rendimiento del reparto de piezas en teléfonos".
+- Más skills de juego por revisar: https://github.com/Donchitos/Claude-Code-Game-Studios (`smoke-check`, `launch-checklist`, `balance-check`, `playtest-report`, `soak-test`) y https://github.com/gamedev-skills/awesome-gamedev-agent-skills (`game-feel`, `audio-design`, `save-systems`, `roguelike`).

@@ -1,5 +1,8 @@
 // Lightweight particle layer drawn on a 2D canvas on top of the 3D board.
-// Runs its rAF loop only while particles exist.
+// Runs its rAF loop only while particles exist. Las explosiones y los escombros suenan solos:
+// así cada minijuego que los usa tiene su golpe sin tener que acordarse.
+import { playSfx } from '../ui/sfx.js';
+
 export class Fx {
   constructor(host) {
     this.host = host;
@@ -51,7 +54,8 @@ export class Fx {
     this.burst(x, y, { count: Math.round(10 * scale), color: ['rgba(240,230,210,.7)', 'rgba(200,190,170,.5)'], speed: [30 * scale, 110 * scale], life: [0.35, 0.7], size: [3, 7 * scale], spread: Math.PI, angle: Math.PI / 2 + Math.PI, gravity: -20, drag: 0.85 });
   }
   // Explosión: destello, onda, chispas que dejan estela, brasas que caen y humo que sube y se abre.
-  explosion(x, y, scale = 1) {
+  explosion(x, y, scale = 1, sound = true) {
+    if (sound) playSfx('boom');
     this.parts.push({ x, y, vx: 0, vy: 0, life: 0.18, max: 0.18, g: 0, drag: 1, size: 34 * scale, color: '#fff6d8', shape: 'flash' });
     this.parts.push({ x, y, vx: 0, vy: 0, life: 0.3, max: 0.3, g: 0, drag: 1, size: 52 * scale, color: '#ffb347', shape: 'flash' });
     this.ring(x, y, { color: '#ffe2a8', radius: 90 * scale, life: 0.4, width: 5 });
@@ -62,15 +66,17 @@ export class Fx {
   // La caída del rey: estallido grande, onda ancha y escombros. Las bombas de los minijuegos la usan
   // a su escala (`scale` 1 = una casilla de unos 40 px) para que todo estalle igual en el juego.
   bigBoom(x, y, { scale = 1, radius = 160 * scale, color = '#2a201a' } = {}) {
-    this.explosion(x, y, 1.6 * scale);
+    playSfx('bigboom');
+    this.explosion(x, y, 1.6 * scale, false);
     this.ring(x, y, { radius, width: 8, life: 0.7 });
-    this.debris(x, y, color, 1.4 * scale);
+    this.debris(x, y, color, 1.4 * scale, false);
   }
   smoke(x, y, scale = 1) {
     this.burst(x, y, { count: Math.round(9 * scale), color: ['rgba(70,60,55,.55)', 'rgba(110,100,92,.45)', 'rgba(150,140,130,.35)'], speed: [20, 90 * scale], life: [0.7, 1.3], size: [10 * scale, 22 * scale], gravity: -60, drag: 0.9, shape: 'smoke' });
   }
   // Escombros de una pieza capturada: solo su color y tinta, con peso; nada de confeti.
-  debris(x, y, color, scale = 1) {
+  debris(x, y, color, scale = 1, sound = true) {
+    if (sound) playSfx('crunch');
     this.burst(x, y, { count: Math.round(16 * scale), color: [color, color, '#2a201a'], speed: [90, 300 * scale], life: [0.5, 0.9], size: [3, 6 * scale], gravity: 700, shape: 'chunk', spread: Math.PI * 1.2, angle: -Math.PI / 2, drag: 0.94 });
     this.dust(x, y + 6, 0.8 * scale);
   }

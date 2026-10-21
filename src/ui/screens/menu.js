@@ -24,10 +24,10 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
     // near so the near one paints over the one behind; the host resolves the tap by data-pid.
     for (const [id, label, type, row, col] of [
       ['x-zen', 'Jardín Zen', 'pawn', 3, 0],
-      ['x-tienda', 'Tienda', 'knight', 4, 5],
+      ['x-tutorial', 'Tutorial', 'king', 4, 5],
       ['x-logros', 'Logros', 'rook', 5, 2],
       ['x-galeria', 'Galería', 'bishop', 2, 4],
-      ['x-tutorial', 'Tutorial', 'king', 5, 4],
+      ['x-tienda', 'Tienda', 'knight', 5, 4],
     ]) {
       if (!open[id]) continue;
       const p = makePiece(type, 'wild', row, col, { id });
@@ -97,7 +97,7 @@ export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onS
           <div class="menu-row"><button class="btn primary" onClick=${go(onTutorial)}>Empezar tutorial</button><button class="btn ghost" onClick=${() => setAskTutorial(false)}>Cancelar</button></div>
         </div>`}
         ${!askTutorial && html`<button class="btn primary" data-enter onClick=${go(hasRun ? onContinue : onNew)}>${hasRun ? 'Continuar run' : 'Empezar run'}</button>`}
-        ${hasRun && !askTutorial && html`<${ConfirmButton} class="btn" onConfirm=${onNew} confirmLabel="Se pierde la run actual. ¿Seguro?">Nueva run<//>`}
+        ${hasRun && !askTutorial && html`<${ConfirmButton} class="btn" enter onConfirm=${onNew} confirmLabel="Se pierde la run actual. ¿Seguro?">Nueva run<//>`}
         ${onMinis && html`<button class="btn" data-enter onClick=${onMinis}><${Icon} name="connect4" />Minijuegos</button>`}
         <div class="menu-row" data-enter>
           <button class="btn ghost" onClick=${onHowTo}><${Icon} name="book" />Reglas</button>

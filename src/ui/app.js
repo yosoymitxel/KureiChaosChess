@@ -8,7 +8,7 @@ import { SetupScreen, SettingsScreen } from './screens/setup.js';
 import { GameScreen } from './screens/game.js';
 import { HowToOverlay } from './screens/overlays.js';
 import { setFullscreen } from './fullscreen.js';
-import { setSfxEnabled, setSfxVolume, startAmbient, playSfx } from './sfx.js';
+import { setSfxEnabled, setSfxVolume, startAmbient, setMusicScene, playSfx } from './sfx.js';
 import { Connect4Screen } from './screens/connect4.js';
 import { MinisScreen } from './screens/minis.js';
 import { ZenScreen } from './screens/zen.js';
@@ -27,6 +27,16 @@ import { MarcianosScreen } from './screens/marcianos.js';
 import { CheckersScreen } from './screens/checkers.js';
 import { FusionScreen } from './screens/fusion.js';
 import { DuelScreen } from './screens/duel.js';
+import { HockeyScreen } from './screens/hockey.js';
+import { CaceriaScreen } from './screens/caceria.js';
+import { EscapeScreen } from './screens/escape.js';
+import { BodyguardScreen } from './screens/bodyguard.js';
+import { GiantHuntScreen } from './screens/giant-hunt.js';
+import { MinefieldScreen } from './screens/minefield.js';
+import { ContrabandScreen } from './screens/contraband.js';
+import { LaboratoryScreen } from './screens/laboratory.js';
+import { CollapsingFloorScreen } from './screens/collapsing-floor.js';
+import { KingImpostorScreen } from './screens/king-impostor.js';
 import { MODIFIERS } from '../data/modifiers.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard } from '../game/shop.js';
@@ -52,7 +62,7 @@ const BAG_CARDS = [
 const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3);
 // A won minigame pays a mutation or a piece the army already knows.
 const MINI_PRIZES = BAG_CARDS.filter((c) => ['mut', 'extra_rook', 'extra_pawn'].includes(c.id));
-const MINI_SCREENS = { connect4: Connect4Screen, bomber: BomberScreen, barrier: BarrierScreen, izombie: IZombieScreen, bowling: BowlingScreen, laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen, marcianos: MarcianosScreen, checkers: CheckersScreen, fusion: FusionScreen, duel: DuelScreen };
+const MINI_SCREENS = { laboratory: LaboratoryScreen, collapsingFloor: CollapsingFloorScreen, kingImpostor: KingImpostorScreen, giantHunt: GiantHuntScreen, minefield: MinefieldScreen, contraband: ContrabandScreen, bodyguard: BodyguardScreen, escape: EscapeScreen, caceria: CaceriaScreen, connect4: Connect4Screen, bomber: BomberScreen, barrier: BarrierScreen, izombie: IZombieScreen, bowling: BowlingScreen, laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen, marcianos: MarcianosScreen, checkers: CheckersScreen, fusion: FusionScreen, duel: DuelScreen, hockey: HockeyScreen };
 const ONE_SHOT =['promoteOne', 'furyNow', 'extraPawn', 'extraRook'];
 
 export function App() {
@@ -67,6 +77,7 @@ export function App() {
   const [freeKey, setFreeKey] = useState(0);
   const [miniKey, setMiniKey] = useState(0); // remonta el minijuego del mapa al cambiar de dificultad
   const [shopFrom, setShopFrom] = useState('zen'); // a dónde vuelve la tienda
+  const [achFrom, setAchFrom] = useState({ back: 'menu' }); // a dónde vuelven los Logros y qué logro enfocar
   const [settings, setSettings] = useState(loadSettings);
   const curtain = useRef(null);
   const busy = useRef(false);
@@ -89,6 +100,8 @@ export function App() {
     window.addEventListener('pointerdown', wake);
     return () => window.removeEventListener('pointerdown', wake);
   }, []);
+  // La música sigue a la pantalla y a la mesa (applyTheme ya puso data-art en este render).
+  useEffect(() => { setMusicScene(screen === 'zen'); }, [screen, settings.theme]);
   // Una mesa guardada que no se compró vuelve a la de serie.
   useEffect(() => { if (!themeOwned(settings.theme)) setSettings((s) => ({ ...s, theme: DEFAULT_SETTINGS.theme })); }, []);
   // Hitos que dependen del avance de la run: se revisan al guardarla, en un solo lugar.
@@ -225,7 +238,7 @@ export function App() {
   const FreeMini = MINI_SCREENS[freeMini];
 
   return html`
-    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => goTo('achievements')} settings=${settings} setSettings=${setSettings} />`}
+    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} settings=${settings} setSettings=${setSettings} />`}
     ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} onShop=${openShop('map')} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} settings=${settings} defaultCount=${seats?.length} onHowTo=${() => setHowTo(true)} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame}
@@ -248,8 +261,8 @@ export function App() {
       settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => goTo(shopFrom)} />`}
-    ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} onAchievements=${() => goTo('achievements')} />`}
-    ${screen === 'achievements' && html`<${AchievementsScreen} onBack=${() => goTo('menu')} onGallery=${() => goTo('gallery')} />`}
+    ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} onAchievements=${(focus) => { setAchFrom({ back: 'gallery', focus }); goTo('achievements'); }} />`}
+    ${screen === 'achievements' && html`<${AchievementsScreen} focus=${achFrom.focus} onBack=${() => goTo(achFrom.back)} onGallery=${() => goTo('gallery')} />`}
     ${howTo && html`<${HowToOverlay} onClose=${() => setHowTo(false)} />`}
     <div class="curtain" ref=${curtain}><span>Zugzwang</span></div>
     <${AchievementToast} />

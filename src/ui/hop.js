@@ -4,6 +4,7 @@ import { animate } from 'animejs';
 import { motion } from './lib.js';
 import { loadSettings } from '../game/run.js';
 import { pieceSVG } from '../view/piece-art.js';
+import { playSfx } from './sfx.js';
 
 const OUT = [0.16, 1, 0.3, 1];
 export const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -93,6 +94,8 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows }) {
   const hp = pcEl.parentElement?.querySelector('.pc-hp');
   if (Math.abs(dr) + Math.abs(dc) === 1) {
     const dur = 0.26 / speed();
+    playSfx('step');
+    setTimeout(() => playSfx('step'), dur * 500);
     pcEl.style.transformOrigin = '50% 72%';
     motion(pcEl, { x: [dx, dx / 2, 0], y: [dy, dy / 2 - chh * 0.07, 0, -chh * 0.07, 0], rotate: [0, -5, 0, 5, 0] }, { duration: dur, ease: 'linear' });
     if (hp) motion(hp, { x: [dx, 0], y: [dy, 0] }, { duration: dur, ease: 'linear' });
@@ -105,7 +108,7 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows }) {
   const dur = 0.4 / speed();
   // La peana no vuela con la figura: el charco hace de base por el suelo y la peana reaparece al aterrizar.
   pcEl.classList.add('hopping');
-  setTimeout(() => pcEl.classList.remove('hopping'), dur * 1000);
+  setTimeout(() => { pcEl.classList.remove('hopping'); playSfx('land'); }, dur * 1000);
   motion(pcEl, { x: [dx, dx / 2, 0], y: [dy, dy / 2 - lift, 0] }, { duration: dur, ease: 'easeInOut' });
   motion(pcEl, { scaleY: [0.78, 1.08, 1], scaleX: [1.13, 0.96, 1] }, { duration: 0.32 / speed(), delay: dur - 0.06, ease: OUT });
   liquid(grid, from, to, { side, cell: cw, cols, rows });
@@ -132,6 +135,7 @@ export function pieceDiffs(grid, before, pieces, cols) {
 
 // La ficha que entra al tablero (compra, oleada, reina colocada) brota.
 export function popPiece(grid, el) {
+  playSfx('pop');
   if (!grid || !el || reduced()) return;
   motion(el, { scale: [0.35, 1.14, 1] }, { duration: 0.34 / speed(), ease: OUT });
 }
@@ -139,6 +143,7 @@ export function popPiece(grid, el) {
 // La pieza capturada cae: el estado ya la quitó, así que la copia se anima donde estaba,
 // volcada sobre su base, como el derribo de los bolos.
 export function fallPiece(grid, { row, col, type, side, cols }) {
+  playSfx('capture');
   if (!grid || reduced()) return;
   const cellEl = grid.children[row * cols + col];
   if (!cellEl) return;

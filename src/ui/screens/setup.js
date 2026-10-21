@@ -1,6 +1,6 @@
 import { html, useState, useRef } from '../lib.js';
 import { Icon } from '../icons.js';
-import { Topbar, useEnter, Toggle } from '../components.js';
+import { Topbar, useEnter, Toggle, ThemeLook } from '../components.js';
 import { nodeModifier, MODIFIERS } from '../../data/modifiers.js';
 import { PREF_LIMITS } from '../../game/run.js';
 import { rivalForFloor, DIFFICULTIES } from '../../game/difficulty.js';
@@ -106,7 +106,7 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
             const owned = themeOwned(t.id);
             return html`<button class=${'theme' + (settings.theme === t.id ? ' on' : '')} aria-pressed=${settings.theme === t.id} disabled=${!owned}
               title=${owned ? t.name : 'Se compra en la tienda del Jardín Zen'} onClick=${() => set('theme')(t.id)}>
-              <span class="swatch">${t.swatch.map((c) => html`<i style=${{ background: c }}></i>`)}</span>${t.name}${owned ? '' : html`<${Icon} name="lock" size=${13} />`}</button>`;
+              <${ThemeLook} t=${t} />${owned ? '' : html`<span class="theme-lock"><${Icon} name="lock" size=${12} /></span>`}<span class="theme-name">${t.name}</span></button>`;
           })}
         </div>
       </section>
@@ -119,12 +119,12 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
       </section>
       <section class="panel setup-card" data-enter>
         <h2>Efectos y ambiente</h2>
-        <${Toggle} on=${settings.sound} onChange=${set('sound')} label="Sonidos" hint="Efectos de la mesa y fondo generativo" />
+        <${Toggle} on=${settings.sound} onChange=${set('sound')} label="Sonidos" hint="Efectos de la mesa y música de fondo" />
         <h2>Volumen</h2>
         <div class="segmented" role="group" aria-label="Volumen del sonido">
           ${[['suave', 'Suave'], ['normal', 'Normal'], ['fuerte', 'Fuerte']].map(([id, label]) => html`<button class=${settings.volume === id ? 'on' : ''} aria-pressed=${settings.volume === id} onClick=${() => set('volume')(id)}>${label}</button>`)}
         </div>
-        <p class="setup-note">El fondo generativo arranca con tu primer toque.</p>
+        <p class="setup-note">La música arranca con tu primer toque.</p>
       </section>
       <section class="panel setup-card" data-enter>
         <h2>Cámara</h2>

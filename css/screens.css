@@ -134,10 +134,18 @@
 .seat-row small { color: var(--muted); }
 .token { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; background: var(--pc); box-shadow: inset 0 0 0 2px var(--pc-2), 0 3px 0 var(--pc-2); border: 1.5px solid var(--ink); }
 .btn.big { min-height: 60px; font-size: 18px; }
-.theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.theme { display: flex; flex-direction: column; gap: 8px; align-items: center; padding: 10px; border: 2px solid oklch(0.2 0.02 55 / 0.2); border-radius: 12px; background: transparent; color: var(--ink); font-weight: 700; cursor: pointer; }
+.theme-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.theme-name { font-size: 12.5px; line-height: 1.15; text-align: center; }
+.theme { position: relative; }
+.theme-lock { position: absolute; top: 12px; right: 12px; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--paper); color: var(--ink); }
+.theme { display: flex; flex-direction: column; gap: 8px; align-items: center; min-width: 0; padding: 8px; border: 2px solid oklch(0.2 0.02 55 / 0.2); border-radius: 12px; background: transparent; color: var(--ink); font-weight: 700; cursor: pointer; }
 .theme.on { border-color: var(--ink); background: var(--paper-2); }
 .theme:disabled { opacity: .55; cursor: default; }
+/* Muestra de mesa en la tienda: damero de sus casillas sobre su mesa, con el rey de su arte encima. */
+.theme-look { position: relative; display: grid; place-items: end center; width: 100%; aspect-ratio: 4 / 3; padding: 6px; border: 2px solid var(--ink); border-radius: 8px;
+  background: conic-gradient(var(--lk-a) 25%, var(--lk-b) 0 50%, var(--lk-a) 0 75%, var(--lk-b) 0) 50% 100% / 50% 50%, var(--lk-t); background-clip: content-box, border-box; box-shadow: inset 0 0 0 6px var(--lk-t); }
+.theme-look .piece-icon { width: 78%; height: 92%; filter: drop-shadow(0 3px 2px oklch(0 0 0 / 0.35)); }
+.theme-look image { image-rendering: pixelated; }
 .swatch { display: inline-flex; border-radius: 8px; overflow: hidden; border: 2px solid var(--ink); padding: 0; background: none; cursor: pointer; }
 .swatch i { width: 16px; height: 26px; }
 .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 12px 0 0; border: 0; background: none; color: var(--ink); text-align: left; cursor: pointer; }
@@ -329,7 +337,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .dm-cell.dark { background: var(--tile-b); }
 .dm-cell b { width: 36%; aspect-ratio: 1; border-radius: 50%; background: oklch(0.2 0.02 55 / 0.5); }
 .dm-cell.extra b { background: var(--gain); box-shadow: 0 0 0 2px var(--paper); }
-.dm-piece { position: absolute; left: calc(var(--c) * 100% / var(--n)); top: calc(var(--r) * 100% / var(--n)); width: calc(100% / var(--n)); aspect-ratio: 1; display: grid; place-items: center; }
+.dm-piece { position: absolute; left: calc(var(--c) * 100% / var(--n)); top: calc(var(--r) * 100% / var(--n)); width: calc(var(--w, 1) * 100% / var(--n)); height: calc(var(--h, 1) * 100% / var(--n)); display: grid; place-items: center; }
 .dm-piece .piece-icon { width: 96% !important; height: 96% !important; }
 .dm-legend { display: flex; align-items: center; gap: 6px; font-weight: 700; }
 .dm-legend i { width: 12px; height: 12px; border-radius: 50%; background: oklch(0.2 0.02 55 / 0.5); }
@@ -365,7 +373,11 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .pause-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .pause-grid .wide { grid-column: 1 / -1; }
 .pause-toggles .setting-row { padding-top: 8px; }
-.theme-row { display: flex; gap: 8px; }
+/* Pausa: solo las mesas que tienes, en una tira que se desliza de lado si no caben. */
+.theme-strip { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 3px 3px 6px; margin: 0 -3px; overscroll-behavior-x: contain; }
+.theme-pick { flex: 0 0 64px; padding: 0; border: 0; background: none; cursor: pointer; scroll-snap-align: start; border-radius: 10px; }
+.theme-pick.on .theme-look { outline: 3px solid var(--accent); outline-offset: 2px; }
+.theme-pick .theme-look { padding: 3px; box-shadow: inset 0 0 0 3px var(--lk-t); }
 .swatch.on { outline: 3px solid var(--accent); outline-offset: 2px; }
 .swatch:disabled { opacity: .5; cursor: default; }
 .overlay .panel.howto { width: min(640px, 100%); }
@@ -396,6 +408,18 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .lab-stage { flex: 1; display: flex; position: relative; overflow: hidden; }
 .lab-board { flex: 1; display: flex; }
 .lab-menu { overflow: auto; }
+
+/* El laboratorio también sirve en móvil: el menú pasa arriba y la escena conserva espacio táctil. */
+@media (max-width: 700px) {
+  .lab { position: absolute; inset: 0; height: auto; min-height: 100dvh; overflow: auto; flex-direction: column; }
+  .lab-menu { width: auto; max-height: 42dvh; flex: 0 0 auto; margin: 8px; padding: 12px; gap: 8px; }
+  .lab-menu h1 { font-size: 23px; }
+  .lab-menu p { font-size: 12px; }
+  #scenes { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 6px; }
+  #scenes .btn { min-width: 0; padding: 7px 8px; white-space: normal; }
+  .lab-stage { flex: 0 0 56dvh; min-height: 360px; }
+  .lab-board { min-width: 0; min-height: 0; }
+}
 
 /* Minigames (src/ui/screens/connect4.js …): same table, same tokens as the board. */
 .mini-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; justify-content: safe center; gap: 18px; padding: 12px 16px 24px; min-height: 0; overflow-y: auto; }
@@ -474,7 +498,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .bm.zn-tray {
   --n: 4;
   /* Margen para el marco de madera y para lo que la perspectiva agranda abajo. */
-  --cell: max(18px, min(calc((100cqw - 76px) / var(--n)), calc((100cqh - 120px) / var(--n)), 120px));
+  --cell: max(18px, min(calc((100cqw - 76px) / var(--n)), calc((100cqh - 160px) / var(--n)), 120px));
   position: relative;
   transform: translateY(6%) rotateX(15deg);
   border: 0; border-radius: 4px; overflow: visible; /* las plantas de la fila de arriba asoman sobre el marco */
@@ -515,7 +539,8 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 /* Maceta con planta: anclada a su base, sombra de contacto en la arena. */
 .zn-plant {
   position: absolute; left: 50%; bottom: 3%; width: 104%; height: 112%;
-  transform: translateX(-50%); transform-origin: 50% 100%; overflow: visible;
+  /* Centrado con translate y no con transform: la animación de cavar escribe transform y lo pisaría. */
+  translate: -50% 0; transform-origin: 50% 100%; overflow: visible;
   filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.32));
 }
 .zen-pot::after { content: ''; position: absolute; left: 22%; right: 22%; bottom: 2%; height: 12%; border-radius: 50%; background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.45), transparent); }
@@ -604,6 +629,47 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 }
 .zn-can { fill: oklch(0.72 0.11 78); stroke: var(--ink); stroke-width: .8; stroke-linejoin: round; }
 .zn-can-handle { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; }
+/* El chorro sale del pico mientras la regadera está inclinada; se contrarrota para caer recto. */
+.zn-stream { position: absolute; left: 90%; top: 27%; width: 3px; height: 40px; transform-origin: top; rotate: -32deg; opacity: 0;
+  background: linear-gradient(oklch(0.8 0.09 230) 0 5px, transparent 5px) 0 0 / 3px 8px; animation: zn-stream 1.4s linear both, zn-flow 0.25s linear infinite; }
+@keyframes zn-stream { 0%, 30% { opacity: 0; scale: 1 0.2; } 38%, 70% { opacity: 1; scale: 1 1; } 78%, 100% { opacity: 0; scale: 1 1; } }
+@keyframes zn-flow { to { background-position: 0 8px; } }
+/* Herramientas: dibujo común. */
+.zn-steel { fill: oklch(0.86 0.015 250); stroke: var(--ink); stroke-width: .7; stroke-linejoin: round; }
+.zn-grip { fill: none; stroke: oklch(0.55 0.17 30); stroke-width: 1.4; }
+.zn-grip-bar { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }
+.zn-pivot { fill: oklch(0.72 0.11 78); stroke: var(--ink); stroke-width: .5; }
+.zn-shaft { fill: none; stroke: oklch(0.55 0.08 60); stroke-width: 2; stroke-linecap: round; }
+.zn-pouch { fill: oklch(0.72 0.07 75); stroke: var(--ink); stroke-width: .8; stroke-linejoin: round; }
+.zn-pouch-tie { fill: none; stroke: var(--ink); stroke-width: .8; stroke-linecap: round; }
+.zn-seed { fill: oklch(0.5 0.08 60); }
+.zn-blade { transform-box: view-box; transform-origin: 12px 12px; }
+/* La mano: la herramienta elegida acompaña al ratón sobre el jardín, con su punta en el puntero. */
+.zn-hand { position: absolute; left: 0; top: 0; z-index: 6; pointer-events: none; opacity: 0; transition: opacity 0.15s; filter: drop-shadow(0 6px 4px oklch(0 0 0 / 0.3)); }
+.zn-hand.on { opacity: 1; }
+.zn-yard.acting .zn-hand { opacity: 0; }
+.zn-hand svg, .zn-toolfx svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.zn-hand.t-cut { width: 50px; height: 50px; margin: -25px 0 0 -47px; }
+.zn-hand.t-water { width: 44px; height: 33px; margin: -9px 0 0 -40px; }
+.zn-hand.t-dig { width: 18px; height: 42px; margin: -40px 0 0 -9px; }
+.zn-hand.t-sow { width: 26px; height: 29px; margin: 6px 0 0 6px; }
+.zn-hand.t-cut .zn-blade-a { rotate: -16deg; } .zn-hand.t-cut .zn-blade-b { rotate: 16deg; }
+/* El gesto al tocar: las tijeras bajan al tallo y cortan dos veces; la pala se clava y palanquea. */
+.zn-toolfx { position: absolute; z-index: 6; pointer-events: none; filter: drop-shadow(0 6px 4px oklch(0 0 0 / 0.3)); }
+.zn-toolfx.t-cut { width: 58px; height: 58px; margin: -29px 0 0 -52px; animation: zn-cut-in 0.9s var(--ease-out) both; }
+.zn-toolfx.t-cut .zn-blade-a { animation: zn-snip-a 0.9s linear both; }
+.zn-toolfx.t-cut .zn-blade-b { animation: zn-snip-b 0.9s linear both; }
+@keyframes zn-cut-in { 0% { opacity: 0; translate: 22px -26px; } 22% { opacity: 1; translate: 0 0; } 70% { opacity: 1; translate: 0 0; } 100% { opacity: 0; translate: 18px -16px; } }
+@keyframes zn-snip-a { 0%, 20% { rotate: -22deg; } 37% { rotate: 0deg; } 43% { rotate: -18deg; } 49%, 100% { rotate: 0deg; } }
+@keyframes zn-snip-b { 0%, 20% { rotate: 22deg; } 37% { rotate: 0deg; } 43% { rotate: 18deg; } 49%, 100% { rotate: 0deg; } }
+.zn-toolfx.t-dig { width: 22px; height: 51px; margin: -49px 0 0 -11px; transform-origin: 50% 100%; animation: zn-dig 0.9s var(--ease-out) both; }
+@keyframes zn-dig {
+  0% { opacity: 0; translate: 0 -34px; rotate: 0deg; }
+  25% { opacity: 1; translate: 0 6px; rotate: 0deg; }
+  38% { translate: 0 6px; rotate: -24deg; }
+  62% { opacity: 1; translate: 0 -22px; rotate: -12deg; }
+  100% { opacity: 0; translate: 0 -40px; rotate: 0deg; }
+}
 /* Mariposa: vuela hasta la flor, bate las alas y se posa. */
 .zn-fly { position: absolute; z-index: 5; width: 46px; height: 46px; margin: -23px 0 0 -23px; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 4px 3px oklch(0 0 0 / 0.3)); }
 .zn-fly svg { width: 100%; height: 100%; overflow: visible; }
@@ -659,7 +725,9 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 /* Tierra virgen de los anillos: se cava para hacer un tiesto; con la pala elegida se marca. */
 /* Tierra virgen de los anillos: arena sin rastrillar, más oscura y con guijarros sueltos. */
 .zn-tray .bm-cell.zn-raw { background-color: var(--sand-raw); background-image: var(--grain), radial-gradient(2px 1.6px at 24% 32%, oklch(0 0 0 / 0.22), transparent), radial-gradient(2.6px 2px at 68% 56%, oklch(0 0 0 / 0.18), transparent), radial-gradient(1.8px 1.5px at 42% 78%, oklch(0 0 0 / 0.2), transparent); cursor: default; }
-.bm-cell.zn-raw::after { content: ''; position: absolute; inset: 13%; border: 2px dashed transparent; border-radius: 7px; }
+/* La tierra sin cavar se marca siempre con su recuadro punteado tenue: sin él, el anillo nuevo
+   parecía un trozo de jardín sin dibujar. Con la pala elegida se enciende en latón. */
+.bm-cell.zn-raw::after { content: ''; position: absolute; inset: 13%; border: 2px dashed oklch(0.35 0.04 60 / 0.28); border-radius: 7px; }
 .zn-yard.dig .bm-cell.zn-raw { cursor: pointer; }
 .zn-yard.dig .bm-cell.zn-raw::after { border-color: var(--brass); }
 /* Galería: grupos de imágenes; las bloqueadas son placeholders honestos. */
@@ -675,6 +743,12 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .gal-cap { font-size: 12px; font-weight: 700; color: var(--paper-3); }
 .gal-item.on .gal-art { border-color: var(--brass); box-shadow: 0 0 0 2px var(--brass); }
 .gal-title small { margin-left: 6px; font-size: 0.7em; color: var(--paper-3); }
+/* Logros en la Galería: los mismos grupos que la pantalla de Logros, cada uno con su cuenta. */
+.gal-sub { margin: 14px 0 8px; font-size: 13px; font-weight: 750; letter-spacing: 0.04em; text-transform: uppercase; color: var(--paper-2); }
+.gal-sub small { margin-left: 4px; font-weight: 650; color: var(--paper-3); }
+/* Un jefe derrotado es un botón: su ficha de siempre, que al tocarla enseña cómo se mueve. */
+.gal-boss { display: block; width: 100%; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: inherit; cursor: pointer; }
+.gal-boss:hover .rule { box-shadow: 0 0 0 2px var(--brass); }
 .gal-note { margin: 10px 0 0; max-width: 60ch; font-size: 13.5px; line-height: 1.4; color: var(--paper-2); }
 .gal-item.locked .gal-art { border-style: dashed; }
 .gal-art.gal-table { gap: 5px; }
@@ -766,6 +840,9 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .ach-tile.on { background: var(--paper); background-image: var(--grain); color: var(--ink); box-shadow: 0 3px 0 var(--ink); }
 .ach-badge { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; background: var(--ink-2); color: var(--paper-3); }
 .ach-tile.on .ach-badge { background: var(--ink); color: var(--brass); }
+/* El logro que se tocó en la Galería destella al llegar. */
+.ach-tile.focus { outline: 3px solid var(--brass); outline-offset: 3px; animation: ach-focus 0.6s var(--ease-out) 0.25s 2 alternate; }
+@keyframes ach-focus { to { scale: 1.05; } }
 .ach-tile b { font-size: 14px; line-height: 1.15; }
 .ach-tile p { margin: 0; font-size: 12.5px; line-height: 1.3; }
 @media (max-width: 600px) { .ach-grid { grid-template-columns: 1fr 1fr; } }
@@ -938,11 +1015,75 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .mm-lives i.on { background: var(--danger); }
 .mm-move { display: flex; gap: 8px; }
 .mm-move .btn { min-width: 52px; min-height: 44px; justify-content: center; font-size: 17px; }
+/* Hockey de mesa: un tablero de 6×10 hace de mesa, la banda es el marco de tinta y las bocas, dos
+   ranuras de mesa en el marco. Torres, disco y partículas van por transform (src/ui/screens/hockey.js). */
+.ah-wrap { display: grid; place-items: center; }
+.ah {
+  --goal: calc(40 / 96 * 100%);
+  position: relative; display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(10, 1fr);
+  width: min(calc(100cqw - 8px), calc((100cqh - 8px) * 0.6), 560px); aspect-ratio: 6 / 10;
+  border: 3px solid var(--ink); border-radius: 14px; overflow: hidden; box-shadow: var(--lift), inset 0 0 0 3px var(--tile-side);
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: crosshair;
+}
+.ah-cell { background: var(--tile-a); background-image: var(--grain); }
+.ah-cell.b { background-color: var(--tile-b); }
+/* Rayas de la mesa: la central, el círculo de saque y el área de cada portería con su color. */
+.ah-mid { position: absolute; left: 0; right: 0; top: 50%; height: 3px; translate: 0 -50%; background: var(--ink); opacity: 0.45; pointer-events: none; }
+.ah-ring { position: absolute; left: 50%; top: 50%; width: 32%; aspect-ratio: 1; translate: -50% -50%; border: 3px solid var(--ink); border-radius: 50%; opacity: 0.4; pointer-events: none; }
+.ah-crease { position: absolute; left: 50%; width: calc(var(--goal) + 12%); aspect-ratio: 2; translate: -50% 0; border: 3px solid; pointer-events: none; }
+.ah-crease.top { top: -3px; border-radius: 0 0 999px 999px; border-color: var(--side-dark); background: color-mix(in oklch, var(--side-dark), transparent 78%); }
+.ah-crease.bottom { bottom: -3px; border-radius: 999px 999px 0 0; border-color: var(--side-light); background: color-mix(in oklch, var(--side-light), transparent 72%); }
+.ah-goal { position: absolute; left: 50%; width: var(--goal); height: 2.4%; translate: -50% 0; background: var(--table); pointer-events: none; }
+.ah-goal.top { top: 0; box-shadow: inset 0 -3px 0 oklch(0 0 0 / 0.35); }
+.ah-goal.bottom { bottom: 0; box-shadow: inset 0 3px 0 oklch(0 0 0 / 0.35); }
+/* Lo que se mueve: origen arriba a la izquierda y el script pone translate3d cada fotograma. */
+.ah-pc, .ah-puck { position: absolute; left: 0; top: 0; aspect-ratio: 1; pointer-events: none; will-change: transform; }
+.ah-pc { width: calc(15.2 / 96 * 100%); }
+.ah-body { position: absolute; inset: 0; transform-origin: 50% 60%; }
+/* La peana es la huella que choca; la torre se alza sobre ella como en el tablero. */
+.ah-base { position: absolute; inset: 0; border-radius: 50%; background: var(--pc); box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 5px var(--pc-2), 0 4px 5px oklch(0 0 0 / 0.35); }
+.ah-fig svg { position: absolute; left: 50%; bottom: 38%; width: 118%; height: 150%; translate: -50% 0; filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.35)); }
+.ah-puck { width: calc(9.2 / 96 * 100%); }
+.ah-puck i {
+  --tk: var(--brass); --tk-2: color-mix(in oklch, var(--brass), var(--ink) 40%);
+  position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(closest-side, var(--tk) 0 30%, var(--tk-2) 32% 44%, var(--tk) 46% 74%, var(--tk-2) 76%);
+  box-shadow: inset 0 0 0 2px var(--ink), 0 3px 0 var(--tk-2), 0 3px 0 2px var(--ink), 0 6px 6px oklch(0 0 0 / 0.3);
+}
+.ah-puck.gone { opacity: 0; }
+/* Regla de los siete segundos: los tres últimos, el disco parpadea en bermellón. */
+.ah-puck.warn i { --tk: var(--accent); animation: ah-warn 0.5s steps(2, jump-none) infinite; }
+@keyframes ah-warn { 50% { --tk: var(--brass); filter: brightness(1.3); } }
+.ah.lost { filter: saturate(0.35) brightness(0.85); transition: filter 0.8s var(--ease-out); }
+.ah-score b { font-size: 15px; color: var(--paper); }
+.ah-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--ink); }
+.ah-dot.me { background: var(--side-light); }
+.ah-dot.foe { background: var(--side-dark); }
+/* La mesa es alta: en el teléfono el escenario le da más alto que a los tableros cuadrados. */
+.mini-main .mini-stage:has(.ah) { min-height: min(70dvh, 640px); }
+@media (min-width: 900px) { .mini-main .mini-stage:has(.ah) { min-height: 0; } }
+/* Píxel: losas del tema en las casillas y lo redondo, octógono escalonado de 8 bits. */
+[data-art="pixel"] .ah-cell { background-image: var(--px-tile-a); background-size: 100% 100%; image-rendering: pixelated; }
+[data-art="pixel"] .ah-cell.b { background-image: var(--px-tile-b); }
+[data-art="pixel"] :is(.ah-base, .ah-puck i) {
+  clip-path: polygon(30% 0, 70% 0, 70% 10%, 90% 10%, 90% 30%, 100% 30%, 100% 70%, 90% 70%, 90% 90%, 70% 90%, 70% 100%, 30% 100%, 30% 90%, 10% 90%, 10% 70%, 0 70%, 0 30%, 10% 30%, 10% 10%, 30% 10%);
+  box-shadow: inset 0 0 0 3px var(--ink);
+}
+[data-art="pixel"] .ah-puck i { background: var(--tk); box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 6px var(--tk-2); }
+[data-art="pixel"] .ah-ring { border-style: dashed; }
 .br {
   --cell: max(16px, min(calc((100cqw - 10px) / var(--n)), calc((100cqh - 10px) / var(--n)), 64px));
   position: relative; display: grid; grid-template-columns: repeat(var(--n), var(--cell));
   border: 3px solid var(--ink); border-radius: 12px; overflow: hidden; box-shadow: var(--lift);
+  touch-action: none; /* arrastrar el dedo pone la valla o lleva el peón, no desplaza la página */
 }
+/* Peón levantado mientras se arrastra, y la casilla a la que iría al soltar. */
+.br .bm-pc { transition: translate 0.15s var(--ease-out), scale 0.15s var(--ease-out); }
+.br.lifting .bm-pc.side-light { translate: 0 -14%; scale: 1.12; }
+.br-cell.aim { box-shadow: inset 0 0 0 3px var(--brass); }
+/* La valla cae en su sitio con un golpe seco. */
+.br-wall:not(.ghost) { animation: br-drop 0.3s var(--ease-out) both; }
+@keyframes br-drop { from { opacity: 0; scale: 1.3; } 60% { opacity: 1; scale: 0.94; } }
 .br-cell { position: relative; display: grid; place-items: center; width: var(--cell); height: var(--cell); padding: 0; border: 0; background: var(--tile-a); background-image: var(--grain); box-shadow: inset 0 0 0 1px oklch(0 0 0 / 0.12); cursor: pointer; }
 .br-cell.goal-light { background-color: color-mix(in oklch, var(--tile-a), var(--side-light) 50%); }
 .br-cell.goal-dark { background-color: color-mix(in oklch, var(--tile-a), var(--side-dark) 25%); }

@@ -4,6 +4,7 @@
 import { animate, stagger } from 'animejs';
 import { pieceSVG, headTop, artOf } from './piece-art.js';
 import { Fx } from './fx.js';
+import { playSfx } from '../ui/sfx.js';
 import { key, cellsOf, sizeOf } from '../game/rules.js';
 
 export const CAMERAS = { flat: 0, tilt: 40, epic: 56 };
@@ -234,12 +235,19 @@ export class BoardView {
     if (!el) return;
     el.style.setProperty('--r', st.r);
     el.style.setProperty('--c', st.c);
-    el.style.setProperty('--z', st.z.toFixed(2));
+    const z = st.z.toFixed(2);
+    el.style.setProperty('--z', z);
+    // La sombra se achica con la altura; --z no se hereda (board.css), así que va aparte.
+    (el.shadowEl ||= el.querySelector('.pc-shadow'))?.style.setProperty('--z', z);
   }
 
   setArt(p) {
     const art = this.els.get(p)?.querySelector('.pc-art');
     if (art) art.innerHTML = pieceSVG(artOf(p));
+  }
+  // Cambio de mesa a mitad de partida (pausa): las piezas pasan al arte de la nueva mesa.
+  restyle() {
+    for (const p of this.els.keys()) this.setArt(p);
   }
 
 
@@ -282,6 +290,8 @@ export class BoardView {
     }
   }
   select(piece) {
+    if (piece && piece !== this.selected) playSfx('select');
+    this.selected = piece;
     for (const [p, el] of this.els) el.classList.toggle('sel', p === piece);
   }
   setThreats(set) {
@@ -450,6 +460,10 @@ export class BoardView {
   }
 
   async intro(pieces) {
+    this.host.classList.add('dealing');
+    try { await this.deal(pieces); } finally { this.host.classList.remove('dealing'); }
+  }
+  async deal(pieces) {
     const tiles = [...this.tiles.values()];
     const { rows, cols } = this.board;
     tiles.forEach((t) => {
@@ -461,19 +475,25 @@ export class BoardView {
     animate(tiles, {
       opacity: [0, 1], z: [-120, 0], duration: this.d(520), ease: 'outExpo',
       delay: (el) => this.d(+el.style.getPropertyValue('--d') * 45),
+      // outExpo no acaba exacto: una losa a -0.1 px queda hundida y con opacidad 0.999 aplana el 3D
+      // (toda opacidad < 1 lo hace), así que su canto desaparece. Al terminar se limpian las dos.
+      onComplete: () => tiles.forEach((t) => { t.style.removeProperty('transform'); t.style.removeProperty('opacity'); }),
     });
     await wait(this.d(260));
     // El jefe no baja con el resto: espera fuera de cuadro y cae una sola vez, con su impacto.
     const boss = pieces.find((p) => p.boss);
     const order = pieces.filter((p) => p !== boss).sort((a, b) => (a.color === 'light' ? b.row - a.row : a.row - b.row));
+    // Dónde cae el polvo, medido todo de una vez: medir en cada aterrizaje obligaba al navegador
+    // a recalcular la página a mitad de la animación (el reparto se trababa en teléfonos).
+    const dustAt = new Map(order.filter((p, i) => i % 3 === 0).map((p) => [p, this.centerOf(p)]));
     order.forEach((p, i) => {
       const st = this.state.get(p), el = this.els.get(p);
       st.z = this.sq * 4; this.apply(p); el.style.opacity = 0;
-      animate(el, { opacity: 1, duration: this.d(120), delay: this.d(i * 22) });
+      animate(el, { opacity: [0, 1], duration: this.d(120), delay: this.d(i * 22) });
       animate(st, {
         z: 0, duration: this.d(420), delay: this.d(i * 22), ease: 'inQuad',
         onUpdate: () => this.apply(p),
-        onComplete: () => { this.squash(p, 0.7); if (i % 3 === 0) { const c = this.centerOf(p); this.fx.dust(c.x, c.y, 0.6); } },
+        onComplete: () => { this.squash(p, 0.7); playSfx('step'); const c = dustAt.get(p); if (c) this.fx.dust(c.x, c.y, 0.6); },
       });
     });
     await wait(this.d(order.length * 22 + 480));
@@ -486,6 +506,7 @@ export class BoardView {
     this.els.get(boss).style.opacity = 1;
     await animate(st, { z: 0, duration: this.d(520), ease: 'inCubic', onUpdate: () => this.apply(boss) });
     const c = this.centerOf(boss);
+    playSfx('stomp');
     this.shake(16, 600);
     this.fx.ring(c.x, c.y, { radius: this.sq * 3.5, color: css('--side-dark') || '#e44', width: 6, life: 0.6 });
     this.fx.dust(c.x, c.y, 2.2);
@@ -509,6 +530,7 @@ export class BoardView {
       animate(sa, { r: rb, c: cb, z: [0, this.sq * 0.8, 0], duration: dur, ease: 'inOutSine', onUpdate: () => this.apply(a) }),
       animate(sb, { r: ra, c: ca, z: [0, this.sq * 0.8, 0], duration: dur, ease: 'inOutSine', onUpdate: () => this.apply(b) }),
     ]);
+    playSfx('land');
     this.squash(a);
     this.squash(b);
   }
@@ -528,6 +550,7 @@ export class BoardView {
       const mid = { r: (from.row + to.row) / 2, c: (from.col + to.col) / 2 };
       await animate(st, { r: mid.r, c: mid.c, z: [0, arc * 0.6, 0], duration: dur * 0.6, ease: 'inQuad', onUpdate: () => this.apply(piece) });
       for (const v of victims) this.hurt(v.piece);
+      playSfx('hit');
       this.onImpact?.(res);
       await this.hitStop(victims, 90);
       await animate(st, { r: from.row, c: from.col, z: [0, arc * 0.3, 0], duration: dur * 0.7, ease: 'outQuad', onUpdate: () => this.apply(piece) });
@@ -549,6 +572,8 @@ export class BoardView {
       ease: 'inOutSine', onUpdate: () => this.apply(piece),
     });
     const c = this.centerOf(piece);
+    // El sonido va al aterrizar, no al decidir la jugada: así se oye cuando se ve el golpe.
+    playSfx(piece.boss ? 'stomp' : victims.length ? 'capture' : 'move');
     this.squash(piece, piece.boss ? 0.6 : 0.78);
     this.fx.dust(c.x, c.y, piece.boss ? 2 : 0.8);
     if (piece.boss) { this.shake(14, 450); this.fx.ring(c.x, c.y, { radius: this.sq * 2.4, width: 5 }); }
@@ -562,6 +587,7 @@ export class BoardView {
     if (res.castle) {
       const st2 = this.state.get(res.castle.rook);
       await animate(st2, { r: res.castle.to.row, c: res.castle.to.col, z: [0, this.sq * 0.9, 0], duration: this.d(380), ease: 'inOutSine', onUpdate: () => this.apply(res.castle.rook) });
+      playSfx('move');
       this.squash(res.castle.rook, 0.8);
     }
     if (promoted) await this.promote(piece);
@@ -632,6 +658,7 @@ export class BoardView {
     const st = this.state.get(p);
     const c0 = this.centerOf(p, Math.round(st.r), Math.round(st.c));
     this.fx.burst(c0.x, c0.y, { count: 16, color: ['#e8f4ff', '#bfdcf2', '#fff'], speed: [40, 160], size: [2, 4], life: [0.3, 0.6] });
+    playSfx('whoosh');
     await animate(st, { r: to.row, c: to.col, duration: this.d(260), ease: 'outQuad', onUpdate: () => this.apply(p) });
     this.squash(p, 0.85);
   }
@@ -641,6 +668,7 @@ export class BoardView {
     const fig = this.els.get(p)?.querySelector('.pc-fig'), st = this.state.get(p);
     const a = this.centerOf(p, from.row, from.col);
     this.fx.ring(a.x, a.y, { radius: this.sq * 0.9, color: css('--brass'), width: 4 });
+    playSfx('warp');
     await animate(fig, { scale: [1, 0], rotate: [0, 180], duration: this.d(260), ease: 'inQuad' });
     Object.assign(st, { r: to.row, c: to.col }); this.apply(p);
     const b = this.centerOf(p, to.row, to.col);
@@ -654,8 +682,9 @@ export class BoardView {
     this.addPiece(p);
     const st = this.state.get(p), el = this.els.get(p);
     st.z = this.sq * 4; this.apply(p); el.style.opacity = 0;
-    animate(el, { opacity: 1, duration: this.d(120) });
+    animate(el, { opacity: [0, 1], duration: this.d(120) });
     await animate(st, { z: 0, duration: this.d(420), ease: 'inQuad', onUpdate: () => this.apply(p) });
+    playSfx('land');
     const c = this.centerOf(p); this.fx.dust(c.x, c.y, 0.9); this.squash(p, 0.7);
   }
 
@@ -785,7 +814,8 @@ export class BoardView {
     el.style.opacity = 0;
     this.fx.burst(c.x, c.y, { count: 18, color: [css('--side-zombie'), 'oklch(0.82 0.12 128)'], speed: [40, 140], life: [0.5, 0.9], size: [3, 6], gravity: -90, drag: 0.9 });
     this.fx.dust(c.x, c.y, 1.2);
-    animate(el, { opacity: 1, duration: this.d(160) });
+    playSfx('zombie');
+    animate(el, { opacity: [0, 1], duration: this.d(160) });
     await animate(st, { z: 0, duration: this.d(420), ease: 'outBack', onUpdate: () => this.apply(p) });
     const fig = el.querySelector('.pc-fig');
     if (fig) await animate(fig, { rotate: [0, -8, 7, -4, 0], duration: this.d(360), ease: 'inOutSine' });
@@ -816,6 +846,7 @@ export class BoardView {
   async promote(p) {
     const el = this.els.get(p), stand = el.querySelector('.pc-fig');
     const c = this.centerOf(p);
+    playSfx('promote');
     await animate(stand, { rotateY: 360, duration: this.d(380), ease: 'inQuad' });
     this.setArt(p);
     this.fx.sparkle(c.x, c.y - this.sq * 0.6, '#ffcf6b', 16);

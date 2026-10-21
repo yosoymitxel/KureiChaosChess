@@ -1,6 +1,6 @@
 // Tienda del jardín: las monedas que pagan tus flores se cambian por cartas y mesas.
 import { html, useRef, useState } from '../lib.js';
-import { Topbar, useEnter, CardFace, RARITY_LABEL } from '../components.js';
+import { Topbar, useEnter, CardFace, RARITY_LABEL, ThemeLook } from '../components.js';
 import { Icon } from '../icons.js';
 import { CARDS, HAND_LIMIT } from '../../game/cards.js';
 import { THEMES } from '../../data/themes.js';
@@ -97,13 +97,13 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
 
         <section class="panel shop-card shop-pane-mesas" data-enter>
           <h2>Mesas</h2>
-          <p class="shop-note">Cuatro mesas de la casa se venden aquí; la comprada queda puesta.</p>
+          <p class="shop-note">Cada mesa con su pieza: las de arte píxel cambian también los sonidos. La comprada queda puesta.</p>
           <div class="theme-grid">
             ${Object.keys(THEME_SHOP).map((id) => {
               const t = THEMES[id], owned = themeOwned(id), on = settings.theme === id;
               return html`<button class=${'theme' + (on ? ' on' : '') + (owned ? ' owned' : '')} aria-pressed=${on} aria-label=${t.name}
                 disabled=${!owned && shop.coins < THEME_SHOP[id]} title=${owned ? t.name : `Se compra por ${THEME_SHOP[id]} monedas`} onClick=${() => tapTheme(id)}>
-                <span class="swatch">${t.swatch.map((c) => html`<i style=${{ background: c }}></i>`)}</span>
+                <${ThemeLook} t=${t} />
                 ${owned ? (on ? 'En uso' : 'Usar') : html`<span class="price"><${Icon} name="coin" size=${13} />${THEME_SHOP[id]}</span>`}
               </button>`;
             })}

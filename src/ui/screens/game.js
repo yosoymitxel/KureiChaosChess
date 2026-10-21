@@ -8,17 +8,18 @@ import { artOf } from '../../view/piece-art.js';
 import { Match, botChooseMove } from '../../game/match.js';
 import { rivalForFloor } from '../../game/difficulty.js';
 import { generateBoard, placePieces, eliteVariants } from '../../game/generate.js';
-import { moveCells, cellsOf, key, anchorForCell, immune, walkable, reachPreview } from '../../game/rules.js';
+import { moveCells, cellsOf, key, anchorForCell, immune, walkable } from '../../game/rules.js';
+import { playDemo, mutationDemo, bossDemo } from '../demos.js';
 import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
 import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
-import { MUTATIONS, EXTRA_MOVES, countMutations } from '../../data/mutations.js';
+import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { takeNewDemos, loadBosses } from '../../game/run.js';
 import { PIECE_NAMES, MOVE_NAMES } from '../../data/pieces.js';
 import { BOSSES } from '../../data/bosses.js';
 import { PauseOverlay } from './overlays.js';
 import { Moments } from '../moments.js';
 import { playSfx } from '../sfx.js';
-import { award, seePieces } from '../../game/achievements.js';
+import { award, seePieces, seeMutations } from '../../game/achievements.js';
 
 const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
 
@@ -245,7 +246,6 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const res = match.move(piece, to);
       if (!res) return false;
       if (human) d.moments.dropWaiting();
-      playSfx(res.victims.length ? 'capture' : 'move');
       d.busy = true;
       clearSel();
       const tag = match.player.kind === 'bot' ? '◆ ' : '';
@@ -259,7 +259,6 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (res.promoted) {
         addLog(`${tag}¡Coronación!`);
         if (piece.color === d.feats.human) award('crowned');
-        playSfx('promote');
       }
       await d.view.playMove(res);
       const fallenBoss = res.victims.find((v) => v.killed && v.piece.boss)?.piece;
@@ -389,16 +388,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     // derrotado enseña su patrón. Todo se salta con un toque.
     const playDemos = async (boss) => {
       const human = seats.find((s) => s.kind === 'human')?.color || 'light';
-      for (const id of takeNewDemos(run)) {
-        const m = MUTATIONS[id], ex = EXTRA_MOVES[id];
-        if (!ex) { await d.moments.cinematic({ title: m.name, sub: m.desc, icon: m.icon }); continue; }
-        const { base, extra } = reachPreview({ type: ex[0], extra: [ex[1]] });
-        await d.moments.demo({ title: m.name, sub: m.desc, piece: { type: ex[0], side: human }, base, extra });
-      }
-      if (boss && !loadBosses().includes(boss.boss)) {
-        const { base } = reachPreview({ type: boss.type, moves: BOSSES[boss.boss].moves });
-        await d.moments.demo({ title: `Así se mueve ${boss.name}`, sub: BOSSES[boss.boss].desc, piece: { type: artOf(boss), side: boss.color }, base, tone: 'danger' });
-      }
+      seeMutations(run.mutations || []);
+      for (const id of takeNewDemos(run)) await playDemo(d.moments, mutationDemo(id, human));
+      if (boss && !loadBosses().includes(boss.boss)) await playDemo(d.moments, bossDemo(boss.boss, boss.color));
     };
     const beginPlacing = () => {
       if (d.hand.indexOf('organize') < 0 || !mine.size) { d.busy = false; return startTurn(); }
@@ -521,6 +513,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       { duration: 420, delay: 700 + i * 70, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'backwards' },
     ));
   }, []);
+  const first = useRef(true);
+  useEffect(() => { if (first.current) first.current = false; else ref.current.view?.restyle(); }, [settings.theme]);
   useEffect(() => { ref.current.view?.setCamera(settings.camera); if (ref.current.view) { ref.current.view.shakeOn = settings.shake; ref.current.view.speed = settings.speed; } if (ref.current.moments) Object.assign(ref.current.moments, { speed: settings.speed, enabled: settings.moments }); }, [settings]);
 
   const muts = Object.entries(countMutations(run.mutations || []));
