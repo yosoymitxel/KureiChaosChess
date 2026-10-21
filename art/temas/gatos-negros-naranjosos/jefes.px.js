@@ -22,7 +22,7 @@ const paw=(x,y)=>[rect(x,y,5,3,"h"),hline(x,y+2,5,"k"),px(x+1,y+1,"g"),px(x+4,y+
 
 // Titán: gato montés gigantesco, hombros fuertes, mechones de oreja y ojos verde lima.
 boss("boss-titan",{w:44,h:42},
-  ellipse(22,27,15,10,"h"),ellipse(22,25,12,8,"H"),ellipse(22,31,9,5,"g"),
+  ellipse(22,27,15,10,"h"),ellipse(22,25,12,8,"H"),ellipse(22,31,9,5,"w"),
   poly([8,19,12,14,17,17,22,14,27,17,32,14,36,20,32,27,12,27],"h"),
   poly([12,23,32,23,33,36,11,36],"H"),poly([17,24,27,24,29,35,15,35],"r"),
   ...cat(22,13,"h","g","e",1.25),
@@ -35,10 +35,10 @@ boss("boss-titan",{w:44,h:42},
 );
 
 // Ariete: gato callejero naranja arremetiendo, espalda arqueada, patas extendidas y cola levantada.
-boss("boss-ram",{w:46,h:34},
-  ...tail(35,16,"r"),ellipse(26,19,13,7,"r"),ellipse(25,17,10,4,"c"),
+boss("boss-ram",{w:45,h:34},
+  ...tail(33,16,"r"),ellipse(26,19,13,7,"r"),ellipse(25,17,10,4,"c"),
   ...[18,22,26,30].map(x=>line(x,14,x-2,19,"R",1)),
-  line(17,21,12,27,"r",3),line(12,27,7,28,"R",2),line(32,21,35,27,"r",3),line(35,27,40,27,"R",2),
+  line(17,21,12,27,"r",3),line(12,27,7,28,"R",2),line(32,21,34,27,"r",3),line(34,27,38,27,"R",2),
   line(16,16,12,11,"r",3),...cat(10,11,"r","c","e",1),
   poly([7,7,9,2,13,6,17,2,20,8],"R"),px(10,10,"y"),px(14,10,"y"),hline(8,14,5,"k"),
   poly([12,16,18,14,23,17,21,21,14,22],"O"),rect(15,16,9,3,"M"),hline(16,17,7,"y"),px(18,17,"p"),
@@ -46,9 +46,9 @@ boss("boss-ram",{w:46,h:34},
 );
 
 // Hidra: tres expresiones felinas, gato negro, gato naranja y gato tuxedo; colas serpenteantes.
-boss("boss-hydra",{w:46,h:42},
-  line(10,32,7,23,"H",4),line(7,23,4,17,"h",4),line(23,32,23,20,"r",4),line(36,32,39,23,"M",4),line(39,23,42,17,"H",4),
-  ...cat(6,14,"h","g","e",.9),...cat(23,11,"r","c","e",1),...cat(41,14,"H","w","y",.9),
+boss("boss-hydra",{w:44,h:42},
+  line(10,32,7,23,"H",4),line(7,23,4,17,"h",4),line(23,32,23,20,"r",4),line(36,32,37,23,"M",4),line(37,23,39,17,"H",4),
+  ...cat(6,14,"h","g","e",.9),...cat(23,11,"r","c","e",1),...cat(39,14,"H","w","y",.9),
   poly([3,29,10,25,17,29,24,25,31,29,39,25,44,30,42,37,4,37],"H"),
   ellipse(23,33,10,4,"r"),...[14,18,22,26,30].map(x=>px(x,32,"y")),
   rect(17,35,12,3,"M"),hline(18,35,10,"c")
@@ -56,7 +56,7 @@ boss("boss-hydra",{w:46,h:42},
 
 // Gólem: guardián de rascador hecho de postes de sisal, cajas de madera y un rostro felino.
 boss("boss-golem",{w:42,h:42},
-  rect(7,10,28,28,"N"),rect(9,12,24,24,"n"),rect(12,15,18,17,"t"),rect(14,17,14,13,"H"),
+  rect(7,10,28,28,"N"),rect(9,12,24,24,"n"),rect(12,15,18,17,"o"),rect(14,17,14,13,"H"),
   ...cat(21,15,"h","g","e",1.25),
   ...[20,24,28,32].map(y=>hline(11,y,20,"C")),...[13,17,21,25,29].map(x=>px(x,25,"y")),
   rect(1,17,8,14,"n"),rect(33,17,8,14,"n"),circ(5,21,3,"M"),circ(37,21,3,"M"),px(5,21,"y"),px(37,21,"y"),
@@ -66,7 +66,7 @@ boss("boss-golem",{w:42,h:42},
 
 // Jinete: gata negra con capa al viento, montada en un corcel atigrado.
 boss("boss-rider",{w:38,h:42},
-  poly([3,30,10,23,27,23,35,30,32,37,7,37],"r"),ellipse(20,31,12,5,"H"),
+  poly([3,30,10,23,27,23,35,30,32,37,7,37],"r"),ellipse(20,31,12,5,"O"),
   rect(8,35,5,6,"h"),rect(25,35,5,6,"h"),rect(7,41,7,2,"H"),rect(24,41,7,2,"H"),
   ...tail(30,28,"h"),ellipse(20,28,9,4,"r"),...[16,20,24].map(x=>line(x,25,x+1,29,"R",1)),
   poly([6,17,10,7,19,4,27,9,30,20,26,30,9,29],"H"),poly([11,17,23,17,25,29,11,29],"h"),
