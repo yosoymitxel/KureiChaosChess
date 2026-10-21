@@ -63,9 +63,14 @@ function updatePreview() {
     theme: themeSelect.value,
     diff: difficulty.value,
   });
-  if (miniSelect.value.startsWith('board:')) {\n    params.set('variant', miniSelect.value.slice('board:'.length));\n    params.delete('mini');\n    frame.src = `tests/visual-board.html?${params.toString()}`;\n  } else {\n    frame.src = `tests/visual.html?${params.toString()}`;\n  }
+  if (miniSelect.value.startsWith('board:')) {
+    params.set('variant', miniSelect.value.slice('board:'.length));
+    params.delete('mini');
+    frame.src = `tests/visual-board.html?${params.toString()}`;
+  } else {
+    frame.src = `tests/visual.html?${params.toString()}`;
+  }
 }
-
 themeSelect.addEventListener('change', updatePreview);
 miniSelect.addEventListener('change', updatePreview);
 difficulty.addEventListener('change', updatePreview);
