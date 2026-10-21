@@ -57,7 +57,7 @@ export const PIXEL_THEMES = {
   },
   "goticas": {
     "id": "goticas",
-    "name": "Góticas",
+    "name": "Gótico Sepulcral",
     "swatch": [
       "#121318",
       "#c2c0bb",
@@ -119,7 +119,7 @@ export const PIXEL_THEMES = {
   },
   "goticas-waifu": {
     "id": "goticas-waifu",
-    "name": "Góticas Waifu",
+    "name": "Muñeca Vampírica",
     "swatch": [
       "#100d16",
       "#c8bdc9",
