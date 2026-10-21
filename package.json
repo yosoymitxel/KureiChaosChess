@@ -12,6 +12,9 @@
     "bodyguard": "node tools/bodyguard-selfcheck.mjs",
     "giant-hunt": "node tools/giant-hunt-selfcheck.mjs",
     "minefield": "node tools/minefield-selfcheck.mjs",
-    "contraband": "node tools/contraband-selfcheck.mjs"
+    "contraband": "node tools/contraband-selfcheck.mjs",
+    "laboratory": "node tools/laboratory-selfcheck.mjs",
+    "collapsing-floor": "node tools/collapsing-floor-selfcheck.mjs",
+    "king-impostor": "node tools/king-impostor-selfcheck.mjs"
   }
 }
