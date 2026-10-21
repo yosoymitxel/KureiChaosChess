@@ -4,7 +4,7 @@ export const SIZE=7;
 export const DIFFS={
  facil:{name:'Fácil',turns:8,piece:'king',mutation:'kingRook',holes:['4,2','4,4','2,2','2,4']},
  normal:{name:'Normal',turns:7,piece:'knight',mutation:'knightBishop',holes:['4,1','4,5','2,1','2,5']},
- dificil:{name:'Difícil',turns:6,piece:'guard',mutation:'guardKnight',holes:['5,2','5,4','3,2','3,4','1,0','1,6']},
+ dificil:{name:'Difícil',turns:6,piece:'guard',mutation:'guardKnight',holes:['4,0','4,6','2,0','2,6','1,0','1,6']},
 };
 const key=(r,c)=>r+','+c;
 export function newLaboratory(level='normal'){
