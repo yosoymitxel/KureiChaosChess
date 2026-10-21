@@ -10,7 +10,7 @@ export function KingImpostorScreen({sub,onBack,onEnd,endLabel='Continuar',settin
  return html`<div class="screen mini"><${Topbar} title="El rey impostor" sub=${sub} onBack=${onBack}/><div class="mini-body">
  <div class="mini-stats" aria-live="polite"><span class="chip"><${Icon} name="target" size=${12}/> Intentos: ${s.turns}</span><span class="chip">Encuentra al impostor</span></div>
  <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="El rey impostor" boardClass="bm-slab" onTap=${tap}/>
- <${MiniTools} mini="kingImpostor" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Uno de los tres sospechosos es el impostor que suplanta al rey. Toca la pieza que creas culpable. Solo tienes un intento en Difícil, dos en Normal y tres en Fácil; una elección incorrecta termina la prueba.<//>
+ <${MiniTools} mini="kingImpostor" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>El impostor se mueve en L, como un caballo. Identifica cuál sospechoso tiene ese patrón. Solo tienes un intento en Difícil, dos en Normal y tres en Fácil; una elección incorrecta consume un intento.<//>
  ${s.over&&html`<${MiniEnd} win=${s.over==='win'} note=${s.over==='win'?'Impostor identificado.':'Acusaste a la pieza equivocada.'} label=${endLabel} onEnd=${()=>onEnd(s.over==='win')}/>`}
  </div></div>`;
 }
