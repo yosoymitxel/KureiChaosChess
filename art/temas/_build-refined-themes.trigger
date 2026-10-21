@@ -1,1 +1,1 @@
-Trigger complete refinement pass: pieces, bosses, backgrounds and UI textures for all five themes.
+Trigger full five-theme render after fixing the nested draw-operation array.
