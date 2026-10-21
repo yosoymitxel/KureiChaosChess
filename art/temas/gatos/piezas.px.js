@@ -165,7 +165,9 @@ piece("queen", { w: 27, h: 31 },
   // cabeza
   ...head(13, 10, 5, 4, { ear: 3, gap: 3, ex: 2, eh: 2, ey: -1 }), px(9, 8, "k"), px(17, 8, "k"),
   // tiara
-  rect(10, 3, 7, 2, "y"), hline(10, 4, 7, "Y"), px(10, 2, "y"), px(13, 1, "y"), px(13, 2, "y"), px(16, 2, "y"), px(13, 3, "n"),
+  rect(10, 3, 7, 2, "y"), hline(10, 4, 7, "Y"), vline(10, 1, 2, "y"), vline(13, 0, 3, "y"), vline(16, 1, 2, "Y"), px(13, 3, "n"), px(13, 0, "g"),
+  // mechones del pelo largo por los lados
+  px(7, 19, "W"), px(6, 23, "W"), px(5, 27, "W"), px(4, 29, "W"),
 );
 
 // Rey: gato león gordísimo de frente, melena enorme de puntas, corona de oro con gemas, panza y
@@ -282,8 +284,8 @@ piece("cannon", { w: 32, h: 25 },
   rect(11, 13, 7, 4, "r"), hline(11, 13, 7, "y"), hline(11, 16, 7, "R"),
   // rueda
   circ(19, 20, 4, "t"), ring(19, 20, 4, "T"), px(19, 20, "T"), line(16, 17, 22, 23, "T"), line(22, 17, 16, 23, "T"),
-  // ovillos de munición
-  ...orb(28, 22, 2, 2, ["u", "u", "U"]), ...orb(31, 22, 2, 2, ["u", "u", "U"]), ...orb(29, 19, 2, 2, ["u", "u", "U"]),
+  // ovillo de munición
+  ...orb(28, 21, 3, 3, ["u", "u", "U"]), line(26, 19, 30, 23, "U"), line(26, 21, 28, 23, "U"), px(27, 19, "g"),
   // gato tumbado sobre el cañón
   line(24, 10, 28, 14, "O", 2), line(28, 14, 30, 11, "O", 2),
   ...orb(16, 9, 8, 3), rect(10, 11, 3, 2, "W"), rect(19, 11, 3, 2, "o"),

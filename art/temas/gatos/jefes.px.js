@@ -75,11 +75,11 @@ boss("boss-titan", { w: 38, h: 31,
 
 // Ariete: gato que embiste dentro de una caja de cartón: asoma medio cuerpo por delante con las
 // patas estiradas, las solapas vuelan, la caja lleva una huella del bando y deja polvo y rayas.
-boss("boss-ram", { w: 46, h: 30 },
+boss("boss-ram", { w: 44, h: 30 },
   // rayas de velocidad
-  hline(41, 9, 5, "M"), hline(42, 15, 4, "M"), hline(40, 21, 6, "M"),
+  hline(42, 10, 2, "M"), hline(42, 16, 2, "M"),
   // polvo
-  circ(39, 27, 2, "m"), circ(43, 27, 1, "m"), circ(35, 28, 1, "M"),
+  circ(40, 27, 2, "m"), circ(36, 28, 1, "M"),
   // caja: tapa, cara larga y testa en sombra
   poly([13, 9, 18, 4, 41, 4, 36, 9], "c"), rect(13, 9, 23, 18, "c"), hline(13, 9, 23, "C"), poly([36, 9, 41, 4, 41, 22, 36, 27], "C"),
   line(36, 9, 41, 4, "d"), hline(13, 26, 23, "C"),
@@ -158,14 +158,14 @@ boss("boss-rider", { w: 27, h: 41 },
 
 // Muralla: gato larguísimo tumbado de lado, con la cabeza sobre las patas estiradas, el lomo
 // atigrado y la cola larga.
-boss("boss-wall", { w: 46, h: 20 },
+boss("boss-wall", { w: 43, h: 20 },
   // cola
-  line(40, 15, 44, 13, "o", 2), line(44, 13, 45, 8, "o", 2), px(44, 7, "W"),
+  line(37, 15, 41, 13, "o", 2), line(41, 13, 42, 8, "o", 2), px(41, 7, "W"),
   // patas de atrás
-  ellipse(36, 18, 4, 1, "W"),
+  ellipse(33, 18, 4, 1, "W"),
   // cuerpo largo
-  ...orb(25, 12, 18, 6),
-  ...[17, 22, 27, 32, 37].map((x) => line(x, 7, x + 1, 10, x < 27 ? "o" : "O")),
+  ...orb(23, 12, 16, 6),
+  ...[17, 22, 27, 32].map((x) => line(x, 7, x + 1, 10, x < 27 ? "o" : "O")),
   // patas de delante estiradas
   ellipse(6, 18, 5, 1, "w"), ellipse(14, 18, 3, 1, "W"),
   // cabeza

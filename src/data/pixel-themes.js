@@ -23,6 +23,38 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "pixelada"
   },
+  "gatos": {
+    "id": "gatos",
+    "name": "Michis",
+    "price": 160,
+    "swatch": [
+      "#2a1b24",
+      "#e8c592",
+      "#7c849a",
+      "#f2a04e"
+    ],
+    "vars": {
+      "table": "#2a1b24",
+      "table-2": "#382630",
+      "tile-a": "#e8c592",
+      "tile-b": "#a86a42",
+      "tile-side": "#5e3822",
+      "side-light": "#f4e2c0",
+      "side-dark": "#7c849a",
+      "side-wild": "#f2a04e",
+      "paper": "#fbf2e0",
+      "paper-2": "#f1e1c4",
+      "paper-3": "#e0caa4",
+      "ink": "#24161c",
+      "ink-2": "#4a3430",
+      "accent": "#a8283e",
+      "accent-ink": "#560f1e",
+      "brass": "#e8a83a",
+      "muted": "#78645a"
+    },
+    "art": "pixel",
+    "pack": "gatos"
+  },
   "halloween": {
     "id": "halloween",
     "name": "Halloween",
