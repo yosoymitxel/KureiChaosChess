@@ -9,7 +9,7 @@ pal({
   p:"#a77c9b", P:"#65445f", c:"#6f9370", C:"#3c5d49"
 });
 ramps("bOoWw","Rr","Yy","Gg","Nn","Mm","Pp","Cc");
-const piece=(name,opts,...items)=>sprite(name,{...opts,outline:"k"},...items);
+const piece=(name,opts,...items)=>sprite(name,{...opts,outline:"k"},...items.flat(Infinity));
 const skull=(x,y)=>[
   ellipse(x,y,5,4,"g"),ellipse(x,y+1,4,3,"G"),rect(x-3,y+1,6,3,"g"),
   poly([x-4,y-1,x-3,y-4,x-1,y-2,x,y-4,x+2,y-2,x+4,y-4,x+4,y],"w"),
