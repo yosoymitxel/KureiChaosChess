@@ -1,1 +1,1 @@
-Build trigger: all five theme art sources are now present. This file intentionally has no runtime use.
+Build trigger: rerun after fixing invalid drawing layer spread in calaveras-ataudes.
