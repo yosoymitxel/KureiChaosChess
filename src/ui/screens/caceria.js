@@ -30,16 +30,16 @@ export function CaceriaScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
     const valid = targets.some((m) => m.row === r && m.col === c);
     return { cls: [valid && 'mv', p?.id === 'runner' && 'foe'].filter(Boolean).join(' '), piece: p && { type: p.type, side: p.color } };
   };
-  return html\`<div class="screen mini">
-    <\${Topbar} title="La cacería" sub=\${sub} onBack=\${onBack} />
+  return html`<div class="screen mini">
+    <${Topbar} title="La cacería" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
       <div class="mini-stats" aria-live="polite">
-        <span class="chip"><\${Icon} name="hunt" size=\${12} /> Quedan \${s.turns} jugadas</span>
+        <span class="chip"><${Icon} name="hunt" size=${12} /> Quedan ${s.turns} jugadas</span>
         <span class="chip">El fugitivo escapa por arriba</span>
       </div>
-      <\${MiniGrid} rows=\${SIZE} cols=\${SIZE} cell=\${cell} disabled=\${!!s.over} label="La cacería" gridRef=\${gridRef} boardClass="bm-slab" onTap=\${tap} />
-      <\${MiniTools} mini="caceria" diffs=\${DIFFS} fixed=\${diff} settings=\${settings} setSettings=\${setSettings} onRestart=\${onRestart}>Mueve el caballo con sus saltos legales y captura al peón carmesí antes de que llegue a la fila superior. El fugitivo avanza según la dificultad; el tablero marca las casillas válidas.<//>
-      \${s.over && html\`<\${MiniEnd} win=\${s.over === 'win'} note=\${s.over === 'win' ? 'Alcanzaste al fugitivo.' : 'El fugitivo llegó a la salida o se agotaron las jugadas.'} label=\${endLabel} onEnd=\${() => onEnd(s.over === 'win')} />\`}
+      <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="La cacería" gridRef=${gridRef} boardClass="bm-slab" onTap=${tap} />
+      <${MiniTools} mini="caceria" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve la torre por líneas rectas y captura al peón carmesí antes de que llegue a la fila superior. El fugitivo avanza según la dificultad; el tablero marca las casillas válidas.<//>
+      ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Alcanzaste al fugitivo.' : 'El fugitivo llegó a la salida o se agotaron las jugadas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
-  </div>\`;
+  </div>`;
 }
