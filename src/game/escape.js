@@ -2,15 +2,15 @@ import { legalMoves } from './rules.js';
 
 export const SIZE = 7;
 export const DIFFS = {
-  facil: { name: 'Fácil', turns: 5, guardEvery: 2 },
-  normal: { name: 'Normal', turns: 4, guardEvery: 1 },
-  dificil: { name: 'Difícil', turns: 4, guardEvery: 1 },
+  facil: { name: 'Fácil', turns: 5, guardEvery: 2, guardRow: 1, holes: ['4,0','4,6'] },
+  normal: { name: 'Normal', turns: 4, guardEvery: 1, guardRow: 2, holes: ['4,0','4,6','2,0','2,6'] },
+  dificil: { name: 'Difícil', turns: 4, guardEvery: 1, guardRow: 3, holes: ['4,0','4,6','3,1','3,5'] },
 };
-const board = () => ({ rows: SIZE, cols: SIZE, holes: new Set(), terrain: new Map(), portals: new Map() });
+const board = (holes) => ({ rows: SIZE, cols: SIZE, holes: new Set(holes), terrain: new Map(), portals: new Map() });
 const piece = (id, type, color, row, col) => ({ id, type, color, row, col });
 export function newEscape(key = 'normal') {
   const diff = DIFFS[key] || DIFFS.normal;
-  return { diff, board: board(), pieces: [piece('runner', 'knight', 'light', 6, 3), piece('guard', 'pawn', 'dark', 2, 3)], turns: diff.turns, over: null, last: null };
+  return { diff, board: board(diff.holes), pieces: [piece('runner', 'knight', 'light', 6, 3), piece('guard', 'pawn', 'dark', diff.guardRow, 3)], turns: diff.turns, over: null, last: null };
 }
 export const legal = (s) => s.over ? [] : legalMoves(s.pieces.find((p) => p.id === 'runner'), s.pieces, s.board).filter((m) => !m.hits.length);
 export function move(s, row, col) {
