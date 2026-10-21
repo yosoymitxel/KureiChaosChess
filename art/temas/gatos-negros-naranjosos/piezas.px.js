@@ -123,7 +123,7 @@ piece("camel",{w:35,h:31},
   line(12,27,9,28,"h",2),line(24,27,27,28,"h",2),line(14,17,12,10,"c",3),
   ...catHead(10,8,"c","C","y","w"),poly([5,6,6,1,10,5],"c"),poly([12,5,16,1,16,7],"c"),
   px(7,4,"p"),px(14,4,"p"),rect(7,16,8,2,"r"),hline(8,16,6,"y"),px(10,17,"p"),
-  line(16,16,21,13,"s",2),line(21,13,25,15,"s",2),px(25,15,"g"),px(23,14,"y")
+  line(16,16,21,13,"c",2),line(21,13,25,15,"c",2),px(25,15,"g"),px(23,14,"y")
 );
 
 // Cañón: gatito metido en un barril; orejas y cara sobresalen claramente de la boca.
