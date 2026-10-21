@@ -11,7 +11,7 @@ const board = () => ({ rows: SIZE, cols: SIZE, holes: new Set(), terrain: new Ma
 const make = (id, type, color, row, col) => ({ id, type, color, row, col });
 export function newHunt(key = 'normal') {
   const diff = DIFFS[key] || DIFFS.normal;
-  return { diff, board: board(), pieces: [make('hunter', 'knight', 'light', 6, 3), make('runner', 'pawn', 'dark', 3, 3)], turns: diff.turns, over: null, last: null, escaped: 0 };
+  return { diff, board: board(), pieces: [make('hunter', 'rook', 'light', 6, 3), make('runner', 'pawn', 'dark', 3, 3)], turns: diff.turns, over: null, last: null, escaped: 0 };
 }
 export const legal = (s) => s.over ? [] : legalMoves(s.pieces.find((p) => p.id === 'hunter'), s.pieces, s.board);
 export function move(s, row, col) {
