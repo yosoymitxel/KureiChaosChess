@@ -12,4 +12,13 @@ assert.equal(s.pieces.find((p) => p.id === 'guard').row, 4);
 assert.equal(move(s, 0, 4), true);
 assert.equal(s.over, 'win', 'reaching the exit wins');
 assert.equal(legal(s).length, 0);
-console.log('Escape del tablero: reglas básicas OK');
+const routes={facil:[[4,4],[2,5],[0,4]],normal:[[4,2],[2,3],[0,4]],dificil:[[4,2],[2,3],[0,4]]};
+for(const [level,route] of Object.entries(routes)){
+ const game=newEscape(level);
+ for(const [row,col] of route){
+  assert.ok(legal(game).some(m=>m.row===row&&m.col===col),level+' route must use legal moves');
+  assert.equal(move(game,row,col),true);
+ }
+ assert.equal(game.over,'win',level+' route reaches the exit');
+}
+console.log('Escape del tablero: checks básicos y rutas por dificultad OK');
