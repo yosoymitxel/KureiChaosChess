@@ -475,6 +475,9 @@ export class BoardView {
     animate(tiles, {
       opacity: [0, 1], z: [-120, 0], duration: this.d(520), ease: 'outExpo',
       delay: (el) => this.d(+el.style.getPropertyValue('--d') * 45),
+      // outExpo no acaba exacto: una losa a -0.1 px queda hundida y con opacidad 0.999 aplana el 3D
+      // (toda opacidad < 1 lo hace), así que su canto desaparece. Al terminar se limpian las dos.
+      onComplete: () => tiles.forEach((t) => { t.style.removeProperty('transform'); t.style.removeProperty('opacity'); }),
     });
     await wait(this.d(260));
     // El jefe no baja con el resto: espera fuera de cuadro y cae una sola vez, con su impacto.
