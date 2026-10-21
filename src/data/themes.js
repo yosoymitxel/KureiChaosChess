@@ -3,7 +3,6 @@
 // Shop, pause, settings and gallery all read this list, so a new table is one entry here.
 import { PIXEL_THEMES } from './pixel-themes.js';
 import { PIXEL_PACKS, PIXEL_BASE } from './pixel-packs.js';
-import { pixelThemeTextures } from './pixel-theme-art.js';
 
 export const THEMES = {
   walnut: {
@@ -68,14 +67,13 @@ export const THEMES = {
 // Fondos y marcos del tema píxel como variables de CSS. Una variante que el tema no dibujó usa su
 // losa lisa; si tampoco la tiene, la del tema base.
 const PX_IMAGES = { 'tile-a': [], 'tile-a2': ['tile-a'], 'tile-a3': ['tile-a'], 'tile-b': [], 'tile-b2': ['tile-b'], 'tile-b3': ['tile-b'], table: [], panel: [], boton: [] };
-function pixelImages(pack, vars = {}) {
-  const custom = pixelThemeTextures(pack, vars);
+function pixelImages(pack) {
   const has = (p, n) => PIXEL_PACKS[p] && [...PIXEL_PACKS[p].bg, ...PIXEL_PACKS[p].ui].includes(n);
   const out = {};
   for (const [name, alts] of Object.entries(PX_IMAGES)) {
     const own = [name, ...alts].find((n) => has(pack, n));
     const [p, n] = own ? [pack, own] : [PIXEL_BASE, name];
-    out['px-' + name] = custom['px-' + name] || `url(../assets/pixel/${p}/${n}.png)`; // relativa a css/, donde se usa
+    out['px-' + name] = `url(../assets/pixel/${p}/${n}.png)`; // relativa a css/, donde se usa
   }
   return out;
 }
@@ -86,7 +84,7 @@ export function applyTheme(id) {
   const s = document.documentElement.style;
   // Un tema puede traer variables que otro no (la interfaz de un tema píxel): se limpian antes.
   for (const k of applied) s.removeProperty(k);
-  const vars = { ...t.vars, ...(t.pack ? pixelImages(t.pack, t.vars) : {}) };
+  const vars = { ...t.vars, ...(t.pack ? pixelImages(t.pack) : {}) };
   applied = Object.keys(vars).map((k) => '--' + k);
   for (const [k, v] of Object.entries(vars)) s.setProperty('--' + k, v);
   // El modo de arte viaja con el tema ("pixel" viste el juego con el set de pxl del tema).
