@@ -105,4 +105,6 @@ personalización y la galería.
 
 ## La cacería (Zugzwang)
 
+La huida reutiliza `src/game/rules.js` para los saltos del caballo y `MiniGrid`/`hopPiece` para tablero y animación; solo añade la condición de salida y el avance del guardia.
+
 El movimiento del cazador reutiliza `src/game/rules.js` (`legalMoves`) y las siluetas de `src/view/piece-art.js`; el tablero y los estados visuales reutilizan `MiniGrid` y la animación `hopPiece`. La novedad se limita al objetivo de persecución y al ritmo de escape del peón, no a un segundo sistema de movimiento o de dibujo.
