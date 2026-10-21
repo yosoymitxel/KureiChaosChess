@@ -38,7 +38,7 @@ export function CaceriaScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
         <span class="chip">El fugitivo escapa por arriba</span>
       </div>
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="La cacería" gridRef=${gridRef} boardClass="bm-slab" onTap=${tap} />
-      <${MiniTools} mini="caceria" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve la torre por líneas rectas y captura al peón carmesí antes de que llegue a la fila superior. El fugitivo avanza según la dificultad; el tablero marca las casillas válidas.<//>
+      <${MiniTools} mini="caceria" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve la reina con sus movimientos legales y captura al peón carmesí antes de que llegue a la fila superior. El fugitivo avanza según la dificultad; el tablero marca las casillas válidas.<//>
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Alcanzaste al fugitivo.' : 'El fugitivo llegó a la salida o se agotaron las jugadas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
   </div>`;
