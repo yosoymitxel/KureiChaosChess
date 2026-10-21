@@ -1,1 +1,1 @@
-Full-source rebuild after tightening panda hydra left/right mass and bounds.
+Final full-source render after making the calavera pawn's skull silhouette unmistakable.
