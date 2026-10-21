@@ -1,7 +1,7 @@
 name: Visual QA
 on:
   push:
-    branches: [feature/minigame-caceria, ccr-3bb531ce-bi147p, feat/five-theme-art, feat/refined-four-themes-v2]
+    branches: [feature/minigame-caceria, ccr-3bb531ce-bi147p, feat/five-theme-art
   workflow_dispatch:
 jobs:
   screenshots:
