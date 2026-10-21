@@ -24,12 +24,10 @@ jobs:
       - name: Renderizar los cinco temas con ClaudePXL
         run: |
           set -euo pipefail
-          for theme in calaveras-ataudes vocaloid-miku gatos-negros-naranjosos colibries-flores-lilas pandas-mapaches; do
-            for file in art/temas/"$theme"/*.px.js; do
-              [ -f "$file" ] || continue
-              echo "Renderizando $file"
-              npx --yes github:crsolver/claude-pxl build "$file"
-            done
+          for file in art/temas/*/*.px.js; do
+            [ -f "$file" ] || continue
+            echo "Renderizando $file"
+            npx --yes github:crsolver/claude-pxl build "$file"
           done
       - name: Regenerar PNG y registros de la tienda
         run: node tools/pixel-art.mjs
