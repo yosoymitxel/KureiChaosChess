@@ -4,7 +4,7 @@ ramps("bOoWw","Rr","Yy","Gg","Mm","Ee","Tt","Cc","Pp");
 const piece=(n,o,...d)=>sprite(n,{...o,outline:"k"},...d);
 const skull=(x,y,s=1)=>[ellipse(x,y,4*s,3*s,"g"),rect(x-3*s,y+1*s,6*s,3*s,"G"),rect(x-2*s,y+3*s,4*s,2*s,"g"),rect(x-2*s,y-1*s,2*s,2*s,"k"),rect(x+1*s,y-1*s,2*s,2*s,"k"),px(x,y+1*s,"k"),hline(x-2*s,y+3*s,4*s,"k")];
 const candle=(x,y,h)=>[rect(x-3,y,6,h,"W"),rect(x-2,y,2,h-1,"g"),hline(x-3,y+h-1,6,"b"),poly([x-2,y,x,y-5,x+2,y],"y"),px(x,y-2,"e")];
-piece("pawn",{w:22,h:28},......candle(11,12,14),...skull(11,10),rect(6,24,10,2,"b"),px(10,16,"r"),px(12,16,"r"));
+piece("pawn",{w:22,h:28},...candle(11,12,14),...skull(11,10),rect(6,24,10,2,"b"),px(10,16,"r"),px(12,16,"r"));
 piece("rook",{w:26,h:31},poly([13,1,21,7,23,25,13,30,3,25,5,7],"O"),poly([13,4,18,9,19,23,13,27,7,23,8,9],"b"),hline(7,8,12,"y"),...skull(13,14,1),vline(13,20,5,"G"),rect(3,27,20,3,"t"),px(13,22,"r"));
 piece("knight",{w:32,h:30},poly([3,20,5,11,12,8,17,2,26,5,30,12,26,15,21,13,17,20,24,25,10,25],"O"),poly([12,9,17,4,24,7,26,12,19,14,16,20,10,18],"b"),rect(7,21,21,4,"W"),rect(11,25,4,3,"b"),rect(23,25,4,3,"b"),...skull(20,10,0.8),px(19,9,"e"),line(4,18,1,25,"G",2),px(2,25,"G"));
 piece("bishop",{w:26,h:32},poly([13,1,20,8,19,14,23,29,3,29,7,14,6,8],"b"),rect(8,9,10,7,"O"),...skull(13,11,0.8),vline(13,18,10,"W"),hline(9,26,8,"y"),px(13,24,"r"),rect(10,29,6,2,"t"));
