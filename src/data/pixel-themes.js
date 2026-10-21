@@ -55,6 +55,37 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "gatos"
   },
+  "goticas": {
+    "id": "goticas",
+    "name": "Góticas",
+    "swatch": [
+      "#121318",
+      "#c2c0bb",
+      "#586b55",
+      "#9cae94"
+    ],
+    "vars": {
+      "table": "#121318",
+      "table-2": "#1d1e25",
+      "tile-a": "#c2c0bb",
+      "tile-b": "#65636d",
+      "tile-side": "#3b3b45",
+      "side-light": "#d9d7cc",
+      "side-dark": "#586b55",
+      "side-wild": "#9cae94",
+      "paper": "#e6e2d8",
+      "paper-2": "#cbc8c1",
+      "paper-3": "#aaa7a4",
+      "ink": "#22232a",
+      "ink-2": "#484852",
+      "accent": "#586b55",
+      "accent-ink": "#f1eee4",
+      "brass": "#a7a18b",
+      "muted": "#777780"
+    },
+    "art": "pixel",
+    "pack": "goticas"
+  },
   "goticas-clonas": {
     "id": "goticas-clonas",
     "name": "Góticas Clonas",
@@ -85,6 +116,37 @@ export const PIXEL_THEMES = {
     },
     "art": "pixel",
     "pack": "goticas-clonas"
+  },
+  "goticas-waifu": {
+    "id": "goticas-waifu",
+    "name": "Góticas Waifu",
+    "swatch": [
+      "#100d16",
+      "#c8bdc9",
+      "#b33b61",
+      "#8ed1c1"
+    ],
+    "vars": {
+      "table": "#100d16",
+      "table-2": "#1b1422",
+      "tile-a": "#c8bdc9",
+      "tile-b": "#514454",
+      "tile-side": "#302638",
+      "side-light": "#eadfe9",
+      "side-dark": "#b33b61",
+      "side-wild": "#8ed1c1",
+      "paper": "#eee4ed",
+      "paper-2": "#d9cbd9",
+      "paper-3": "#bcaabb",
+      "ink": "#201725",
+      "ink-2": "#453548",
+      "accent": "#9c234d",
+      "accent-ink": "#fff0f5",
+      "brass": "#d6b0ca",
+      "muted": "#726174"
+    },
+    "art": "pixel",
+    "pack": "goticas-waifu"
   },
   "halloween": {
     "id": "halloween",
