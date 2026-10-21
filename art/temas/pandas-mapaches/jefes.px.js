@@ -36,7 +36,7 @@ const ringTail=(x,y)=>[
 ];
 
 // Titán: panda guardián de bambú, gran masa de oso, brazos negros y una corona de hojas.
-boss("boss-titan",{w:44,h:43},
+boss("boss-titan",{w:44,h:42},
   ellipse(22,27,15,11,"w"),ellipse(13,28,6,7,"h"),ellipse(31,28,6,7,"h"),
   poly([8,31,13,26,20,29,24,29,31,26,36,31,33,39,11,39],"W"),
   rect(13,35,6,5,"h"),rect(25,35,6,5,"h"),rect(11,40,8,2,"Q"),rect(25,40,8,2,"Q"),
@@ -81,7 +81,7 @@ boss("boss-golem",{w:42,h:42},
 );
 
 // Jinete: panda rojo explorador, cola anillada, bufanda carmesí y lanza de guardabosques.
-boss("boss-rider",{w:38,h:44},
+boss("boss-rider",{w:38,h:42},
   ...ringTail(25,30),poly([3,29,9,23,25,23,34,29,31,37,7,37],"R"),ellipse(19,31,12,5,"r"),
   rect(8,35,5,6,"R"),rect(25,35,5,6,"R"),rect(7,41,7,2,"Q"),rect(24,41,7,2,"Q"),
   poly([8,17,12,8,20,5,28,10,30,20,25,29,10,28],"O"),poly([12,17,24,17,25,28,12,28],"r"),
@@ -91,7 +91,7 @@ boss("boss-rider",{w:38,h:44},
 );
 
 // Muralla: fortín de bosque con tres ventanales de personajes: panda, mapache y panda rojo.
-boss("boss-wall",{w:48,h:37},
+boss("boss-wall",{w:46,h:37},
   rect(2,12,44,23,"q"),poly([1,12,6,4,13,9,21,1,28,9,36,4,47,12],"O"),
   ...[5,18,31].map(x=>rect(x,14,12,17,"T")),
   ...[5,18,31].map(x=>[hline(x,14,12,"c"),rect(x+2,16,8,2,"M"),rect(x+2,25,8,2,"M"),hline(x+2,30,8,"q")]),
