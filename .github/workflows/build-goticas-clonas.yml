@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: '22.18.0'
       - name: Renderizar sprites con Claude-PXL
-        run: npx --yes github:crsolver/claude-pxl build art/temas/goticas-clonas/piezas.px.js --out out
+        run: npx --yes github:crsolver/claude-pxl build art/temas/goticas-clonas/piezas.px.js --out ../../../out
       - name: Importar tema y generar registros
         run: node tools/pixel-art.mjs
       - name: Comprobar sintaxis y registro
