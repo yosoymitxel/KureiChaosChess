@@ -17,30 +17,7 @@ try {
   console.error('[Banco de pruebas] No se pudieron cargar todos los temas; se usa el catálogo básico.', error);
 }
 
-const MINIS = [
-  ['caceria', 'Minijuego · La cacería'],
-  ['escape', 'Minijuego · Escape del tablero'],
-  ['bodyguard', 'Minijuego · El guardaespaldas'],
-  ['giantHunt', 'Minijuego · Caza de gigantes'],
-  ['minefield', 'Minijuego · Campo minado'],
-  ['contraband', 'Minijuego · Contrabando dimensional'],
-  ['laboratory', 'Minijuego · El laboratorio'],
-  ['collapsingFloor', 'Minijuego · El suelo se acaba'],
-  ['kingImpostor', 'Minijuego · El rey impostor'],
-  ['connect4', 'Minijuego · Conecta 4'],
-  ['bomber', 'Minijuego · Bombardero'],
-  ['barrier', 'Minijuego · Barrera'],
-  ['izombie', 'Minijuego · Yo, zombi'],
-  ['bowling', 'Minijuego · Boliche'],
-  ['laststand', 'Minijuego · Última resistencia'],
-  ['mates', 'Minijuego · Mate en uno'],
-  ['knight', 'Minijuego · Ruta del caballo'],
-  ['queens', 'Minijuego · Reinas'],
-  ['marcianos', 'Minijuego · Marcianitos'],
-  ['checkers', 'Minijuego · Damas'],
-  ['fusion', 'Minijuego · Fusión'],
-  ['duel', 'Minijuego · Duelo'],
-  ['hockey', 'Minijuego · Hockey de mesa'],
+const BOARD_VARIANTS = [
   ['board:none', 'TABLERO NORMAL · Terreno llano'],
   ['board:promote', 'TABLERO NORMAL · Coronación'],
   ['board:chaos', 'TABLERO NORMAL · Terreno inestable'],
@@ -51,6 +28,11 @@ const MINIS = [
   ['board:zombie', 'TABLERO NORMAL · Plaga zombi'],
   ['board:elite', 'TABLERO NORMAL · Élite'],
   ['board:boss', 'TABLERO NORMAL · Jefe final'],
+];
+const MINIS = [
+  ...Object.entries((await import('./data/minigame-catalog.js')).MINIGAMES)
+    .map(([id, game]) => [id, `Minijuego · ${game.name}`]),
+  ...BOARD_VARIANTS,
 ];
 
 const themeSelect = document.getElementById('theme');
