@@ -28,7 +28,7 @@ const fork=(x,y)=>[
 const bloom=(x,y)=>[px(x,y-2,"p"),px(x-2,y-1,"P"),px(x,y-1,"p"),px(x+2,y-1,"P"),px(x-2,y+1,"p"),px(x,y+1,"P"),px(x+2,y+1,"p"),px(x,y+2,"p"),px(x,y,"y")];
 
 // Titán: colibrí imperial; pico largo, garganta violeta, cola bifurcada, corona floral.
-boss("boss-titan",{w:46,h:44},
+boss("boss-titan",{w:46,h:42},
   poly([8,25,13,19,26,20,36,26,39,34,30,38,13,36,5,32],"b"),
   poly([14,27,28,25,33,34,15,35],"T"),...fork(21,29),...wing(15,22,1.25),
   ...bird(23,17,1.35,"p"),line(26,16,44,12,"k",2),px(44,12,"M"),px(41,13,"y"),
@@ -73,7 +73,7 @@ boss("boss-golem",{w:42,h:42},
 );
 
 // Jinete: colibrí peregrino de silueta fina, montado sobre una hoja-loto.
-boss("boss-rider",{w:38,h:44},
+boss("boss-rider",{w:38,h:42},
   poly([3,31,10,25,19,23,28,26,35,32,31,38,7,38],"T"),
   poly([9,31,18,27,27,30,24,35,12,35],"t"),line(12,32,8,37,"T",2),line(26,32,30,37,"T",2),
   ...fork(19,26),...wing(14,19,1),...bird(19,12,1.05,"e"),line(22,11,35,8,"k",2),px(35,8,"M"),
@@ -83,7 +83,7 @@ boss("boss-rider",{w:38,h:44},
 );
 
 // Muralla: jardín vertical de flores y cinco tallos, con pájaros posados en diferentes alturas.
-boss("boss-wall",{w:48,h:37},
+boss("boss-wall",{w:46,h:37},
   rect(2,11,44,24,"b"),rect(4,13,40,20,"O"),
   ...[7,15,23,31,39].map(x=>[vline(x,14,17,"T"),line(x,18,x-3,14,"t",1),line(x,22,x+3,18,"T",1)]),
   ...[7,23,39].flatMap((x,i)=>[...bloom(x,18+i%2*4),...bloom(x+2,25)]),
@@ -93,7 +93,7 @@ boss("boss-wall",{w:48,h:37},
 );
 
 // Devorador: colibrí gigante con pico curvo, garganta rubí y alas abiertas como una flor carnívora.
-boss("boss-devourer",{w:44,h:43},
+boss("boss-devourer",{w:44,h:42},
   ellipse(22,24,11,9,"O"),ellipse(21,24,8,7,"W"),...fork(20,29),
   ...wing(13,21,1.15),...wing(25,20,1.0),...bird(22,15,1.25,"e"),
   line(25,14,43,9,"k",2),px(43,9,"M"),px(39,10,"y"),
