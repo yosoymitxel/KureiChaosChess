@@ -14,44 +14,74 @@
   {"imports":{"preact":"https://cdn.jsdelivr.net/npm/preact@10.29.8/dist/preact.module.js","preact/hooks":"https://cdn.jsdelivr.net/npm/preact@10.29.8/hooks/dist/hooks.module.js","htm":"https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.module.js","animejs":"https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.esm.min.js","motion":"https://cdn.jsdelivr.net/npm/motion@12.43.0/+esm"}}
   </script>
   <style>
-    html,body { height:100%; overflow:auto; }
+    html,body { min-height:100%; }
     body { user-select:auto; }
-    .catalog { min-height:100dvh; display:flex; flex-direction:column; gap:14px; padding: max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left)); }
-    .catalog-head { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
+    .catalog { min-height:100dvh; display:flex; flex-direction:column; gap:14px; padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left)); }
+    .catalog-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
     .catalog-head h1 { font-size:clamp(22px,4vw,32px); }
     .catalog-head p { margin:4px 0 0; color:var(--paper-3); font-size:13px; }
-    .catalog-controls { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; padding:12px; }
+    .catalog-layout { display:grid; grid-template-columns:minmax(220px,300px) minmax(0,1fr); gap:14px; align-items:stretch; }
+    .catalog-controls { display:flex; flex-direction:column; gap:12px; padding:14px; align-self:start; }
+    .catalog-section { display:grid; gap:6px; padding-bottom:12px; border-bottom:1px solid color-mix(in srgb,var(--ink) 18%,transparent); }
+    .catalog-section:last-of-type { border-bottom:0; padding-bottom:0; }
+    .catalog-section h2 { font-size:15px; margin:0; color:var(--ink); }
     .catalog-field { display:grid; gap:5px; min-width:0; color:var(--ink); font-size:12px; font-weight:800; }
     .catalog-field select { width:100%; min-width:0; min-height:44px; border:2px solid var(--ink); border-radius:9px; padding:8px; color:var(--ink); background:var(--paper); font:inherit; }
-    .catalog-stage { flex:1; min-height:620px; overflow:hidden; border:2px solid var(--ink); border-radius:14px; background:var(--table); }
-    .catalog-stage iframe { display:block; width:100%; height:100%; min-height:620px; border:0; }
+    .catalog-stage { min-width:0; min-height:680px; overflow:hidden; border:2px solid var(--ink); border-radius:14px; background:var(--table); }
+    .catalog-stage iframe { display:block; width:100%; height:100%; min-height:680px; border:0; }
     .catalog-note { margin:0; color:var(--paper-3); font-size:12px; }
-    @media(max-width:650px) {
-      .catalog-controls { grid-template-columns:1fr; }
-      .catalog-stage,.catalog-stage iframe { min-height: min(76dvh,780px); }
-      .catalog-head { align-items:flex-start; }
+    .catalog-board-link { display:flex; flex-direction:column; gap:6px; padding:12px; border:1px solid color-mix(in srgb,var(--ink) 22%,transparent); border-radius:10px; text-decoration:none; color:var(--ink); }
+    .catalog-board-link strong { font-size:14px; }
+    .catalog-board-link span { font-size:12px; font-weight:500; line-height:1.4; }
+    @media(max-width:760px) {
+      .catalog-layout { grid-template-columns:1fr; }
+      .catalog-controls { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
+      .catalog-section { min-width:0; }
+      .catalog-section.board-section { grid-column:1/-1; }
+      .catalog-stage,.catalog-stage iframe { min-height: min(70dvh,760px); }
     }
+    @media(max-width:420px) { .catalog-controls { grid-template-columns:1fr; } .catalog-section.board-section { grid-column:auto; } }
   </style>
 </head>
 <body>
   <main class="catalog">
     <header class="catalog-head">
-      <a class="btn ghost sm" href="lab.html">← Laboratorio</a>
-      <div><h1>Banco de pruebas</h1><p>Sin iniciar sesión, comprar mesas ni avanzar una run.</p></div>
+      <div>
+        <a class="btn ghost sm" href="lab.html">← Laboratorio</a>
+        <h1>Banco de pruebas</h1>
+        <p>Probá temas y minijuegos por separado, sin compras ni progreso guardado.</p>
+      </div>
     </header>
-    <section class="catalog-controls panel" aria-label="Opciones de prueba">
-      <label class="catalog-field">Grupo
-        <select id="group"><option value="minis">Minijuegos</option><option value="themes">Temas / mesas</option></select>
-      </label>
-      <label class="catalog-field" id="item-field">Minijuego
-        <select id="item"></select>
-      </label>
-      <label class="catalog-field">Dificultad
-        <select id="difficulty"><option value="easy">Fácil</option><option value="normal" selected>Normal</option><option value="hard">Difícil</option></select>
-      </label>
-    </section>
-    <section class="catalog-stage" aria-label="Vista previa interactiva"><iframe id="preview" title="Vista previa del juego" src="tests/visual.html?mini=caceria&theme=walnut&diff=normal"></iframe></section>
-    <p class="catalog-note">Vista de prueba con las pantallas reales del juego. El progreso y las compras no se guardan desde aquí.</p>
+    <div class="catalog-layout">
+      <aside class="catalog-controls panel" aria-label="Controles de vista previa">
+        <section class="catalog-section">
+          <h2>1. Selector de tema</h2>
+          <label class="catalog-field" for="theme">Tema / mesa
+            <select id="theme"></select>
+          </label>
+        </section>
+        <section class="catalog-section">
+          <h2>2. Selector de minijuego</h2>
+          <label class="catalog-field" for="mini">Minijuego
+            <select id="mini"></select>
+          </label>
+          <label class="catalog-field" for="difficulty">Dificultad
+            <select id="difficulty"><option value="easy">Fácil</option><option value="normal" selected>Normal</option><option value="hard">Difícil</option></select>
+          </label>
+        </section>
+        <section class="catalog-section board-section">
+          <h2>3. Tablero completo</h2>
+          <a class="catalog-board-link panel" href="lab.html">
+            <strong>Abrir laboratorio de tablero ↗</strong>
+            <span>Vista separada para probar el tablero completo, las escenas y la cámara sin mezclarlo con los selectores.</span>
+          </a>
+        </section>
+      </aside>
+      <section class="catalog-stage" aria-label="Vista previa interactiva">
+        <iframe id="preview" title="Vista previa del minijuego" src="tests/visual.html?mini=caceria&theme=walnut&diff=normal"></iframe>
+      </section>
+    </div>
+    <p class="catalog-note">La vista previa usa las pantallas reales del juego. Las compras y el progreso no se guardan aquí.</p>
   </main>
   <script type="module" src="src/lab-catalog.js"></script>
 </body>
