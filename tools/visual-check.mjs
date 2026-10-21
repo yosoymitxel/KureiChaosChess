@@ -52,6 +52,83 @@ try {
     }
     await context.close();
   }
+
+  // Verify that the live lab selector loads each new theme's own sprites on phone and desktop.
+  const previewThemes = ['calaveras-ataudes','vocaloid-miku','gatos-negros-naranjosos','colibries-flores-lilas','pandas-mapaches'];
+  for (const viewport of viewports) {
+    const context = await browser.newContext({
+      viewport: { width: viewport.width, height: viewport.height },
+      deviceScaleFactor: 1,
+      isMobile: viewport.name === 'mobile',
+      hasTouch: viewport.name === 'mobile',
+    });
+    const page = await context.newPage();
+    const consoleErrors = [];
+    const failedPixelAssets = [];
+    page.on('pageerror', e => consoleErrors.push(e.message));
+    page.on('console', m => { if (m.type() === 'error') consoleErrors.push(m.text()); });
+    page.on('response', response => {
+      if (response.status() >= 400 && response.url().includes('/assets/pixel/')) {
+        failedPixelAssets.push(response.status() + ' ' + response.url());
+      }
+    });
+    try {
+      await page.goto(base + '/lab-preview.html', { waitUntil: 'domcontentloaded', timeout: 45000 });
+      await page.locator('#theme').waitFor({ timeout: 20000 });
+      await page.waitForFunction(() => {
+        const themes = document.querySelector('#theme');
+        const minis = document.querySelector('#mini');
+        return themes && themes.options.length > 10 && minis && minis.options.length > 5;
+      }, null, { timeout: 20000 });
+      const options = await page.locator('#theme option').evaluateAll(nodes => nodes.map(n => n.value));
+      const missingOptions = previewThemes.filter(id => !options.includes(id));
+      if (missingOptions.length) throw new Error('Missing dynamic theme options: ' + missingOptions.join(', '));
+      await page.locator('#mini').selectOption('board:none');
+      for (const id of previewThemes) {
+        consoleErrors.length = 0;
+        await page.locator('#theme').selectOption(id);
+        await page.waitForFunction(expected => {
+          const frame = document.querySelector('#preview');
+          const doc = frame && frame.contentDocument;
+          return frame && frame.src.includes('tests/visual-board.html') &&
+            doc && doc.readyState === 'complete' &&
+            doc.documentElement.dataset.pack === expected &&
+            doc.documentElement.dataset.art === 'pixel' &&
+            !!doc.querySelector('.pc-art image');
+        }, id, { timeout: 25000 });
+        const rendered = await page.locator('#preview').evaluate(frame => {
+          const doc = frame.contentDocument;
+          const sprite = doc.querySelector('.pc-art image');
+          return {
+            pack: doc.documentElement.dataset.pack,
+            art: doc.documentElement.dataset.art,
+            spriteHref: sprite ? (sprite.getAttribute('href') || sprite.getAttribute('xlink:href') || '') : '',
+            spriteCount: doc.querySelectorAll('.pc-art image').length,
+            boardTiles: doc.querySelectorAll('.tile').length,
+            scrollWidth: doc.documentElement.scrollWidth,
+            clientWidth: doc.documentElement.clientWidth,
+          };
+        });
+        if (!rendered.spriteHref.includes('/assets/pixel/' + id + '/')) {
+          throw new Error(id + ': visible sprite does not use its own PNG: ' + rendered.spriteHref);
+        }
+        if (!rendered.spriteCount || !rendered.boardTiles) throw new Error(id + ': empty board or pieces');
+        if (rendered.scrollWidth > rendered.clientWidth + 1) {
+          failures.push({ game: 'lab-preview', theme: id, viewport: viewport.name, error: 'overflow ' + rendered.scrollWidth + '>' + rendered.clientWidth });
+        }
+        if (failedPixelAssets.length) throw new Error(id + ': missing PNGs: ' + failedPixelAssets.join(' | '));
+        if (consoleErrors.length) throw new Error(id + ': console errors: ' + consoleErrors.join(' | '));
+        await page.locator('#preview').screenshot({ path: out + '/lab-preview-' + id + '-' + viewport.name + '.png' });
+        console.log(JSON.stringify({ game: 'lab-preview', theme: id, viewport: viewport.name, ...rendered }));
+      }
+    } catch (error) {
+      failures.push({ game: 'lab-preview', viewport: viewport.name, error: String(error) });
+      console.error(JSON.stringify({ game: 'lab-preview', viewport: viewport.name, error: String(error) }));
+    } finally {
+      await context.close();
+    }
+  }
+
 } finally {
   await browser.close();
 }

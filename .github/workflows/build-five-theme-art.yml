@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feat/five-theme-art
+      - ccr-3bb531ce-bi147p
     paths:
       - 'art/temas/_build-five-themes.trigger'
   workflow_dispatch:
@@ -14,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: feat/five-theme-art
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22.18.0'
@@ -39,5 +40,5 @@ jobs:
           git add assets/pixel src/data/pixel-packs.js src/data/pixel-themes.js
           if ! git diff --cached --quiet; then
             git commit -m "build(pixel-art): generate five new theme assets"
-            git push origin HEAD:feat/five-theme-art
+            git push origin HEAD:${{ github.ref_name }}
           fi
