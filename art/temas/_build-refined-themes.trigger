@@ -1,1 +1,1 @@
-Trigger all-source render after final one-pixel panda hydra bounds correction.
+Full-source rebuild after tightening panda hydra left/right mass and bounds.
