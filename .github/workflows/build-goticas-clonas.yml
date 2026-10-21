@@ -41,6 +41,7 @@ jobs:
           npm install --no-save http-server playwright
           npx playwright install --with-deps chromium
           (npx http-server -p 8123 -s -c-1 . > /tmp/zug-server.log 2>&1 &)
+          mkdir -p artifacts
           node --input-type=module <<'JS'
           import { chromium } from 'playwright';
           const browser = await chromium.launch({ headless: true });
@@ -50,6 +51,9 @@ jobs:
           ]) {
             const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
             await page.goto('http://127.0.0.1:8123/', { waitUntil: 'networkidle' });
+            await page.evaluate(() => localStorage.setItem('zugzwang.settings.v2', JSON.stringify({ theme: 'goticas-clonas' })));
+            await page.reload({ waitUntil: 'networkidle' });
+            if (await page.locator('html').getAttribute('data-pack') !== 'goticas-clonas') throw new Error('El tema Góticas Clonas no se aplicó en ' + name);
             await page.screenshot({ path: `artifacts/zug-${name}.png`, fullPage: true });
             await page.close();
           }
