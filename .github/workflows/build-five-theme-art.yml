@@ -1,0 +1,49 @@
+name: Build five new pixel themes
+on:
+  push:
+    branches:
+      - feat/five-theme-art
+    paths:
+      - 'art/temas/calaveras-ataudes/**'
+      - 'art/temas/vocaloid-miku/**'
+      - 'art/temas/gatos-negros-naranjosos/**'
+      - 'art/temas/colibries-flores-lilas/**'
+      - 'art/temas/pandas-mapaches/**'
+      - 'tools/pixel-art.mjs'
+      - '.github/workflows/build-five-theme-art.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/five-theme-art
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+      - name: Renderizar fuentes pixel art
+        run: |
+          for file in art/temas/*/*.px.js; do
+            [ -f "$file" ] || continue
+            npx --yes github:crsolver/claude-pxl build "$file"
+          done
+      - name: Generar recursos y registros
+        run: node tools/pixel-art.mjs
+      - name: Verificar salida
+        run: |
+          node --check src/data/pixel-themes.js
+          node --check src/data/pixel-packs.js
+          node tools/check-registry.mjs
+          node tools/art-check.mjs
+      - name: Guardar recursos generados
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/pixel src/data/pixel-packs.js src/data/pixel-themes.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(pixel-art): generate five new theme assets"
+            git push origin HEAD:feat/five-theme-art
+          fi
