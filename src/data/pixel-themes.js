@@ -405,6 +405,37 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "scifi"
   },
+  "vesper": {
+    "id": "vesper",
+    "name": "Vesper",
+    "swatch": [
+      "#0a0810",
+      "#2a2230",
+      "#b33b61",
+      "#8ed1c1"
+    ],
+    "vars": {
+      "table": "#0a0810",
+      "table-2": "#15101c",
+      "tile-a": "#2a2230",
+      "tile-b": "#1a1420",
+      "tile-side": "#3a2d40",
+      "side-light": "#e8d8e0",
+      "side-dark": "#b33b61",
+      "side-wild": "#8ed1c1",
+      "paper": "#1a1420",
+      "paper-2": "#2a2230",
+      "paper-3": "#3a2d40",
+      "ink": "#e8d8e0",
+      "ink-2": "#c9b8c4",
+      "accent": "#b33b61",
+      "accent-ink": "#fff0f5",
+      "brass": "#c9a36a",
+      "muted": "#726174"
+    },
+    "art": "pixel",
+    "pack": "vesper"
+  },
   "vocaloid-miku": {
     "id": "vocaloid-miku",
     "name": "Vocaloid · Hatsune Miku",
