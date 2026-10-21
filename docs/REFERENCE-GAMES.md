@@ -103,11 +103,16 @@ personalización y la galería.
 - Tráiler de Chess Mayhem: https://www.youtube.com/watch?v=ZoL8NLeReZQ (descrito por el dueño)
 
 
-## La cacería (Zugzwang)
+## Minijuegos nuevos de persecución y escolta
+
+### La cacería
+
+El movimiento del cazador reutiliza `src/game/rules.js` (`legalMoves`) y las siluetas de `src/view/piece-art.js`; el tablero y los estados visuales reutilizan `MiniGrid` y la animación `hopPiece`. La novedad se limita al objetivo de persecución y al ritmo de escape del peón.
+
+### Escape del tablero
 
 La huida reutiliza `src/game/rules.js` para los saltos del caballo y `MiniGrid`/`hopPiece` para tablero y animación; solo añade la condición de salida y el avance del guardia.
 
-El movimiento del cazador reutiliza `src/game/rules.js` (`legalMoves`) y las siluetas de `src/view/piece-art.js`; el tablero y los estados visuales reutilizan `MiniGrid` y la animación `hopPiece`. La novedad se limita al objetivo de persecución y al ritmo de escape del peón, no a un segundo sistema de movimiento o de dibujo.
+### El guardaespaldas
 
-
-El guardaespaldas reutiliza los movimientos legales de `src/game/rules.js`, las piezas existentes y `MiniGrid`/`hopPiece`; la lógica añadida es el avance por turnos del rey atacante y la condición de supervivencia.
+Reutiliza los movimientos legales de `src/game/rules.js`, las piezas existentes y `MiniGrid`/`hopPiece`; la lógica añadida es el avance por turnos del rey atacante y la condición de supervivencia.
