@@ -2,13 +2,22 @@ name: Build five new pixel themes
 on:
   push:
     branches:
-      - feat/five-theme-art
       - ccr-3bb531ce-bi147p
     paths:
       - 'art/temas/_build-five-themes.trigger'
+      - 'art/temas/calaveras-ataudes/**'
+      - 'art/temas/vocaloid-miku/**'
+      - 'art/temas/gatos-negros-naranjosos/**'
+      - 'art/temas/colibries-flores-lilas/**'
+      - 'art/temas/pandas-mapaches/**'
+      - 'tools/pixel-art.mjs'
+      - '.github/workflows/build-five-theme-art.yml'
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: pixel-art-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build-and-check:
     runs-on: ubuntu-latest
@@ -21,24 +30,34 @@ jobs:
           node-version: '22.18.0'
       - name: Renderizar fuentes pixel art
         run: |
+          set -euo pipefail
           for file in art/temas/*/*.px.js; do
             [ -f "$file" ] || continue
+            echo "Renderizando $file"
             npx --yes github:crsolver/claude-pxl build "$file"
           done
       - name: Generar recursos y registros
         run: node tools/pixel-art.mjs
       - name: Verificar salida
         run: |
+          set -euo pipefail
           node --check src/data/pixel-themes.js
           node --check src/data/pixel-packs.js
           node tools/check-registry.mjs
           node tools/art-check.mjs
+          for theme in calaveras-ataudes vocaloid-miku gatos-negros-naranjosos colibries-flores-lilas pandas-mapaches; do
+            test -s "assets/pixel/$theme/pawn_l.png"
+            test -s "assets/pixel/$theme/boss-titan_l.png"
+            test -s "assets/pixel/$theme/tile-a.png"
+            test -s "assets/pixel/$theme/table.png"
+            echo "$theme: sprites, jefe, losas y mesa generados"
+          done
       - name: Guardar recursos generados
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/pixel src/data/pixel-packs.js src/data/pixel-themes.js
           if ! git diff --cached --quiet; then
-            git commit -m "build(pixel-art): generate five new theme assets"
+            git commit -m "build(pixel-art): generate five theme assets"
             git push origin HEAD:${{ github.ref_name }}
           fi
