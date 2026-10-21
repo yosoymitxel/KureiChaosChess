@@ -25,6 +25,8 @@ Roguelike de ajedrez web: HTML/JS sin build, Preact + htm + anime.js + Motion po
 - Calidad: detector impeccable a 0 (`impeccable detect css src index.html lab.html`).
 
 ## Reglas
+- Respuestas al dueño ultracortas (estilo caveman). Ahorrar tokens: leer por trozos, pocas capturas.
+- Comentarios en código solo si explican algo no obvio.
 - Editar con la herramienta Edit, no con scripts. No tocar archivos "Generado por …".
 - Todo vive centralizado en `src/data/` y según tema píxel o no; lo nuevo se registra ahí y pasa `check-registry`.
 - Sonido: grabado en mesas normales, sintetizado en mesas píxel. Iconos y jardín: dos versiones, CSS elige.
