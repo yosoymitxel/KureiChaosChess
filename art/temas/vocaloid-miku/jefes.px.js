@@ -22,7 +22,7 @@ const twinTails=(x,y,len=15)=>[
 const star=(x,y,c="p")=>[px(x,y-2,c),px(x-1,y-1,c),px(x+1,y-1,c),hline(x-1,y,3,c),px(x,y+1,c)];
 
 // Titán: gigantesca Miku en traje de concierto, dos coletas, armadura de altavoces y un halo LED.
-boss("boss-titan",{w:46,h:44},
+boss("boss-titan",{w:46,h:42},
   poly([4,17,10,13,36,13,42,17,40,36,32,40,14,40,6,36],"X"),
   poly([10,19,36,19,34,36,12,36],"t"),rect(13,21,20,8,"k"),
   circ(17,25,5,"M"),circ(17,25,3,"X"),circ(17,25,1,"c"),
@@ -75,7 +75,7 @@ boss("boss-golem",{w:42,h:42},
 );
 
 // Jinete: diva virtual montada en un hoverboard, con cabello-cable y bastón de luz.
-boss("boss-rider",{w:38,h:44},
+boss("boss-rider",{w:38,h:42},
   poly([3,31,10,25,28,25,35,31,31,36,7,36],"X"),rect(8,31,6,3,"M"),rect(24,31,6,3,"M"),
   ...twinTails(19,10,17),poly([7,16,12,9,24,9,29,16,27,29,10,29],"O"),poly([12,17,23,17,26,28,10,28],"X"),
   ...mikuFace(19,11,1.1),poly([9,15,15,13,19,17,23,13,29,15,25,20,13,20],"c"),
@@ -86,7 +86,7 @@ boss("boss-rider",{w:38,h:44},
 );
 
 // Muralla: pared de pantallas y torres de sonido con líneas de ecualizador.
-boss("boss-wall",{w:48,h:37},
+boss("boss-wall",{w:46,h:37},
   rect(2,10,44,25,"X"),rect(4,12,40,20,"t"),hline(4,12,40,"c"),hline(4,31,40,"k"),
   ...[5,18,31].map((x,i)=>[
     rect(x,14,11,15,"k"),rect(x+1,15,9,12,"M"),
@@ -99,7 +99,7 @@ boss("boss-wall",{w:48,h:37},
 );
 
 // Devorador: una enorme boca de altavoz con dientes de neón y núcleo de graves.
-boss("boss-devourer",{w:44,h:43},
+boss("boss-devourer",{w:44,h:42},
   poly([8,10,15,4,29,4,36,10,41,24,35,35,28,40,16,40,8,35,3,24],"X"),
   poly([11,10,17,7,27,7,33,11,36,23,31,31,25,35,18,35,12,31,7,23],"M"),
   rect(10,14,24,13,"k"),poly([11,14,17,18,21,14,25,18,33,14,31,24,26,27,20,24,13,27],"R"),
