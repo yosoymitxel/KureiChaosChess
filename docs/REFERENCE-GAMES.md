@@ -116,3 +116,16 @@ La huida reutiliza `src/game/rules.js` para los saltos del caballo y `MiniGrid`/
 ### El guardaespaldas
 
 Reutiliza los movimientos legales de `src/game/rules.js`, las piezas existentes y `MiniGrid`/`hopPiece`; la lógica añadida es el avance por turnos del rey atacante y la condición de supervivencia.
+
+
+### Caza de gigantes
+
+Reutiliza `rules.js` para movimientos y golpes contra una pieza de huella 2×2; el coloso comparte la lógica de piezas grandes y puntos de vida de `bosses.js`. La regla nueva es ganar al agotar sus vidas antes del límite.
+
+### Campo minado
+
+Reutiliza el caballo, sus saltos legales y `MiniGrid`. El mapa de minas se mantiene como estado del minijuego; no crea una segunda lógica de movimiento.
+
+### Contrabando dimensional
+
+Reutiliza los saltos del caballo y la representación de portales `board.portals` que ya consume `Match.terrainAfterMove`; la regla específica es alcanzar la salida dentro del límite.
