@@ -101,3 +101,8 @@ personalización y la galería.
 - [Boiling Steam: Gambonanza review](https://boilingsteam.com/gambonanza-review/)
 - [Checkpoint Gaming: Gambonanza review](https://checkpointgaming.net/reviews/2026/05/gambonanza-review-checkmate/)
 - Tráiler de Chess Mayhem: https://www.youtube.com/watch?v=ZoL8NLeReZQ (descrito por el dueño)
+
+
+## La cacería (Zugzwang)
+
+El movimiento del cazador reutiliza `src/game/rules.js` (`legalMoves`) y las siluetas de `src/view/piece-art.js`; el tablero y los estados visuales reutilizan `MiniGrid` y la animación `hopPiece`. La novedad se limita al objetivo de persecución y al ritmo de escape del peón, no a un segundo sistema de movimiento o de dibujo.
