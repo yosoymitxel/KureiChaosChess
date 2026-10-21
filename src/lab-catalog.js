@@ -63,7 +63,7 @@ function updatePreview() {
     theme: themeSelect.value,
     diff: difficulty.value,
   });
-  frame.src = `tests/visual.html?${params.toString()}`;
+  if (miniSelect.value.startsWith('board:')) {\n    params.set('variant', miniSelect.value.slice('board:'.length));\n    params.delete('mini');\n    frame.src = `tests/visual-board.html?${params.toString()}`;\n  } else {\n    frame.src = `tests/visual.html?${params.toString()}`;\n  }
 }
 
 themeSelect.addEventListener('change', updatePreview);
