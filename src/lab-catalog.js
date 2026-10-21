@@ -8,10 +8,12 @@ const FALLBACK_THEMES = {
   noche: { id: 'noche', name: 'Noche' },
 };
 let THEMES = FALLBACK_THEMES;
+let hasFullThemeCatalog = false;
 try {
   const themesModule = await import('./data/themes.js');
   if (themesModule.THEMES && Object.keys(themesModule.THEMES).length) {
     THEMES = themesModule.THEMES;
+    hasFullThemeCatalog = true;
   }
 } catch (error) {
   console.error('[Banco de pruebas] No se pudieron cargar todos los temas; se usa el catálogo básico.', error);
@@ -51,7 +53,9 @@ function fillSelect(select, rows) {
   select.replaceChildren(fragment);
 }
 
-fillSelect(themeSelect, Object.values(THEMES).map(theme => [theme.id, theme.name]));
+if (hasFullThemeCatalog) {
+  fillSelect(themeSelect, Object.values(THEMES).map(theme => [theme.id, theme.name]));
+}
 fillSelect(miniSelect, MINIS);
 themeSelect.value = THEMES.walnut ? 'walnut' : Object.keys(THEMES)[0];
 miniSelect.value = 'caceria';
