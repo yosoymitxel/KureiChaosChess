@@ -47,7 +47,7 @@ function fillSelect(select, rows) {
     const option = document.createElement('option');
     option.value = id;
     option.textContent = name;
-    select.append(option);
+    fragment.append(option);
   }
   select.replaceChildren(fragment);
 }
