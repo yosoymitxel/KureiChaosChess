@@ -80,7 +80,7 @@ const usesSide = (img, from) => {
 };
 
 const packs = {}, themes = {};
-const ids = readdirSync(TEMAS).filter((d) => !d.startsWith('_') && existsSync(TEMAS + d + '/tema.json'))
+const ids = readdirSync(TEMAS).filter((d) => !d.startsWith('_') && d !== 'goticas-clonas' && existsSync(TEMAS + d + '/tema.json'))
   .sort((a, b) => (a === BASE ? -1 : b === BASE ? 1 : a.localeCompare(b)));
 const OUT = root + 'assets/pixel/';
 rmSync(OUT, { recursive: true, force: true });
