@@ -12,6 +12,6 @@ export function newKingImpostor(level='normal'){
  return {diff,pieces,impostor,turns:diff.turns,over:null,chosen:null};
 }
 export function choose(s,id){
- if(s.over||!s.pieces.some(p=>p.id===id&&p.color==='dark'))return false;
+ if(s.over||s.chosen===id||!s.pieces.some(p=>p.id===id&&p.color==='dark'))return false;
  s.chosen=id;if(id===s.impostor){s.over='win';return true;}s.turns--;if(s.turns<=0)s.over='lose';return true;
 }
