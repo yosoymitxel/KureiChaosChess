@@ -6,7 +6,7 @@ import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Topbar, useEnter } from '../components.js';
 import { Icon } from '../icons.js';
 import { Fx } from '../../view/fx.js';
-import { chipArt, POT, SOIL, plantArt, pondArt, MOSS, STEP, LANTERN, BRANCH, mapleLeaf, rakeArt, orbit, KOI_ORBITS, BUTTERFLY, CAN } from '../zen-art.js';
+import { chipArt, POT, SOIL, plantArt, pondArt, MOSS, STEP, LANTERN, BRANCH, mapleLeaf, rakeArt, orbit, KOI_ORBITS, BUTTERFLY, CAN, SHEARS, SHOVEL, POUCH, px } from '../zen-art.js';
 import { ZEN_KINDS, ZEN_NAMES, ZEN_MAX, ZEN_BASE, BASE_GRID, cellKey, expandCost, zenStage, zenSow, zenWater, zenDig, zenHarvest, zenExpand, zenLeaves, zenSweep, LEAF_COINS, BUTTERFLY_MS, butterflyGift, loadZen, saveZen } from '../../game/zen.js';
 import { award } from '../../game/achievements.js';
 import { COINS_PER_FLOWER, addCoins, charge, loadShop } from '../../game/shop.js';
@@ -20,6 +20,8 @@ const TOOLS = [
   { id: 'dig', icon: 'spade', name: 'Cavar' },
   { id: 'cut', icon: 'shears', name: 'Cortar' },
 ];
+// Lo que se lleva en la mano: sigue al puntero sobre el jardín y hace el gesto al tocar.
+const TOOL_ART = { sow: POUCH, water: CAN, dig: SHOVEL, cut: SHEARS };
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const later = (fn, ms = 40) => setTimeout(fn, ms); // tras el repintado de Preact
 // "el romero", "la salvia": el artículo que pide cada especie, para los avisos.
@@ -33,10 +35,11 @@ const OUT = [0.16, 1, 0.3, 1];
 // Una maceta completa: el tiesto quieto y la planta encima según su etapa, meciéndose a su ritmo.
 // `.zn-grow` es el asa de las animaciones (brotar, estirón, cortar) sin pisar el balanceo.
 function potArt(kind, stage, d = 0) {
+  const sprite = kind && ['sprout', 'bud', 'bloom'].includes(stage);
   return html`<svg class=${'zn-plant' + (kind ? ' zn-k-' + kind : ' zn-empty')} viewBox="0 0 24 24" aria-hidden="true">
-    ${POT}
-    <g class="zn-sway" style=${{ '--d': `-${d}s` }}><g class="zn-grow"><g transform="translate(12 15.3) scale(1.28) translate(-12 -15.3)">${kind && plantArt(kind, stage)}</g></g></g>
-    ${SOIL}
+    <g class="zn-vec">${POT}</g>${px('pot', 24, 24)}
+    <g class="zn-sway" style=${{ '--d': `-${d}s` }}><g class="zn-grow"><g class="zn-vec" transform="translate(12 15.3) scale(1.28) translate(-12 -15.3)">${kind && plantArt(kind, stage)}</g>${sprite && px(`${kind}-${stage}`, 24, 24)}</g></g>
+    <g class="zn-vec">${SOIL}</g>
   </svg>`;
 }
 
@@ -53,6 +56,8 @@ export function ZenScreen({ onBack, onShop }) {
   const [gain, setGain] = useState(null); // último regalo, para el aviso
   const [help, setHelp] = useState(false);
   const [pour, setPour] = useState(null); // regadera en el aire: { x, y, id }
+  const [act, setAct] = useState(null); // tijeras o pala haciendo su gesto: { tool, x, y, id }
+  const handRef = useRef(null);
   const [fly, setFly] = useState(null); // mariposa: { key, id }
   const coinRef = useRef(null), yardRef = useRef(null), fxRef = useRef(null), flyRef = useRef(null);
   const prevStage = useRef(null), leafCount = useRef(z.leaves.length), feedRef = useRef(null);
@@ -79,7 +84,33 @@ export function ZenScreen({ onBack, onShop }) {
   // Posiciones en la capa de efectos (la del patio) y piezas de cada maceta.
   const cellOf = (key) => yardRef.current?.querySelector(`[data-k="${key}"]`);
   const at = (el, bias = 0.5) => fxRef.current.pointOf(el, bias);
-  const growOf = (key) => cellOf(key)?.querySelector('.zn-grow');
+  // Anima la planta de un tiesto. Motion recuerda el último fotograma (tras cortar: subida, giro y
+  // escala 0), así que se vuelve a cero antes de cada animación o la siguiente planta nacería desplazada.
+  const growFx = (key, frames, opts) => {
+    const g = cellOf(key)?.querySelector('.zn-grow');
+    if (!g) return opts?.onComplete?.();
+    motion(g, { y: 0, rotate: 0, scale: 1, scaleY: 1 }, { duration: 0 });
+    motion(g, frames, opts);
+  };
+  // Punto de una casilla en coordenadas del jardín (para las herramientas, que viven en él).
+  const spot = (cell, fx = 0.5, fy = 0.5) => {
+    const c = cell.getBoundingClientRect(), y = yardRef.current.getBoundingClientRect();
+    return { x: c.left - y.left + c.width * fx, y: c.top - y.top + c.height * fy };
+  };
+  const gesture = (tool, cell, fy, ms) => {
+    const id = Date.now();
+    setAct({ tool, ...spot(cell, 0.5, fy), id });
+    setTimeout(() => setAct((a) => (a?.id === id ? null : a)), ms);
+  };
+  // La mano: con ratón, la herramienta acompaña al puntero (sin repintar: se mueve el elemento).
+  const hover = (e) => {
+    const el = handRef.current;
+    if (!el || e.pointerType !== 'mouse') return;
+    const y = yardRef.current.getBoundingClientRect();
+    el.style.translate = `${e.clientX - y.left}px ${e.clientY - y.top}px`;
+    el.classList.add('on');
+  };
+  const unhover = () => handRef.current?.classList.remove('on');
 
   // Las monedas saltan del punto de origen en arco y vuelan al monedero; el contador sube al llegar.
   const flyCoins = (from, n, amount) => {
@@ -100,36 +131,46 @@ export function ZenScreen({ onBack, onShop }) {
   // Gestos de cada acción.
   const fxSow = (key) => later(() => {
     const cell = cellOf(key);
+    playSfx('pop');
     if (!cell || reduced()) return;
     const p = at(cell, 0.66);
     fxRef.current.burst(p.x, p.y, { count: 10, color: SOIL_COLORS, speed: [40, 140], life: [0.3, 0.6], size: [2, 4], gravity: 500, shape: 'chunk', spread: Math.PI, angle: -Math.PI / 2 });
-    motion(growOf(key), { scale: [0, 1.25, 1] }, { duration: 0.6, ease: OUT });
+    growFx(key, { scale: [0, 1.25, 1] }, { duration: 0.6, ease: OUT });
   });
   const fxWater = (key) => {
     const cell = cellOf(key), yard = yardRef.current;
     if (!cell || reduced()) return;
     const c = cell.getBoundingClientRect(), y = yard.getBoundingClientRect();
-    setPour({ x: c.left - y.left + c.width * 0.62, y: c.top - y.top - c.height * 0.38, id: Date.now() });
+    // El pico (a 39 px del borde de la regadera) queda sobre el centro de la maceta: el chorro cae en la planta.
+    setPour({ x: c.left - y.left + c.width * 0.5 - 39, y: c.top - y.top - c.height * 0.38, id: Date.now() });
     setTimeout(() => {
+      playSfx('water');
+      growFx(key, { rotate: [0, -6, 4, 0], scaleY: [1, 0.94, 1.05, 1] }, { duration: 0.9, ease: 'easeInOut' }); // la planta agradece el agua
       const p = at(cell, 0.42);
       for (let i = 0; i < 3; i++) setTimeout(() => fxRef.current.burst(p.x + 6, p.y - 8, { count: 8, color: ['#9fd3ff', '#5aa9e6', '#e6f6ff'], speed: [30, 90], life: [0.35, 0.6], size: [1.5, 3], gravity: 900, spread: 0.7, angle: Math.PI / 2 + 0.3 }), i * 140);
     }, 420);
     setTimeout(() => setPour(null), 1500);
   };
+  // La pala se clava, palanquea y saca la tierra; el tiesto sale cuando vuela la tierra.
   const fxDig = (key) => later(() => {
     const cell = cellOf(key);
-    if (!cell || reduced()) return;
+    if (!cell) return;
+    if (reduced()) return playSfx('dig');
+    gesture('dig', cell, 0.62, 900);
+    setTimeout(() => { playSfx('dig'); dirt(cell); }, 330);
+  });
+  const dirt = (cell) => {
     const p = at(cell, 0.7);
     fxRef.current.burst(p.x, p.y, { count: 16, color: SOIL_COLORS, speed: [80, 260], life: [0.4, 0.8], size: [2.5, 5], gravity: 700, shape: 'chunk', spread: Math.PI * 0.9, angle: -Math.PI / 2 });
     fxRef.current.dust(p.x, p.y, 0.9);
     motion(cell.querySelector('.zn-plant'), { scale: [0.4, 1.12, 1], y: [8, -4, 0] }, { duration: 0.5, ease: OUT });
-  });
+  };
   const fxBloom = (key) => {
     const cell = cellOf(key);
     if (!cell || reduced()) return;
     const p = at(cell, 0.25), fl = getComputedStyle(cell.querySelector('.zn-plant')).getPropertyValue('--fl').trim() || '#ffcf6b';
     fxRef.current.sparkle(p.x, p.y, fl, 8);
-    motion(growOf(key), { scale: [1, 1.18, 0.96, 1] }, { duration: 0.6, ease: OUT });
+    growFx(key, { scale: [1, 1.18, 0.96, 1] }, { duration: 0.6, ease: OUT });
   };
 
   // Al cortar, la planta se recoge, vuelan pétalos de su color y las monedas van al monedero.
@@ -146,16 +187,24 @@ export function ZenScreen({ onBack, onShop }) {
       if (flores >= 3) award('flower_3');
       if (ZEN_KINDS.every((k) => (next.flores[k] || 0) > 0)) award('zen_all');
     };
-    if (!cell || reduced()) return done();
-    const p = at(cell, 0.25), fl = getComputedStyle(cell.querySelector('.zn-plant')).getPropertyValue('--fl').trim() || '#ffcf6b';
-    fxRef.current.burst(p.x, p.y, { count: 18, color: [fl, fl, '#fff'], speed: [60, 220], life: [0.6, 1.1], size: [2, 4], gravity: 160, drag: 0.9, shape: 'chunk' });
-    motion(growOf(key), { scale: [1, 1.15, 0], y: [0, -4, -10] }, { duration: 0.35, ease: [0.7, 0, 0.84, 0], onComplete: done });
+    if (!cell || reduced()) { playSfx('snip'); return done(); }
+    // Las tijeras bajan al tallo, abren y cierran dos veces (cada cierre suena) y la flor salta.
+    busyCut.current = true;
+    gesture('cut', cell, 0.3, 900);
+    setTimeout(() => playSfx('snip'), 330); // los dos cierres de las hojas (zn-snip, 37 % y 49 %)
+    setTimeout(() => {
+      busyCut.current = false;
+      const p = at(cell, 0.25), fl = getComputedStyle(cell.querySelector('.zn-plant')).getPropertyValue('--fl').trim() || '#ffcf6b';
+      fxRef.current.burst(p.x, p.y, { count: 18, color: [fl, fl, '#fff'], speed: [60, 220], life: [0.6, 1.1], size: [2, 4], gravity: 160, drag: 0.9, shape: 'chunk' });
+      growFx(key, { scale: [1, 1.15, 0], y: [0, -4, -10], rotate: [0, 0, 40] }, { duration: 0.35, ease: [0.7, 0, 0.84, 0], onComplete: done });
+    }, 560);
   };
+  const busyCut = useRef(false);
 
   // Un toque aplica la herramienta elegida; el estado cuenta la espera y las novedades.
   const tap = (type, key) => {
     if (type === 'raw') {
-      if (tool === 'dig') { apply(zenDig(z, key)); playSfx('tap'); fxDig(key); say('Tiesto nuevo: siembra cuando quieras.'); }
+      if (tool === 'dig') { apply(zenDig(z, key)); fxDig(key); say('Tiesto nuevo: siembra cuando quieras.'); }
       else say('Tierra virgen: elige Cavar para hacer un tiesto.');
       return;
     }
@@ -164,7 +213,6 @@ export function ZenScreen({ onBack, onShop }) {
       if (st.stage === 'empty') {
         if (!(z.seeds[seedKind] > 0)) return say(`Sin semillas de ${ZEN_NAMES[seedKind]}: caen al ganar nodos y se venden en la tienda.`);
         apply(zenSow(z, key, seedKind, now));
-        playSfx('tap');
         fxSow(key);
         say(`Sembraste ${the(seedKind)}: riega para acortar la espera.`);
       } else if (st.stage === 'bloom') say(`${cap(the(st.kind))} está en flor: córtala con las tijeras.`);
@@ -176,13 +224,13 @@ export function ZenScreen({ onBack, onShop }) {
       else {
         const next = zenWater(z, key, now);
         apply(next);
-        playSfx('tap');
         fxWater(key);
         say(`Regaste ${the(st.kind)}: flor en ${secs(zenStage(next, key, now).msLeft)}.`);
       }
     } else if (tool === 'dig') {
       say(st.stage === 'empty' ? 'Ese tiesto ya está cavado.' : 'Ahí ya hay una planta.');
     } else if (tool === 'cut') {
+      if (busyCut.current) return;
       if (st.stage === 'bloom') harvest(key, st.kind);
       else if (st.stage === 'empty') say('Ahí no hay flor que cortar.');
       else say(`${cap(the(st.kind))}: la flor abre en ${secs(st.msLeft)}.`);
@@ -198,7 +246,7 @@ export function ZenScreen({ onBack, onShop }) {
       setZ((cur) => { const n = zenSweep(cur, leaf); saveZen(n); return n; });
       flyCoins(from, 1, LEAF_COINS);
     };
-    playSfx('tap');
+    playSfx('leaf');
     if (reduced()) return done();
     const dir = leaf.x < z.size / 2 ? -1 : 1;
     motion(el, { x: [0, dir * 70], y: [0, -50, -90], rotate: [0, dir * 260], opacity: [1, 1, 0] }, { duration: 0.7, ease: 'easeOut', onComplete: done });
@@ -329,7 +377,7 @@ export function ZenScreen({ onBack, onShop }) {
       pellets.push(p);
     }
     feedRef.current = { pellets: [...(feedRef.current?.pellets.filter((p) => !p.eaten) || []), ...pellets] };
-    playSfx('tap');
+    playSfx('splash');
     say('Los koi vienen a comer.');
   };
 
@@ -407,7 +455,7 @@ export function ZenScreen({ onBack, onShop }) {
       <div class="zen-main">
         <div class="zen-scene">
           <div class="mini-stage">
-            <div class=${'zn-yard' + (tool === 'dig' ? ' dig' : '')} ref=${yardRef}>
+            <div class=${'zn-yard' + (tool === 'dig' ? ' dig' : '') + (act || pour ? ' acting' : '')} ref=${yardRef} onPointerMove=${hover} onPointerLeave=${unhover}>
               <div class="bm zn-tray" style=${{ '--n': z.size }} role="group" aria-label="Cantero del jardín">
                 ${rakeArt(z.size, objs, raw)}
                 ${cells}
@@ -415,7 +463,9 @@ export function ZenScreen({ onBack, onShop }) {
                   aria-label="Hoja caída: tócala para barrerla" onClick=${(e) => sweep(l, e.currentTarget)}>${mapleLeaf}</button>`)}
               </div>
               ${BRANCH}
-              ${pour && html`<span key=${pour.id} class="zn-canfx" style=${{ left: pour.x + 'px', top: pour.y + 'px' }} aria-hidden="true">${CAN}</span>`}
+              ${pour && html`<span key=${pour.id} class="zn-canfx" style=${{ left: pour.x + 'px', top: pour.y + 'px' }} aria-hidden="true">${CAN}<i class="zn-stream"></i></span>`}
+              ${act && html`<span key=${act.id} class=${'zn-toolfx t-' + act.tool} style=${{ left: act.x + 'px', top: act.y + 'px' }} aria-hidden="true">${TOOL_ART[act.tool]}</span>`}
+              <span class=${'zn-hand t-' + tool} ref=${handRef} aria-hidden="true">${TOOL_ART[tool]}</span>
               ${fly && html`<button key=${fly.id} ref=${flyRef} class="zn-fly" aria-label="Mariposa: tócala" onClick=${catchFly}>${BUTTERFLY}</button>`}
             </div>
           </div>

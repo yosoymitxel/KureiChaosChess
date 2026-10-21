@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Zugzwang · Reina (queen). Dibuja solo dentro del grupo "pieza"; la capa "guia" no entra al juego.
+     Colores: cuerpo #f3ead8, detalle #8a7a66, contorno #2a2233, ojos y luces #d9a441 (ver art/vector/LEEME.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="450" height="410" viewBox="0 0 45 41">
+  <g id="guia" opacity="0.4"><rect width="45" height="41" fill="none" stroke="#9fb7d8" stroke-width="0.1"/></g>
+  <g id="pieza" fill="#f3ead8" stroke="#2a2233" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM33 8.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/><path d="M9 28c8.5-1.5 21-1.5 27 0l2-14-7 11V11l-5.5 13.5-3-15-3 15-5.5-13.5V25L7 14z"/><path d="M9 28c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1 1 0 1.8 1 2 6.5 1 15.5 1 22 0 1-.2 2-1 1-2 0 0 0-1.5-1.5-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z"/><path d="M11.5 32c3.5-1 18.5-1 22 0" fill="none" stroke="#8a7a66" stroke-width="1.4"/></g>
+</svg>

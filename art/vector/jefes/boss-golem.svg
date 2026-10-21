@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Zugzwang · Gólem (boss-golem). Dibuja solo dentro del grupo "pieza"; la capa "guia" no entra al juego.
+     Colores: cuerpo #f3ead8, detalle #8a7a66, contorno #2a2233, ojos y luces #d9a441 (ver art/vector/LEEME.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="450" height="410" viewBox="0 0 45 41">
+  <g id="guia" opacity="0.4"><rect width="45" height="41" fill="none" stroke="#9fb7d8" stroke-width="0.1"/></g>
+  <g id="pieza" fill="#f3ead8" stroke="#2a2233" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 34l1-14h25l1 14z"/><path d="M4 24l2-7 7-1 2 6-4 4z"/><path d="M41 24l-2-7-7-1-2 6 4 4z"/><path d="M17 20l.5-9h10l.5 9z"/><path d="M18 13.2h9" stroke="#2a2233" stroke-width="1.4"/><circle cx="20.5" cy="15.4" r="1.1" fill="#d9a441" stroke="#2a2233" stroke-width="0.7"/><circle cx="24.5" cy="15.4" r="1.1" fill="#d9a441" stroke="#2a2233" stroke-width="0.7"/><path d="M15 23l3 3-1 4M30 22.5l-2 4 2 3M22.5 21v4M8 19.5l3 2.5M37 19.5l-3 2.5" fill="none" stroke="#8a7a66" stroke-width="1.4"/></g>
+</svg>

@@ -1,5 +1,9 @@
 # Plantillas de dibujo
 
+> **Para editar las piezas y jefes vectoriales que usa el juego, usa `art/vector/`** (un `.svg` por
+> figura, se importa con `node tools/vector-art.mjs`; ver `art/vector/LEEME.md`). Las hojas de esta
+> carpeta quedan para bocetar encima (tablero, personaje) y como referencia.
+
 Hojas para dibujar el arte del juego encima de lo que ya hay. Se regeneran con
 `node tools/art-template.mjs` (si cambian las piezas o los jefes, se vuelve a correr).
 

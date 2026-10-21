@@ -13,6 +13,9 @@ export const HEAD = {
 export const chipArt = (kind) => html`<svg class=${'zn-k-' + kind} viewBox="6.2 3.4 11.6 8.4" aria-hidden="true">${HEAD[kind]}<path class="zn-stem" d="M12 11.4V9.6"/></svg>`;
 
 const f = (n) => +n.toFixed(2);
+// Cada dibujo lleva también su sprite píxel (assets/zen/, de tools/zen-pixel.mjs) en las mismas
+// coordenadas; el CSS muestra `.zn-vec` en las mesas normales y `.zn-px` en las píxel.
+export const px = (name, w, h, x = 0, y = 0) => html`<image class="zn-px" href=${`assets/zen/${name}.png`} x=${x} y=${y} width=${w} height=${h} preserveAspectRatio="none"/>`;
 const BASE = [12, 15.3]; // donde nace la planta, sobre la tierra de la maceta
 
 // Maceta de bonsái: cuerpo esmaltado bajo y ancho, labio, brillo y dos patas. La tierra va
@@ -100,46 +103,48 @@ export const pondArt = (still) => html`<svg class="zn-pondart" viewBox="0 0 48 4
     <radialGradient id="zn-water-g" cx="42%" cy="38%" r="70%"><stop offset="0" class="zn-shallow"/><stop offset=".7" class="zn-mid"/><stop offset="1" class="zn-deep"/></radialGradient>
     <clipPath id="zn-pond-clip"><path d=${loop(16.6)}/></clipPath>
   </defs>
-  <path class="zn-bank" d=${loop(18.2)}/>
-  <path class="zn-water" d=${loop(16.6)}/>
+  ${px('pond', 48, 48)}
+  <path class="zn-bank zn-vec" d=${loop(18.2)}/>
+  <path class="zn-water zn-vec" d=${loop(16.6)}/>
   <g clip-path="url(#zn-pond-clip)">
-    <path class="zn-depth" d=${loop(11, 25, 26)}/>
+    <path class="zn-depth zn-vec" d=${loop(11, 25, 26)}/>
     <g class="zn-food"></g>
-    <g class="zn-koi zn-koi-a" transform="translate(30 20)">${KOI}<circle class="zn-koi-spot" cx="1.1" cy="-.2" r=".8"/></g>
-    <g class="zn-koi zn-koi-b" transform="translate(16 30) rotate(180)">${KOI}<circle class="zn-koi-spot" cx="-.6" cy=".1" r=".9"/></g>
+    <g class="zn-koi zn-koi-a" transform="translate(30 20)"><g class="zn-vec">${KOI}<circle class="zn-koi-spot" cx="1.1" cy="-.2" r=".8"/></g>${px('koi', 8, 5, -4.4, -2.5)}</g>
+    <g class="zn-koi zn-koi-b" transform="translate(16 30) rotate(180)"><g class="zn-vec">${KOI}<circle class="zn-koi-spot" cx="-.6" cy=".1" r=".9"/></g>${px('koi', 8, 5, -4.4, -2.5)}</g>
     ${!still && html`<circle class="zn-ripple" cx="19" cy="29" r="2"/><circle class="zn-ripple zn-ripple-2" cx="29" cy="20" r="2"/>`}
-    <path class="zn-glint" d="M14 18c2.5-2.6 6-3.8 9-3.6"/>
+    <path class="zn-glint zn-vec" d="M14 18c2.5-2.6 6-3.8 9-3.6"/>
   </g>
-  <g class="zn-lilies">
+  <g class="zn-lilies zn-vec">
     <path class="zn-pad" d="M31.5 33 35.6 31.6A4 4 0 1 1 35.2 36.2Z"/>
     <path class="zn-pad" d="M15.2 33.6 12.4 31.4A3 3 0 1 0 15.8 31.2Z"/>
     <path class="zn-pad" d="M34 17.6 36.8 18A2.4 2.4 0 1 1 34.6 16Z"/>
     <g class="zn-lotus" transform="translate(33.2 33.4)"><path d="M0 0C-2.6-.4-3.2-2.6-2.4-3.6-1.4-2.6-.6-1.6 0 0Z"/><path d="M0 0C2.6-.4 3.2-2.6 2.4-3.6 1.4-2.6.6-1.6 0 0Z"/><path d="M0 0C-1-1.6-1-3.6 0-4.8 1-3.6 1-1.6 0 0Z"/></g>
   </g>
-  ${STONES.map(([x, y, rx, ry, rot]) => html`<ellipse class="zn-rock" cx=${x} cy=${y} rx=${rx} ry=${ry} transform=${`rotate(${rot} ${x} ${y})`}/>`)}
-  <path class="zn-mossdab" d="M5.4 30.6c1.4-1.8 3.8-1.6 4.6.2-1.6.8-3.2.8-4.6-.2zM38.6 12.4c1.6-1 3.4-.4 3.8 1-1.4.6-2.8.4-3.8-1z"/>
+  <g class="zn-vec">${STONES.map(([x, y, rx, ry, rot]) => html`<ellipse class="zn-rock" cx=${x} cy=${y} rx=${rx} ry=${ry} transform=${`rotate(${rot} ${x} ${y})`}/>`)}</g>
+  <path class="zn-mossdab zn-vec" d="M5.4 30.6c1.4-1.8 3.8-1.6 4.6.2-1.6.8-3.2.8-4.6-.2zM38.6 12.4c1.6-1 3.4-.4 3.8 1-1.4.6-2.8.4-3.8-1z"/>
 </svg>`;
 
 // Musgo en montículo con helechito y una piedra: rompe la rejilla.
-export const MOSS = html`<svg class="zn-standart" viewBox="0 0 24 24" aria-hidden="true">
+export const MOSS = html`<svg class="zn-standart" viewBox="0 0 24 24" aria-hidden="true">${px('moss', 24, 24)}<g class="zn-vec">
   <path class="zn-moss" d="M3.2 19.6c-.6-3.4 1.6-6.2 4.4-6.4.8-2.6 3.6-4 6.2-3.2 2.6-.4 5.2 1.8 5.4 4.6 1.8.8 2.6 2.6 1.6 4.6-.6 1.2-2 1.6-3.2 1.6H5.6c-1.2 0-2.2-.4-2.4-1.2z"/>
   <path class="zn-moss-2" d="M5 18.8c.4-2 2-3.4 3.8-3.4.8-1.6 2.6-2.4 4.2-1.8"/>
   ${[[7, 16.6], [10.4, 13.6], [14.6, 12.8], [17.2, 15.6], [12, 17.6], [9, 18.6], [15.6, 18.4]].map(([x, y]) => html`<circle class="zn-moss-dot" cx=${x} cy=${y} r=".55"/>`)}
   <path class="zn-fern" d="M15.2 13.2c.6-2.4 2-4.2 4-5.2M16 11.2l1.4-.2M16.6 10l1.2-.6M15.6 12.4l1.4.2"/>
   <ellipse class="zn-rock" cx="6.6" cy="19.8" rx="2.2" ry="1.4"/>
-</svg>`;
+</g></svg>`;
 
 // Pisadera de granito: laja plana irregular con motas.
-export const STEP = html`<svg class="zn-standart" viewBox="0 0 24 24" aria-hidden="true">
+export const STEP = html`<svg class="zn-standart" viewBox="0 0 24 24" aria-hidden="true">${px('step', 24, 24)}<g class="zn-vec">
   <path class="zn-slab-side" d="M4 15.6c0 2.6 3 4.4 8 4.4s8.6-1.6 8.4-4.2"/>
   <path class="zn-slab" d="M4.2 14.6c-.6-2.4 2-4.6 6.4-4.8 4.6-.2 9.4.8 9.8 3.6.4 2.4-3.6 3.8-8.4 3.8-4.2 0-7.4-.8-7.8-2.6z"/>
   ${[[8, 13], [12.6, 12.2], [15.8, 14.2], [10.4, 15.4], [17.4, 12.8]].map(([x, y]) => html`<circle class="zn-fleck" cx=${x} cy=${y} r=".35"/>`)}
-</svg>`;
+</g></svg>`;
 
 // Farol de piedra (kasuga): peana, fuste, caja de luz encendida, tejado de aleros curvos y joya.
 export const LANTERN = html`<svg class="zn-standart zn-lantern" viewBox="0 0 24 32" aria-hidden="true">
   <defs><radialGradient id="zn-glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffe7a3"/><stop offset="1" stop-color="#e8a440"/></radialGradient></defs>
   <ellipse class="zn-halo" cx="12" cy="15.4" rx="7" ry="5"/>
+  ${px('lantern', 24, 32)}<g class="zn-vec">
   <path class="zn-lstone" d="M7.4 30.6h9.2l-.8-2.2H8.2z"/>
   <path class="zn-lstone" d="M10.6 28.4V21h2.8v7.4z"/>
   <path class="zn-lstone" d="M7.8 21h8.4l-1-1.6H8.8z"/>
@@ -148,20 +153,20 @@ export const LANTERN = html`<svg class="zn-standart zn-lantern" viewBox="0 0 24 
   <path class="zn-lstone" d="M5 13.4c2.4-.4 4.4-2 5.4-4.2h3.2c1 2.2 3 3.8 5.4 4.2z"/>
   <path class="zn-lstone" d="M10.4 9.2c0-1.2.7-2 1.6-2s1.6.8 1.6 2z"/>
   <circle class="zn-lstone" cx="12" cy="6.2" r="1.1"/>
-</svg>`;
+</g></svg>`;
 
 // Rama de arce que asoma por una esquina, y la hoja suelta que cae despacio.
 // Hoja de arce de siete lóbulos con su rabito y nervios, centrada en el origen.
 const MAPLE = 'M0-4 .7-2.4 1.9-3.3 1.8-1.6 3.6-2 2.7-.5 4-.1 2.5.7 2.9 2 1.1 1.3.3 2.5 0 2.2-.3 2.5-1.1 1.3-2.9 2-2.5.7-4-.1-2.7-.5-3.6-2-1.8-1.6-1.9-3.3-.7-2.4Z';
 const VEINS = 'M0 2.2V-3.2M0 .6 2.8-1.4M0 .6-2.8-1.4M0 1.4 2.6 1M0 1.4-2.6 1M0 2.2V3.8';
 const maple = (cls, t) => html`<g class=${'zn-maple ' + cls} transform=${t}><path d=${MAPLE}/><path class="zn-vein" d=${VEINS}/></g>`;
-export const mapleLeaf = html`<svg viewBox="-4.5 -4.5 9 9" aria-hidden="true">${maple('zn-maple-a', '')}</svg>`;
-export const BRANCH = html`<svg class="zn-branch" viewBox="0 0 60 40" aria-hidden="true">
+export const mapleLeaf = html`<svg viewBox="-4.5 -4.5 9 9" aria-hidden="true"><g class="zn-vec">${maple('zn-maple-a', '')}</g>${px('leaf', 9, 9, -4.5, -4.5)}</svg>`;
+export const BRANCH = html`<svg class="zn-branch" viewBox="0 0 60 40" aria-hidden="true">${px('branch', 60, 39)}<g class="zn-vec">
   <path class="zn-bark" d="M-4 4C8 7 16 6 25 10s14 5 23 3"/>
   <path class="zn-bark zn-twig-b" d="M17 7c4 4 6 9 5 14M33 12c3 3 7 5 11 5M42 13c1-3 3-5 6-6"/>
   ${[[22, 21, 1.15, 15, 'a'], [27, 14, 0.95, -15, 'b'], [47, 7, 0.9, 25, 'c'], [45, 18, 1, -30, 'a'], [11, 9, 0.9, 10, 'b'], [36, 15, 0.8, 45, 'c'], [18, 15, 0.75, -40, 'a'], [52, 13, 0.8, 60, 'b']]
     .map(([x, y, s, r, c]) => maple('zn-maple-' + c, `translate(${x} ${y}) rotate(${r}) scale(${s * 1.3})`))}
-</svg>`;
+</g></svg>`;
 
 // Mariposa: cuerpo, antenas y dos pares de alas que baten por CSS.
 export const BUTTERFLY = html`<svg viewBox="-6 -6 12 12" aria-hidden="true">
@@ -172,12 +177,30 @@ export const BUTTERFLY = html`<svg viewBox="-6 -6 12 12" aria-hidden="true">
 </svg>`;
 
 // Regadera de latón para el gesto de regar: cuerpo, asa y pico con su roseta.
-export const CAN = html`<svg viewBox="0 0 24 18" aria-hidden="true">
+export const CAN = html`<svg viewBox="0 0 24 18" aria-hidden="true">${px('can', 24, 18)}<g class="zn-vec">
   <path class="zn-can" d="M6 6h9l1 9c0 1-.6 1.6-1.6 1.6H6.6C5.6 16.6 5 16 5 15z"/>
   <path class="zn-can-handle" d="M7.2 6C7 3 13.8 3 13.8 6"/>
   <path class="zn-can" d="M15.4 9.4 21 4.6l1 1.2-5.4 5.4z"/>
   <ellipse class="zn-can" cx="21.6" cy="5" rx="1.3" ry="1.8" transform="rotate(-40 21.6 5)"/>
-</svg>`;
+</g></svg>`;
+
+// Tijeras de podar: dos hojas que giran sobre el perno (12,12); el CSS las abre y las cierra.
+export const SHEARS = html`<svg viewBox="0 0 24 24" aria-hidden="true">${px('shears', 24, 24)}<g class="zn-vec">
+  <g class="zn-blade zn-blade-a"><path class="zn-grip-bar" d="M12 12 7.4 14.6"/><circle class="zn-grip" cx="5.6" cy="15.6" r="2.4"/><path class="zn-steel" d="M11.4 11.2 22.6 10.6 22.8 11.6 12 12.8z"/></g>
+  <g class="zn-blade zn-blade-b"><path class="zn-grip-bar" d="M12 12 7.4 9.4"/><circle class="zn-grip" cx="5.6" cy="8.4" r="2.4"/><path class="zn-steel" d="M11.4 12.8 22.6 13.4 22.8 12.4 12 11.2z"/></g>
+  <circle class="zn-pivot" cx="12" cy="12" r="1"/>
+</g></svg>`;
+// Pala de jardín: mango arriba, hoja abajo (la punta en el fondo del lienzo, donde se clava).
+export const SHOVEL = html`<svg viewBox="0 0 12 28" aria-hidden="true">${px('shovel', 12, 27, 0, 1)}<g class="zn-vec">
+  <path class="zn-grip-bar" d="M3.4 2.2h5.2"/><path class="zn-shaft" d="M6 2.2v14"/>
+  <path class="zn-steel" d="M2.6 15.6h6.8v4.6c0 2.8-1.6 5.2-3.4 6.6-1.8-1.4-3.4-3.8-3.4-6.6z"/>
+</g></svg>`;
+// Bolsita de semillas, abierta por arriba.
+export const POUCH = html`<svg viewBox="0 0 16 18" aria-hidden="true">${px('pouch', 16.5, 18, -0.25)}<g class="zn-vec">
+  <path class="zn-pouch" d="M3.6 5.4h8.8l1.4 9.4c.2 1.4-.8 2.4-2.2 2.4H4.4c-1.4 0-2.4-1-2.2-2.4z"/>
+  <path class="zn-pouch-tie" d="M3.4 5.6 5 3.2M12.6 5.6 11 3.2"/>
+  <circle class="zn-seed" cx="7" cy="3.4" r=".9"/><circle class="zn-seed" cx="9.4" cy="2.6" r=".8"/>
+</g></svg>`;
 
 // Arena rastrillada: líneas paralelas cortadas alrededor de cada objeto y anillos que lo rodean.
 // `objs`: { x, y, r } en unidades de casilla (centro y radio libre); `raw`: casillas sin cavar.

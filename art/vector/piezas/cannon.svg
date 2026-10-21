@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Zugzwang · Cañón (cannon). Dibuja solo dentro del grupo "pieza"; la capa "guia" no entra al juego.
+     Colores: cuerpo #f3ead8, detalle #8a7a66, contorno #2a2233, ojos y luces #d9a441 (ver art/vector/LEEME.md). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="450" height="410" viewBox="0 0 45 41">
+  <g id="guia" opacity="0.4"><rect width="45" height="41" fill="none" stroke="#9fb7d8" stroke-width="0.1"/></g>
+  <g id="pieza" fill="#f3ead8" stroke="#2a2233" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 32.3l2-7h15l2 7z"/><path d="M16.57 21.62L25.93 8.14L32.07 11.86L24.43 26.38Z"/><path d="M23.82 10.24L25.38 7.68L32.72 12.14L31.16 14.7Z"/><ellipse cx="29.1" cy="9.3" rx="2.5" ry="1.1" transform="rotate(31 29.1 9.3)" fill="#8a7a66"/><circle cx="19.4" cy="25.6" r="2.3"/><circle cx="21.8" cy="21.4" r="2.1" fill="#8a7a66"/><circle cx="15" cy="28.4" r="3.9"/><circle cx="15" cy="28.4" r="1.2" fill="#8a7a66"/><path d="M15 24.9v7M11.5 28.4h7" fill="none" stroke="#8a7a66" stroke-width="1.1"/></g>
+</svg>
