@@ -15,6 +15,15 @@ export const MODIFIERS = {
   bag: { id: 'bag', name: 'Bolsa', desc: 'Una bolsa con un objeto.', icon: 'bag', kind: 'bag', weights: [3, 2, 2] },
   // Minigames: an interlude with its own rules. Winning pays a mutation or a piece and unlocks it in the menu.
   // Each one also needs its screen in MINI_SCREENS (src/ui/app.js); tools/check-registry.mjs checks it.
+  bodyguard: { id: 'bodyguard', name: 'El guardaespaldas', desc: 'Minijuego: protege al rey marfil del atacante carmesí durante varios turnos. Premio: mutación o pieza.', icon: 'guard', mini: true, weights: [0, 0.5, 1] },
+  escape: { id: 'escape', name: 'Escape del tablero', desc: 'Minijuego: lleva el caballo a la salida antes de que el guardia cierre el paso. Premio: mutación o pieza.', icon: 'flag', mini: true, weights: [0.7, 1, 1] },
+  caceria: { id: 'caceria', name: 'La cacería', desc: 'Minijuego: alcanza al peón fugitivo antes de que escape. Premio: mutación o pieza.', icon: 'hunt', mini: true, weights: [0.7, 1, 1] },
+  giantHunt: { id: 'giantHunt', name: 'Caza de gigantes', desc: 'Minijuego: derriba al coloso con golpes de reina antes de agotar las jugadas. Premio: mutación o pieza.', icon: 'boss', mini: true, weights: [0, 0.7, 1] },
+  minefield: { id: 'minefield', name: 'Campo minado', desc: 'Minijuego: cruza el campo con el caballo sin pisar minas. Premio: mutación o pieza.', icon: 'bomb', mini: true, weights: [0.7, 1, 1] },
+  contraband: { id: 'contraband', name: 'Contrabando dimensional', desc: 'Minijuego: usa portales para llevar el caballo a la salida antes de agotar las jugadas. Premio: mutación o pieza.', icon: 'portal', mini: true, weights: [0, 0.7, 1] },
+  laboratory: { id: 'laboratory', name: 'El laboratorio', desc: 'Minijuego: prueba una mutación para cruzar un tablero que se hunde. Premio: mutación o pieza.', icon: 'flask', mini: true, weights: [0, 0.7, 1] },
+  collapsingFloor: { id: 'collapsingFloor', name: 'El suelo se acaba', desc: 'Minijuego: cruza con el caballo mientras las casillas se hunden tras cada salto. Premio: mutación o pieza.', icon: 'collapse', mini: true, weights: [0.7, 1, 1] },
+  kingImpostor: { id: 'kingImpostor', name: 'El rey impostor', desc: 'Minijuego: identifica al impostor entre tres sospechosos. Premio: mutación o pieza.', icon: 'target', mini: true, weights: [0, 0.7, 1] },
   connect4: { id: 'connect4', name: 'Conecta 4', desc: 'Minijuego: alinea cuatro fichas antes que el bot. Premio: mutación o pieza.', icon: 'connect4', mini: true, weights: [0.7, 1, 1] },
   bomber: { id: 'bomber', name: 'Bomberman', desc: 'Minijuego: limpia el tablero de enemigos con bombas. Premio: mutación o pieza.', icon: 'bomb', mini: true, weights: [0, 1, 1] },
   barrier: { id: 'barrier', name: 'Barrera', desc: 'Minijuego: cruza el tablero antes que el bot; pon vallas para cortarle el paso. Premio: mutación o pieza.', icon: 'fence', mini: true, weights: [0, 0.5, 1.5] },

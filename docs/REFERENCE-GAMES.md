@@ -101,3 +101,55 @@ personalización y la galería.
 - [Boiling Steam: Gambonanza review](https://boilingsteam.com/gambonanza-review/)
 - [Checkpoint Gaming: Gambonanza review](https://checkpointgaming.net/reviews/2026/05/gambonanza-review-checkmate/)
 - Tráiler de Chess Mayhem: https://www.youtube.com/watch?v=ZoL8NLeReZQ (descrito por el dueño)
+
+
+## Minijuegos nuevos de persecución y escolta
+
+### La cacería
+
+El movimiento del cazador reutiliza `src/game/rules.js` (`legalMoves`) y las siluetas de `src/view/piece-art.js`; el tablero y los estados visuales reutilizan `MiniGrid` y la animación `hopPiece`. La novedad se limita al objetivo de persecución y al ritmo de escape del peón.
+
+### Escape del tablero
+
+La huida reutiliza `src/game/rules.js` para los saltos del caballo y `MiniGrid`/`hopPiece` para tablero y animación; solo añade la condición de salida y el avance del guardia.
+
+### El guardaespaldas
+
+Reutiliza los movimientos legales de `src/game/rules.js`, las piezas existentes y `MiniGrid`/`hopPiece`; la lógica añadida es el avance por turnos del rey atacante y la condición de supervivencia.
+
+
+### Caza de gigantes
+
+Reutiliza `rules.js` para movimientos y golpes contra una pieza de huella 2×2; el coloso comparte la lógica de piezas grandes y puntos de vida de `bosses.js`. La regla nueva es ganar al agotar sus vidas antes del límite.
+
+### Campo minado
+
+Reutiliza el caballo, sus saltos legales y `MiniGrid`. El mapa de minas se mantiene como estado del minijuego; no crea una segunda lógica de movimiento.
+
+### Contrabando dimensional
+
+Reutiliza los saltos del caballo y la representación de portales `board.portals` que ya consume `Match.terrainAfterMove`; la regla específica es alcanzar la salida dentro del límite.
+
+### El laboratorio
+
+Reutiliza `applyMutations` y el movimiento legal de `rules.js`; el tablero usa los mismos huecos que el resto del juego. El reto nuevo es escapar antes de que el suelo consumido cierre la ruta.
+
+### El suelo se acaba
+
+Reutiliza el caballo y `legalMoves`; cada casilla abandonada se agrega al conjunto de huecos, siguiendo la idea del derrumbe ya existente.
+
+### El rey impostor
+
+Reutiliza las piezas e iconografía actuales. La regla nueva se limita a identificar al sospechoso correcto, con más intentos en dificultades bajas.
+
+### El laboratorio
+
+Reutiliza `applyMutations` y el movimiento legal de `rules.js`; el tablero usa los mismos huecos que el resto del juego. El reto es escapar antes de que el suelo consumido cierre la ruta.
+
+### El suelo se acaba
+
+Reutiliza el caballo y `legalMoves`; cada casilla abandonada se agrega al conjunto de huecos, siguiendo la idea del derrumbe ya existente.
+
+### El rey impostor
+
+Reutiliza las piezas e iconografía actuales. La regla nueva se limita a identificar al sospechoso correcto, con más intentos en dificultades bajas.

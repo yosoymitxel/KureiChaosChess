@@ -1,0 +1,46 @@
+name: Visual QA
+on:
+  push:
+    branches: [feature/minigame-caceria]
+  workflow_dispatch:
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install browser test runtime
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Run registry and gameplay checks
+        run: |
+          node tools/check-registry.mjs
+          node tools/simulate.mjs
+          node tools/hunt-selfcheck.mjs
+          node tools/escape-selfcheck.mjs
+          node tools/bodyguard-selfcheck.mjs
+          node tools/giant-hunt-selfcheck.mjs
+          node tools/minefield-selfcheck.mjs
+          node tools/contraband-selfcheck.mjs
+          node tools/laboratory-selfcheck.mjs
+          node tools/collapsing-floor-selfcheck.mjs
+          node tools/king-impostor-selfcheck.mjs
+      - name: Start static game server
+        run: |
+          npx --yes http-server -p 8123 -s -c-1 . > /tmp/zug-http.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8123/tests/visual.html >/dev/null && break; sleep 1; done
+      - name: Smoke test every minigame preview on desktop and mobile
+        run: node tools/catalog-smoke.mjs
+      - name: Capture desktop/mobile and normal/pixel themes
+        run: node tools/visual-check.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zug-visual-qa-screenshots
+          path: artifacts/visual/
+          if-no-files-found: warn
+          retention-days: 14

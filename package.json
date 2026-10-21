@@ -6,6 +6,18 @@
     "serve": "npx http-server -c-1 .",
     "simulate": "node tools/simulate.mjs",
     "ladder": "node tools/ladder.mjs",
-    "sfx": "node tools/sfx-check.mjs"
+    "sfx": "node tools/sfx-check.mjs",
+    "hunt": "node tools/hunt-selfcheck.mjs",
+    "escape": "node tools/escape-selfcheck.mjs",
+    "bodyguard": "node tools/bodyguard-selfcheck.mjs",
+    "giant-hunt": "node tools/giant-hunt-selfcheck.mjs",
+    "minefield": "node tools/minefield-selfcheck.mjs",
+    "contraband": "node tools/contraband-selfcheck.mjs",
+    "laboratory": "node tools/laboratory-selfcheck.mjs",
+    "collapsing-floor": "node tools/collapsing-floor-selfcheck.mjs",
+    "king-impostor": "node tools/king-impostor-selfcheck.mjs",
+    "laboratory": "node tools/laboratory-selfcheck.mjs",
+    "collapsing-floor": "node tools/collapsing-floor-selfcheck.mjs",
+    "king-impostor": "node tools/king-impostor-selfcheck.mjs"
   }
 }
