@@ -1,1 +1,1 @@
-Build trigger: rerun after fixing invalid drawing layer spread in calaveras-ataudes.
+Build trigger: rerun pixel-art compilation after source syntax repair.
