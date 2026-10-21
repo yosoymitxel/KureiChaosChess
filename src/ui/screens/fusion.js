@@ -1,6 +1,7 @@
 // Fusión: 2048 con piezas. Las fichas son elementos con posición propia y transición CSS, así el
 // deslizamiento se ve continuo y se puede encadenar sin esperar; la que nace brota y la fundida late.
 import { html, useState, useEffect, useRef } from '../lib.js';
+import { playSfx } from '../sfx.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
@@ -13,7 +14,11 @@ export function FusionScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
   const [s] = useState(() => newFusion(diff || settings.miniDiff?.fusion));
   const [, tick] = useState(0);
   const touch = useRef(null);
-  const go = (dir) => { if (slide(s, dir)) tick((n) => n + 1); };
+  const go = (dir) => {
+    if (!slide(s, dir)) return playSfx('invalid');
+    playSfx(s.tiles.some((t) => t.merged) ? 'pop' : 'whoosh');
+    tick((n) => n + 1);
+  };
 
   useEffect(() => {
     const onKey = (e) => { const d = KEYS[e.key.toLowerCase()]; if (d) { e.preventDefault(); go(d); } };

@@ -178,13 +178,23 @@ export function anchorForCell(piece, r, c, moves) {
 
 // Alcance de una pieza sola en un tablero vacío n×n (centro): lo que enseña la demo de
 // mutaciones y jefes. `extra` son los movimientos añadidos; se devuelven aparte de los de siempre.
-export function reachPreview({ type, moves, extra = [] }, n = 7) {
+// Un jefe (`size` [filas, columnas]) se pone con su tamaño real y cada destino marca todas las
+// casillas que pisaría: el ariete 2×2 se lee como una franja de dos de ancho, no como una torre.
+// `at`: la casilla de anclaje (arriba a la izquierda); `anchors`: los destinos, para animar.
+export function reachPreview({ type, moves, extra = [], size = [1, 1] }, n = 7) {
   const board = { rows: n, cols: n, holes: new Set() };
-  const mid = (n - 1) / 2;
-  const at = (spec) => {
-    const p = { id: 'demo', color: 'light', row: mid, col: mid, startRow: mid, ...spec };
-    return legalMoves(p, [p], board).map((m) => key(m.row, m.col));
+  const [h, w] = size;
+  const row = Math.floor((n - h) / 2), col = Math.floor((n - w) / 2);
+  const self = new Set(cellsOf({ h, w }, row, col).map(([r, c]) => key(r, c)));
+  const reach = (spec) => {
+    const p = { id: 'demo', color: 'light', row, col, startRow: row, h, w, ...spec };
+    const ms = legalMoves(p, [p], board);
+    return { ms, cells: new Set(ms.flatMap((m) => cellsOf(p, m.row, m.col).map(([r, c]) => key(r, c))).filter((k) => !self.has(k))) };
   };
-  const base = new Set(at({ type, moves }));
-  return { base: [...base], extra: extra.length ? at({ type, moves, extraMoveTypes: extra }).filter((k) => !base.has(k)) : [] };
+  const b = reach({ type, moves });
+  const x = extra.length ? reach({ type, moves, extraMoveTypes: extra }) : null;
+  return {
+    base: [...b.cells], extra: x ? [...x.cells].filter((k) => !b.cells.has(k)) : [],
+    at: [row, col], size, anchors: (x || b).ms.map((m) => [m.row, m.col]),
+  };
 }

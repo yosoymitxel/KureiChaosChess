@@ -1,4 +1,5 @@
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
+import { playSfx } from '../sfx.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
@@ -17,8 +18,10 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
 
   const snap = () => ({ player: s.player.col, enemies: s.enemies.map((e) => ({ id: e.id, row: e.row, col: e.col })) });
   const act = (a) => {
-    const before = snap();
+    const before = snap(), lives = s.lives;
     if (!step(s, a)) return;
+    if (a.shoot) playSfx('laser');
+    if (s.zaps.length) playSfx(s.lives < lives ? 'hit' : 'crunch');
     const after = snap(), moved = [];
     if (after.player !== before.player) moved.push({ sel: '.bm-pc.me', from: { row: PLAYER_ROW, col: before.player }, to: { row: PLAYER_ROW, col: after.player }, side: 'light' });
     for (const e of after.enemies) {

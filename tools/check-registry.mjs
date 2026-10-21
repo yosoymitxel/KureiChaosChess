@@ -90,6 +90,14 @@ for (const a of ACHIEVEMENTS) {
 }
 for (const id of awarded) if (!ids.has(id)) fail(`award('${id}'): no hay logro con ese id en src/game/achievements.js`);
 
+// Demos (src/ui/demos.js): toda pieza, mutación y jefe se enseña en acción en la partida y en la
+// Galería, así que cada uno tiene que dar un tablerito con alcance (o, si no mueve distinto, su cinemática).
+const { pieceDemo, mutationDemo, bossDemo } = await import('../src/ui/demos.js');
+const demoOk = (d) => d.cinematic ? d.title && d.icon : d.title && d.sub && d.piece?.type && d.base?.length > 0;
+for (const t of PIECE_TYPES) if (!demoOk(pieceDemo(t))) fail(`pieza ${t}: su demo sale sin título, regla o alcance`);
+for (const id of Object.keys(MUTATIONS)) if (!demoOk(mutationDemo(id))) fail(`mutación ${id}: su demo sale vacía`);
+for (const id of BOSS_IDS) if (!demoOk(bossDemo(id))) fail(`jefe ${id}: su demo sale sin alcance`);
+
 if (errors.length) {
   console.log(errors.map((e) => '✗ ' + e).join('\n'));
   process.exit(1);

@@ -9,6 +9,15 @@ const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localSt
 // Los grupos se muestran en este orden en la pantalla de Logros.
 export const ACHIEVEMENT_GROUPS = ['Partida', 'Travesía', 'Minijuegos', 'Jardín Zen', 'Tienda', 'Largo plazo'];
 
+// Los logros por grupo, en el orden de la pantalla y con los conseguidos primero: Logros y la
+// Galería los muestran igual.
+export const achievementGroups = (got) => ACHIEVEMENT_GROUPS
+  .map((name) => {
+    const items = ACHIEVEMENTS.filter((a) => a.group === name);
+    return { name, items: [...items.filter((a) => got.includes(a.id)), ...items.filter((a) => !got.includes(a.id))], n: items.filter((a) => got.includes(a.id)).length };
+  })
+  .filter((g) => g.items.length);
+
 export const ACHIEVEMENTS = [
   { id: 'first_win', group: 'Partida', name: 'Primera victoria', desc: 'Gana tu primera partida.', icon: 'check' },
   { id: 'crowned', group: 'Partida', name: 'Coronación', desc: 'Corona un peón durante una partida.', icon: 'crown' },
@@ -75,4 +84,11 @@ export function seePieces(types) {
   if (!fresh.length) return;
   write(SEEN_KEY, [...seen, ...fresh]);
   if (seen.length + fresh.length >= PIECE_TYPES.length) award('all_pieces');
+}
+// Mutaciones que alguna vez tuvo tu ejército: la galería las abre.
+const MUT_KEY = 'zugzwang.mutseen.v1';
+export const loadMutSeen = () => read(MUT_KEY) || [];
+export function seeMutations(ids) {
+  const seen = loadMutSeen(), fresh = [...new Set(ids)].filter((id) => !seen.includes(id));
+  if (fresh.length) write(MUT_KEY, [...seen, ...fresh]);
 }

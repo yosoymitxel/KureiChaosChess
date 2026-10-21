@@ -1,6 +1,7 @@
 // Damas: marfil (tú) contra carmesí (bot) con fichas de damas de verdad. Toca una ficha y luego su destino;
 // las capturas son obligatorias y la misma ficha sigue saltando mientras pueda.
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
+import { playSfx } from '../sfx.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { DIFFS, newCheckers, legal, play, botMove, pieceAt } from '../../game/checkers.js';
 import { reduced } from '../hop.js';
@@ -42,6 +43,7 @@ export function CheckersScreen({ sub, onBack, onEnd, endLabel = 'Continuar', set
     redraw();
     await wait(0);
     await animateLast();
+    playSfx(m.cap ? 'capture' : 'move');
   };
 
   // El bot juega su jugada entera, salto a salto, con una pausa entre cada uno.
