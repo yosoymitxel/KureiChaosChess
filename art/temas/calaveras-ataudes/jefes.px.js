@@ -6,7 +6,7 @@ pal({
   m:"#aeb0b7",M:"#666773",X:"#383641",p:"#a77c9b",P:"#65445f",c:"#6f9370",C:"#3c5d49"
 });
 ramps("bOoWw","Rr","Yy","Gg","Nn","Mm","Pp","Cc");
-const boss=(name,opts,...items)=>sprite(name,{...opts,outline:"k"},...items);
+const boss=(name,opts,...items)=>sprite(name,{...opts,outline:"k"},...items.flat(Infinity));
 const skull=(x,y)=>[
   rect(x-4,y-3,8,5,"g"),rect(x-3,y+2,6,2,"G"),rect(x-2,y+4,4,1,"g"),
   rect(x-3,y-2,2,2,"k"),rect(x+2,y-2,2,2,"k"),px(x,y-1,"k"),hline(x-2,y+3,5,"k"),
