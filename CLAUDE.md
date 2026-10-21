@@ -27,6 +27,7 @@ Roguelike de ajedrez web: HTML/JS sin build, Preact + htm + anime.js + Motion po
 ## Reglas
 - Respuestas al dueño ultracortas (estilo caveman). Ahorrar tokens: leer por trozos, pocas capturas.
 - Comentarios en código solo si explican algo no obvio.
+- "¿Dónde está X?": `grep -n X docs/MAPA.md` (índice ruta:línea; regenerar con `node tools/regen-mapa.mjs`).
 - Buscar/listar en el repo con el subagente `explorador` (Haiku). Archivos > 40 KB: `grep -n` y leer tramos.
 - Capturas a densidad 1 salvo que haga falta detalle; `/compact` al cerrar cada pieza larga.
 - Editar con la herramienta Edit, no con scripts. No tocar archivos "Generado por …".
