@@ -6,7 +6,7 @@ juego pasa a píxel**: piezas, jefes, casillas, fondo, marcos de paneles y boton
 | Carpeta | Qué es |
 |---|---|
 | `pixelada/` | El tema base (fantasía medieval). Lo que otro tema no dibuje, se toma de aquí. |
-| `halloween/`, `scifi/`, `piratas/`, `goticas-clonas/` | Temas hechos con pxl. `goticas-clonas/` usa clones de cripta, vitrales carmesí y piedra agrietada. |
+| `halloween/`, `scifi/`, `piratas/` | Temas hechos con pxl. |
 | `_plantilla/` | Tu punto de partida para dibujar un tema propio. El guion bajo hace que el juego la ignore. |
 
 ## Hacer un tema nuevo, paso a paso
