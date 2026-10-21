@@ -1,1 +1,1 @@
-Trigger full render of all registered PXL sources, including the required pixelada base, then regenerate and validate the five refined themes.
+Final render: all-source build after final silhouette, faction-palette and boss-bounds pass.
