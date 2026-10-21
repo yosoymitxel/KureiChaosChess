@@ -28,10 +28,10 @@ const fork=(x,y)=>[
 const bloom=(x,y)=>[px(x,y-2,"p"),px(x-2,y-1,"P"),px(x,y-1,"p"),px(x+2,y-1,"P"),px(x-2,y+1,"p"),px(x,y+1,"P"),px(x+2,y+1,"p"),px(x,y+2,"p"),px(x,y,"y")];
 
 // Titán: colibrí imperial; pico largo, garganta violeta, cola bifurcada, corona floral.
-boss("boss-titan",{w:46,h:42},
+boss("boss-titan",{w:44,h:42},
   poly([8,25,13,19,26,20,36,26,39,34,30,38,13,36,5,32],"b"),
   poly([14,27,28,25,33,34,15,35],"T"),...fork(21,29),...wing(15,22,1.25),
-  ...bird(23,17,1.35,"p"),line(26,16,44,12,"k",2),px(44,12,"M"),px(41,13,"y"),
+  ...bird(23,17,1.35,"p"),line(26,16,42,12,"k",2),px(42,12,"M"),px(39,13,"y"),
   poly([14,15,17,7,21,12,25,4,29,11,34,6,34,16],"p"),hline(18,14,13,"W"),
   ...[18,23,28,33].flatMap((x)=>[px(x,9,"y"),px(x+1,10,"Y")]),
   ...[7,14,34,40].flatMap(x=>[px(x,28,"t"),px(x+1,29,"T")]),
