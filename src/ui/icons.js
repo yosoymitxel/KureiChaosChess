@@ -94,7 +94,8 @@ const OFFSET = {
 export function Icon({ name, size = 18 }) {
   if (PIECE_TYPES.includes(name)) return html`<${PieceIcon} type=${name} size=${size} />`;
   const [dx, dy] = OFFSET[name] || [0, 0];
-  return html`<svg class="icon icon-vec" width=${size} height=${size} viewBox=${`${dx} ${dy} 24 24`} fill="currentColor" aria-hidden="true">${P[name]}</svg>${PIXEL_ICONS[name] && html`<svg class="icon icon-px" width=${size} height=${size} viewBox="0 0 16 16" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d=${PIXEL_ICONS[name]} /></svg>`}`;
+  const px = PIXEL_ICONS[name] || (name === 'hunt' ? PIXEL_ICONS.target : null);
+  return html`<svg class="icon icon-vec" width=${size} height=${size} viewBox=${`${dx} ${dy} 24 24`} fill="currentColor" aria-hidden="true">${P[name]}</svg>${px && html`<svg class="icon icon-px" width=${size} height=${size} viewBox="0 0 16 16" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d=${px} /></svg>`}`;
 }
 
 // `paper` keeps the printed look (cards, lists); the moments pass false so they wear the table's art set.
