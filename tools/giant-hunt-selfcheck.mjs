@@ -5,6 +5,7 @@ assert.ok(legal(s).length>0);
 const hit=legal(s).find(m=>m.hits.some(p=>p.id==='giant'));
 assert.ok(hit,'queen must be able to attack the 2x2 giant');
 assert.equal(move(s,hit.row,hit.col),true);
-assert.equal(s.pieces.find(p=>p.id==='giant').hp,2);
+assert.equal(s.pieces.find(p=>p.id==='giant').hp, s.hp-1);
+assert.equal(s.turns,5,'a hit consumes one turn');
 assert.equal(move(s,0,0),false);
 console.log('Caza de gigantes: checks básicos OK');
