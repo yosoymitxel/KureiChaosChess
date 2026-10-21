@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#2a2118">
+  <title>Zugzwang · Banco de pruebas</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/board.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link rel="stylesheet" href="css/pixel.css">
+  <script type="importmap">
+  {"imports":{"preact":"https://cdn.jsdelivr.net/npm/preact@10.29.8/dist/preact.module.js","preact/hooks":"https://cdn.jsdelivr.net/npm/preact@10.29.8/hooks/dist/hooks.module.js","htm":"https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.module.js","animejs":"https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.esm.min.js","motion":"https://cdn.jsdelivr.net/npm/motion@12.43.0/+esm"}}
+  </script>
+  <style>
+    html,body { height:100%; overflow:auto; }
+    body { user-select:auto; }
+    .catalog { min-height:100dvh; display:flex; flex-direction:column; gap:14px; padding: max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left)); }
+    .catalog-head { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
+    .catalog-head h1 { font-size:clamp(22px,4vw,32px); }
+    .catalog-head p { margin:4px 0 0; color:var(--paper-3); font-size:13px; }
+    .catalog-controls { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; padding:12px; }
+    .catalog-field { display:grid; gap:5px; min-width:0; color:var(--ink); font-size:12px; font-weight:800; }
+    .catalog-field select { width:100%; min-width:0; min-height:44px; border:2px solid var(--ink); border-radius:9px; padding:8px; color:var(--ink); background:var(--paper); font:inherit; }
+    .catalog-stage { flex:1; min-height:620px; overflow:hidden; border:2px solid var(--ink); border-radius:14px; background:var(--table); }
+    .catalog-stage iframe { display:block; width:100%; height:100%; min-height:620px; border:0; }
+    .catalog-note { margin:0; color:var(--paper-3); font-size:12px; }
+    @media(max-width:650px) {
+      .catalog-controls { grid-template-columns:1fr; }
+      .catalog-stage,.catalog-stage iframe { min-height: min(76dvh,780px); }
+      .catalog-head { align-items:flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="catalog">
+    <header class="catalog-head">
+      <a class="btn ghost sm" href="lab.html">← Laboratorio</a>
+      <div><h1>Banco de pruebas</h1><p>Sin iniciar sesión, comprar mesas ni avanzar una run.</p></div>
+    </header>
+    <section class="catalog-controls panel" aria-label="Opciones de prueba">
+      <label class="catalog-field">Grupo
+        <select id="group"><option value="minis">Minijuegos</option><option value="themes">Temas / mesas</option></select>
+      </label>
+      <label class="catalog-field" id="item-field">Minijuego
+        <select id="item"></select>
+      </label>
+      <label class="catalog-field">Dificultad
+        <select id="difficulty"><option value="easy">Fácil</option><option value="normal" selected>Normal</option><option value="hard">Difícil</option></select>
+      </label>
+    </section>
+    <section class="catalog-stage" aria-label="Vista previa interactiva"><iframe id="preview" title="Vista previa del juego" src="tests/visual.html?mini=caceria&theme=walnut&diff=normal"></iframe></section>
+    <p class="catalog-note">Vista de prueba con las pantallas reales del juego. El progreso y las compras no se guardan desde aquí.</p>
+  </main>
+  <script type="module" src="src/lab-catalog.js"></script>
+</body>
+</html>
