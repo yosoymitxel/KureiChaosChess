@@ -23,9 +23,7 @@ export function move(s, row, col) {
   if (m.hits.includes(giant)) {
     giant.hp--;
     s.events = [{ id: 'hunter', from, to: { row, col }, hit: true }];
-    s.turns--;
     if (giant.hp <= 0) { s.pieces = [hunter]; s.over = 'win'; return true; }
-    s.turns--;
     if (s.turns <= 0) s.over = 'lose';
     return true;
   }
