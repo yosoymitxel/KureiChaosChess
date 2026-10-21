@@ -16,4 +16,10 @@ const hard = newHunt('dificil');
 assert.equal(move(hard, 4, 4), true);
 assert.equal(hard.pieces.find((p) => p.id === 'runner').row, 2, 'hard runner escapes every turn');
 assert.equal(hard.turns, 4);
+
+const escaped = newHunt('dificil');
+assert.equal(move(escaped, 5, 3), true);
+assert.equal(move(escaped, 4, 3), true);
+assert.equal(move(escaped, 3, 3), true);
+assert.equal(escaped.over, 'lose', 'runner escaping through the top row loses');
 console.log('La cacería: reglas básicas OK');
