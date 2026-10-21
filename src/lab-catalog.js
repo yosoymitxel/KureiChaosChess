@@ -1,4 +1,21 @@
-import { THEMES } from './data/themes.js';
+// El catálogo debe seguir cargando aunque falle una dependencia de los temas píxel.
+const FALLBACK_THEMES = {
+  walnut: { id: 'walnut', name: 'Nogal' },
+  felt: { id: 'felt', name: 'Tapete' },
+  slate: { id: 'slate', name: 'Pizarra' },
+  pergamino: { id: 'pergamino', name: 'Pergamino' },
+  corinto: { id: 'corinto', name: 'Corinto' },
+  noche: { id: 'noche', name: 'Noche' },
+};
+let THEMES = FALLBACK_THEMES;
+try {
+  const themesModule = await import('./data/themes.js');
+  if (themesModule.THEMES && Object.keys(themesModule.THEMES).length) {
+    THEMES = themesModule.THEMES;
+  }
+} catch (error) {
+  console.error('[Banco de pruebas] No se pudieron cargar todos los temas; se usa el catálogo básico.', error);
+}
 
 const MINIS = [
   ['caceria', 'Minijuego · La cacería'],
