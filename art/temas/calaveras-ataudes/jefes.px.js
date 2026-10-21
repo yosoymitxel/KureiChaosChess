@@ -15,7 +15,7 @@ const skull=(x,y)=>[
 const flower=(x,y)=>[px(x,y-2,"v"),px(x-2,y-1,"v"),px(x+2,y-1,"v"),px(x-2,y+1,"v"),px(x+2,y+1,"v"),px(x,y+2,"v"),px(x,y,"y"),px(x-1,y,"Y")];
 
 // Titán: monarca del panteón, coraza de costillas, manto deshilachado y corona con relicario.
-boss("boss-titan",{w:44,h:43},
+boss("boss-titan",{w:44,h:42},
   poly([5,15,12,11,21,15,31,11,39,16,42,37,2,37],"R"),
   poly([9,17,20,15,31,17,34,34,7,34],"O"),poly([13,18,21,18,26,34,11,34],"b"),
   ...([21,25,29].map(y=>[line(12,y,18,y+1,"g",1),line(25,y+1,31,y,"G",1)]).flat()),
@@ -79,7 +79,7 @@ boss("boss-golem",{w:42,h:43},
 );
 
 // Jinete: charro esquelético, sombrero ancho con greca dorada, caballo de osamenta y lanza ceremonial.
-boss("boss-rider",{w:38,h:44},
+boss("boss-rider",{w:38,h:42},
   poly([4,29,10,23,26,23,34,29,32,37,7,37],"O"),ellipse(20,31,13,6,"b"),
   rect(9,33,4,8,"N"),rect(25,33,4,8,"N"),rect(8,40,6,2,"b"),rect(24,40,7,2,"b"),
   line(31,27,36,31,"g",2),px(36,32,"g"),poly([10,27,13,22,24,22,28,27,25,31,13,31],"W"),
@@ -93,7 +93,7 @@ boss("boss-rider",{w:38,h:44},
 );
 
 // Muralla: un mausoleo de tres ataúdes, rejas forjadas, bisagras y calaveras incrustadas en mármol.
-boss("boss-wall",{w:48,h:37},
+boss("boss-wall",{w:46,h:37},
   rect(2,11,44,24,"N"),poly([2,11,7,3,14,9,22,1,29,9,37,3,46,11],"n"),
   rect(5,13,12,19,"O"),rect(18,13,12,19,"b"),rect(31,13,12,19,"O"),
   poly([5,13,11,9,17,13],"W"),poly([18,13,24,9,30,13],"g"),poly([31,13,37,9,43,13],"W"),
@@ -106,7 +106,7 @@ boss("boss-wall",{w:48,h:37},
 );
 
 // Devorador: cráneo monumental abierto como una boca de pozo, colmillos y llamas rojas en el hueco.
-boss("boss-devourer",{w:44,h:43},
+boss("boss-devourer",{w:44,h:42},
   poly([8,10,15,4,28,4,36,10,40,25,34,35,27,40,16,40,8,35,3,25],"O"),
   poly([11,10,17,7,27,7,33,11,36,23,31,32,25,35,18,35,12,31,7,23],"g"),
   rect(11,13,22,12,"k"),poly([12,13,17,16,21,13,25,16,31,13,30,23,25,25,20,23,14,25],"R"),
