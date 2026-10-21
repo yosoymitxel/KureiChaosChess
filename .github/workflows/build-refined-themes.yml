@@ -1,0 +1,58 @@
+name: Build refined pixel themes
+on:
+  push:
+    branches:
+      - feat/refined-four-themes-v2
+    paths:
+      - 'art/temas/_build-refined-themes.trigger'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: refined-pixel-art-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  render-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/refined-four-themes-v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+      - name: Renderizar los cinco temas con ClaudePXL
+        run: |
+          set -euo pipefail
+          for theme in calaveras-ataudes vocaloid-miku gatos-negros-naranjosos colibries-flores-lilas pandas-mapaches; do
+            for file in art/temas/"$theme"/*.px.js; do
+              [ -f "$file" ] || continue
+              echo "Renderizando $file"
+              npx --yes github:crsolver/claude-pxl build "$file"
+            done
+          done
+      - name: Regenerar PNG y registros de la tienda
+        run: node tools/pixel-art.mjs
+      - name: Validar sintaxis, registro y recursos
+        run: |
+          set -euo pipefail
+          node --check src/data/pixel-themes.js
+          node --check src/data/pixel-packs.js
+          node tools/check-registry.mjs
+          node tools/art-check.mjs
+          for theme in calaveras-ataudes vocaloid-miku gatos-negros-naranjosos colibries-flores-lilas pandas-mapaches; do
+            test -s "assets/pixel/$theme/pawn_l.png"
+            test -s "assets/pixel/$theme/boss-titan_l.png"
+            test -s "assets/pixel/$theme/tile-a.png"
+            test -s "assets/pixel/$theme/table.png"
+            echo "$theme: sprites, jefe, losas y mesa generados"
+          done
+      - name: Guardar arte compilado en la rama
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/pixel src/data/pixel-packs.js src/data/pixel-themes.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(pixel-art): render refined five-theme artwork"
+            git push origin HEAD:feat/refined-four-themes-v2
+          fi
