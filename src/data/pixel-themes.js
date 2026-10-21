@@ -86,37 +86,6 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "goticas"
   },
-  "goticas-clonas": {
-    "id": "goticas-clonas",
-    "name": "Góticas Clonas",
-    "swatch": [
-      "#17131b",
-      "#b8b0b7",
-      "#ad5578",
-      "#7ac7b0"
-    ],
-    "vars": {
-      "table": "#17131b",
-      "table-2": "#241b2a",
-      "tile-a": "#b8b0b7",
-      "tile-b": "#554554",
-      "tile-side": "#352b3a",
-      "side-light": "#e8dfd2",
-      "side-dark": "#ad5578",
-      "side-wild": "#7ac7b0",
-      "paper": "#e8dfd2",
-      "paper-2": "#d2c5c8",
-      "paper-3": "#b5a5b3",
-      "ink": "#211824",
-      "ink-2": "#403344",
-      "accent": "#8f2948",
-      "accent-ink": "#f7e7eb",
-      "brass": "#c9a36a",
-      "muted": "#6f6272"
-    },
-    "art": "pixel",
-    "pack": "goticas-clonas"
-  },
   "goticas-waifu": {
     "id": "goticas-waifu",
     "name": "Muñeca Vampírica",
