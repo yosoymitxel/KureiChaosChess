@@ -21,7 +21,7 @@ const tail=(x,y,col="h")=>[line(x,y,x+4,y-4,col,3),line(x+4,y-4,x+8,y-4,col,3),l
 const paw=(x,y)=>[rect(x,y,5,3,"h"),hline(x,y+2,5,"k"),px(x+1,y+1,"g"),px(x+4,y+1,"g")];
 
 // Titán: gato montés gigantesco, hombros fuertes, mechones de oreja y ojos verde lima.
-boss("boss-titan",{w:44,h:43},
+boss("boss-titan",{w:44,h:42},
   ellipse(22,27,15,10,"h"),ellipse(22,25,12,8,"H"),ellipse(22,31,9,5,"g"),
   poly([8,19,12,14,17,17,22,14,27,17,32,14,36,20,32,27,12,27],"h"),
   poly([12,23,32,23,33,36,11,36],"H"),poly([17,24,27,24,29,35,15,35],"r"),
@@ -65,7 +65,7 @@ boss("boss-golem",{w:42,h:42},
 );
 
 // Jinete: gata negra con capa al viento, montada en un corcel atigrado.
-boss("boss-rider",{w:38,h:44},
+boss("boss-rider",{w:38,h:42},
   poly([3,30,10,23,27,23,35,30,32,37,7,37],"r"),ellipse(20,31,12,5,"H"),
   rect(8,35,5,6,"h"),rect(25,35,5,6,"h"),rect(7,41,7,2,"H"),rect(24,41,7,2,"H"),
   ...tail(30,28,"h"),ellipse(20,28,9,4,"r"),...[16,20,24].map(x=>line(x,25,x+1,29,"R",1)),
@@ -77,7 +77,7 @@ boss("boss-rider",{w:38,h:44},
 );
 
 // Muralla: torre de tejado con ventanales de gato, vigas oscuras y tejas.
-boss("boss-wall",{w:48,h:37},
+boss("boss-wall",{w:46,h:37},
   rect(2,12,44,23,"N"),poly([1,12,7,4,13,9,21,1,29,9,37,4,47,12],"n"),
   rect(5,14,12,17,"H"),rect(18,14,12,17,"t"),rect(31,14,12,17,"H"),
   ...cat(11,20,"h","g","e",.7),...cat(24,20,"r","c","e",.7),...cat(37,20,"H","w","y",.7),
@@ -86,7 +86,7 @@ boss("boss-wall",{w:48,h:37},
 );
 
 // Devorador: gato de Cheshire enorme, mandíbula abierta, colmillos largos y ojos desparejados.
-boss("boss-devourer",{w:44,h:43},
+boss("boss-devourer",{w:44,h:42},
   ellipse(22,22,15,12,"h"),ellipse(22,20,12,9,"H"),...cat(22,13,"H","g","e",1.2),
   rect(10,18,24,11,"k"),poly([10,18,16,20,21,18,26,20,34,18,31,28,25,31,18,28,12,31],"r"),
   ...[12,16,20,24,28,32].map(x=>poly([x,18,x+2,18,x+1,22],"g")),
