@@ -79,14 +79,15 @@ export function MiniTools({ mini, diffs, fixed, settings, setSettings, onRestart
 }
 
 // Destructive actions ask for a second press instead of a browser dialog.
-export function ConfirmButton({ class: cls = 'btn', onConfirm, confirmLabel = 'Pulsa otra vez para confirmar', children }) {
+// `enter`: entra animado con el resto de la pantalla (useEnter), como los botones que lo rodean.
+export function ConfirmButton({ class: cls = 'btn', onConfirm, confirmLabel = 'Pulsa otra vez para confirmar', enter, children }) {
   const [armed, setArmed] = useState(false);
   useEffect(() => {
     if (!armed) return;
     const t = setTimeout(() => setArmed(false), 3000);
     return () => clearTimeout(t);
   }, [armed]);
-  return html`<button class=${cls + (armed ? ' armed' : '')} onClick=${() => (armed ? onConfirm() : setArmed(true))}>${armed ? confirmLabel : children}</button>`;
+  return html`<button class=${cls + (armed ? ' armed' : '')} data-enter=${enter ? '' : undefined} onClick=${() => (armed ? onConfirm() : setArmed(true))}>${armed ? confirmLabel : children}</button>`;
 }
 
 // Boss card shared by the rules overlay and the gallery: locked until the boss falls once.

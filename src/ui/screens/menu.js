@@ -97,7 +97,7 @@ export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onS
           <div class="menu-row"><button class="btn primary" onClick=${go(onTutorial)}>Empezar tutorial</button><button class="btn ghost" onClick=${() => setAskTutorial(false)}>Cancelar</button></div>
         </div>`}
         ${!askTutorial && html`<button class="btn primary" data-enter onClick=${go(hasRun ? onContinue : onNew)}>${hasRun ? 'Continuar run' : 'Empezar run'}</button>`}
-        ${hasRun && !askTutorial && html`<${ConfirmButton} class="btn" onConfirm=${onNew} confirmLabel="Se pierde la run actual. ¿Seguro?">Nueva run<//>`}
+        ${hasRun && !askTutorial && html`<${ConfirmButton} class="btn" enter onConfirm=${onNew} confirmLabel="Se pierde la run actual. ¿Seguro?">Nueva run<//>`}
         ${onMinis && html`<button class="btn" data-enter onClick=${onMinis}><${Icon} name="connect4" />Minijuegos</button>`}
         <div class="menu-row" data-enter>
           <button class="btn ghost" onClick=${onHowTo}><${Icon} name="book" />Reglas</button>
