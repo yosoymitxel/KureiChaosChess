@@ -12,7 +12,14 @@ const piece=(n,o,...d)=>sprite(n,{...o,outline:"k"},...d);
 const face=(x,y)=>[
   rect(x-4,y-3,8,7,"s"),rect(x+2,y-2,2,5,"S"),
   rect(x-3,y-1,2,2,"k"),rect(x+1,y-1,2,2,"k"),
-  px(x-3,y-1,"c"),px(x+1,y-1,"c"),hline(x-2,y+2,5,"P"),px(x,y+2,"p")
+  px(x-3,y-1,"c"),px(x+1,y-1,"c"),px(x-2,y,"g"),px(x+2,y,"g"),
+  hline(x-2,y+2,5,"P"),px(x,y+2,"p"),
+  // El flequillo angular y los dos mechones frontales son la silueta reconocible de Miku.
+  poly([x-5,y-3,x-5,y-7,x-2,y-5,x,y-8,x+2,y-5,x+5,y-7,x+5,y-2,x+2,y-3,x,y-1,x-2,y-3],"O"),
+  line(x-3,y-5,x-2,y-4,"W",1),line(x+2,y-5,x+3,y-4,"W",1),
+  // Auriculares cuadrados de escenario, con almohadillas magenta.
+  rect(x-7,y-3,2,5,"M"),rect(x+5,y-3,2,5,"M"),
+  rect(x-7,y-1,2,2,"p"),rect(x+5,y-1,2,2,"p")
 ];
 const twinTails=(x,y)=>[
   poly([x-4,y,x-8,y+2,x-10,y+9,x-8,y+15,x-5,y+12,x-5,y+6,x-2,y+4],"O"),
