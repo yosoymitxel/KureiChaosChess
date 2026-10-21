@@ -141,3 +141,15 @@ Reutiliza el caballo y `legalMoves`; cada casilla abandonada se agrega al conjun
 ### El rey impostor
 
 Reutiliza las piezas e iconografía actuales. La regla nueva se limita a identificar al sospechoso correcto, con más intentos en dificultades bajas.
+
+### El laboratorio
+
+Reutiliza `applyMutations` y el movimiento legal de `rules.js`; el tablero usa los mismos huecos que el resto del juego. El reto es escapar antes de que el suelo consumido cierre la ruta.
+
+### El suelo se acaba
+
+Reutiliza el caballo y `legalMoves`; cada casilla abandonada se agrega al conjunto de huecos, siguiendo la idea del derrumbe ya existente.
+
+### El rey impostor
+
+Reutiliza las piezas e iconografía actuales. La regla nueva se limita a identificar al sospechoso correcto, con más intentos en dificultades bajas.
