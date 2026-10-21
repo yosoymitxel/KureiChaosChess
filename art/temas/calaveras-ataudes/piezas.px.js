@@ -11,9 +11,12 @@ pal({
 ramps("bOoWw","Rr","Yy","Gg","Nn","Mm","Pp","Cc");
 const piece=(name,opts,...items)=>sprite(name,{...opts,outline:"k"},...items);
 const skull=(x,y)=>[
-  rect(x-4,y-3,8,5,"g"), rect(x-3,y+2,6,2,"G"), rect(x-2,y+4,4,1,"g"),
-  rect(x-3,y-2,2,2,"k"), rect(x+2,y-2,2,2,"k"), px(x,y-1,"k"),
-  px(x-2,y+1,"G"),px(x+2,y+1,"G"),hline(x-2,y+3,5,"k")
+  ellipse(x,y,5,4,"g"),ellipse(x,y+1,4,3,"G"),rect(x-3,y+1,6,3,"g"),
+  poly([x-4,y-1,x-3,y-4,x-1,y-2,x,y-4,x+2,y-2,x+4,y-4,x+4,y],"w"),
+  rect(x-3,y-1,2,3,"k"),rect(x+2,y-1,2,3,"k"),px(x-2,y-1,"y"),px(x+3,y-1,"y"),
+  poly([x-1,y+1,x+1,y+1,x,y+3],"k"),hline(x-2,y+3,5,"k"),
+  ...[x-2,x,x+2].map((tx)=>px(tx,y+4,"g")),
+  px(x-1,y-4,"r"),px(x,y-5,"y"),px(x+1,y-4,"r")
 ];
 const flower=(x,y)=>[
   px(x,y-2,"v"),px(x-2,y-1,"v"),px(x+2,y-1,"v"),px(x-2,y+1,"v"),px(x+2,y+1,"v"),
