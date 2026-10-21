@@ -15,6 +15,9 @@
     "contraband": "node tools/contraband-selfcheck.mjs",
     "laboratory": "node tools/laboratory-selfcheck.mjs",
     "collapsing-floor": "node tools/collapsing-floor-selfcheck.mjs",
+    "king-impostor": "node tools/king-impostor-selfcheck.mjs",
+    "laboratory": "node tools/laboratory-selfcheck.mjs",
+    "collapsing-floor": "node tools/collapsing-floor-selfcheck.mjs",
     "king-impostor": "node tools/king-impostor-selfcheck.mjs"
   }
 }
