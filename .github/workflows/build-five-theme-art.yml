@@ -4,13 +4,7 @@ on:
     branches:
       - feat/five-theme-art
     paths:
-      - 'art/temas/calaveras-ataudes/**'
-      - 'art/temas/vocaloid-miku/**'
-      - 'art/temas/gatos-negros-naranjosos/**'
-      - 'art/temas/colibries-flores-lilas/**'
-      - 'art/temas/pandas-mapaches/**'
-      - 'tools/pixel-art.mjs'
-      - '.github/workflows/build-five-theme-art.yml'
+      - 'art/temas/_build-five-themes.trigger'
   workflow_dispatch:
 permissions:
   contents: write
