@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import { newMinefield, legal, move } from '../src/game/minefield.js';
+const s=newMinefield('normal');
+assert.ok(legal(s).length>0);
+assert.equal(move(s,0,0),false,'rejects illegal knight move');
+const target=legal(s)[0];
+assert.equal(move(s,target.row,target.col),true);
+assert.equal(s.turns,8);
+assert.ok(s.revealed.has(target.row+','+target.col));
+console.log('Campo minado: checks básicos OK');
