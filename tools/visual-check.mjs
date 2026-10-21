@@ -17,6 +17,7 @@ try {
     page.on('pageerror',e=>consoleErrors.push(e.message));
     page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text());});
     for (const game of games) {
+      consoleErrors.length = 0;
       const url=`${base}/tests/visual.html?mini=${game}&theme=${theme}`;
       try {
         await page.goto(url,{waitUntil:'networkidle',timeout:45000});
