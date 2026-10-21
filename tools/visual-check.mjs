@@ -91,7 +91,7 @@ try {
           const frame = document.querySelector('#preview');
           const doc = frame && frame.contentDocument;
           return frame && frame.src.includes('tests/visual-board.html') &&
-            doc && doc.readyState === 'complete' &&
+            doc && doc.readyState === 'complete' && doc.documentElement &&
             doc.documentElement.dataset.pack === expected &&
             doc.documentElement.dataset.art === 'pixel' &&
             !!doc.querySelector('.pc-art image');
@@ -109,7 +109,7 @@ try {
             clientWidth: doc.documentElement.clientWidth,
           };
         });
-        if (!rendered.spriteHref.includes('/assets/pixel/' + id + '/')) {
+        if (!rendered.spriteHref.includes('assets/pixel/' + id + '/')) {
           throw new Error(id + ': visible sprite does not use its own PNG: ' + rendered.spriteHref);
         }
         if (!rendered.spriteCount || !rendered.boardTiles) throw new Error(id + ': empty board or pieces');
