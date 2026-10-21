@@ -8,7 +8,7 @@ export function newKingImpostor(level='normal'){
   {id:'suspect-b',type:'bishop',color:'dark',row:1,col:3},
   {id:'suspect-c',type:'knight',color:'dark',row:1,col:5},
  ];
- const impostor=['suspect-a','suspect-b','suspect-c'][level==='facil'?0:level==='dificil'?2:1];
+ const impostor='suspect-c';
  return {diff,pieces,impostor,turns:diff.turns,over:null,chosen:null};
 }
 export function choose(s,id){
