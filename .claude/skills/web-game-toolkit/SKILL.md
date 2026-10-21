@@ -91,6 +91,18 @@ Zugzwang (`tools/`, `src/`) es la implementación de referencia cuando haga falt
 
 ## Gastar pocos tokens
 
+Lo que llena el contexto es el historial (en Zugzwang, 476k de 544k), no las herramientas MCP:
+Claude Code ya difiere los esquemas MCP (Tool Search) y solo carga los que se usan.
+
+- **Una tarea por sesión.** Sesión nueva al cambiar de tema; `/compact` con nota al cerrar cada pieza.
+- **Conectores que no se usan, apagados** en claude.ai/customize/connectors (cada servidor suma
+  instrucciones y esquemas). Para un juego bastan GitHub y, si acaso, Playwright.
+- **Plantilla lista** en `templates/.claude/` (copiar a la raíz del proyecto):
+  `settings.json` (autocompacta al 60 % y engancha el hook), `hooks/read-guard.mjs` (bloquea leer
+  enteros archivos > 40 KB; obliga a `grep -n` + tramo) y `agents/explorador.md` (búsquedas con Haiku).
+- Probado y descartado en la nube: claude-token-optimizer (sus hooks no reciben el nombre de la
+  herramienta), token-optimizer, Frugal, semantic-cache-mcp, thrifty; pxpipe y catnap solo en el PC.
+
 - **CLAUDE.md corto en la raíz** con mapa del proyecto, comandos y reglas (plantilla en
   `templates/CLAUDE.md`): cada sesión nueva empieza sabiendo dónde está todo en vez de explorar.
 - **Comprobaciones que dicen una línea** si todo va bien y solo los fallos si no.
