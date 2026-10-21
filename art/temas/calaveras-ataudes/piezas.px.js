@@ -27,10 +27,9 @@ const bones=(x,y)=>[line(x,y,x+4,y+4,"g",1),circ(x,y,1,"g"),circ(x+4,y+4,1,"g")]
 // Peón: calaca de barro con mandíbula tallada, ojos de carbón y vela encendida en un nicho.
 piece("pawn",{w:23,h:29},
   rect(10,1,3,5,"N"),px(9,2,"n"),line(12,3,16,1,"n",1),px(16,2,"n"),
-  ellipse(11,11,8,7,"W"),ellipse(9,10,4,5,"w"),ellipse(14,12,3,5,"O"),
-  line(6,6,8,4,"g",1),line(8,4,10,5,"g",1),px(6,8,"G"),
-  poly([5,10,8,8,9,12],"k"),poly([13,12,15,8,18,10],"k"),px(7,10,"y"),px(15,10,"y"),
-  rect(7,14,9,2,"k"),...([8,11,14].map(x=>px(x,14,"g"))),
+  ...skull(11,11),
+  line(6,7,8,6,"y",1),line(14,6,16,7,"Y",1),
+  flower(4,14),flower(18,14),px(7,13,"r"),px(15,13,"r"),
   rect(6,17,11,6,"O"),poly([7,17,15,17,17,24,5,24],"b"),vline(8,18,5,"W"),vline(14,18,5,"O"),
   rect(8,24,3,3,"n"),rect(13,24,3,3,"n"),rect(7,27,5,2,"N"),rect(13,27,5,2,"N"),
   flower(3,19),flower(20,19),px(10,20,"r"),px(12,20,"r")
