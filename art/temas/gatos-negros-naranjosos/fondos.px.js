@@ -8,7 +8,7 @@ pal({
 });
 const slab=(name,[base,hi,lo,deep],...marks)=>sprite(name,{w:16,h:16},
  rect(0,0,16,16,base),hline(0,0,15,hi),vline(0,0,15,hi),
- hline(1,14,14,lo),vline(14,1,13,lo),hline(0,15,16,deep),vline(15,0,16,deep),
+ hline(1,14,14,lo),vline(14,1,13,lo),
  ...marks.flatMap(f=>f())
 );
 const paw=(x,y,c)=>[ellipse(x,y,1,1,c),px(x-3,y-2,c),px(x,y-3,c),px(x+3,y-2,c),px(x-2,y+1,c),px(x+2,y+1,c)];

@@ -8,7 +8,7 @@ pal({
 });
 const slab=(name,[base,hi,lo,deep],...marks)=>sprite(name,{w:16,h:16},
  rect(0,0,16,16,base),hline(0,0,15,hi),vline(0,0,15,hi),
- hline(1,14,14,lo),vline(14,1,13,lo),hline(0,15,16,deep),vline(15,0,16,deep),...marks
+ hline(1,14,14,lo),vline(14,1,13,lo),...marks
 );
 const bloom=(x,y)=>[
  px(x,y-2,"p"),px(x-2,y-1,"P"),px(x,y-1,"p"),px(x+2,y-1,"P"),

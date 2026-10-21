@@ -7,7 +7,7 @@ pal({
 });
 const tile=(name,[base,hi,lo,deep],...marks)=>sprite(name,{w:16,h:16},
  rect(0,0,16,16,base),hline(0,0,15,hi),vline(0,0,15,hi),
- hline(1,14,14,lo),vline(14,1,13,lo),hline(0,15,16,deep),vline(15,0,16,deep),
+ hline(1,14,14,lo),vline(14,1,13,lo),
  ...marks.flat(Infinity)
 );
 const led=t=>[hline(2,3,5,t.lo),hline(2,4,5,t.hi),vline(10,2,5,t.deep),px(10,2,"p"),px(11,6,"t"),hline(3,10,7,t.deep)];
