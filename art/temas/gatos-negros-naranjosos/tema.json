@@ -1,0 +1,47 @@
+{
+  "nombre": "Gatos negros y naranjosos",
+  "precio": 160,
+  "descripcion": "Gatos negros y naranjas, ojos brillantes, calabaza y detalles de noche otoñal.",
+  "colores": {
+    "table": "#171923",
+    "table-2": "#252a35",
+    "tile-a": "#e8d8b9",
+    "tile-b": "#b68a62",
+    "tile-side": "#684632",
+    "side-light": "#fff0d2",
+    "side-dark": "#e77927",
+    "side-wild": "#8bbf79",
+    "paper": "#f7edda",
+    "paper-2": "#e9d8b9",
+    "paper-3": "#cdb793",
+    "ink": "#211b1b",
+    "ink-2": "#4b3830",
+    "accent": "#bd4d1c",
+    "accent-ink": "#fff0d2",
+    "brass": "#f2b544",
+    "muted": "#74604c"
+  },
+  "bandos": {
+    "claro": [
+      "#fff0d2",
+      "#e8d8b9",
+      "#c7a37a",
+      "#8b6547",
+      "#4d392e"
+    ],
+    "oscuro": [
+      "#eec0a0",
+      "#dc8d61",
+      "#bd5c35",
+      "#873b27",
+      "#4b241d"
+    ],
+    "salvaje": [
+      "#cce7a9",
+      "#9cc879",
+      "#6c9e55",
+      "#426c3b",
+      "#29462b"
+    ]
+  }
+}
