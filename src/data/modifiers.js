@@ -15,6 +15,7 @@ export const MODIFIERS = {
   bag: { id: 'bag', name: 'Bolsa', desc: 'Una bolsa con un objeto.', icon: 'bag', kind: 'bag', weights: [3, 2, 2] },
   // Minigames: an interlude with its own rules. Winning pays a mutation or a piece and unlocks it in the menu.
   // Each one also needs its screen in MINI_SCREENS (src/ui/app.js); tools/check-registry.mjs checks it.
+  caceria: { id: 'caceria', name: 'La cacería', desc: 'Minijuego: alcanza al peón fugitivo antes de que escape. Premio: mutación o pieza.', icon: 'hunt', mini: true, weights: [0.7, 1, 1] },
   connect4: { id: 'connect4', name: 'Conecta 4', desc: 'Minijuego: alinea cuatro fichas antes que el bot. Premio: mutación o pieza.', icon: 'connect4', mini: true, weights: [0.7, 1, 1] },
   bomber: { id: 'bomber', name: 'Bomberman', desc: 'Minijuego: limpia el tablero de enemigos con bombas. Premio: mutación o pieza.', icon: 'bomb', mini: true, weights: [0, 1, 1] },
   barrier: { id: 'barrier', name: 'Barrera', desc: 'Minijuego: cruza el tablero antes que el bot; pon vallas para cortarle el paso. Premio: mutación o pieza.', icon: 'fence', mini: true, weights: [0, 0.5, 1.5] },
