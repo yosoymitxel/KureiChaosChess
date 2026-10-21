@@ -59,13 +59,13 @@ boss("boss-ram",{w:46,h:34},
 
 // Hidra: tres guardianes distintos emergen entre bambú; orejas, antifaz y manchas bien separados.
 boss("boss-hydra",{w:44,h:42},
-  line(11,31,7,19,"t",5),line(23,31,23,17,"t",5),line(35,31,39,19,"t",5),
-  line(7,20,5,11,"T",4),line(23,18,23,8,"T",4),line(39,20,41,11,"T",4),
-  ...pandaHead(5,10,.8),...raccoonHead(23,7,.85),...redPandaHead(37,10,.8),
-  poly([5,28,12,25,19,28,26,25,33,28,42,25,45,36,2,36],"q"),
+  line(13,31,9,19,"t",5),line(23,31,23,17,"t",5),line(33,31,37,19,"t",5),
+  line(9,20,7,11,"T",4),line(23,18,23,8,"T",4),line(37,20,39,11,"T",4),
+  ...pandaHead(7,10,.8),...raccoonHead(23,7,.85),...redPandaHead(35,10,.8),
+  poly([7,28,13,25,19,28,26,25,32,28,39,25,41,36,4,36],"q"),
   ellipse(23,31,11,5,"O"),...[14,18,22,26,30].map(x=>circ(x,30,2,"w")),
-  ...[6,11,17,23,29,35,40].map((x,i)=>poly([x,34,x+3,34,x+2,39],"t")),
-  ...[7,18,29,39].map(x=>px(x,36,"y"))
+  ...[8,12,17,23,29,34,38].map((x,i)=>poly([x,34,x+3,34,x+2,39],"t")),
+  ...[9,18,28,37].map(x=>px(x,36,"y"))
 );
 
 // Gólem: panda de piedra y bambú con hombreras redondeadas y grecas en el peto.
