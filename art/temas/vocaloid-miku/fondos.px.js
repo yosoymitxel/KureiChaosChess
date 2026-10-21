@@ -1,12 +1,40 @@
-// Escenario de concierto digital: paneles LED, barrido holográfico y mesa de fibra óptica.
-pal({k:"#08282e",a:"#b8f4e9",A:"#e4fffa",c:"#79ded4",C:"#36bcb7",d:"#61cfc5",D:"#a2e9dd",e:"#287c80",E:"#14545e",r:"#103943",R:"#174b55",z:"#09252c",J:"#06191e",j:"#041216",p:"#ed78bd",P:"#8f367c",y:"#eaff81",Y:"#9ccc42"});
-const slab=(n,b,h,l,marks=[])=>sprite(n,{w:16,h:16},rect(0,0,16,16,b),hline(0,0,15,h),vline(0,0,15,h),hline(1,14,14,l),vline(14,1,13,l),hline(0,15,16,"k"),vline(15,0,16,"k"),...marks);
-slab("tile-a","a","A","c",[hline(2,3,5,"p"),hline(3,4,5,"p"),px(11,10,"C"),px(12,10,"A"),vline(2,6,4,"e")]);
-slab("tile-a2","a","A","c",[hline(2,3,7,"p"),px(9,4,"p"),hline(4,10,8,"C"),px(11,9,"A"),vline(3,11,2,"e")]);
-slab("tile-a3","a","A","c",[hline(2,2,4,"c"),hline(10,11,4,"p"),px(3,3,"A"),px(12,12,"A"),vline(7,5,5,"C")]);
-slab("tile-b","d","D","e",[hline(2,4,6,"E"),hline(3,5,4,"c"),px(12,11,"p"),px(11,10,"P")]);
-slab("tile-b2","d","D","e",[hline(1,3,8,"P"),vline(8,3,6,"P"),hline(4,11,8,"C"),px(4,10,"D")]);
-slab("tile-b3","d","D","e",[hline(3,2,3,"p"),hline(9,11,5,"c"),px(2,3,"D"),px(13,12,"D")]);
-const bricks=[];for(let row=0;row<4;row++){const y=row*8,off=row%2?8:0;for(let i=-1;i<2;i++){const x=i*16+off;bricks.push(rect(x,y,15,7,(row+i)%2?"r":"R"),hline(x,y,15,"C"),hline(x,y+6,15,"J"));}bricks.push(hline(0,y+7,32,"j"));}sprite("table",{w:32,h:32},rect(0,0,32,32,"z"),...bricks,...[2,10,18,26].map(x=>vline(x,0,31,"E")),...[3,11,19,27].map(x=>px(x,3,"p")),...[7,15,23,31].map(x=>px(x,27,"c")));
-const frame=(n,col)=>sprite(n,{w:12,h:12},hline(2,0,8,"k"),hline(2,11,8,"k"),vline(0,2,8,"k"),vline(11,2,8,"k"),hline(2,1,8,"C"),vline(1,2,7,"C"),hline(2,10,8,"J"),vline(10,2,8,"J"),px(1,1,col),px(10,1,col),px(1,10,col),px(10,10,col),px(2,2,"p"),px(9,9,"c"));
-frame("panel","p");frame("boton","y");
+// Piso de escenario digital: paneles LED con señal, circuitos y un marco de monitor de concierto.
+pal({
+ a:"#80dfe0",A:"#d1fffa",c:"#56b9c0",C:"#297f91",
+ d:"#344d70",D:"#4a6688",e:"#24334d",E:"#152438",
+ r:"#10232e",R:"#183442",z:"#0b1c27",J:"#06131c",j:"#030b12",
+ p:"#ff79cd",P:"#aa3e91",y:"#eaff81",Y:"#9ccc42",t:"#56e9f0",T:"#218caa"
+});
+const tile=(name,[base,hi,lo,deep],...marks)=>sprite(name,{w:16,h:16},
+ rect(0,0,16,16,base),hline(0,0,15,hi),vline(0,0,15,hi),
+ hline(1,14,14,lo),vline(14,1,13,lo),hline(0,15,16,deep),vline(15,0,16,deep),
+ ...marks
+);
+const led=t=>[hline(2,3,5,t.lo),hline(2,4,5,t.hi),vline(10,2,5,t.deep),px(10,2,"p"),px(11,6,"t"),hline(3,10,7,t.deep)];
+const signal=t=>[poly([11,1,14,1,10,6,13,6,6,14,8,8,5,8],"P"),px(12,2,"p"),px(7,12,"t")];
+const circuit=t=>[vline(4,3,8,t.deep),hline(4,4,6,t.lo),vline(9,4,5,t.deep),hline(8,9,5,t.hi),px(4,12,"p"),px(9,9,"t")];
+tile("tile-a",["a","A","c","C"],led({lo:"c",hi:"A",deep:"C"}));
+tile("tile-a2",["a","A","c","C"],signal({deep:"C"}));
+tile("tile-a3",["a","A","c","C"],circuit({deep:"C",lo:"c",hi:"A"}));
+tile("tile-b",["d","D","e","E"],led({lo:"e",hi:"D",deep:"E"}));
+tile("tile-b2",["d","D","e","E"],signal({deep:"E"}));
+tile("tile-b3",["d","D","e","E"],circuit({deep:"E",lo:"e",hi:"D"}));
+// Mesa led: seams of eight pixels, alternating rows, scanlines and sparse magenta/cyan pulses.
+const panels=[];
+for(let y=0;y<32;y+=8) for(let x=0;x<32;x+=8){
+ const base=(x/8+y/8)%2?"r":"R";
+ panels.push(rect(x,y,7,7,base),hline(x,y,7,"C"),vline(x,y,7,"C"),hline(x,y+6,7,"J"),vline(x+6,y,7,"J"));
+ panels.push(hline(x+1,y+2,5,"E"),hline(x+1,y+3,4,"e"));
+}
+sprite("table",{w:32,h:32},rect(0,0,32,32,"z"),...panels,
+ ...[[3,1],[11,9],[19,17],[27,25],[27,1],[3,25]].flatMap(([x,y])=>[hline(x,y,3,"p"),px(x+1,y+1,"t")]),
+ ...[7,23].map(x=>vline(x,0,31,"J"))
+);
+const H="#ffffff66",L="#00000040";
+const frame=(name,col)=>sprite(name,{w:12,h:12},
+ hline(2,0,8,"j"),hline(2,11,8,"j"),vline(0,2,8,"j"),vline(11,2,8,"j"),
+ px(1,1,"j"),px(10,1,"j"),px(1,10,"j"),px(10,10,"j"),
+ hline(2,1,8,H),vline(1,2,7,H),hline(2,10,8,L),vline(10,2,8,L),
+ px(2,2,col),px(9,2,"p"),px(2,9,"t"),px(9,9,col),px(5,1,"p"),px(6,10,"t")
+);
+frame("panel","p");frame("boton","t");
