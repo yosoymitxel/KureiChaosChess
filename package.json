@@ -7,6 +7,7 @@
     "simulate": "node tools/simulate.mjs",
     "ladder": "node tools/ladder.mjs",
     "sfx": "node tools/sfx-check.mjs",
-    "hunt": "node tools/hunt-selfcheck.mjs"
+    "hunt": "node tools/hunt-selfcheck.mjs",
+    "escape": "node tools/escape-selfcheck.mjs"
   }
 }
