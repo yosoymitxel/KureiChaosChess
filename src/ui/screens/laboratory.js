@@ -6,7 +6,7 @@ import { SIZE, DIFFS, newLaboratory, legal, move } from '../../game/laboratory.j
 export function LaboratoryScreen({sub,onBack,onEnd,endLabel='Continuar',settings,setSettings,onRestart,diff}){
  const [s]=useState(()=>newLaboratory(diff||settings.miniDiff?.laboratory));const [,redraw]=useState(0);const targets=legal(s);
  const tap=(r,c)=>{if(s.over||!targets.some(m=>m.row===r&&m.col===c))return;if(move(s,r,c))redraw(n=>n+1);};
- const cell=(r,c)=>{const p=s.pieces[0],valid=targets.some(m=>m.row===r&&m.col===c);return {cls:[valid&&'mv',s.board.holes.has(r+','+c)&&'foe'].filter(Boolean).join(' '),piece:p.row===r&&p.col===c?{type:p.type,side:p.color}:null};};
+ const cell=(r,c)=>{const p=s.pieces[0],valid=targets.some(m=>m.row===r&&m.col===c);return {cls:[valid&&'mv',r===0&&'target',s.board.holes.has(r+','+c)&&'foe'].filter(Boolean).join(' '),piece:p.row===r&&p.col===c?{type:p.type,side:p.color}:null};};
  return html`<div class="screen mini"><${Topbar} title="El laboratorio" sub=${sub} onBack=${onBack}/><div class="mini-body">
  <div class="mini-stats" aria-live="polite"><span class="chip"><${Icon} name="flask" size=${12}/> Jugadas: ${s.turns}</span><span class="chip">Prueba: ${s.diff.mutation}</span></div>
  <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="El laboratorio" boardClass="bm-slab" onTap=${tap}/>
