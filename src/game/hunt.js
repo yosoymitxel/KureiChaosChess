@@ -11,7 +11,7 @@ const board = () => ({ rows: SIZE, cols: SIZE, holes: new Set(), terrain: new Ma
 const make = (id, type, color, row, col) => ({ id, type, color, row, col });
 export function newHunt(key = 'normal') {
   const diff = DIFFS[key] || DIFFS.normal;
-  return { diff, board: board(), pieces: [make('hunter', 'rook', 'light', 6, 3), make('runner', 'pawn', 'dark', 3, 3)], turns: diff.turns, over: null, last: null, escaped: 0 };
+  return { diff, board: board(), pieces: [make('hunter', 'queen', 'light', 6, 3), make('runner', 'pawn', 'dark', 3, 4)], turns: diff.turns, over: null, last: null, escaped: 0 };
 }
 export const legal = (s) => s.over ? [] : legalMoves(s.pieces.find((p) => p.id === 'hunter'), s.pieces, s.board);
 export function move(s, row, col) {
@@ -30,7 +30,7 @@ export function move(s, row, col) {
     const choices = [-1, 0, 1].map((dc) => ({ row: runner.row - 1, col: runner.col + dc }))
       .filter((p) => p.row >= 0 && p.col >= 0 && p.col < SIZE && !(p.row === hunter.row && p.col === hunter.col));
     if (!choices.length) { s.over = 'win'; s.pieces = [hunter]; return true; }
-    choices.sort((a, b) => Math.abs(a.col - hunter.col) - Math.abs(b.col - hunter.col));
+    choices.sort((a, b) => Math.abs(b.col - hunter.col) - Math.abs(a.col - hunter.col));
     const next = choices[0];
     runner.row = next.row; runner.col = next.col;
     if (runner.row === 0) { s.over = 'lose'; s.escaped = 1; }
