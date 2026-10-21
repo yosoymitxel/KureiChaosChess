@@ -1,0 +1,47 @@
+{
+  "nombre": "Vocaloid · Hatsune Miku",
+  "precio": 160,
+  "descripcion": "Estética de escenario digital inspirada en Hatsune Miku: turquesa, cian, negro y detalles holográficos.",
+  "colores": {
+    "table": "#09252c",
+    "table-2": "#103943",
+    "tile-a": "#b8f4e9",
+    "tile-b": "#61cfc5",
+    "tile-side": "#287c80",
+    "side-light": "#e4fffa",
+    "side-dark": "#28b9b1",
+    "side-wild": "#ed78bd",
+    "paper": "#e5fffa",
+    "paper-2": "#c5f3eb",
+    "paper-3": "#8dd9d1",
+    "ink": "#08282e",
+    "ink-2": "#20515a",
+    "accent": "#168f98",
+    "accent-ink": "#e9fffc",
+    "brass": "#f08bc7",
+    "muted": "#477b80"
+  },
+  "bandos": {
+    "claro": [
+      "#e4fffa",
+      "#b8f4e9",
+      "#79ded4",
+      "#36bcb7",
+      "#147f83"
+    ],
+    "oscuro": [
+      "#f5c4e7",
+      "#e48bc9",
+      "#c85ba9",
+      "#8f367c",
+      "#55234f"
+    ],
+    "salvaje": [
+      "#d5f7a5",
+      "#a9e66f",
+      "#70bd55",
+      "#3e7e3c",
+      "#234d2c"
+    ]
+  }
+}
