@@ -1,0 +1,47 @@
+{
+  "nombre": "Calaveras y Ataúdes",
+  "precio": 160,
+  "descripcion": "Ossarios, calaveras ornamentadas y ataúdes de madera oscura con acentos de cera y hueso.",
+  "colores": {
+    "table": "#19151a",
+    "table-2": "#282027",
+    "tile-a": "#d9d0c2",
+    "tile-b": "#83756c",
+    "tile-side": "#493d3a",
+    "side-light": "#f2e7d5",
+    "side-dark": "#8d293c",
+    "side-wild": "#d2a84a",
+    "paper": "#eee5d8",
+    "paper-2": "#d8cbb9",
+    "paper-3": "#b9a995",
+    "ink": "#211a1d",
+    "ink-2": "#49383a",
+    "accent": "#8d293c",
+    "accent-ink": "#f8e9df",
+    "brass": "#d2a84a",
+    "muted": "#71615f"
+  },
+  "bandos": {
+    "claro": [
+      "#f2e7d5",
+      "#d9cbbb",
+      "#b7a89b",
+      "#83756c",
+      "#493d3a"
+    ],
+    "oscuro": [
+      "#e7b3b7",
+      "#c77a86",
+      "#a44758",
+      "#762b3b",
+      "#481c2a"
+    ],
+    "salvaje": [
+      "#f2d98b",
+      "#dfb84f",
+      "#b78a2f",
+      "#806020",
+      "#4e3b19"
+    ]
+  }
+}
