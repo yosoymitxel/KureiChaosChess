@@ -23,6 +23,23 @@ try {
         await page.goto(url,{waitUntil:'networkidle',timeout:45000});
         await page.locator('.mini-stage .bm').waitFor({timeout:15000});
         await page.screenshot({path:`${out}/${game}-${theme}-${viewport.name}.png`,fullPage:true});
+        const beforeAction = await page.locator('.mini-stats').innerText().catch(() => '');
+        const legalCell = page.locator('.bm-cell.mv').first();
+        if (await legalCell.count()) {
+          if (viewport.name === 'mobile') {
+            const rect = await legalCell.boundingBox();
+            if (!rect) throw new Error('La casilla legal no tiene caja visible');
+            await page.touchscreen.tap(rect.x + rect.width / 2, rect.y + rect.height / 2);
+          } else {
+            await legalCell.click();
+          }
+          await page.waitForTimeout(180);
+          const afterAction = await page.locator('.mini-stats').innerText().catch(() => '');
+          if (beforeAction === afterAction) throw new Error('La primera acción legal no cambió el estado visible');
+          await page.screenshot({path:`${out}/${game}-${theme}-${viewport.name}-after-action.png`,fullPage:true});
+        } else {
+          throw new Error('No se encontraron movimientos o sospechosos interactivos');
+        }
         const metrics=await page.evaluate(()=>({title:document.title,scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth,scrollHeight:document.documentElement.scrollHeight,clientHeight:document.documentElement.clientHeight,board:!!document.querySelector('.mini-stage .bm'),cells:document.querySelectorAll('.mini-stage .bm-cell').length}));
         if(!metrics.board||!metrics.cells) throw new Error('No se renderizó el tablero');
         if(metrics.scrollWidth>metrics.clientWidth+1) failures.push({game,theme,viewport:viewport.name,error:`overflow horizontal ${metrics.scrollWidth}>${metrics.clientWidth}`});
