@@ -17,6 +17,7 @@ export function BodyguardScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
     const grid = gridRef.current;
     if (!grid || reduced()) return;
     for (const ev of pending) {
+      const cell = grid.children[ev.to.row * SIZE + ev.to.col];
       const token = cell?.querySelector('.bm-pc');
       if (token) hopPiece(grid, token, { from: ev.from, to: ev.to, side: ev.id === 'assailant' ? 'dark' : 'light', cols: SIZE, rows: SIZE });
     }
