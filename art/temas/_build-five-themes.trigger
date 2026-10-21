@@ -1,1 +1,1 @@
-Build trigger: rerun pixel-art compilation after source syntax repair.
+Build trigger: rerun after flattening floral drawing operations in hummingbird boss source.
