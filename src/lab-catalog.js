@@ -1,29 +1,39 @@
 import { THEMES } from './data/themes.js';
 
 const MINIS = [
-  ['caceria', 'La cacería'],
-  ['escape', 'Escape del tablero'],
-  ['bodyguard', 'El guardaespaldas'],
-  ['giantHunt', 'Caza de gigantes'],
-  ['minefield', 'Campo minado'],
-  ['contraband', 'Contrabando dimensional'],
-  ['laboratory', 'El laboratorio'],
-  ['collapsingFloor', 'El suelo se acaba'],
-  ['kingImpostor', 'El rey impostor'],
-  ['connect4', 'Conecta 4'],
-  ['bomber', 'Bombardero'],
-  ['barrier', 'Barrera'],
-  ['izombie', 'Yo, zombi'],
-  ['bowling', 'Boliche'],
-  ['laststand', 'Última resistencia'],
-  ['mates', 'Mate en uno'],
-  ['knight', 'Ruta del caballo'],
-  ['queens', 'Reinas'],
-  ['marcianos', 'Marcianitos'],
-  ['checkers', 'Damas'],
-  ['fusion', 'Fusión'],
-  ['duel', 'Duelo'],
-  ['hockey', 'Hockey de mesa'],
+  ['caceria', 'Minijuego · La cacería'],
+  ['escape', 'Minijuego · Escape del tablero'],
+  ['bodyguard', 'Minijuego · El guardaespaldas'],
+  ['giantHunt', 'Minijuego · Caza de gigantes'],
+  ['minefield', 'Minijuego · Campo minado'],
+  ['contraband', 'Minijuego · Contrabando dimensional'],
+  ['laboratory', 'Minijuego · El laboratorio'],
+  ['collapsingFloor', 'Minijuego · El suelo se acaba'],
+  ['kingImpostor', 'Minijuego · El rey impostor'],
+  ['connect4', 'Minijuego · Conecta 4'],
+  ['bomber', 'Minijuego · Bombardero'],
+  ['barrier', 'Minijuego · Barrera'],
+  ['izombie', 'Minijuego · Yo, zombi'],
+  ['bowling', 'Minijuego · Boliche'],
+  ['laststand', 'Minijuego · Última resistencia'],
+  ['mates', 'Minijuego · Mate en uno'],
+  ['knight', 'Minijuego · Ruta del caballo'],
+  ['queens', 'Minijuego · Reinas'],
+  ['marcianos', 'Minijuego · Marcianitos'],
+  ['checkers', 'Minijuego · Damas'],
+  ['fusion', 'Minijuego · Fusión'],
+  ['duel', 'Minijuego · Duelo'],
+  ['hockey', 'Minijuego · Hockey de mesa'],
+  ['board:none', 'TABLERO NORMAL · Terreno llano'],
+  ['board:promote', 'TABLERO NORMAL · Coronación'],
+  ['board:chaos', 'TABLERO NORMAL · Terreno inestable'],
+  ['board:rush', 'TABLERO NORMAL · Prisa'],
+  ['board:fog', 'TABLERO NORMAL · Niebla densa'],
+  ['board:ice', 'TABLERO NORMAL · Lago helado'],
+  ['board:portal', 'TABLERO NORMAL · Portales'],
+  ['board:zombie', 'TABLERO NORMAL · Plaga zombi'],
+  ['board:elite', 'TABLERO NORMAL · Élite'],
+  ['board:boss', 'TABLERO NORMAL · Jefe final'],
 ];
 
 const themeSelect = document.getElementById('theme');
@@ -37,7 +47,7 @@ function fillSelect(select, rows) {
     const option = document.createElement('option');
     option.value = id;
     option.textContent = name;
-    fragment.append(option);
+    select.append(option);
   }
   select.replaceChildren(fragment);
 }
