@@ -8,6 +8,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { decodePNG, encodePNG, hex, rgb } from './png.mjs';
+import { PIXEL_THEME_ART_PACKS, PIXEL_THEME_ART_SIZES } from '../src/data/pixel-theme-art.js';
 
 globalThis.document = { documentElement: { dataset: {} } };
 const { PIECE_TYPES } = await import('../src/data/pieces.js');
@@ -98,6 +99,20 @@ for (const id of ids) {
   mkdirSync(dest, { recursive: true });
   const save = (name, img) => writeFileSync(dest + name + '.png', encodePNG(img));
   const pack = (packs[id] = { sprites: {}, bg: [], ui: [] });
+  if (PIXEL_THEME_ART_PACKS.includes(id)) {
+    pack.sprites = Object.fromEntries(FIGURES.map((name) => [name, PIXEL_THEME_ART_SIZES[name]]));
+    pack.bg = BG.slice();
+    pack.ui = UI.slice();
+    const c = tema.colores;
+    themes[id] = {
+      id, name: tema.nombre, ...(tema.precio ? { price: tema.precio } : {}),
+      swatch: [c.table, c['tile-a'], c['side-dark'], c['side-wild']],
+      vars: { ...c, ...(tema.interfaz || {}) },
+      art: 'pixel', pack: id,
+    };
+    console.log('  ' + Object.keys(pack.sprites).length + ' figuras, arte SVG temático');
+    continue;
+  }
 
   for (const name of FIGURES) {
     const raw = read(name) || read(name + '_l');

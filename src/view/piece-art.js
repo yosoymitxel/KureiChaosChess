@@ -6,6 +6,7 @@
 // trae a piece-bodies.js; acá se miden en el navegador, así un dibujo editado se reescala solo.
 import { PIXEL_PACKS, PIXEL_BASE } from '../data/pixel-packs.js';
 import { BODIES } from './piece-bodies.js';
+import { pixelThemeSprite } from '../data/pixel-theme-art.js';
 
 const F = 'var(--pc)', F2 = 'var(--pc-2)', S = 'var(--ink)';
 const STROKE = 1.6;
@@ -101,7 +102,9 @@ function pixelArt(type, want = document.documentElement.dataset.pack) {
 // otra mesa (la tienda enseña cada mesa con su pieza): un id de tema píxel, o '' para el vectorial.
 const pick = (type, pack) => {
   const pixel = pack === undefined ? pixelMode() : !!pack;
-  return pixel ? pixelArt(type, pack || undefined) || art(type) : art(type);
+  if (!pixel) return art(type);
+  const wanted = pack === undefined ? document.documentElement.dataset.pack : pack;
+  return pixelThemeSprite(type, wanted) || pixelArt(type, wanted || undefined) || art(type);
 };
 
 // On the board the foot sits on the base (bottom-aligned); as an icon (`fit`) the piece is centred in a square.
