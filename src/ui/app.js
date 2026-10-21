@@ -29,6 +29,7 @@ import { FusionScreen } from './screens/fusion.js';
 import { DuelScreen } from './screens/duel.js';
 import { HockeyScreen } from './screens/hockey.js';
 import { CaceriaScreen } from './screens/caceria.js';
+import { EscapeScreen } from './screens/escape.js';
 import { MODIFIERS } from '../data/modifiers.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard } from '../game/shop.js';
@@ -54,7 +55,7 @@ const BAG_CARDS = [
 const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3);
 // A won minigame pays a mutation or a piece the army already knows.
 const MINI_PRIZES = BAG_CARDS.filter((c) => ['mut', 'extra_rook', 'extra_pawn'].includes(c.id));
-const MINI_SCREENS = { caceria: CaceriaScreen, connect4: Connect4Screen, bomber: BomberScreen, barrier: BarrierScreen, izombie: IZombieScreen, bowling: BowlingScreen, laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen, marcianos: MarcianosScreen, checkers: CheckersScreen, fusion: FusionScreen, duel: DuelScreen, hockey: HockeyScreen };
+const MINI_SCREENS = { escape: EscapeScreen, caceria: CaceriaScreen, connect4: Connect4Screen, bomber: BomberScreen, barrier: BarrierScreen, izombie: IZombieScreen, bowling: BowlingScreen, laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen, marcianos: MarcianosScreen, checkers: CheckersScreen, fusion: FusionScreen, duel: DuelScreen, hockey: HockeyScreen };
 const ONE_SHOT =['promoteOne', 'furyNow', 'extraPawn', 'extraRook'];
 
 export function App() {
