@@ -25,8 +25,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.18.0'
-      - name: Renderizar sprites con Claude-PXL
-        run: npx --yes github:crsolver/claude-pxl build art/temas/goticas-clonas/piezas.px.js
+      - name: Renderizar fuentes pixel art necesarias
+        run: |
+          for file in art/temas/*/*.px.js; do
+            [ -f "$file" ] || continue
+            npx --yes github:crsolver/claude-pxl build "$file"
+          done
       - name: Importar tema y generar registros
         run: node tools/pixel-art.mjs
       - name: Comprobar sintaxis y registro
