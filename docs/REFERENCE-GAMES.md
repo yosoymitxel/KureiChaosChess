@@ -129,3 +129,15 @@ Reutiliza el caballo, sus saltos legales y `MiniGrid`. El mapa de minas se manti
 ### Contrabando dimensional
 
 Reutiliza los saltos del caballo y la representación de portales `board.portals` que ya consume `Match.terrainAfterMove`; la regla específica es alcanzar la salida dentro del límite.
+
+### El laboratorio
+
+Reutiliza `applyMutations` y el movimiento legal de `rules.js`; el tablero usa los mismos huecos que el resto del juego. El reto nuevo es escapar antes de que el suelo consumido cierre la ruta.
+
+### El suelo se acaba
+
+Reutiliza el caballo y `legalMoves`; cada casilla abandonada se agrega al conjunto de huecos, siguiendo la idea del derrumbe ya existente.
+
+### El rey impostor
+
+Reutiliza las piezas e iconografía actuales. La regla nueva se limita a identificar al sospechoso correcto, con más intentos en dificultades bajas.
