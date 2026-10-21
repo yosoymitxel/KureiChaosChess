@@ -1,10 +1,10 @@
 // Góticas Waifu: siluetas femeninas alternativas, legibles en tamaño de ficha.
 // Ropa y accesorios principales usan la rampa del bando para recolorear los tres ejércitos.
 pal({
-  k:"#17121c", w:"#f5e6ef", W:"#cbbbcf", s:"#dca9b9", S:"#95687f",
+  k:"#17121c", w:"#f5e6ef", W:"#dfbfd4", s:"#bd8aaf", z:"#8c5b84", b:"#583751", S:"#95687f",
   r:"#a52b50", R:"#5e1934", p:"#8d67bd", P:"#513c79",
-  z:"#d4b2d1", Z:"#78617e", e:"#e9d4a6", E:"#9d7b4b",
-  b:"#3a2b42", B:"#261d2c", c:"#8ed1c1", C:"#3f8070",
+  Z:"#78617e", e:"#e9d4a6", E:"#9d7b4b",
+  B:"#261d2c", c:"#8ed1c1", C:"#3f8070",
   skin:"#e8b9b4", eye:"#e33f68", silver:"#aeb9ca"
 });
 ramps("wWsz", "kRr");
