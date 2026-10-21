@@ -5,6 +5,8 @@ on:
       - feat/goticas-theme
     paths:
       - 'art/temas/goticas/**'
+      - 'art/temas/goticas-waifu/**'
+      - 'art/temas/goticas-clonas/**'
       - 'tools/pixel-art.mjs'
       - '.github/workflows/build-goticas.yml'
   workflow_dispatch:
