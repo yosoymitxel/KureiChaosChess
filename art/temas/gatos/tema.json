@@ -1,0 +1,31 @@
+{
+  "nombre": "Michis",
+  "precio": 160,
+  "descripcion": "Una casa llena de gatos: gatitos, michis en su caja, esfinges, un león gordo con corona y ovillos de lana sobre el parquet tibio del salón.",
+  "colores": {
+    "table": "#2a1b24",
+    "table-2": "#382630",
+    "tile-a": "#e8c592",
+    "tile-b": "#a86a42",
+    "tile-side": "#5e3822",
+    "side-light": "#f4e2c0",
+    "side-dark": "#7c849a",
+    "side-wild": "#f2a04e"
+  },
+  "interfaz": {
+    "paper": "#fbf2e0",
+    "paper-2": "#f1e1c4",
+    "paper-3": "#e0caa4",
+    "ink": "#24161c",
+    "ink-2": "#4a3430",
+    "accent": "#a8283e",
+    "accent-ink": "#560f1e",
+    "brass": "#e8a83a",
+    "muted": "#78645a"
+  },
+  "bandos": {
+    "claro": ["#fffaf0", "#f4e2c0", "#dcbf92", "#b08a60", "#7a5a3c"],
+    "oscuro": ["#b4bccc", "#7c849a", "#585f78", "#3e4359", "#2e3144"],
+    "salvaje": ["#ffdcae", "#f6a452", "#dc7630", "#aa501e", "#723418"]
+  }
+}

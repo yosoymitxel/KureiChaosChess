@@ -1,6 +1,6 @@
 {
   "nombre": "Pixelada",
-  "precio": 160,
+  "precio": 0,
   "descripcion": "Fantasía medieval: soldaditos, magos y colosos de piedra sobre losas de castillo.",
   "colores": {
     "table": "oklch(0.275 0.031 304)",
@@ -14,8 +14,26 @@
   },
   "interfaz": {},
   "bandos": {
-    "claro": ["#f8f0dc", "#e8d5ac", "#c9a468", "#9a7440", "#6b4d2c"],
-    "oscuro": ["#a48fce", "#7d63b0", "#5a4487", "#3a2a5c", "#3a2a5c"],
-    "salvaje": ["#a8e8cd", "#5ec3a4", "#338f77", "#1f6152", "#1f6152"]
+    "claro": [
+      "#f8f0dc",
+      "#e8d5ac",
+      "#c9a468",
+      "#9a7440",
+      "#6b4d2c"
+    ],
+    "oscuro": [
+      "#a48fce",
+      "#7d63b0",
+      "#5a4487",
+      "#3a2a5c",
+      "#3a2a5c"
+    ],
+    "salvaje": [
+      "#a8e8cd",
+      "#5ec3a4",
+      "#338f77",
+      "#1f6152",
+      "#1f6152"
+    ]
   }
 }

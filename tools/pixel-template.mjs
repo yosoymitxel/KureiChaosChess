@@ -4,6 +4,7 @@
 // Uso:  node tools/pixel-template.mjs   (después de node tools/pixel-art.mjs; vuelve a correrlo si
 //       cambian las piezas o los jefes)
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { decodePNG, encodePNG, hex, rgb } from './png.mjs';
 
 globalThis.document = { documentElement: { dataset: {} } };
@@ -11,7 +12,7 @@ const { PIECE_TYPES } = await import('../src/data/pieces.js');
 const { BOSS_IDS } = await import('../src/data/bosses.js');
 const { PIXEL_BASE } = await import('../src/data/pixel-packs.js');
 
-const root = new URL('../', import.meta.url).pathname;
+const root = fileURLToPath(new URL('../', import.meta.url));
 const SRC = `${root}assets/pixel/${PIXEL_BASE}/`;
 const OUT = root + 'art/temas/_plantilla/';
 const base = JSON.parse(readFileSync(`${root}art/temas/${PIXEL_BASE}/tema.json`, 'utf8'));

@@ -1,0 +1,49 @@
+{
+  "nombre": "Muñeca Vampírica",
+  "precio": 0,
+  "descripcion": "Waifus góticas de estética alternativa: encaje negro, vino tinto, plata fría y detalles violeta.",
+  "colores": {
+    "table": "#100d16",
+    "table-2": "#1b1422",
+    "tile-a": "#c8bdc9",
+    "tile-b": "#514454",
+    "tile-side": "#302638",
+    "side-light": "#eadfe9",
+    "side-dark": "#b33b61",
+    "side-wild": "#8ed1c1"
+  },
+  "interfaz": {
+    "paper": "#eee4ed",
+    "paper-2": "#d9cbd9",
+    "paper-3": "#bcaabb",
+    "ink": "#201725",
+    "ink-2": "#453548",
+    "accent": "#9c234d",
+    "accent-ink": "#fff0f5",
+    "brass": "#d6b0ca",
+    "muted": "#726174"
+  },
+  "bandos": {
+    "claro": [
+      "#f5e6ef",
+      "#dfbfd4",
+      "#bd8aaf",
+      "#8c5b84",
+      "#583751"
+    ],
+    "oscuro": [
+      "#f4d3de",
+      "#d88ca6",
+      "#b84f72",
+      "#81304f",
+      "#4b1d32"
+    ],
+    "salvaje": [
+      "#dff5e9",
+      "#a8dfc9",
+      "#6bb99f",
+      "#3e806e",
+      "#234d44"
+    ]
+  }
+}
