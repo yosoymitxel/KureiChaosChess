@@ -8,6 +8,7 @@
     "ladder": "node tools/ladder.mjs",
     "sfx": "node tools/sfx-check.mjs",
     "hunt": "node tools/hunt-selfcheck.mjs",
-    "escape": "node tools/escape-selfcheck.mjs"
+    "escape": "node tools/escape-selfcheck.mjs",
+    "bodyguard": "node tools/bodyguard-selfcheck.mjs"
   }
 }
