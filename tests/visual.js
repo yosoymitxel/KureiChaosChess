@@ -1,5 +1,5 @@
 import { html, render } from '../src/ui/lib.js';
-import { applyTheme } from '../src/data/themes.js';
+import { applyTheme, THEMES } from '../src/data/themes.js';
 import { CaceriaScreen } from '../src/ui/screens/caceria.js';
 import { EscapeScreen } from '../src/ui/screens/escape.js';
 import { BodyguardScreen } from '../src/ui/screens/bodyguard.js';
@@ -20,8 +20,9 @@ const id = params.get('mini') || 'caceria';
 const theme = params.get('theme') || 'normal';
 const Screen = screens[id];
 if (!Screen) throw new Error('Unknown minigame: ' + id);
-applyTheme('walnut');
-if (theme === 'pixel') document.documentElement.dataset.art = 'pixel';
+const pixelTheme = Object.values(THEMES).find(t => t.art === 'pixel');
+if (theme === 'pixel' && !pixelTheme) throw new Error('No hay tema pixel registrado');
+applyTheme(theme === 'pixel' ? pixelTheme.id : 'walnut');
 const miniDiff = Object.fromEntries(Object.keys(screens).map(k => [k, 'normal']));
 const settings = { theme: 'walnut', miniDiff, helpSeen: Object.fromEntries(Object.keys(screens).map(k => [k, true])), shake: false };
 const noop = () => {};
