@@ -41,7 +41,7 @@ export const MINIGAMES = {
   izombie: { name: 'Yo, zombi', Screen: IZombieScreen },
   bowling: { name: 'Boliche', Screen: BowlingScreen },
   laststand: { name: 'Última resistencia', Screen: LastStandScreen },
-  mates: { name: 'Mate en uno', Screen: MatesScreen },
+  mates: { name: 'Captura al rey', Screen: MatesScreen },
   knight: { name: 'Ruta del caballo', Screen: KnightScreen },
   queens: { name: 'Reinas', Screen: QueensScreen },
   marcianos: { name: 'Marcianitos', Screen: MarcianosScreen },

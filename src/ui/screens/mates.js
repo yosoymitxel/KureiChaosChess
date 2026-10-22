@@ -92,7 +92,7 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settin
     return { cls: (t ? 'mv ' : '') + (foe ? 'foe ' : '') + (sel && p === sel ? 'sel' : ''), piece: p && { type: p.type, side: p.color } };
   };
   return html`<div class="screen mini">
-    <${Topbar} title="Mate en 1 y 2" sub=${sub} onBack=${onBack} />
+    <${Topbar} title="Captura al rey" sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
         <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!over} label="Problema de mate" gridRef=${gridRef} boardClass="bm-slab" onTap=${tap} />
