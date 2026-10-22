@@ -34,13 +34,39 @@
     .catalog-board-link strong { font-size:14px; }
     .catalog-board-link span { font-size:12px; font-weight:500; line-height:1.4; }
     @media(max-width:760px) {
-      .catalog-layout { grid-template-columns:1fr; }
-      .catalog-controls { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
-      .catalog-section { min-width:0; }
-      .catalog-section.board-section { grid-column:1/-1; }
-      .catalog-stage,.catalog-stage iframe { min-height: min(70dvh,760px); }
+      .catalog { gap:10px; padding: max(10px,env(safe-area-inset-top)) 10px max(12px,env(safe-area-inset-bottom)); }
+      .catalog-head { padding-left:48px; min-height:42px; }
+      .catalog-head h1 { font-size:clamp(22px,6vw,28px); }
+      .catalog-head p { font-size:12px; line-height:1.35; }
+      .catalog-layout { display:block; min-height:0; flex:1; }
+      .catalog-controls {
+        display:flex; position:fixed; z-index:100; left:10px; top:calc(12px + env(safe-area-inset-top));
+        width:min( min(340px, calc(100vw - 64px)), 88vw); max-height:calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        overflow:auto; overscroll-behavior:contain; gap:12px; padding:14px;
+        transform:translateX(calc(-100% - 18px)); visibility:hidden; opacity:0;
+        transition:transform .22s ease, opacity .18s ease, visibility .22s;
+        box-shadow:0 12px 36px #0008;
+      }
+      .catalog.controls-open .catalog-controls { transform:translateX(0); visibility:visible; opacity:1; }
+      .catalog-menu-toggle {
+        display:grid; place-items:center; position:fixed; z-index:101; left:10px;
+        top:calc(12px + env(safe-area-inset-top)); width:42px; height:42px;
+        border:2px solid var(--paper-2); border-radius:12px; background:var(--ink);
+        color:var(--paper); font-size:23px; line-height:1; box-shadow:0 4px 14px #0006; cursor:pointer;
+      }
+      .catalog-menu-backdrop { position:fixed; inset:0; z-index:99; background:#130d09a8; opacity:0; visibility:hidden; transition:opacity .2s ease,visibility .2s; }
+      .catalog.controls-open .catalog-menu-backdrop { opacity:1; visibility:visible; }
+      .catalog-stage { height:calc(100dvh - 82px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); min-height:420px; border-radius:12px; }
+      .catalog-stage iframe { height:100%; min-height:0; }
+      .catalog-note { font-size:11px; }
     }
-    @media(max-width:420px) { .catalog-controls { grid-template-columns:1fr; } .catalog-section.board-section { grid-column:auto; } }
+    @media(min-width:761px) { .catalog-menu-toggle,.catalog-menu-backdrop { display:none; } }
+    @media(max-width:420px) {
+      .catalog-controls { width:calc(100vw - 64px); }
+      .catalog-section.board-section { grid-column:auto; }
+      .catalog-stage { min-height: min(70dvh,760px); }
+    }
+    @media(prefers-reduced-motion:reduce) { .catalog-controls,.catalog-menu-backdrop { transition:none; } }
   </style>
 </head>
 <body>
@@ -52,8 +78,10 @@
         <p>Probá temas y minijuegos por separado, sin compras ni progreso guardado.</p>
       </div>
     </header>
+    <button class="catalog-menu-toggle" type="button" aria-label="Abrir menú de controles" aria-controls="preview-controls" aria-expanded="false">☰</button>
+    <div class="catalog-menu-backdrop" aria-hidden="true"></div>
     <div class="catalog-layout">
-      <aside class="catalog-controls panel" aria-label="Controles de vista previa">
+      <aside id="preview-controls" class="catalog-controls panel" aria-label="Controles de vista previa">
         <section class="catalog-section">
           <h2>1. Selector de tema</h2>
           <label class="catalog-field" for="theme">Tema / mesa
@@ -87,6 +115,21 @@
     </div>
     <p class="catalog-note">La vista previa usa las pantallas reales del juego. Las compras y el progreso no se guardan aquí.</p>
   </main>
+  <script>
+    (() => {
+      const catalog = document.querySelector('.catalog');
+      const toggle = document.querySelector('.catalog-menu-toggle');
+      const backdrop = document.querySelector('.catalog-menu-backdrop');
+      const controls = document.querySelector('.catalog-controls');
+      if (!catalog || !toggle || !backdrop || !controls) return;
+      const close = () => { catalog.classList.remove('controls-open'); toggle.setAttribute('aria-expanded','false'); toggle.setAttribute('aria-label','Abrir menú de controles'); };
+      const open = () => { catalog.classList.add('controls-open'); toggle.setAttribute('aria-expanded','true'); toggle.setAttribute('aria-label','Cerrar menú de controles'); };
+      toggle.addEventListener('click', () => catalog.classList.contains('controls-open') ? close() : open());
+      backdrop.addEventListener('click', close);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+      controls.addEventListener('change', e => { if (e.target.matches('select') && window.matchMedia('(max-width:760px)').matches) close(); });
+    })();
+  </script>
   <script type="module" src="src/lab-catalog.js"></script>
 </body>
 </html>
