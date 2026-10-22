@@ -47,7 +47,7 @@ export function BodyguardScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
       </div>
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="El guardaespaldas" gridRef=${gridRef} boardClass="bm-slab" onTap=${tap} />
       <p class="mini-status">Seleccionada: ${sel === 'king' ? 'rey' : 'escolta'}. Toca una pieza y después su destino.</p>
-      <${MiniTools} mini="bodyguard" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve el rey o su torre escolta. El rey carmesí avanza una casilla hacia tu rey después de cada jugada. Sobrevive el número de turnos indicado o captura al atacante; si cae tu rey, pierdes.<//>
+      <${MiniTools} mini="bodyguard" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve el rey y la torre escolta para protegerte. El atacante cambia de posición inicial y de táctica según la dificultad: en fácil persigue sin pensar mucho, en normal busca oportunidades y en difícil intenta eliminar la escolta y evitar capturas. Sobrevive los turnos indicados o captura al atacante; si cae tu rey, pierdes.<//>
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'El rey sobrevivió o capturaste al atacante.' : 'El atacante alcanzó al rey.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
   </div>`;
