@@ -1380,3 +1380,14 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
  .mini .bm-cell.mine-revealed, .mini .bm-cell.foe, .mini .bm-cell.foe::after,
  .king-impostor .suspect-revealed .bm-pc { animation:none; }
 }
+
+
+/* El suelo se acaba: el derrumbe ocurre también lejos de la ficha y se ve en el turno que sucede. */
+.bm-cell.hole.falling { z-index: 3; transform-origin: 50% 50%; animation: floor-away .62s cubic-bezier(.55,0,.9,.35) both; pointer-events: none; }
+@keyframes floor-away {
+  0% { transform: translateY(0) rotate(0) scale(1); filter: brightness(1); opacity: 1; }
+  18% { transform: translateY(-3px) rotate(-1deg) scale(1.04); filter: brightness(1.35); }
+  42% { transform: translateY(5px) rotate(2deg) scale(.9); filter: brightness(.45); }
+  100% { transform: translateY(14px) rotate(5deg) scale(.72); filter: brightness(.15); opacity: .5; }
+}
+@media (prefers-reduced-motion: reduce) { .bm-cell.hole.falling { animation: none; } }
