@@ -49,10 +49,16 @@
       }
       .catalog.controls-open .catalog-controls { transform:translateX(0); visibility:visible; opacity:1; }
       .catalog-menu-toggle {
-        display:grid; place-items:center; position:fixed; z-index:101; left:10px;
-        top:calc(12px + env(safe-area-inset-top)); width:42px; height:42px;
+        display:flex !important; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+        position:fixed; z-index:9999; left:10px; top:calc(12px + env(safe-area-inset-top));
+        width:44px; height:44px; min-width:44px; min-height:44px; padding:9px;
         border:2px solid var(--paper-2); border-radius:12px; background:var(--ink);
-        color:var(--paper); font-size:23px; line-height:1; box-shadow:0 4px 14px #0006; cursor:pointer;
+        color:var(--paper); box-shadow:0 4px 14px #0008; cursor:pointer; opacity:1; visibility:visible;
+        -webkit-appearance:none; appearance:none; pointer-events:auto;
+      }
+      .catalog-menu-toggle span {
+        display:block; width:22px; height:2px; flex:0 0 2px; border-radius:2px;
+        background:var(--paper); pointer-events:none;
       }
       .catalog-menu-backdrop { position:fixed; inset:0; z-index:99; background:#130d09a8; opacity:0; visibility:hidden; transition:opacity .2s ease,visibility .2s; }
       .catalog.controls-open .catalog-menu-backdrop { opacity:1; visibility:visible; }
@@ -60,7 +66,7 @@
       .catalog-stage iframe { height:100%; min-height:0; }
       .catalog-note { font-size:11px; }
     }
-    @media(min-width:761px) { .catalog-menu-toggle,.catalog-menu-backdrop { display:none; } }
+    @media(min-width:761px) { .catalog-menu-toggle,.catalog-menu-backdrop { display:none !important; } }
     @media(max-width:420px) {
       .catalog-controls { width:calc(100vw - 64px); }
       .catalog-section.board-section { grid-column:auto; }
@@ -78,7 +84,7 @@
         <p>Probá temas y minijuegos por separado, sin compras ni progreso guardado.</p>
       </div>
     </header>
-    <button class="catalog-menu-toggle" type="button" aria-label="Abrir menú de controles" aria-controls="preview-controls" aria-expanded="false">☰</button>
+    <button class="catalog-menu-toggle" type="button" aria-label="Abrir menú de controles" aria-controls="preview-controls" aria-expanded="false"><span></span><span></span><span></span></button>
     <div class="catalog-menu-backdrop" aria-hidden="true"></div>
     <div class="catalog-layout">
       <aside id="preview-controls" class="catalog-controls panel" aria-label="Controles de vista previa">
