@@ -1,4 +1,4 @@
-import { legalMoves, cellsOf } from './rules.js';
+import { legalMoves } from './rules.js';
 import { BOSSES } from '../data/bosses.js';
 
 export const SIZE = 7;
