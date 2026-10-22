@@ -1,0 +1,55 @@
+name: Build Reino de los Hongos pixel theme
+on:
+  push:
+    branches:
+      - feat/reino-hongos-claudepxl
+    paths:
+      - 'art/temas/reino-hongos/**'
+      - 'tools/pixel-art.mjs'
+      - '.github/workflows/build-reino-hongos.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: reino-hongos-pixel-art-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+      - name: Renderizar fuentes ClaudePXL
+        run: |
+          set -euo pipefail
+          for file in art/temas/*/*.px.js; do
+            [ -f "$file" ] || continue
+            echo "Renderizando $file"
+            npx --yes github:crsolver/claude-pxl build "$file"
+          done
+      - name: Generar PNG y registro de la tienda
+        run: node tools/pixel-art.mjs
+      - name: Validar registros y recursos
+        run: |
+          set -euo pipefail
+          node --check src/data/pixel-themes.js
+          node --check src/data/pixel-packs.js
+          node tools/check-registry.mjs
+          node tools/art-check.mjs
+          for asset in pawn_l.png king_l.png boss-titan_l.png boss-devourer_l.png tile-a.png tile-b.png table.png panel.png boton.png; do
+            test -s "assets/pixel/reino-hongos/$asset"
+          done
+          node -e "import('./src/data/pixel-themes.js').then(({PIXEL_THEMES}) => { if (!PIXEL_THEMES['reino-hongos']) process.exit(1); console.log('Reino de los Hongos registrado para la tienda') })"
+      - name: Guardar recursos generados
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/pixel src/data/pixel-packs.js src/data/pixel-themes.js
+          if ! git diff --cached --quiet; then
+            git commit -m "build(pixel-art): render Reino de los Hongos"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
