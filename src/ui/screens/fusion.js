@@ -26,7 +26,7 @@ export function FusionScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
     return () => removeEventListener('keydown', onKey);
   });
   // Deslizar el dedo sobre el tablero empuja hacia ese lado.
-  const onDown = (e) => { touch.current = { x: e.clientX, y: e.clientY }; };
+  const onDown = (e) => { touch.current = { x: e.clientX, y: e.clientY }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch {} };
   const onUp = (e) => {
     const t = touch.current; touch.current = null;
     if (!t) return;
@@ -41,7 +41,7 @@ export function FusionScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
     <div class="mini-body side-body">
       <div class="mini-main">
         <div class="mini-stage">
-          <div class="fu" style=${{ '--n': s.n }} role="grid" aria-label="Tablero de Fusión" onPointerDown=${onDown} onPointerUp=${onUp}>
+          <div class="fu" style=${{ '--n': s.n }} role="grid" aria-label="Tablero de Fusión" onPointerDown=${onDown} onPointerUp=${onUp} onPointerCancel=${onUp}>
             ${Array.from({ length: s.n * s.n }, (_, i) => html`<span key=${'c' + i} class="fu-cell"></span>`)}
             ${s.tiles.map((t) => html`<span key=${t.id} class=${'fu-tile lv' + t.lv + (t.born ? ' born' : '') + (t.merged ? ' merged' : '') + (t.gone ? ' gone' : '')}
               style=${{ translate: `calc(${t.c} * var(--step)) calc(${t.r} * var(--step))` }} aria-label=${PIECE_NAMES[LADDER[t.lv]]}>
