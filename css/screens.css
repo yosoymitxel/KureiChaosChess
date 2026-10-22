@@ -1307,3 +1307,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
   .mini-tools .mini-tools-label { display: none; }\n  .mini-tools .icon { display: none; }
   .mini-tools::before { content: '\2630'; font-size: 22px; line-height: 1; }
 }
+
+/* Ruta del caballo: la casilla que se abandona se hunde (derrumbe). */
+@keyframes knight-collapse { 0% { transform: scale(1); opacity: 1; } 40% { transform: scale(0.85); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+.bm-cell.closed { animation: knight-collapse 0.35s var(--ease-out) both; }
