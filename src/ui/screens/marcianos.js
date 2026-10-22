@@ -3,7 +3,7 @@ import { playSfx } from '../sfx.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
-import { COLS, ROWS, PLAYER_ROW, WAVES, DIFFS, newMarcianos, step } from '../../game/marcianos.js';
+import { WAVES, DIFFS, newMarcianos, step } from '../../game/marcianos.js';
 import { hopPiece } from '../hop.js';
 
 // Flechas o A/D mueven el cañón; espacio dispara y S o flecha abajo esperan.
@@ -23,7 +23,7 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
     if (a.shoot) playSfx('laser');
     if (s.zaps.length) playSfx(s.lives < lives ? 'hit' : 'crunch');
     const after = snap(), moved = [];
-    if (after.player !== before.player) moved.push({ sel: '.bm-pc.me', from: { row: PLAYER_ROW, col: before.player }, to: { row: PLAYER_ROW, col: after.player }, side: 'light' });
+    if (after.player !== before.player) moved.push({ sel: '.bm-pc.me', from: { row: s.playerRow, col: before.player }, to: { row: s.playerRow, col: after.player }, side: 'light' });
     for (const e of after.enemies) {
       const was = before.enemies.find((b) => b.id === e.id);
       if (was && (was.row !== e.row || was.col !== e.col)) moved.push({ sel: `.bm-pc.foe[data-id="${e.id}"]`, from: was, to: e, side: 'dark' });
@@ -42,7 +42,7 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
     motion(b, { opacity: [1, 0] }, { duration: 0.4, delay: 1.6, onComplete: () => b.remove() });
   };
   const tap = (row, col) => {
-    if (row !== PLAYER_ROW) return;
+    if (row !== s.playerRow) return;
     if (col === s.player.col) act({ shoot: true });
     else act({ move: Math.sign(col - s.player.col) });
   };
@@ -64,7 +64,7 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
     if (!moved?.length) return;
     hops.current = null;
     const grid = gridRef.current;
-    for (const m of moved) hopPiece(grid, grid?.querySelector(m.sel), { ...m, cols: COLS, rows: ROWS });
+    for (const m of moved) hopPiece(grid, grid?.querySelector(m.sel), { ...m, cols: s.cols, rows: s.rows });
   });
 
   const at = (list, r, c) => list.find((x) => x.row === r && x.col === c);
@@ -75,10 +75,10 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
     <div class="mini-body side-body">
       <div class="mini-main">
         <div class="mini-stage">
-          <div class="bm bm-slab mm" ref=${gridRef} style=${{ '--cols': COLS, '--rows': ROWS }} role="grid" aria-label="Campo de Matamarcianos">
-            ${Array.from({ length: ROWS }, (_, r) => Array.from({ length: COLS }, (_, c) => {
-              const foe = at(s.enemies, r, c), shot = at(s.shots, r, c), bolt = at(s.bolts, r, c), me = r === PLAYER_ROW && s.player.col === c;
-              return html`<button class=${'bm-cell ' + ((r + c) % 2 ? 'b' : 'a') + (r === 0 ? ' r0' : '') + (r === PLAYER_ROW ? ' home' : '') + (zapped(r, c) ? ' blast' : '')}
+          <div class="bm bm-slab mm" ref=${gridRef} style=${{ '--cols': s.cols, '--rows': s.rows }} role="grid" aria-label="Campo de Matamarcianos">
+            ${Array.from({ length: s.rows }, (_, r) => Array.from({ length: s.cols }, (_, c) => {
+              const foe = at(s.enemies, r, c), shot = at(s.shots, r, c), bolt = at(s.bolts, r, c), me = r === s.playerRow && s.player.col === c;
+              return html`<button class=${'bm-cell ' + ((r + c) % 2 ? 'b' : 'a') + (r === 0 ? ' r0' : '') + (r === s.playerRow ? ' home' : '') + (zapped(r, c) ? ' blast' : '')}
                 disabled=${!!s.over} aria-label=${`Fila ${r + 1}, columna ${c + 1}`} onClick=${() => tap(r, c)}>
                 ${foe && html`<span class="bm-pc foe side-dark" data-id=${foe.id} dangerouslySetInnerHTML=${{ __html: pieceSVG(foe.type) }} />`}
                 ${shot && html`<span class="mm-shot"></span>`}
@@ -91,6 +91,7 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">
             <span class="chip"><${Icon} name="invader" size=${13} />${WAVES[s.wave].horde ? 'Gran horda' : `Oleada ${s.wave + 1}/${WAVES.length - 1}`}</span>
+            <span class="chip" title="Tamaño del tablero">${s.cols}×${s.rows}</span>
             <span class="chip"><${Icon} name="skull" size=${13} />${s.enemies.length === 1 ? 'Queda 1' : `Quedan ${s.enemies.length}`}</span>
             <span class="chip" aria-label=${`Vidas ${s.lives} de ${s.diff.lives}`}>Vidas <span class="mm-lives">${Array.from({ length: s.diff.lives }, (_, i) => html`<i class=${i < s.lives ? 'on' : ''}></i>`)}</span></span>
           </div>`}

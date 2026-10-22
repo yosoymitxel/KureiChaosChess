@@ -3,7 +3,7 @@ import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { MiniGrid } from './mini-grid.js';
-import { hopPiece, popPiece, snapPieces, pieceDiffs, fallPiece } from '../hop.js';
+import { hopPiece, popPiece, snapPieces, pieceDiffs, fallPiece, captureHop } from '../hop.js';
 import { ROWS, COLS, COST, DIFFS, newZombie, at, buy, canBuy, advance, danger } from '../../game/izombie.js';
 
 export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
@@ -23,23 +23,22 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
     const { hops, born } = pieceDiffs(grid, b, s.pieces, COLS);
     for (const h of hops) hopPiece(grid, h.el, { from: h.from, to: h.to, side: h.side === 'dark' ? 'zombie' : h.side, cols: COLS, rows: ROWS, liquid: true });
     for (const el of born) popPiece(grid, el);
-    // Las capturadas ya no están en el estado: su copia cae donde las mataron y se apaga.
-    for (const f of s.falls) fallPiece(grid, { row: f.row, col: f.col, type: f.type, side: f.color === 'dark' ? 'zombie' : f.color, cols: COLS });
+    // La captura se anima antes de la caída: la defensa salta, derriba a su presa al llegar y
+    // vuelve a su casilla. Las caídas que no son suyas (las del avance carmesí) caen de una.
+    const falls = s.falls;
+    const captures = s.captures || [];
     s.falls = [];
-    // La captura animada: la pieza que captura salta a la casilla del capturado y vuelve a su origen.
-    if (s.captures && s.captures.length) {
-      const cellEl = grid?.querySelector('.bm-cell');
-      const cw = cellEl?.offsetWidth || 40, ch = cellEl?.offsetHeight || 40;
-      for (const cap of s.captures) {
-        const el = grid?.children?.[cap.captorRow * COLS + cap.captorCol]?.querySelector('.bm-pc');
-        if (!el) continue;
-        const dr = cap.capturedRow - cap.captorRow, dc = cap.capturedCol - cap.captorCol;
-        const dx = dc * cw, dy = dr * ch;
-        const lift = Math.min(ch * 0.4, (cap.capturedRow + 0.1) * ch);
-        motion(el, { x: [0, dx / 2, dx, dx / 2, 0], y: [0, dy / 2 - lift, dy, dy / 2 - lift, 0] }, { duration: 0.35, ease: 'easeInOut' });
-      }
-      s.captures = [];
+    s.captures = [];
+    const claimed = new Set();
+    for (const cap of captures) {
+      const f = falls.find((x) => x.row === cap.capturedRow && x.col === cap.capturedCol);
+      if (f) claimed.add(f);
+      const el = grid?.children?.[cap.captorRow * COLS + cap.captorCol]?.querySelector('.bm-pc');
+      const drop = f && (() => fallPiece(grid, { row: f.row, col: f.col, type: f.type, side: f.color === 'dark' ? 'zombie' : f.color, cols: COLS }));
+      if (el) captureHop(grid, el, { from: { row: cap.captorRow, col: cap.captorCol }, to: { row: cap.capturedRow, col: cap.capturedCol }, cols: COLS, rows: ROWS, onHit: drop });
+      else drop?.();
     }
+    for (const f of falls) if (!claimed.has(f)) fallPiece(grid, { row: f.row, col: f.col, type: f.type, side: f.color === 'dark' ? 'zombie' : f.color, cols: COLS });
   });
 
   const hot = s.over ? new Set() : danger(s);

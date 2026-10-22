@@ -1,4 +1,4 @@
-import { html, useState, useRef, useEffect } from '../lib.js';
+import { html, useState, useRef, useEffect, motion } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { MiniGrid } from './mini-grid.js';
@@ -19,9 +19,11 @@ export function KingImpostorScreen({ sub, onBack, onEnd, endLabel = 'Continuar',
       redraw((n) => n + 1);
       setTimeout(() => {
         const grid = gridRef.current;
-        const idx = p.row * SIZE + p.col;
-        const el = grid?.children?.[idx]?.querySelector('.bm-pc');
-        if (el) popPiece(grid, el);
+        const el = grid?.children?.[p.row * SIZE + p.col]?.querySelector('.bm-pc');
+        if (!el) return;
+        // Acierto: el impostor enseña la piel zombi y brota. Fallo: la acusada tiembla.
+        if (p.id === s.impostor) popPiece(grid, el);
+        else motion(el, { x: [0, -6, 6, -4, 4, 0] }, { duration: 0.36, ease: 'easeInOut' });
       }, 30);
     }
   };

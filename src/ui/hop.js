@@ -115,6 +115,28 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows, liq
   liquid(grid, from, to, { side, cell: cw, cols, rows });
 }
 
+// Captura a distancia (Yo, Zombi / Última resistencia): la ficha que captura salta a la casilla
+// de la víctima, la derriba al llegar y vuelve a su origen. `onHit` dispara el derribo en el
+// momento del choque, no antes; así se lee quién captura a quién.
+export function captureHop(grid, pcEl, { from, to, side = 'light', cols, rows, onHit }) {
+  if (!grid || !pcEl || reduced()) { onHit?.(); return 0; }
+  const cellEl = grid.querySelector('.bm-cell, .br-cell');
+  const dr = to.row - from.row, dc = to.col - from.col;
+  if (!cellEl || (!dr && !dc)) { onHit?.(); return 0; }
+  const cw = cellEl.offsetWidth, chh = cellEl.offsetHeight;
+  const dx = dc * cw, dy = dr * chh;
+  const lift = Math.min(chh * 0.5, (to.row + 0.06) * chh);
+  const dur = 0.52 / speed();
+  playSfx('step');
+  liquid(grid, from, to, { side, cell: cw, cols, rows });
+  pcEl.classList.add('hopping');
+  motion(pcEl, { x: [0, dx / 2, dx, dx, dx / 2, 0], y: [0, -lift, dy, dy, -lift, 0] },
+    { duration: dur, ease: 'easeInOut', onComplete: () => pcEl.classList.remove('hopping') });
+  motion(pcEl, { scaleY: [0.8, 1.1, 1], scaleX: [1.1, 0.95, 1] }, { duration: 0.3 / speed(), delay: dur - 0.05, ease: OUT });
+  setTimeout(() => onHit?.(), dur * 400); // 40 % del recorrido: la ficha ya está sobre la víctima
+  return dur;
+}
+
 // Instantánea de piezas (id -> casilla, bando y tipo) para comparar antes y después de una acción.
 export const snapPieces = (pieces) => new Map(pieces.map((p) => [p.id, { row: p.row, col: p.col, color: p.color, type: p.type }]));
 
