@@ -25,7 +25,7 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
     for (const side of ['light', 'dark']) {
       const now = last.current[side], b = was[side];
       if (now.r === b.r && now.c === b.c) continue;
-      hopPiece(grid, grid.children[now.r * N + now.c]?.querySelector('.bm-pc'), { from: b, to: { row: now.r, col: now.c }, side, cols: N, rows: N });
+      hopPiece(grid, grid.children[now.r * N + now.c]?.querySelector('.bm-pc'), { from: b, to: { row: now.r, col: now.c }, side, cols: N, rows: N, liquid: true });
     }
   });
 

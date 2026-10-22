@@ -79,7 +79,7 @@ function liquid(grid, from, to, { side, cell, cols, rows }) {
 
 // Salta de `from` a `to` ({ row, col }) con su charco. Se llama después de repintar, con la ficha
 // ya en la casilla destino.
-export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows }) {
+export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows, liquid: forceLiquid = false }) {
   if (!grid || !pcEl || reduced()) return;
   const cellEl = grid.querySelector('.bm-cell, .br-cell');
   if (!cellEl) return;
@@ -99,6 +99,7 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows }) {
     pcEl.style.transformOrigin = '50% 72%';
     motion(pcEl, { x: [dx, dx / 2, 0], y: [dy, dy / 2 - chh * 0.07, 0, -chh * 0.07, 0], rotate: [0, -5, 0, 5, 0] }, { duration: dur, ease: 'linear' });
     if (hp) motion(hp, { x: [dx, 0], y: [dy, 0] }, { duration: dur, ease: 'linear' });
+    if (forceLiquid) liquid(grid, from, to, { side, cell: cw, cols, rows });
     return;
   }
   if (hp) motion(hp, { x: [dx, 0], y: [dy, 0] }, { duration: 0.4 / speed(), ease: 'easeInOut' });
