@@ -1325,6 +1325,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 /* Caza de gigantes: el jefe ocupa su huella real y responde con animación legible. */
 .giant-hunt .bm-pc.boss-footprint {
   z-index: 5;
+  pointer-events: none;
   overflow: visible;
   transform-origin: 50% 80%;
   filter: drop-shadow(0 4px 2px oklch(0.1 0.03 55 / 0.45));
