@@ -10,14 +10,15 @@ export function GiantHuntScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
  const [s] = useState(() => newGiantHunt(diff || settings.miniDiff?.giantHunt));
  const [, redraw] = useState(0);
  const gridRef = useRef(null);
- const lastEvents = useRef(0);
+ const lastEvents = useRef('');
  const targets = legal(s);
  const giant = s.pieces.find(p => p.id === 'giant');
  const boss = BOSSES[s.diff.boss];
 
  useEffect(() => {
-   if (!s.events.length || s.events.length === lastEvents.current) return;
-   lastEvents.current = s.events.length;
+   const eventKey = s.turns + ':' + s.round + ':' + s.events.map(e => e.type + ':' + e.from?.row + ',' + e.from?.col + '>' + e.to?.row + ',' + e.to?.col).join('|');
+   if (!s.events.length || eventKey === lastEvents.current) return;
+   lastEvents.current = eventKey;
    if (reduced()) return;
    const grid = gridRef.current;
    if (!grid) return;
