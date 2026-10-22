@@ -3,7 +3,7 @@ export const SIZE = 7;
 export const DIFFS = {
   facil: { name: 'Fácil', mines: 4, turns: 10, route: ['6,3','4,4','2,5','0,4'] },
   normal: { name: 'Normal', mines: 7, turns: 9, route: ['6,3','4,2','2,1','0,2'] },
-  dificil: { name: 'Difícil', mines: 10, turns: 8, route: ['6,3','5,1','3,0','1,1','0,3'] },
+  dificil: { name: 'Difícil', mines: 10, turns: 8, route: ['6,3','4,4','3,6','1,5','0,3'] },
 };
 const board = () => ({ rows: SIZE, cols: SIZE, holes: new Set(), terrain: new Map(), portals: new Map() });
 const key = (r,c) => r + ',' + c;
