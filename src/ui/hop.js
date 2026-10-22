@@ -115,6 +115,16 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows, liq
   liquid(grid, from, to, { side, cell: cw, cols, rows });
 }
 
+// La respuesta del rival espera a que aterrice la jugada propia: la ficha queda clavada en su
+// casilla de origen mientras tanto, para no verla ya llegada.
+export function hopLater(grid, pcEl, opts, ms = 380) {
+  if (!grid || !pcEl || reduced()) return;
+  const cellEl = grid.querySelector('.bm-cell, .br-cell');
+  const dx = (opts.from.col - opts.to.col) * cellEl.offsetWidth, dy = (opts.from.row - opts.to.row) * cellEl.offsetHeight;
+  pcEl.style.transform = `translate(${dx}px, ${dy}px)`;
+  setTimeout(() => { pcEl.style.transform = ''; hopPiece(grid, pcEl, opts); }, ms / speed());
+}
+
 // Captura a distancia (Yo, Zombi / Última resistencia): la ficha que captura salta a la casilla
 // de la víctima, la derriba al llegar y vuelve a su origen. `onHit` dispara el derribo en el
 // momento del choque, no antes; así se lee quién captura a quién.
