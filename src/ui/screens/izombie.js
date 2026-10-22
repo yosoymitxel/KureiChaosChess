@@ -21,11 +21,25 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
     before.current = null;
     const grid = gridRef.current;
     const { hops, born } = pieceDiffs(grid, b, s.pieces, COLS);
-    for (const h of hops) hopPiece(grid, h.el, { from: h.from, to: h.to, side: h.side === 'dark' ? 'zombie' : h.side, cols: COLS, rows: ROWS });
+    for (const h of hops) hopPiece(grid, h.el, { from: h.from, to: h.to, side: h.side === 'dark' ? 'zombie' : h.side, cols: COLS, rows: ROWS, liquid: true });
     for (const el of born) popPiece(grid, el);
     // Las capturadas ya no están en el estado: su copia cae donde las mataron y se apaga.
     for (const f of s.falls) fallPiece(grid, { row: f.row, col: f.col, type: f.type, side: f.color === 'dark' ? 'zombie' : f.color, cols: COLS });
     s.falls = [];
+    // La captura animada: la pieza que captura salta a la casilla del capturado y vuelve a su origen.
+    if (s.captures && s.captures.length) {
+      const cellEl = grid?.querySelector('.bm-cell');
+      const cw = cellEl?.offsetWidth || 40, ch = cellEl?.offsetHeight || 40;
+      for (const cap of s.captures) {
+        const el = grid?.children?.[cap.captorRow * COLS + cap.captorCol]?.querySelector('.bm-pc');
+        if (!el) continue;
+        const dr = cap.capturedRow - cap.captorRow, dc = cap.capturedCol - cap.captorCol;
+        const dx = dc * cw, dy = dr * ch;
+        const lift = Math.min(ch * 0.4, (cap.capturedRow + 0.1) * ch);
+        motion(el, { x: [0, dx / 2, dx, dx / 2, 0], y: [0, dy / 2 - lift, dy, dy / 2 - lift, 0] }, { duration: 0.35, ease: 'easeInOut' });
+      }
+      s.captures = [];
+    }
   });
 
   const hot = s.over ? new Set() : danger(s);

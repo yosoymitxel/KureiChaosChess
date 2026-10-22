@@ -29,7 +29,7 @@ export function newZombie(key = 'normal', rng = Math.random) {
   return {
     board: { rows: ROWS, cols: COLS, holes: new Set(), terrain: new Map(), portals: new Map() },
     pieces: defense.map(([t, r, c]) => makePiece(t, 'light', r, c, { royal: false })),
-    coins: diff.budget, over: null, falls: [], diff,
+    coins: diff.budget, over: null, falls: [], captures: [], diff,
     trophies: new Set(diff.trophies), taken: [],
   };
 }
@@ -61,6 +61,7 @@ export function buy(s, type, c) {
 export function advance(s, maxStep = Infinity) {
   if (s.over) return null;
   s.falls = [];
+  s.captures = [];
   s.taken = [];
   const caught = [];
   let moved = false;
@@ -87,6 +88,7 @@ export function advance(s, maxStep = Infinity) {
     const prey = legalMoves(d, s.pieces, s.board).flatMap((m) => m.hits).sort((a, b) => b.row - a.row)[0];
     if (prey && s.pieces.includes(prey)) {
       s.falls.push({ row: prey.row, col: prey.col, type: prey.type, color: prey.color });
+      s.captures.push({ captorRow: d.row, captorCol: d.col, capturedRow: prey.row, capturedCol: prey.col });
       s.pieces = s.pieces.filter((x) => x !== prey);
       caught.push(prey);
     }
