@@ -2,7 +2,8 @@ import { html } from '../lib.js';
 import { pieceSVG } from '../../view/piece-art.js';
 
 // cell(r, c) -> { cls, piece: { type, side }, tok, hp: { on, max }, label }
-export function MiniGrid({ rows, cols, cell, onTap, disabled, label, gridRef, boardClass }) {
+// `children` se pinta encima de las casillas (p. ej. el cuerpo de un jefe que ocupa varias).
+export function MiniGrid({ rows, cols, cell, onTap, disabled, label, gridRef, boardClass, children }) {
   return html`<div class="mini-stage">
     <div class=${'bm' + (boardClass ? ' ' + boardClass : '')} ref=${gridRef} style=${{ '--rows': rows, '--cols': cols }} role="grid" aria-label=${label}>
       ${Array.from({ length: rows * cols }, (_, i) => {
@@ -15,6 +16,7 @@ export function MiniGrid({ rows, cols, cell, onTap, disabled, label, gridRef, bo
           ${x.label && html`<span class="bm-lbl">${x.label}</span>`}
         </button>`;
       })}
+      ${children}
     </div>
   </div>`;
 }

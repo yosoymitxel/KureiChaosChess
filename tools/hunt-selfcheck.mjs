@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import { newHunt, legal, move, DIFFS, SIZE, _solve } from '../src/game/hunt.js';
 
-const seeded = (seed) => () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32);
+// mulberry32: semillas seguidas dan partidas distintas.
+const seeded = (seed) => () => {
+  seed = (seed + 0x6d2b79f5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 2 ** 32;
+};
 const pieceOf = (s, id) => s.pieces.find((p) => p.id === id);
 
 for (const level of Object.keys(DIFFS)) {
