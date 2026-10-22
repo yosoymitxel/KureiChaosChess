@@ -64,7 +64,7 @@ export function GiantHuntScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
      <span class="chip">Turnos: ${s.turns}</span>
      <span class="chip">Amenaza: ${s.diff.name}</span>
    </div>
-   <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="Caza de gigantes" gridRef=${gridRef} boardClass="bm-slab"/>
+   <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="Caza de gigantes" gridRef=${gridRef} boardClass="bm-slab" onTap=${tap}/>
    <p class="giant-hint">${giant ? boss.name + ' ocupa ' + giant.h + '×' + giant.w + ' casillas. Sus movimientos: ' + boss.moves.join(', ') + '.' : 'El jefe cayó.'} Atacá con la reina y reposicionate antes de que el jefe responda.</p>
    <${MiniTools} mini="giantHunt" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Cada jefe tiene tamaño, vida y movimiento propios. La reina golpea al entrar en su cuerpo, rebota y pierde un turno; el jefe responde después de cada jugada e intenta alcanzarte. Fácil: Titán (3 vidas, movimientos cortos). Normal: Hidra (4 vidas, se desplaza en diagonal o salta). Difícil: Gólem (5 vidas, ocupa 3×3 y avanza en línea). Derribalo antes de agotar los turnos o de que te aplaste.<//>
    ${s.over && html`<${MiniEnd} win=${s.over==='win'} note=${s.over==='win' ? boss.name + ' cayó tras ' + s.round + ' respuestas.' : s.turns <= 0 ? 'Se agotaron los turnos: el gigante sigue en pie.' : 'El gigante te alcanzó y te aplastó.'} label=${endLabel} onEnd=${()=>onEnd(s.over==='win')}/>`}
