@@ -18,8 +18,6 @@ for (const level of Object.keys(DIFFS)) {
 }
 
 const normal = newGiantHunt('normal');
-const normalBoss = normal.pieces.find(p => p.id === 'giant');
-const before = { row: normalBoss.row, col: normalBoss.col };
 const quietMove = legal(normal).find(m => !m.hits.some(p => p.id === 'giant'));
 assert.ok(quietMove, 'hunter can reposition without hitting the boss');
 assert.equal(move(normal, quietMove.row, quietMove.col), true);
