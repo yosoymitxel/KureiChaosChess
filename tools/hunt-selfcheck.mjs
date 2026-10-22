@@ -1,25 +1,40 @@
 import assert from 'node:assert/strict';
-import { newHunt, legal, move } from '../src/game/hunt.js';
+import { newHunt, legal, move, DIFFS } from '../src/game/hunt.js';
 
-const s = newHunt('normal');
-const invalid = move(s, 0, 0);
-assert.equal(invalid, false, 'rejects illegal moves');
-assert.equal(s.turns, 6, 'illegal moves do not consume a turn');
-assert.ok(legal(s).some((m) => m.row === 5 && m.col === 4), 'queen can move along a legal diagonal');
-assert.equal(move(s, 5, 4), true);
-assert.equal(s.pieces.find((p) => p.id === 'runner').row, 3, 'runner waits until its escape beat');
-assert.equal(move(s, 3, 4), true, 'queen captures runner on a legal square');
-assert.equal(s.over, 'win', 'capture wins');
-assert.equal(legal(s).length, 0, 'terminal state has no moves');
+const fixedRandom = () => 0.25;
+const s = newHunt('normal', fixedRandom);
+assert.equal(s.pieces.find((p) => p.id === 'hunter').type, 'knight', 'hunter is a knight');
+assert.equal(s.board.holes.size, 5, 'normal creates five fallen squares');
+assert.equal(new Set(s.board.holes).size, s.board.holes.size, 'fallen squares are unique');
+assert.equal(s.board.holes.has('6,3'), false, 'hunter spawn is never a hole');
+assert.equal(s.board.holes.has('3,4'), false, 'runner spawn is never a hole');
 
-const hard = newHunt('dificil');
-assert.equal(move(hard, 5, 4), true);
-assert.equal(hard.pieces.find((p) => p.id === 'runner').row, 2, 'hard runner escapes every turn');
-assert.equal(hard.turns, 4);
+const initialTurns = s.turns;
+assert.equal(move(s, 0, 0), false, 'rejects illegal moves');
+assert.equal(s.turns, initialTurns, 'illegal moves do not consume a turn');
 
-const escaped = newHunt('dificil');
-assert.equal(move(escaped, 5, 3), true);
-assert.equal(move(escaped, 4, 3), true);
-assert.equal(move(escaped, 3, 3), true);
-assert.equal(escaped.over, 'lose', 'runner escaping through the top row loses');
-console.log('La cacería: reglas básicas OK');
+const first = legal(s)[0];
+assert.ok(first, 'knight has a legal move');
+assert.equal(move(s, first.row, first.col), true);
+assert.equal(s.turns, initialTurns - 1, 'valid move consumes one turn');
+if (s.over !== 'win') {
+  assert.equal(s.pieces.find((p) => p.id === 'runner').row, 2, 'runner advances after every hunter move');
+}
+
+for (const level of Object.keys(DIFFS)) {
+  const game = newHunt(level, fixedRandom);
+  assert.equal(game.board.holes.size, game.diff.holes, level + ' has its configured fallen squares');
+}
+
+const capture = newHunt('normal', () => 0.99);
+capture.board.holes.clear();
+capture.pieces[0].row = 5;
+capture.pieces[0].col = 2;
+capture.pieces[1].row = 3;
+capture.pieces[1].col = 3;
+assert.ok(legal(capture).some((m) => m.hits.some((p) => p.id === 'runner')), 'knight can capture runner by legal chess move');
+const winningMove = legal(capture).find((m) => m.hits.some((p) => p.id === 'runner'));
+assert.equal(move(capture, winningMove.row, winningMove.col), true);
+assert.equal(capture.over, 'win', 'capture wins');
+assert.equal(legal(capture).length, 0, 'terminal state has no moves');
+console.log('La cacería: caballo, casillas aleatorias y avance por turno OK');
