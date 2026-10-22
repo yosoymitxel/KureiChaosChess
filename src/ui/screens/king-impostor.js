@@ -33,7 +33,7 @@ export function KingImpostorScreen({ sub, onBack, onEnd, endLabel = 'Continuar',
     const side = isImpostor ? 'zombie' : (p?.color || 'light');
     return { cls: [p?.color === 'dark' && 'mv', p?.id === s.chosen && 'sel', s.revealed?.has(p?.id) && 'suspect-revealed', isImpostor && 'impostor'].filter(Boolean).join(' '), piece: p && { type: p.type, side } };
   };
-  return html`<div class="screen mini"><${Topbar} title="El rey impostor" sub=${sub} onBack=${onBack}/><div class="mini-body">
+  return html`<div class="screen mini king-impostor"><${Topbar} title="El rey impostor" sub=${sub} onBack=${onBack}/><div class="mini-body">
     <div class="mini-stats" aria-live="polite"><span class="chip"><${Icon} name="target" size=${12}/> Intentos: ${s.turns}</span><span class="chip">${s.pieces.filter(p => p.color === "dark").length} sospechosos · ${s.diff.name}</span></div>
     <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="El rey impostor" boardClass="bm-slab" gridRef=${gridRef} onTap=${tap}/>
     <${MiniTools} mini="kingImpostor" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${s.clue} Identifica al sospechoso que coincide con esa pista. Solo tienes un intento en Dif�cil, dos en Normal y tres en F�cil; una elecci�n incorrecta consume un intento.<//>
