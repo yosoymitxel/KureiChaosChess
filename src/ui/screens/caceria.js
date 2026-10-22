@@ -28,17 +28,19 @@ export function CaceriaScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
   const cell = (r, c) => {
     const p = s.pieces.find((x) => x.row === r && x.col === c);
     const valid = targets.some((m) => m.row === r && m.col === c);
-    return { cls: [valid && 'mv', p?.id === 'runner' && 'foe'].filter(Boolean).join(' '), piece: p && { type: p.type, side: p.color } };
+    const fallen = s.board.holes.has(r + ',' + c);
+    return { cls: [valid && 'mv', p?.id === 'runner' && 'foe', fallen && 'hole'].filter(Boolean).join(' '), piece: p && { type: p.type, side: p.color } };
   };
   return html`<div class="screen mini">
     <${Topbar} title="La cacería" sub=${sub} onBack=${onBack} />
     <div class="mini-body">
       <div class="mini-stats" aria-live="polite">
         <span class="chip"><${Icon} name="hunt" size=${12} /> Quedan ${s.turns} jugadas</span>
-        <span class="chip">El fugitivo escapa por arriba</span>
+        <span class="chip">El fugitivo avanza cada turno</span>
+        <span class="chip">${s.board.holes.size} casillas caídas</span>
       </div>
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="La cacería" gridRef=${gridRef} boardClass="bm-slab" onTap=${tap} />
-      <${MiniTools} mini="caceria" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve la reina con sus movimientos legales y captura al peón carmesí antes de que llegue a la fila superior. El fugitivo avanza según la dificultad; el tablero marca las casillas válidas.<//>
+      <${MiniTools} mini="caceria" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Persigue al peón fugitivo con el caballo marfil. El peón avanza una fila después de cada jugada; las casillas caídas cambian aleatoriamente al iniciar cada partida. Captúralo antes de que llegue arriba.<//>
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Alcanzaste al fugitivo.' : 'El fugitivo llegó a la salida o se agotaron las jugadas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
   </div>`;
