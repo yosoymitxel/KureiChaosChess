@@ -67,7 +67,7 @@ export function MiniTools({ mini, diffs, fixed, settings, setSettings, onRestart
     return () => removeEventListener('keydown', onKey, true);
   }, [open]);
   const level = (diffs[fixed || settings.miniDiff?.[mini] || 'normal'] || diffs.normal).name;
-  return html`<button class="btn ghost sm mini-tools" aria-haspopup="dialog" onClick=${() => setOpen(true)}><${Icon} name="book" size=${16} />Cómo se juega · ${level}</button>
+  return html`<button class="btn ghost sm mini-tools" aria-haspopup="dialog" onClick=${() => setOpen(true)}><${Icon} name="book" size=${16} /><span class="mini-tools-label">Como se juega · ${level}</span></button>
     ${open && html`<div class="overlay" onClick=${(e) => e.target === e.currentTarget && setOpen(false)}>
       <div class="panel mini-sheet" role="dialog" aria-modal="true" aria-label="Cómo se juega">
         <h2>Cómo se juega</h2>
