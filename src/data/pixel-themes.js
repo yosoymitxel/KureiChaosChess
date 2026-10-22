@@ -373,6 +373,38 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "piratas"
   },
+  "reino-hongos": {
+    "id": "reino-hongos",
+    "name": "Reino de los Hongos",
+    "price": 180,
+    "swatch": [
+      "#18241f",
+      "#c5d99a",
+      "#bd83e8",
+      "#8ee6c0"
+    ],
+    "vars": {
+      "table": "#18241f",
+      "table-2": "#24362c",
+      "tile-a": "#c5d99a",
+      "tile-b": "#52744b",
+      "tile-side": "#2e4838",
+      "side-light": "#f2e8bd",
+      "side-dark": "#bd83e8",
+      "side-wild": "#8ee6c0",
+      "paper": "#f2edda",
+      "paper-2": "#e0dfc1",
+      "paper-3": "#c0cba5",
+      "ink": "#213126",
+      "ink-2": "#405843",
+      "accent": "#8c4fba",
+      "accent-ink": "#fff1bd",
+      "brass": "#f6d66b",
+      "muted": "#647b64"
+    },
+    "art": "pixel",
+    "pack": "reino-hongos"
+  },
   "scifi": {
     "id": "scifi",
     "name": "Galaxia",
