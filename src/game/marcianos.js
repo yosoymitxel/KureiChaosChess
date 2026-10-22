@@ -2,7 +2,7 @@
 export const COLS = 8;
 export const ROWS = 8;
 export const PLAYER_ROW = ROWS - 1;
-const SHOT_STEP = 4; // filas que sube cada disparo por jugada
+const SHOT_STEP = 100; // el disparo atraviesa todo el tablero de una
 const MAX_SHOTS = 3; // disparos en vuelo a la vez
 
 // El reparto de cada oleada: peones al principio y las piezas de salto entran en las siguientes.
