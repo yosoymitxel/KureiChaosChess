@@ -129,6 +129,53 @@ try {
     }
   }
 
+
+  // The standalone animation lab must reserve most of a phone viewport for its scene.
+  for (const viewport of viewports) {
+    const page = await browser.newPage({
+      viewport: { width: viewport.width, height: viewport.height },
+      isMobile: viewport.name === 'mobile',
+      hasTouch: viewport.name === 'mobile',
+    });
+    try {
+      await page.goto(base + '/lab.html', { waitUntil: 'networkidle', timeout: 45000 });
+      await page.locator('#scenes .btn').first().waitFor({ timeout: 15000 });
+      await page.locator('#scenes .btn').first().click();
+      await page.waitForTimeout(500);
+      const layout = await page.evaluate(() => {
+        const rect = selector => {
+          const el = document.querySelector(selector);
+          if (!el) return null;
+          const r = el.getBoundingClientRect();
+          return { top: r.top, bottom: r.bottom, height: r.height, width: r.width };
+        };
+        return {
+          menu: rect('.lab-menu'),
+          stage: rect('.lab-stage'),
+          board: rect('#board'),
+          viewportHeight: document.documentElement.clientHeight,
+          viewportWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+        };
+      });
+      if (!layout.stage || !layout.board || layout.stage.height < viewport.height * 0.35) {
+        throw new Error('La escena del laboratorio queda demasiado pequeña: ' + JSON.stringify(layout));
+      }
+      if (layout.scrollWidth > layout.viewportWidth + 1) {
+        throw new Error('Desbordamiento horizontal del laboratorio: ' + JSON.stringify(layout));
+      }
+      if (viewport.name === 'mobile' && layout.menu.height > viewport.height * 0.4) {
+        throw new Error('El menú ocupa más del 40% de la pantalla móvil: ' + JSON.stringify(layout));
+      }
+      console.log(JSON.stringify({ game: 'animation-lab', viewport: viewport.name, ...layout }));
+    } catch (error) {
+      failures.push({ game: 'animation-lab', viewport: viewport.name, error: String(error) });
+      console.error(JSON.stringify({ game: 'animation-lab', viewport: viewport.name, error: String(error) }));
+    } finally {
+      await page.close();
+    }
+  }
+
 } finally {
   await browser.close();
 }

@@ -1210,3 +1210,79 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .pref.fav { background: var(--brass); }
 .pref.ban { background: var(--paper-3); color: var(--danger); text-decoration: line-through; border-style: dashed; }
 .pref:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
+
+
+/* Mobile-first repair: keep the game surface visible instead of centering it below oversized chrome. */
+@media (max-width: 700px) {
+  .topbar {
+    gap: 8px;
+    padding: 6px 10px;
+    padding-top: calc(6px + env(safe-area-inset-top));
+  }
+  .topbar .title { font-size: 18px; line-height: 1.05; }
+  .topbar .sub {
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 1.2;
+    max-width: 42vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .topbar .btn.sm { min-height: 34px; padding: 6px 9px; gap: 5px; font-size: 12px; }
+  .mini-body {
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 8px 10px calc(12px + env(safe-area-inset-bottom));
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
+  }
+  .mini-stats { gap: 6px; }
+  .mini-stats .chip { padding: 4px 7px; font-size: 11px; }
+  .mini-tools { flex-shrink: 0; }
+  .mini-end { max-width: 100%; padding: 12px 14px 14px; }
+  .mini-end-title { font-size: 20px; }
+}
+
+/* The animation lab must give its remaining viewport to the live scene on phones. */
+@media (max-width: 700px) {
+  .lab {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+    flex-direction: column;
+  }
+  .lab-menu {
+    width: auto;
+    max-height: 34dvh;
+    min-height: 0;
+    flex: 0 1 auto;
+    margin: 6px;
+    padding: 8px;
+    gap: 6px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .lab-menu h1 { font-size: 20px; }
+  .lab-menu h2 { font-size: 14px; }
+  .lab-menu p { font-size: 11px; line-height: 1.25; }
+  #scenes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+  #scenes .btn { min-width: 0; min-height: 32px; padding: 5px 6px; font-size: 11px; line-height: 1.1; }
+  .lab-menu > .btn { min-height: 34px; padding: 6px 8px; font-size: 12px; }
+  .lab-menu .segmented { flex-wrap: wrap; }
+  .lab-stage {
+    flex: 1 1 0;
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    overflow: hidden;
+  }
+  .lab-board { min-width: 0; min-height: 0; width: 100%; height: 100%; }
+}
