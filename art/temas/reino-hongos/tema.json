@@ -1,0 +1,49 @@
+{
+  "nombre": "Reino de los Hongos",
+  "precio": 180,
+  "descripcion": "Un bosque feérico de setas ancestrales, luciérnagas y esporas encantadas. Piezas-hongo, guardianes miceliales y tableros de musgo bajo una luna violeta.",
+  "colores": {
+    "table": "#18241f",
+    "table-2": "#24362c",
+    "tile-a": "#c5d99a",
+    "tile-b": "#52744b",
+    "tile-side": "#2e4838",
+    "side-light": "#f2e8bd",
+    "side-dark": "#bd83e8",
+    "side-wild": "#8ee6c0"
+  },
+  "interfaz": {
+    "paper": "#f2edda",
+    "paper-2": "#e0dfc1",
+    "paper-3": "#c0cba5",
+    "ink": "#213126",
+    "ink-2": "#405843",
+    "accent": "#8c4fba",
+    "accent-ink": "#fff1bd",
+    "brass": "#f6d66b",
+    "muted": "#647b64"
+  },
+  "bandos": {
+    "claro": [
+      "#f7efce",
+      "#e2d59d",
+      "#c1b878",
+      "#8d9c5c",
+      "#526b45"
+    ],
+    "oscuro": [
+      "#ead1ff",
+      "#c79aee",
+      "#a36fd1",
+      "#75469c",
+      "#4b2c70"
+    ],
+    "salvaje": [
+      "#d0ffe8",
+      "#9ce8c3",
+      "#66c59a",
+      "#388a6b",
+      "#235b4a"
+    ]
+  }
+}
