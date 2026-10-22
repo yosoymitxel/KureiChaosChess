@@ -1,31 +1,103 @@
 import { legalMoves } from './rules.js';
+
+// Cruza con el caballo hasta la fila de arriba. Cada partida traza una ruta segura al azar (siempre
+// hay salida) y siembra minas fuera de ella. Las pistas cuentan minas alrededor; la sonda mira una casilla.
 export const SIZE = 7;
 export const DIFFS = {
-  facil: { name: 'Fácil', mines: 4, turns: 10, route: ['6,3','4,4','2,5','0,4'] },
-  normal: { name: 'Normal', mines: 7, turns: 9, route: ['6,3','4,2','2,1','0,2'] },
-  dificil: { name: 'Difícil', mines: 10, turns: 8, route: ['6,3','4,4','3,6','1,5','0,3'] },
+  facil: { name: 'Fácil', mines: 7, slack: 4, probes: 2, reveal: 'area' },
+  normal: { name: 'Normal', mines: 10, slack: 3, probes: 1, reveal: 'cross' },
+  dificil: { name: 'Difícil', mines: 13, slack: 2, probes: 1, reveal: 'self' },
 };
 const board = () => ({ rows: SIZE, cols: SIZE, holes: new Set(), terrain: new Map(), portals: new Map() });
-const key = (r,c) => r + ',' + c;
-export function newMinefield(level = 'normal') {
-  const diff = DIFFS[level] || DIFFS.normal, safe = new Set(diff.route), pool = [];
-  for (let r=1;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(!safe.has(key(r,c))) pool.push(key(r,c));
-  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
-  const mines = new Set(pool.slice(0,diff.mines));
-  const player = {id:'runner',type:'knight',color:'light',row:6,col:3};
-  return {diff,board:board(),pieces:[player],mines,revealed:new Set(),turns:diff.turns,over:null,last:null,round:0};
-}
-export const legal = s => s.over ? [] : legalMoves(s.pieces[0],s.pieces,s.board);
-export function move(s,row,col) {
-  if(s.over)return false;
-  const m=legal(s).find(x=>x.row===row&&x.col===col);if(!m)return false;
-  s.pieces[0].row=row;s.pieces[0].col=col;s.turns--;s.round++;
-  const k=key(row,col);s.revealed.add(k);s.last=k;
-  if(s.mines.has(k))s.over='lose';
-  else {
-    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const rr=row+dr,cc=col+dc,near=key(rr,cc);if(rr>=0&&rr<SIZE&&cc>=0&&cc<SIZE&&!s.mines.has(near))s.revealed.add(near);}
-    if(row===0)s.over='win';else if(s.turns<=0)s.over='lose';
+const key = (r, c) => r + ',' + c;
+const inside = (r, c) => r >= 0 && c >= 0 && r < SIZE && c < SIZE;
+const JUMPS = [[-2, -1], [-2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2], [2, -1], [2, 1]];
+const AREA = { area: [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]], cross: [[-1, 0], [1, 0], [0, -1], [0, 1]], self: [] };
+
+// Ruta del caballo con algún rodeo: sube casi siempre, a veces va de lado.
+function route(rng, startCol) {
+  for (;;) {
+    const path = [[SIZE - 1, startCol]];
+    const seen = new Set([key(SIZE - 1, startCol)]);
+    while (path.length < 9) {
+      const [r, c] = path[path.length - 1];
+      if (r === 0) return path.map(([a, b]) => key(a, b));
+      const opts = JUMPS.map(([dr, dc]) => [r + dr, c + dc]).filter(([a, b]) => inside(a, b) && !seen.has(key(a, b)) && a <= r + 1);
+      const up = opts.filter(([a]) => a < r);
+      const pool = up.length && rng() < 0.75 ? up : opts;
+      if (!pool.length) break;
+      const next = pool[Math.floor(rng() * pool.length)];
+      seen.add(key(...next));
+      path.push(next);
+    }
   }
+}
+
+export function newMinefield(level = 'normal', rng = Math.random) {
+  const diff = DIFFS[level] || DIFFS.normal;
+  const startCol = 1 + Math.floor(rng() * (SIZE - 2));
+  const safe = route(rng, startCol);
+  const pool = [];
+  for (let r = 0; r < SIZE - 1; r++) for (let c = 0; c < SIZE; c++) if (!safe.includes(key(r, c))) pool.push(key(r, c));
+  const mines = new Set();
+  while (mines.size < diff.mines && pool.length) mines.add(pool.splice(Math.floor(rng() * pool.length), 1)[0]);
+  const player = { id: 'runner', type: 'knight', color: 'light', row: SIZE - 1, col: startCol };
+  const s = { diff, board: board(), pieces: [player], mines, route: safe, revealed: new Set(), flags: new Set(), fresh: [], probes: diff.probes,
+    turns: safe.length - 1 + diff.slack, over: null, last: null, round: 0 };
+  uncover(s, SIZE - 1, startCol);
+  return s;
+}
+
+export const nearbyMines = (s, r, c) => {
+  let n = 0;
+  for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) if ((dr || dc) && s.mines.has(key(r + dr, c + dc))) n++;
+  return n;
+};
+
+// Destapa la casilla pisada y, según dificultad, las de alrededor que no son mina.
+function uncover(s, row, col) {
+  s.fresh = [key(row, col)];
+  s.revealed.add(key(row, col));
+  for (const [dr, dc] of AREA[s.diff.reveal]) {
+    const r = row + dr, c = col + dc, k = key(r, c);
+    if (inside(r, c) && !s.mines.has(k) && !s.revealed.has(k)) { s.revealed.add(k); s.fresh.push(k); }
+  }
+}
+
+export const legal = (s) => s.over ? [] : legalMoves(s.pieces[0], s.pieces, s.board);
+
+export function move(s, row, col) {
+  if (s.over) return false;
+  const m = legal(s).find((x) => x.row === row && x.col === col);
+  if (!m) return false;
+  const p = s.pieces[0];
+  s.last = { from: { row: p.row, col: p.col }, to: { row, col } };
+  p.row = row;
+  p.col = col;
+  s.turns--;
+  s.round++;
+  const k = key(row, col);
+  if (s.mines.has(k)) {
+    s.over = 'lose';
+    const far = (x) => { const [r, c] = x.split(',').map(Number); return Math.hypot(r - row, c - col); };
+    s.fresh = [k, ...[...s.mines].filter((x) => x !== k).sort((a, b) => far(a) - far(b))];
+    s.mines.forEach((x) => s.revealed.add(x));
+    return true;
+  }
+  uncover(s, row, col);
+  if (row === 0) s.over = 'win';
+  else if (s.turns <= 0) s.over = 'lose';
   return true;
 }
-export const nearbyMines=(s,r,c)=>{let n=0;for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if(s.mines.has(key(r+dr,c+dc)))n++;return n;};
+
+// La sonda mira una casilla sin pisarla: si es mina queda marcada; si no, enseña su número.
+export function probe(s, row, col) {
+  const k = key(row, col);
+  if (s.over || s.probes <= 0 || !inside(row, col) || s.revealed.has(k) || s.flags.has(k)) return false;
+  s.probes--;
+  if (s.mines.has(k)) s.flags.add(k);
+  else s.revealed.add(k);
+  s.fresh = [k];
+  s.last = { probe: { row, col }, mine: s.mines.has(k) };
+  return true;
+}

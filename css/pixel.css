@@ -54,6 +54,7 @@
 [data-art="pixel"] :is(.bm-cell.a, .br-cell, .dm-cell) { background-image: var(--px-tile-a); background-size: 100% 100%; image-rendering: pixelated; }
 [data-art="pixel"] :is(.bm-cell.b, .dm-cell.dark) { background-image: var(--px-tile-b); }
 [data-art="pixel"] :is(.bm-cell, .br-cell):is(.hot, .lane, .goal, .home, .goal-light, .goal-dark) { background-image: none; }
+[data-art="pixel"] .minefield .bm-cell.mine-revealed { background-image: none; }
 /* Casillas caídas y escombros: la losa del tema las tapaba. Pozo y piedras en bloques duros. */
 [data-art="pixel"] .bm-cell.hole:is(.a, .b) {
   background: linear-gradient(#000 0 0) 18% 18% / 64% 64% no-repeat, color-mix(in oklch, var(--tile-side), black 55%);
