@@ -443,6 +443,8 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .mini-main { width: min(1140px, 100%); flex: 1; min-height: 0; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; justify-items: center; align-content: safe center; }
 .mini-main .mini-stage { min-height: min(54dvh, 440px); }
 .mini-side { display: flex; flex-direction: column; align-items: center; gap: 18px; width: 100%; min-width: 0; }
+/* El texto de turno cambia de largo: reservar dos líneas evita que el tablero baile al pensar el bot. */
+.mini-side .mini-status { min-height: 2lh; display: grid; place-items: center; }
 @media (min-width: 900px) {
   .mini-main { grid-template-columns: minmax(0, 1fr) clamp(280px, 26vw, 340px); grid-template-rows: minmax(0, 1fr); column-gap: clamp(24px, 3.2vw, 48px); align-content: stretch; }
   .mini-main .mini-stage { grid-column: 1; grid-row: 1; min-height: 0; }
