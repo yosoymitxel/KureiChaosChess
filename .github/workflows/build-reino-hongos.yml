@@ -26,7 +26,9 @@ jobs:
       - name: Renderizar fuentes ClaudePXL
         run: |
           set -euo pipefail
-          for file in art/temas/reino-hongos/*.px.js; do
+          for file in art/temas/*/*.px.js; do
+            [ -f "$file" ] || continue
+            echo "Renderizando $file"
             npx --yes github:crsolver/claude-pxl build "$file"
           done
       - name: Generar PNG y registro de la tienda
