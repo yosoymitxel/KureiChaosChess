@@ -7,7 +7,7 @@ pal({
 });
 const slab=(name,base,hi,lo,deep,kind=0)=>sprite(name,{w:16,h:16},
  rect(0,0,16,16,base),hline(0,0,16,hi),vline(0,0,16,hi),
- hline(0,15,16,deep),vline(15,0,16,deep),hline(1,14,14,lo),
+ hline(1,14,14,lo),
  ...(kind===1?[px(4,5,"m"),px(5,4,"M"),px(6,5,"m"),px(3,6,"M")]:[]),
  ...(kind===2?[ellipse(8,8,3,2,"r"),hline(5,8,6,"R"),px(7,6,"y"),px(10,7,"y")]:[]),
  ...(kind===3?[poly([5,4,10,5,8,10,4,8],"M"),px(6,6,"m"),px(7,7,"m")]:[])
