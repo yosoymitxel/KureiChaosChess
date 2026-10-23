@@ -26,9 +26,29 @@ export function Topbar({ title, sub, onBack, backLabel = 'Volver', children }) {
   </header>`;
 }
 
-// Cierre común de los minijuegos: resultado, motivo y botón en un solo bloque, en cada pantalla.
-export function MiniEnd({ win, title, note, label = 'Continuar', onEnd }) {
-  useEffect(() => { playSfx(win ? 'mini_win' : 'mini_lose'); }, []);
+// Cierre común de minijuegos. Conserva el bloque compacto usado por las pantallas propias
+// y ofrece modo overlay para los minijuegos que se ejecutan dentro de GameScreen.
+export function MiniEnd({ win, title, note, label = 'Continuar', onEnd, overlay = false, state, exitLabel, onContinue, onRetry, onExit }) {
+  const didWin = overlay ? !!state?.victory : !!win;
+  useEffect(() => { playSfx(didWin ? 'mini_win' : 'mini_lose'); }, []);
+  if (overlay) {
+    const kind = state.tie ? 'tie' : state.victory ? 'win' : 'loss';
+    const heading = state.tie ? 'Tablas' : state.victory ? '¡Minijuego completado!' : 'Fin del minijuego';
+    const message = state.note || (state.tie ? 'La partida terminó en empate.'
+      : state.victory ? `Superaste ${title}.` : `No superaste ${title}.`);
+    return html`<div class="overlay">
+      <section class=${'end-card panel ' + kind} role="dialog" aria-modal="true" aria-labelledby="mini-end-title">
+        <div class="stamp"><${Icon} name=${state.tie ? 'flag' : state.victory ? 'trophy' : 'skull'} size=${34} /></div>
+        <h1 id="mini-end-title">${heading}</h1>
+        <p>${message}</p>
+        <div class="end-actions">
+          ${state.victory && html`<button class="btn primary" autofocus onClick=${onContinue}>${exitLabel || 'Continuar'}</button>`}
+          <button class="btn" onClick=${onRetry}><${Icon} name="refresh" size=${16} />Reintentar</button>
+          <button class="btn ghost-ink" onClick=${onExit}>Salir</button>
+        </div>
+      </section>
+    </div>`;
+  }
   return html`<div class=${'mini-end ' + (win ? 'win' : 'lose')} role="status">
     <p class="mini-end-title">${title ?? (win ? '¡Victoria!' : 'Derrota')}</p>
     ${note && html`<p class="mini-end-note">${note}</p>`}
