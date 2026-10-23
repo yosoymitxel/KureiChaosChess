@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
-import { Topbar, MiniResult, MiniTools } from '../components.js';
+import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { MiniGrid } from './mini-grid.js';
 import { hopPiece } from '../hop.js';
@@ -49,6 +49,6 @@ export function ContrabandScreen({ sub, onBack, onEnd, endLabel = 'Continuar', s
   <div class="mini-stats" aria-live="polite"><span class="chip"><${Icon} name="portal" size=${12} /> Jugadas: ${s.turns}</span><span class="chip">Salida: esquina superior derecha</span>${inPortals && html`<span class="chip">Portal a tiro</span>`}</div>
   <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="Contrabando dimensional" boardClass="bm-slab" gridRef=${gridRef} onTap=${tap} />
   <${MiniTools} mini="contraband" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Lleva el caballo contrabandista a la salida (fila superior, última columna). Los dos portales dorados están enlazados: aterrizar en uno te transporta al otro. Planifica el salto para llegar antes de que se acabe el tiempo.<//>
-  ${s.over && html`<${MiniResult} win=${s.over === 'win'} note=${s.over === 'win' ? 'La mercancía cruzó la frontera.' : 'Se agotaron las jugadas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+  ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'La mercancía cruzó la frontera.' : 'Se agotaron las jugadas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
   </div></div>`;
 }
