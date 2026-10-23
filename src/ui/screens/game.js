@@ -1,7 +1,7 @@
 // Game screen: the "director" that wires Match (rules) to BoardView (3D) and the HUD.
 import { html, useState, useEffect, useRef, motion, motionStagger } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
-import { TurnBanner, CardFace } from '../components.js';
+import { TurnBanner, CardFace, MiniEnd } from '../components.js';
 import { isShopCard } from '../../game/shop.js';
 import { BoardView } from '../../view/board-view.js';
 import { artOf } from '../../view/piece-art.js';
@@ -614,8 +614,15 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     ${paused && !end && html`<${PauseOverlay} settings=${settings} setSettings=${setSettings}
       onResume=${() => setPaused(false)} onRestart=${() => leave('reset', onRestart)} onExit=${() => leave('exit', onExit)} onMenu=${() => leave('exit', onMenu)} onAbandon=${() => leave('resign', onAbandon)}
       onHowTo=${() => { setPaused(false); onHowTo(); }} />`}
-    ${end && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} exitLabel=${scenario?.endLabel} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
-      onMenu=${() => leave('exit', end.victory ? () => onWin(ref.current.bossId, { toMenu: true }) : onMenu)} />`}
+    ${end && (scenario
+      ? html`<${MiniEnd} overlay=${true} state=${end} title=${mod.name} exitLabel=${scenario.endLabel}
+          onContinue=${() => leave('exit', () => onWin(ref.current.bossId))}
+          onRetry=${() => leave('reset', onRestart)}
+          onExit=${() => leave('exit', onExit)} />`
+      : html`<${EndOverlay} state=${end} isFinal=${node.isBoss}
+          onContinue=${() => leave('exit', () => onWin(ref.current.bossId))}
+          onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
+          onMenu=${() => leave('exit', end.victory ? () => onWin(ref.current.bossId, { toMenu: true }) : onMenu)} />`)}
   </div>`;
 }
 
