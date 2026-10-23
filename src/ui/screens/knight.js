@@ -1,4 +1,4 @@
-import { html, useState, useEffect, useRef } from '../lib.js';
+import { html, useState, useLayoutEffect, useRef } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { MiniGrid } from './mini-grid.js';
@@ -13,7 +13,7 @@ export function KnightScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
   const hop = useRef(null);
   const next = s.over ? [] : jumps(s);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const h = hop.current;
     if (!h) return;
     hop.current = null;

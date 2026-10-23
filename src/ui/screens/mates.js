@@ -1,4 +1,4 @@
-import { html, useState, useEffect, useRef } from '../lib.js';
+import { html, useState, useLayoutEffect, useRef } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { MiniGrid } from './mini-grid.js';
 import { hopPiece, popPiece, snapPieces, pieceDiffs, fallPiece } from '../hop.js';
@@ -25,7 +25,7 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settin
   const before = useRef(null);
   const fall = useRef(null);
   // Jugada y réplica se miden contra la instantánea: cada ficha que cambió de casilla salta.
-  useEffect(() => {
+  useLayoutEffect(() => {
     const was = before.current;
     if (!was) return;
     before.current = null;

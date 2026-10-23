@@ -25,3 +25,4 @@ export const KingImpostorScreen = screen('kingImpostor');
 export const EscapeScreen = screen('escape');
 export const ContrabandScreen = screen('contraband');
 export const LaboratoryScreen = screen('laboratory');
+export const CollapsingFloorScreen = screen('collapsingFloor');
