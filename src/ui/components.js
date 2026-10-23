@@ -26,53 +26,6 @@ export function Topbar({ title, sub, onBack, backLabel = 'Volver', children }) {
   </header>`;
 }
 
-// Presentación inicial compartida por los 23 minijuegos; el juego no se monta hasta pulsar Jugar.
-export function MiniIntro({ intro, children }) {
-  const [started, setStarted] = useState(false);
-  if (started) return children;
-  return html`<div class="overlay">
-    <section class="end-card panel mini-intro-card" role="dialog" aria-modal="true" aria-labelledby="mini-intro-title">
-      <div class="stamp"><${Icon} name=${intro.icon || 'flag'} size=${34} /></div>
-      <p class="mini-intro-kicker">Presentación del minijuego</p>
-      <h1 id="mini-intro-title">${intro.title}</h1>
-      <p>${intro.description}</p>
-      <div class="end-actions">
-        <button class="btn primary" autofocus onClick=${() => setStarted(true)}>Jugar</button>
-      </div>
-    </section>
-  </div>`;
-}
-
-// Cierre común de minijuegos. Conserva el bloque compacto usado por las pantallas propias
-// y ofrece modo overlay para los minijuegos que se ejecutan dentro de GameScreen.
-export function MiniEnd({ win, title, note, label = 'Continuar', onEnd, overlay = false, state, exitLabel, onContinue, onRetry, onExit }) {
-  const didWin = overlay ? !!state?.victory : !!win;
-  useEffect(() => { playSfx(didWin ? 'mini_win' : 'mini_lose'); }, []);
-  if (overlay) {
-    const kind = state.tie ? 'tie' : state.victory ? 'win' : 'loss';
-    const heading = state.tie ? 'Tablas' : state.victory ? '¡Minijuego completado!' : 'Fin del minijuego';
-    const message = state.note || (state.tie ? 'La partida terminó en empate.'
-      : state.victory ? `Superaste ${title}.` : `No superaste ${title}.`);
-    return html`<div class="overlay">
-      <section class=${'end-card panel ' + kind} role="dialog" aria-modal="true" aria-labelledby="mini-end-title">
-        <div class="stamp"><${Icon} name=${state.tie ? 'flag' : state.victory ? 'trophy' : 'skull'} size=${34} /></div>
-        <h1 id="mini-end-title">${heading}</h1>
-        <p>${message}</p>
-        <div class="end-actions">
-          ${state.victory && html`<button class="btn primary" autofocus onClick=${onContinue}>${exitLabel || 'Continuar'}</button>`}
-          <button class="btn" onClick=${onRetry}><${Icon} name="refresh" size=${16} />Reintentar</button>
-          <button class="btn ghost-ink" onClick=${onExit}>Salir</button>
-        </div>
-      </section>
-    </div>`;
-  }
-  return html`<div class=${'mini-end ' + (win ? 'win' : 'lose')} role="status">
-    <p class="mini-end-title">${title ?? (win ? '¡Victoria!' : 'Derrota')}</p>
-    ${note && html`<p class="mini-end-note">${note}</p>`}
-    <button class="btn primary" onClick=${() => onEnd()}>${label}</button>
-  </div>`;
-}
-
 // Dificultad del minijuego: en partida libre se elige y cada juego recuerda su nivel; en la run
 // el piso la fija y la pieza solo lo anuncia. Cambiar de nivel arranca tablero nuevo, así lo
 // que se juega es siempre lo que se ve marcado.
