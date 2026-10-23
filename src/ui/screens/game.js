@@ -614,8 +614,35 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     ${paused && !end && html`<${PauseOverlay} settings=${settings} setSettings=${setSettings}
       onResume=${() => setPaused(false)} onRestart=${() => leave('reset', onRestart)} onExit=${() => leave('exit', onExit)} onMenu=${() => leave('exit', onMenu)} onAbandon=${() => leave('resign', onAbandon)}
       onHowTo=${() => { setPaused(false); onHowTo(); }} />`}
-    ${end && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} exitLabel=${scenario?.endLabel} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
-      onMenu=${() => leave('exit', end.victory ? () => onWin(ref.current.bossId, { toMenu: true }) : onMenu)} />`}
+    ${end && (scenario
+      ? html`<${MiniGameEndOverlay} state=${end} title=${mod.name} exitLabel=${scenario.endLabel}
+          onContinue=${() => leave('exit', () => onWin(ref.current.bossId))}
+          onRetry=${() => leave('reset', onRestart)}
+          onExit=${() => leave('exit', onExit)} />`
+      : html`<${EndOverlay} state=${end} isFinal=${node.isBoss}
+          onContinue=${() => leave('exit', () => onWin(ref.current.bossId))}
+          onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
+          onMenu=${() => leave('exit', end.victory ? () => onWin(ref.current.bossId, { toMenu: true }) : onMenu)} />`)}
+  </div>`;
+}
+
+// Cierre propio de los minijuegos: evita mostrar las acciones de la torre.
+function MiniGameEndOverlay({ state, title, exitLabel, onContinue, onRetry, onExit }) {
+  const kind = state.tie ? 'tie' : state.victory ? 'win' : 'loss';
+  const heading = state.tie ? 'Tablas' : state.victory ? '¡Minijuego completado!' : 'Fin del minijuego';
+  const message = state.note || (state.tie ? 'La partida terminó en empate.'
+    : state.victory ? `Superaste ${title}.` : `No superaste ${title}.`);
+  return html`<div class="overlay">
+    <section class=${'end-card panel ' + kind} role="dialog" aria-modal="true" aria-labelledby="mini-end-title">
+      <div class="stamp"><${Icon} name=${state.tie ? 'flag' : state.victory ? 'trophy' : 'skull'} size=${34} /></div>
+      <h1 id="mini-end-title">${heading}</h1>
+      <p>${message}</p>
+      <div class="end-actions">
+        ${state.victory && html`<button class="btn primary" autofocus onClick=${onContinue}>${exitLabel || 'Continuar'}</button>`}
+        <button class="btn" onClick=${onRetry}><${Icon} name="refresh" size=${16} />Reintentar</button>
+        <button class="btn ghost-ink" onClick=${onExit}>Salir</button>
+      </div>
+    </section>
   </div>`;
 }
 
