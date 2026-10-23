@@ -5,6 +5,7 @@ import { mulberry32, pickFrom } from '../core/rng.js';
 import { makePiece, placeBoss } from '../game/generate.js';
 import { MINI_BOSSES, FINAL_BOSSES, RIVALS } from '../game/difficulty.js';
 import { legalMoves, key } from '../game/rules.js';
+import { applyMutations, EXTRA_MOVES } from './mutations.js';
 
 export const LEVELS = { facil: { name: 'Fácil' }, normal: { name: 'Normal' }, dificil: { name: 'Difícil' } };
 const N = 8;
@@ -187,6 +188,73 @@ export const SCENARIOS = {
     },
   },
 };
+
+// Cruzar el tablero (Escape, Contrabando, Laboratorio): tu pieza es la «real» que el bot persigue;
+// gana al llegar a la meta y pierde si cae o se acaban las rondas.
+function crossing({ b, pieces, runner, guards, rng, rival, rounds: limit, goal, note }) {
+  for (const [r, c] of spots(rng, pieces, b, 1, N - 4, guards.length)) pieces.push(makePiece(guards.pop(), 'dark', r, c));
+  return {
+    board: b, pieces, rival,
+    objective: (m) => m.eliminated.light ? { victory: false, note: 'Te atraparon.' }
+      : goal(runner) ? { victory: true, note }
+      : rounds(m) >= limit ? { victory: false, note: 'Se acabaron las rondas.' } : null,
+    status: (m) => `Quedan ${limit - rounds(m)} rondas · ${side(m, 'dark').length} guardias`,
+  };
+}
+Object.assign(SCENARIOS, {
+  escape: {
+    id: 'escape', name: 'Escape del tablero', icon: 'flag',
+    goal: 'Lleva tu caballo a la fila de arriba. Los guardias carmesí te cierran el paso y te cazan si te pones a tiro.',
+    levels: {
+      facil: { guards: ['pawn', 'pawn', 'pawn', 'knight'], holes: 4, rounds: 14, rival: 'aprendiz' },
+      normal: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'bishop'], holes: 6, rounds: 12, rival: 'oficial' },
+      dificil: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop', 'rook'], holes: 8, rounds: 10, rival: 'maestro' },
+    },
+    setup(lv, rng) {
+      const b = board(), runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
+      rubble(rng, b, pieces, lv.holes);
+      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Escapaste del tablero.' });
+    },
+  },
+  contraband: {
+    id: 'contraband', name: 'Contrabando dimensional', icon: 'portal',
+    goal: 'Lleva el caballo a la salida marcada con ⚑. Los portales te mandan a su gemelo del mismo color; los guardias vigilan.',
+    levels: {
+      facil: { guards: ['pawn', 'pawn', 'knight'], holes: 6, rounds: 18, rival: 'aprendiz' },
+      normal: { guards: ['pawn', 'pawn', 'pawn', 'knight', 'bishop'], holes: 8, rounds: 12, rival: 'oficial' },
+      dificil: { guards: ['pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop', 'rook'], holes: 10, rounds: 10, rival: 'maestro' },
+    },
+    setup(lv, rng) {
+      const b = board(), runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * 3), { royal: true }), pieces = [runner];
+      const exit = [0, N - 1 - Math.floor(rng() * 3)];
+      // Un muro de escombros en el medio: los portales son el atajo.
+      for (let c = 0; c < N; c++) if (rng() < 0.75) b.holes.add(key(3 + (c % 2), c));
+      for (const [r, c] of spots(rng, pieces, b, 1, N - 2, 4)) { b.terrain.set(key(r, c), 'portal'); }
+      const ps = [...b.terrain.keys()];
+      [[ps[0], ps[1]], [ps[2], ps[3]]].forEach(([a, z]) => { b.portals.set(a, z); b.portals.set(z, a); });
+      b.holes.delete(key(...exit));
+      const game = crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === exit[0] && p.col === exit[1], note: 'El contrabando cruzó.' });
+      return { ...game, labels: () => new Map([[key(...exit), '⚑']]) };
+    },
+  },
+  laboratory: {
+    id: 'laboratory', name: 'El laboratorio', icon: 'flask',
+    goal: 'Tu pieza lleva una mutación de prueba. Crúzala hasta la fila de arriba: cada casilla que dejas se hunde y los guardias acechan.',
+    levels: {
+      facil: { muts: ['kingRook', 'towerDiag', 'bishopOrth'], guards: ['pawn', 'pawn', 'pawn', 'knight', 'knight'], holes: 6, rounds: 8, rival: 'oficial' },
+      normal: { muts: ['knightBishop', 'towerDiag', 'bishopOrth'], guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop'], holes: 8, rounds: 7, rival: 'maestro' },
+      dificil: { muts: ['guardKnight', 'kingRook', 'knightBishop'], guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'knight', 'bishop', 'rook'], holes: 10, rounds: 6, rival: 'maestro' },
+    },
+    setup(lv, rng) {
+      const b = board(), mut = pickFrom(rng, lv.muts);
+      const runner = makePiece(EXTRA_MOVES[mut][0], 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
+      applyMutations(pieces, [mut], 'light');
+      b.sinking = 'light';
+      rubble(rng, b, pieces, lv.holes);
+      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'El experimento salió bien.' });
+    },
+  },
+});
 
 // Ruta segura del caballo de abajo arriba, con algún rodeo.
 function knightRoute(rng, [r0, c0]) {

@@ -150,6 +150,8 @@ export class Match {
       const [r, c] = twin.split(',').map(Number);
       if (!occupied(r, c)) { res.portal = { from: { row: piece.row, col: piece.col }, to: { row: r, col: c } }; piece.row = r; piece.col = c; }
     }
+    // Suelo que se hunde (El laboratorio): la casilla que dejan tus piezas cae.
+    if (this.board.sinking === piece.color) { this.board.holes.add(key(from.row, from.col)); res.sunk = [from.row, from.col]; }
     // Mina oculta (Campo minado): estalla, se lleva la pieza y deja un hueco.
     const k = key(piece.row, piece.col);
     if (this.board.mines?.has(k)) {
