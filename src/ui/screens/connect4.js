@@ -76,9 +76,7 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar', set
         </div>
         <div class="mini-side">
           ${!result && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-          ${result && html`<${MiniEnd} win=${result.winner === 'light'} title=${result.winner ? undefined : 'Empate'}
-            note=${result.winner === 'light' ? 'Cuatro en línea antes que el bot.' : result.winner === 'dark' ? 'El bot conectó cuatro antes que tú.' : 'Tablero lleno: nadie conectó cuatro.'}
-            label=${endLabel} onEnd=${() => onEnd(result.winner === 'light')} />`}
+          ${result && html`<div class=${"mini-end " + (result.winner === 'light' ? 'win' : 'lose')} role="status"><p class="mini-end-title">${result.winner === 'light' ? '¡Victoria!' : 'Derrota'}</p><p class="mini-end-note">${result.winner === 'light' ? 'Cuatro en línea antes que el bot.' : result.winner === 'dark' ? 'El bot conectó cuatro antes que tú.' : 'Tablero lleno: nadie conectó cuatro.'}</p><button class="btn primary" onClick=${() => onEnd(result.winner === 'light')}>${endLabel}</button></div>`}
           <${MiniTools} mini="connect4" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Elige columna con las flechas o pasando el ratón, y suelta la ficha con Enter o un toque. Ganas al conectar cuatro en línea antes que el carmesí.<//>
         </div>
       </div>
