@@ -2,7 +2,7 @@
 // deslizamiento se ve continuo y se puede encadenar sin esperar; la que nace brota y la fundida late.
 import { html, useState, useEffect, useRef } from '../lib.js';
 import { playSfx } from '../sfx.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, MiniResult, MiniTools } from '../components.js';
 import { PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { DIFFS, LADDER, newFusion, slide } from '../../game/fusion.js';
@@ -54,7 +54,7 @@ export function FusionScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
             <span>Meta</span><${PieceIcon} type=${goal} side="dark" size=${30} /><b>${PIECE_NAMES[goal]}</b>
           </div>`}
           ${!s.over && html`<ol class="fu-ladder" aria-label="Escalera de fusión">${LADDER.slice(0, s.diff.goal + 1).map((t, i) => html`<li class=${i <= s.best ? 'on' : ''}><${PieceIcon} type=${t} side=${i === s.diff.goal ? 'dark' : 'light'} size=${22} /></li>`)}</ol>`}
-          ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Formaste ${PIECE_NAMES[goal].toLowerCase()} en ${s.moves} jugadas.` : 'El tablero se llenó sin fusiones posibles.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
+          ${s.over ? html`<${MiniResult} win=${s.over === 'win'} note=${s.over === 'win' ? `Formaste ${PIECE_NAMES[goal].toLowerCase()} en ${s.moves} jugadas.` : 'El tablero se llenó sin fusiones posibles.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
             : html`<div class="bm-pad" role="group" aria-label="Empujar">
               ${PAD.map(([d, g, label]) => html`<button class=${'btn sm pad-' + d} aria-label=${label} onClick=${() => go(d)}>${g}</button>`)}
             </div>`}
