@@ -250,14 +250,12 @@ export function App() {
       onUseCard=${(i) => setRun((r) => consumeCard(r, i))}
       onWin=${onWin} onRestart=${() => setGameKey((k) => k + 1)} onHowTo=${() => setHowTo(true)} />`}
     ${screen === 'mini' && Mini && html`<${Mini} key=${node.id + '-' + miniKey} sub=${'Piso ' + (node.floor + 1) + ' · minijuego'} onBack=${() => goTo('map')} onEnd=${onMiniEnd}
-        diff=${floorTier(node.floor, run.map.floors)}
-        settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />
+      diff=${floorTier(node.floor, run.map.floors)}
+      settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />`}
     ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
-    ${screen === 'free-mini' && FreeMini && html`<${MiniIntro} key=${freeMini + '-' + freeKey} intro=${miniIntro(freeMini)}>
-      <${FreeMini} key=${freeKey} sub="Partida libre" onBack=${() => goTo('minis')}
-        endLabel="Otra partida" onEnd=${() => setFreeKey((k) => k + 1)}
-        settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />
-    <//>`}
+    ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub="Partida libre" onBack=${() => goTo('minis')}
+      endLabel="Otra partida" onEnd=${() => setFreeKey((k) => k + 1)}
+      settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => goTo(shopFrom)} />`}
     ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} onAchievements=${(focus) => { setAchFrom({ back: 'gallery', focus }); goTo('achievements'); }} />`}
