@@ -143,6 +143,7 @@ export class BoardView {
 
   setBoard(board) {
     this.board = board;
+    this.tilesEl.parentElement.classList.toggle('covered', !!board.mines);
     this.tilesEl.innerHTML = '';
     this.tiles.clear();
     const { rows, cols, holes } = board;
@@ -257,9 +258,9 @@ export class BoardView {
   // Rótulos sobre casillas (las pistas de Campo minado): key -> texto.
   setLabels(labels = new Map()) {
     for (const [k, t] of this.tiles) {
-      const text = labels.get(k);
-      if (text == null) delete t.dataset.n;
-      else if (t.dataset.n !== String(text)) t.dataset.n = text;
+      const text = labels.get(k), mark = t.querySelector('.mark');
+      if (text == null) { delete t.dataset.n; mark.textContent = ''; }
+      else if (t.dataset.n !== String(text)) { t.dataset.n = text; mark.textContent = text === 0 ? '·' : text; }
     }
   }
 
