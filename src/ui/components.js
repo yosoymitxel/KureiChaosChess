@@ -26,6 +26,23 @@ export function Topbar({ title, sub, onBack, backLabel = 'Volver', children }) {
   </header>`;
 }
 
+// Presentación inicial compartida por los 23 minijuegos; el juego no se monta hasta pulsar Jugar.
+export function MiniIntro({ intro, children }) {
+  const [started, setStarted] = useState(false);
+  if (started) return children;
+  return html`<div class="overlay">
+    <section class="end-card panel mini-intro-card" role="dialog" aria-modal="true" aria-labelledby="mini-intro-title">
+      <div class="stamp"><${Icon} name=${intro.icon || 'flag'} size=${34} /></div>
+      <p class="mini-intro-kicker">Presentación del minijuego</p>
+      <h1 id="mini-intro-title">${intro.title}</h1>
+      <p>${intro.description}</p>
+      <div class="end-actions">
+        <button class="btn primary" autofocus onClick=${() => setStarted(true)}>Jugar</button>
+      </div>
+    </section>
+  </div>`;
+}
+
 // Cierre común de minijuegos. Conserva el bloque compacto usado por las pantallas propias
 // y ofrece modo overlay para los minijuegos que se ejecutan dentro de GameScreen.
 export function MiniEnd({ win, title, note, label = 'Continuar', onEnd, overlay = false, state, exitLabel, onContinue, onRetry, onExit }) {
