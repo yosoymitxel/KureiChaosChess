@@ -2,7 +2,7 @@
 // Keyboard: arrows pick a column, Enter or Space drops.
 import { html, useState, useRef, useEffect, motion } from '../lib.js';
 import { playSfx } from '../sfx.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, MiniTools } from '../components.js';
 import { ROWS, COLS, emptyGrid, dropRow, lineAt, isFull, botColumn, DIFFS } from '../../game/connect4.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
