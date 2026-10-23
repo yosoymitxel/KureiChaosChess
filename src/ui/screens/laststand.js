@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, MiniTools } from '../components.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { MiniGrid } from './mini-grid.js';
