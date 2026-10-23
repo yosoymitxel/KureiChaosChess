@@ -1,7 +1,7 @@
 // Game screen: the "director" that wires Match (rules) to BoardView (3D) and the HUD.
 import { html, useState, useEffect, useRef, motion, motionStagger } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
-import { TurnBanner, CardFace } from '../components.js';
+import { TurnBanner, CardFace, MiniEnd } from '../components.js';
 import { isShopCard } from '../../game/shop.js';
 import { BoardView } from '../../view/board-view.js';
 import { artOf } from '../../view/piece-art.js';
@@ -615,7 +615,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       onResume=${() => setPaused(false)} onRestart=${() => leave('reset', onRestart)} onExit=${() => leave('exit', onExit)} onMenu=${() => leave('exit', onMenu)} onAbandon=${() => leave('resign', onAbandon)}
       onHowTo=${() => { setPaused(false); onHowTo(); }} />`}
     ${end && (scenario
-      ? html`<${MiniGameEndOverlay} state=${end} title=${mod.name} exitLabel=${scenario.endLabel}
+      ? html`<${MiniEnd} overlay=${true} state=${end} title=${mod.name} exitLabel=${scenario.endLabel}
           onContinue=${() => leave('exit', () => onWin(ref.current.bossId))}
           onRetry=${() => leave('reset', onRestart)}
           onExit=${() => leave('exit', onExit)} />`
@@ -623,26 +623,6 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
           onContinue=${() => leave('exit', () => onWin(ref.current.bossId))}
           onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
           onMenu=${() => leave('exit', end.victory ? () => onWin(ref.current.bossId, { toMenu: true }) : onMenu)} />`)}
-  </div>`;
-}
-
-// Cierre propio de los minijuegos: evita mostrar las acciones de la torre.
-function MiniGameEndOverlay({ state, title, exitLabel, onContinue, onRetry, onExit }) {
-  const kind = state.tie ? 'tie' : state.victory ? 'win' : 'loss';
-  const heading = state.tie ? 'Tablas' : state.victory ? '¡Minijuego completado!' : 'Fin del minijuego';
-  const message = state.note || (state.tie ? 'La partida terminó en empate.'
-    : state.victory ? `Superaste ${title}.` : `No superaste ${title}.`);
-  return html`<div class="overlay">
-    <section class=${'end-card panel ' + kind} role="dialog" aria-modal="true" aria-labelledby="mini-end-title">
-      <div class="stamp"><${Icon} name=${state.tie ? 'flag' : state.victory ? 'trophy' : 'skull'} size=${34} /></div>
-      <h1 id="mini-end-title">${heading}</h1>
-      <p>${message}</p>
-      <div class="end-actions">
-        ${state.victory && html`<button class="btn primary" autofocus onClick=${onContinue}>${exitLabel || 'Continuar'}</button>`}
-        <button class="btn" onClick=${onRetry}><${Icon} name="refresh" size=${16} />Reintentar</button>
-        <button class="btn ghost-ink" onClick=${onExit}>Salir</button>
-      </div>
-    </section>
   </div>`;
 }
 
