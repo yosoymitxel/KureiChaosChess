@@ -1,4 +1,4 @@
-import { html, useState, useEffect, useRef } from '../lib.js';
+import { html, useState, useLayoutEffect, useRef } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { MiniGrid } from './mini-grid.js';
@@ -14,7 +14,7 @@ export function KnightScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
   const next = s.over ? [] : jumps(s);
 
   // El caballo salta desde la casilla que deja hasta la que acaba de pisar, con su charco.
-  useEffect(() => {
+  useLayoutEffect(() => {
     const h = hop.current;
     if (!h) return;
     hop.current = null;

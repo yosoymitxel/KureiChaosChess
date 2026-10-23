@@ -1,4 +1,4 @@
-import { html, useState, useEffect, useRef } from '../lib.js';
+import { html, useState, useLayoutEffect, useRef } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
@@ -15,7 +15,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
   const redraw = () => tick((n) => n + 1);
   // Cada acción guarda una instantánea; tras el repintado, quien se movió salta y quien entra brota.
   const act = (fn) => { const b = snapPieces(s.pieces); if (!fn()) return; before.current = b; redraw(); };
-  useEffect(() => {
+  useLayoutEffect(() => {
     const b = before.current;
     if (!b) return;
     before.current = null;

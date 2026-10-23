@@ -1,4 +1,4 @@
-import { html, useState, useEffect, useRef, motion } from '../lib.js';
+import { html, useState, useEffect, useLayoutEffect, useRef, motion } from '../lib.js';
 import { Fx } from '../../view/fx.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
@@ -55,7 +55,7 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
     fxRef.current = new Fx(gridRef.current);
     return () => fxRef.current.destroy();
   }, []);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const grid = gridRef.current, fx = fxRef.current;
     if (booms.current?.length && fx && !reduced()) {
       // Estalla como cae un rey en el tablero (fx.bigBoom) y el fuego corre por la cruz casilla a casilla.

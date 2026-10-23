@@ -1,4 +1,4 @@
-import { html, useState, useEffect, useRef, motion } from '../lib.js';
+import { html, useState, useEffect, useLayoutEffect, useRef, motion } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
@@ -14,7 +14,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
   const before = useRef(null);
   // Cada paso guarda una instantánea; tras el repintado, quien se movió salta y quien entra brota.
   const act = (fn) => { const b = snapPieces(s.pieces); fn(); before.current = b; redraw((n) => n + 1); };
-  useEffect(() => {
+  useLayoutEffect(() => {
     const b = before.current;
     if (!b) return;
     before.current = null;

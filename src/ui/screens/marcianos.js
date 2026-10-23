@@ -1,4 +1,4 @@
-import { html, useState, useEffect, useRef, motion } from '../lib.js';
+import { html, useState, useEffect, useLayoutEffect, useRef, motion } from '../lib.js';
 import { playSfx } from '../sfx.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
@@ -59,7 +59,7 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
   });
 
   // Después de repintar, las fichas que se movieron saltan con su charco (criterio del tablero).
-  useEffect(() => {
+  useLayoutEffect(() => {
     const moved = hops.current;
     if (!moved?.length) return;
     hops.current = null;

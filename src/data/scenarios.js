@@ -262,6 +262,21 @@ Object.assign(SCENARIOS, {
       return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'El experimento salió bien.' });
     },
   },
+  collapsingFloor: {
+    id: 'collapsingFloor', name: 'El suelo se acaba', icon: 'collapse',
+    goal: 'Cruza con el caballo hasta la fila de arriba. Cada casilla que dejas se hunde y los guardias te cortan el paso.',
+    levels: {
+      facil: { guards: ['pawn', 'pawn', 'pawn', 'knight'], holes: 6, rounds: 10, rival: 'oficial' },
+      normal: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'bishop'], holes: 9, rounds: 9, rival: 'maestro' },
+      dificil: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop', 'rook'], holes: 12, rounds: 8, rival: 'maestro' },
+    },
+    setup(lv, rng) {
+      const b = board(), runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
+      b.sinking = 'light';
+      rubble(rng, b, pieces, lv.holes);
+      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Llegaste antes de que se acabara el suelo.' });
+    },
+  },
 });
 
 // Saltos de caballo hasta `to` sin guardias, contando portales (Infinity si no llega).
