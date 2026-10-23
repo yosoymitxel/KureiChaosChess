@@ -1,6 +1,6 @@
 // Root: screen routing + run progression. Screens are dumb; all run mutations happen here.
 import { html, useState, useEffect, useRef, useCallback, motion } from './lib.js';
-import { CardPick, MiniIntro } from './components.js';
+import { CardPick } from './components.js';
 import { Icon } from './icons.js';
 import { MenuScreen } from './screens/menu.js';
 import { MapScreen } from './screens/map.js';
@@ -34,7 +34,6 @@ import { ContrabandScreen } from './screens/contraband.js';
 import { LaboratoryScreen } from './screens/laboratory.js';
 import { CollapsingFloorScreen } from './screens/collapsing-floor.js';
 import { MODIFIERS } from '../data/modifiers.js';
-import { SCENARIOS } from '../data/scenarios.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard } from '../game/shop.js';
 import { ZEN_NAMES, addZenSeeds, pickSeed } from '../game/zen.js';
@@ -60,12 +59,6 @@ const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3
 // A won minigame pays a mutation or a piece the army already knows.
 const MINI_PRIZES = BAG_CARDS.filter((c) => ['mut', 'extra_rook', 'extra_pawn'].includes(c.id));
 const MINI_SCREENS = { laboratory: LaboratoryScreen, collapsingFloor: CollapsingFloorScreen, kingImpostor: KingImpostorScreen, giantHunt: GiantHuntScreen, minefield: MinefieldScreen, contraband: ContrabandScreen, bodyguard: BodyguardScreen, escape: EscapeScreen, caceria: CaceriaScreen, connect4: Connect4Screen, bomber: BomberScreen, barrier: BarrierScreen, izombie: IZombieScreen, bowling: BowlingScreen, laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen, marcianos: MarcianosScreen, checkers: CheckersScreen, fusion: FusionScreen, duel: DuelScreen, hockey: HockeyScreen };
-const miniIntro = (id) => {
-  const scenario = SCENARIOS[id];
-  const modifier = MODIFIERS[id];
-  const title = scenario?.name || modifier?.name || 'Minijuego';
-  const description = scenario?.goal || (modifier?.desc || '').replace(/^Minijuego: /, '').replace(/ Premio: mutación o pieza\.$/, '.');
-  return { title, description, icon: scenario?.icon || modifier?.icon || 'flag' };
 };
 const ONE_SHOT =['promoteOne', 'furyNow', 'extraPawn', 'extraRook'];
 
@@ -256,17 +249,13 @@ export function App() {
       onExit=${() => goTo('map')} onMenu=${() => goTo('menu')} onAbandon=${() => { setRun(null); goTo('menu'); }}
       onUseCard=${(i) => setRun((r) => consumeCard(r, i))}
       onWin=${onWin} onRestart=${() => setGameKey((k) => k + 1)} onHowTo=${() => setHowTo(true)} />`}
-    ${screen === 'mini' && Mini && html`<${MiniIntro} key=${node.modifier + '-' + miniKey} intro=${miniIntro(node.modifier)}>
-      <${Mini} key=${node.id + '-' + miniKey} sub=${'Piso ' + (node.floor + 1) + ' · minijuego'} onBack=${() => goTo('map')} onEnd=${onMiniEnd}
+    ${screen === 'mini' && Mini && html`<${Mini} key=${node.id + '-' + miniKey} sub=${'Piso ' + (node.floor + 1) + ' · minijuego'} onBack=${() => goTo('map')} onEnd=${onMiniEnd}
         diff=${floorTier(node.floor, run.map.floors)}
-        settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />
-    <//>`}
+        settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />`}
     ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
-    ${screen === 'free-mini' && FreeMini && html`<${MiniIntro} key=${freeMini + '-' + freeKey} intro=${miniIntro(freeMini)}>
-      <${FreeMini} key=${freeKey} sub="Partida libre" onBack=${() => goTo('minis')}
+    ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub="Partida libre" onBack=${() => goTo('minis')}
         endLabel="Otra partida" onEnd=${() => setFreeKey((k) => k + 1)}
-        settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />
-    <//>`}
+        settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => goTo(shopFrom)} />`}
     ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} onAchievements=${(focus) => { setAchFrom({ back: 'gallery', focus }); goTo('achievements'); }} />`}
