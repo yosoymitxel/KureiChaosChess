@@ -7,6 +7,7 @@ on:
     paths:
       - 'src/game/mates.js'
       - 'src/data/mates.js'
+      - 'tools/mates-gen.mjs'
       - 'tools/mates-validate.mjs'
       - '.github/workflows/validate-mates.yml'
 
@@ -18,4 +19,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node tools/mates-validate.mjs
+      - name: Generate 20 mate-in-two positions
+        run: |
+          node tools/mates-gen.mjs > /tmp/mates.js
+          cp /tmp/mates.js src/data/mates.js
+      - name: Validate every stored position
+        run: node tools/mates-validate.mjs
+      - name: Print generated puzzle data
+        run: cat src/data/mates.js
