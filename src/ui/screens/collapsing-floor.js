@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { MiniGrid } from './mini-grid.js';
 import { hopPiece } from '../hop.js';
@@ -13,6 +13,6 @@ export function CollapsingFloorScreen({sub,onBack,onEnd,endLabel='Continuar',set
  <div class="mini-stats" aria-live="polite"><span class="chip"><${Icon} name="collapse" size=${12}/> Saltos: ${s.turns}</span><span class="chip">El suelo se hunde en cada turno</span></div>
  <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="El suelo se acaba" boardClass="bm-slab" gridRef=${gridRef} onTap=${tap}/>
  <${MiniTools} mini="collapsingFloor" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Lleva el caballo a cualquier casilla de la fila superior. Cada turno se hunde la casilla que abandonas y también otras zonas del tablero. En difícil caen dos casillas adicionales; los huecos son permanentes. Busca una ruta antes de que el suelo te cierre el paso.<//>
- ${s.over&&html`<${MiniEnd} win=${s.over==='win'} note=${s.over==='win'?'Llegaste al otro lado.':'Te quedaste sin saltos o sin movimientos.'} label=${endLabel} onEnd=${()=>onEnd(s.over==='win')}/>`}
+ ${s.over&&html`<div class=${"mini-end " + (s.over==='win' ? 'win' : 'lose')} role="status"><p class="mini-end-title">${s.over==='win' ? '¡Victoria!' : 'Derrota'}</p><button class="btn primary" onClick=${()=>onEnd(s.over==='win')}>${endLabel}</button></div>`}
  </div></div>`;
 }
