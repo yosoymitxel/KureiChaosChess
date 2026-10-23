@@ -241,6 +241,15 @@ export class BoardView {
     (el.shadowEl ||= el.querySelector('.pc-shadow'))?.style.setProperty('--z', z);
   }
 
+  // Rótulos sobre casillas (las pistas de Campo minado): key -> texto.
+  setLabels(labels = new Map()) {
+    for (const [k, t] of this.tiles) {
+      const text = labels.get(k);
+      if (text == null) delete t.dataset.n;
+      else if (t.dataset.n !== String(text)) t.dataset.n = text;
+    }
+  }
+
   setArt(p) {
     const art = this.els.get(p)?.querySelector('.pc-art');
     if (art) art.innerHTML = pieceSVG(artOf(p));
@@ -583,6 +592,17 @@ export class BoardView {
     if (res.zombie) await this.rise(res.zombie);
     if (res.slide) await this.slide(piece, res.slide);
     if (res.portal) await this.warp(piece, res.portal);
+    if (res.unmasked) {
+      this.fx.burst(c.x, c.y - this.sq * 0.4, { count: 18, color: [css('--side-' + piece.color), '#fff'], speed: [60, 200], life: [0.3, 0.7] });
+      playSfx('pop');
+      this.setArt(piece);
+      this.squash(piece, 0.7);
+    }
+    if (res.mine) {
+      this.fx.explosion(c.x, c.y, this.sq / 50);
+      this.shake(18, 520);
+      await Promise.all([this.kill(piece, from, to), this.collapse([[res.mine.row, res.mine.col]])]);
+    }
     // Enroque: la torre salta por encima del rey a su lado, en arco corto.
     if (res.castle) {
       const st2 = this.state.get(res.castle.rook);

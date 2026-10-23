@@ -9,8 +9,10 @@ import { RIVALS } from './difficulty.js';
 export const QUIET_LIMIT = 20;
 
 export class Match {
-  constructor({ board, pieces, players, modifier, mutations, bonuses, rival, rivals }) {
-    Object.assign(this, { board, pieces, players, modifier, rival, rivals });
+  // `objective(match)` (minijuegos de src/data/scenarios.js) reemplaza el fin de partida por rey
+  // caído: devuelve { victory, note } cuando la partida termina, o null.
+  constructor({ board, pieces, players, modifier, mutations, bonuses, rival, rivals, objective }) {
+    Object.assign(this, { board, pieces, players, modifier, rival, rivals, objective });
     this.current = 0;
     this.movesThisTurn = 0;
     this.turn = 0;
@@ -94,6 +96,8 @@ export class Match {
         rook.col = m.castle.col; rook.moved = true;
       }
       if (m.ep) res.enPassant = true;
+      // Disfrazada: un paso de rey no la delata; cualquier otro movimiento sí.
+      if (piece.disguise && !piece.unmasked && Math.max(Math.abs(to.row - from.row), Math.abs(to.col - from.col)) > 1) piece.unmasked = res.unmasked = true;
       // Plaga zombi: el peón derribado se levanta en la casilla que dejó el atacante, para su bando.
       // Un zombi que cae ya no vuelve.
       if (this.modifier === 'zombie') {
@@ -146,6 +150,15 @@ export class Match {
       const [r, c] = twin.split(',').map(Number);
       if (!occupied(r, c)) { res.portal = { from: { row: piece.row, col: piece.col }, to: { row: r, col: c } }; piece.row = r; piece.col = c; }
     }
+    // Mina oculta (Campo minado): estalla, se lleva la pieza y deja un hueco.
+    const k = key(piece.row, piece.col);
+    if (this.board.mines?.has(k)) {
+      this.board.mines.delete(k);
+      this.board.holes.add(k);
+      this.pieces.splice(this.pieces.indexOf(piece), 1);
+      if (piece.royal) this.eliminated[piece.color] = true;
+      res.mine = { row: piece.row, col: piece.col };
+    }
   }
 
   // Called after the view finished animating a move (or when a player must pass).
@@ -187,6 +200,7 @@ export class Match {
 
   checkOver() {
     if (this.over) return true;
+    if (this.objective) return !!(this.over = this.objective(this));
     const alive = this.players.filter((p) => !this.eliminated[p.color]);
     const royals = this.pieces.filter((p) => p.royal && !this.eliminated[p.color]);
     const stalled = this.quietTurns >= QUIET_LIMIT * this.players.length;
@@ -243,6 +257,8 @@ export function botChooseMove(match) {
       score += Math.max(board.rows, board.cols) - (Math.abs(m.row - (board.rows - 1) / 2) + Math.abs(m.col - (board.cols - 1) / 2));
       if (royal && R.pressure) score += R.pressure * Math.max(0, 10 - (Math.abs(m.row - royal.row) + Math.abs(m.col - royal.col)));
       if (p.boss) score += m.hits.length * 15; // bosses love stomping
+      // Peón que quiere coronar (La cacería): cuanto más cerca del fondo, mejor.
+      if (R.advance && p.type === 'pawn') score += R.advance * (p.color === 'light' ? board.rows - 1 - m.row : m.row);
       if (R.care) {
         const attacker = cheapestAttacker(match, p, m.row, m.col, m.hits);
         if (attacker != null) score -= R.care * Math.max(0, (PIECE_VALUE[p.type] || 20) - attacker);

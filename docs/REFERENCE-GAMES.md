@@ -107,7 +107,7 @@ personalización y la galería.
 
 ### La cacería
 
-El movimiento del cazador reutiliza `src/game/rules.js` (`legalMoves`) y las siluetas de `src/view/piece-art.js`; el tablero y los estados visuales reutilizan `MiniGrid` y la animación `hopPiece`. La novedad se limita al objetivo de persecución y al ritmo de escape del peón.
+El movimiento del cazador reutiliza `src/game/rules.js` (`legalMoves`) y las siluetas de `src/view/piece-art.js`; el tablero y los estados visuales reutilizan `MiniGrid` y la animación `hopPiece`. El peón fugitivo juega con las reglas de `rules.js` (baja, dobla desde su fila, come en diagonal y corona); cada partida sale de un solucionador que garantiza la caza y fija un par de saltos según dificultad.
 
 ### Escape del tablero
 
@@ -115,16 +115,16 @@ La huida reutiliza `src/game/rules.js` para los saltos del caballo y `MiniGrid`/
 
 ### El guardaespaldas
 
-Reutiliza los movimientos legales de `src/game/rules.js`, las piezas existentes y `MiniGrid`/`hopPiece`; la lógica añadida es el avance por turnos del rey atacante y la condición de supervivencia.
+Reutiliza los movimientos legales de `src/game/rules.js`, las piezas existentes y `MiniGrid`/`hopPiece`; cada partida sortea escolta, escuadra rival y casillas caídas; el rival mueve una pieza por turno buscando el mate (cuenta las respuestas que salvan al rey) y en Difícil entra un refuerzo.
 
 
 ### Caza de gigantes
 
-Reutiliza `rules.js` para movimientos y golpes contra una pieza de huella 2×2; el coloso comparte la lógica de piezas grandes y puntos de vida de `bosses.js`. La regla nueva es ganar al agotar sus vidas antes del límite.
+Reutiliza `rules.js` para movimientos y golpes contra una pieza de huella 2×2; el coloso comparte la lógica de piezas grandes y puntos de vida de `bosses.js`. El jefe se pinta en una capa propia del tamaño de su huella. Jefe y escombros salen al azar; cada golpe provoca una embestida en línea hacia la reina y a media vida entra en furia (dos pasos).
 
 ### Campo minado
 
-Reutiliza el caballo, sus saltos legales y `MiniGrid`. El mapa de minas se mantiene como estado del minijuego; no crea una segunda lógica de movimiento.
+Reutiliza el caballo, sus saltos legales y `MiniGrid`. El mapa de minas se mantiene como estado del minijuego; no crea una segunda lógica de movimiento. Cada partida traza una ruta segura al azar; la dificultad sube minas y baja lo que se destapa al aterrizar. La sonda mira una casilla sin gastar jugada.
 
 ### Contrabando dimensional
 
@@ -140,7 +140,7 @@ Reutiliza el caballo y `legalMoves`; cada casilla abandonada se agrega al conjun
 
 ### El rey impostor
 
-Reutiliza las piezas e iconografía actuales. La regla nueva se limita a identificar al sospechoso correcto, con más intentos en dificultades bajas.
+Deducción sobre `rules.js`: la pista es una casilla que el impostor amenaza (destinos legales; el peón, sus diagonales). Las rondas se generan para que la primera pista apunte a varios y todas juntas a uno solo.
 
 ### El laboratorio
 
@@ -152,4 +152,4 @@ Reutiliza el caballo y `legalMoves`; cada casilla abandonada se agrega al conjun
 
 ### El rey impostor
 
-Reutiliza las piezas e iconografía actuales. La regla nueva se limita a identificar al sospechoso correcto, con más intentos en dificultades bajas.
+Deducción sobre `rules.js`: la pista es una casilla que el impostor amenaza (destinos legales; el peón, sus diagonales). Las rondas se generan para que la primera pista apunte a varios y todas juntas a uno solo.

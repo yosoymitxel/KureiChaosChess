@@ -24,7 +24,7 @@ import { award, seePieces, seeMutations } from '../../game/achievements.js';
 const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
 
 // Nombre visible: el propio (jefes, colosos) o el de su tipo. Las piezas fortificadas no llevan name.
-const pieceName = (p) => p.name || PIECE_NAMES[p.type] || p.type;
+const pieceName = (p) => p.name || PIECE_NAMES[p.disguise && !p.unmasked ? p.disguise : p.type] || p.type;
 // Consejos del panel: rotan por turno cuando no hay nada más urgente que decir.
 const TIPS = [
   'Toca una pieza enemiga para ver su alcance en rojo.',
@@ -46,7 +46,9 @@ function cardEffect(card, piece, pv) {
   return `${name}: ${card.desc}`;
 }
 
-export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard }) {
+// `scenario` (un minijuego de src/data/scenarios.js ya armado): trae tablero, piezas, rival y objetivo
+// propios; el resto (vista, bot, avisos, demos) es el de cualquier piso.
+export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools }) {
   const hostRef = useRef(null);
   const mainRef = useRef(null);
   const ref = useRef({}); // mutable director state: view, match, busy, selected
@@ -61,19 +63,19 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   const [cardTip, setCardTip] = useState(null); // what the aimed card would do to the previewed target
   const [placing, setPlacing] = useState(null); // fase previa de "Organizar": { left, total }
   const [zoom, setZoom] = useState(1); // pellizco sobre el tablero; por encima de 1 asoma el botón de encuadre
-  const mod = nodeModifier(node);
+  const mod = scenario || nodeModifier(node);
   ref.current.hand = run.cards || [];
   ref.current.onUseCard = onUseCard;
   const addLog = (m) => setLog((l) => [...l.slice(-30), m]);
 
   useEffect(() => {
     const d = ref.current;
-    const board = generateBoard(node.seed, node.floor, run.map.floors, node.modifier);
-    const pieces = placePieces(board, { playerCount: seats.length, isBoss: node.isBoss, isMiniBoss: node.isMiniBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses, floor: node.floor, totalFloors: run.map.floors });
+    const board = scenario?.board || generateBoard(node.seed, node.floor, run.map.floors, node.modifier);
+    const pieces = scenario?.pieces || placePieces(board, { playerCount: seats.length, isBoss: node.isBoss, isMiniBoss: node.isMiniBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses, floor: node.floor, totalFloors: run.map.floors });
     // El rival lo manda el tramo de la torre (difficulty.js); el ajuste de dificultad corre la
     // escalera y el mini-jefe sube un peldaño.
-    const rival = rivalForFloor(node.floor, run.map.floors, { up: node.isMiniBoss ? 1 : 0, difficulty: run.tutorial ? 'facil' : settings.difficulty });
-    const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses, rival });
+    const rival = scenario?.rival || rivalForFloor(node.floor, run.map.floors, { up: node.isMiniBoss ? 1 : 0, difficulty: run.tutorial ? 'facil' : settings.difficulty });
+    const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses, rival, objective: scenario?.objective });
     // Foto del bando humano al repartir: decide los logros de fin de partida.
     const human = seats.find((s) => s.kind === 'human')?.color || 'light';
     d.feats = { human, mine: new Set(pieces.filter((p) => p.color === human)), cards: 0, hadCards: d.hand.length > 0 };
@@ -92,8 +94,10 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         const viewer = p.kind === 'human' ? p.color : seats.find((s) => s.kind === 'human')?.color || 'light';
         d.view.setFog(match.pieces, viewer);
       }
+      if (scenario?.labels) d.view.setLabels(scenario.labels(match));
       const boss = match.pieces.find((x) => x.boss);
       setHud({
+        goal: scenario?.status(match),
         current: match.current, moves: match.movesThisTurn, movesFor: seats.map((s) => match.movesFor(s.color)),
         eliminated: { ...match.eliminated }, threats: p.kind === 'human' ? match.threats().size : 0,
         chaosIn: 3 - (match.turn % 3), boss: boss && { name: boss.name, hp: boss.hp, maxHp: boss.maxHp, id: boss.boss },
@@ -218,6 +222,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const inspectPiece = (p) => {
       d.selected = null; d.view.select(null);
       if (d.view.fogged(p)) return d.view.tileTip(p.row, p.col, 'Algo se mueve', 'La niebla no deja ver qué pieza es. Acércate para descubrirla.');
+      if (p.disguise && !p.unmasked) return d.view.tileTip(p.row, p.col, 'Sospechoso', 'Parece un rey. Si se mueve más de una casilla, el disfraz cae.');
       setInspect(detailOf(p, show(p, true).length, true));
     };
 
@@ -225,7 +230,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const r = match.over;
       if (r.victory) playSfx('win'); else if (!r.tie) playSfx('lose');
       const human = seats.find((s) => s.kind === 'human')?.color || 'light';
-      if (r.victory) {
+      if (r.victory && !scenario) {
         // La pérdida se lee por identidad: toda pieza caída sale de match.pieces.
         const lost = [...d.feats.mine].filter((p) => !match.pieces.includes(p));
         if (!lost.length) { award('flawless'); if (node.modifier === 'elite') award('elite_flawless'); }
@@ -300,7 +305,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         });
       }
       const warned = announceChecks();
-      if (p.kind === 'human' && newTurn && !warned) {
+      if (p.kind === 'human' && newTurn && !warned && seats.length > 1) {
         // Let queued callouts (capture, collapse, jaque) finish before "Tu turno", so nothing overlaps.
         const text = seats.filter((s) => s.kind === 'human').length > 1 ? `Turno de ${p.name}` : 'Tu turno';
         d.moments.whenIdle().then(() => setBanner({ key: Date.now(), text, side: p.color }));
@@ -312,7 +317,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       let warnedMe = false;
       const anyHuman = seats.some((s) => s.kind === 'human');
       for (const s of seats) {
-        const now = match.inCheck(s.color);
+        // El rey impostor no se delata con un aviso de jaque.
+        const now = match.inCheck(s.color) && !(scenario?.hideRoyal && s.kind !== 'human');
         if (now && !d.check[s.color] && anyHuman) {
           const royal = match.pieces.find((x) => x.royal && x.color === s.color);
           const mine = s.kind === 'human';
@@ -483,7 +489,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.view.setPieces(pieces);
     seePieces(pieces.filter((p) => !p.boss).map((p) => p.type));
     d.busy = true;
-    addLog(`Piso ${node.floor + 1}/${run.map.floors} · ${board.rows}×${board.cols} · ${mod.name} · Rival ${rival.name}`);
+    addLog(scenario ? `${mod.name} · ${board.rows}×${board.cols}` : `Piso ${node.floor + 1}/${run.map.floors} · ${board.rows}×${board.cols} · ${mod.name} · Rival ${rival.name}`);
     const boss = pieces.find((p) => p.boss);
     d.bossId = boss?.boss;
     const learned = pieces.filter((p) => p.color !== 'light' && p.extraMoveTypes?.length).length;
@@ -494,7 +500,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     // The floor card plays over the board while it assembles; the boss gets its own entrance after landing.
     Promise.all([
       d.view.intro(pieces),
-      !boss && d.moments.cinematic({ title: `Piso ${node.floor + 1}`, sub: `${mod.name}. ${mod.desc}`, icon: mod.icon, wave: seats.flatMap((s) => ['pawn', 'knight', 'king'].map((t) => [t, s.color])) }),
+      !boss && d.moments.cinematic({ title: scenario ? mod.name : `Piso ${node.floor + 1}`, sub: scenario ? mod.goal : `${mod.name}. ${mod.desc}`, icon: mod.icon, wave: seats.flatMap((s) => ['pawn', 'knight', 'king'].map((t) => [t, s.color])) }),
     ])
       .then(() => boss && d.moments.cinematic({ title: boss.name, sub: bossSub, piece: { type: artOf(boss), side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger', anim: 'stomp' }))
       .then(() => playDemos(boss))
@@ -530,7 +536,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     <div class="game-main" ref=${mainRef}>
       <div class="game-top">
         <button class="btn ghost sm icon-only" aria-label="Pausa" title="Pausa (Escape)" onClick=${() => setPaused(true)}><${Icon} name="pause" /></button>
-        <h1 class="title">${node.isBoss ? 'Piso final' : node.isMiniBoss ? 'Mini-jefe' : `Piso ${node.floor + 1} de ${run.map.floors}`}</h1>
+        <h1 class="title">${scenario ? mod.name : node.isBoss ? 'Piso final' : node.isMiniBoss ? 'Mini-jefe' : `Piso ${node.floor + 1} de ${run.map.floors}`}</h1>
+        ${tools}
       </div>
       <div class="board-host" ref=${hostRef}></div>
       ${placing && html`<div class="place-bar" role="group" aria-label="Fase Organizar">
@@ -557,7 +564,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       </section>`}
       <section class="mod-card">
         <span class="mod-icon"><${Icon} name=${mod.icon} size=${22} /></span>
-        <div><h2>${mod.name}</h2><p>${mod.desc}</p>
+        <div><h2>${mod.name}</h2><p>${scenario ? mod.goal : mod.desc}</p>
+          ${hud?.goal && html`<p class="goal" aria-live="polite"><strong>${hud.goal}</strong></p>`}
           ${node.modifier === 'elite' && html`<ul class="elite-list">${eliteVariants(node.floor, run.map.floors).map((v) => html`<li><span class="elite-ico"><${Icon} name=${v.icon} size=${13} /></span><div><strong>${v.name}</strong><span>${v.desc}</span></div></li>`)}</ul>`}</div>
       </section>
       <section class="seats">
@@ -606,12 +614,13 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     ${paused && !end && html`<${PauseOverlay} settings=${settings} setSettings=${setSettings}
       onResume=${() => setPaused(false)} onRestart=${() => leave('reset', onRestart)} onExit=${() => leave('exit', onExit)} onMenu=${() => leave('exit', onMenu)} onAbandon=${() => leave('resign', onAbandon)}
       onHowTo=${() => { setPaused(false); onHowTo(); }} />`}
-    ${end && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
+    ${end && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} exitLabel=${scenario?.endLabel} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
       onMenu=${() => leave('exit', end.victory ? () => onWin(ref.current.bossId, { toMenu: true }) : onMenu)} />`}
   </div>`;
 }
 
-function EndOverlay({ state, isFinal, onContinue, onRetry, onMap, onMenu }) {
+// `exitLabel`: el minijuego tiene una sola salida (seguir la run u otra partida) en lugar de mapa y menú.
+function EndOverlay({ state, isFinal, exitLabel, onContinue, onRetry, onMap, onMenu }) {
   const ref = useRef(null);
   useEffect(() => {
     const card = ref.current, OUT = [0.16, 1, 0.3, 1];
@@ -623,19 +632,19 @@ function EndOverlay({ state, isFinal, onContinue, onRetry, onMap, onMenu }) {
   }, []);
   const kind = state.tie ? 'tie' : state.victory ? 'win' : 'loss';
   const title = state.tie ? 'Tablas' : state.victory ? (isFinal ? 'Run completada' : 'Victoria') : 'Derrota';
-  const msg = state.tie ? 'Partida bloqueada: empate a piezas.'
+  const msg = state.note || (state.tie ? 'Partida bloqueada: empate a piezas.'
     : state.victory ? (isFinal ? 'Has conquistado la torre entera.' : 'El tablero es tuyo.')
-    : `Tu rey ha caído.${state.winnerName ? ' Gana ' + state.winnerName + '.' : ''}`;
+    : `Tu rey ha caído.${state.winnerName ? ' Gana ' + state.winnerName + '.' : ''}`);
   return html`<div class="overlay">
     <div class=${'end-card panel ' + kind} ref=${ref}>
       <div class="stamp"><${Icon} name=${state.tie ? 'flag' : state.victory ? 'trophy' : 'skull'} size=${34} /></div>
       <h1>${title}</h1>
       <p>${msg}</p>
       <div class="end-actions">
-        ${state.victory && html`<button class="btn primary" autofocus onClick=${onContinue}>${isFinal ? 'Nueva run' : 'Reclamar recompensa'}</button>`}
+        ${state.victory && html`<button class="btn primary" autofocus onClick=${onContinue}>${exitLabel || (isFinal ? 'Nueva run' : 'Reclamar recompensa')}</button>`}
         <button class="btn" onClick=${onRetry}><${Icon} name="refresh" size=${16} />Reintentar</button>
-        ${!state.victory && html`<button class="btn ghost-ink" onClick=${onMap}><${Icon} name="map" size=${16} />Volver al mapa</button>`}
-        ${(!state.victory || isFinal) && html`<button class="btn ghost-ink" onClick=${onMenu}><${Icon} name="home" size=${16} />Menú principal</button>`}
+        ${!state.victory && html`<button class="btn ghost-ink" onClick=${onMap}><${Icon} name="map" size=${16} />${exitLabel || 'Volver al mapa'}</button>`}
+        ${(!state.victory || isFinal) && !exitLabel && html`<button class="btn ghost-ink" onClick=${onMenu}><${Icon} name="home" size=${16} />Menú principal</button>`}
       </div>
     </div>
   </div>`;

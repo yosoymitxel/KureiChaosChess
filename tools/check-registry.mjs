@@ -21,6 +21,7 @@ const { THEMES } = await import('../src/data/themes.js');
 const { ACHIEVEMENTS } = await import('../src/game/achievements.js');
 const { CARDS } = await import('../src/game/cards.js');
 const { MINI_BOSSES, FINAL_BOSSES } = await import('../src/game/difficulty.js');
+const { SCENARIOS } = await import('../src/data/scenarios.js');
 const { RAW_BODIES } = await import('../src/view/piece-art.js');
 const { PIXEL_PACKS, PIXEL_BASE } = await import('../src/data/pixel-packs.js');
 const { reachPreview } = await import('../src/game/rules.js');
@@ -59,7 +60,8 @@ for (const [id, m] of Object.entries(MODIFIERS)) {
   if (!m.mini) continue;
   if (!m.weights) fail(`minijuego ${id}: falta "weights" en src/data/modifiers.js (no saldría en el mapa)`);
   if (!screens.has(id)) fail(`minijuego ${id}: falta su pantalla en MINI_SCREENS (src/ui/app.js)`);
-  if (!screenSrc.includes(`mini="${id}"`)) fail(`minijuego ${id}: su pantalla no tiene MiniTools (ayuda y nivel)`);
+  // Los de tablero (scenarios.js) llevan MiniTools en su pantalla común.
+  if (!SCENARIOS[id] && !screenSrc.includes(`mini="${id}"`)) fail(`minijuego ${id}: su pantalla no tiene MiniTools (ayuda y nivel)`);
 }
 for (const id of screens) if (!MODIFIERS[id]?.mini) fail(`MINI_SCREENS.${id}: no hay minijuego con ese id en src/data/modifiers.js`);
 
