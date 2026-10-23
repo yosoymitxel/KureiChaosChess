@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useLayoutEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, MiniResult, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { hopPiece } from '../hop.js';
@@ -111,7 +111,7 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
         </div>
         <div class="mini-side">
           ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-          ${s.over ? html`<${MiniEnd} win=${s.over === 'light'} note=${s.over === 'light' ? 'Tu peón cruzó antes que el carmesí.' : 'El peón carmesí cruzó primero.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'light')} />`
+          ${s.over ? html`<${MiniResult} win=${s.over === 'light'} note=${s.over === 'light' ? 'Tu peón cruzó antes que el carmesí.' : 'El peón carmesí cruzó primero.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'light')} />`
             : html`<div class="bm-actions" role="group" aria-label="Acción">
               <button class=${'btn sm' + (mode === 'move' ? ' on' : ' ghost')} aria-pressed=${mode === 'move'} onClick=${() => { setMode('move'); setGhost(null); }}>Mover</button>
               <button class=${'btn sm' + (mode === 'h' ? ' on' : ' ghost')} aria-pressed=${mode === 'h'} disabled=${!s.left.light} onClick=${() => setMode('h')}>Valla ─</button>
