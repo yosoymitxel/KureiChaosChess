@@ -59,7 +59,7 @@ export const SCENARIOS = {
   // Tu rey y su escolta aguantan el asedio de una escuadra sin rey.
   bodyguard: {
     id: 'bodyguard', name: 'El guardaespaldas', icon: 'guard',
-    goal: 'Mantén vivo a tu rey hasta el final del asedio, o derriba a toda la escuadra carmesí.',
+    goal: 'Mantén vivo a tu rey hasta el final del asedio, o derriba a toda la escuadra carmesí. Cada bando mueve dos veces por turno y la segunda no puede capturar; a mitad del asedio, tres.',
     levels: {
       facil: { escorts: 3, squad: ['knight', 'knight', 'pawn', 'pawn', 'pawn', 'pawn'], rounds: 8, holes: 2, rival: 'oficial' },
       normal: { escorts: 3, squad: ['knight', 'knight', 'knight', 'pawn', 'pawn', 'pawn', 'pawn'], rounds: 10, holes: 3, rival: 'maestro' },
@@ -87,7 +87,9 @@ export const SCENARIOS = {
         objective: (m) => m.eliminated.light ? { victory: false, note: 'La escuadra alcanzó a tu rey.' }
           : !side(m, 'dark').length ? { victory: true, note: 'Desarmaste a toda la escuadra.' }
           : rounds(m) >= lv.rounds ? { victory: true, note: 'Tu rey resistió el asedio.' } : null,
-        status: (m) => `Aguanta ${lv.rounds - rounds(m)} rondas · ${side(m, 'dark').length} atacantes`,
+        // Todos mueven dos veces (la segunda sin capturar); pasada la mitad del asedio, tres.
+        bonus: (m) => (rounds(m) >= lv.rounds / 2 ? 2 : 1),
+        status: (m) => `Aguanta ${lv.rounds - rounds(m)} rondas · ${side(m, 'dark').length} atacantes · ${rounds(m) >= lv.rounds / 2 ? 3 : 2} jugadas por turno`,
       };
     },
   },

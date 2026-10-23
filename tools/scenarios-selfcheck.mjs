@@ -6,7 +6,7 @@ import { RIVALS } from '../src/game/difficulty.js';
 import { key } from '../src/game/rules.js';
 
 const matchOf = (sc) => new Match({ board: sc.board, pieces: sc.pieces, players: sc.seats, modifier: 'none', mutations: [], bonuses: {},
-  rival: sc.rival, rivals: { dark: sc.rival, light: RIVALS.maestro }, objective: sc.objective });
+  rival: sc.rival, rivals: { dark: sc.rival, light: RIVALS.maestro }, objective: sc.objective, bonus: sc.bonus });
 function play(m, sc) {
   for (let i = 0; i < 400 && !m.over; i++) {
     const mv = m.canMove() && botChooseMove(m);
@@ -32,6 +32,15 @@ for (const id of Object.keys(SCENARIOS)) for (const level of ['facil', 'normal',
   assert.ok(layouts.size >= 20, `${id}/${level}: tables vary (${layouts.size})`);
   console.log(`${id.padEnd(13)} ${level.padEnd(8)} bot maestro gana ${wins}/25`);
 }
+
+// El guardaespaldas: dos jugadas por turno y la segunda no captura.
+const bg = matchOf(buildScenario('bodyguard', 'normal', 2));
+assert.equal(bg.movesFor('light'), 2, 'two moves per turn');
+const mover = bg.pieces.find((p) => p.color === 'light' && bg.legal(p).some((x) => !x.hits.length));
+const step = bg.legal(mover).find((x) => !x.hits.length);
+bg.move(mover, { row: step.row, col: step.col });
+assert.ok(!bg.afterMove().ended, 'the turn goes on after the first move');
+assert.ok(bg.pieces.filter((p) => p.color === 'light').every((p) => bg.legal(p).every((x) => !x.hits.length)), 'second move cannot capture');
 
 // La cacería: un peón que corona pierde la partida.
 const hunt = buildScenario('caceria', 'normal', 3);

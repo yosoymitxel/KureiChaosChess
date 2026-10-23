@@ -11,8 +11,9 @@ export const QUIET_LIMIT = 20;
 export class Match {
   // `objective(match)` (minijuegos de src/data/scenarios.js) reemplaza el fin de partida por rey
   // caído: devuelve { victory, note } cuando la partida termina, o null.
-  constructor({ board, pieces, players, modifier, mutations, bonuses, rival, rivals, objective }) {
-    Object.assign(this, { board, pieces, players, modifier, rival, rivals, objective });
+  // `bonus(match)`: jugadas extra sin captura del turno que empieza (El guardaespaldas).
+  constructor({ board, pieces, players, modifier, mutations, bonuses, rival, rivals, objective, bonus }) {
+    Object.assign(this, { board, pieces, players, modifier, rival, rivals, objective, bonus });
     this.current = 0;
     this.movesThisTurn = 0;
     this.turn = 0;
@@ -21,6 +22,7 @@ export class Match {
     this.quietTurns = 0; // turns without any hit; ends stalled games
     const fury = Math.min(3, countMutations(mutations || []).fury || 0) + (bonuses?.furyNow ? 1 : 0);
     this.bonusMoves = { light: fury };
+    this.turnBonus = bonus?.(this) || 0;
   }
 
   get player() { return this.players[this.current]; }
@@ -177,6 +179,7 @@ export class Match {
     let next = this.current;
     do next = (next + 1) % this.players.length; while (this.eliminated[this.players[next].color] && next !== this.current);
     this.current = next;
+    this.turnBonus = this.bonus?.(this) || 0;
     if (this.checkOver()) return { ended: true, collapse, over: this.over };
     return { ended: true, collapse };
   }
