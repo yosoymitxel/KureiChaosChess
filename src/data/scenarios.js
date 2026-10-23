@@ -206,9 +206,9 @@ Object.assign(SCENARIOS, {
     id: 'escape', name: 'Escape del tablero', icon: 'flag',
     goal: 'Lleva tu caballo a la fila de arriba. Los guardias carmesí te cierran el paso y te cazan si te pones a tiro.',
     levels: {
-      facil: { guards: ['pawn', 'pawn', 'pawn', 'knight'], holes: 4, rounds: 14, rival: 'aprendiz' },
-      normal: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'bishop'], holes: 6, rounds: 12, rival: 'oficial' },
-      dificil: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop', 'rook'], holes: 8, rounds: 10, rival: 'maestro' },
+      facil: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight'], holes: 6, rounds: 10, rival: 'oficial' },
+      normal: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop'], holes: 8, rounds: 8, rival: 'maestro' },
+      dificil: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'knight', 'bishop', 'rook'], holes: 10, rounds: 7, rival: 'maestro' },
     },
     setup(lv, rng) {
       const b = board(), runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
@@ -224,7 +224,15 @@ Object.assign(SCENARIOS, {
       normal: { guards: ['pawn', 'pawn', 'pawn', 'knight', 'bishop'], holes: 8, rounds: 12, rival: 'oficial' },
       dificil: { guards: ['pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop', 'rook'], holes: 10, rounds: 10, rival: 'maestro' },
     },
+    // Se reparte otra vez si la salida no se alcanza a tiempo (con portales) desde la casilla de salida.
     setup(lv, rng) {
+      for (;;) {
+        const game = this.deal(lv, rng);
+        const d = knightSteps(game.board, game.pieces[0], game.exit);
+        if (d >= 3 && d <= lv.rounds - 3) return game;
+      }
+    },
+    deal(lv, rng) {
       const b = board(), runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * 3), { royal: true }), pieces = [runner];
       const exit = [0, N - 1 - Math.floor(rng() * 3)];
       // Un muro de escombros en el medio: los portales son el atajo.
@@ -234,7 +242,7 @@ Object.assign(SCENARIOS, {
       [[ps[0], ps[1]], [ps[2], ps[3]]].forEach(([a, z]) => { b.portals.set(a, z); b.portals.set(z, a); });
       b.holes.delete(key(...exit));
       const game = crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === exit[0] && p.col === exit[1], note: 'El contrabando cruzó.' });
-      return { ...game, labels: () => new Map([[key(...exit), '⚑']]) };
+      return { ...game, exit, labels: () => new Map([[key(...exit), '⚑']]) };
     },
   },
   laboratory: {
@@ -255,6 +263,23 @@ Object.assign(SCENARIOS, {
     },
   },
 });
+
+// Saltos de caballo hasta `to` sin guardias, contando portales (Infinity si no llega).
+function knightSteps(b, from, [tr, tc]) {
+  const seen = new Set([key(from.row, from.col)]);
+  let front = [from], d = 0;
+  while (front.length) {
+    if (front.some((p) => p.row === tr && p.col === tc)) return d;
+    const next = [];
+    for (const p of front) for (const m of legalMoves({ type: 'knight', color: 'light', row: p.row, col: p.col }, [], b)) {
+      const twin = b.portals.get(key(m.row, m.col));
+      const [r, c] = twin ? twin.split(',').map(Number) : [m.row, m.col];
+      if (!seen.has(key(r, c))) { seen.add(key(r, c)); next.push({ row: r, col: c }); }
+    }
+    front = next; d++;
+  }
+  return Infinity;
+}
 
 // Ruta segura del caballo de abajo arriba, con algún rodeo.
 function knightRoute(rng, [r0, c0]) {
