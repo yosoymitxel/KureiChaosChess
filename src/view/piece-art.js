@@ -124,4 +124,5 @@ export const headTop = (type) => pick(type).L.top / 41;
 export const RAW_BODIES = BODIES;
 
 // Which drawing a piece uses: bosses have their own; everything else draws its type.
-export const artOf = (p) => (p.boss ? `boss-${p.boss}` : p.type);
+// A disguised piece (El rey impostor) wears its mask until a move gives it away.
+export const artOf = (p) => (p.boss ? `boss-${p.boss}` : p.disguise && !p.unmasked ? p.disguise : p.type);

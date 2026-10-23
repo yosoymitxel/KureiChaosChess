@@ -1,4 +1,4 @@
-import { html, useState, useEffect, useRef } from '../lib.js';
+import { html, useState, useEffect, useLayoutEffect, useRef } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
@@ -17,15 +17,18 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
   const gridRef = useRef(null);
   const last = useRef(null);
   // Cada peón que cambia de casilla entre repintados salta con su charco, turno tras turno.
-  useEffect(() => {
+  // Las posiciones se copian al pintar y el salto se arma en layout: un efecto diferido leía el
+  // estado ya movido sobre un DOM viejo (render pendiente del pointerdown) y el peón se teletransportaba.
+  const pos = { light: { ...s.pos.light }, dark: { ...s.pos.dark } };
+  useLayoutEffect(() => {
     const was = last.current;
-    last.current = { light: { ...s.pos.light }, dark: { ...s.pos.dark } };
+    last.current = pos;
     const grid = gridRef.current;
     if (!grid || !was) return;
     for (const side of ['light', 'dark']) {
       const now = last.current[side], b = was[side];
       if (now.r === b.r && now.c === b.c) continue;
-      hopPiece(grid, grid.children[now.r * N + now.c]?.querySelector('.bm-pc'), { from: b, to: { row: now.r, col: now.c }, side, cols: N, rows: N, liquid: true });
+      hopPiece(grid, grid.children[now.r * N + now.c]?.querySelector('.bm-pc'), { from: { row: b.r, col: b.c }, to: { row: now.r, col: now.c }, side, cols: N, rows: N, liquid: true });
     }
   });
 

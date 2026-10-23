@@ -87,6 +87,8 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows, liq
   const dr = to.row - from.row, dc = to.col - from.col;
   if (!dr && !dc) return;
   const dx = -dc * cw, dy = -dr * chh;
+  // Motion pinta su primer fotograma en el siguiente cuadro: sin esto la ficha asoma un instante ya llegada.
+  pcEl.style.transform = `translate(${dx}px, ${dy}px)`;
   // Un paso a la casilla de al lado se camina: la ficha se desliza con su peana y se balancea en
   // dos pasitos. El charco y el arco quedan para los saltos, donde se leen; en un paso corto el
   // charco solo dejaba una estela detrás de la pieza.
