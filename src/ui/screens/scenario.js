@@ -22,3 +22,6 @@ export const BodyguardScreen = screen('bodyguard');
 export const GiantHuntScreen = screen('giantHunt');
 export const MinefieldScreen = screen('minefield');
 export const KingImpostorScreen = screen('kingImpostor');
+export const EscapeScreen = screen('escape');
+export const ContrabandScreen = screen('contraband');
+export const LaboratoryScreen = screen('laboratory');

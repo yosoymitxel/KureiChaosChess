@@ -21,7 +21,7 @@ Lanzamiento cercano: cambios acotados.
 ## Comandos
 - Servidor: `npx http-server -p 8123 -s -c-1 .`
 - Comprobar: `node tools/check-registry.mjs` · `node tools/art-check.mjs` · `node tools/sfx-check.mjs` ·
-  `node tools/simulate.mjs` · `node tools/scenarios-selfcheck.mjs` · `node tools/escape-selfcheck.mjs` · `node tools/contraband-selfcheck.mjs` · `node tools/laboratory-selfcheck.mjs` · `node tools/collapsing-floor-selfcheck.mjs` · `node tools/barrier-check.mjs` · `node tools/hockey-selfcheck.mjs`
+  `node tools/simulate.mjs` · `node tools/scenarios-selfcheck.mjs` · `node tools/collapsing-floor-selfcheck.mjs` · `node tools/barrier-check.mjs` · `node tools/hockey-selfcheck.mjs`
 - Importar: `tools/pixel-art.mjs` (temas), `tools/vector-art.mjs` (piezas SVG), `tools/pixel-icons.mjs`
   (iconos, tras `pxl build art/iconos/iconos.px.js`), `tools/zen-pixel.mjs`, `tools/sfx-import.mjs`.
 - Calidad: detector impeccable a 0 (`impeccable detect css src index.html lab.html`).

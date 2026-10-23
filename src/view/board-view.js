@@ -612,6 +612,7 @@ export class BoardView {
       this.setArt(piece);
       this.squash(piece, 0.7);
     }
+    if (res.sunk) this.collapse([res.sunk]);
     if (res.mine) {
       this.fx.explosion(c.x, c.y, this.sq / 50);
       this.shake(18, 520);
