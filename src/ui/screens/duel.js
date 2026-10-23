@@ -2,7 +2,7 @@
 // cada una con su barra de vida; los ataques embisten, el golpe destella y el daño salta en número.
 import { html, useState, useRef, motion } from '../lib.js';
 import { playSfx } from '../sfx.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, MiniTools } from '../components.js';
 import { PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { DIFFS, MOVES, FIGHTERS, TYPE_NAME, newDuel, turn, active, effect } from '../../game/duel.js';
@@ -96,7 +96,7 @@ export function DuelScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setting
           </div>
         </div>
         <div class="mini-side">
-          ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Las tres piezas rivales cayeron.' : 'Cayó tu última pieza.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
+          ${s.over ? html`<div class=${"mini-end " + (s.over === 'win' ? 'win' : 'lose')} role="status"><p class="mini-end-title">${s.over === 'win' ? '¡Victoria!' : 'Derrota'}</p><button class="btn primary" onClick=${() => onEnd(s.over === 'win')}>${endLabel}</button></div>`
             : html`<div class="du-moves" role="group" aria-label="Ataques">
               ${FIGHTERS[me.type].moves.map((id) => {
                 const m = MOVES[id], e = m.power ? effect(m, foe) : 1;

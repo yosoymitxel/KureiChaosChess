@@ -1,6 +1,6 @@
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Fx } from '../../view/fx.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { newBomber, step, blastOf, doorOpen, DIFFS, FOES } from '../../game/bomber.js';
@@ -111,7 +111,7 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
         </div>
         <div class="mini-side">
           ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-          ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Arena limpia y por la puerta: nivel superado.' : 'Te alcanzó la explosión o un enemigo.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
+          ${s.over ? html`<div class=${"mini-end " + (s.over === 'win' ? 'win' : 'lose')} role="status"><p class="mini-end-title">${s.over === 'win' ? '¡Victoria!' : 'Derrota'}</p><button class="btn primary" onClick=${() => onEnd(s.over === 'win')}>${endLabel}</button></div>`
             : html`<div class="bm-controls">
               <div class="bm-pad" role="group" aria-label="Movimiento">
                 ${PAD.map(([dr, dc, cls, label, glyph]) => html`<button class=${'btn sm pad-' + cls} aria-label=${label}

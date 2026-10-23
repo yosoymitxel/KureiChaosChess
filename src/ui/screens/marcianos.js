@@ -1,6 +1,6 @@
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { playSfx } from '../sfx.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { WAVES, DIFFS, newMarcianos, step } from '../../game/marcianos.js';
@@ -95,7 +95,7 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
             <span class="chip"><${Icon} name="skull" size=${13} />${s.enemies.length === 1 ? 'Queda 1' : `Quedan ${s.enemies.length}`}</span>
             <span class="chip" aria-label=${`Vidas ${s.lives} de ${s.diff.lives}`}>Vidas <span class="mm-lives">${Array.from({ length: s.diff.lives }, (_, i) => html`<i class=${i < s.lives ? 'on' : ''}></i>`)}</span></span>
           </div>`}
-          ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Cayó la gran horda y ni un carmesí en pie.' : 'Los carmesíes pisaron tu fila.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
+          ${s.over ? html`<div class=${"mini-end " + (s.over === 'win' ? 'win' : 'lose')} role="status"><p class="mini-end-title">${s.over === 'win' ? '¡Victoria!' : 'Derrota'}</p><button class="btn primary" onClick=${() => onEnd(s.over === 'win')}>${endLabel}</button></div>`
             : html`<div class="bm-controls">
               <div class="bm-actions mm-move" role="group" aria-label="Movimiento">
                 <button class="btn sm" aria-label="Izquierda" onClick=${() => act({ move: -1 })}>←</button>

@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { MiniGrid } from './mini-grid.js';
 import { hopPiece } from '../hop.js';
@@ -50,7 +50,7 @@ export function KnightScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="Ruta del caballo"
         gridRef=${gridRef} boardClass="bm-slab" onTap=${go} />
       <${MiniTools} mini="knight" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>El caballo salta en L. Pisa las casillas con aro dorado; las que ya pisaste quedan numeradas por orden y no se pueden repetir. Pierdes si te quedas sin saltos posibles.<//>
-      ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Completaste la ruta sin repetir casilla.' : 'El caballo se quedó sin saltos posibles.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+      ${s.over && html`<div class=${"mini-end " + (s.over === 'win' ? 'win' : 'lose')} role="status"><p class="mini-end-title">${s.over === 'win' ? '¡Victoria!' : 'Derrota'}</p><button class="btn primary" onClick=${() => onEnd(s.over === 'win')}>${endLabel}</button></div>`}
     </div>
   </div>`;
 }

@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { MiniGrid } from './mini-grid.js';
 import { hopPiece } from '../hop.js';
@@ -15,6 +15,6 @@ export function LaboratoryScreen({sub,onBack,onEnd,endLabel='Continuar',settings
  <div class="mini-stats" aria-live="polite"><span class="chip"><${Icon} name="flask" size=${12}/> Jugadas: ${s.turns}</span><span class="chip" title=${mut.desc}>Prueba: ${mut.name}</span></div>
  <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="El laboratorio" boardClass="bm-slab" gridRef=${gridRef} onTap=${tap}/>
  <${MiniTools} mini="laboratory" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Prueba la mutación <b>${mut.name}</b>: ${mut.desc} Alcanza cualquier casilla de la fila superior. Los huecos cambian según la dificultad y cada casilla que abandonas se convierte en un agujero.<//>
- ${s.over&&html`<${MiniEnd} win=${s.over==='win'} note=${s.over==='win'?'Experimento completado.':'El experimento agotó sus turnos.'} label=${endLabel} onEnd=${()=>onEnd(s.over==='win')}/>`}
+ ${s.over&&html`<div class=${"mini-end " + (s.over==='win' ? 'win' : 'lose')} role="status"><p class="mini-end-title">${s.over==='win' ? '¡Victoria!' : 'Derrota'}</p><button class="btn primary" onClick=${()=>onEnd(s.over==='win')}>${endLabel}</button></div>`}
  </div></div>`;
 }

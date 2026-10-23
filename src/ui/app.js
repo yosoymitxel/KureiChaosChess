@@ -189,7 +189,7 @@ export function App() {
   };
 
   // Minigame inside the run: a win unlocks it and pays a prize; a loss just spends the node.
-  const onMiniEnd = (won) => {
+  const onMiniFinished = (won) => {
     if (!won) { setRun(completeNode(run, node)); return goTo('map'); }
     award('mini_won');
     if (floorTier(node.floor, run.map.floors) === 'dificil') award('mini_hard');
@@ -249,7 +249,7 @@ export function App() {
       onExit=${() => goTo('map')} onMenu=${() => goTo('menu')} onAbandon=${() => { setRun(null); goTo('menu'); }}
       onUseCard=${(i) => setRun((r) => consumeCard(r, i))}
       onWin=${onWin} onRestart=${() => setGameKey((k) => k + 1)} onHowTo=${() => setHowTo(true)} />`}
-    ${screen === 'mini' && Mini && html`<${Mini} key=${node.id + '-' + miniKey} sub=${'Piso ' + (node.floor + 1) + ' · minijuego'} onBack=${() => goTo('map')} onEnd=${onMiniEnd}
+    ${screen === 'mini' && Mini && html`<${Mini} key=${node.id + '-' + miniKey} sub=${'Piso ' + (node.floor + 1) + ' · minijuego'} onBack=${() => goTo('map')} onEnd=${onMiniFinished}
         diff=${floorTier(node.floor, run.map.floors)}
         settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />`}
     ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
