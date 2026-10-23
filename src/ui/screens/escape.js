@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, MiniResult, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { MiniGrid } from './mini-grid.js';
 import { hopPiece, reduced } from '../hop.js';
@@ -39,7 +39,7 @@ export function EscapeScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
       </div>
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="Escape del tablero" gridRef=${gridRef} boardClass="bm-slab" onTap=${tap} />
       <${MiniTools} mini="escape" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Lleva el caballo marfil hasta la fila superior. El peón carmesí avanza hacia abajo después de tus saltos; no puedes ocupar su casilla ni capturarlo. Las casillas doradas son la salida.<//>
-      ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Escapaste del tablero.' : 'El guardia te cerró el paso o se acabaron los saltos.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+      ${s.over && html`<${MiniResult} win=${s.over === 'win'} note=${s.over === 'win' ? 'Escapaste del tablero.' : 'El guardia te cerró el paso o se acabaron los saltos.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
   </div>`;
 }
