@@ -1,6 +1,6 @@
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { playSfx } from '../sfx.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { WAVES, DIFFS, newMarcianos, step } from '../../game/marcianos.js';
