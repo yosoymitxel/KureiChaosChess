@@ -33,15 +33,16 @@ export const SCENARIOS = {
     id: 'caceria', name: 'La cacería', icon: 'hunt',
     goal: 'Captura a todos los peones carmesí antes de que uno corone. Comen en diagonal: cuidado con dónde caes.',
     levels: {
-      facil: { hunters: ['knight', 'bishop', 'rook'], pawns: 2, holes: 2, rival: { noise: 6, capture: 1, pressure: 0, care: 0, advance: 3 } },
-      normal: { hunters: ['knight', 'bishop'], pawns: 3, holes: 3, rival: { noise: 1, capture: 1, pressure: 0, care: 1, advance: 4 } },
-      dificil: { hunters: ['knight', 'knight'], pawns: 4, holes: 4, rival: { noise: 0.3, capture: 1, pressure: 0, care: 2, advance: 5 } },
+      facil: { hunters: ['knight', 'bishop', 'rook', 'knight'], pawns: 2, holes: 2, rival: { noise: 6, capture: 1, pressure: 0, care: 0, advance: 2 } },
+      normal: { hunters: ['knight', 'bishop', 'rook'], pawns: 3, holes: 3, rival: { noise: 2, capture: 1, pressure: 0, care: 1, advance: 3 } },
+      dificil: { hunters: ['knight', 'knight', 'bishop'], pawns: 4, holes: 4, rival: { noise: 0.5, capture: 1, pressure: 0, care: 2, advance: 4 } },
     },
     setup(lv, rng) {
       const b = board(), pieces = [];
       const files = shuffle(rng, [...Array(N).keys()]).slice(0, lv.pawns);
-      for (const c of files) pieces.push(makePiece('pawn', 'dark', 1 + Math.floor(rng() * 2), c, { canCrown: true }));
-      spots(rng, pieces, b, N - 2, N - 1, lv.hunters.length).forEach(([r, c], i) => pieces.push(makePiece(lv.hunters[i], 'light', r, c)));
+      // Sin doble paso (startRow -1): la carrera dura lo bastante para cazar.
+      for (const c of files) pieces.push(makePiece('pawn', 'dark', Math.floor(rng() * 2), c, { canCrown: true, startRow: -1 }));
+      spots(rng, pieces, b, N - 4, N - 2, lv.hunters.length).forEach(([r, c], i) => pieces.push(makePiece(lv.hunters[i], 'light', r, c)));
       rubble(rng, b, pieces, lv.holes, (r, c) => files.includes(c));
       return {
         board: b, pieces, rival: lv.rival,
@@ -59,15 +60,23 @@ export const SCENARIOS = {
     id: 'bodyguard', name: 'El guardaespaldas', icon: 'guard',
     goal: 'Mantén vivo a tu rey hasta el final del asedio, o derriba a toda la escuadra carmesí.',
     levels: {
-      facil: { escorts: 2, squad: ['knight', 'bishop', 'pawn', 'pawn'], rounds: 8, holes: 2, rival: 'oficial' },
-      normal: { escorts: 2, squad: ['knight', 'bishop', 'rook', 'pawn', 'pawn'], rounds: 10, holes: 3, rival: 'maestro' },
-      dificil: { escorts: 1, squad: ['knight', 'knight', 'bishop', 'rook', 'queen', 'pawn'], rounds: 12, holes: 3, rival: 'maestro' },
+      facil: { escorts: 3, squad: ['knight', 'knight', 'pawn', 'pawn', 'pawn', 'pawn'], rounds: 8, holes: 2, rival: 'oficial' },
+      normal: { escorts: 3, squad: ['knight', 'knight', 'knight', 'pawn', 'pawn', 'pawn', 'pawn'], rounds: 10, holes: 3, rival: 'maestro' },
+      dificil: { escorts: 3, squad: ['knight', 'knight', 'knight', 'knight', 'pawn', 'pawn', 'pawn', 'pawn'], rounds: 12, holes: 3, rival: 'maestro' },
     },
     setup(lv, rng) {
+      // Se reparte otra vez si la escolta podía comer algo en la primera jugada.
+      for (;;) {
+        const game = this.deal(lv, rng);
+        const { pieces, board: b } = game;
+        if (!pieces.some((p) => p.color === 'light' && legalMoves(p, pieces, b).some((m) => m.hits.length))) return game;
+      }
+    },
+    deal(lv, rng) {
       const b = board(), pieces = [];
       const kc = 1 + Math.floor(rng() * (N - 2));
       pieces.push(makePiece('king', 'light', N - 1, kc));
-      const guards = shuffle(rng, ['rook', 'bishop', 'knight', 'rook']).slice(0, lv.escorts);
+      const guards = shuffle(rng, ['rook', 'bishop', 'knight', 'rook', 'knight']).slice(0, lv.escorts);
       for (const [r, c] of spots(rng, pieces, b, N - 2, N - 1, 6).filter(([, c]) => Math.abs(c - kc) <= 2).slice(0, guards.length)) pieces.push(makePiece(guards.pop(), 'light', r, c));
       const squad = shuffle(rng, lv.squad);
       for (const [r, c] of spots(rng, pieces, b, 0, 1, squad.length)) pieces.push(makePiece(squad.pop(), 'dark', r, c));
