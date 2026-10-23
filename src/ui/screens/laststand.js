@@ -77,7 +77,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
           ${!s.over && s.phase === 'setup' && html`<p class="mini-step-hint">Coloca tu defensa en las tres filas de abajo.</p>`}
           ${!s.over && s.phase === 'between' && html`<p class="mini-step-hint">Oleada ${s.wave} superada: +${s.diff.bonus} monedas. Refuerza la defensa antes de la siguiente.</p>`}
           ${!s.over && s.phase === 'fight' && html`<p class="mini-step-hint">${s.horde ? '¡La gran horda!' : `Oleada ${s.wave} de ${s.diff.waves}`}</p>`}
-          ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Aguantaste las ${s.diff.waves} oleadas y la gran horda sin ceder la línea.` : `El carmesí se abrió paso en la oleada ${s.wave}.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
+          ${s.over ? html`<div class=${"mini-end " + (s.over === 'win' ? 'win' : 'lose')} role="status"><p class="mini-end-title">${s.over === 'win' ? '¡Victoria!' : 'Derrota'}</p><button class="btn primary" onClick=${() => onEnd(s.over === 'win')}>${endLabel}</button></div>`
             : building(s) && html`<div class="bm-actions" role="group" aria-label="Pieza a colocar">
               ${Object.entries(PRICES).map(([t, cost]) => html`<button class=${'btn sm' + (pick === t ? ' on' : ' ghost')} aria-pressed=${pick === t} aria-label=${`${PIECE_NAMES[t]}: ${cost} moneda${cost === 1 ? '' : 's'}`}
                 disabled=${cost > s.budget} title=${PIECE_NAMES[t]} onClick=${() => setPick(t)}><${PieceIcon} type=${t} side="light" size=${22} />${cost}</button>`)}
