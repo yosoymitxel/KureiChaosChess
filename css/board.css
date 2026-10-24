@@ -88,8 +88,8 @@
 /* Terrain: ice is a pale frozen slab with cracks; portals are rings, coloured per pair. */
 .tile.ice { background-color: oklch(0.9 0.04 230); background-image: var(--grain), linear-gradient(125deg, transparent 40%, oklch(1 0 0 / 0.7) 41% 43%, transparent 44%), linear-gradient(35deg, transparent 62%, oklch(1 0 0 / 0.5) 63% 64%, transparent 65%); }
 .tile.portal::before { content: ''; position: absolute; inset: 14%; border-radius: 50%; background: radial-gradient(circle, var(--ink) 0 28%, var(--pair) 29% 46%, var(--ink) 47% 58%, var(--pair) 59% 70%, transparent 71%); }
-.tile.portal.pair-a { --pair: var(--brass); }
-.tile.portal.pair-b { --pair: var(--accent); }
+.tile.portal.pair-a, .bm-cell.portal.pair-a { --pair: var(--brass); }
+.tile.portal.pair-b, .bm-cell.portal.pair-b { --pair: var(--accent); }
 .tile.danger.cap .mark::before { border-color: var(--danger); }
 .tile.cracking { animation: crack 0.12s linear 4; background-image: var(--grain), linear-gradient(115deg, transparent 45%, var(--ink) 46% 48%, transparent 49%), linear-gradient(35deg, transparent 55%, var(--ink) 56% 57.5%, transparent 58%); }
 @keyframes crack { 50% { translate: 1px -1px; } }

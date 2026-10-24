@@ -8,18 +8,18 @@ import { SIZE, DIFFS, newRoute, jumps, jump, isTarget, isVisited, remaining } fr
 export function KnightScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newRoute(Math.random, DIFFS[diff || settings.miniDiff?.knight] || DIFFS.normal));
   const [, redraw] = useState(0);
-  const [order, setOrder] = useState(() => [{ r: s.pos.r, c: s.pos.c }]); // orden de la ruta, para numerar las casillas pisadas
+  const [order, setOrder] = useState(() => [{ r: s.pos.r, c: s.pos.c }]);
   const gridRef = useRef(null);
-  const hop = useRef(null); // el salto que acaba de hacer, animado una vez tras repintar
+  const hop = useRef(null);
   const next = s.over ? [] : jumps(s);
 
-  // El caballo salta desde la casilla que deja hasta la que acaba de pisar, con su charco.
   useEffect(() => {
     const h = hop.current;
     if (!h) return;
     hop.current = null;
     const grid = gridRef.current;
-    hopPiece(grid, grid?.querySelector('.bm-pc'), { ...h, side: 'light', cols: SIZE, rows: SIZE });
+    const piece = grid?.children[h.to.row * SIZE + h.to.col]?.querySelector('.bm-pc');
+    hopPiece(grid, piece, { ...h, side: 'light', cols: SIZE, rows: SIZE });
   });
 
   const go = (r, c) => {

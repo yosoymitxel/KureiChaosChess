@@ -14,6 +14,7 @@
     "minefield": "node tools/minefield-selfcheck.mjs",
     "contraband": "node tools/contraband-selfcheck.mjs",
     "laboratory": "node tools/laboratory-selfcheck.mjs",
+    "mates-validate": "node tools/mates-validate.mjs",
     "collapsing-floor": "node tools/collapsing-floor-selfcheck.mjs",
     "king-impostor": "node tools/king-impostor-selfcheck.mjs",
     "pixel-art": "node tools/pixel-art.mjs"

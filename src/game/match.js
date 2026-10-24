@@ -1,6 +1,6 @@
 // Match state: turns, moves, captures, boss HP, collapse, end of game.
 // Mutates its own state and returns plain "result" objects that the view animates.
-import { legalMoves, landing, buildOccupancy, hasAnyLegalMove, threatenedPieces, key, cellsOf, walkable } from './rules.js';
+import { legalMoves, landing, buildOccupancy, hasAnyLegalMove, threatenedPieces, key, cellsOf, walkable, portalAt } from './rules.js';
 import { countMutations } from '../data/mutations.js';
 import { PIECE_VALUE } from '../data/pieces.js';
 import { RIVALS } from './difficulty.js';
@@ -145,9 +145,9 @@ export class Match {
       const r = piece.row + Math.sign(piece.row - from.row), c = piece.col + Math.sign(piece.col - from.col);
       if (walkable(this.board, r, c) && !occupied(r, c)) { piece.row = r; piece.col = c; res.slide = { row: r, col: c }; }
     }
-    const twin = this.board.portals?.get(key(piece.row, piece.col));
-    if (twin) {
-      const [r, c] = twin.split(',').map(Number);
+    const portal = portalAt(this.board, piece.row, piece.col);
+    if (portal) {
+      const [r, c] = portal.to.split(',').map(Number);
       if (!occupied(r, c)) { res.portal = { from: { row: piece.row, col: piece.col }, to: { row: r, col: c } }; piece.row = r; piece.col = c; }
     }
     // Mina oculta (Campo minado): estalla, se lleva la pieza y deja un hueco.

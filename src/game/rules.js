@@ -4,6 +4,21 @@
 // holes and allies, and every enemy inside it is hit.
 
 export const key = (r, c) => r + ',' + c;
+
+export function linkPortalPair(board, a, b) {
+  const from = key(...a), to = key(...b);
+  board.terrain.set(from, 'portal');
+  board.terrain.set(to, 'portal');
+  board.portals.set(from, to);
+  board.portals.set(to, from);
+}
+
+export function portalAt(board, row, col) {
+  const from = key(row, col), to = board?.portals?.get(from);
+  if (!to) return null;
+  const index = [...board.portals.keys()].indexOf(from);
+  return { from, to, pair: index < 2 ? 'pair-a' : 'pair-b' };
+}
 export const sizeOf = (p) => [p.h || 1, p.w || 1];
 
 export function cellsOf(p, r = p.row, c = p.col) {

@@ -1,6 +1,6 @@
 // Procedural generation: run map, board shapes and starting armies.
 import { mulberry32, pickFrom } from '../core/rng.js';
-import { key, threatenedPieces, legalMoves, ctxOf } from './rules.js';
+import { key, threatenedPieces, legalMoves, ctxOf, linkPortalPair } from './rules.js';
 import { BOSSES } from '../data/bosses.js';
 import { applyMutations } from '../data/mutations.js';
 import { pickModifier, miniBossFloors, armyForFloor, ARMY_STEPS, isMiniModifier, RARE_TYPES, MINI_BOSSES, FINAL_BOSSES } from './difficulty.js';
@@ -146,7 +146,7 @@ export function generateBoard(seed, floor, totalFloors, modifier) {
 
 // Terrain lives in the middle rows, mirrored so neither side gets the better half.
 function addTerrain(board, rng, kind) {
-  const { rows, cols, holes, protectRows: safe, terrain, portals } = board;
+  const { rows, cols, holes, protectRows: safe, terrain } = board;
   const mid = [];
   for (let r = safe; r < rows - safe; r++) for (let c = 0; c < cols; c++) if (!holes.has(key(r, c))) mid.push([r, c]);
   const mirror = ([r, c]) => [rows - 1 - r, cols - 1 - c];
@@ -160,8 +160,7 @@ function addTerrain(board, rng, kind) {
     for (let i = 0; i < 2 && mid.length; i++) {
       const a = mid.splice(Math.floor(rng() * mid.length), 1)[0], b = mirror(a);
       if (key(...a) === key(...b) || terrain.has(key(...a)) || holes.has(key(...b))) continue;
-      terrain.set(key(...a), 'portal'); terrain.set(key(...b), 'portal');
-      portals.set(key(...a), key(...b)); portals.set(key(...b), key(...a));
+      linkPortalPair(board, a, b);
     }
   }
 }

@@ -5,6 +5,7 @@ import { MiniGrid } from './mini-grid.js';
 import { hopPiece } from '../hop.js';
 import { playSfx } from '../sfx.js';
 import { SIZE, DIFFS, newContraband, legal, move } from '../../game/dimensional-contraband.js';
+import { portalAt } from '../../game/rules.js';
 
 export function ContrabandScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newContraband(diff || settings.miniDiff?.contraband));
@@ -40,14 +41,14 @@ export function ContrabandScreen({ sub, onBack, onEnd, endLabel = 'Continuar', s
     setTimeout(() => dest?.classList.remove('portal-flash'), 720);
   });
   const cell = (r, c) => {
-    const p = s.pieces[0], k = r + ',' + c;
-    const valid = targets.some((m) => m.row === r && m.col === c), portal = s.board.portals.has(k);
-    return { cls: [valid && 'mv', portal && 'portal', s.exit.row === r && s.exit.col === c && 'exit'].filter(Boolean).join(' '), piece: p.row === r && p.col === c ? { type: p.type, side: p.color } : null };
+    const p = s.pieces[0];
+    const valid = targets.some((m) => m.row === r && m.col === c);
+    return { cls: [valid && 'mv', s.exit.row === r && s.exit.col === c && 'exit'].filter(Boolean).join(' '), piece: p.row === r && p.col === c ? { type: p.type, side: p.color } : null };
   };
-  const inPortals = targets.some((m) => s.board.portals.has(m.row + ',' + m.col));
+  const inPortals = targets.some((m) => portalAt(s.board, m.row, m.col));
   return html`<div class="screen mini"><${Topbar} title="Contrabando dimensional" sub=${sub} onBack=${onBack} /><div class="mini-body">
   <div class="mini-stats" aria-live="polite"><span class="chip"><${Icon} name="portal" size=${12} /> Jugadas: ${s.turns}</span><span class="chip">Salida: esquina superior derecha</span>${inPortals && html`<span class="chip">Portal a tiro</span>`}</div>
-  <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="Contrabando dimensional" boardClass="bm-slab" gridRef=${gridRef} onTap=${tap} />
+  <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="Contrabando dimensional" boardClass="bm-slab" gridRef=${gridRef} board=${s.board} onTap=${tap} />
   <${MiniTools} mini="contraband" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Lleva el caballo contrabandista a la salida (fila superior, última columna). Los dos portales dorados están enlazados: aterrizar en uno te transporta al otro. Planifica el salto para llegar antes de que se acabe el tiempo.<//>
   ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'La mercancía cruzó la frontera.' : 'Se agotaron las jugadas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
   </div></div>`;

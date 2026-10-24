@@ -5,7 +5,7 @@ import { animate, stagger } from 'animejs';
 import { pieceSVG, headTop, artOf } from './piece-art.js';
 import { Fx } from './fx.js';
 import { playSfx } from '../ui/sfx.js';
-import { key, cellsOf, sizeOf } from '../game/rules.js';
+import { key, cellsOf, sizeOf, portalAt } from '../game/rules.js';
 
 export const CAMERAS = { flat: 0, tilt: 40, epic: 56 };
 const JUMPERS = new Set(['knight', 'camel', 'elephant']);
@@ -13,6 +13,19 @@ const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 let gooCount = 0; // filter ids must be unique across every board on the page
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+export function collapseTiles(tiles, { depth, duration, delay }) {
+  if (!tiles.length) return Promise.resolve();
+  return animate(tiles, {
+    z: -depth,
+    rotateX: () => (Math.random() - 0.5) * 70,
+    rotateY: () => (Math.random() - 0.5) * 50,
+    opacity: [1, 0],
+    duration,
+    ease: 'inQuad',
+    delay: stagger(delay),
+  });
+}
 const BADGES = {
   lock: '<svg viewBox="0 0 24 24"><path d="M7 10V7.5a5 5 0 0 1 10 0V10h-2.6V7.5a2.4 2.4 0 0 0-4.8 0V10z"/><rect x="4.5" y="10" width="15" height="11.5" rx="2.5"/></svg>',
   last: '<svg viewBox="0 0 24 24"><path d="M5 2.5h2.6v19H5z"/><path d="M7.6 3.5h11.9l-2.6 4 2.6 4H7.6z"/></svg>',
@@ -144,7 +157,7 @@ export class BoardView {
       const terrain = board.terrain?.get(key(r, c));
       if (terrain) t.classList.add(terrain);
       // Portal pairs share a colour so the player can tell which tile leads where.
-      if (terrain === 'portal') t.classList.add([...board.portals.keys()].indexOf(key(r, c)) < 2 ? 'pair-a' : 'pair-b');
+      if (terrain === 'portal') t.classList.add(portalAt(board, r, c)?.pair || '');
       t.innerHTML = '<i class="mark"></i>';
       frag.appendChild(t);
       this.tiles.set(key(r, c), t);
@@ -883,10 +896,7 @@ export class BoardView {
       const c = this.fx.pointOf(t);
       this.fx.burst(c.x, c.y, { count: 22, color: [css('--tile-side'), css('--tile-b'), '#000'], speed: [40, 180], gravity: 500, shape: 'chunk', size: [3, 8], life: [0.6, 1.1] });
     }
-    await animate(tiles, {
-      z: -this.sq * 6, rotateX: () => (Math.random() - 0.5) * 70, rotateY: () => (Math.random() - 0.5) * 50,
-      opacity: [1, 0], duration: this.d(900), ease: 'inQuad', delay: stagger(this.d(90)),
-    });
+    await collapseTiles(tiles, { depth: this.sq * 6, duration: this.d(900), delay: this.d(90) });
     for (const t of tiles) { this.tiles.delete(key(+t.dataset.r, +t.dataset.c)); t.remove(); }
     this.refreshEdges();
   }
