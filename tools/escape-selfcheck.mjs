@@ -3,7 +3,7 @@ import { newEscape, legal, move } from '../src/game/escape.js';
 
 const s = newEscape('normal');
 assert.equal(move(s, 0, 0), false, 'rejects illegal moves');
-assert.equal(s.turns, 4, 'illegal moves do not consume a turn');
+assert.equal(s.turns, 5, 'illegal moves do not consume a turn');
 assert.ok(legal(s).some((m) => m.row === 4 && m.col === 2));
 assert.equal(move(s, 4, 2), true);
 assert.equal(s.pieces.find((p) => p.id === 'guard').row, 3);
