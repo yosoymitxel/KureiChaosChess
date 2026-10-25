@@ -12,7 +12,7 @@ assert.equal(s.pieces.find((p) => p.id === 'guard').row, 4);
 assert.equal(move(s, 0, 4), true);
 assert.equal(s.over, 'win', 'reaching the exit wins');
 assert.equal(legal(s).length, 0);
-const routes={facil:[[4,4],[2,5],[0,4]],normal:[[4,2],[2,3],[0,4]],dificil:[[4,2],[2,3],[0,4]]};
+const routes={facil:[[4,2],[2,1],[0,0]],normal:[[5,1],[3,2],[1,1],[0,3]],dificil:[[5,1],[3,0],[1,1],[0,3]]};
 for(const [level,route] of Object.entries(routes)){
  const game=newEscape(level);
  for(const [row,col] of route){
