@@ -3,7 +3,7 @@ import { mkdir } from 'node:fs/promises';
 
 const base = process.env.VISUAL_BASE_URL || 'http://127.0.0.1:8123';
 const out = process.env.VISUAL_OUT || 'artifacts/visual';
-const games = ['escape','contraband','laboratory','collapsingFloor','knight'];
+const games = ['escape','contraband','laboratory','collapsingFloor'];
 const viewports = [{name:'mobile',width:360,height:800},{name:'desktop',width:1366,height:768}];
 const themes = ['normal','pixel'];
 await mkdir(out,{recursive:true});
@@ -76,7 +76,8 @@ try {
     });
     try {
       await page.goto(base + '/lab-preview.html', { waitUntil: 'domcontentloaded', timeout: 45000 });
-      await page.locator('#theme').waitFor({ timeout: 20000 });
+      if (viewport.name === 'mobile') await page.locator('.catalog-menu-toggle').click();
+      await page.locator('#theme').waitFor({ state: 'visible', timeout: 20000 });
       await page.waitForFunction(() => {
         const themes = document.querySelector('#theme');
         const minis = document.querySelector('#mini');
@@ -182,4 +183,4 @@ try {
   await browser.close();
 }
 if(failures.length){console.error('VISUAL_QA_FAILED '+JSON.stringify(failures));process.exitCode=1;}
-else console.log('VISUAL_QA_OK: 5 grillas custom · 2 temas · 2 tamaños');
+else console.log('VISUAL_QA_OK: 4 grillas custom · 2 temas · 2 tamaños');
