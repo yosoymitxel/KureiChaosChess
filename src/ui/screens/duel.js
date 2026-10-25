@@ -107,7 +107,7 @@ export function DuelScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setting
                 </button>`;
               })}
             </div>`}
-          <${MiniTools} mini="duel" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Tres piezas por bando; elige un ataque y el rival responde. El tipo sale de cómo se mueve la pieza: Línea gana a Salto, Salto a Diagonal y Diagonal a Línea (golpe y medio); al revés, el golpe se queda en dos tercios. Guardia parte la próxima herida, Cargado sube el próximo golpe, y las curas valen dos veces por pieza.<//>
+          <${MiniTools} mini="duel" title="Duelo" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Tres piezas por bando; elige un ataque y el rival responde. El tipo sale de cómo se mueve la pieza: Línea gana a Salto, Salto a Diagonal y Diagonal a Línea (golpe y medio); al revés, el golpe se queda en dos tercios. Guardia parte la próxima herida, Cargado sube el próximo golpe, y las curas valen dos veces por pieza.<//>
         </div>
       </div>
     </div>

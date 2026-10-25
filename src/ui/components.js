@@ -3,6 +3,8 @@ import { Icon, PieceIcon } from './icons.js';
 import { MOVE_NAMES } from '../data/pieces.js';
 import { playSfx } from './sfx.js';
 import { pieceSVG } from '../view/piece-art.js';
+import { Moments } from './moments.js';
+import { MODIFIERS } from '../data/modifiers.js';
 
 // Muestra de una mesa sin texto: su mesa y sus dos casillas de fondo, y el rey dibujado con el
 // arte de esa mesa (píxel o vectorial) y el color de su bando claro. Tienda, ajustes y pausa.
@@ -55,7 +57,7 @@ export function MiniDiff({ mini, diffs, fixed, settings, setSettings, onRestart 
 // Ayuda y nivel del minijuego en un solo botón: abre una hoja encima del juego con cómo se juega
 // y el nivel (elegible en partida libre). La primera vez que se entra a cada minijuego se abre sola,
 // así debajo del tablero solo queda lo que se usa para jugar.
-export function MiniTools({ mini, diffs, fixed, settings, setSettings, onRestart, children }) {
+export function MiniTools({ mini, title: introTitle, cinematic = true, diffs, fixed, settings, setSettings, onRestart, children }) {
   const [open, setOpen] = useState(() => !settings.helpSeen?.[mini]);
   useEffect(() => {
     if (!settings.helpSeen?.[mini]) setSettings((t) => ({ ...t, helpSeen: { ...t.helpSeen, [mini]: true } }));
@@ -66,6 +68,32 @@ export function MiniTools({ mini, diffs, fixed, settings, setSettings, onRestart
     addEventListener('keydown', onKey, true);
     return () => removeEventListener('keydown', onKey, true);
   }, [open]);
+
+  useEffect(() => {
+    if (!cinematic || settings.moments === false) return;
+    const modifier = MODIFIERS[mini];
+    const layer = document.createElement('div');
+    layer.className = 'mini-cine-host';
+    document.body.appendChild(layer);
+    const moments = new Moments(layer, { speed: settings.speed || 1, enabled: true });
+    const sub = (modifier?.desc || '')
+      .replace(/^Minijuego(?: al revés)?:\s*/i, '')
+      .replace(/\s*Premio:.*$/i, '');
+    let disposed = false;
+    const dispose = () => {
+      if (disposed) return;
+      disposed = true;
+      moments.destroy();
+      layer.remove();
+    };
+    moments.cinematic({
+      title: introTitle || mini,
+      sub: sub || undefined,
+      icon: modifier?.icon || 'flag',
+    }).then(dispose, dispose);
+    return dispose;
+  }, []);
+
   const level = (diffs[fixed || settings.miniDiff?.[mini] || 'normal'] || diffs.normal).name;
   return html`<button class="btn ghost sm mini-tools" aria-haspopup="dialog" onClick=${() => setOpen(true)}><${Icon} name="book" size=${16} /><span class="mini-tools-label">Como se juega · ${level}</span></button>
     ${open && html`<div class="overlay" onClick=${(e) => e.target === e.currentTarget && setOpen(false)}>
@@ -77,7 +105,6 @@ export function MiniTools({ mini, diffs, fixed, settings, setSettings, onRestart
       </div>
     </div>`}`;
 }
-
 // Destructive actions ask for a second press instead of a browser dialog.
 // `enter`: entra animado con el resto de la pantalla (useEnter), como los botones que lo rodean.
 export function ConfirmButton({ class: cls = 'btn', onConfirm, confirmLabel = 'Pulsa otra vez para confirmar', enter, children }) {

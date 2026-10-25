@@ -49,7 +49,7 @@ export function KnightScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
       </div>`}
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="Ruta del caballo"
         gridRef=${gridRef} boardClass="bm-slab" onTap=${go} />
-      <${MiniTools} mini="knight" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>El caballo salta en L. Pisa las casillas con aro dorado; las que ya pisaste quedan numeradas por orden y no se pueden repetir. Pierdes si te quedas sin saltos posibles.<//>
+      <${MiniTools} mini="knight" title="Ruta del caballo" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>El caballo salta en L. Pisa las casillas con aro dorado; las que ya pisaste quedan numeradas por orden y no se pueden repetir. Pierdes si te quedas sin saltos posibles.<//>
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Completaste la ruta sin repetir casilla.' : 'El caballo se quedó sin saltos posibles.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
   </div>`;

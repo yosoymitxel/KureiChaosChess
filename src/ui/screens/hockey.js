@@ -188,7 +188,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
             <span class="chip"><i class="ah-dot foe"></i>Bot <b>${score.bot}</b></span>
           </div>`}
           ${over && html`<${MiniEnd} win=${over === 'win'} note=${over === 'win' ? `Ganaste ${score.me} a ${score.bot}: el disco ya es tuyo.` : `El bot llegó a ${GOALS}: perdiste ${score.me} a ${score.bot}.`} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
-          <${MiniTools} mini="hockey" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Arrastra tu torre, la de abajo, con el dedo o el ratón (o muévela con las flechas) por tu mitad de la mesa y golpea el disco hacia la portería de arriba. Cuanto más rápido lo golpeas, más fuerte sale, y las bandas sirven para tiros al rebote. Gana quien meta cinco goles; tras cada gol saca quien lo encajó. No retengas el disco en tu mitad más de siete segundos o el saque pasa al rival.<//>
+          <${MiniTools} mini="hockey" title="Hockey de mesa" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Arrastra tu torre, la de abajo, con el dedo o el ratón (o muévela con las flechas) por tu mitad de la mesa y golpea el disco hacia la portería de arriba. Cuanto más rápido lo golpeas, más fuerte sale, y las bandas sirven para tiros al rebote. Gana quien meta cinco goles; tras cada gol saca quien lo encajó. No retengas el disco en tu mitad más de siete segundos o el saque pasa al rival.<//>
         </div>
       </div>
     </div>

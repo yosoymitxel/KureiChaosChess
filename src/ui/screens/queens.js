@@ -49,7 +49,7 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
             <span class=${'chip' + (time <= 30 ? ' danger' : '')} aria-label=${`Quedan ${time} segundos`}><b>${time}</b> s</span>
           </div>`}
           ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `${s.n} reinas conviviendo sin atacarse.` : `Se acabó el tiempo con ${s.queens.length} de ${s.n} reinas.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
-          <${MiniTools} mini="queens" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Completa las ${s.n} antes de que se acabe el tiempo.<//>
+          <${MiniTools} mini="queens" title="Ocho reinas" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Completa las ${s.n} antes de que se acabe el tiempo.<//>
         </div>
       </div>
     </div>

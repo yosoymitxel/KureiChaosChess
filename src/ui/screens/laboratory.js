@@ -61,7 +61,7 @@ export function LaboratoryScreen({ sub, onBack, onEnd, endLabel = 'Continuar', s
         <span class="chip">Ruta ${s.variant.id}</span>
       </div>
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="El laboratorio" boardClass="bm-slab" gridRef=${gridRef} onTap=${tap} />
-      <${MiniTools} mini="laboratory" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>
+      <${MiniTools} mini="laboratory" title="El laboratorio" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>
         Prueba <b>${mut.name}</b>: recoge ${s.sampleTotal} ${s.sampleTotal === 1 ? 'muestra' : 'muestras'} y llega a la salida dorada. Cada casilla que abandonas se convierte en un agujero.
       <//>
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Muestras recuperadas. Experimento completado.' : 'Sin jugadas o turnos: la muestra quedó fuera de alcance.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}

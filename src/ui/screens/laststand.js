@@ -83,7 +83,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
                 disabled=${cost > s.budget} title=${PIECE_NAMES[t]} onClick=${() => setPick(t)}><${PieceIcon} type=${t} side="light" size=${22} />${cost}</button>`)}
             </div>
             <button class="btn primary" disabled=${!s.pieces.length} onClick=${launch}>${s.phase === 'setup' ? 'Empezar el asalto' : last ? '¡Que venga la horda!' : 'Siguiente oleada'}</button>`}
-          <${MiniTools} mini="laststand" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Compra piezas tocando las tres filas de abajo y empieza el asalto. El carmesí ataca en ${s.diff.waves} oleadas; la última es una gran horda. Entre oleadas cobras ${s.diff.bonus} monedas y puedes reforzar con lo que tengas: aguanta sin ceder la línea.<//>
+          <${MiniTools} mini="laststand" title="Última resistencia" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Compra piezas tocando las tres filas de abajo y empieza el asalto. El carmesí ataca en ${s.diff.waves} oleadas; la última es una gran horda. Entre oleadas cobras ${s.diff.bonus} monedas y puedes reforzar con lo que tengas: aguanta sin ceder la línea.<//>
         </div>
       </div>
     </div>

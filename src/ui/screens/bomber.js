@@ -122,7 +122,7 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
                 <button class="btn sm ghost" onClick=${() => act({ wait: true })}>Esperar</button>
               </div>
             </div>`}
-          <${MiniTools} mini="bomber" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha da 5 turnos para salir del radio, las casillas con borde rojo estallan en la próxima jugada y algunas cajas sueltan bomba extra o más alcance. Como en el original, la puerta de salida está escondida bajo una caja: derriba a todos los enemigos y entra por ella. Enemigos de este nivel: ${kinds.map((t) => `${PIECE_NAMES[t].toLowerCase()} (${FOES[t].replace(/\.$/, '').toLowerCase()})`).join('; ')}.<//>
+          <${MiniTools} mini="bomber" title="Bomberman" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha da 5 turnos para salir del radio, las casillas con borde rojo estallan en la próxima jugada y algunas cajas sueltan bomba extra o más alcance. Como en el original, la puerta de salida está escondida bajo una caja: derriba a todos los enemigos y entra por ella. Enemigos de este nivel: ${kinds.map((t) => `${PIECE_NAMES[t].toLowerCase()} (${FOES[t].replace(/\.$/, '').toLowerCase()})`).join('; ')}.<//>
         </div>
       </div>
     </div>

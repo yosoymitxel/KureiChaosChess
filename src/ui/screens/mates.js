@@ -104,7 +104,7 @@ export function MatesScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settin
               <span class="chip" aria-label=${`Te queda${st.left === 1 ? '' : 'n'} ${st.left} jugada${st.left === 1 ? '' : 's'}`}><span class="dots">${Array.from({ length: st.n }, (_, i) => html`<i class=${i < st.left ? '' : 'off'} />`)}</span></span>
             </div>`)}
           ${over && html`<${MiniEnd} win=${over === 'win'} note=${note} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
-          <${MiniTools} mini="mates" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Juegas con marfil y mueves primero: el rey carmesí marcado en rojo debe caer en ${st.n} jugada${st.n > 1 ? 's' : ''}, responda lo que responda. El carmesí juega siempre su mejor defensa.<//>
+          <${MiniTools} mini="mates" title="Captura al rey" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Juegas con marfil y mueves primero: el rey carmesí marcado en rojo debe caer en ${st.n} jugada${st.n > 1 ? 's' : ''}, responda lo que responda. El carmesí juega siempre su mejor defensa.<//>
         </div>
       </div>
     </div>

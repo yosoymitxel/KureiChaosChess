@@ -77,7 +77,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
                 disabled=${cost > s.coins} onClick=${() => setPick(t)}><${PieceIcon} type=${t} side="zombie" size=${22} /><span>${PIECE_NAMES[t]}</span><b class="buy-cost">${cost}</b></button>`)}
             </div>
             <button class="btn primary" onClick=${() => act(() => advance(s))}>Avanzar</button>`}
-          <${MiniTools} mini="izombie" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Como Yo, Zombi de Plants vs. Zombies: atacas tú. La defensa marfil no se mueve, pero tras cada avance captura lo que pare en sus casillas (teñidas de rojo). Compra piezas en la fila de arriba; al pulsar Avanzar cada una da su paso de ajedrez más profundo. Lleva una pieza a cada trofeo de la última fila: la que llega lo toma y sale del tablero. Capturar un peón marfil paga 2 monedas; otra pieza, 1. Pierdes si te quedas sin piezas y sin monedas para un peón.<//>
+          <${MiniTools} mini="izombie" title="Yo, Zombi" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Como Yo, Zombi de Plants vs. Zombies: atacas tú. La defensa marfil no se mueve, pero tras cada avance captura lo que pare en sus casillas (teñidas de rojo). Compra piezas en la fila de arriba; al pulsar Avanzar cada una da su paso de ajedrez más profundo. Lleva una pieza a cada trofeo de la última fila: la que llega lo toma y sale del tablero. Capturar un peón marfil paga 2 monedas; otra pieza, 1. Pierdes si te quedas sin piezas y sin monedas para un peón.<//>
         </div>
       </div>
     </div>

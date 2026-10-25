@@ -59,6 +59,7 @@ const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3
 // A won minigame pays a mutation or a piece the army already knows.
 const MINI_PRIZES = BAG_CARDS.filter((c) => ['mut', 'extra_rook', 'extra_pawn'].includes(c.id));
 const MINI_SCREENS = { laboratory: LaboratoryScreen, collapsingFloor: CollapsingFloorScreen, kingImpostor: KingImpostorScreen, giantHunt: GiantHuntScreen, minefield: MinefieldScreen, contraband: ContrabandScreen, bodyguard: BodyguardScreen, escape: EscapeScreen, caceria: CaceriaScreen, connect4: Connect4Screen, bomber: BomberScreen, barrier: BarrierScreen, izombie: IZombieScreen, bowling: BowlingScreen, laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen, marcianos: MarcianosScreen, checkers: CheckersScreen, fusion: FusionScreen, duel: DuelScreen, hockey: HockeyScreen };
+const SCENARIO_MINIS = new Set(['caceria', 'bodyguard', 'giantHunt', 'minefield', 'kingImpostor']);
 const ONE_SHOT =['promoteOne', 'furyNow', 'extraPawn', 'extraRook'];
 
 export function App() {
@@ -253,7 +254,8 @@ export function App() {
       settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />`}
     ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
     ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub="Partida libre" onBack=${() => goTo('minis')}
-      endLabel="Otra partida" onEnd=${() => setFreeKey((k) => k + 1)}
+      endLabel=${SCENARIO_MINIS.has(freeMini) ? 'Volver a los minijuegos' : 'Otra partida'}
+      onEnd=${() => SCENARIO_MINIS.has(freeMini) ? goTo('minis') : setFreeKey((k) => k + 1)}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => goTo(shopFrom)} />`}

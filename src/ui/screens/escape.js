@@ -38,7 +38,7 @@ export function EscapeScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
         <span class="chip">Llega a la fila dorada</span>
       </div>
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over} label="Escape del tablero" gridRef=${gridRef} boardClass="bm-slab" onTap=${tap} />
-      <${MiniTools} mini="escape" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Lleva el caballo marfil hasta la fila superior. El peón carmesí avanza hacia abajo después de tus saltos; no puedes ocupar su casilla ni capturarlo. Las casillas doradas son la salida.<//>
+      <${MiniTools} mini="escape" title="Escape del tablero" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Lleva el caballo marfil hasta la fila superior. El peón carmesí avanza hacia abajo después de tus saltos; no puedes ocupar su casilla ni capturarlo. Las casillas doradas son la salida.<//>
       ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Escapaste del tablero.' : 'El guardia te cerró el paso o se acabaron los saltos.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
     </div>
   </div>`;

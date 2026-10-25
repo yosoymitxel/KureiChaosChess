@@ -99,7 +99,7 @@ export function CheckersScreen({ sub, onBack, onEnd, endLabel = 'Continuar', set
           ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
           ${!s.over && html`<div class="mini-stats"><span class="chip">Tuyas ${left.light}</span><span class="chip">Rivales ${left.dark}</span></div>`}
           ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'El rival se quedó sin jugadas.' : 'Te quedaste sin jugadas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
-          <${MiniTools} mini="checkers" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Las fichas avanzan en diagonal por las casillas oscuras. Si puedes saltar una ficha rival que tienes al lado, es obligatorio, y si al caer puedes saltar otra, sigues. Al llegar a la última fila la ficha se corona y ya puede ir también hacia atrás. Gana quien deje al otro sin jugadas. Fácil 6×6, Normal 8×8 y Difícil 10×10.<//>
+          <${MiniTools} mini="checkers" title="Damas" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Las fichas avanzan en diagonal por las casillas oscuras. Si puedes saltar una ficha rival que tienes al lado, es obligatorio, y si al caer puedes saltar otra, sigues. Al llegar a la última fila la ficha se corona y ya puede ir también hacia atrás. Gana quien deje al otro sin jugadas. Fácil 6×6, Normal 8×8 y Difícil 10×10.<//>
         </div>
       </div>
     </div>

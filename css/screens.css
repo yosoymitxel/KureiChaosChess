@@ -295,6 +295,8 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .guard-note { display: flex; gap: 6px; align-items: center; color: var(--accent-ink); font-weight: 650; }
 
 /* Foreground moments (src/ui/moments.js). Colour says who benefits: brass = you, danger = against you. */
+.mini-cine-host { position: fixed; inset: 0; z-index: 110; pointer-events: none; }
+.mini-cine-host canvas { pointer-events: none; }
 .moment { position: absolute; inset: 0; z-index: 8; pointer-events: none; }
 .moment.cine { display: grid; place-items: center; pointer-events: auto; cursor: pointer; }
 .cine .bar { position: absolute; left: 0; right: 0; height: 13%; background: var(--ink); }

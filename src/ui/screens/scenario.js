@@ -13,7 +13,7 @@ function ScenarioScreen({ id, onBack, onEnd, endLabel = 'Continuar', settings, s
   return html`<${GameScreen} node=${{ id: 'mini-' + id, seed: 0, floor: 0, modifier: 'none' }} run=${RUN} seats=${game.seats} scenario=${game}
     settings=${settings} setSettings=${setSettings} onWin=${() => onEnd(true)} onExit=${() => onEnd(false)} onMenu=${onBack} onAbandon=${onBack}
     onRestart=${onRestart} onHowTo=${noop} onUseCard=${noop}
-    tools=${html`<${MiniTools} mini=${id} diffs=${LEVELS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${SCENARIOS[id].goal}<//>`} />`;
+    tools=${html`<${MiniTools} mini=${id} cinematic=${false} diffs=${LEVELS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${SCENARIOS[id].goal}<//>`} />`;
 }
 
 const screen = (id) => (props) => html`<${ScenarioScreen} id=${id} ...${props} />`;

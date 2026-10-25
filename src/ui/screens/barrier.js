@@ -121,7 +121,7 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
               <span class="chip" title="Tus vallas"><${Icon} name="fence" size=${13} />Tú <b>${s.left.light}</b></span>
               <span class="chip" title="Vallas del bot"><${Icon} name="fence" size=${13} />Bot <b>${s.left.dark}</b></span>
             </div>`}
-          <${MiniTools} mini="barrier" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Cruza a la fila de arriba antes que el peón carmesí, que baja hacia la suya. Muévete con las flechas o tocando una casilla, o gasta una valla para cerrar un borde.<//>
+          <${MiniTools} mini="barrier" title="Barrera" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Cruza a la fila de arriba antes que el peón carmesí, que baja hacia la suya. Muévete con las flechas o tocando una casilla, o gasta una valla para cerrar un borde.<//>
         </div>
       </div>
     </div>

@@ -83,7 +83,7 @@ export function CollapsingFloorScreen({ sub, onBack, onEnd, endLabel = 'Continua
         <span class="chip">Riesgo: hasta ${s.diff.collapse} ${s.diff.collapse === 1 ? 'casilla' : 'casillas'} por turno</span>
       </div>
       <${MiniGrid} rows=${SIZE} cols=${SIZE} cell=${cell} disabled=${!!s.over || animating} label="El suelo se acaba" boardClass="bm-slab floor-game" gridRef=${gridRef} onTap=${tap} />
-      <${MiniTools} mini="collapsingFloor" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>
+      <${MiniTools} mini="collapsingFloor" title="El suelo se acaba" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>
         Lleva el caballo a cualquier casilla de la fila superior. Al saltar, cae la casilla que abandonas; el suelo también intenta hundir casillas alcanzables de rutas que usarías para llegar. En difícil intenta derrumbar dos. Si solo queda una ruta viable dentro del tiempo, el suelo la conserva.
       <//>
       ${s.over && !animating && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'Llegaste al otro lado.' : 'Te quedaste sin saltos o sin una ruta viable.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}

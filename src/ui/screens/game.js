@@ -1,7 +1,7 @@
 // Game screen: the "director" that wires Match (rules) to BoardView (3D) and the HUD.
 import { html, useState, useEffect, useRef, motion, motionStagger } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
-import { TurnBanner, CardFace } from '../components.js';
+import { TurnBanner, CardFace, MiniEnd } from '../components.js';
 import { isShopCard } from '../../game/shop.js';
 import { BoardView } from '../../view/board-view.js';
 import { artOf } from '../../view/piece-art.js';
@@ -228,7 +228,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
 
     const finish = async () => {
       const r = match.over;
-      if (r.victory) playSfx('win'); else if (!r.tie) playSfx('lose');
+      if (!scenario) { if (r.victory) playSfx('win'); else if (!r.tie) playSfx('lose'); }
       const human = seats.find((s) => s.kind === 'human')?.color || 'light';
       if (r.victory && !scenario) {
         // La pérdida se lee por identidad: toda pieza caída sale de match.pieces.
@@ -558,6 +558,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       </div>`}
     </div>
     <aside class="hud panel">
+      ${end && scenario && html`<${MiniEnd} win=${!!end.victory} title=${end.tie ? 'Tablas' : end.victory ? '¡Victoria!' : 'Derrota'} note=${end.note || (end.tie ? 'Partida bloqueada: empate.' : end.victory ? 'Minijuego superado.' : 'No salió esta vez.')} label=${scenario.endLabel || 'Continuar'} onEnd=${() => leave('exit', () => end.victory ? onWin(ref.current.bossId) : onExit())} />`}
       ${hud?.boss && html`<section class="boss-bar" aria-label="Jefe">
         <div class="boss-row"><strong>${hud.boss.name}</strong>
           <span class="hp">${Array.from({ length: hud.boss.maxHp }, (_, i) => html`<b class=${i < hud.boss.hp ? 'on' : ''}></b>`)}</span></div>
@@ -614,7 +615,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     ${paused && !end && html`<${PauseOverlay} settings=${settings} setSettings=${setSettings}
       onResume=${() => setPaused(false)} onRestart=${() => leave('reset', onRestart)} onExit=${() => leave('exit', onExit)} onMenu=${() => leave('exit', onMenu)} onAbandon=${() => leave('resign', onAbandon)}
       onHowTo=${() => { setPaused(false); onHowTo(); }} />`}
-    ${end && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} exitLabel=${scenario?.endLabel} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
+    ${end && !scenario && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} exitLabel=${scenario?.endLabel} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
       onMenu=${() => leave('exit', end.victory ? () => onWin(ref.current.bossId, { toMenu: true }) : onMenu)} />`}
   </div>`;
 }
