@@ -3,7 +3,7 @@ import { mkdir } from 'node:fs/promises';
 
 const base = process.env.VISUAL_BASE_URL || 'http://127.0.0.1:8123';
 const out = process.env.VISUAL_OUT || 'artifacts/visual';
-const games = ['caceria','escape','bodyguard','giantHunt','minefield','contraband','laboratory','collapsingFloor','kingImpostor'];
+const games = ['escape','contraband','laboratory','collapsingFloor','knight'];
 const viewports = [{name:'mobile',width:360,height:800},{name:'desktop',width:1366,height:768}];
 const themes = ['normal','pixel'];
 await mkdir(out,{recursive:true});
@@ -182,4 +182,4 @@ try {
   await browser.close();
 }
 if(failures.length){console.error('VISUAL_QA_FAILED '+JSON.stringify(failures));process.exitCode=1;}
-else console.log('VISUAL_QA_OK: 9 minijuegos · 2 temas · 2 tamaños');
+else console.log('VISUAL_QA_OK: 5 grillas custom · 2 temas · 2 tamaños');
