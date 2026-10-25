@@ -500,7 +500,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     // The floor card plays over the board while it assembles; the boss gets its own entrance after landing.
     Promise.all([
       d.view.intro(pieces),
-      !boss && d.moments.cinematic({ title: scenario ? mod.name : `Piso ${node.floor + 1}`, sub: scenario ? mod.goal : `${mod.name}. ${mod.desc}`, icon: mod.icon, wave: seats.flatMap((s) => ['pawn', 'knight', 'king'].map((t) => [t, s.color])) }),
+      (!boss || scenario) && d.moments.cinematic({ title: scenario ? mod.name : `Piso ${node.floor + 1}`, sub: scenario ? mod.goal : `${mod.name}. ${mod.desc}`, icon: mod.icon, wave: seats.flatMap((s) => ['pawn', 'knight', 'king'].map((t) => [t, s.color])) }),
     ])
       .then(() => boss && d.moments.cinematic({ title: boss.name, sub: bossSub, piece: { type: artOf(boss), side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger', anim: 'stomp' }))
       .then(() => playDemos(boss))
