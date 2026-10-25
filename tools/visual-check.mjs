@@ -86,10 +86,18 @@ try {
       const options = await page.locator('#theme option').evaluateAll(nodes => nodes.map(n => n.value));
       const missingOptions = previewThemes.filter(id => !options.includes(id));
       if (missingOptions.length) throw new Error('Missing dynamic theme options: ' + missingOptions.join(', '));
-      await page.locator('#mini').selectOption('board:none');
+      const selectControl = async (selector, value) => {
+        if (viewport.name === 'mobile') {
+          const open = await page.locator('.catalog').evaluate(el => el.classList.contains('controls-open'));
+          if (!open) await page.locator('.catalog-menu-toggle').click();
+          await page.locator(selector).waitFor({ state: 'visible', timeout: 20000 });
+        }
+        await page.locator(selector).selectOption(value);
+      };
+      await selectControl('#mini', 'board:none');
       for (const id of previewThemes) {
         consoleErrors.length = 0;
-        await page.locator('#theme').selectOption(id);
+        await selectControl('#theme', id);
         await page.waitForFunction(expected => {
           const frame = document.querySelector('#preview');
           const doc = frame && frame.contentDocument;
