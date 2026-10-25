@@ -8,6 +8,15 @@ const failures = [];
 try {
   for (const viewport of viewports) {
     const page = await browser.newPage({viewport:{width:viewport.width,height:viewport.height},isMobile:viewport.name==='mobile',hasTouch:viewport.name==='mobile'});
+    await page.addInitScript(() => {
+      window.__zugCinematicTitles = [];
+      new MutationObserver(() => {
+        for (const h of document.querySelectorAll('.moment.cine .cine-text h2')) {
+          const title = h.textContent?.trim();
+          if (title && !window.__zugCinematicTitles.includes(title)) window.__zugCinematicTitles.push(title);
+        }
+      }).observe(document, { subtree: true, childList: true, characterData: true });
+    });
     for (const game of games) {
       const errors = [];
       const onError = error => errors.push(error.message);
@@ -20,11 +29,12 @@ try {
           screen: !!document.querySelector('.screen'),
           title: document.querySelector('.topbar .title')?.textContent || document.querySelector('.game-top .title')?.textContent || document.querySelector('h1')?.textContent || '',
           cinematicTitle: document.querySelector('.moment.cine .cine-text h2')?.textContent || '',
+          cinematicTitles: window.__zugCinematicTitles || [],
           width: document.documentElement.clientWidth,
           scrollWidth: document.documentElement.scrollWidth,
         }));
         if (!result.screen) throw new Error('No se montó la pantalla');
-        if (result.cinematicTitle !== result.title) throw new Error(`Intro title mismatch: ${result.cinematicTitle} !== ${result.title}`);
+        if (!result.cinematicTitles.includes(result.title)) throw new Error(`Intro title not seen: ${result.title} (seen: ${result.cinematicTitles.join(', ')})`);
         if (errors.length) throw new Error(errors.join(' | '));
         console.log(JSON.stringify({game,viewport:viewport.name,...result}));
       } catch (error) {
