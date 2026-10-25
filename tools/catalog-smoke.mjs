@@ -13,15 +13,18 @@ try {
       const onError = error => errors.push(error.message);
       page.on('pageerror', onError);
       try {
-        await page.goto(`${base}/tests/visual.html?mini=${game}&theme=walnut&diff=normal`, {waitUntil:'networkidle',timeout:45000});
+        await page.goto(`${base}/tests/visual.html?mini=${game}&theme=walnut&diff=normal`, {waitUntil:'domcontentloaded',timeout:45000});
         await page.locator('.screen').waitFor({timeout:12000});
+        await page.locator('.moment.cine').waitFor({state:'attached', timeout:12000});
         const result = await page.evaluate(() => ({
           screen: !!document.querySelector('.screen'),
-          title: document.querySelector('.topbar .title')?.textContent || document.querySelector('h1')?.textContent || '',
+          title: document.querySelector('.topbar .title')?.textContent || document.querySelector('.game-top .title')?.textContent || document.querySelector('h1')?.textContent || '',
+          cinematicTitle: document.querySelector('.moment.cine .cine-text h2')?.textContent || '',
           width: document.documentElement.clientWidth,
           scrollWidth: document.documentElement.scrollWidth,
         }));
         if (!result.screen) throw new Error('No se montó la pantalla');
+        if (result.cinematicTitle !== result.title) throw new Error(`Intro title mismatch: ${result.cinematicTitle} !== ${result.title}`);
         if (errors.length) throw new Error(errors.join(' | '));
         console.log(JSON.stringify({game,viewport:viewport.name,...result}));
       } catch (error) {

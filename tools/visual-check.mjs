@@ -20,9 +20,11 @@ try {
       consoleErrors.length = 0;
       const url=`${base}/tests/visual.html?mini=${game}&theme=${theme}`;
       try {
-        await page.goto(url,{waitUntil:'networkidle',timeout:45000});
+        await page.goto(url,{waitUntil:'domcontentloaded',timeout:45000});
         await page.locator('.mini-stage .bm').waitFor({timeout:15000});
+        await page.locator('.moment.cine').waitFor({state:'attached',timeout:10000});
         await page.screenshot({path:`${out}/${game}-${theme}-${viewport.name}.png`,fullPage:true});
+        await page.locator('.moment.cine').waitFor({state:'detached',timeout:5000});
         const beforeAction = await page.locator('.mini-stats').innerText().catch(() => '');
         const legalCell = page.locator('.bm-cell.mv').first();
         if (await legalCell.count()) {

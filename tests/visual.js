@@ -15,7 +15,7 @@ const miniDiff = Object.fromEntries(Object.keys(MINIGAMES).map(k => [k, diff]));
 const settings = {
   theme: chosenTheme, miniDiff,
   helpSeen: Object.fromEntries(Object.keys(MINIGAMES).map(k => [k, true])),
-  shake: false, speed: 1, sound: false,
+  shake: false, speed: 1, sound: false, moments: true,
 };
 const noop = () => {};
 render(html`<${Screen}
