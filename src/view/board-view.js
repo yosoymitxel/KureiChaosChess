@@ -6,7 +6,8 @@ import { pieceSVG, headTop, artOf } from './piece-art.js';
 import { Fx } from './fx.js';
 import { playSfx } from '../ui/sfx.js';
 import { key, cellsOf, sizeOf, portalAt } from '../game/rules.js';
-import { render } from '../ui/lib.js';
+import { render, html } from '../ui/lib.js';
+import { Icon } from '../ui/icons.js';
 import { boardPond } from '../ui/zen-art.js';
 
 export const CAMERAS = { flat: 0, tilt: 40, epic: 56 };
@@ -38,8 +39,9 @@ const BADGES = {
 
 export class BoardView {
   // `framed`: el marco de losa de los minijuegos alrededor del mismo tablero.
-  constructor(host, { camera = 'tilt', shake = true, speed = 1, framed = false, onTap, onDrop, canDrag, onImpact, onHover, onZoom } = {}) {
-    Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, onHover, onZoom, shakeOn: shake, speed });
+  // `pond`: el hueco del centro se llena de agua con koi (solo en el tablero de la run).
+  constructor(host, { camera = 'tilt', shake = true, speed = 1, framed = false, pond = false, onTap, onDrop, canDrag, onImpact, onHover, onZoom } = {}) {
+    Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, onHover, onZoom, shakeOn: shake, speed, pondOn: pond });
     this.tilt = CAMERAS[camera] ?? 40;
     this.zoom = 1; this.pan = { x: 0, y: 0 };
     host.classList.add('table');
@@ -168,7 +170,7 @@ export class BoardView {
       this.tiles.set(key(r, c), t);
     }
     this.tilesEl.appendChild(frag);
-    this.pond(board);
+    if (this.pondOn) this.pond(board);
     this.gooEl.setAttribute('viewBox', `0 0 ${cols} ${rows}`); // one unit = one tile
     this.refreshEdges();
     this.layout();
@@ -311,9 +313,16 @@ export class BoardView {
   }
 
   // Rótulos sobre casillas (las pistas de Campo minado): key -> texto.
+  // Un rótulo 'icon:<nombre>' pinta ese icono (vector o píxel según la mesa) sobre la casilla, sin
+  // cambiarle el color; el resto es texto (los números de Campo minado).
   setLabels(labels = new Map()) {
     for (const [k, t] of this.tiles) {
-      const text = labels.get(k), mark = t.querySelector('.mark');
+      const text = labels.get(k), mark = t.querySelector('.mark'), icon = typeof text === 'string' && text.startsWith('icon:') ? text.slice(5) : null;
+      if (icon) {
+        if (t.dataset.icon !== icon) { delete t.dataset.n; t.dataset.icon = icon; render(html`<${Icon} name=${icon} size=${24} />`, mark); }
+        continue;
+      }
+      if (t.dataset.icon) { delete t.dataset.icon; render(null, mark); }
       if (text == null) { delete t.dataset.n; mark.textContent = ''; }
       else if (t.dataset.n !== String(text)) { t.dataset.n = text; mark.textContent = text === 0 ? '·' : text; }
     }

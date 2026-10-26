@@ -1289,25 +1289,19 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
   .lab-board { min-width: 0; min-height: 0; width: 100%; height: 100%; }
 }
 
-/* Mobile: floating sandwich button for minigame controls (lab + minigames). */
+/* Móvil: «Cómo se juega» va arriba a la derecha, a la altura de la barra, sin tapar el marcador. */
 @media (max-width: 700px) {
   .mini-tools {
     position: fixed;
     right: 12px;
-    bottom: calc(12px + env(safe-area-inset-bottom));
+    top: calc(14px + env(safe-area-inset-top));
     z-index: 90;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
+    width: 44px;
+    height: 44px;
     padding: 0;
     justify-content: center;
-    box-shadow: 0 4px 14px #0006;
-    background: var(--ink);
-    color: var(--paper);
-    border: 2px solid var(--paper-2);
   }
-  .mini-tools .mini-tools-label { display: none; }\n  .mini-tools .icon { display: none; }
-  .mini-tools::before { content: '\2630'; font-size: 22px; line-height: 1; }
+  .mini-tools .mini-tools-label { display: none; }
 }
 
 

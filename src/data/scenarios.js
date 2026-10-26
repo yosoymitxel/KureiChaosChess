@@ -209,7 +209,7 @@ function crossing({ b, pieces, runner, guards, rng, rival, rounds: limit, goal, 
         : goal(runner) && !left.size ? { victory: true, note }
         : rounds(m) >= limit ? { victory: false, note: 'Se acabaron las rondas.' } : null;
     },
-    labels: () => new Map([...left].map((k) => [k, '⚗'])),
+    labels: () => new Map([...left].map((k) => [k, 'icon:flask'])),
     status: (m) => `Quedan ${limit - rounds(m)} rondas · ${side(m, 'dark').length} guardias${all.length ? ` · muestras ${all.length - left.size}/${all.length}` : ''}`,
   };
 }
@@ -246,7 +246,7 @@ Object.assign(SCENARIOS, {
       [[ps[0], ps[1]], [ps[2], ps[3]]].forEach(([a, z]) => { b.portals.set(a, z); b.portals.set(z, a); });
       b.holes.delete(key(...exit));
       const game = crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === exit[0] && p.col === exit[1], note: 'El contrabando cruzó.' });
-      return { ...game, labels: () => new Map([[key(...exit), '⚑']]) };
+      return { ...game, labels: () => new Map([[key(...exit), 'icon:flag']]) };
     }),
   },
   laboratory: {
@@ -298,7 +298,7 @@ Object.assign(SCENARIOS, {
             left.delete(key(knight.row, knight.col));
             return !left.size ? { victory: true, note: 'Ruta completa.' } : !m.canMove() ? { victory: false, note: 'El caballo se quedó sin saltos.' } : null;
           },
-          labels: () => new Map([...left].map((k) => [k, '◎'])),
+          labels: () => new Map([...left].map((k) => [k, 'icon:target'])),
           status: () => `Faltan ${left.size} casillas`,
         };
       }
@@ -331,15 +331,35 @@ Object.assign(SCENARIOS, {
     id: 'collapsingFloor',
     goal: 'Cruza con el caballo hasta la fila de arriba. Cada casilla que dejas se hunde y los guardias te cortan el paso.',
     levels: {
-      facil: { guards: ['pawn', 'pawn', 'pawn', 'knight'], holes: 6, rounds: 10, rival: 'oficial' },
-      normal: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'bishop'], holes: 9, rounds: 9, rival: 'maestro' },
-      dificil: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop', 'rook'], holes: 12, rounds: 8, rival: 'maestro' },
+      facil: { guards: ['pawn', 'pawn', 'pawn', 'knight'], holes: 6, rounds: 10, fall: 1, rival: 'oficial' },
+      normal: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'bishop'], holes: 9, rounds: 9, fall: 2, rival: 'maestro' },
+      dificil: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop', 'rook'], holes: 12, rounds: 8, fall: 3, rival: 'maestro' },
     },
     setup: (lv, rng) => passable(lv, () => {
       const b = board(), runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
       b.sinking = 'light';
       rubble(rng, b, pieces, lv.holes);
-      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Llegaste antes de que se acabara el suelo.' });
+      const game = crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Llegaste antes de que se acabara el suelo.' });
+      // Además, al empezar cada ronda tuya se hunden `fall` casillas por delante del caballo, una justo
+      // en su camino (la fila de arriba): obliga a saltar el hueco. Nunca la que deja la meta sin salida.
+      let last = -1;
+      game.tick = (m) => {
+        const now = rounds(m);
+        if (m.player.color !== 'light' || now === last || now === 0) return null;
+        last = now;
+        const r0 = runner.row, free = (r, c) => r >= 1 && r < N && c >= 0 && c < N && !b.holes.has(key(r, c)) && !m.pieces.some((p) => p.row === r && p.col === c);
+        const ahead = [], near = [];
+        for (let c = 0; c < N; c++) { if (free(r0 - 1, c) && Math.abs(c - runner.col) <= 1) ahead.push([r0 - 1, c]); for (const r of [r0 - 2, r0 - 3]) if (free(r, c)) near.push([r, c]); }
+        const sunk = [];
+        for (const [r, c] of [...shuffle(rng, ahead).slice(0, 1), ...shuffle(rng, near)]) {
+          if (sunk.length >= lv.fall) break;
+          b.holes.add(key(r, c));
+          if (routeLen(b, runner, (p) => p.row === 0) === Infinity) b.holes.delete(key(r, c));
+          else sunk.push([r, c]);
+        }
+        return sunk.length ? { sunk } : null;
+      };
+      return game;
     }),
   },
 });
@@ -486,7 +506,7 @@ Object.assign(SCENARIOS, {
           m.pieces.push(foe);
           return { spawned: [foe] };
         },
-        labels: (m) => new Map([...[...coins].map((k) => [k, '●']), ...(clock.k ? [[clock.k, Math.max(0, clock.until - (m.players ? rounds(m) : 0))]] : [])]),
+        labels: (m) => new Map([...[...coins].map((k) => [k, 'icon:coin']), ...(clock.k ? [[clock.k, Math.max(0, clock.until - (m.players ? rounds(m) : 0))]] : [])]),
         status: (m) => `Monedas ${got}/${lv.coins} · reloj ${Math.max(0, clock.until - rounds(m))}`,
       };
     },
