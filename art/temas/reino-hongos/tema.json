@@ -8,9 +8,9 @@
     "tile-a": "#c5d99a",
     "tile-b": "#52744b",
     "tile-side": "#2e4838",
-    "side-light": "#f2e8bd",
-    "side-dark": "#bd83e8",
-    "side-wild": "#8ee6c0"
+    "side-light": "#ff6b5a",
+    "side-dark": "#7d47c2",
+    "side-wild": "#3bb3d6"
   },
   "interfaz": {
     "paper": "#f2edda",
@@ -25,25 +25,25 @@
   },
   "bandos": {
     "claro": [
-      "#f7efce",
-      "#e2d59d",
-      "#c1b878",
-      "#8d9c5c",
-      "#526b45"
+      "#ffb3a8",
+      "#ff6b5a",
+      "#e0352b",
+      "#a21f22",
+      "#5e1014"
     ],
     "oscuro": [
-      "#ead1ff",
-      "#c79aee",
-      "#a36fd1",
-      "#75469c",
-      "#4b2c70"
+      "#e3c2ff",
+      "#b07ae8",
+      "#7d47c2",
+      "#4f2a85",
+      "#2a1550"
     ],
     "salvaje": [
-      "#d0ffe8",
-      "#9ce8c3",
-      "#66c59a",
-      "#388a6b",
-      "#235b4a"
+      "#c8f6ff",
+      "#7fe0f2",
+      "#3bb3d6",
+      "#1f7698",
+      "#0f3f57"
     ]
   }
 }
