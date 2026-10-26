@@ -420,7 +420,7 @@ Object.assign(SCENARIOS, {
     levels: {
       facil: { need: 5, rounds: 16, rival: 'aprendiz' },
       normal: { need: 7, rounds: 14, rival: 'oficial' },
-      dificil: { need: 9, rounds: 12, rival: 'maestro' },
+      dificil: { need: 8, rounds: 14, rival: 'maestro' },
     },
     setup(lv, rng) {
       const seed = Math.floor(rng() * 1e9), b = generateBoard(seed, 4, 10, 'contagion');
