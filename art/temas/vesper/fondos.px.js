@@ -34,7 +34,7 @@ for(let y=0;y<32;y+=8){
 }
 sprite("table",{w:32,h:32},rect(0,0,32,32,"d"),...planks,
  ...[2,10,18,26].flatMap(x=>[vline(x,0,31,"T"),px(x,4,"c"),px(x+1,12,"c"),px(x-1,20,"t"),px(x,28,"c")]),
- ...[[6,5],[22,21]].flatMap(([x,y])=>[ellipse(x,y,2,2,"p"),px(x-1,y,"r"),px(x+1,y,"r")])
+ ...[[6,5],[22,21]].flatMap(([x,y])=>[ellipse(x,y,1,1,"R"),px(x,y,"r")])
 );
 const H="#ffffff55",L="#00000055";
 const frame=(name,col)=>sprite(name,{w:12,h:12},

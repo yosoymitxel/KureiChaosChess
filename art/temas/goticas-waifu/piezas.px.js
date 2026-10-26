@@ -1,102 +1,447 @@
-// Góticas Waifu: siluetas femeninas alternativas, legibles en tamaño de ficha.
-// Ropa y accesorios principales usan la rampa del bando para recolorear los tres ejércitos.
+// Muñeca Vampírica: cada pieza es un juguete gótico distinto. Dibujado como cuadrículas: muñecas chibi de porcelana con
+// ojos rojos y colmillos. La ropa va en a–e (bandos.claro de tema.json); piel y pelo no cambian.
 pal({
-  k:"#17121c", w:"#f5e6ef", W:"#dfbfd4", s:"#bd8aaf", z:"#8c5b84", b:"#583751", S:"#95687f",
-  r:"#a52b50", R:"#5e1934", p:"#8d67bd", P:"#513c79",
-  Z:"#78617e", e:"#e9d4a6", E:"#9d7b4b",
-  B:"#261d2c", c:"#8ed1c1", C:"#3f8070",
-  h:"#e8b9b4", i:"#e33f68", v:"#aeb9ca"
+  a:"#fff4f8",b:"#f7d3e2",c:"#e3a2c0",d:"#b26d92",e:"#6e3a57",
+  k:"#140e18",s:"#fbeee8",S:"#e2c0bf",p:"#f2a3b4",w:"#ffffff",W:"#e8dde6",
+  r:"#e0283f",R:"#8a0f24",h:"#2b2030",H:"#140e18",j:"#5a4466",
+  q:"#f0e8f2",Q:"#bfb2c6",u:"#ffffff",v:"#8a55c2",V:"#4f2c7d",
+  z:"#e3bd6c",Z:"#94702e",m:"#9aa3b5",M:"#5c6578",n:"#7a5440",N:"#4a3226",
+  g:"#3a2f40",G:"#241c2a"
 });
-ramps("wWsz", "kRr");
-const piece=(name,opts,...items)=>{sprite("_"+name,opts,...items);sprite(name,{base:"_"+name,outline:"k"});};
+ramps("edcba","Ss","Rr","Zz","Mm","Nn","Gg","Vv");
+const piece=(n,grid)=>sprite(n,{outline:"k"},grid);
 
-// Peón: chica gótica con flequillo, gargantilla y vestido acampanado.
-piece("pawn",{w:22,h:28,mx:true},
-  ellipse(11,8,5,5,"h"),rect(6,5,10,4,"B"),px(6,8,"k"),px(15,8,"k"),
-  poly([5,12,17,12,21,26,1,26],"b"),poly([8,13,14,13,16,25,6,25],"r"),
-  hline(8,14,6,"w"),px(11,17,"e"),px(11,18,"E"),px(9,12,"p"),px(13,12,"p"),
-  hline(2,26,18,"k"),px(8,10,"i"),px(14,10,"i")
-);
-// Torre: waifu de pelo largo, botas y corsé estructurado.
-piece("rook",{w:26,h:31,mx:true},
-  poly([5,4,9,1,18,2,22,7,20,19,24,27,3,27,7,18],"B"),
-  ellipse(13,8,5,6,"h"),rect(7,4,12,4,"k"),rect(7,8,3,8,"B"),rect(17,8,3,9,"B"),
-  poly([7,13,19,13,23,26,3,26],"b"),poly([10,14,16,14,18,24,8,24],"r"),
-  vline(13,15,8,"w"),hline(10,17,6,"k"),px(13,19,"e"),px(13,20,"E"),
-  rect(3,26,7,4,"B"),rect(16,26,7,4,"B"),hline(2,30,9,"k"),hline(15,30,9,"k")
-);
-// Caballo: chica punk con coleta lateral, cadena y botas gruesas.
-piece("knight",{w:30,h:31},
-  poly([7,5,11,1,18,2,22,7,20,14,25,18,22,22,17,15,13,12],"B"),
-  line(8,7,2,15,"p",3),ellipse(14,8,5,6,"h"),rect(9,4,10,4,"k"),
-  px(12,9,"i"),px(17,9,"i"),hline(12,12,5,"r"),
-  poly([8,14,19,14,22,25,5,25],"b"),poly([11,15,16,15,17,23,9,23],"r"),
-  line(9,16,18,20,"e",1),px(13,18,"e"),rect(5,24,8,5,"B"),rect(17,24,8,5,"B"),
-  hline(4,29,10,"k"),hline(16,29,10,"k"),px(19,17,"p")
-);
-// Alfil: lolita gótica, lazo alto y mangas con encaje.
-piece("bishop",{w:25,h:32},
-  poly([5,8,7,2,12,5,17,1,21,8,18,13,7,13],"B"),
-  rect(8,7,9,8,"h"),rect(9,9,2,2,"k"),rect(14,9,2,2,"k"),hline(10,12,5,"r"),
-  poly([5,14,19,14,23,30,2,30],"b"),poly([9,15,15,15,17,29,7,29],"w"),
-  ...[18,21,24,27].map(y=>hline(7,y,10,"p")),px(12,17,"r"),px(12,18,"R"),
-  poly([6,5,2,2,1,7,7,9],"r"),poly([17,5,22,2,23,7,17,9],"r"),
-  hline(2,30,21,"k")
-);
-// Reina: vampira de pelo negro, corona y capa carmesí.
-piece("queen",{w:28,h:34,mx:true},
-  poly([3,8,1,18,5,29,23,29,27,18,25,8,21,14,18,6,14,13,10,5,7,14],"B"),
-  poly([7,8,10,3,13,7,16,1,19,7,22,3,23,9],"e"),rect(7,8,14,3,"E"),
-  ellipse(14,11,5,5,"h"),rect(8,7,12,4,"k"),px(11,11,"i"),px(17,11,"i"),hline(12,14,5,"r"),
-  poly([5,16,23,16,27,31,1,31],"r"),poly([9,17,19,17,17,30,11,30],"b"),
-  vline(14,18,11,"w"),px(14,20,"e"),px(14,21,"E"),hline(1,31,26,"k")
-);
-// Rey: figura principal de silueta alta, sombrero de bruja y bastón.
-piece("king",{w:29,h:35,mx:true},
-  poly([3,9,11,5,25,8,19,11,23,13,7,13],"B"),line(13,4,18,0,"p",2),
-  ellipse(14,12,5,5,"h"),rect(9,8,10,4,"k"),px(11,12,"i"),px(17,12,"i"),
-  poly([4,17,23,17,27,32,1,32],"b"),poly([10,18,18,18,20,31,8,31],"r"),
-  vline(14,19,11,"w"),px(14,22,"e"),px(14,23,"E"),
-  rect(24,13,2,19,"Z"),circ(25,12,2,"p"),px(25,12,"e"),hline(1,32,26,"k")
-);
-// Guardia: punk con chaqueta corta, falda y cadenas.
-piece("guard",{w:27,h:30},
-  poly([6,4,10,1,18,2,21,7,18,13,8,13],"B"),ellipse(13,8,5,5,"h"),
-  rect(8,5,11,4,"k"),px(11,9,"i"),px(16,9,"i"),
-  rect(6,13,14,7,"b"),hline(8,15,10,"r"),line(8,16,18,19,"e",1),
-  poly([7,19,20,19,23,25,4,25],"r"),hline(7,21,13,"k"),
-  rect(5,25,7,4,"B"),rect(16,25,7,4,"B"),hline(4,29,9,"k"),hline(15,29,9,"k")
-);
-piece("advisor",{w:24,h:29,mx:true},
-  poly([5,5,8,1,17,2,20,7,17,15,7,15],"B"),ellipse(12,9,5,5,"h"),
-  rect(7,5,10,4,"k"),px(9,10,"i"),px(15,10,"i"),
-  poly([4,15,20,15,22,27,2,27],"b"),poly([9,16,15,16,16,26,8,26],"w"),
-  px(12,18,"r"),px(12,19,"R"),hline(2,27,20,"k")
-);
-piece("elephant",{w:31,h:28},
-  poly([4,7,7,2,13,5,19,2,25,7,22,15,9,15],"B"),ellipse(15,10,5,5,"h"),
-  poly([6,15,24,15,28,24,3,24],"b"),poly([11,16,19,16,20,23,10,23],"r"),
-  vline(15,17,6,"w"),rect(4,23,8,4,"B"),rect(19,23,8,4,"B"),hline(3,27,10,"k"),hline(18,27,10,"k")
-);
-piece("camel",{w:30,h:29},
-  poly([5,5,8,1,17,2,22,7,20,13,25,17,22,22,17,14,10,13],"B"),
-  ellipse(13,8,5,5,"h"),rect(8,4,11,4,"k"),px(11,9,"i"),px(16,9,"i"),
-  poly([6,14,21,14,24,24,3,24],"b"),line(8,16,19,21,"e",1),
-  rect(5,24,7,4,"B"),rect(17,24,7,4,"B"),hline(4,28,9,"k"),hline(16,28,9,"k")
-);
-piece("cannon",{w:29,h:27,mx:true},
-  poly([5,5,9,1,18,2,22,7,19,14,10,14],"B"),ellipse(14,8,5,5,"h"),
-  rect(9,4,11,4,"k"),px(11,9,"i"),px(17,9,"i"),
-  poly([5,14,23,14,25,23,3,23],"r"),poly([10,15,18,15,17,22,11,22],"b"),
-  circ(7,24,3,"v"),circ(22,24,3,"v"),hline(2,27,24,"k")
-);
-sprite("tile-a",{w:16,h:16},rect(0,0,16,16,"#c8bdc9"),hline(0,7,16,"#b2a4b5"),vline(7,0,7,"#b2a4b5"),px(3,3,"#eadfea"));
-sprite("tile-a2",{w:16,h:16},rect(0,0,16,16,"#c8bdc9"),hline(0,7,16,"#b2a4b5"),vline(7,0,7,"#b2a4b5"),px(11,11,"#8d67bd"));
-sprite("tile-a3",{w:16,h:16},rect(0,0,16,16,"#c8bdc9"),hline(0,7,16,"#b2a4b5"),vline(7,0,7,"#b2a4b5"),px(3,12,"#8d67bd"));
-sprite("tile-b",{w:16,h:16},rect(0,0,16,16,"#514454"),hline(0,7,16,"#302638"),vline(7,0,7,"#302638"),px(11,11,"#78617e"));
-sprite("tile-b2",{w:16,h:16},rect(0,0,16,16,"#514454"),hline(0,7,16,"#302638"),vline(7,0,7,"#302638"),px(3,3,"#8d67bd"));
-sprite("tile-b3",{w:16,h:16},rect(0,0,16,16,"#514454"),hline(0,7,16,"#302638"),vline(7,0,7,"#302638"),px(3,12,"#8d67bd"));
-sprite("table",{w:32,h:32},rect(0,0,32,32,"#100d16"),hline(0,15,32,"#1b1422"),vline(15,0,32,"#1b1422"),...[[4,5],[22,7],[8,25],[27,22],[16,17]].map(([x,y])=>px(x,y,"#302638")));
-sprite("panel",{w:12,h:12},rect(0,0,4,4,"#514454"),rect(8,0,4,4,"#514454"),rect(0,8,4,4,"#514454"),rect(8,8,4,4,"#514454"),hline(4,0,4,"#8d67bd"),hline(4,11,4,"#8d67bd"),vline(0,4,4,"#8d67bd"),vline(11,4,4,"#8d67bd"));
-sprite("boton",{w:12,h:12},rect(0,0,12,2,"#8d67bd"),rect(0,2,2,8,"#8d67bd"),rect(10,2,2,8,"#8d67bd"),rect(0,10,12,2,"#513c79"));
-sheet("goticas-waifu",["pawn","rook","knight","bishop","queen","king","guard","advisor","elephant","camel","cannon"],{pad:2});
+// Peón: muñequita de lazo grande.
+piece("pawn",`
+.....c.cc...cc.c
+....c.c..ddd..c.c
+.....chcchhhcchc
+.....hhhhhhhhhhh
+....hhhhhhhhhhhhh
+...hhhhhhhhhhhhhhh
+...hShhhhhjhhhhhSh
+...hsshhssssshhssh
+...hsskkkssskkkssh
+...SsskwrsssrwkssS
+...SsskrrsssrrkssS
+...SspssssssssspsS
+...HSsssskkkssssSH
+...HSsssswswssssSH
+...HhSsssssssssShH
+...HhhSsssssssShhH
+...HhhhhRrrrRhhhhH
+......sdcbwbcds
+......sdcbwbcds
+.....s.dcbbbcd.s
+.....sdcbbbbbcds
+.....scbbbbbbbcs
+....dcbcbbcbbcbcd
+...dcbbcbbcbbcbbcd
+..dccbbcbbcbbcbbccd
+.wWwWwWwWwWwWwWwWwWw
+.......ww...ww
+.......kk...kk
+.......ww...ww
+......kkkk.kkkk
+`);
+
+// Torre: muñeca dentro de su caja de juguete.
+piece("rook",`
+ddcaaaaaaaaaaaaaaaaaaaaacdd
+ddczbzbzbbbbbbbbbbbzbzbzcdd
+ddcbbbbbbbbbrrrbbbbbbbbbcdd
+ddcbbbbbbbbrRbRrbbbbbbbbcdd
+ddczbzbzbbbbbbbbbbbzbzbzcdd
+ddcdddddddddddddddddddddcdd
+ddcGGGGGGGGGGGGGGGGGGGGGcdd
+ddcwGGGGGzzzzzzzzzGGGGGwcdd
+ddcGGGGGzzzzzzzzzzzGGGGGcdd
+ddcGGGGzzzzzzzzzzzzzGGGGcdd
+ddcGGGzzzzzzzzzzzzzzzGGGcdd
+ddcGGGzSzzzzzazzzzzSzGGGcdd
+ddcwGGzsszzssssszzsszGGwcdd
+ddcGGGzsskkkssskkksszGGGcdd
+ddcGGGSsskwrsssrwkssSGGGcdd
+ddcGGGSsskrrsssrrkssSGGGcdd
+ddcGGGSspssssssssspsSGGGcdd
+ddcwGGZSsssskkkssssSZGGwcdd
+ddcGGGZSsssswswssssSZGGGcdd
+ddcGGGZzSsssssssssSzZGGGcdd
+ddcGGGZzzSsssssssSzzZGGGcdd
+ddcGGGZzzzzRrrrRzzzzZGGGcdd
+ddcwGGGGGsdcbwbcdsGGGGGwcdd
+ddcGGGGGGsdcbwbcdsGGGGGGcdd
+ddcGGGGGsGdcbbbcdGsGGGGGcdd
+ddcGGGGGsdcbbbbbcdsGGGGGcdd
+ddcGGGGGscbbbbbbbcsGGGGGcdd
+ddcwGGGdcbcbbcbbcbcdGGGwcdd
+ddcGGGdcbbcbbcbbcbbcdGGGcdd
+ddcGGdccbbcbbcbbcbbccdGGcdd
+ddcGwWwWwWwWwWwWwWwWwWwGcdd
+ddcGGGGGGGwwGGGwwGGGGGGGcdd
+ddcwGGGGGGkkGGGkkGGGGGGwcdd
+ddcGGGGGGGwwGGGwwGGGGGGGcdd
+ddcGGGGGGkkkkGkkkkGGGGGGcdd
+ccccccccccccccccccccccccccc
+ddddddddddddddddddddddddddd
+ddddddddddddddddddddddddddd
+`);
+
+// Caballo: muñeca montada en un caballito balancín.
+piece("knight",`
+.............vvvvvvvvv
+............vvvvvvvvvvv
+...........vvvvvvvvvvvvv
+..........vvvvvvvvvvvvvvv
+..........vSvvvvvvvvvvvSv
+..........vssvvsssssvvssv
+..........vsskkkssskkkssv
+..........SsskwrsssrwkssS
+.....d.h..SsskrrsssrrkssS
+..dddddh..SspssssssssspsS
+.ddkccdh..VSsssskkkssssSV
+dddcccch..VSsssswswssssSV
+dcddccdh..VvSsssssssssSvV
+ddddddd.h.VvvSsssssssSvvV
+..ccccc.h.VvvvvRrrrRvvvvV
+...ccccch....sdcbwbcds
+...ccccch....sdcbwbcds
+...ccccch...s.dcbbbcd.s
+....cccch...sdcbbbbbcds
+....cccch..dscbbbbbbbcs
+....cccccdddcbcbbcbbcbcddhh
+.....ccccddcbbcbbcbbcbbcdhhh
+.....ccccWwWwzwWwWwWwzwWwWhhhh
+.......dddcccccccccccccddd.hhhh
+......nnddddcccccccccdddd...hhhh
+......nnn..dddddddddddnnn.....hhh
+......nn..............nn.......hh
+.....nnn.............nnn
+.....nnn....ZZZZZZZZZnnn
+.....nnZZZZZNNNNNNNNNnnZZZZ
+....ZZZNNNNN..........NNNNNZZZ
+..ZZNNN....................NNNZZ
+..NN..........................NN
+`);
+
+// Alfil: muñeca de bonete alto con rosario.
+piece("bishop",`
+.........dcbcd
+........dcbbbcd
+.......dcbbbbbcd
+.......dcbbbbbcd
+......dcbbbbbbbcd
+.....dcbbbbbbbbbcd
+...dcbbbbbbbbbbbbbcd
+...WwWwWwWwWwWwWwWwW
+...dcbqqqqqqqqqqqbcd
+...dcqqqqqqqqqqqqqcd
+...dqqqqqqqqqqqqqqqd
+...dqSsssssssssssSqd
+....qsssssssssssssq
+....qsskkkssskkkssq
+....SsskwrsssrwkssS
+....SsskrrsssrrkssS
+....SspssssssssspsS
+....QSsssskkkssssSQ
+....QSsssswswssssSQ
+....QqSsssssssssSqQ
+...ccqqSsssssssSqqcc
+...d.....RrrrR.....d
+.......sdcbwbcds
+.......sdcbzbcds
+......s.dczzzcd.s
+......sdcbbzbbcds
+......scbbbbbbbcs
+.....dcbcbbcbbcbcd
+....dcbbcbbcbbcbbcd
+...dccbbcbbcbbcbbccd
+.dcbbcbbcbbcbbcbbcbbcd
+dccbbcbbcbbcbbcbbcbbccd
+cbcbbcbbcbbcbbcbbcbbcbc
+wWwWwWwWwWwWwWwWwWwWwWw
+........kk...kk
+........ww...ww
+........kk...kk
+.......kkkk.kkkk
+`);
+
+// Reina: muñeca de tirabuzones con parasol de encaje y tiara.
+piece("queen",`
+...............dbbbbbbbd
+.............dbbbbbbbbbbbd
+............dbbbbbbbbbbbbbd
+..........dbbbbbbbbbbbbbbbbbd
+.........dbbbbbbbbbbbbbbbbbbb
+.......dbbbbbbbbbbbbbbbbbbbbb
+.....WwWwWwWwWwWwWwGwWwWwWwWw
+............z......G
+........zzzrzrzzz..G
+.......zzzzzzzzzzz.G
+......zzzzzzzzzzzzzG
+.....zzzzzzzzzzzzzzz
+...ZzzSzzzzzazzzzzSzzZ
+...ZzzsszzssssszzsszzZ
+...ZzzsskkkssskkksszzZ
+..Zz.SsskwrsssrwkssS.zZ
+..Zz.SsskrrsssrrkssS.zZ
+..Zz.SspssssssssspsS.zZ
+..Zz.ZSsssskkkssssSZ.zZ
+..Zz.ZSsssswswssssSZ.zZ
+.Zz..ZzSsssssssssSzZ..zZ
+.Zz..ZzzSsssssssSzzZ..zZ
+.Zz..ZzzzzRrrrRzzzzZ..zZ
+.Zz..ZzzsdcbwbcdszzZ..zZ
+.Zz..ZzzsdcbwbcdszzZ..zZ
+.....ZzszdcbbbcdzszZ
+.....ZzsdcbbbbbcdszZ
+.....ZzscbbbbbbbcszZ
+......dcbcbbcbbcbcd
+.....dcbbcbbcbbcbbcd
+....dccbbcbbcbbcbbccd
+..dcbbcbbcbbcbbcbbcbbcd
+.dccbbcbbcbbcbbcbbcbbccd
+dcbcbbcbbcbbcbbcbbcbbcbcd
+WwWwWwWwWwWwWwWwWwWwWwWwWw
+.........kk...kk
+.........ww...ww
+.........kk...kk
+`);
+
+// Rey: bailarina coronada sobre una caja de música.
+piece("king",`
+.............z
+.........z.z.z.z.z
+.........z.z.z.z.z
+.........rzzzrzzzr
+........hhhhhhhhhhh
+.......hhhhhhhhhhhhh
+......hhhhhhhhhhhhhhh
+......hShhhhhjhhhhhSh
+......hsshhssssshhssh
+......hsskkkssskkkssh
+......SsskwrsssrwkssS
+......SsskrrsssrrkssS
+......SspssssssssspsS
+......HSsssskkkssssSH
+......HSsssswswssssSH
+........SsssssssssS
+.........SsssssssS
+.....s.....RrrrR.....s
+......s..sdcbwbcds..s
+......s..sdcbwbcds..s
+.......ss.dcbbbcd.ss
+.....WwswWwWwWwWwWwswW
+........scbbbbbbbcs
+.......dcbcbbcbbcbcd
+......dcbbcbbcbbcbbcd
+.....WwWwWwWwWwWwWwWwW
+..........kk...kk
+..........ww...ww
+.zzzzzzzzkkkkzkkkkzzzzzzzz
+.dcbbbbbbbbbbbbbbbbbbbbbcd
+.dcbbbbbbbbbbbbbbbbbbbbbcd
+.dcbbbbbbbbbbbbbbbbbbbbbcdZ
+.dcbzbbzbbzbbzbbzbbzbbzbcZZ
+.dcbbbbbbbbbbbbbbbbbbbbbcZ
+.dcbbbbbbbbbbbbbbbbbbbbbcd
+.dcbbbbbbbbbbbbbbbbbbbbbcd
+.dcbbbbbbbbbbbbbbbbbbbbbcd
+.zzzzzzzzzzzzzzzzzzzzzzzzz
+`);
+
+// Guardia: soldadito de juguete con chacó y fusil.
+piece("guard",`
+......dcccrrrcccd
+...w..dcccczccccd
+...m..dcccccccccd
+...m..dcccccccccd
+...N..dcccccccccd
+...N..dcccccccccd
+...N..dcccccccccd
+...N..dcccccccccd
+...N..dWWWWWWWWWd
+...N..WWWWWWWWWWW
+...N.WWWWWWWWWWWWW
+...NWWWWWWWWWWWWWWW
+...NWSsssssssssssSW
+...NWsssssssssssssW
+...NWsskkkssskkkssW
+...NSsskwrsssrwkssS
+...NSsskrrsssrrkssS
+...NSspssssssssspsS
+...NQSsssskkkssssSQ
+...NQSsssswswssssSQ
+...N..SsssssssssS
+...N...SsssssssS
+...N.....RrrrR
+...N...swcbwbcds
+...N...sdwbwbcds
+...N..s.dcwbbcd.s
+...N..sdcbbwbbcds
+...N..scbbbbwbbcs
+...N.dcbcbbcbwcbcd
+...Ndcbbcbbcbbwbbcd
+...NwWwWwWwWwWwWwWwW
+...N....kk...kk
+...N....ww...ww
+...N....kk...kk
+...N....ww...ww
+...N....kk...kk
+...N...kkkk.kkkk
+...N
+`);
+
+// Consejero: muñeca de coletas lila con su gato negro.
+piece("advisor",`
+......b.bb...bb.b
+.....b.b..ccc..b.b
+......bvbbvvvbbvb
+......vvvvvvvvvvv
+.....vvvvvvvvvvvvv
+....vvvvvvvvvvvvvvv
+..VvvSvvvvvvvvvvvSvvV
+..VvvssvvsssssvvssvvV
+..VvvsskkkssskkkssvvV
+.Vv.SsskwrsssrwkssS.vV
+.Vv.SsskrrsssrrkssS.vV
+.Vv.SspssssssssspsS.vV
+.Vv.VSsssskkkssssSV.vV
+.Vv.VSsssswswssssSV.vV
+Vv..VvSsssssssssSvV..vV
+Vv..VvvSsssssssSvvV..vV
+Vv..VvvvvRrrrRvvvvV..vV
+Vv..VvvsdcbwbcdsvvV..vV
+Vv..VvvsdcbwbcdsvvV..vV
+......s.dcbbbcd.s
+......sdcbbbbbcds.g.....g
+......scbbbbbbbcs..g.G.g
+.....dcbcbbcbbcbcd.GGGGG
+....dcbbcbbcbbcbbcGGgggGG
+...dccbbcbbcbbcbbcGgzgzgG
+.dcbbcbbcbbcbbcbbcGGgggGG
+wWwWwWwWwWwWwWwWwWwGGpGG
+........kk...kk....GGGGG..G
+........ww...ww...GgggggG.G
+........kk...kk...GgggggG.G
+.......kkkk.kkkk.GGgggggGG
+..................GgggggGG
+..................GgggggG
+...................GGGGG
+.....................G
+`);
+
+// Elefante: carrito de bebé gótico con la muñeca asomando.
+piece("elephant",`
+................zzzzzzzzz
+...............zzzzzzzzzzz
+..............zzzzzzzzzzzzz
+....d........zzzzzzzzzzzzzzz
+....cbbcbd...zSzzzzzazzzzzSz
+....cbbcbbd..zsszzssssszzssz
+....cbbcbbcbdzsskkkssskkkssz
+....cbbcbbcbdSsskwrsssrwkssS........GG
+....cbbcbbcbbdsskrrsssrrkssS........GG
+....cbbcbbcbbcdpssssssssspsS........G
+....cbbcbbcbbcdsssskkkssssSZ........G
+....cbbcbbcbbcbdssswswssssSZ.......G
+....cbbcbbcbbcbdsssssssssSzZ.......G
+....cbbcbbcbbcbdSsssssssSzzZ......GG
+...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaG
+...dwbwbwbwbwbwbwbwbwbwbwbwbwbwbwbd
+...dbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbd
+...dbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbd
+...dbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbd
+...dbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbd
+...dbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbd
+...dbbbbbGbbbbbbbbbbbbbbbbbbGbbbbbd
+...ddddGGGMGddddddddddddddGGGMGdddd
+......GMMmMGG............GMMmMGG
+......GmMMmmG............GmMMmmG
+.....GMMMMMMMG..........GMMMMMMMG
+......GmMMMmG............GmMMMmG
+......GGMmMGG............GGMmMGG
+.......GMGGM..............GMGGM
+`);
+
+// Camello: osito cosido con un ojo de botón.
+piece("camel",`
+.........d.............d
+.......ddddd.........ddddd
+.......dpppd....d....dpppd
+......ddpppdddddddddddpppdd
+.......dppkddbbbbbbcddpppd
+.......ddkddbbbbbccccddddd
+.........dbbbbbbcccccccd
+........ddbbbbcccccccccdd
+........dbbkkccccccZZZccd
+........dbbkkccccccZkZccd
+.......ddbcccccccccZZZccdd
+........dcccccccccccccccd
+........dcccccckkkccccccd
+........ddcccccbbbcccccdd
+.........dcccccbkbcccccd
+.........ddcccccccccccdd
+.....d.....drcccccccrd.....d
+....ddd.....drrrrrrrd.....ddd
+...ddbdd....rdddddddr....ddbdd
+...dbccd..ddbbbkbkbccdd..dbccd
+...dcccd.ddbbbbbdbccccdd.dcccd
+..ddcccdddbbbbbkckcccccdddcccdd
+...dcccddbbbbcccdcccccccddcccd
+...dcccdbbbbccakakbccccccdcccd
+...ddcddbbbccaaadbbbcccccddcdd
+....ddddbbccaaakbkbbbccccdddd
+.....dddbcccabbbdbbbbccccddd
+.......dccccbbbkbkbbbccccd
+.......dccccbbbbdbbbbccccd
+.......dccccbbbkbkbbbccccd
+........ddcccbbbdbbbcccdd
+.......dddddccbkbkbccddddd
+......dbccccdcccccccdbccccd
+.....ddcccccddcccccddcccccdd
+......dcccccdddddddddcccccd
+.......ddddd....d....ddddd
+`);
+
+// Cañón: caja sorpresa con una muñeca en el muelle.
+piece("cannon",`
+.....c.c.WWWWWWWWW.c.c
+....c...WWWWWWWWWWW...c
+...z...WWWWWWWWWWWWW...z
+......WWWWWWWWWWWWWWW
+......WSWWWWWwWWWWWSW
+......WssWWsssssWWssW
+......WsskkkssskkkssW
+......SsskwrsssrwkssS
+......SsskrrsssrrkssS
+......SspssssssssspsS
+......QSsssskkkssssSQ
+.......SsssswswssssS
+........SsssssssssS
+.........SsssssssS
+...........RrrrR
+..........dcbwbcd
+..........dcbwbcd
+..........dcbbbcd
+.........WwWwWwWwW
+.............M.m
+...........m.M
+....dddd.....M.m...dddd
+........dddm.M.dddd
+............dMdm
+....zzzzzzzzzzzzzzzzzzz
+....dcbbbbbbbbbbbbbbbcd.....z
+....dcbbbbbbbbbbbbbbbcd.....M
+....dcbbrbbbbbbbbbrbbcd.....M
+....dcbbbbbbbbbbbbbbbcd.....M
+....dcbbbbbbbbbbbbbbbcd.....M
+....dcbbbbbbbrbbbbbbbcdMMMMMM
+....dcbbbbbbbbbbbbbbbcd
+....dcbbbbbbbbbbbbbbbcd
+....dcbbbbbbbbbbbbbbbcd
+....dcbbrbbbbbbbbbrbbcd
+....dcbbbbbbbbbbbbbbbcd
+....dcbbbbbbbbbbbbbbbcd
+....zzzzzzzzzzzzzzzzzzz
+`);
