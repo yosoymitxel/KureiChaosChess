@@ -728,7 +728,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .zn-tool-ic { display: grid; place-items: center; width: 54px; height: 54px; border: 2px solid var(--ink); border-radius: 50%; background: var(--paper); background-image: var(--grain); color: var(--ink); box-shadow: 0 4px 0 color-mix(in oklch, var(--ink), transparent 40%); transition: translate 0.18s var(--ease-out); }
 .zn-tool:hover .zn-tool-ic { translate: 0 -2px; }
 .zn-art-ic svg { width: 58%; height: 58%; overflow: visible; }
-.zn-art-ic .zn-standart { position: static; }
+:is(.zn-art-ic, .zn-item) .zn-standart { position: static; }
 .zn-tool.on { color: var(--paper); }
 .zn-tool.on .zn-tool-ic { background: var(--brass); translate: 0 -3px; }
 .zn-packet:focus-visible, .zn-tool:focus-visible { outline: 3px solid var(--brass); outline-offset: 3px; }

@@ -15,7 +15,7 @@ export const SEEDS = {
 export const GARDEN_ITEMS = {
   shovel: { id: 'shovel', name: 'Pala de acero', price: 60, desc: 'Cava sin esperar a que la pala descanse y parte piedras de un golpe.' },
   can: { id: 'can', name: 'Regadera grande', price: 50, desc: 'Al regar, moja también los tiestos de al lado.' },
-  lantern: { id: 'lantern', name: 'Farol', price: 45, stack: true, desc: 'Va en un tiesto vacío: lo que crece a su lado abre la mitad de rápido otra vez.' },
+  lantern: { id: 'lantern', name: 'Farol', price: 45, stack: true, desc: 'Va en un tiesto vacío: lo que crece a su lado va un 50 % más rápido.' },
   pot: { id: 'pot', name: 'Maceta', price: 25, stack: true, desc: 'Un tiesto listo sobre tierra sin cavar o sobre una piedra.' },
 };
 
