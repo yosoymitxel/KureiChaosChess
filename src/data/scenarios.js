@@ -417,31 +417,9 @@ function knightRoute(rng, [r0, c0]) {
 // Arma una partida del minijuego: mesa, rival (un perfil de difficulty.js o uno propio) y jugadores.
 // Minijuegos que estrenan una mecánica de los pisos sobre su propio tablero (`modifier`).
 Object.assign(SCENARIOS, {
-  outbreak: {
-    id: 'outbreak',
-    modifier: 'contagion',
-    goal: 'Cada captura contagia a las piezas menores pegadas a la víctima y pasan al bando que capturó. Pasa a tu bando las piezas pedidas antes de que se acaben las rondas, sin perder a tu rey.',
-    levels: {
-      facil: { need: 5, rounds: 16, rival: 'aprendiz' },
-      normal: { need: 7, rounds: 14, rival: 'oficial' },
-      dificil: { need: 8, rounds: 14, rival: 'maestro' },
-    },
-    setup(lv, rng) {
-      const seed = Math.floor(rng() * 1e9), b = generateBoard(seed, 4, 10, 'contagion');
-      const pieces = placePieces(b, { modifier: 'contagion', playerCount: 2, seed, mutations: [], bonuses: {}, floor: 4, totalFloors: 10 });
-      const turned = (m) => m.pieces.filter((p) => p.color === 'light' && p.infected).length;
-      return {
-        board: b, pieces, rival: lv.rival,
-        objective: (m) => m.eliminated.light ? { victory: false, note: 'Cayó tu rey.' }
-          : turned(m) >= lv.need || m.eliminated.dark ? { victory: true, note: 'El brote es tuyo.' }
-          : rounds(m) >= lv.rounds ? { victory: false, note: 'El brote no llegó a tanto.' } : null,
-        status: (m) => `Contagiadas ${turned(m)}/${lv.need} · quedan ${lv.rounds - rounds(m)} rondas`,
-      };
-    },
-  },
 });
 
-// Contrarreloj y Alfiles a ciegas: el tablero cambia por turno (match.tick).
+// Contrarreloj: el tablero cambia por turno (match.tick).
 const freeTiles = (b, pieces) => {
   const used = taken(pieces, b), out = [];
   for (let r = 0; r < b.rows; r++) for (let c = 0; c < b.cols; c++) if (!used.has(key(r, c))) out.push([r, c]);
