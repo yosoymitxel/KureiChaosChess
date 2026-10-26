@@ -45,7 +45,7 @@ export const MODIFIERS = {
   outbreak: { id: 'outbreak', name: 'Brote', desc: 'Minijuego: con pocas dosis, contagia en cadena a todas las piezas: cada contagiada contagia a las que ataca. Premio: mutación o pieza.', icon: 'drop', mini: true, weights: [0, 1, 1.5] },
   clock: { id: 'clock', name: 'Contrarreloj', desc: 'Minijuego: llega a la casilla del reloj antes de que se agote, junta monedas y esquiva a las piezas que van apareciendo. Premio: mutación o pieza.', icon: 'rush', mini: true, weights: [0.5, 1, 1] },
   blind: { id: 'blind', name: 'Damas a ciegas', desc: 'Minijuego: coloca tus damas y elige hacia dónde dispara cada una; las rivales salen al azar y todas disparan a la vez. Premio: mutación o pieza.', icon: 'target', mini: true, weights: [0, 1, 1] },
-  witch: { id: 'witch', name: 'La bruja', desc: 'Minijuego: cruza sin mirar a las brujas dormidas; la que despierta te persigue. Premio: mutación o pieza.', icon: 'target', mini: true, weights: [0, 1, 1] },
+  witch: { id: 'witch', name: 'La bruja', desc: 'Minijuego: laberinto a lo Pac-Man; recoge todas las monedas con tu rey mientras las brujas te persiguen, y usa las pócimas para asustarlas. Premio: mutación o pieza.', icon: 'target', mini: true, weights: [0, 1, 1] },
   hockey: { id: 'hockey', name: 'Hockey de mesa', desc: 'Minijuego: arrastra tu torre y mete el disco en la portería del bot; gana quien llegue a cinco goles. Premio: mutación o pieza.', icon: 'hockey', mini: true, duo: { opt: 'goals', label: 'Goles para ganar', choices: [[3, '3'], [5, '5'], [7, '7']] }, weights: [0.7, 1, 1] },
 };
 

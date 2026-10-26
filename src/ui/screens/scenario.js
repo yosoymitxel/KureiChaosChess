@@ -30,4 +30,3 @@ export const CollapsingFloorScreen = screen('collapsingFloor');
 export const KnightScreen = screen('knight');
 export const MatesScreen = screen('mates');
 export const ClockScreen = screen('clock');
-export const WitchScreen = screen('witch');
