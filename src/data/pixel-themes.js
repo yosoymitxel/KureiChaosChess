@@ -126,8 +126,8 @@ export const PIXEL_THEMES = {
     "swatch": [
       "#171923",
       "#e8d8b9",
-      "#e77927",
-      "#8bbf79"
+      "#5a8f45",
+      "#5a7fd0"
     ],
     "vars": {
       "table": "#171923",
@@ -135,9 +135,9 @@ export const PIXEL_THEMES = {
       "tile-a": "#e8d8b9",
       "tile-b": "#b68a62",
       "tile-side": "#684632",
-      "side-light": "#fff0d2",
-      "side-dark": "#e77927",
-      "side-wild": "#8bbf79",
+      "side-light": "#cdb2f0",
+      "side-dark": "#5a8f45",
+      "side-wild": "#5a7fd0",
       "paper": "#f7edda",
       "paper-2": "#e9d8b9",
       "paper-3": "#cdb793",
