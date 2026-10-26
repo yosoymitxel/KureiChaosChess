@@ -7,7 +7,8 @@ import { Fx } from './fx.js';
 import { liquid } from './liquid.js';
 import { playSfx } from '../ui/sfx.js';
 import { key, cellsOf, sizeOf, portalAt } from '../game/rules.js';
-import { render } from '../ui/lib.js';
+import { render, html } from '../ui/lib.js';
+import { Icon } from '../ui/icons.js';
 import { boardPond } from '../ui/zen-art.js';
 
 export const CAMERAS = { flat: 0, tilt: 40, epic: 56 };
@@ -38,8 +39,9 @@ const BADGES = {
 
 export class BoardView {
   // `framed`: el marco de losa de los minijuegos alrededor del mismo tablero.
-  constructor(host, { camera = 'tilt', shake = true, speed = 1, framed = false, onTap, onDrop, canDrag, onImpact, onHover, onZoom } = {}) {
-    Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, onHover, onZoom, shakeOn: shake, speed });
+  // `pond`: el hueco del centro se llena de agua con koi (solo en el tablero de la run).
+  constructor(host, { camera = 'tilt', shake = true, speed = 1, framed = false, pond = false, onTap, onDrop, canDrag, onImpact, onHover, onZoom } = {}) {
+    Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, onHover, onZoom, shakeOn: shake, speed, pondOn: pond });
     this.tilt = CAMERAS[camera] ?? 40;
     this.zoom = 1; this.pan = { x: 0, y: 0 };
     host.classList.add('table');
@@ -168,7 +170,7 @@ export class BoardView {
       this.tiles.set(key(r, c), t);
     }
     this.tilesEl.appendChild(frag);
-    this.pond(board);
+    if (this.pondOn) this.pond(board);
     this.gooEl.setAttribute('viewBox', `0 0 ${cols} ${rows}`); // one unit = one tile
     this.refreshEdges();
     this.layout();
@@ -200,12 +202,22 @@ export class BoardView {
     el.className = 'prop ' + cls;
     el.style.setProperty('--r', row); el.style.setProperty('--c', col);
     this.tilesEl.appendChild(el);
-    if (!reduced()) animate(el, { translateZ: [this.sq * 1.2, 0], opacity: [0, 1], duration: this.d(520), ease: 'outBounce' });
+    if (reduced()) return el;
+    // La hoja cae de lo alto meciéndose, como del arce del jardín; lo demás cae rebotando.
+    const q = this.sq;
+    if (cls === 'leaf') animate(el, { translateZ: [q * 6, q * 3.6, q * 1.4, 0], translateX: [-q * 0.6, q * 0.5, -q * 0.3, 0], rotate: [-35, 28, -12, 0], opacity: [0, 1, 1, 1], duration: this.d(3200), ease: 'inOutSine' });
+    else animate(el, { translateZ: [q * 1.2, 0], opacity: [0, 1], duration: this.d(520), ease: 'outBounce' });
     return el;
   }
 
-  // Recogido sube girando con chispas; perdido se encoge.
-  async takeProp(el, mine) {
+  // Recogido sube girando con chispas; la hoja quitada con la mano sale volando de lado; perdido se encoge.
+  async takeProp(el, mine, blown) {
+    if (blown) {
+      el.style.pointerEvents = 'none';
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      await animate(el, { translateX: [0, dir * this.sq * 1.6], translateZ: [0, this.sq], rotate: [0, dir * 300], opacity: [1, 1, 0], duration: this.d(650), ease: 'outQuad' });
+      return el.remove();
+    }
     if (mine) {
       const c = this.fx.pointOf(el);
       this.fx.burst(c.x, c.y, { count: 14, color: ['#ffd36b', '#fff2c2', '#fff'], speed: [50, 180], size: [2, 4], life: [0.3, 0.6], shape: 'spark' });
@@ -305,9 +317,16 @@ export class BoardView {
   }
 
   // Rótulos sobre casillas (las pistas de Campo minado): key -> texto.
+  // Un rótulo 'icon:<nombre>' pinta ese icono (vector o píxel según la mesa) sobre la casilla, sin
+  // cambiarle el color; el resto es texto (los números de Campo minado).
   setLabels(labels = new Map()) {
     for (const [k, t] of this.tiles) {
-      const text = labels.get(k), mark = t.querySelector('.mark');
+      const text = labels.get(k), mark = t.querySelector('.mark'), icon = typeof text === 'string' && text.startsWith('icon:') ? text.slice(5) : null;
+      if (icon) {
+        if (t.dataset.icon !== icon) { delete t.dataset.n; t.dataset.icon = icon; render(html`<${Icon} name=${icon} size=${24} />`, mark); }
+        continue;
+      }
+      if (t.dataset.icon) { delete t.dataset.icon; render(null, mark); }
       if (text == null) { delete t.dataset.n; mark.textContent = ''; }
       else if (t.dataset.n !== String(text)) { t.dataset.n = text; mark.textContent = text === 0 ? '·' : text; }
     }
@@ -324,7 +343,7 @@ export class BoardView {
 
 
   clearMarks() {
-    for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger', 'target', 'gain', 'foot', 'hot');
+    for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger', 'target', 'gain', 'foot', 'hot', 'block', 'veil');
     for (const el of this.els.values()) el.classList.remove('eligible');
     this.host.classList.remove('aiming');
   }
@@ -428,6 +447,9 @@ export class BoardView {
     const mid = () => { const [a, b] = [...touches.values()]; return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
     const down = (e) => {
       if (e.button > 0) return;
+      // Lo que se quita con la mano (las hojas) gana aunque una figura de delante lo tape un poco.
+      const prop = document.elementsFromPoint(e.clientX, e.clientY).map((x) => x.closest?.('.prop.hand')).find(Boolean);
+      if (prop) return prop.dispatchEvent(new Event('take'));
       if (e.pointerType !== 'mouse') {
         touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
         if (touches.size === 2) {
@@ -753,6 +775,16 @@ export class BoardView {
     const c = this.centerOf(p); this.fx.dust(c.x, c.y, 0.9); this.squash(p, 0.7);
   }
 
+  // Se esconde sin caer (Damas a ciegas): se hunde en su casilla y se desvanece.
+  async vanish(p) {
+    const el = this.els.get(p), st = this.state.get(p);
+    if (!el) return;
+    animate(el, { opacity: [1, 0], duration: this.d(380) });
+    await animate(st, { z: -this.sq * 0.3, duration: this.d(380), ease: 'inQuad', onUpdate: () => this.apply(p) });
+    el.remove();
+    this.els.delete(p); this.state.delete(p);
+  }
+
   // Visual side of a played card (game/cards.js result).
   async applyCard(res) {
     const id = res.card.id, p = res.piece;
@@ -929,6 +961,38 @@ export class BoardView {
     this.fx.sparkle(c.x, c.y - this.sq * 0.6, '#ffcf6b', 16);
     await animate(stand, { rotateY: 720, scale: [1.3, 1], duration: this.d(420), ease: 'outExpo' });
     stand.style.transform = 'none';
+  }
+
+  // Meteorito avisado: las casillas de la cruz laten en rojo hasta que cae.
+  setDoom(cells = []) {
+    for (const t of this.tiles.values()) t.classList.remove('doom');
+    for (const [r, c] of cells) this.tiles.get(key(r, c))?.classList.add('doom');
+  }
+  // Cae del cielo en diagonal con su estela, revienta en el centro de la cruz y la hunde con lo de encima.
+  async meteor(cells, lost = []) {
+    const t = this.tiles.get(key(...cells[0]));
+    if (!t) return;
+    const p = this.fx.pointOf(t), rock = document.createElement('div');
+    rock.className = 'meteor-rock';
+    rock.style.setProperty('--sq', this.sq + 'px');
+    this.host.appendChild(rock);
+    playSfx('whoosh');
+    const fire = ['#ffcf6b', '#ff8a3d', '#e2552b'], from = { x: p.x + this.sq * 5, y: p.y - this.sq * 9 };
+    if (!reduced()) {
+      const st = { k: 0 };
+      await animate(st, { k: 1, duration: this.d(620), ease: 'inQuad', onUpdate: () => {
+        const x = from.x + (p.x - from.x) * st.k, y = from.y + (p.y - from.y) * st.k;
+        rock.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${0.6 + st.k * 0.6})`;
+        this.fx.burst(x, y, { count: 3, color: fire, speed: [10, 60], life: [0.2, 0.5], size: [3, 7], gravity: -60, shape: 'smoke' });
+      } });
+    }
+    rock.remove();
+    this.setDoom();
+    this.fx.explosion(p.x, p.y, this.sq / 34);
+    this.fx.ring(p.x, p.y, { radius: this.sq * 2.6, width: 6, color: '#ffcf6b' });
+    this.shake(24, 700);
+    playSfx('shatter');
+    await Promise.all([...lost.map((q) => this.kill(q, q, q)), this.collapse(cells)]);
   }
 
   async collapse(cells) {

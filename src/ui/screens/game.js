@@ -292,6 +292,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         d.moments.callout({ text: '¡Derrumbe!', sub: 'El borde cae al vacío', icon: 'collapse', tone: 'danger', anim: 'crumble', tier: 'major' });
         await d.view.collapse(after.collapse);
       }
+      await showMeteor(after.meteor);
       await showTick(after.tick);
       d.busy = false;
       if (match.over) return finish(), true;
@@ -300,6 +301,18 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     };
 
     // Lo que un minijuego hizo al cambiar de turno (match.tick): piezas que llegan, casillas que se hunden.
+    // Meteorito: primero el aviso (la cruz roja), al turno siguiente la caída.
+    const showMeteor = async (m) => {
+      if (!m) return;
+      if (m.warn) {
+        addLog('Se acerca un meteorito: sal de la cruz marcada');
+        d.view.setDoom(m.warn);
+        d.moments.callout({ text: '¡Meteorito!', sub: 'Cae el próximo turno en la cruz roja', icon: 'meteor', tone: 'danger', anim: 'tremble', tier: 'major' });
+        return;
+      }
+      addLog(`Cae el meteorito${m.lost.length ? `: se lleva ${m.lost.map((p) => pieceName(p).toLowerCase()).join(', ')}` : ''}`);
+      await d.view.meteor(m.cells, m.lost);
+    };
     const showTick = async (tick) => {
       if (!tick) return;
       const { spawned = [], sunk = [], fallen = [] } = tick;
@@ -311,24 +324,32 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (d.props || scenario || node.versus) return;
       d.props = new Map();
       for (const { id, row, col } of dropPickups(board, match.pieces)) {
-        const el = d.view.addProp(row, col, id);
+        const el = d.view.addProp(row, col, id), it = PICKUPS[id];
         render(PICKUP_ART[id] || html`<${Icon} name=${id} size=${24} />`, el);
-        d.props.set(key(row, col), { id, el });
+        if (it.hand) {
+          el.classList.add('hand');
+          el.setAttribute('role', 'button'); el.setAttribute('aria-label', `${it.name}: tócala para quitarla`);
+          el.addEventListener('take', () => { if (d.props.delete(key(row, col))) take(it, el, true); });
+        }
+        d.props.set(key(row, col), { id, el, hand: it.hand });
       }
     };
     const pickUp = (piece) => {
       if (!d.props?.size) return;
       for (const [k, prop] of d.props) {
-        const onIt = piece.row + ',' + piece.col === k, sunk = board.holes.has(k);
+        const onIt = piece.row + ',' + piece.col === k && !prop.hand, sunk = board.holes.has(k);
         if (!onIt && !sunk) continue;
         d.props.delete(k);
         const mine = onIt && piece.color === human, it = PICKUPS[prop.id];
-        d.view.takeProp(prop.el, mine);
-        if (!mine) { if (onIt) addLog(`${pieceName(piece)} rival se lleva: ${it.name.toLowerCase()}`); continue; }
-        playSfx('coin');
-        if (it.coins) { addCoins(it.coins); addLog(`${it.name}: +${it.coins} monedas`); }
-        if (it.seed) { const kind = pickSeed(); addZenSeeds(kind, it.seed); addLog(`Semilla de ${ZEN_NAMES[kind].toLowerCase()} para el jardín`); }
+        if (!mine) { d.view.takeProp(prop.el, false); if (onIt) addLog(`${pieceName(piece)} rival se lleva: ${it.name.toLowerCase()}`); continue; }
+        take(it, prop.el);
       }
+    };
+    const take = (it, el, hand) => {
+      d.view.takeProp(el, true, hand);
+      playSfx(hand ? 'leaf' : 'coin');
+      if (it.coins) { addCoins(it.coins); addLog(`${it.name}: +${it.coins} moneda${it.coins > 1 ? 's' : ''}`); }
+      if (it.seed) { const kind = pickSeed(); addZenSeeds(kind, it.seed); addLog(`Semilla de ${ZEN_NAMES[kind].toLowerCase()} para el jardín`); }
     };
 
     const startTurn = (newTurn = true) => {
@@ -337,7 +358,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (!match.canMove()) {
         addLog(`${p.name} no puede moverse`);
         const a = match.afterMove({ pass: true });
-        return showTick(a.tick).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
+        return showMeteor(a.meteor).then(() => showTick(a.tick)).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
       }
       if (p.kind === 'bot') {
         // The bot waits for the labels on screen: its move used to land under a collapse or a capture.
@@ -476,6 +497,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       startTurn();
     };
     const onTap = (hit) => {
+      // Una hoja en la casilla tocada se quita con la mano, aunque alguna figura la tape un poco.
+      const leaf = !hit.piece && d.props?.get(key(hit.row, hit.col));
+      if (leaf?.hand) { d.props.delete(key(hit.row, hit.col)); return take(PICKUPS[leaf.id], leaf.el, true); }
       if (d.placing) return placeTap(hit);
       if (!humanTurn()) return;
       if (d.cardSel != null) {
@@ -540,7 +564,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.match = match;
     d.check = {};
     d.moments = new Moments(mainRef.current, { speed: settings.speed, enabled: settings.moments });
-    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, framed: !!scenario, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
+    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, framed: !!scenario, pond: !scenario, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
     d.view.setBoard(board);
     d.view.setPieces(pieces);
     seePieces(pieces.filter((p) => !p.boss).map((p) => p.type));

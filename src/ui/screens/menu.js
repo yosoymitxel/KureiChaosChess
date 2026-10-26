@@ -88,7 +88,8 @@ export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onS
       onTutorial=${hasRun ? () => setAskTutorial(true) : go(onTutorial)} />
     <div class="menu-col">
       <div class="logo" data-enter>
-        <h1>Kure'i<span>ChaosChess</span></h1>
+        <h1 aria-label="Kure'i ChaosChess"><span class="logo-main" aria-hidden="true">Kure'<span class="logo-i">ı<${Icon} name="crown" size=${40} /></span></span>
+          <span class="logo-sub" aria-hidden="true"><span class="logo-chaos">${[...'Chaos'].map((ch, i) => html`<i style=${{ '--i': i }}>${ch}</i>`)}</span>Chess</span></h1>
         <p>Ajedrez que muta en cada piso. Sube la torre, gana piezas raras y derriba al coloso del final.</p>
       </div>
       <nav class="menu-actions">
@@ -96,8 +97,8 @@ export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onS
           <p>El tutorial es una run corta de cuatro pisos y reemplaza la run actual.</p>
           <div class="menu-row"><button class="btn primary" onClick=${go(onTutorial)}>Empezar tutorial</button><button class="btn ghost" onClick=${() => setAskTutorial(false)}>Cancelar</button></div>
         </div>`}
-        ${!askTutorial && html`<button class="btn primary" data-enter onClick=${go(hasRun ? onContinue : onNew)}>${hasRun ? 'Continuar run' : 'Empezar run'}</button>`}
-        ${hasRun && !askTutorial && html`<${ConfirmButton} class="btn" enter onConfirm=${onNew} confirmLabel="Se pierde la run actual. ¿Seguro?">Nueva run<//>`}
+        ${!askTutorial && html`<button class="btn primary" data-enter onClick=${go(hasRun ? onContinue : onNew)}><${Icon} name=${hasRun ? 'map' : 'swords'} />${hasRun ? 'Continuar run' : 'Empezar run'}</button>`}
+        ${hasRun && !askTutorial && html`<${ConfirmButton} class="btn" enter onConfirm=${onNew} confirmLabel="Se pierde la run actual. ¿Seguro?"><${Icon} name="refresh" />Nueva run<//>`}
         ${onMinis && html`<button class="btn" data-enter onClick=${onMinis}><${Icon} name="connect4" />Minijuegos</button>`}
         ${!askTutorial && html`<button class="btn" data-enter onClick=${go(onVersus)}><${Icon} name="human" />Partida local</button>`}
         <div class="menu-row" data-enter>

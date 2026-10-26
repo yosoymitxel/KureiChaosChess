@@ -209,7 +209,7 @@ function crossing({ b, pieces, runner, guards, rng, rival, rounds: limit, goal, 
         : goal(runner) && !left.size ? { victory: true, note }
         : rounds(m) >= limit ? { victory: false, note: 'Se acabaron las rondas.' } : null;
     },
-    labels: () => new Map([...left].map((k) => [k, '⚗'])),
+    labels: () => new Map([...left].map((k) => [k, 'icon:flask'])),
     status: (m) => `Quedan ${limit - rounds(m)} rondas · ${side(m, 'dark').length} guardias${all.length ? ` · muestras ${all.length - left.size}/${all.length}` : ''}`,
   };
 }
@@ -246,7 +246,7 @@ Object.assign(SCENARIOS, {
       [[ps[0], ps[1]], [ps[2], ps[3]]].forEach(([a, z]) => { b.portals.set(a, z); b.portals.set(z, a); });
       b.holes.delete(key(...exit));
       const game = crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === exit[0] && p.col === exit[1], note: 'El contrabando cruzó.' });
-      return { ...game, labels: () => new Map([[key(...exit), '⚑']]) };
+      return { ...game, labels: () => new Map([[key(...exit), 'icon:flag']]) };
     }),
   },
   laboratory: {
@@ -298,7 +298,7 @@ Object.assign(SCENARIOS, {
             left.delete(key(knight.row, knight.col));
             return !left.size ? { victory: true, note: 'Ruta completa.' } : !m.canMove() ? { victory: false, note: 'El caballo se quedó sin saltos.' } : null;
           },
-          labels: () => new Map([...left].map((k) => [k, '◎'])),
+          labels: () => new Map([...left].map((k) => [k, 'icon:target'])),
           status: () => `Faltan ${left.size} casillas`,
         };
       }
@@ -331,15 +331,35 @@ Object.assign(SCENARIOS, {
     id: 'collapsingFloor',
     goal: 'Cruza con el caballo hasta la fila de arriba. Cada casilla que dejas se hunde y los guardias te cortan el paso.',
     levels: {
-      facil: { guards: ['pawn', 'pawn', 'pawn', 'knight'], holes: 6, rounds: 10, rival: 'oficial' },
-      normal: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'bishop'], holes: 9, rounds: 9, rival: 'maestro' },
-      dificil: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop', 'rook'], holes: 12, rounds: 8, rival: 'maestro' },
+      facil: { guards: ['pawn', 'pawn', 'pawn', 'knight'], holes: 6, rounds: 10, fall: 1, rival: 'oficial' },
+      normal: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'bishop'], holes: 9, rounds: 9, fall: 2, rival: 'maestro' },
+      dificil: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop', 'rook'], holes: 12, rounds: 8, fall: 3, rival: 'maestro' },
     },
     setup: (lv, rng) => passable(lv, () => {
       const b = board(), runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
       b.sinking = 'light';
       rubble(rng, b, pieces, lv.holes);
-      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Llegaste antes de que se acabara el suelo.' });
+      const game = crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Llegaste antes de que se acabara el suelo.' });
+      // Además, al empezar cada ronda tuya se hunden `fall` casillas por delante del caballo, una justo
+      // en su camino (la fila de arriba): obliga a saltar el hueco. Nunca la que deja la meta sin salida.
+      let last = -1;
+      game.tick = (m) => {
+        const now = rounds(m);
+        if (m.player.color !== 'light' || now === last || now === 0) return null;
+        last = now;
+        const r0 = runner.row, free = (r, c) => r >= 1 && r < N && c >= 0 && c < N && !b.holes.has(key(r, c)) && !m.pieces.some((p) => p.row === r && p.col === c);
+        const ahead = [], near = [];
+        for (let c = 0; c < N; c++) { if (free(r0 - 1, c) && Math.abs(c - runner.col) <= 1) ahead.push([r0 - 1, c]); for (const r of [r0 - 2, r0 - 3]) if (free(r, c)) near.push([r, c]); }
+        const sunk = [];
+        for (const [r, c] of [...shuffle(rng, ahead).slice(0, 1), ...shuffle(rng, near)]) {
+          if (sunk.length >= lv.fall) break;
+          b.holes.add(key(r, c));
+          if (routeLen(b, runner, (p) => p.row === 0) === Infinity) b.holes.delete(key(r, c));
+          else sunk.push([r, c]);
+        }
+        return sunk.length ? { sunk } : null;
+      };
+      return game;
     }),
   },
 });
@@ -397,47 +417,9 @@ function knightRoute(rng, [r0, c0]) {
 // Arma una partida del minijuego: mesa, rival (un perfil de difficulty.js o uno propio) y jugadores.
 // Minijuegos que estrenan una mecánica de los pisos sobre su propio tablero (`modifier`).
 Object.assign(SCENARIOS, {
-  blizzard: {
-    id: 'blizzard',
-    modifier: 'fog',
-    goal: 'Cruza el lago helado hasta la fila de arriba con tu caballo. En el hielo se patina una casilla más y la niebla esconde a los guardias.',
-    levels: {
-      facil: { guards: ['pawn', 'pawn', 'pawn', 'knight'], holes: 4, rounds: 12, rival: 'aprendiz' },
-      normal: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight'], holes: 6, rounds: 10, rival: 'oficial' },
-      dificil: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop'], holes: 8, rounds: 9, rival: 'maestro' },
-    },
-    setup: (lv, rng) => passable(lv, () => {
-      const b = { ...board(), protectRows: 2 }, runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
-      rubble(rng, b, pieces, lv.holes);
-      addTerrain(b, rng, 'ice');
-      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Cruzaste el lago helado.' });
-    }),
-  },
-  outbreak: {
-    id: 'outbreak',
-    modifier: 'contagion',
-    goal: 'Cada captura contagia a las piezas menores pegadas a la víctima y pasan al bando que capturó. Pasa a tu bando las piezas pedidas antes de que se acaben las rondas, sin perder a tu rey.',
-    levels: {
-      facil: { need: 5, rounds: 16, rival: 'aprendiz' },
-      normal: { need: 7, rounds: 14, rival: 'oficial' },
-      dificil: { need: 8, rounds: 14, rival: 'maestro' },
-    },
-    setup(lv, rng) {
-      const seed = Math.floor(rng() * 1e9), b = generateBoard(seed, 4, 10, 'contagion');
-      const pieces = placePieces(b, { modifier: 'contagion', playerCount: 2, seed, mutations: [], bonuses: {}, floor: 4, totalFloors: 10 });
-      const turned = (m) => m.pieces.filter((p) => p.color === 'light' && p.infected).length;
-      return {
-        board: b, pieces, rival: lv.rival,
-        objective: (m) => m.eliminated.light ? { victory: false, note: 'Cayó tu rey.' }
-          : turned(m) >= lv.need || m.eliminated.dark ? { victory: true, note: 'El brote es tuyo.' }
-          : rounds(m) >= lv.rounds ? { victory: false, note: 'El brote no llegó a tanto.' } : null,
-        status: (m) => `Contagiadas ${turned(m)}/${lv.need} · quedan ${lv.rounds - rounds(m)} rondas`,
-      };
-    },
-  },
 });
 
-// Contrarreloj y Alfiles a ciegas: el tablero cambia por turno (match.tick).
+// Contrarreloj: el tablero cambia por turno (match.tick).
 const freeTiles = (b, pieces) => {
   const used = taken(pieces, b), out = [];
   for (let r = 0; r < b.rows; r++) for (let c = 0; c < b.cols; c++) if (!used.has(key(r, c))) out.push([r, c]);
@@ -486,68 +468,8 @@ Object.assign(SCENARIOS, {
           m.pieces.push(foe);
           return { spawned: [foe] };
         },
-        labels: (m) => new Map([...[...coins].map((k) => [k, '●']), ...(clock.k ? [[clock.k, Math.max(0, clock.until - (m.players ? rounds(m) : 0))]] : [])]),
+        labels: (m) => new Map([...[...coins].map((k) => [k, 'icon:coin']), ...(clock.k ? [[clock.k, Math.max(0, clock.until - (m.players ? rounds(m) : 0))]] : [])]),
         status: (m) => `Monedas ${got}/${lv.coins} · reloj ${Math.max(0, clock.until - rounds(m))}`,
-      };
-    },
-  },
-  witch: {
-    id: 'witch',
-    goal: 'Cruza hasta la fila de arriba sin mirar a las brujas (ojo verde): si alguna de tus jugadas posibles puede tocarla, despierta y te persigue moviéndose casi como una reina.',
-    levels: {
-      facil: { witches: 2, guards: ['pawn', 'pawn'], holes: 4, rounds: 12, rival: 'oficial' },
-      normal: { witches: 3, guards: ['pawn', 'pawn', 'pawn'], holes: 6, rounds: 10, rival: 'oficial' },
-      dificil: { witches: 4, guards: ['pawn', 'pawn', 'pawn', 'knight'], holes: 6, rounds: 9, rival: 'maestro' },
-    },
-    setup: (lv, rng) => passable(lv, () => {
-      const b = board(), runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
-      rubble(rng, b, pieces, lv.holes);
-      // Dormidas y fuera de la vista del caballo al empezar.
-      const sees = (r, c) => legalMoves(runner, pieces, b).some((m) => m.row === r && m.col === c);
-      for (const [r, c] of spots(rng, pieces, b, 1, N - 3, lv.witches * 3).filter(([r, c]) => !sees(r, c)).slice(0, lv.witches))
-        pieces.push(makePiece('queen', 'dark', r, c, { witch: true, moves: ['rook2', 'bishop2', 'knight'] }));
-      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Pasaste sin despertarlas… o sin que te alcanzaran.' });
-    }),
-  },
-  blind: {
-    id: 'blind',
-    modifier: 'fog',
-    goal: 'Alfiles a ciegas: todos caen al azar y la niebla no deja ver a los rivales. Captúralos antes de que el tablero se encoja del todo; el borde se hunde cada pocas rondas.',
-    levels: {
-      facil: { n: 10, mine: 2, foes: 3, every: 3, rival: 'aprendiz' },
-      normal: { n: 11, mine: 2, foes: 4, every: 2, rival: 'oficial' },
-      dificil: { n: 12, mine: 2, foes: 5, every: 2, rival: 'oficial' },
-    },
-    setup(lv, rng) {
-      const b = board(lv.n), pieces = [];
-      // Al azar, pero sin nadie a tiro en la primera jugada.
-      for (;;) {
-        pieces.length = 0;
-        for (const [color, n] of [['light', lv.mine], ['dark', lv.foes]])
-          for (const [r, c] of shuffle(rng, freeTiles(b, pieces)).slice(0, n)) pieces.push(makePiece('bishop', color, r, c));
-        if (!pieces.some((p) => legalMoves(p, pieces, b).some((m) => m.hits.length))) break;
-      }
-      let ring = 0, lastSink = 0;
-      const mine = (m) => side(m, 'light').length, foes = (m) => side(m, 'dark').length;
-      const minSide = () => lv.n - 2 * ring <= 4;
-      return {
-        board: b, pieces, rival: lv.rival,
-        objective: (m) => !mine(m) ? { victory: false, note: 'Cayeron tus alfiles.' }
-          : !foes(m) ? { victory: true, note: 'Ni uno en pie.' }
-          : minSide() ? (mine(m) > foes(m) ? { victory: true, note: 'Quedaste con más alfiles al cerrarse el tablero.' } : { victory: false, note: 'El tablero se cerró y no les ganaste.' })
-          : null,
-        tick: (m) => {
-          const now = rounds(m);
-          if (m.player.color !== 'light' || now === lastSink || now % lv.every) return null;
-          lastSink = now;
-          const k = ring++, n = lv.n, sunk = [];
-          for (let r = 0; r < n; r++) for (let c = 0; c < n; c++)
-            if ((r === k || c === k || r === n - 1 - k || c === n - 1 - k) && Math.min(r, c, n - 1 - r, n - 1 - c) === k && !b.holes.has(key(r, c))) { b.holes.add(key(r, c)); sunk.push([r, c]); }
-          const fallen = m.pieces.filter((p) => b.holes.has(key(p.row, p.col)));
-          for (const p of fallen) m.pieces.splice(m.pieces.indexOf(p), 1);
-          return { sunk, fallen };
-        },
-        status: (m) => `Tus alfiles ${mine(m)} · rivales ${foes(m)} · tablero ${lv.n - 2 * ring}×${lv.n - 2 * ring}`,
       };
     },
   },
