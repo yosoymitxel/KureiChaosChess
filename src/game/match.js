@@ -251,7 +251,7 @@ export class Match {
 
   result(alive, royals) {
     const humans = this.players.filter((p) => p.kind === 'human').map((p) => p.color);
-    const win = (color) => ({ victory: humans.includes(color), winnerName: this.players.find((p) => p.color === color)?.name });
+    const win = (color) => ({ victory: humans.includes(color), winner: color, winnerName: this.players.find((p) => p.color === color)?.name });
     if (!alive.length) return { tie: true };
     if (alive.length === 1) return win(alive[0].color);
     if (royals.length === 1) return win(royals[0].color);

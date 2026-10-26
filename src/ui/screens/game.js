@@ -51,7 +51,8 @@ function cardEffect(card, piece, pv) {
 
 // `scenario` (un minijuego de src/data/scenarios.js ya armado): trae tablero, piezas, rival y objetivo
 // propios; el resto (vista, bot, avisos, demos) es el de cualquier piso.
-export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools, exitLabel }) {
+// `onRound(result)` (partida local): cuenta la ronda y devuelve la nota de la ficha final.
+export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools, exitLabel, onRound }) {
   const hostRef = useRef(null);
   const mainRef = useRef(null);
   const ref = useRef({}); // mutable director state: view, match, busy, selected
@@ -73,7 +74,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
 
   useEffect(() => {
     const d = ref.current;
-    const board = scenario?.board || generateBoard(node.seed, node.floor, run.map.floors, node.modifier);
+    const board = scenario?.board || generateBoard(node.seed, node.floor, run.map.floors, node.modifier, node.board);
     const pieces = scenario?.pieces || placePieces(board, { modifier: node.modifier, playerCount: seats.length, isBoss: node.isBoss, isMiniBoss: node.isMiniBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses, floor: node.floor, totalFloors: run.map.floors });
     // El rival lo manda el tramo de la torre (difficulty.js); el ajuste de dificultad corre la
     // escalera y el mini-jefe sube un peldaño.
@@ -231,6 +232,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
 
     const finish = async () => {
       const r = match.over;
+      if (onRound) r.note = onRound(r);
       if (!scenario) { if (r.victory) playSfx('win'); else if (!r.tie) playSfx('lose'); }
       const human = seats.find((s) => s.kind === 'human')?.color || 'light';
       if (r.victory && !scenario) {

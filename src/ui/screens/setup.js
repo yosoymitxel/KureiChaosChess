@@ -38,14 +38,38 @@ function PrefsCard({ prefs, onPrefs }) {
   </section>`;
 }
 
+// Partida local: la mesa se elige (o sale al azar) y se juega una partida o una serie.
+const VERSUS_ROUNDS = [[1, 'Una partida'], [3, 'Serie a 3'], [5, 'Serie a 5']];
+const VERSUS_SIZES = [['random', 'Al azar'], [8, '8×8'], [10, '10×10'], [12, '12×12']];
+const VERSUS_SHAPES = [['random', 'Con huecos'], ['classic', 'Clásica']];
+function VersusCard({ cfg, onCfg }) {
+  const set = (k, v) => onCfg({ ...cfg, [k]: v });
+  const seg = (k, list) => html`<div class="segmented sm" role="group">${list.map(([v, label]) => html`<button class=${cfg[k] === v ? 'on' : ''} aria-pressed=${cfg[k] === v} onClick=${() => set(k, v)}>${label}</button>`)}</div>`;
+  const mods = ['random', 'none', ...RUN_MECHANICS.filter((id) => id !== 'elite')];
+  return html`<section class="panel setup-card prefs" data-enter>
+    <h2>Mesa</h2>
+    ${seg('rounds', VERSUS_ROUNDS)}
+    <p class="setup-note">${cfg.rounds > 1 ? `${cfg.size === 'random' ? 'Cada ronda es un piso más: el tablero crece.' : 'Cada ronda, mesa nueva.'} Gana quien llegue antes a ${Math.floor(cfg.rounds / 2) + 1}.` : 'Una sola partida con esta mesa.'}</p>
+    <h2>Tamaño</h2>
+    ${seg('size', VERSUS_SIZES)}
+    <h2>Forma</h2>
+    ${seg('shape', VERSUS_SHAPES)}
+    <h2>Mecánica</h2>
+    <div class="pref-grid">
+      ${mods.map((id) => { const m = id === 'random' ? { name: 'Al azar', icon: 'refresh', desc: 'Una distinta en cada ronda.' } : MODIFIERS[id];
+        return html`<button class=${'pref' + (cfg.mod === id ? ' fav' : '')} aria-pressed=${cfg.mod === id} title=${m.desc} onClick=${() => set('mod', id)}><${Icon} name=${m.icon} size=${20} /><span>${m.name}</span></button>`; })}
+    </div>
+  </section>`;
+}
+
 // Bandos fijos: en la run tú contra el bot (o contra dos); en la partida local (`versus`, aparte
 // de la run) dos personas, con un bot opcional de tercero.
-export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings, setSettings, onPrefs, onHowTo, versus }) {
+export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings, setSettings, onPrefs, onHowTo, versus, versusCfg, onVersusCfg }) {
   const ref = useRef(null);
   useEnter(ref);
   const [count, setCount] = useState(defaultCount || 2);
   const kinds = versus ? ['human', 'human', 'bot'] : ['human', 'bot', 'bot'];
-  const mod = nodeModifier(node);
+  const mod = versusCfg?.mod === 'random' ? { name: 'Mecánica al azar', icon: 'refresh', desc: 'Sale una distinta en cada ronda.' } : nodeModifier(node);
   // El peldaño del rival lo fija el tramo de la torre, el ajuste de dificultad lo corre entero
   // y el piso de un mini-jefe sube uno.
   const rival = rivalForFloor(node.floor, run?.map?.floors ?? 1, { up: node.isMiniBoss ? 1 : 0, difficulty: run?.tutorial ? 'facil' : settings?.difficulty });
@@ -63,9 +87,10 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
         ${node.modifier === 'elite' && html`<ul class="elite-list">
           ${eliteVariants(node.floor, run?.map?.floors ?? 1).map((v) => html`<li><span class="elite-ico"><${Icon} name=${v.icon} size=${15} /></span><div><strong>${v.name}</strong><span>${v.desc}</span></div></li>`)}
         </ul>`}
-        <div class="rival-line"><${Icon} name="bot" size=${17} /><div><strong>Rival: ${rival.name}</strong><small>${rival.desc}</small></div></div>
+        ${(!versus || count === 3) && html`<div class="rival-line"><${Icon} name="bot" size=${17} /><div><strong>Rival: ${rival.name}</strong><small>${rival.desc}</small></div></div>`}
         ${node.isBoss && !run?.mutations?.length ? html`<p class="setup-warn"><${Icon} name="boss" size=${15} />Sin mutaciones, solo una de cada cuatro veces se derriba al coloso. Esta mesa pide tus mejores cartas.</p>` : ''}
       </section>
+      ${versusCfg && html`<${VersusCard} cfg=${versusCfg} onCfg=${onVersusCfg} />`}
       ${onPrefs && html`<${PrefsCard} prefs=${run.prefs || { fav: [], ban: [] }} onPrefs=${onPrefs} />`}
       ${run?.mutations?.length ? html`<section class="panel setup-card" data-enter>
         <h2>Mutaciones activas</h2>

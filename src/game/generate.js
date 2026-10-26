@@ -92,7 +92,8 @@ export function tutorialMap(seed) {
 
 const SHAPES = ['diamond', 'hourglass', 'cross', 'fortress', 'random', 'stripes', 'scatter', 'lake', 'canyon', 'islands', 'ring', 'bridges', 'checker'];
 
-export function generateBoard(seed, floor, totalFloors, modifier) {
+// `opts` (partida local): `size` fija filas y columnas; `shape` fija la forma ('classic': sin huecos).
+export function generateBoard(seed, floor, totalFloors, modifier, opts = {}) {
   const rng = mulberry32(seed);
   const t = totalFloors > 1 ? floor / (totalFloors - 1) : 0;
   // Los primeros pisos son un 8×8 de los de siempre para aprender piezas y mutaciones;
@@ -100,10 +101,10 @@ export function generateBoard(seed, floor, totalFloors, modifier) {
   const small = t < 0.2;
   const base = 8 + Math.round(t * 4);
   // El Contagio pide 10 filas: cuatro líneas por bando y dos de tierra de nadie.
-  const rows = Math.max(modifier === 'contagion' ? 10 : 0, small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0))));
-  const cols = small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)));
+  const rows = Math.max(modifier === 'contagion' ? 10 : 0, opts.size || (small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)))));
+  const cols = opts.size || (small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0))));
   const safe = rows <= 9 ? 2 : rows <= 10 ? 3 : 4;
-  const shape = pickFrom(rng, SHAPES);
+  const shape = opts.shape || pickFrom(rng, SHAPES);
   const holes = new Set();
   const addSym = (r, c) => {
     for (const [rr, cc] of [[r, c], [rows - 1 - r, c], [r, cols - 1 - c], [rows - 1 - r, cols - 1 - c]])
