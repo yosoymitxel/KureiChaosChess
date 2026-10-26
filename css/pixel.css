@@ -50,7 +50,7 @@
 /* La fuente bitmap es más ancha: el nombre largo baja un punto para caber en la columna. */
 [data-art="pixel"] .logo-sub { font-size: 0.36em; rotate: none; border-radius: 0; }
 [data-art="pixel"] .logo-chaos i { rotate: none; }
-[data-art="pixel"] .logo-i .icon { rotate: none; }
+[data-art="pixel"] .logo-i .icon { width: 0.26em; height: 0.26em; top: 0.04em; }
 
 /* Tableros de los minijuegos: las mismas losas del tema que el tablero de la partida. Las
    casillas con un estado de color (meta, carril, peligro, casa) quedan lisas para que se lean. */

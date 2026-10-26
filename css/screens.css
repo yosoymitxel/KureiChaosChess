@@ -27,31 +27,39 @@
   from { transform: translateY(calc(var(--sq) * 0.35)) rotateX(var(--tilt)) rotateZ(-22deg); }
   to { transform: translateY(calc(var(--sq) * 0.35)) rotateX(var(--tilt)) rotateZ(-8deg); }
 }
-.menu-col { position: relative; z-index: 2; padding: clamp(24px, 6vw, 80px); max-width: 520px; }
+/* La columna mide lo que el título: texto y botones no aportan ancho (contain) y se estiran a él. */
+.menu-col { position: relative; z-index: 2; display: grid; gap: 28px; width: max-content; padding: clamp(24px, 6vw, 80px); }
+.menu-col > :not(.logo), .logo p { contain: inline-size; }
 /* Title is extruded like the lid lettering of a board-game box. */
 .logo h1 {
+  display: grid; justify-items: stretch; margin: 0;
   font-size: clamp(64px, 12vw, 136px); font-weight: 800; letter-spacing: -0.04em; line-height: 0.85;
   color: var(--paper);
   text-shadow: 0 1px 0 var(--paper-3), 0 2px 0 var(--paper-3), 0 3px 0 var(--paper-3), 0 4px 0 var(--ink), 0 5px 0 var(--ink), 0 6px 0 var(--ink), 0 14px 22px oklch(0.1 0.03 55 / 0.55);
 }
 /* Logotipo: «Kure'i» con relleno de tablero y la corona sobre la i; «ChaosChess» en una cinta,
    con las letras de Chaos desordenadas y Chess derecha. */
-.logo-main { display: inline-block; position: relative; color: var(--paper);
+.logo-main { display: block; position: relative; padding-top: 0.08em; color: var(--paper);
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2' shape-rendering='crispEdges'%3E%3Crect width='2' height='2' fill='%23f4e9d6'/%3E%3Cpath d='M1 0h1v1H1zM0 1h1v1H0z' fill='%23e3b98f'/%3E%3C/svg%3E") 0 0 / 0.3em 0.3em;
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none;
   filter: drop-shadow(0 2px 0 var(--paper-3)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 12px 14px oklch(0.1 0.03 55 / 0.5)); }
 .logo-i { position: relative; display: inline-block; background: inherit; -webkit-background-clip: text; background-clip: text; }
-.logo-i .icon { position: absolute; left: 50%; top: -0.08em; width: 0.36em; height: 0.36em; translate: -50% 0; rotate: 12deg; color: var(--brass); filter: drop-shadow(0 3px 0 var(--ink)); -webkit-text-fill-color: initial; }
-.logo-sub { display: inline-flex; align-items: baseline; margin-top: 0.12em; padding: 0.06em 0.22em 0.1em; font-size: 0.4em; letter-spacing: 0; color: var(--paper);
-  background: var(--accent); border: 3px solid var(--ink); border-radius: 10px; rotate: -3deg; text-shadow: 0 3px 0 var(--ink); box-shadow: 0 6px 0 var(--ink); }
+.logo-i .icon { position: absolute; left: 50%; top: 0.02em; width: 0.3em; height: 0.3em; translate: -50% 0; color: var(--brass); filter: drop-shadow(0 3px 0 var(--ink)); -webkit-text-fill-color: initial; }
+.logo-sub { display: flex; justify-content: center; align-items: baseline; margin-top: 0.2em; padding: 0.08em 0.2em 0.12em; font-size: 0.4em; letter-spacing: 0; color: var(--paper);
+  background: var(--accent); border: 3px solid var(--ink); border-radius: var(--r-md); text-shadow: 0 3px 0 var(--ink); box-shadow: 0 6px 0 var(--ink); }
 .logo-chaos { display: inline-flex; margin-right: 0.06em; }
 .logo-chaos i { font-style: normal; display: inline-block; rotate: calc((var(--i) - 2) * 7deg * (1 - 2 * mod(var(--i), 2))); translate: 0 calc(mod(var(--i), 2) * -0.08em); transition: rotate 0.3s var(--ease-out); }
 .logo:hover .logo-chaos i { rotate: calc((var(--i) - 2) * -9deg); }
 @media (prefers-reduced-motion: reduce) { .logo-chaos i { transition: none; } }
-.logo p { margin: 22px 0 0; max-width: 34ch; font-size: 16px; color: var(--paper-2); }
-.menu-actions { display: flex; flex-direction: column; gap: 14px; margin-top: 34px; max-width: 320px; }
-.menu-row { display: flex; gap: 10px; }
+.logo p { margin: 24px 0 0; font-size: 16px; line-height: 1.45; color: var(--paper-2); text-wrap: pretty; }
+.menu-actions { display: flex; flex-direction: column; gap: 12px; }
+/* Botones del menú: icono en una ficha a la izquierda y el texto alineado detrás. */
+.menu-actions > .btn { justify-content: flex-start; min-height: 56px; padding: 8px 18px 8px 8px; gap: 14px; font-size: 16px; }
+.menu-actions > .btn > .icon { box-sizing: content-box; padding: 8px; border-radius: calc(var(--r-md) - 4px); background: var(--fg); color: var(--bg); --icon-cut: var(--fg); }
+.menu-actions > .btn::after { content: ''; margin-left: auto; width: 8px; height: 8px; border: solid currentColor; border-width: 2.5px 2.5px 0 0; rotate: 45deg; opacity: 0.55; }
+.menu-row { display: flex; gap: 12px; }
 .menu-row .btn { flex: 1; }
+.menu-row .btn.icon-only { flex: none; width: 48px; }
 .menu-ask { display: grid; gap: 10px; color: var(--paper); }
 .menu-ask p { margin: 0; font-size: 14px; line-height: 1.4; }
 .menu-extras { flex-wrap: wrap; }
@@ -60,10 +68,11 @@
   .menu { flex-direction: column; justify-content: flex-end; }
   .diorama { inset: 0 0 38% 0; }
   .diorama-wrap { inset: 0 0 38% 0; }
-  .menu-col { padding-bottom: calc(24px + env(safe-area-inset-bottom)); width: 100%; }
-  .logo h1 { font-size: 64px; }
+  .menu-col { gap: 18px; width: 100%; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); }
+  .logo { text-align: center; }
+  .logo h1 { font-size: 72px; justify-items: center; }
   .logo p { margin-top: 12px; font-size: 14px; }
-  .menu-actions { margin-top: 18px; max-width: none; }
+  .menu-actions > .btn { min-height: 52px; }
 }
 
 /* Map: the run is a printed track on a game sheet. */
