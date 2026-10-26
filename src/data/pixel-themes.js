@@ -442,19 +442,19 @@ export const PIXEL_THEMES = {
     "name": "Vesper",
     "swatch": [
       "#0a0810",
-      "#2a2230",
-      "#b33b61",
-      "#8ed1c1"
+      "#7a6680",
+      "#ab2d50",
+      "#8c5ac8"
     ],
     "vars": {
       "table": "#0a0810",
       "table-2": "#15101c",
-      "tile-a": "#2a2230",
-      "tile-b": "#1a1420",
-      "tile-side": "#3a2d40",
-      "side-light": "#e8d8e0",
-      "side-dark": "#b33b61",
-      "side-wild": "#8ed1c1",
+      "tile-a": "#7a6680",
+      "tile-b": "#4e4056",
+      "tile-side": "#342a3c",
+      "side-light": "#d9cdd6",
+      "side-dark": "#ab2d50",
+      "side-wild": "#8c5ac8",
       "paper": "#1a1420",
       "paper-2": "#2a2230",
       "paper-3": "#3a2d40",
