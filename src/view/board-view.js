@@ -600,7 +600,8 @@ export class BoardView {
       const now = performance.now(), dt = Math.max(8, now - last.t) * this.speed;
       const vx = ((st.c - last.c) * this.sq) / dt, vy = ((st.r - last.r) * this.sq) / dt, vz = (st.z - last.z) / dt;
       last = { r: st.r, c: st.c, z: st.z, t: now };
-      const k = Math.min(0.26, Math.hypot(vx, vy, vz) * 0.45);
+      let k = Math.min(0.26, Math.hypot(vx, vy, vz) * 0.45);
+      if (!tilt) k = Math.round(k * 8) / 8; // en píxel, a escalones de un píxel de sprite
       fig.style.scale = `${(1 / Math.sqrt(1 + k)).toFixed(3)} ${(1 + k).toFixed(3)}`;
       if (tilt) fig.style.rotate = `${Math.max(-12, Math.min(12, vx * 26)).toFixed(1)}deg`;
     };
@@ -653,7 +654,8 @@ export class BoardView {
       animate(fig, { scaleY: 1, scaleX: 1, duration: this.d(120), ease: 'outQuad' });
     }
     // Jumpers fly over what is in between: a puddle oozing along the L would hide the jump.
-    if (!reduced() && !jumper) await this.liquid(piece, from, to, dur);
+    // El charco líquido es un filtro de desenfoque: en las mesas píxel la pieza salta sin él.
+    if (!reduced() && !jumper && document.documentElement.dataset.art !== 'pixel') await this.liquid(piece, from, to, dur);
     const stretch = fig && !reduced() ? this.stretcher(fig, st) : null;
     await animate(st, {
       r: to.row, c: to.col, z: [0, arc, 0], duration: dur,

@@ -89,11 +89,36 @@ export class Fx {
       this.burst(this.w * (0.2 + i * 0.2), -10, { count: 30, color: colors, speed: [60, 240], life: [1.4, 2.4], size: [4, 8], gravity: 260, shape: 'rect', spread: Math.PI * 0.8, angle: Math.PI / 2, drag: 0.97 });
   }
 
+  // Mesas píxel: cada partícula es un bloque en la rejilla del arte (G px por píxel de sprite),
+  // sin giros ni bordes suaves; la transparencia va en tres escalones.
+  block(p, t) {
+    const { ctx } = this, G = 3, snap = (v) => Math.round(v / G) * G;
+    const sq = (x, y, n = 1) => ctx.fillRect(snap(x - (n * G) / 2), snap(y - (n * G) / 2), n * G, n * G);
+    const disc = (x, y, r) => { for (let dy = -r; dy <= r; dy += G) { const w = snap(Math.sqrt(Math.max(0, r * r - dy * dy))); ctx.fillRect(snap(x) - w, snap(y + dy), 2 * w || G, G); } };
+    const a = (v) => Math.ceil(Math.min(1, v) * 3) / 3;
+    ctx.fillStyle = p.color; ctx.strokeStyle = p.color;
+    switch (p.shape) {
+      case 'flash': ctx.globalAlpha = a(t); return disc(p.x, p.y, p.size * (1.2 - t * 0.6));
+      case 'smoke': ctx.globalAlpha = a(t * 0.9); return disc(p.x, p.y, p.size * (1.6 - t * 0.8));
+      case 'ring': {
+        const rx = p.size * (1 - t * 0.8), ry = rx * 0.55, n = Math.max(8, Math.round((rx * 2) / G));
+        ctx.globalAlpha = a(t);
+        for (let k = 0; k < n; k++) { const ang = (k / n) * 6.283; sq(p.x + Math.cos(ang) * rx, p.y + Math.sin(ang) * ry, Math.max(1, Math.round((p.width * t) / G))); }
+        return;
+      }
+      case 'spark': for (let k = 0; k < 3; k++) sq(p.x - p.vx * 0.017 * k, p.y - p.vy * 0.017 * k); return;
+      case 'star': { const n = Math.max(1, Math.round((p.size * (0.4 + t * 0.6)) / (G * 1.5))); sq(p.x, p.y, n); sq(p.x - n * G, p.y); sq(p.x + n * G, p.y); sq(p.x, p.y - n * G); sq(p.x, p.y + n * G); return; }
+      case 'rect': return ctx.fillRect(snap(p.x), snap(p.y), snap(p.size) || G, snap(p.size * 0.5) || G);
+      case 'chunk': return sq(p.x, p.y, Math.max(1, Math.round((p.size * t + 1) / G)));
+      default: return sq(p.x, p.y, Math.max(1, Math.round((p.size * t * 2) / G)));
+    }
+  }
+
   kick() { if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame((t) => this.loop(t)); } }
   loop(now) {
     const dt = Math.min((now - this.last) / 1000, 0.05);
     this.last = now;
-    const { ctx } = this;
+    const { ctx } = this, pixel = document.documentElement.dataset.art === 'pixel';
     ctx.clearRect(0, 0, this.w, this.h);
     for (let i = this.parts.length - 1; i >= 0; i--) {
       const p = this.parts[i];
@@ -105,6 +130,7 @@ export class Fx {
       p.rot += (p.vr || 0) * dt;
       const t = p.life / p.max;
       ctx.globalAlpha = Math.min(1, t * 1.6);
+      if (pixel) { this.block(p, t); continue; }
       if (p.shape === 'flash') {
         ctx.globalAlpha = t; ctx.fillStyle = p.color;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (1.2 - t * 0.6), 0, 6.283); ctx.fill();

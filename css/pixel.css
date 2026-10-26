@@ -72,3 +72,7 @@
 [data-art="pixel"] .toss-px .fill { fill: var(--tk); }
 [data-art="pixel"] .toss-px .groove { fill: var(--tk-2); }
 [data-art="pixel"] .toss-mark { position: relative; width: 37.5%; }
+
+/* Sombra de la pieza y koi del estanque del tablero, sin degradados ni giros suaves. */
+[data-art="pixel"] .pc-shadow { inset: 20%; background: oklch(0.15 0.03 55 / 0.35); clip-path: polygon(25% 0, 75% 0, 100% 30%, 100% 70%, 75% 100%, 25% 100%, 0 70%, 0 30%); }
+[data-art="pixel"] .bd-koi { animation-timing-function: steps(24); }
