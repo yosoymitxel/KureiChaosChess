@@ -71,6 +71,7 @@ const P = {
   flask: html`<path d="M9 2.5h6v2h-1v4.6l5.7 9.4c1 1.7-.2 3.5-2 3.5H6.3c-1.8 0-3-1.8-2-3.5L10 9.1V4.5H9z" />${cut('M7.5 15.5h9', 1.6)}${dot(10.5, 18.3, 1.1)}${dot(14, 17.8, 0.8)}`,
   // La flecha de abajo es la de arriba girada 180° sobre el centro (12,12).
   swap: html`<path d=${bar([[4.8, 8], [15, 8]], 3.6) + bar([[19.2, 16], [9, 16]], 3.6)} /><path d="M14.2 3.2L21.5 8l-7.3 4.8zM9.8 20.8L2.5 16l7.3-4.8z" />`,
+  meteor: html`<circle cx="9" cy="15" r="6.2" /><path d=${bar([[13.6, 10.4], [20.6, 3.4]], 2.6)} /><path d=${bar([[15.9, 14.1], [21.4, 8.6]], 2)} /><path d=${bar([[9.9, 8.1], [15.4, 2.6]], 2)} />${cut('M6.4 13.4a1.6 1.6 0 1 0 0.1 0', 1.6)}${cut('M10.6 17.6h0.1', 2.2)}`,
   bomb: html`<circle cx="12" cy="14.5" r="7" /><path d="M15.3 4.6l2.5 2.5-2.5 2.5-2.5-2.5z" /><path d=${bar([[17.4, 5.4], [19.4, 4.1]], 2)} /><circle cx="21" cy="3.2" r="1.6" />${cut('M8.6 12.4a4.3 4.3 0 0 1 2.3-3.3', 1.8)}`,
   // Dos fichas de damas apiladas (la dama coronada), vistas de canto con su surco.
   checkers: html`<path d="M2.5 9.4a9.5 5.4 0 0 1 19 0v5.2a9.5 5.4 0 0 1-19 0z" />${cut('M2.9 10.3a9.1 5 0 0 0 18.2 0M3 13.1a9 5 0 0 0 18 0', 1.4)}<ellipse cx="12" cy="9.4" rx="6.4" ry="3.3" fill="none" stroke=${CUT} stroke-width="1.3" />`,

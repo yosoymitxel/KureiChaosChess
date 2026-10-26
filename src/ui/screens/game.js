@@ -292,6 +292,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         d.moments.callout({ text: '¡Derrumbe!', sub: 'El borde cae al vacío', icon: 'collapse', tone: 'danger', anim: 'crumble', tier: 'major' });
         await d.view.collapse(after.collapse);
       }
+      await showMeteor(after.meteor);
       await showTick(after.tick);
       d.busy = false;
       if (match.over) return finish(), true;
@@ -300,6 +301,18 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     };
 
     // Lo que un minijuego hizo al cambiar de turno (match.tick): piezas que llegan, casillas que se hunden.
+    // Meteorito: primero el aviso (la cruz roja), al turno siguiente la caída.
+    const showMeteor = async (m) => {
+      if (!m) return;
+      if (m.warn) {
+        addLog('Se acerca un meteorito: sal de la cruz marcada');
+        d.view.setDoom(m.warn);
+        d.moments.callout({ text: '¡Meteorito!', sub: 'Cae el próximo turno en la cruz roja', icon: 'meteor', tone: 'danger', anim: 'tremble', tier: 'major' });
+        return;
+      }
+      addLog(`Cae el meteorito${m.lost.length ? `: se lleva ${m.lost.map((p) => pieceName(p).toLowerCase()).join(', ')}` : ''}`);
+      await d.view.meteor(m.cells, m.lost);
+    };
     const showTick = async (tick) => {
       if (!tick) return;
       const { spawned = [], sunk = [], fallen = [] } = tick;
@@ -345,7 +358,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (!match.canMove()) {
         addLog(`${p.name} no puede moverse`);
         const a = match.afterMove({ pass: true });
-        return showTick(a.tick).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
+        return showMeteor(a.meteor).then(() => showTick(a.tick)).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
       }
       if (p.kind === 'bot') {
         // The bot waits for the labels on screen: its move used to land under a collapse or a capture.

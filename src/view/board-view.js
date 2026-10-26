@@ -1010,6 +1010,38 @@ export class BoardView {
     stand.style.transform = 'none';
   }
 
+  // Meteorito avisado: las casillas de la cruz laten en rojo hasta que cae.
+  setDoom(cells = []) {
+    for (const t of this.tiles.values()) t.classList.remove('doom');
+    for (const [r, c] of cells) this.tiles.get(key(r, c))?.classList.add('doom');
+  }
+  // Cae del cielo en diagonal con su estela, revienta en el centro de la cruz y la hunde con lo de encima.
+  async meteor(cells, lost = []) {
+    const t = this.tiles.get(key(...cells[0]));
+    if (!t) return;
+    const p = this.fx.pointOf(t), rock = document.createElement('div');
+    rock.className = 'meteor-rock';
+    rock.style.setProperty('--sq', this.sq + 'px');
+    this.host.appendChild(rock);
+    playSfx('whoosh');
+    const fire = ['#ffcf6b', '#ff8a3d', '#e2552b'], from = { x: p.x + this.sq * 5, y: p.y - this.sq * 9 };
+    if (!reduced()) {
+      const st = { k: 0 };
+      await animate(st, { k: 1, duration: this.d(620), ease: 'inQuad', onUpdate: () => {
+        const x = from.x + (p.x - from.x) * st.k, y = from.y + (p.y - from.y) * st.k;
+        rock.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${0.6 + st.k * 0.6})`;
+        this.fx.burst(x, y, { count: 3, color: fire, speed: [10, 60], life: [0.2, 0.5], size: [3, 7], gravity: -60, shape: 'smoke' });
+      } });
+    }
+    rock.remove();
+    this.setDoom();
+    this.fx.explosion(p.x, p.y, this.sq / 34);
+    this.fx.ring(p.x, p.y, { radius: this.sq * 2.6, width: 6, color: '#ffcf6b' });
+    this.shake(24, 700);
+    playSfx('shatter');
+    await Promise.all([...lost.map((q) => this.kill(q, q, q)), this.collapse(cells)]);
+  }
+
   async collapse(cells) {
     const tiles = cells.map(([r, c]) => this.tiles.get(key(r, c))).filter(Boolean);
     tiles.forEach((t) => t.classList.add('cracking'));

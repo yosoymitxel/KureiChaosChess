@@ -8,6 +8,7 @@ export const MODIFIERS = {
   fog: { id: 'fog', name: 'Niebla densa', desc: 'El tablero se oscurece lejos de tus piezas.', icon: 'fog', weights: [0, 1, 2] },
   ice: { id: 'ice', name: 'Lago helado', desc: 'Al acabar sobre hielo, la pieza resbala una casilla más.', icon: 'ice', weights: [2, 2, 1] },
   portal: { id: 'portal', name: 'Portales', desc: 'Una pieza que acaba en un portal sale por su gemelo, al otro lado.', icon: 'portal', weights: [0, 2, 2] },
+  meteor: { id: 'meteor', name: 'Lluvia de meteoritos', desc: 'Cada pocos turnos se marca una cruz de casillas: al turno siguiente cae un meteorito, las hunde y se lleva lo que haya encima.', icon: 'meteor', weights: [0, 1, 1.5] },
   contagion: { id: 'contagion', name: 'Contagio', desc: 'Cada captura contagia de 2 a 3 piezas menores pegadas a la víctima: pasan al bando que capturó. Se juega con cuatro líneas de defensa.', icon: 'drop', weights: [0, 1, 1.5] },
   zombie: { id: 'zombie', name: 'Plaga zombi', desc: 'Las piezas menores (peón, caballo, alfil, guardia, consejero, elefante) no se quedan muertas: la capturada se levanta como zombi del bando que la derribó.', icon: 'skull', weights: [0, 1.5, 2] },
   coven: { id: 'coven', name: 'Aquelarre', desc: 'Cada rival esconde una bruja dormida (ojo verde). Si alguna de tus piezas puede tocarla, despierta (ojo rojo) y caza como casi una reina.', icon: 'target', weights: [0, 1, 1.5] },

@@ -282,3 +282,12 @@
 .prop.leaf > svg { width: calc(var(--sq) * 0.66); height: calc(var(--sq) * 0.66); }
 [data-art="pixel"] .pond-tile { background: oklch(0.5 0.07 215); box-shadow: inset 0 0 0 3px oklch(0.36 0.06 230); }
 @media (prefers-reduced-motion: reduce) { .bd-koi { animation: none; } }
+
+/* Meteorito: la cruz avisada late en rojo; la roca cae encendida. */
+.tile.doom { box-shadow: inset 0 0 0 calc(var(--sq) * 0.07) var(--danger), inset 0 0 0 999px oklch(0.6 0.2 30 / 0.28); animation: doom-pulse 0.9s ease-in-out infinite alternate; }
+@keyframes doom-pulse { to { box-shadow: inset 0 0 0 calc(var(--sq) * 0.07) var(--danger), inset 0 0 0 999px oklch(0.6 0.2 30 / 0.5); } }
+.meteor-rock { position: absolute; left: 0; top: 0; z-index: 8; width: calc(var(--sq) * 0.8); aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 35% 35%, #ffcf6b, #e2552b 45%, #5a2c1c 75%); box-shadow: 0 0 calc(var(--sq) * 0.4) #ff8a3d; }
+[data-art="pixel"] .meteor-rock { background: #e2552b; box-shadow: inset -6px -6px 0 #5a2c1c, inset 4px 4px 0 #ffcf6b; clip-path: polygon(25% 0, 75% 0, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0 75%, 0 25%); }
+[data-art="pixel"] .tile.doom { animation-timing-function: steps(2); }
+@media (prefers-reduced-motion: reduce) { .tile.doom { animation: none; } }
