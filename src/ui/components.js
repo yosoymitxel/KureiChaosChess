@@ -175,7 +175,7 @@ export function CardFace({ card, mini = false, shop = false }) {
 }
 
 // Deck-builder style pick: cards are dealt face down and flip over.
-export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = 'Quedármela' }) {
+export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = 'Quedármela', onBack }) {
   const [chosen, setChosen] = useState(null);
   const row = useRef(null);
   useEffect(() => {
@@ -184,7 +184,7 @@ export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = 'Qu
       { duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: motionStagger(0.12, { startDelay: 0.15 }) });
   }, []);
   return html`<div class="screen pick">
-    <${Topbar} title=${title} />
+    <${Topbar} title=${title} onBack=${onBack} />
     <div class="pick-body">
       <p class="pick-sub">${subtitle}</p>
       <div class=${'card-row' + (chosen ? ' has-sel' : '')} ref=${row}>

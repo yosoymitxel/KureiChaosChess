@@ -210,7 +210,15 @@ export function App() {
 
   const onReward = (card) => {
     if (reward.kind === 'mutation') { setRun((r) => ({ ...r, mutations: [...r.mutations, card.id] })); return goTo('map'); }
+    if (reward.kind === 'tactic' && (run.cards || []).length >= HAND_LIMIT) {
+      const cards = [...run.cards, card.id].map((id, slot) => ({ ...CARDS[id], kind: 'tactic', id: `${id}#${slot}`, slot }));
+      return setReward({ kind: 'swap', incoming: card.id, cards });
+    }
     if (reward.kind === 'tactic') { setRun((r) => addToHand(r, [card.id])); return goTo('map'); }
+    if (reward.kind === 'swap') {
+      if (card.slot < run.cards.length) setRun((r) => addToHand(consumeCard(r, card.slot), [reward.incoming]));
+      return goTo('map');
+    }
     if (reward.kind === 'rest') {
       if (card.id === 'extra_mut') { const next = completeNode(run, node); setRun(next); return mutationReward(next); }
       setRun((r) => completeNode(r, node, { bonuses: { ...r.bonuses, [card.id === 'promote_one' ? 'promoteOne' : 'furyNow']: true } }));
@@ -233,7 +241,8 @@ export function App() {
 
   const REWARD_TEXT = {
     mutation: ['Elige una mutación', 'Se aplica a tu ejército durante el resto de la run.'],
-    tactic: ['Elige una carta', `Va a tu mano y la juegas durante una partida, una por turno. Máximo ${HAND_LIMIT}: si está llena, sale la más antigua.`],
+    tactic: ['Elige una carta', `Va a tu mano y la juegas durante una partida, una por turno. Máximo ${HAND_LIMIT}: si está llena, eliges cuál sale.`],
+    swap: ['Mano llena', `Caben ${HAND_LIMIT} cartas: elige la que sale (puede ser la nueva).`],
     rest: ['Un momento de calma', 'Elige un beneficio para el camino.'],
     bag: ['Encuentras una bolsa', 'Llévate un objeto.'],
     mini: ['¡Minijuego superado!', 'Elige tu premio. Ya puedes jugarlo cuando quieras desde el menú.'],
@@ -256,7 +265,7 @@ export function App() {
     ${screen === 'reward' && reward && html`<${CardPick} key=${reward.kind + reward.cards.map((c) => c.id).join()}
       title=${REWARD_TEXT[reward.kind][0]}
       subtitle=${REWARD_TEXT[reward.kind][1] + (reward.coins ? ` La victoria paga ${reward.coins} monedas del jardín.` : '') + (reward.seed ? ` Cayó una semilla de ${ZEN_NAMES[reward.seed]}.` : '')}
-      cards=${reward.cards} onConfirm=${onReward} />`}
+      cards=${reward.cards} onConfirm=${onReward} confirmLabel=${reward.kind === 'swap' ? 'Que salga esta' : undefined} />`}
     ${screen === 'game' && node && seats && run && html`<${GameScreen} key=${node.id + '-' + gameKey}
       node=${node} run=${run} seats=${seats} settings=${settings} setSettings=${setSettings}
       onExit=${() => goTo('map')} onMenu=${() => goTo('menu')} onAbandon=${() => { setRun(null); goTo('menu'); }}
