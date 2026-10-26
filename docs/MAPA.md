@@ -223,33 +223,33 @@ src/game/fusion.js:20 at
 src/game/fusion.js:22 spawn
 src/game/fusion.js:34 +slide
 src/game/fusion.js:65 canMove
-## src/game/generate.js (435L)
+## src/game/generate.js (436L)
 src/game/generate.js:8 +generateMap
 src/game/generate.js:78 LESSONS
 src/game/generate.js:84 +tutorialMap
 src/game/generate.js:93 SHAPES
-src/game/generate.js:95 +generateBoard
-src/game/generate.js:149 +addTerrain
-src/game/generate.js:170 BACK_RANK
-src/game/generate.js:177 SECOND_RANK
-src/game/generate.js:184 pawnRank
-src/game/generate.js:185 centered
-src/game/generate.js:189 FORMATIONS
-src/game/generate.js:196 FORMATION_POOL
-src/game/generate.js:200 DEPLOYS
-src/game/generate.js:206 DEPLOY_POOL
-src/game/generate.js:207 spread
-src/game/generate.js:214 nextId
-src/game/generate.js:215 +makePiece
-src/game/generate.js:223 +eliteVariants
-src/game/generate.js:229 protectElites
-src/game/generate.js:244 ensureRare
-src/game/generate.js:255 strikesSoon
-src/game/generate.js:260 quickThreats
-src/game/generate.js:270 +placePieces
-src/game/generate.js:281 placeOnce
-src/game/generate.js:399 +placeBoss
-## src/game/hockey.js (220L)
+src/game/generate.js:96 +generateBoard
+src/game/generate.js:150 +addTerrain
+src/game/generate.js:171 BACK_RANK
+src/game/generate.js:178 SECOND_RANK
+src/game/generate.js:185 pawnRank
+src/game/generate.js:186 centered
+src/game/generate.js:190 FORMATIONS
+src/game/generate.js:197 FORMATION_POOL
+src/game/generate.js:201 DEPLOYS
+src/game/generate.js:207 DEPLOY_POOL
+src/game/generate.js:208 spread
+src/game/generate.js:215 nextId
+src/game/generate.js:216 +makePiece
+src/game/generate.js:224 +eliteVariants
+src/game/generate.js:230 protectElites
+src/game/generate.js:245 ensureRare
+src/game/generate.js:256 strikesSoon
+src/game/generate.js:261 quickThreats
+src/game/generate.js:271 +placePieces
+src/game/generate.js:282 placeOnce
+src/game/generate.js:400 +placeBoss
+## src/game/hockey.js (221L)
 src/game/hockey.js:3 +CELL
 src/game/hockey.js:4 +W
 src/game/hockey.js:5 +PUCK_R
@@ -267,18 +267,18 @@ src/game/hockey.js:20 +DIFFS
 src/game/hockey.js:26 clamp
 src/game/hockey.js:28 limits
 src/game/hockey.js:31 mallet
-src/game/hockey.js:33 +newHockey
-src/game/hockey.js:41 serve
-src/game/hockey.js:50 +aim
-src/game/hockey.js:56 drive
-src/game/hockey.js:67 +predictX
-src/game/hockey.js:76 +think
-src/game/hockey.js:118 bounceMallet
-src/game/hockey.js:138 capSpeed
-src/game/hockey.js:144 walls
-src/game/hockey.js:165 wall
-src/game/hockey.js:169 +step
-src/game/hockey.js:177 sub
+src/game/hockey.js:34 +newHockey
+src/game/hockey.js:42 serve
+src/game/hockey.js:51 +aim
+src/game/hockey.js:57 drive
+src/game/hockey.js:68 +predictX
+src/game/hockey.js:77 +think
+src/game/hockey.js:119 bounceMallet
+src/game/hockey.js:139 capSpeed
+src/game/hockey.js:145 walls
+src/game/hockey.js:166 wall
+src/game/hockey.js:170 +step
+src/game/hockey.js:178 sub
 ## src/game/izombie.js (96L)
 src/game/izombie.js:6 +ROWS
 src/game/izombie.js:9 +DIFFS
@@ -479,15 +479,15 @@ src/lab.js:95 play
 src/lab.js:100 scenes
 src/lab.js:106 cams
 ## src/main.js (5L)
-## src/ui/app.js (325L)
+## src/ui/app.js (353L)
 src/ui/app.js:30 REST_CARDS
 src/ui/app.js:35 BAG_CARDS
 src/ui/app.js:42 shuffle3
 src/ui/app.js:44 MINI_PRIZES
 src/ui/app.js:45 ONE_SHOT
 src/ui/app.js:47 +App
-src/ui/app.js:281 MutationReveal
-src/ui/app.js:297 AchievementToast
+src/ui/app.js:309 MutationReveal
+src/ui/app.js:325 AchievementToast
 ## src/ui/components.js (221L)
 src/ui/components.js:11 +ThemeLook
 src/ui/components.js:19 +Topbar
@@ -514,15 +514,14 @@ src/ui/fullscreen.js:5 +canFullscreen
 src/ui/fullscreen.js:6 isFull
 src/ui/fullscreen.js:8 +setFullscreen
 src/ui/fullscreen.js:14 +useFullscreen
-## src/ui/hop.js (125L)
+## src/ui/hop.js (79L)
 src/ui/hop.js:8 OUT
 src/ui/hop.js:9 +reduced
 src/ui/hop.js:10 speed
-src/ui/hop.js:11 gooCount
-src/ui/hop.js:14 gooOf
-src/ui/hop.js:29 liquid
-src/ui/hop.js:81 +hopPiece
-src/ui/hop.js:120 +popPiece
+src/ui/hop.js:13 gooOf
+src/ui/hop.js:28 puddle
+src/ui/hop.js:35 +hopPiece
+src/ui/hop.js:74 +popPiece
 ## src/ui/icons.js (105L)
 src/ui/icons.js:8 CUT
 src/ui/icons.js:9 cut
@@ -540,14 +539,17 @@ src/ui/lib.js:4 +html
 src/ui/mini-board.js:9 +MiniBoard
 src/ui/mini-board.js:28 sync
 src/ui/mini-board.js:68 +zombies
-## src/ui/moments.js (292L)
+## src/ui/moments.js (309L)
 src/ui/moments.js:11 OUT
 src/ui/moments.js:12 IN
 src/ui/moments.js:13 reduced
 src/ui/moments.js:14 sleep
 src/ui/moments.js:16 skippable
-src/ui/moments.js:24 color
-src/ui/moments.js:26 +Moments
+src/ui/moments.js:26 discPx
+src/ui/moments.js:34 TOSS_CROSS
+src/ui/moments.js:35 tossFace
+src/ui/moments.js:39 color
+src/ui/moments.js:41 +Moments
 ## src/ui/screens/achievements.js (47L)
 src/ui/screens/achievements.js:8 Bar
 src/ui/screens/achievements.js:11 +AchievementsScreen
@@ -584,17 +586,18 @@ src/ui/screens/gallery.js:25 ThemeGroup
 src/ui/screens/gallery.js:40 RULE
 src/ui/screens/gallery.js:41 Locked
 src/ui/screens/gallery.js:43 +GalleryScreen
-## src/ui/screens/game.js (708L)
+## src/ui/screens/game.js (710L)
 src/ui/screens/game.js:27 SIDE_NAME
 src/ui/screens/game.js:30 pieceName
 src/ui/screens/game.js:32 TIPS
 src/ui/screens/game.js:41 cardEffect
-src/ui/screens/game.js:54 +GameScreen
-src/ui/screens/game.js:679 EndOverlay
-## src/ui/screens/hockey.js (198L)
+src/ui/screens/game.js:55 +GameScreen
+src/ui/screens/game.js:681 EndOverlay
+## src/ui/screens/hockey.js (207L)
 src/ui/screens/hockey.js:11 KEYS
-src/ui/screens/hockey.js:12 css
-src/ui/screens/hockey.js:14 +HockeyScreen
+src/ui/screens/hockey.js:13 TOP_KEYS
+src/ui/screens/hockey.js:14 css
+src/ui/screens/hockey.js:17 +HockeyScreen
 ## src/ui/screens/izombie.js (56L)
 src/ui/screens/izombie.js:10 +IZombieScreen
 ## src/ui/screens/laststand.js (64L)
@@ -641,12 +644,16 @@ src/ui/screens/scenario.js:33 +OutbreakScreen
 src/ui/screens/scenario.js:34 +ClockScreen
 src/ui/screens/scenario.js:35 +BlindScreen
 src/ui/screens/scenario.js:36 +WitchScreen
-## src/ui/screens/setup.js (145L)
+## src/ui/screens/setup.js (181L)
 src/ui/screens/setup.js:13 SIDES
 src/ui/screens/setup.js:20 +RUN_MECHANICS
 src/ui/screens/setup.js:21 PrefsCard
-src/ui/screens/setup.js:43 +SetupScreen
-src/ui/screens/setup.js:95 +SettingsScreen
+src/ui/screens/setup.js:42 VERSUS_ROUNDS
+src/ui/screens/setup.js:43 VERSUS_SIZES
+src/ui/screens/setup.js:44 VERSUS_SHAPES
+src/ui/screens/setup.js:45 VersusCard
+src/ui/screens/setup.js:77 +SetupScreen
+src/ui/screens/setup.js:131 +SettingsScreen
 ## src/ui/screens/shop.js (142L)
 src/ui/screens/shop.js:14 CARD_LIST
 src/ui/screens/shop.js:16 +ShopScreen
@@ -738,18 +745,20 @@ src/ui/zen-art.js:227 +boardPond
 src/ui/zen-art.js:232 +stoneArt
 src/ui/zen-art.js:238 +ITEM_ART
 src/ui/zen-art.js:243 +KOI_ART
-## src/view/board-view.js (1019L)
-src/view/board-view.js:12 +CAMERAS
-src/view/board-view.js:13 JUMPERS
-src/view/board-view.js:14 reduced
-src/view/board-view.js:15 gooCount
+## src/view/board-view.js (970L)
+src/view/board-view.js:13 +CAMERAS
+src/view/board-view.js:14 JUMPERS
+src/view/board-view.js:15 reduced
 src/view/board-view.js:16 wait
 src/view/board-view.js:17 css
 src/view/board-view.js:19 +collapseTiles
 src/view/board-view.js:31 BADGES
 src/view/board-view.js:39 +BoardView
-## src/view/fx.js (140L)
+## src/view/fx.js (166L)
 src/view/fx.js:6 +Fx
+## src/view/liquid.js (50L)
+src/view/liquid.js:6 count
+src/view/liquid.js:11 +liquid
 ## src/view/piece-art.js (129L)
 src/view/piece-art.js:10 F
 src/view/piece-art.js:11 STROKE
@@ -813,7 +822,7 @@ css/board.css:225 /* Etiqueta de casilla: ficha de papel con pico, encima de la 
 css/board.css:240 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
 css/board.css:246 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
 css/board.css:263 /* Estanque del centro abierto y coleccionables: tumbados sobre
-## css/pixel.css (70L)
+## css/pixel.css (85L)
 css/pixel.css:1 /* Modo píxel: con un tema píxel (data-art="pixel", ver src/dat
 css/pixel.css:6 /* Jersey 10 (OFL), servida desde el juego: el subconjunto lati
 css/pixel.css:20 /* Solo elementos: con ::before y ::after el navegador calculab
@@ -824,7 +833,9 @@ css/pixel.css:50 /* La fuente bitmap es más ancha: el nombre largo baja un punt
 css/pixel.css:53 /* Tableros de los minijuegos: las mismas losas del tema que el
 css/pixel.css:59 /* Jardín Zen: cada dibujo trae su sprite (zen-art.js) y aquí s
 css/pixel.css:68 /* La moneda de cara o cruz, en escalones.
-## css/screens.css (1310L)
+css/pixel.css:76 /* Sombra de la pieza y koi del estanque del tablero, sin degra
+css/pixel.css:79 /* Fichas de damas (bolos, damas): disco escalonado y estrías d
+## css/screens.css (1314L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
 css/screens.css:12 /* Menu: asymmetric, the diorama is the focal point and the tit
@@ -938,12 +949,12 @@ css/screens.css:1153 /* La línea roja del original: hasta ahí se lanza.
 css/screens.css:1155 /* La ficha que rueda va como elemento para que Motion la pueda
 css/screens.css:1156 /* La ficha es una pieza de damas vista en perspectiva: disco c
 css/screens.css:1166 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
-css/screens.css:1180 /* Avance de la oleada con el banderín de la horda al 70 %.
-css/screens.css:1187 /* La cinta: las fichas que vienen, la primera se lanza al toca
-css/screens.css:1199 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
-css/screens.css:1204 /* Selector de mecánicas de la run: favorita en latón, vetada t
-css/screens.css:1213 /* Mobile-first repair: keep the game surface visible instead o
-css/screens.css:1245 /* The animation lab must give its remaining viewport to the li
-css/screens.css:1288 /* Mobile: floating sandwich button for minigame controls (lab 
+css/screens.css:1184 /* Avance de la oleada con el banderín de la horda al 70 %.
+css/screens.css:1191 /* La cinta: las fichas que vienen, la primera se lanza al toca
+css/screens.css:1203 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
+css/screens.css:1208 /* Selector de mecánicas de la run: favorita en latón, vetada t
+css/screens.css:1217 /* Mobile-first repair: keep the game surface visible instead o
+css/screens.css:1249 /* The animation lab must give its remaining viewport to the li
+css/screens.css:1292 /* Mobile: floating sandwich button for minigame controls (lab 
 ## css/tokens.css (40L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.

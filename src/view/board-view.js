@@ -4,6 +4,7 @@
 import { animate, stagger } from 'animejs';
 import { pieceSVG, headTop, artOf } from './piece-art.js';
 import { Fx } from './fx.js';
+import { liquid } from './liquid.js';
 import { playSfx } from '../ui/sfx.js';
 import { key, cellsOf, sizeOf, portalAt } from '../game/rules.js';
 import { render } from '../ui/lib.js';
@@ -12,7 +13,6 @@ import { boardPond } from '../ui/zen-art.js';
 export const CAMERAS = { flat: 0, tilt: 40, epic: 56 };
 const JUMPERS = new Set(['knight', 'camel', 'elephant']);
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-let gooCount = 0; // filter ids must be unique across every board on the page
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
@@ -653,9 +653,8 @@ export class BoardView {
       await animate(fig, { scaleY: 0.86, scaleX: 1.08, duration: this.d(80), ease: 'outQuad' });
       animate(fig, { scaleY: 1, scaleX: 1, duration: this.d(120), ease: 'outQuad' });
     }
-    // Jumpers fly over what is in between: a puddle oozing along the L would hide the jump.
     // El charco líquido es un filtro de desenfoque: en las mesas píxel la pieza salta sin él.
-    if (!reduced() && !jumper && document.documentElement.dataset.art !== 'pixel') await this.liquid(piece, from, to, dur);
+    if (!reduced() && document.documentElement.dataset.art !== 'pixel') this.liquid(piece, from, to, dur);
     const stretch = fig && !reduced() ? this.stretcher(fig, st) : null;
     await animate(st, {
       r: to.row, c: to.col, z: [0, arc, 0], duration: dur,
@@ -697,73 +696,23 @@ export class BoardView {
     if (promoted) await this.promote(piece);
   }
 
-  // Liquid base: the token melts into a puddle that reaches over every tile of the route
-  // (round the corner of an L), then its tail drains after the piece and it sets as a disc again.
-  // Resolves once the puddle has reached the destination, so the piece takes off on cue.
+  // Liquid base: the token melts away where it stands (flattens, splashes two drops) and
+  // wells up again where the piece lands. Nothing crosses the board, so an L or a 2×2 boss
+  // never drags a puddle round corners. Runs alongside the flight; the base is back on landing.
   liquid(p, from, to, dur) {
     const el = this.els.get(p), base = el?.querySelector('.pc-base');
-    if (!base) return Promise.resolve();
+    if (!base) return;
     const [h, w] = sizeOf(p);
     const k = el.classList.contains('boss') ? 0.36 : 0.27; // matches the .pc-base inset
     const rx = k * w, ry = k * h;
-    const at = (r, c) => [c + w / 2, r + h / 2];
-    const dr = to.row - from.row, dc = to.col - from.col;
-    const pts = [at(from.row, from.col)];
-    if (dr && dc && Math.abs(dr) !== Math.abs(dc)) pts.push(Math.abs(dr) > Math.abs(dc) ? at(to.row, from.col) : at(from.row, to.col));
-    pts.push(at(to.row, to.col));
-    const lens = pts.slice(1).map((b, i) => Math.hypot(b[0] - pts[i][0], b[1] - pts[i][1]));
-    const total = lens.reduce((a, b) => a + b, 0) || 1;
-    const cum = lens.reduce((acc, l) => [...acc, acc[acc.length - 1] + l / total], [0]);
-    const point = (t) => {
-      const i = Math.max(0, cum.findIndex((v, j) => j > 0 && t <= v) - 1);
-      const f = cum[i + 1] > cum[i] ? (t - cum[i]) / (cum[i + 1] - cum[i]) : 0;
-      return pts[i].map((v, j) => v + (pts[i + 1][j] - v) * Math.min(1, f));
-    };
-    const route = (t0, t1) => [point(t0), ...pts.filter((_, i) => cum[i] > t0 && cum[i] < t1), point(t1)];
-
-    const id = `goo-${++gooCount}`, px = 1 / this.sq;
-    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.setAttribute('class', `side-${p.color}`);
-    // Blur + alpha threshold melts the shapes together; the erosions redraw the token's
-    // ink outline (1.5px) and inner rim (4px) on whatever shape the puddle takes.
-    g.innerHTML = `<filter id="${id}" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" x="-1" y="-1" width="${this.board.cols + 2}" height="${this.board.rows + 2}">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="0.07"/>
-        <feComponentTransfer result="g"><feFuncA type="linear" slope="24" intercept="-11"/></feComponentTransfer>
-        <feFlood class="ink"/><feComposite in2="g" operator="in" result="o"/>
-        <feMorphology in="g" operator="erode" radius="${1.5 * px}" result="e1"/>
-        <feFlood class="rim"/><feComposite in2="e1" operator="in" result="r"/>
-        <feMorphology in="g" operator="erode" radius="${4 * px}" result="e2"/>
-        <feFlood class="fill"/><feComposite in2="e2" operator="in" result="f"/>
-        <feMerge><feMergeNode in="o"/><feMergeNode in="r"/><feMergeNode in="f"/></feMerge>
-      </filter>
-      <g filter="url(#${id})"><polyline fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="${Math.min(rx, ry) * 1.1}"/><ellipse rx="${rx}" ry="${ry}"/><ellipse rx="${rx}" ry="${ry}"/></g>`;
-    this.gooEl.appendChild(g);
-    const [neck, tail, head] = g.querySelectorAll('polyline, ellipse');
-    const s = { head: 0, tail: 0 };
-    // El charco conserva su volumen: cuanto más se estira, más fino el cuello; la cabeza se
-    // alarga hacia donde corre y la cola se encoge mientras se vacía.
-    const r0 = Math.min(rx, ry), dir = (t) => { const [a, b] = [point(Math.max(0, t - 0.02)), point(Math.min(1, t + 0.02))]; return (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI; };
-    const draw = () => {
-      const [hx, hy] = point(s.head), [tx, ty] = point(s.tail);
-      const len = (s.head - s.tail) * total, thin = 1 / (1 + 0.45 * len), lead = 1 + 0.35 * Math.min(1, len);
-      head.setAttribute('cx', hx); head.setAttribute('cy', hy);
-      head.setAttribute('rx', rx * lead); head.setAttribute('ry', ry / Math.sqrt(lead));
-      head.setAttribute('transform', `rotate(${dir(s.head)} ${hx} ${hy})`);
-      tail.setAttribute('cx', tx); tail.setAttribute('cy', ty);
-      tail.setAttribute('rx', rx * (0.55 + 0.45 * thin)); tail.setAttribute('ry', ry * (0.55 + 0.45 * thin));
-      neck.setAttribute('stroke-width', r0 * Math.max(0.42, 1.1 * thin));
-      neck.setAttribute('points', route(s.tail, s.head).map((q) => q.join(',')).join(' '));
-    };
-    draw();
     base.style.opacity = 0;
-    const reach = this.d(Math.min(260, 120 + total * 40));
-    animate(s, { tail: 1, delay: reach, duration: dur, ease: 'inOutSine', onUpdate: draw, onComplete: () => {
-      g.remove();
+    liquid(this.gooEl, {
+      side: p.color, rx, ry, px: 1 / this.sq, area: [this.board.cols, this.board.rows], dur,
+      from: [from.col + w / 2, from.row + h / 2], to: [to.col + w / 2, to.row + h / 2],
+    }).then(() => {
       base.style.opacity = '';
       animate(base, { scaleX: [1.16, 0.95, 1], scaleY: [0.86, 1.04, 1], duration: this.d(320), ease: 'outQuad' });
-    } });
-    // Al llegar, unas gotas saltan del frente del charco.
-    return animate(s, { head: 1, duration: reach, ease: 'outExpo', onUpdate: draw }).then(() => {
+      // Al brotar en el destino, unas gotas saltan del charco.
       const c = this.centerOf(p, to.row, to.col);
       this.fx.burst(c.x, c.y, { count: 8, color: [css('--side-' + p.color)], speed: [40, 120], size: [2, 4], life: [0.25, 0.5], gravity: 500 });
     });
