@@ -1,11 +1,11 @@
 // Tienda del jardín: las monedas que pagan tus flores se cambian por cartas y mesas.
 import { html, useRef, useState } from '../lib.js';
-import { Topbar, useEnter, CardFace, RARITY_LABEL, ThemeLook } from '../components.js';
+import { Topbar, useEnter, CardFace, CardPick, RARITY_LABEL, ThemeLook } from '../components.js';
 import { Icon } from '../icons.js';
 import { CARDS, HAND_LIMIT } from '../../game/cards.js';
 import { THEMES } from '../../data/themes.js';
 import { award } from '../../game/achievements.js';
-import { CARD_PRICE, COINS_PER_FLOWER, COINS_PER_NODE, PENDING_LIMIT, SEED_PRICE, THEME_SHOP, addPending, addToHand, charge, grantTheme, isShopCard, loadShop, themeOwned } from '../../game/shop.js';
+import { CARD_PRICE, COINS_PER_FLOWER, COINS_PER_NODE, PENDING_LIMIT, SEED_PRICE, THEME_SHOP, addPending, addToHand, consumeCard, charge, grantTheme, isShopCard, loadShop, themeOwned } from '../../game/shop.js';
 import { ZEN_KINDS, ZEN_NAMES, addZenSeeds, loadZen } from '../../game/zen.js';
 import { chipArt } from '../zen-art.js';
 import { playSfx } from '../sfx.js';
@@ -19,14 +19,22 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
   const [seeds, setSeeds] = useState(() => loadZen().seeds);
   const refresh = () => setShop(loadShop());
 
-  const buyCard = (card) => {
+  const [swap, setSwap] = useState(null); // carta por comprar con la mano llena: antes se elige cuál sale
+  // `drop`: la carta de la mano que sale para hacerle sitio.
+  const buyCard = (card, drop) => {
+    if (run && drop == null && (run.cards || []).length >= HAND_LIMIT) return setSwap(card);
     if (!charge(CARD_PRICE[card.rarity || 'common'])) return;
     award('buy_card');
-    if (run) setRun((r) => addToHand(r, [card.id], true));
+    if (run) setRun((r) => addToHand(drop == null ? r : consumeCard(r, drop), [card.id], true));
     else addPending(card.id);
     playSfx('coin');
     refresh();
   };
+  if (swap) {
+    const cards = (run.cards || []).map((id, slot) => ({ ...CARDS[id], kind: 'tactic', id: `${id}#${slot}`, slot }));
+    return html`<${CardPick} title="Mano llena" subtitle=${`Para comprar ${swap.name} sale una de tu mano.`}
+      cards=${cards} onBack=${() => setSwap(null)} confirmLabel="Que salga esta" onConfirm=${(c) => { setSwap(null); buyCard(swap, c.slot); }} />`;
+  }
   const tapTheme = (id) => {
     if (themeOwned(id)) return setSettings((s) => ({ ...s, theme: id }));
     if (!charge(THEME_SHOP[id])) return;
@@ -55,7 +63,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
         <section class="panel shop-card shop-pane-hand" data-enter>
           <h2>${run ? 'Tu mano en la run' : 'Para la próxima run'}</h2>
           ${run
-            ? html`<p class="shop-note">Máximo ${HAND_LIMIT} cartas: si la mano está llena, al comprar sale la más antigua. Las compradas llevan la moneda en la esquina.</p>
+            ? html`<p class="shop-note">Máximo ${HAND_LIMIT} cartas: si la mano está llena, al comprar eliges cuál sale. Las compradas llevan la moneda en la esquina.</p>
               <div class="shop-hand">
                 ${hand.map((id, i) => html`<div class="hand-card" key=${id + '-' + i}><${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini shop=${isShopCard(run, i)} /></div>`)}
               </div>`

@@ -34,7 +34,7 @@
   color: var(--paper);
   text-shadow: 0 1px 0 var(--paper-3), 0 2px 0 var(--paper-3), 0 3px 0 var(--paper-3), 0 4px 0 var(--ink), 0 5px 0 var(--ink), 0 6px 0 var(--ink), 0 14px 22px oklch(0.1 0.03 55 / 0.55);
 }
-.logo h1 span { color: var(--accent); display: block; }
+.logo h1 span { color: var(--accent); display: block; font-size: 0.52em; }
 .logo p { margin: 22px 0 0; max-width: 34ch; font-size: 16px; color: var(--paper-2); }
 .menu-actions { display: flex; flex-direction: column; gap: 14px; margin-top: 34px; max-width: 320px; }
 .menu-row { display: flex; gap: 10px; }
@@ -106,6 +106,13 @@
 .setup-body { flex: 1; overflow: auto; display: flex; flex-direction: column; justify-content: safe center; gap: 16px; padding: 8px 20px 40px; width: min(560px, 100%); margin: 0 auto; }
 .setup-card { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
 .setup-card h2 + .segmented { margin-top: -2px; }
+/* En PC la mesa cabe sin desplazar: las mecánicas en su columna, el resto en la otra. */
+@media (min-width: 900px) {
+  .setup .setup-body:has(.prefs) { display: grid; grid-template-columns: repeat(2, minmax(0, 480px)); justify-content: center; align-content: safe center; align-items: start; width: min(1040px, 100%); }
+  .setup .setup-body:has(.prefs) > * { grid-column: 1; }
+  .setup .setup-body > .prefs { grid-column: 2; grid-row: 1 / span 5; }
+  .setup .setup-body:has(.prefs) > .btn.big { grid-column: 1 / -1; justify-self: center; }
+}
 .mod-card { display: flex; gap: 14px; align-items: flex-start; }
 .mod-card p { margin: 4px 0 0; font-size: 13.5px; color: var(--ink-2); }
 .rival-line { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding-top: 10px; border-top: 2px dashed color-mix(in oklch, var(--ink), transparent 85%); }
@@ -323,7 +330,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .cine-hp b.on { background: var(--danger); }
 .cine-skip { position: absolute; bottom: 4.5%; left: 0; right: 0; text-align: center; font-size: 13px; color: var(--paper-3); }
 
-.moment.callout { top: 32%; bottom: auto; display: flex; align-items: center; justify-content: center; gap: clamp(16px, 2.5vw, 28px); padding: clamp(20px, 3.4vh, 34px) clamp(28px, 6vw, 80px); }
+.moment.callout { top: 50%; bottom: auto; translate: 0 -50%; display: flex; align-items: center; justify-content: center; gap: clamp(16px, 2.5vw, 28px); padding: clamp(20px, 3.4vh, 34px) clamp(28px, 6vw, 80px); }
 .callout .band { position: absolute; inset: 0; background: var(--ink); rotate: -2deg; }
 .callout.tone-danger .band { background: var(--danger); }
 .callout.tone-brass .band { background: var(--brass); }
@@ -735,10 +742,11 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .zn-yard.dig .bm-cell.zn-raw { cursor: pointer; }
 .zn-yard.dig .bm-cell.zn-raw::after { border-color: var(--brass); }
 /* Galería: grupos de imágenes; las bloqueadas son placeholders honestos. */
-.gal-group { width: 100%; max-width: 560px; }
+.gal-group { width: 100%; max-width: 760px; }
 .gal-title { margin: 0 0 8px; font-size: 16px; font-weight: 800; color: var(--paper); }
-.gal-row { display: flex; flex-wrap: wrap; gap: 10px; }
-.gal-item { margin: 0; display: grid; justify-items: center; gap: 4px; }
+/* Celdas del mismo ancho: el nombre, corto o largo, no descuadra la fila. */
+.gal-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 12px 10px; }
+.gal-item { margin: 0; display: grid; justify-items: center; align-content: start; gap: 4px; text-align: center; }
 .gal-art { display: grid; place-items: center; width: 72px; height: 72px; padding: 8px; border: 2px solid var(--ink); border-radius: var(--r-md); background: var(--tile-b); background-image: var(--grain); }
 .gal-art svg { width: 100%; height: 100%; }
 .gal-item figcaption { font-size: 12px; font-weight: 700; color: var(--paper-3); }
@@ -962,6 +970,9 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
   --cell: max(16px, min(calc((100cqw - 26px) / var(--cols, var(--n))), calc((100cqh - 56px) / var(--rows, var(--n))), 64px));
   transform: translateY(4%) rotateX(15deg);
   border-color: color-mix(in oklch, var(--tile-side), black 38%);
+}
+/* El marco de losa: el mismo para el tablero de minijuego (BoardView framed) y los MiniGrid que quedan. */
+.bm.bm-slab, .board.framed {
   box-shadow:
     0 0 0 2px var(--ink),
     0 0 0 7px color-mix(in oklch, var(--tile-side), black 8%),
@@ -1099,9 +1110,6 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .br-wall.ghost { background: var(--brass); opacity: 0.8; }
 .br-wall.ghost.bad { background: var(--danger); }
 .btn.on { background: var(--brass); color: var(--ink); }
-.bm-cell.drop { box-shadow: inset 0 0 0 3px var(--brass); }
-.bm-cell.goal { background-color: color-mix(in oklch, var(--tile-a), var(--side-dark) 25%); }
-.bm-cell.goal.aim { box-shadow: inset 0 0 0 2px color-mix(in oklch, var(--brass), transparent 40%); }
 /* El aro de vida del tablero (pc-hp) a escala de casilla, dentro de ella para que la fila de arriba no lo recorte. */
 .bm .pc-hp { top: 1px; translate: -50% 0; gap: calc(var(--cell) * 0.06); padding: calc(var(--cell) * 0.05) calc(var(--cell) * 0.1); pointer-events: none; }
 .bm .pc-hp b { width: calc(var(--cell) * 0.16); height: calc(var(--cell) * 0.16); }
@@ -1123,20 +1131,6 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .dots i.off { background: oklch(1 0 0 / 0.14); }
 /* La última oleada es la horda: su punto es un banderín bermellón. */
 .dots i.flag { border-radius: 2px 6px 6px 2px; width: 12px; outline: 2px solid var(--accent); outline-offset: 1px; }
-/* En Yo, Zombi la fila de compra llama con un + en cada hueco donde cabe la pieza elegida. */
-/* Casillas que la defensa captura: tinte rojo, la lectura que le faltaba al minijuego. */
-.iz .bm-cell.hot { background-color: color-mix(in oklch, var(--tile-a), var(--danger) 48%); }
-.iz .bm-cell.b.hot { background-color: color-mix(in oklch, var(--tile-b), var(--danger) 48%); }
-/* Trofeo por tomar en su columna de la meta (los cerebros de I, Zombie). */
-.iz .bm-cell.trophy::before {
-  content: ''; position: absolute; right: 4%; bottom: 4%; width: 38%; height: 38%; z-index: 3; background: var(--ink);
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 3h12v5.5a6 6 0 0 1-12 0zM6 5H3v2a4 4 0 0 0 3.6 4l.6-1.8A2 2 0 0 1 5 7V5zM18 5h3v2a4 4 0 0 1-3.6 4l-.6-1.8A2 2 0 0 0 19 7V5zM10.5 13.5h3v4h-3zM7 17.5h10v3.5H7z'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 3h12v5.5a6 6 0 0 1-12 0zM6 5H3v2a4 4 0 0 0 3.6 4l.6-1.8A2 2 0 0 1 5 7V5zM18 5h3v2a4 4 0 0 1-3.6 4l-.6-1.8A2 2 0 0 0 19 7V5zM10.5 13.5h3v4h-3zM7 17.5h10v3.5H7z'/%3E%3C/svg%3E") center / contain no-repeat;
-  opacity: 0.85; pointer-events: none;
-}
-.iz .bm-cell.drop::after { content: '+'; position: absolute; inset: 0; display: grid; place-items: center; font-size: calc(var(--cell) * 0.42); font-weight: 800; color: var(--brass); opacity: 0.9; pointer-events: none; }
-/* En Última resistencia la casilla admite un plano: borde discontinuo, sin signo. */
-.ls .bm-cell.drop { box-shadow: none; outline: 2px dashed var(--brass); outline-offset: -4px; }
 .bm-cell.lane { background-color: color-mix(in oklch, var(--tile-a), var(--side-light) 45%); }
 /* El número del carril en su esquina: es la tecla que lo lanza. */
 .bw { counter-reset: lane; }
@@ -1146,16 +1140,22 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .bw .bm-cell.lane0::before { counter-increment: lane; content: counter(lane); position: absolute; top: 0; left: 3px; z-index: 2; font-size: max(11px, calc(var(--cell) * 0.24)); font-weight: 800; color: var(--ink-2); pointer-events: none; }
 /* La línea roja del original: hasta ahí se lanza. */
 .bw .bm-cell.line { background-image: linear-gradient(to left, var(--accent) 3px, transparent 3px); }
-.bw .bm-cell.drop { box-shadow: none; }
 /* La ficha que rueda va como elemento para que Motion la pueda mover entre casillas. */
-/* La ficha es una pieza de damas vista en perspectiva: disco con estrías concéntricas y canto grueso. */
-.bm-tok {
+/* La ficha es una pieza de damas vista en perspectiva: disco con estrías concéntricas y canto grueso.
+   La misma ficha hace de pieza en Damas (.pc.disc del tablero común, en lugar de la figura). */
+.bm-tok, .pc.disc .pc-art::before {
   --tk: var(--side-light); --tk-2: color-mix(in oklch, var(--side-light), var(--ink) 38%);
   position: absolute; left: 12%; right: 12%; top: 30%; bottom: 18%; border-radius: 50%; pointer-events: none; z-index: 1;
   background: radial-gradient(closest-side, var(--tk) 0 34%, var(--tk-2) 36% 42%, var(--tk) 44% 70%, var(--tk-2) 72% 78%, var(--tk) 80%);
   outline: 2px solid var(--ink); outline-offset: -2px;
   box-shadow: 0 calc(var(--cell) * 0.08) 0 var(--tk-2), 0 calc(var(--cell) * 0.08) 0 2px var(--ink), 0 calc(var(--cell) * 0.14) 6px oklch(0 0 0 / 0.35);
 }
+.pc.disc { --cell: var(--sq); }
+.pc.disc .pc-art { position: relative; }
+.pc.disc .pc-art::before { content: ''; top: auto; bottom: 6%; height: 56%; }
+.pc.disc .pc-art svg, .pc.disc .pc-base i { display: none; }
+.pc.disc.side-dark .pc-art::before { --tk: var(--side-dark); --tk-2: color-mix(in oklch, var(--side-dark), black 40%); }
+.pc.disc.crown .pc-art::after { content: ''; position: absolute; z-index: 2; left: 31%; right: 31%; bottom: 23%; height: 24%; background: var(--brass); clip-path: polygon(0 100%, 0 20%, 25% 55%, 50% 0, 75% 55%, 100% 20%, 100% 100%); }
 .bm-cell.boom .bm-tok { --tk: var(--accent); --tk-2: var(--accent-ink); }
 .bm-cell.boom .bm-tok::after { content: ''; position: absolute; left: 50%; top: -34%; width: 3px; height: 40%; background: var(--ink); translate: -50% 0; border-radius: 2px; }
 .bm-cell.boom .bm-tok::before { content: ''; position: absolute; left: 50%; top: -48%; width: 12px; height: 12px; translate: -50% 0; background: radial-gradient(#fff2c2 0 30%, #ffcf6b 31% 60%, #ff8a3d 61%); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
@@ -1184,51 +1184,6 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .bm-ghost svg { width: 92%; height: 92%; }
 .bm-pc.hit svg { filter: brightness(2.4) saturate(0.25); }
 .bm.lost { filter: saturate(0.35) brightness(0.85); transition: filter 0.8s var(--ease-out); }
-.bm-cell.mv::after { content: ''; position: absolute; width: 26%; height: 26%; border-radius: 50%; background: var(--legal); border: 2px solid var(--ink); z-index: 2; }
-.bm-cell.sel { box-shadow: inset 0 0 0 3px var(--brass); }
-/* Damas: la misma ficha de damas de Bolos, del color de cada bando; la coronada lleva corona de latón. */
-.ck-tok {
-  --tk: var(--side-light); --tk-2: color-mix(in oklch, var(--side-light), var(--ink) 38%);
-  position: absolute; left: 14%; right: 14%; top: 24%; bottom: 20%; border-radius: 50%; z-index: 1; pointer-events: none;
-  background: radial-gradient(closest-side, var(--tk) 0 34%, var(--tk-2) 36% 42%, var(--tk) 44% 70%, var(--tk-2) 72% 78%, var(--tk) 80%);
-  outline: 2px solid var(--ink); outline-offset: -2px;
-  box-shadow: 0 calc(var(--cell) * 0.08) 0 var(--tk-2), 0 calc(var(--cell) * 0.08) 0 2px var(--ink), 0 calc(var(--cell) * 0.14) 6px oklch(0 0 0 / 0.35);
-}
-.ck-tok.tk-dark { --tk: var(--side-dark); --tk-2: color-mix(in oklch, var(--side-dark), black 40%); }
-.ck-tok.king::after {
-  content: ''; position: absolute; inset: 26% 24% 30%; background: var(--brass);
-  clip-path: polygon(0 100%, 0 20%, 25% 55%, 50% 0, 75% 55%, 100% 20%, 100% 100%);
-}
-.ck .bm-cell.a { background-color: var(--tile-a); cursor: default; }
-.ck .bm-cell.can .ck-tok { outline-color: var(--brass); outline-width: 3px; }
-.ck .bm-cell.jump::after { background: var(--danger); }
-.bm-cell.target { outline: calc(var(--cell) * 0.12) solid var(--brass); outline-offset: calc(var(--cell) * -0.12); }
-.bm-cell.closed { background: color-mix(in oklch, var(--tile-side), black 55%); box-shadow: inset 0 7px 12px oklch(0 0 0 / 0.62); }
-/* Suelo hundido: la casilla que se cae se lee como pozo, no como peligro. */
-.bm-cell.hole { background: radial-gradient(circle at 50% 38%, #000 0 42%, color-mix(in oklch, var(--tile-side), black 55%) 100%); box-shadow: inset 0 8px 14px oklch(0 0 0 / 0.78), inset 0 -2px 0 oklch(0 0 0 / 0.5); cursor: default; animation: hole-sink 0.42s var(--ease-out) both; }
-@keyframes hole-sink { 0% { transform: none; filter: none; } 35% { transform: scale(0.9); filter: brightness(0.4); } 100% { transform: none; filter: none; } }
-/* Contrabando: salida y portales se distinguen de un vistazo. */
-.bm-cell.exit { background: color-mix(in oklch, var(--tile-a), var(--brass) 30%); outline: calc(var(--cell) * 0.09) solid var(--brass); outline-offset: calc(var(--cell) * -0.09); }
-.bm-cell.portal {
-  background-image: radial-gradient(circle at 50% 50%, var(--ink) 0 28%, var(--pair, var(--brass)) 29% 46%, var(--ink) 47% 58%, var(--pair, var(--brass)) 59% 70%, transparent 71%);
-  background-size: 72% 72%; background-position: center; background-repeat: no-repeat;
-}
-.bm-cell.sample .bm-tok { --tk: var(--brass); --tk-2: color-mix(in oklch, var(--brass), var(--ink) 42%); }
-.bm-cell.sample.mv::after { inset: auto 8% 8% auto; width: 13%; height: 13%; }
-.bm-cell.exit.locked { outline-style: dashed; }
-/* Contrabando: el destello del portal de salida. */
-.bm-cell.portal-flash::before { content: ''; position: absolute; inset: 8%; border-radius: 50%; border: 3px solid var(--brass); animation: portal-out 0.7s var(--ease-out) forwards; pointer-events: none; }
-@keyframes portal-out { from { opacity: 1; scale: 0.4; } to { opacity: 0; scale: 1.6; } }
-/* El número de paso sobre la casilla ya pisada: la ruta se lee como un recorrido. */
-.bm-lbl {
-  position: absolute; top: 4%; right: 5%; min-width: 24%; height: 24%; display: grid; place-items: center;
-  z-index: 3; border-radius: 50%; padding: 0 2px; font-size: max(9px, calc(var(--cell) * 0.22));
-  line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink);
-  background: color-mix(in oklch, var(--paper), transparent 8%); outline: 1px solid color-mix(in oklch, var(--brass), var(--ink) 25%);
-  box-shadow: 0 1px 2px oklch(0 0 0 / 0.35); pointer-events: none;
-}
-.bm-cell.clash { outline: calc(var(--cell) * 0.1) solid var(--danger); outline-offset: calc(var(--cell) * -0.1); }
-.bm-cell.foe { outline: calc(var(--cell) * 0.07) solid var(--danger); outline-offset: calc(var(--cell) * -0.07); }
 /* Selector de mecánicas de la run: favorita en latón, vetada tachada en rojo. */
 .pref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
 .pref { display: grid; justify-items: center; gap: 2px; min-height: 76px; padding: 8px 6px; border-radius: 10px; border: 2px solid var(--ink); background: var(--paper-2); color: var(--ink); font: inherit; font-weight: 750; cursor: pointer; }
@@ -1334,19 +1289,4 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
   .mini-tools::before { content: '\2630'; font-size: 22px; line-height: 1; }
 }
 
-/* Ruta del caballo: la casilla que se abandona se hunde (derrumbe). */
-@keyframes knight-collapse { 0% { transform: none; filter: none; } 30% { transform: scale(0.84) rotate(-2deg); filter: brightness(0.4); } 100% { transform: none; filter: none; } }
-.bm-cell.closed { animation: knight-collapse 0.35s var(--ease-out) both; }
 
-
-/* El minijuego usa la misma grieta y caída 3D que BoardView.collapse. */
-.mini-stage:has(.floor-game) { perspective: 1500px; perspective-origin: 50% 35%; }
-.floor-game { transform-style: preserve-3d; }
-.floor-game .bm-cell.hole { animation: none; }
-.floor-game .bm-cell.hole.falling { z-index: 3; pointer-events: none; transform-origin: 50% 50%; }
-.floor-game .bm-cell.cracking {
-  background-image: linear-gradient(115deg, transparent 45%, var(--ink) 46% 48%, transparent 49%),
-    linear-gradient(35deg, transparent 55%, var(--ink) 56% 57.5%, transparent 58%);
-  animation: crack 0.12s linear 4;
-}
-@media (prefers-reduced-motion: reduce) { .floor-game .bm-cell.cracking { animation: none; } }

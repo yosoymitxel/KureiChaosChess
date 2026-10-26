@@ -111,6 +111,7 @@ function canMoveAs(piece, type, tr, tc, ctx) {
     case 'bishop': return adr === adc && pathClear(piece, tr, tc, ctx);
     case 'rook': return (!dr || !dc) && pathClear(piece, tr, tc, ctx);
     case 'rook2': return (!dr || !dc) && adr + adc <= 2 && pathClear(piece, tr, tc, ctx);
+    case 'bishop2': return adr === adc && adr <= 2 && pathClear(piece, tr, tc, ctx);
     case 'queen': return (!dr || !dc || adr === adc) && pathClear(piece, tr, tc, ctx);
     case 'cannon': {
       // Se mueve como torre pero no captura al deslizarse. Mata saltando una pantalla (propia o

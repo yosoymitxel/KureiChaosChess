@@ -1,53 +1,22 @@
-import { html, useState, useEffect, useRef } from '../lib.js';
+import { html, useState } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
-import { MiniGrid } from './mini-grid.js';
-import { hopPiece, popPiece, snapPieces, pieceDiffs, fallPiece, captureHop } from '../hop.js';
-import { ROWS, COLS, COST, DIFFS, newZombie, at, buy, canBuy, advance, danger } from '../../game/izombie.js';
+import { MiniBoard, zombies } from '../mini-board.js';
+import { key } from '../../game/rules.js';
+import { ROWS, COLS, COST, DIFFS, newZombie, buy, canBuy, advance, danger } from '../../game/izombie.js';
 
 export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newZombie(diff || settings.miniDiff?.izombie));
   const [pick, setPick] = useState('pawn');
   const [, tick] = useState(0);
-  const gridRef = useRef(null);
-  const before = useRef(null);
   const redraw = () => tick((n) => n + 1);
-  // Cada acción guarda una instantánea; tras el repintado, quien se movió salta y quien entra brota.
-  const act = (fn) => { const b = snapPieces(s.pieces); if (!fn()) return; before.current = b; redraw(); };
-  useEffect(() => {
-    const b = before.current;
-    if (!b) return;
-    before.current = null;
-    const grid = gridRef.current;
-    const { hops, born } = pieceDiffs(grid, b, s.pieces, COLS);
-    for (const h of hops) hopPiece(grid, h.el, { from: h.from, to: h.to, side: h.side === 'dark' ? 'zombie' : h.side, cols: COLS, rows: ROWS, liquid: true });
-    for (const el of born) popPiece(grid, el);
-    // La captura se anima antes de la caída: la defensa salta, derriba a su presa al llegar y
-    // vuelve a su casilla. Las caídas que no son suyas (las del avance carmesí) caen de una.
-    const falls = s.falls;
-    const captures = s.captures || [];
-    s.falls = [];
-    s.captures = [];
-    const claimed = new Set();
-    for (const cap of captures) {
-      const f = falls.find((x) => x.row === cap.capturedRow && x.col === cap.capturedCol);
-      if (f) claimed.add(f);
-      const el = grid?.children?.[cap.captorRow * COLS + cap.captorCol]?.querySelector('.bm-pc');
-      const drop = f && (() => fallPiece(grid, { row: f.row, col: f.col, type: f.type, side: f.color === 'dark' ? 'zombie' : f.color, cols: COLS }));
-      if (el) captureHop(grid, el, { from: { row: cap.captorRow, col: cap.captorCol }, to: { row: cap.capturedRow, col: cap.capturedCol }, cols: COLS, rows: ROWS, onHit: drop });
-      else drop?.();
-    }
-    for (const f of falls) if (!claimed.has(f)) fallPiece(grid, { row: f.row, col: f.col, type: f.type, side: f.color === 'dark' ? 'zombie' : f.color, cols: COLS });
-  });
+  const act = (fn) => fn() && redraw();
 
   const hot = s.over ? new Set() : danger(s);
-  const cell = (r, c) => {
-    const p = at(s, r, c);
-    const trophy = r === ROWS - 1 && s.trophies.has(c);
-    const cls = [r === 0 && !p && canBuy(s, pick, c) && 'drop', hot.has(r * COLS + c) && 'hot', r === ROWS - 1 && 'goal', trophy && 'trophy'].filter(Boolean).join(' ');
-    return { cls, piece: p && { type: p.type, side: p.color === 'dark' ? 'zombie' : p.color } };
-  };
+  const marks = new Map([...hot].map((i) => [key(Math.floor(i / COLS), i % COLS), 'hot']));
+  for (let c = 0; c < COLS; c++) if (canBuy(s, pick, c)) marks.set(key(0, c), 'target');
+  const labels = new Map([...s.trophies].map((c) => [key(ROWS - 1, c), '★']));
   const attackers = s.pieces.filter((p) => p.color === 'dark');
   const step = !attackers.length ? 1 : s.moved ? 3 : 2;
   const STEPS = ['Compra', 'Avanza', 'Trofeos'];
@@ -61,7 +30,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
     <${Topbar} title="Yo, Zombi" sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
-        <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${!!s.over} label="Tablero de Yo, Zombi" gridRef=${gridRef} boardClass="bm-slab iz"
+        <${MiniBoard} board=${s.board} pieces=${zombies(s.pieces)} marks=${marks} labels=${labels} strikes=${s.captures} disabled=${!!s.over} label="Tablero de Yo, Zombi"
           onTap=${(r, c) => r === 0 && act(() => buy(s, pick, c))} />
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">

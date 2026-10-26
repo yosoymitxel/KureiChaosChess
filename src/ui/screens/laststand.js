@@ -2,72 +2,43 @@ import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
-import { MiniGrid } from './mini-grid.js';
-import { hopPiece, popPiece, snapPieces, pieceDiffs, fallPiece, captureHop } from '../hop.js';
-import { ROWS, COLS, DIFFS, PRICES, newStand, at, place, canPlace, step, nextWave, building } from '../../game/laststand.js';
+import { MiniBoard, zombies } from '../mini-board.js';
+import { key } from '../../game/rules.js';
+import { ROWS, COLS, DIFFS, PRICES, newStand, place, canPlace, step, nextWave, building } from '../../game/laststand.js';
 
 export function LastStandScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newStand(diff || settings.miniDiff?.laststand));
   const [pick, setPick] = useState('pawn');
   const [, redraw] = useState(0);
-  const gridRef = useRef(null);
-  const before = useRef(null);
-  // Cada paso guarda una instantánea; tras el repintado, quien se movió salta y quien entra brota.
-  const act = (fn) => { const b = snapPieces(s.pieces); fn(); before.current = b; redraw((n) => n + 1); };
-  useEffect(() => {
-    const b = before.current;
-    if (!b) return;
-    before.current = null;
-    const grid = gridRef.current;
-    const { hops, born } = pieceDiffs(grid, b, s.pieces, COLS);
-    for (const h of hops) hopPiece(grid, h.el, { from: h.from, to: h.to, side: h.side === 'dark' ? 'zombie' : h.side, cols: COLS, rows: ROWS, liquid: true });
-    for (const el of born) popPiece(grid, el);
-    // La defensa salta a capturar y vuelve; la presa cae al recibir el choque. Las caídas del
-    // avance carmesí (sin captor marfil) caen de una.
-    const falls = s.falls;
-    const captures = s.captures || [];
-    s.falls = [];
-    s.captures = [];
-    const claimed = new Set();
-    for (const cap of captures) {
-      const f = falls.find((x) => x.row === cap.capturedRow && x.col === cap.capturedCol);
-      if (f) claimed.add(f);
-      const el = grid?.children?.[cap.captorRow * COLS + cap.captorCol]?.querySelector('.bm-pc');
-      const drop = f && (() => fallPiece(grid, { row: f.row, col: f.col, type: f.type, side: f.color === 'dark' ? 'zombie' : f.color, cols: COLS }));
-      if (el) captureHop(grid, el, { from: { row: cap.captorRow, col: cap.captorCol }, to: { row: cap.capturedRow, col: cap.capturedCol }, cols: COLS, rows: ROWS, onHit: drop });
-      else drop?.();
-    }
-    for (const f of falls) if (!claimed.has(f)) fallPiece(grid, { row: f.row, col: f.col, type: f.type, side: f.color === 'dark' ? 'zombie' : f.color, cols: COLS });
-  });
+  const host = useRef(null);
+  const act = (fn) => { fn(); redraw((n) => n + 1); };
 
   useEffect(() => {
     if (s.phase !== 'fight' || s.over) return;
-    const id = setInterval(() => { act(() => step(s)); if (s.over || s.phase !== 'fight') clearInterval(id); }, 650);
+    const id = setInterval(() => { act(() => step(s)); if (s.over || s.phase !== 'fight') clearInterval(id); }, 900);
     return () => clearInterval(id);
   }, [s.phase, s.wave]);
 
   // Lanza la oleada; la última es la gran horda y se anuncia sobre el tablero, como el banderín de PvZ.
   const launch = () => {
     act(() => nextWave(s));
-    if (!s.horde || !gridRef.current) return;
+    if (!s.horde || !host.current) return;
     const b = document.createElement('div');
     b.className = 'mini-banner';
     b.textContent = '¡Llega una gran horda!';
-    gridRef.current.appendChild(b);
+    host.current.appendChild(b);
     motion(b, { scale: [1.4, 1], opacity: [0, 1] }, { duration: 0.3, ease: [0.16, 1, 0.3, 1] });
     motion(b, { opacity: [1, 0] }, { duration: 0.4, delay: 1.6, onComplete: () => b.remove() });
   };
   const last = s.wave === s.diff.waves - 1;
 
-  const cell = (r, c) => {
-    const p = at(s, r, c);
-    return { cls: canPlace(s, pick, r, c) ? 'drop' : '', piece: p && { type: p.type, side: p.color === 'dark' ? 'zombie' : p.color } };
-  };
+  const marks = new Map();
+  for (let r = ROWS - 3; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (canPlace(s, pick, r, c)) marks.set(key(r, c), 'target');
   return html`<div class="screen mini">
     <${Topbar} title="Última resistencia" sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
-        <${MiniGrid} rows=${ROWS} cols=${COLS} cell=${cell} disabled=${!building(s)} label="Tablero de Última resistencia" gridRef=${gridRef} boardClass="bm-slab ls"
+        <${MiniBoard} board=${s.board} pieces=${zombies(s.pieces)} marks=${marks} strikes=${s.captures} disabled=${!building(s)} label="Tablero de Última resistencia" hostRef=${host}
           onTap=${(r, c) => canPlace(s, pick, r, c) && act(() => place(s, pick, r, c))} />
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">

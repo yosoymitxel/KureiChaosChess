@@ -34,12 +34,13 @@ const BADGES = {
 };
 
 export class BoardView {
-  constructor(host, { camera = 'tilt', shake = true, speed = 1, onTap, onDrop, canDrag, onImpact, onHover, onZoom } = {}) {
+  // `framed`: el marco de losa de los minijuegos alrededor del mismo tablero.
+  constructor(host, { camera = 'tilt', shake = true, speed = 1, framed = false, onTap, onDrop, canDrag, onImpact, onHover, onZoom } = {}) {
     Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, onHover, onZoom, shakeOn: shake, speed });
     this.tilt = CAMERAS[camera] ?? 40;
     this.zoom = 1; this.pan = { x: 0, y: 0 };
     host.classList.add('table');
-    host.innerHTML = `<div class="stage"><div class="board"><div class="tiles"></div><svg class="goo" preserveAspectRatio="none" aria-hidden="true"></svg><div class="pieces"></div></div></div>`;
+    host.innerHTML = `<div class="stage"><div class="board${framed ? ' framed' : ''}"><div class="tiles"></div><svg class="goo" preserveAspectRatio="none" aria-hidden="true"></svg><div class="pieces"></div></div></div>`;
     this.stage = host.querySelector('.stage');
     this.boardEl = host.querySelector('.board');
     this.tilesEl = host.querySelector('.tiles');
@@ -143,6 +144,7 @@ export class BoardView {
 
   setBoard(board) {
     this.board = board;
+    this.tilesEl.parentElement.classList.toggle('covered', !!board.mines);
     this.tilesEl.innerHTML = '';
     this.tiles.clear();
     const { rows, cols, holes } = board;
@@ -186,7 +188,7 @@ export class BoardView {
   addPiece(p) {
     const el = document.createElement('div');
     const [h, w] = sizeOf(p);
-    el.className = `pc side-${p.color}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}`;
+    el.className = `pc side-${p.color}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}${p.disc ? ' disc' : ''}${p.crown ? ' crown' : ''}`;
     el.dataset.pid = p.id;
     el.style.setProperty('--h', h); el.style.setProperty('--w', w);
     el.style.setProperty('--s', h * w > 1 ? Math.max(h, w) * 0.85 : 1); // multi-cell figures read bigger than one tile
@@ -257,9 +259,9 @@ export class BoardView {
   // Rótulos sobre casillas (las pistas de Campo minado): key -> texto.
   setLabels(labels = new Map()) {
     for (const [k, t] of this.tiles) {
-      const text = labels.get(k);
-      if (text == null) delete t.dataset.n;
-      else if (t.dataset.n !== String(text)) t.dataset.n = text;
+      const text = labels.get(k), mark = t.querySelector('.mark');
+      if (text == null) { delete t.dataset.n; mark.textContent = ''; }
+      else if (t.dataset.n !== String(text)) { t.dataset.n = text; mark.textContent = text === 0 ? '·' : text; }
     }
   }
 
@@ -274,7 +276,7 @@ export class BoardView {
 
 
   clearMarks() {
-    for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger', 'target', 'gain', 'foot');
+    for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger', 'target', 'gain', 'foot', 'hot');
     for (const el of this.els.values()) el.classList.remove('eligible');
     this.host.classList.remove('aiming');
   }
@@ -611,6 +613,7 @@ export class BoardView {
       this.setArt(piece);
       this.squash(piece, 0.7);
     }
+    if (res.sunk) this.collapse([res.sunk]);
     if (res.mine) {
       this.fx.explosion(c.x, c.y, this.sq / 50);
       this.shake(18, 520);

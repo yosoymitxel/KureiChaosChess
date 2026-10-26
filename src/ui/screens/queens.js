@@ -1,27 +1,15 @@
-import { html, useState, useEffect, useRef } from '../lib.js';
+import { html, useState, useEffect } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
-import { MiniGrid } from './mini-grid.js';
-import { popPiece } from '../hop.js';
+import { MiniBoard } from '../mini-board.js';
+import { key } from '../../game/rules.js';
 import { DIFFS, newQueens, toggle, clashing } from '../../game/queens.js';
 
 export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newQueens(diff || settings.miniDiff?.queens));
   const [time, setTime] = useState(() => s.seconds);
   const [, redraw] = useState(0);
-  const gridRef = useRef(null);
-  const born = useRef(null);
-  // La reina que entra brota; la que sale se va sin animación.
-  useEffect(() => {
-    const q = born.current;
-    born.current = null;
-    if (q) popPiece(gridRef.current, gridRef.current?.children[q.r * s.n + q.c]?.querySelector('.bm-pc'));
-  });
-  const tap = (r, c) => {
-    const had = s.queens.some((q) => q.r === r && q.c === c);
-    if (!toggle(s, r, c)) return;
-    born.current = had ? null : { r, c };
-    redraw((n) => n + 1);
-  };
+  const [board] = useState(() => ({ rows: s.n, cols: s.n, holes: new Set() }));
+  const tap = (r, c) => toggle(s, r, c) && redraw((n) => n + 1);
 
   useEffect(() => {
     const id = setInterval(() => setTime((t) => {
@@ -32,17 +20,13 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
     return () => clearInterval(id);
   }, []);
 
-  const bad = clashing(s);
-  const cell = (r, c) => {
-    const q = s.queens.find((x) => x.r === r && x.c === c);
-    return { cls: q && bad.includes(q) ? 'clash' : '', piece: q && { type: 'queen', side: 'light' } };
-  };
+  const pieces = s.queens.map((q) => ({ id: key(q.r, q.c), type: 'queen', color: 'light', row: q.r, col: q.c }));
+  const marks = new Map(clashing(s).map((q) => [key(q.r, q.c), 'cap danger']));
   return html`<div class="screen mini">
     <${Topbar} title="Ocho reinas" sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
-        <${MiniGrid} rows=${s.n} cols=${s.n} cell=${cell} disabled=${!!s.over} label=${`Tablero de ${s.n} reinas`} gridRef=${gridRef} boardClass="bm-slab"
-          onTap=${tap} />
+        <${MiniBoard} board=${board} pieces=${pieces} marks=${marks} disabled=${!!s.over} label=${`Tablero de ${s.n} reinas`} onTap=${tap} />
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">
             <span class="chip" aria-label=${`Reinas colocadas: ${s.queens.length} de ${s.n}`}><span class="dots">${Array.from({ length: s.n }, (_, i) => html`<i class=${i < s.queens.length ? '' : 'off'} />`)}</span></span>

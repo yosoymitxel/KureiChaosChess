@@ -6,10 +6,10 @@ import { RIVALS } from '../src/game/difficulty.js';
 import { key } from '../src/game/rules.js';
 
 const matchOf = (sc) => new Match({ board: sc.board, pieces: sc.pieces, players: sc.seats, modifier: 'none', mutations: [], bonuses: {},
-  rival: sc.rival, rivals: { dark: sc.rival, light: RIVALS.maestro }, objective: sc.objective });
+  rival: sc.rival, rivals: { dark: sc.rival, light: RIVALS.maestro }, objective: sc.objective, bonus: sc.bonus });
 function play(m, sc) {
   for (let i = 0; i < 400 && !m.over; i++) {
-    const mv = m.canMove() && botChooseMove(m);
+    const mv = m.canMove() && ((m.player.color === 'dark' && sc.bot?.(m)) || botChooseMove(m));
     if (mv) assert.ok(m.move(mv.piece, mv.target), 'bot move is legal');
     sc.labels?.(m);
     m.afterMove({ pass: !mv });
@@ -22,16 +22,26 @@ for (const id of Object.keys(SCENARIOS)) for (const level of ['facil', 'normal',
   let wins = 0;
   for (let seed = 1; seed <= 25; seed++) {
     const sc = buildScenario(id, level, seed);
-    layouts.add(sc.pieces.map((p) => p.type + key(p.row, p.col)).join() + [...sc.board.holes, ...(sc.board.mines || [])].join());
+    layouts.add(sc.pieces.map((p) => p.type + key(p.row, p.col)).join() + [...sc.board.holes, ...(sc.board.mines || []), ...(sc.labels?.({ pieces: [] }).keys() || [])].join());
     assert.ok(sc.pieces.some((p) => p.color === 'light'), `${id}: the player has pieces`);
     assert.equal(typeof sc.status(matchOf(sc)), 'string');
     const over = play(matchOf(sc), sc);
     assert.ok(over && typeof over.victory === 'boolean' && over.note, `${id}/${level}/${seed} ends with a verdict`);
     if (over.victory) wins++;
   }
-  assert.ok(layouts.size >= 20, `${id}/${level}: tables vary (${layouts.size})`);
+  // Mates sale de una biblioteca de problemas validados: varía menos.
+  assert.ok(layouts.size >= (id === 'mates' ? 15 : 20), `${id}/${level}: tables vary (${layouts.size})`);
   console.log(`${id.padEnd(13)} ${level.padEnd(8)} bot maestro gana ${wins}/25`);
 }
+
+// El guardaespaldas: dos jugadas por turno y la segunda no captura.
+const bg = matchOf(buildScenario('bodyguard', 'normal', 2));
+assert.equal(bg.movesFor('light'), 2, 'two moves per turn');
+const mover = bg.pieces.find((p) => p.color === 'light' && bg.legal(p).some((x) => !x.hits.length));
+const step = bg.legal(mover).find((x) => !x.hits.length);
+bg.move(mover, { row: step.row, col: step.col });
+assert.ok(!bg.afterMove().ended, 'the turn goes on after the first move');
+assert.ok(bg.pieces.filter((p) => p.color === 'light').every((p) => bg.legal(p).every((x) => !x.hits.length)), 'second move cannot capture');
 
 // La cacería: un peón que corona pierde la partida.
 const hunt = buildScenario('caceria', 'normal', 3);

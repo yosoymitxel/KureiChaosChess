@@ -11,8 +11,9 @@ export const QUIET_LIMIT = 20;
 export class Match {
   // `objective(match)` (minijuegos de src/data/scenarios.js) reemplaza el fin de partida por rey
   // caído: devuelve { victory, note } cuando la partida termina, o null.
-  constructor({ board, pieces, players, modifier, mutations, bonuses, rival, rivals, objective }) {
-    Object.assign(this, { board, pieces, players, modifier, rival, rivals, objective });
+  // `bonus(match)`: jugadas extra sin captura del turno que empieza (El guardaespaldas).
+  constructor({ board, pieces, players, modifier, mutations, bonuses, rival, rivals, objective, bonus }) {
+    Object.assign(this, { board, pieces, players, modifier, rival, rivals, objective, bonus });
     this.current = 0;
     this.movesThisTurn = 0;
     this.turn = 0;
@@ -21,13 +22,17 @@ export class Match {
     this.quietTurns = 0; // turns without any hit; ends stalled games
     const fury = Math.min(3, countMutations(mutations || []).fury || 0) + (bonuses?.furyNow ? 1 : 0);
     this.bonusMoves = { light: fury };
+    this.turnBonus = bonus?.(this) || 0;
   }
 
   get player() { return this.players[this.current]; }
   movesFor(color) { return (this.modifier === 'rush' ? 2 : 1) + (this.bonusMoves[color] || 0) + (color === this.player.color ? this.turnBonus || 0 : 0); }
-  // The extra move from Paso doble cannot capture: a free second capture ended matches too
-  // fast (tools/balance.mjs).
-  quietOnly() { return this.turnBonus > 0 && this.movesThisTurn >= this.movesFor(this.player.color) - this.turnBonus; }
+  // The extra moves (Paso doble, Furia) cannot capture: a free second capture ended matches too
+  // fast (tools/balance.mjs; Furia won 94% of bot games).
+  quietOnly() {
+    const extra = (this.turnBonus || 0) + (this.bonusMoves[this.player.color] || 0);
+    return extra > 0 && this.movesThisTurn >= this.movesFor(this.player.color) - extra;
+  }
   legal(piece) {
     const all = [...legalMoves(piece, this.pieces, this.board), ...this.special(piece)];
     return piece.color === this.player.color && this.quietOnly() ? all.filter((m) => !m.hits.length) : all;
@@ -150,6 +155,8 @@ export class Match {
       const [r, c] = portal.to.split(',').map(Number);
       if (!occupied(r, c)) { res.portal = { from: { row: piece.row, col: piece.col }, to: { row: r, col: c } }; piece.row = r; piece.col = c; }
     }
+    // Suelo que se hunde (El laboratorio): la casilla que dejan tus piezas cae.
+    if (this.board.sinking === piece.color) { this.board.holes.add(key(from.row, from.col)); res.sunk = [from.row, from.col]; }
     // Mina oculta (Campo minado): estalla, se lleva la pieza y deja un hueco.
     const k = key(piece.row, piece.col);
     if (this.board.mines?.has(k)) {
@@ -175,6 +182,7 @@ export class Match {
     let next = this.current;
     do next = (next + 1) % this.players.length; while (this.eliminated[this.players[next].color] && next !== this.current);
     this.current = next;
+    this.turnBonus = this.bonus?.(this) || 0;
     if (this.checkOver()) return { ended: true, collapse, over: this.over };
     return { ended: true, collapse };
   }
@@ -229,13 +237,13 @@ export class Match {
 // posición ya movida: la pieza que se va no tapa la línea, el hueco que deja una captura tampoco,
 // y los peones ven en diagonal aunque la casilla esté vacía. El perfil "maestro" no cuelga piezas.
 function cheapestAttacker(match, mover, row, col, hits) {
-  const virtual = match.pieces.filter((p) => p !== mover && !hits.includes(p)).concat([{ ...mover, row, col }]);
+  const moved = { ...mover, row, col };
+  const virtual = match.pieces.filter((p) => p !== mover && !hits.includes(p)).concat([moved]);
   const enemies = virtual.filter((p) => p.color !== mover.color);
   enemies.sort((a, b) => (PIECE_VALUE[a.type] || 20) - (PIECE_VALUE[b.type] || 20));
+  // Por golpe y no por casilla: un jefe ocupa varias y se le pega en cualquiera.
   for (const e of enemies) {
-    for (const m of legalMoves(e, virtual, match.board)) {
-      if (m.row === row && m.col === col) return PIECE_VALUE[e.type] || 20;
-    }
+    if (legalMoves(e, virtual, match.board).some((m) => m.hits.includes(moved))) return PIECE_VALUE[e.type] || 20;
   }
   return null;
 }
@@ -249,19 +257,25 @@ export function botChooseMove(match) {
   const mine = pieces.filter((p) => p.color === color);
   const royal = pieces.find((p) => p.royal && p.color !== color);
   const options = [];
+  // Lo que vale perder la pieza: el jefe pierde una vida por golpe, no la partida de una vez.
+  const worth = (p) => (p.boss ? 60 * (p.hp || 1) : p.royal ? 400 : PIECE_VALUE[p.type] || 20);
   for (const p of mine) {
-    if (p.royal && !p.boss && mine.length > 2) continue;
+    // Una pieza amenazada busca salir: sin esto el jefe se quedaba quieto mientras lo golpeaban.
+    const care = p.royal || p.boss ? Math.max(R.care, 0.6) : R.care;
+    const threat = care ? cheapestAttacker(match, p, p.row, p.col, []) : null;
+    if (p.royal && !p.boss && mine.length > 2 && threat == null) continue;
     for (const m of match.legal(p)) {
       let score = Math.random() * R.noise;
       for (const v of m.hits) score += v.royal ? 1000 : (PIECE_VALUE[v.type] || 20) * R.capture;
       score += Math.max(board.rows, board.cols) - (Math.abs(m.row - (board.rows - 1) / 2) + Math.abs(m.col - (board.cols - 1) / 2));
       if (royal && R.pressure) score += R.pressure * Math.max(0, 10 - (Math.abs(m.row - royal.row) + Math.abs(m.col - royal.col)));
-      if (p.boss) score += m.hits.length * 15; // bosses love stomping
+      if (p.boss) score += 2 + m.hits.length * 15; // el jefe toma la iniciativa y le gusta aplastar
+      if (threat != null) score += care * Math.max(0, worth(p) - threat);
       // Peón que quiere coronar (La cacería): cuanto más cerca del fondo, mejor.
       if (R.advance && p.type === 'pawn') score += R.advance * (p.color === 'light' ? board.rows - 1 - m.row : m.row);
-      if (R.care) {
+      if (care) {
         const attacker = cheapestAttacker(match, p, m.row, m.col, m.hits);
-        if (attacker != null) score -= R.care * Math.max(0, (PIECE_VALUE[p.type] || 20) - attacker);
+        if (attacker != null) score -= care * Math.max(0, worth(p) - attacker);
       }
       options.push({ piece: p, target: { row: m.row, col: m.col }, score });
     }

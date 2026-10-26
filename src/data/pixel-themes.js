@@ -25,7 +25,7 @@ export const PIXEL_THEMES = {
   },
   "calaveras-ataudes": {
     "id": "calaveras-ataudes",
-    "name": "Calaveras y Ataúdes",
+    "name": "Osario",
     "price": 160,
     "swatch": [
       "#19151a",
@@ -57,7 +57,7 @@ export const PIXEL_THEMES = {
   },
   "colibries-flores-lilas": {
     "id": "colibries-flores-lilas",
-    "name": "Colibríes y flores lilas",
+    "name": "Colibríes",
     "price": 160,
     "swatch": [
       "#211a31",
@@ -121,7 +121,7 @@ export const PIXEL_THEMES = {
   },
   "gatos-negros-naranjosos": {
     "id": "gatos-negros-naranjosos",
-    "name": "Gatos negros y naranjosos",
+    "name": "Gatos negros",
     "price": 160,
     "swatch": [
       "#171923",
@@ -279,7 +279,7 @@ export const PIXEL_THEMES = {
   },
   "pandas-mapaches": {
     "id": "pandas-mapaches",
-    "name": "Pandas, mapaches y pandas rojos",
+    "name": "Pandas",
     "price": 160,
     "swatch": [
       "#182622",
@@ -375,7 +375,7 @@ export const PIXEL_THEMES = {
   },
   "reino-hongos": {
     "id": "reino-hongos",
-    "name": "Reino de los Hongos",
+    "name": "Hongos",
     "price": 180,
     "swatch": [
       "#18241f",
@@ -470,7 +470,7 @@ export const PIXEL_THEMES = {
   },
   "vocaloid-miku": {
     "id": "vocaloid-miku",
-    "name": "Vocaloid · Hatsune Miku",
+    "name": "Miku",
     "price": 160,
     "swatch": [
       "#09252c",

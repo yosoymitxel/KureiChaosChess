@@ -31,11 +31,11 @@ export function Topbar({ title, sub, onBack, backLabel = 'Volver', children }) {
 // Cierre común de los minijuegos: resultado, motivo y botón en un solo bloque, en cada pantalla.
 export function MiniEnd({ win, title, note, label = 'Continuar', onEnd }) {
   useEffect(() => { playSfx(win ? 'mini_win' : 'mini_lose'); }, []);
-  return html`<div class=${'mini-end ' + (win ? 'win' : 'lose')} role="status">
+  return html`<div class="overlay"><div class=${'mini-end ' + (win ? 'win' : 'lose')} role="status">
     <p class="mini-end-title">${title ?? (win ? '¡Victoria!' : 'Derrota')}</p>
     ${note && html`<p class="mini-end-note">${note}</p>`}
     <button class="btn primary" onClick=${() => onEnd()}>${label}</button>
-  </div>`;
+  </div></div>`;
 }
 
 // Dificultad del minijuego: en partida libre se elige y cada juego recuerda su nivel; en la run
@@ -175,7 +175,7 @@ export function CardFace({ card, mini = false, shop = false }) {
 }
 
 // Deck-builder style pick: cards are dealt face down and flip over.
-export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = 'Quedármela' }) {
+export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = 'Quedármela', onBack }) {
   const [chosen, setChosen] = useState(null);
   const row = useRef(null);
   useEffect(() => {
@@ -184,7 +184,7 @@ export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = 'Qu
       { duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: motionStagger(0.12, { startDelay: 0.15 }) });
   }, []);
   return html`<div class="screen pick">
-    <${Topbar} title=${title} />
+    <${Topbar} title=${title} onBack=${onBack} />
     <div class="pick-body">
       <p class="pick-sub">${subtitle}</p>
       <div class=${'card-row' + (chosen ? ' has-sel' : '')} ref=${row}>

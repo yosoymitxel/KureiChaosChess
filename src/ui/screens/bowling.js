@@ -165,7 +165,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
   const cell = (r, c) => {
     const e = s.enemies.find((x) => x.r === r && x.c === c);
     const ball = s.balls.find((b) => b.r === r && b.c === c);
-    const zone = c < LAUNCH_COLS ? 'lane' + (c === 0 ? ' lane0' : '') + (c === LAUNCH_COLS - 1 ? ' line' : '') + (s.belt.length ? ' drop' : '') : '';
+    const zone = c < LAUNCH_COLS ? 'lane' + (c === 0 ? ' lane0' : '') + (c === LAUNCH_COLS - 1 ? ' line' : '') : '';
     return { cls: zone + (ball?.kind === 'boom' ? ' boom' : ''), tok: !!ball, piece: e && { type: e.type, side: 'zombie' }, hp: e && e.maxHp > 1 ? { on: e.hp, max: e.maxHp } : null };
   };
   const next = s.belt[0];

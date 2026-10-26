@@ -21,10 +21,6 @@ jobs:
           node tools/check-registry.mjs
           node tools/simulate.mjs
           node tools/scenarios-selfcheck.mjs
-          node tools/escape-selfcheck.mjs
-          node tools/contraband-selfcheck.mjs
-          node tools/laboratory-selfcheck.mjs
-          node tools/collapsing-floor-selfcheck.mjs
           node tools/barrier-check.mjs
           node tools/hockey-selfcheck.mjs
       - name: Start static game server

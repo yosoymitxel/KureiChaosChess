@@ -21,28 +21,31 @@ try {
       const url=`${base}/tests/visual.html?mini=${game}&theme=${theme}`;
       try {
         await page.goto(url,{waitUntil:'domcontentloaded',timeout:45000});
-        await page.locator('.mini-stage .bm').waitFor({timeout:15000});
+        await page.locator('.board-host .tile').first().waitFor({timeout:15000});
         await page.locator('.moment.cine').waitFor({state:'attached',timeout:10000});
         await page.screenshot({path:`${out}/${game}-${theme}-${viewport.name}.png`,fullPage:true});
-        await page.locator('.moment.cine').waitFor({state:'detached',timeout:5000});
-        const beforeAction = await page.locator('.mini-stats').innerText().catch(() => '');
-        const legalCell = page.locator('.bm-cell.mv').first();
+        await page.locator('.moment.cine').waitFor({state:'detached',timeout:8000});
+        const beforeAction = await page.locator('.mod-card .goal').innerText().catch(() => '');
+        // Tablero de la partida: se elige la pieza propia y luego una casilla legal.
+        const tap = async (loc) => {
+          const rect = await loc.boundingBox();
+          if (!rect) throw new Error('Sin caja visible');
+          if (viewport.name === 'mobile') await page.touchscreen.tap(rect.x + rect.width / 2, rect.y + rect.height / 2);
+          else await page.mouse.click(rect.x + rect.width / 2, rect.y + rect.height / 2);
+        };
+        await tap(page.locator('.pc.side-light').first());
+        await page.waitForTimeout(250);
+        const legalCell = page.locator('.tile.mv').first();
         if (await legalCell.count()) {
-          if (viewport.name === 'mobile') {
-            const rect = await legalCell.boundingBox();
-            if (!rect) throw new Error('La casilla legal no tiene caja visible');
-            await page.touchscreen.tap(rect.x + rect.width / 2, rect.y + rect.height / 2);
-          } else {
-            await legalCell.click();
-          }
-          await page.waitForTimeout(180);
-          const afterAction = await page.locator('.mini-stats').innerText().catch(() => '');
+          await tap(legalCell);
+          await page.waitForTimeout(3500);
+          const afterAction = await page.locator('.mod-card .goal').innerText().catch(() => '');
           if (beforeAction === afterAction) throw new Error('La primera acción legal no cambió el estado visible');
           await page.screenshot({path:`${out}/${game}-${theme}-${viewport.name}-after-action.png`,fullPage:true});
         } else {
           throw new Error('No se encontraron movimientos o sospechosos interactivos');
         }
-        const metrics=await page.evaluate(()=>({title:document.title,scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth,scrollHeight:document.documentElement.scrollHeight,clientHeight:document.documentElement.clientHeight,board:!!document.querySelector('.mini-stage .bm'),cells:document.querySelectorAll('.mini-stage .bm-cell').length}));
+        const metrics=await page.evaluate(()=>({title:document.title,scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth,scrollHeight:document.documentElement.scrollHeight,clientHeight:document.documentElement.clientHeight,board:!!document.querySelector('.board-host .board'),cells:document.querySelectorAll('.board-host .tile').length}));
         if(!metrics.board||!metrics.cells) throw new Error('No se renderizó el tablero');
         if(metrics.scrollWidth>metrics.clientWidth+1) failures.push({game,theme,viewport:viewport.name,error:`overflow horizontal ${metrics.scrollWidth}>${metrics.clientWidth}`});
         if(consoleErrors.length) failures.push({game,theme,viewport:viewport.name,error:consoleErrors.join(' | ')});

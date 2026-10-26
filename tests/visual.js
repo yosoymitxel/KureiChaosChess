@@ -1,4 +1,4 @@
-import { html, render } from '../src/ui/lib.js';
+import { html, render, useState } from '../src/ui/lib.js';
 import { applyTheme, THEMES } from '../src/data/themes.js';
 import { MINIGAMES } from '../src/data/minigame-catalog.js';
 const params = new URLSearchParams(location.search);
@@ -18,14 +18,20 @@ const settings = {
   shake: false, speed: 1, sound: false, moments: true,
 };
 const noop = () => {};
-render(html`<${Screen}
-  sub="Banco de pruebas · ${THEMES[chosenTheme].name}"
-  onBack=${noop}
-  onEnd=${noop}
-  endLabel="Reiniciar / continuar"
-  settings=${settings}
-  setSettings=${noop}
-  onRestart=${() => location.reload()}
-  diff=${diff}
-/>`, document.getElementById('root'));
+// El nivel no va fijo: el selector del juego cambia los ajustes y Reiniciar monta una partida nueva.
+function Bench() {
+  const [set, setSet] = useState(settings);
+  const [run, setRun] = useState(0);
+  const restart = () => setRun((n) => n + 1);
+  return html`<${Screen} key=${run}
+    sub="Banco de pruebas · ${THEMES[chosenTheme].name}"
+    onBack=${noop}
+    onEnd=${restart}
+    endLabel="Reiniciar"
+    settings=${set}
+    setSettings=${setSet}
+    onRestart=${restart}
+  />`;
+}
+render(html`<${Bench} />`, document.getElementById('root'));
 document.documentElement.dataset.visualQa = id;

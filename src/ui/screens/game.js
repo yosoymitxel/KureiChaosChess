@@ -41,14 +41,14 @@ function cardEffect(card, piece, pv) {
   const reach = gained ? ` · ${gained} casilla${gained > 1 ? 's' : ''} nueva${gained > 1 ? 's' : ''} (en azul)` : '';
   if (card.id === 'ascend') return `${name} → Reina${reach}`;
   if (card.id === 'mount') return `${name} aprende el salto en L${reach}`;
-  if (card.id === 'colossus') return `${name} → Coloso 2×1: se mueve como rey y aguanta 2 golpes${reach}`;
+  if (card.id === 'colossus') return `${name} → Coloso 2×1: se mueve como rey y aguanta 3 golpes${reach}`;
   if (card.id === 'fortify') return `${name} aguantará 2 golpes: el primero rebota`;
   return `${name}: ${card.desc}`;
 }
 
 // `scenario` (un minijuego de src/data/scenarios.js ya armado): trae tablero, piezas, rival y objetivo
 // propios; el resto (vista, bot, avisos, demos) es el de cualquier piso.
-export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools }) {
+export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools, exitLabel }) {
   const hostRef = useRef(null);
   const mainRef = useRef(null);
   const ref = useRef({}); // mutable director state: view, match, busy, selected
@@ -75,7 +75,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     // El rival lo manda el tramo de la torre (difficulty.js); el ajuste de dificultad corre la
     // escalera y el mini-jefe sube un peldaño.
     const rival = scenario?.rival || rivalForFloor(node.floor, run.map.floors, { up: node.isMiniBoss ? 1 : 0, difficulty: run.tutorial ? 'facil' : settings.difficulty });
-    const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses, rival, objective: scenario?.objective });
+    const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses, rival, objective: scenario?.objective, bonus: scenario?.bonus });
     // Foto del bando humano al repartir: decide los logros de fin de partida.
     const human = seats.find((s) => s.kind === 'human')?.color || 'light';
     d.feats = { human, mine: new Set(pieces.filter((p) => p.color === human)), cards: 0, hadCards: d.hand.length > 0 };
@@ -295,11 +295,12 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       }
       if (p.kind === 'bot') {
         // The bot waits for the labels on screen: its move used to land under a collapse or a capture.
+        // It checks again right before moving, since the "Jaque" of this same turn queues after this.
         d.moments.whenIdle().then(() => {
           if (d.leaving || d.dead || match.over) return;
           d.timer = setTimeout(function step() {
-            if (d.paused) { d.timer = setTimeout(step, 300); return; }
-            const mv = botChooseMove(match);
+            if (d.paused || d.moments.playing) { d.timer = setTimeout(step, 300); return; }
+            const mv = scenario?.bot?.(match) || botChooseMove(match);
             if (mv) doMove(mv.piece, mv.target);
           }, 450 + Math.random() * 300);
         });
@@ -349,7 +350,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (res.absorbed?.length) d.moments.callout({ text: '¡Aprende!', sub: `${res.piece.name} roba: ${res.absorbed.map((t) => MOVE_NAMES[t]).join(', ')}`, tone, piece: art(res.piece), anim: 'tremble' });
       if (killed.some((p) => p.boss)) return;
       const royal = killed.find((p) => p.royal);
-      if (royal) return d.moments.callout({ text: '¡Rey caído!', sub: `Cae el bando ${SIDE_NAME[royal.color]}`, tone, piece: art(royal), anim: 'explode', tier: 'major' });
+      if (royal) return d.moments.callout({ text: royal.type === 'king' ? '¡Rey caído!' : `¡${pieceName(royal)} cae!`, sub: `Cae el bando ${SIDE_NAME[royal.color]}`, tone, piece: art(royal), anim: 'explode', tier: 'major' });
       if (killed.length > 1) d.moments.callout({ text: res.piece.boss ? `¡Aplastados ×${killed.length}!` : `¡Captura ×${killed.length}!`, tone, piece: art(res.piece), anim: 'stomp' });
       else {
         const big = killed.find((p) => p.type === 'queen' || p.type === 'rook');
@@ -484,7 +485,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.match = match;
     d.check = {};
     d.moments = new Moments(mainRef.current, { speed: settings.speed, enabled: settings.moments });
-    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
+    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, framed: !!scenario, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
     d.view.setBoard(board);
     d.view.setPieces(pieces);
     seePieces(pieces.filter((p) => !p.boss).map((p) => p.type));
@@ -536,7 +537,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     <div class="game-main" ref=${mainRef}>
       <div class="game-top">
         <button class="btn ghost sm icon-only" aria-label="Pausa" title="Pausa (Escape)" onClick=${() => setPaused(true)}><${Icon} name="pause" /></button>
-        <h1 class="title">${scenario ? mod.name : node.isBoss ? 'Piso final' : node.isMiniBoss ? 'Mini-jefe' : `Piso ${node.floor + 1} de ${run.map.floors}`}</h1>
+        <h1 class="title">${scenario ? mod.name : node.versus ? 'Partida local' : node.isBoss ? 'Piso final' : node.isMiniBoss ? 'Mini-jefe' : `Piso ${node.floor + 1} de ${run.map.floors}`}</h1>
         ${tools}
       </div>
       <div class="board-host" ref=${hostRef}></div>
@@ -613,9 +614,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       <ol class="log" aria-live="polite" aria-label="Registro de jugadas">${log.slice(-6).map((l, i) => html`<li key=${log.length - 6 + i}>${l}</li>`)}</ol>
     </aside>
     ${paused && !end && html`<${PauseOverlay} settings=${settings} setSettings=${setSettings}
-      onResume=${() => setPaused(false)} onRestart=${() => leave('reset', onRestart)} onExit=${() => leave('exit', onExit)} onMenu=${() => leave('exit', onMenu)} onAbandon=${() => leave('resign', onAbandon)}
+      onResume=${() => setPaused(false)} onRestart=${onRestart && (() => leave('reset', onRestart))} onExit=${() => leave('exit', onExit)} onMenu=${() => leave('exit', onMenu)} onAbandon=${() => leave('resign', onAbandon)}
       onHowTo=${() => { setPaused(false); onHowTo(); }} />`}
-    ${end && !scenario && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} exitLabel=${scenario?.endLabel} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
+    ${end && !scenario && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} exitLabel=${exitLabel} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
       onMenu=${() => leave('exit', end.victory ? () => onWin(ref.current.bossId, { toMenu: true }) : onMenu)} />`}
   </div>`;
 }

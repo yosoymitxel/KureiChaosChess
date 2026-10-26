@@ -17,7 +17,7 @@ export const PIECES = {
 };
 
 // Patrones que no son una pieza propia: los prestan mutaciones y jefes.
-const EXTRA_PATTERNS = { pawnBack: 'retroceso', rook2: 'torre corta' };
+const EXTRA_PATTERNS = { pawnBack: 'retroceso', rook2: 'torre corta', bishop2: 'alfil corto' };
 
 export const PIECE_TYPES = Object.keys(PIECES);
 export const PIECE_NAMES = Object.fromEntries(PIECE_TYPES.map((t) => [t, PIECES[t].name]));

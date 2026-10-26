@@ -14,7 +14,6 @@
   --font: 'Jersey 10', 'Trebuchet MS', sans-serif;
   --r-sm: 0px; --r-md: 0px; --r-lg: 0px;
   --lift: 4px 4px 0 oklch(0.1 0.03 300 / 0.45);
-  --ease-out: steps(4, end);
   --grain: none; --wood: none;
 }
 [data-art="pixel"] body { -webkit-font-smoothing: none; font-synthesis: none; font-size-adjust: 0.56; }
@@ -48,17 +47,14 @@
 }
 [data-art="pixel"] .btn:not(.ghost):hover { box-shadow: none; filter: brightness(1.08); }
 [data-art="pixel"] .btn:not(.ghost):active { transform: translateY(2px); background: linear-gradient(to bottom, transparent 2px, var(--shade) 2px 6px, transparent 6px) border-box, var(--bg); }
+/* La fuente bitmap es más ancha: el nombre largo baja un punto para caber en la columna. */
+[data-art="pixel"] .logo h1 span { font-size: 0.42em; }
 
 /* Tableros de los minijuegos: las mismas losas del tema que el tablero de la partida. Las
    casillas con un estado de color (meta, carril, peligro, casa) quedan lisas para que se lean. */
-[data-art="pixel"] :is(.bm-cell.a, .br-cell, .dm-cell) { background-image: var(--px-tile-a); background-size: 100% 100%; image-rendering: pixelated; }
-[data-art="pixel"] :is(.bm-cell.b, .dm-cell.dark) { background-image: var(--px-tile-b); }
+[data-art="pixel"] :is(.bm-cell.a:not(.wall, .crate, .blast), .br-cell, .dm-cell) { background-image: var(--px-tile-a); background-size: 100% 100%; image-rendering: pixelated; }
+[data-art="pixel"] :is(.bm-cell.b:not(.wall, .crate, .blast), .dm-cell.dark) { background-image: var(--px-tile-b); }
 [data-art="pixel"] :is(.bm-cell, .br-cell):is(.hot, .lane, .goal, .home, .goal-light, .goal-dark) { background-image: none; }
-/* Casillas caídas: la losa del tema las tapaba. Pozo en bloques duros. */
-[data-art="pixel"] .bm-cell.hole:is(.a, .b) {
-  background: linear-gradient(#000 0 0) 18% 18% / 64% 64% no-repeat, color-mix(in oklch, var(--tile-side), black 55%);
-  box-shadow: inset 0 0 0 3px var(--ink);
-}
 
 /* Jardín Zen: cada dibujo trae su sprite (zen-art.js) y aquí se elige cuál se ve. La arena y la
    tierra sin cavar son losetas del mismo set, una por casilla; el rastrillado vectorial se apaga. */
