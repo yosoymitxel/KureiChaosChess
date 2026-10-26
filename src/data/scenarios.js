@@ -493,7 +493,7 @@ Object.assign(SCENARIOS, {
   },
   witch: {
     id: 'witch',
-    goal: 'Cruza hasta la fila de arriba sin mirar a las brujas (ojo rojo): si alguna de tus jugadas posibles puede tocarla, despierta y te persigue moviéndose casi como una reina.',
+    goal: 'Cruza hasta la fila de arriba sin mirar a las brujas (ojo verde): si alguna de tus jugadas posibles puede tocarla, despierta y te persigue moviéndose casi como una reina.',
     levels: {
       facil: { witches: 2, guards: ['pawn', 'pawn'], holes: 4, rounds: 12, rival: 'oficial' },
       normal: { witches: 3, guards: ['pawn', 'pawn', 'pawn'], holes: 6, rounds: 10, rival: 'oficial' },

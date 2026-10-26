@@ -17,7 +17,7 @@ const SIDES = [
 ];
 
 // Selector de mecánicas de la run (los gambitos de Gambonanza): cada toque pasa normal → favorita → vetada.
-export const RUN_MECHANICS = ['ice', 'portal', 'fog', 'chaos', 'zombie', 'contagion', 'rush', 'promote', 'elite'];
+export const RUN_MECHANICS = ['ice', 'portal', 'fog', 'chaos', 'zombie', 'contagion', 'coven', 'rush', 'promote', 'elite'];
 function PrefsCard({ prefs, onPrefs }) {
   const state = (id) => (prefs.fav.includes(id) ? 'fav' : prefs.ban.includes(id) ? 'ban' : '');
   const cycle = (id) => {
