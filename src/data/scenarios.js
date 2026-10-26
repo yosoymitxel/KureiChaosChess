@@ -417,22 +417,6 @@ function knightRoute(rng, [r0, c0]) {
 // Arma una partida del minijuego: mesa, rival (un perfil de difficulty.js o uno propio) y jugadores.
 // Minijuegos que estrenan una mecánica de los pisos sobre su propio tablero (`modifier`).
 Object.assign(SCENARIOS, {
-  blizzard: {
-    id: 'blizzard',
-    modifier: 'fog',
-    goal: 'Cruza el lago helado hasta la fila de arriba con tu caballo. En el hielo se patina una casilla más y la niebla esconde a los guardias.',
-    levels: {
-      facil: { guards: ['pawn', 'pawn', 'pawn', 'knight'], holes: 4, rounds: 12, rival: 'aprendiz' },
-      normal: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight'], holes: 6, rounds: 10, rival: 'oficial' },
-      dificil: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop'], holes: 8, rounds: 9, rival: 'maestro' },
-    },
-    setup: (lv, rng) => passable(lv, () => {
-      const b = { ...board(), protectRows: 2 }, runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
-      rubble(rng, b, pieces, lv.holes);
-      addTerrain(b, rng, 'ice');
-      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Cruzaste el lago helado.' });
-    }),
-  },
   outbreak: {
     id: 'outbreak',
     modifier: 'contagion',

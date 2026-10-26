@@ -21,7 +21,7 @@ export function MiniBoard({ board, pieces, onTap, marks, labels, strikes, hidden
     if (v.board !== board) { v.setBoard(board); v.setPieces(pieces.map((p) => ({ ...p }))); v.intro([...v.els.keys()]); }
     else sync(v, pieces, strikes, hidden);
     v.clearMarks();
-    for (const [k, cls] of marks || []) v.tiles.get(k)?.classList.add(...cls.split(' '));
+    for (const [k, cls] of marks || []) v.tiles.get(k)?.classList.add(...cls.split(' ').filter(Boolean));
     v.setLabels(labels);
   });
   return html`<div class="mini-stage board-host" ref=${host} role="grid" aria-label=${label}></div>`;
