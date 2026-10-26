@@ -48,7 +48,7 @@ function cardEffect(card, piece, pv) {
 
 // `scenario` (un minijuego de src/data/scenarios.js ya armado): trae tablero, piezas, rival y objetivo
 // propios; el resto (vista, bot, avisos, demos) es el de cualquier piso.
-export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools }) {
+export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools, exitLabel }) {
   const hostRef = useRef(null);
   const mainRef = useRef(null);
   const ref = useRef({}); // mutable director state: view, match, busy, selected
@@ -537,7 +537,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     <div class="game-main" ref=${mainRef}>
       <div class="game-top">
         <button class="btn ghost sm icon-only" aria-label="Pausa" title="Pausa (Escape)" onClick=${() => setPaused(true)}><${Icon} name="pause" /></button>
-        <h1 class="title">${scenario ? mod.name : node.isBoss ? 'Piso final' : node.isMiniBoss ? 'Mini-jefe' : `Piso ${node.floor + 1} de ${run.map.floors}`}</h1>
+        <h1 class="title">${scenario ? mod.name : node.versus ? 'Partida local' : node.isBoss ? 'Piso final' : node.isMiniBoss ? 'Mini-jefe' : `Piso ${node.floor + 1} de ${run.map.floors}`}</h1>
         ${tools}
       </div>
       <div class="board-host" ref=${hostRef}></div>
@@ -616,7 +616,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     ${paused && !end && html`<${PauseOverlay} settings=${settings} setSettings=${setSettings}
       onResume=${() => setPaused(false)} onRestart=${onRestart && (() => leave('reset', onRestart))} onExit=${() => leave('exit', onExit)} onMenu=${() => leave('exit', onMenu)} onAbandon=${() => leave('resign', onAbandon)}
       onHowTo=${() => { setPaused(false); onHowTo(); }} />`}
-    ${end && !scenario && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} exitLabel=${scenario?.endLabel} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
+    ${end && !scenario && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} exitLabel=${exitLabel} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
       onMenu=${() => leave('exit', end.victory ? () => onWin(ref.current.bossId, { toMenu: true }) : onMenu)} />`}
   </div>`;
 }

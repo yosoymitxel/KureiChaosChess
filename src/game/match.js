@@ -234,13 +234,13 @@ export class Match {
 // posición ya movida: la pieza que se va no tapa la línea, el hueco que deja una captura tampoco,
 // y los peones ven en diagonal aunque la casilla esté vacía. El perfil "maestro" no cuelga piezas.
 function cheapestAttacker(match, mover, row, col, hits) {
-  const virtual = match.pieces.filter((p) => p !== mover && !hits.includes(p)).concat([{ ...mover, row, col }]);
+  const moved = { ...mover, row, col };
+  const virtual = match.pieces.filter((p) => p !== mover && !hits.includes(p)).concat([moved]);
   const enemies = virtual.filter((p) => p.color !== mover.color);
   enemies.sort((a, b) => (PIECE_VALUE[a.type] || 20) - (PIECE_VALUE[b.type] || 20));
+  // Por golpe y no por casilla: un jefe ocupa varias y se le pega en cualquiera.
   for (const e of enemies) {
-    for (const m of legalMoves(e, virtual, match.board)) {
-      if (m.row === row && m.col === col) return PIECE_VALUE[e.type] || 20;
-    }
+    if (legalMoves(e, virtual, match.board).some((m) => m.hits.includes(moved))) return PIECE_VALUE[e.type] || 20;
   }
   return null;
 }
@@ -254,19 +254,25 @@ export function botChooseMove(match) {
   const mine = pieces.filter((p) => p.color === color);
   const royal = pieces.find((p) => p.royal && p.color !== color);
   const options = [];
+  // Lo que vale perder la pieza: el jefe pierde una vida por golpe, no la partida de una vez.
+  const worth = (p) => (p.boss ? 60 * (p.hp || 1) : p.royal ? 400 : PIECE_VALUE[p.type] || 20);
   for (const p of mine) {
-    if (p.royal && !p.boss && mine.length > 2) continue;
+    // Una pieza amenazada busca salir: sin esto el jefe se quedaba quieto mientras lo golpeaban.
+    const care = p.royal || p.boss ? Math.max(R.care, 0.6) : R.care;
+    const threat = care ? cheapestAttacker(match, p, p.row, p.col, []) : null;
+    if (p.royal && !p.boss && mine.length > 2 && threat == null) continue;
     for (const m of match.legal(p)) {
       let score = Math.random() * R.noise;
       for (const v of m.hits) score += v.royal ? 1000 : (PIECE_VALUE[v.type] || 20) * R.capture;
       score += Math.max(board.rows, board.cols) - (Math.abs(m.row - (board.rows - 1) / 2) + Math.abs(m.col - (board.cols - 1) / 2));
       if (royal && R.pressure) score += R.pressure * Math.max(0, 10 - (Math.abs(m.row - royal.row) + Math.abs(m.col - royal.col)));
-      if (p.boss) score += m.hits.length * 15; // bosses love stomping
+      if (p.boss) score += 2 + m.hits.length * 15; // el jefe toma la iniciativa y le gusta aplastar
+      if (threat != null) score += care * Math.max(0, worth(p) - threat);
       // Peón que quiere coronar (La cacería): cuanto más cerca del fondo, mejor.
       if (R.advance && p.type === 'pawn') score += R.advance * (p.color === 'light' ? board.rows - 1 - m.row : m.row);
-      if (R.care) {
+      if (care) {
         const attacker = cheapestAttacker(match, p, m.row, m.col, m.hits);
-        if (attacker != null) score -= R.care * Math.max(0, (PIECE_VALUE[p.type] || 20) - attacker);
+        if (attacker != null) score -= care * Math.max(0, worth(p) - attacker);
       }
       options.push({ piece: p, target: { row: m.row, col: m.col }, score });
     }

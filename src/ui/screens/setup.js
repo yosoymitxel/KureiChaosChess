@@ -17,7 +17,7 @@ const SIDES = [
 ];
 
 // Selector de mecánicas de la run (los gambitos de Gambonanza): cada toque pasa normal → favorita → vetada.
-const RUN_MECHANICS = ['ice', 'portal', 'fog', 'chaos', 'zombie', 'rush', 'promote', 'elite'];
+export const RUN_MECHANICS = ['ice', 'portal', 'fog', 'chaos', 'zombie', 'rush', 'promote', 'elite'];
 function PrefsCard({ prefs, onPrefs }) {
   const state = (id) => (prefs.fav.includes(id) ? 'fav' : prefs.ban.includes(id) ? 'ban' : '');
   const cycle = (id) => {
@@ -38,19 +38,21 @@ function PrefsCard({ prefs, onPrefs }) {
   </section>`;
 }
 
-export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings, onPrefs, onHowTo }) {
+// En la run juegas tú contra bots y solo se elige si entra un bando bot extra; quién es humano y
+// quién bot se elige en la partida local (`versus`), que va aparte de la run.
+export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings, onPrefs, onHowTo, versus }) {
   const ref = useRef(null);
   useEnter(ref);
   const [count, setCount] = useState(defaultCount || 2);
-  const [kinds, setKinds] = useState(['human', 'bot', 'bot']);
+  const [kinds, setKinds] = useState(versus ? ['human', 'human', 'bot'] : ['human', 'bot', 'bot']);
   const mod = nodeModifier(node);
   // El peldaño del rival lo fija el tramo de la torre, el ajuste de dificultad lo corre entero
   // y el piso de un mini-jefe sube uno.
   const rival = rivalForFloor(node.floor, run?.map?.floors ?? 1, { up: node.isMiniBoss ? 1 : 0, difficulty: run?.tutorial ? 'facil' : settings?.difficulty });
-  const seats = SIDES.slice(0, count).map((s, i) => ({ color: s.color, kind: kinds[i], name: kinds[i] === 'bot' ? `Bot ${s.label}` : `Jugador ${i + 1}` }));
+  const seats = SIDES.slice(0, count).map((s, i) => ({ color: s.color, kind: kinds[i], name: kinds[i] === 'bot' ? `Bot ${s.label}` : versus ? `Jugador ${i + 1}` : 'Tú' }));
   const setKind = (i, kind) => setKinds((k) => k.map((v, j) => (j === i ? kind : v)));
   return html`<div class="screen setup" ref=${ref}>
-    <${Topbar} title="Prepara la mesa" sub=${`Piso ${node.floor + 1}`} onBack=${onBack} />
+    <${Topbar} title="Prepara la mesa" sub=${versus ? 'Partida local' : `Piso ${node.floor + 1}`} onBack=${onBack} />
     <div class="setup-body">
       ${node.lesson && html`<section class="panel setup-card lesson" data-enter>
         <h2><${Icon} name="book" size=${18} />Tutorial · ${node.floor + 1} de ${run.map.floors}</h2>
@@ -76,15 +78,15 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
       <section class="panel setup-card" data-enter>
         <h2>Jugadores</h2>
         <div class="segmented" role="group" aria-label="Número de bandos">
-          ${[2, 3].map((n) => html`<button class=${count === n ? 'on' : ''} aria-pressed=${count === n} onClick=${() => setCount(n)}>${n} bandos</button>`)}
+          ${[2, 3].map((n) => html`<button class=${count === n ? 'on' : ''} aria-pressed=${count === n} onClick=${() => setCount(n)}>${versus ? `${n} bandos` : n === 2 ? 'Tú contra el bot' : '+ Bot extra'}</button>`)}
         </div>
         ${seats.map((s, i) => html`<div class="seat-row">
           <span class=${'token side-' + s.color}></span>
           <div class="grow"><strong>${s.name}</strong><small>${SIDES[i].label}</small></div>
-          <div class="segmented sm" role="group" aria-label=${'Control de ' + SIDES[i].label}>
+          ${versus && html`<div class="segmented sm" role="group" aria-label=${'Control de ' + SIDES[i].label}>
             <button class=${s.kind === 'human' ? 'on' : ''} aria-pressed=${s.kind === 'human'} onClick=${() => setKind(i, 'human')}><${Icon} name="human" size=${14} />Humano</button>
             <button class=${s.kind === 'bot' ? 'on' : ''} aria-pressed=${s.kind === 'bot'} onClick=${() => setKind(i, 'bot')}><${Icon} name="bot" size=${14} />Bot</button>
-          </div>
+          </div>`}
         </div>`)}
       </section>
       <button class="btn primary big" data-enter onClick=${() => onStart(seats)}>Repartir piezas</button>

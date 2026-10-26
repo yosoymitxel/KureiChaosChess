@@ -75,7 +75,7 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
   </div>`;
 }
 
-export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onSettings, onMinis, onZen, onShop, onGallery, onAchievements, settings, setSettings }) {
+export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onSettings, onMinis, onVersus, onZen, onShop, onGallery, onAchievements, settings, setSettings }) {
   const ref = useRef(null);
   useEnter(ref);
   const [askTutorial, setAskTutorial] = useState(false);
@@ -99,6 +99,7 @@ export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onS
         ${!askTutorial && html`<button class="btn primary" data-enter onClick=${go(hasRun ? onContinue : onNew)}>${hasRun ? 'Continuar run' : 'Empezar run'}</button>`}
         ${hasRun && !askTutorial && html`<${ConfirmButton} class="btn" enter onConfirm=${onNew} confirmLabel="Se pierde la run actual. ¿Seguro?">Nueva run<//>`}
         ${onMinis && html`<button class="btn" data-enter onClick=${onMinis}><${Icon} name="connect4" />Minijuegos</button>`}
+        ${!askTutorial && html`<button class="btn" data-enter onClick=${go(onVersus)}><${Icon} name="human" />Partida local</button>`}
         <div class="menu-row" data-enter>
           <button class="btn ghost" onClick=${onHowTo}><${Icon} name="book" />Reglas</button>
           <button class="btn ghost" onClick=${onSettings}><${Icon} name="gear" />Ajustes</button>

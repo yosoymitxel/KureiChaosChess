@@ -4,7 +4,7 @@ import { CardPick } from './components.js';
 import { Icon } from './icons.js';
 import { MenuScreen } from './screens/menu.js';
 import { MapScreen } from './screens/map.js';
-import { SetupScreen, SettingsScreen } from './screens/setup.js';
+import { SetupScreen, SettingsScreen, RUN_MECHANICS } from './screens/setup.js';
 import { GameScreen } from './screens/game.js';
 import { HowToOverlay } from './screens/overlays.js';
 import { setFullscreen } from './fullscreen.js';
@@ -28,11 +28,13 @@ import { DuelScreen } from './screens/duel.js';
 import { HockeyScreen } from './screens/hockey.js';
 import { CaceriaScreen, BodyguardScreen, GiantHuntScreen, MinefieldScreen, KingImpostorScreen, EscapeScreen, ContrabandScreen, LaboratoryScreen, CollapsingFloorScreen, KnightScreen, MatesScreen } from './screens/scenario.js';
 import { MODIFIERS } from '../data/modifiers.js';
-import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs } from '../game/run.js';
+import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs, takeNewDemos } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard } from '../game/shop.js';
 import { ZEN_NAMES, addZenSeeds, pickSeed } from '../game/zen.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
-import { award, bump, loadAchievements } from '../game/achievements.js';
+import { award, bump, loadAchievements, seeMutations } from '../game/achievements.js';
+import { Moments } from './moments.js';
+import { playDemo, mutationDemo } from './demos.js';
 import { BOSS_IDS } from '../data/bosses.js';
 import { applyTheme } from '../data/themes.js';
 import { CARDS, HAND_LIMIT, pickCardChoices } from '../game/cards.js';
@@ -61,8 +63,10 @@ export function App() {
   const [run, setRunState] = useState(loadRun);
   const [node, setNode] = useState(null);
   const [seats, setSeats] = useState(null);
+  const [versus, setVersus] = useState(null); // partida local suelta: no toca la run ni sus cartas
   const [gameKey, setGameKey] = useState(0);
   const [reward, setReward] = useState(null); // { kind, cards }
+  const [reveal, setReveal] = useState(null); // mutación del Frasco extraño, que se enseña antes del mapa
   const [howTo, setHowTo] = useState(false);
   const [freeMini, setFreeMini] = useState(null); // minigame played from the menu, outside a run
   const [freeKey, setFreeKey] = useState(0);
@@ -121,6 +125,13 @@ export function App() {
   const newRun = (tutorial = !settings.tutorialSeen && !loadAchievements().length) => {
     if (tutorial) setSettings((s) => ({ ...s, tutorialSeen: true }));
     const r = createRun({ tutorial }); setRun(r); setNode(r.map.nodes[0]); setSeats(null); goTo('setup'); };
+  const newVersus = () => {
+    const seed = Math.floor(Math.random() * 1e6);
+    const mods = ['none', ...RUN_MECHANICS.filter((id) => id !== 'elite')];
+    setVersus({ key: 0, run: { seed, map: { floors: 1 }, mutations: [], bonuses: {}, cards: [], completed: {} },
+      node: { id: 'versus-' + seed, seed, floor: 0, versus: true, modifier: mods[seed % mods.length] } });
+    goTo('versus-setup');
+  };
   const openShop = (from) => () => { setShopFrom(from); goTo('shop'); };
 
   const enterNode = (n) => {
@@ -205,17 +216,19 @@ export function App() {
       setRun((r) => completeNode(r, node, { bonuses: { ...r.bonuses, [card.id === 'promote_one' ? 'promoteOne' : 'furyNow']: true } }));
       return goTo('map');
     }
+    const drunk = card.id === 'mut' ? pickMutationChoices(Date.now(), run.mutations)[0] : null;
     setRun((r) => {
       let mutations = r.mutations;
       const bonuses = { ...r.bonuses };
       if (card.id === 'extra_pawn') bonuses.extraPawn = true;
       if (card.id === 'extra_rook') bonuses.extraRook = true;
       if (card.id === 'fury' && mutations.filter((m) => m === 'fury').length < 3) mutations = [...mutations, 'fury'];
-      if (card.id === 'mut') { const [m] = pickMutationChoices(Date.now(), mutations); if (m) mutations = [...mutations, m]; }
+      if (drunk) mutations = [...mutations, drunk];
       const withCards = card.id === 'deck' ? addToHand(r, pickCardChoices(Date.now(), 2)) : r;
       return completeNode(withCards, node, { mutations, bonuses });
     });
-    goTo('map');
+    if (drunk) setReveal(drunk);
+    else goTo('map');
   };
 
   const REWARD_TEXT = {
@@ -229,11 +242,17 @@ export function App() {
   const FreeMini = MINI_SCREENS[freeMini];
 
   return html`
-    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} settings=${settings} setSettings=${setSettings} />`}
+    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} onVersus=${newVersus} settings=${settings} setSettings=${setSettings} />`}
     ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} onShop=${openShop('map')} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} settings=${settings} defaultCount=${seats?.length} onHowTo=${() => setHowTo(true)} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame}
       onPrefs=${run && !run.tutorial && !Object.keys(run.completed).length ?(prefs) => { const r = withPrefs(run, prefs); setRun(r); setNode(r.map.nodes[0]); } : null} />`}
+    ${screen === 'versus-setup' && versus && html`<${SetupScreen} versus node=${versus.node} run=${versus.run} settings=${settings} onBack=${() => goTo('menu')}
+      onStart=${(s) => { setVersus((v) => ({ ...v, seats: s })); goTo('versus'); }} />`}
+    ${screen === 'versus' && versus?.seats && html`<${GameScreen} key=${versus.node.id + '-' + versus.key}
+      node=${versus.node} run=${versus.run} seats=${versus.seats} settings=${settings} setSettings=${setSettings} exitLabel="Al menú"
+      onExit=${() => goTo('menu')} onMenu=${() => goTo('menu')} onAbandon=${() => goTo('menu')} onWin=${() => goTo('menu')}
+      onUseCard=${() => {}} onRestart=${() => setVersus((v) => ({ ...v, key: v.key + 1 }))} onHowTo=${() => setHowTo(true)} />`}
     ${screen === 'reward' && reward && html`<${CardPick} key=${reward.kind + reward.cards.map((c) => c.id).join()}
       title=${REWARD_TEXT[reward.kind][0]}
       subtitle=${REWARD_TEXT[reward.kind][1] + (reward.coins ? ` La victoria paga ${reward.coins} monedas del jardín.` : '') + (reward.seed ? ` Cayó una semilla de ${ZEN_NAMES[reward.seed]}.` : '')}
@@ -256,9 +275,27 @@ export function App() {
     ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} onAchievements=${(focus) => { setAchFrom({ back: 'gallery', focus }); goTo('achievements'); }} />`}
     ${screen === 'achievements' && html`<${AchievementsScreen} focus=${achFrom.focus} onBack=${() => goTo(achFrom.back)} onGallery=${() => goTo('gallery')} />`}
     ${howTo && html`<${HowToOverlay} onClose=${() => setHowTo(false)} />`}
+    ${reveal && html`<${MutationReveal} id=${reveal} onDone=${() => { takeNewDemos(run); setReveal(null); goTo('map'); }} />`}
     <div class="curtain" ref=${curtain}><span>Kure'iChaosChess</span></div>
     <${AchievementToast} />
   `;
+}
+
+// Frasco extraño: primero se usa la carta y después se enseña la mutación que tocó, como hace la
+// partida con una mutación nueva; así la partida siguiente ya no la repite.
+function MutationReveal({ id, onDone }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const m = new Moments(ref.current, { speed: loadSettings().speed || 1 });
+    (async () => {
+      await m.cinematic({ title: 'Frasco extraño', sub: 'Lo bebes de un trago y algo cambia en tu ejército…', icon: 'flask', anim: 'stomp' });
+      await playDemo(m, mutationDemo(id));
+      seeMutations([id]);
+      onDone();
+    })();
+    return () => m.destroy();
+  }, []);
+  return html`<div class="overlay" ref=${ref}></div>`;
 }
 
 // Aviso de logro: se encola y sale uno por vez, sin interrumpir la mesa.
