@@ -14,19 +14,20 @@ export const bandOf = (floor, floors) => BAND[floorTier(floor, floors)];
 
 // Perfiles del rival, de menor a mayor peldaño. `noise` es el error esperado por jugada;
 // `capture` cuánto ve el valor de una captura; `pressure` cuánto presiona al rey enemigo;
-// `care` cuánto evita dejar piezas colgadas; `blunder` la chance de mover al azar.
+// `care` cuánto evita dejar piezas colgadas; `guard` cuánto cubre a su rey o jefe (no lo deja
+// a tiro ni le quita el escudo); `blunder` la chance de mover al azar.
 export const RIVALS = {
   aprendiz: {
     id: 'aprendiz', name: 'Aprendiz', desc: 'Juega suelto: pierde capturas y se descuida del rey.',
-    noise: 25, capture: 0.65, pressure: 0.2, care: 0, blunder: 0.15,
+    noise: 25, capture: 0.65, pressure: 0.2, care: 0, guard: 0.4, blunder: 0.15,
   },
   oficial: {
     id: 'oficial', name: 'Oficial', desc: 'Captura por valor y presiona a tu rey.',
-    noise: 4, capture: 1, pressure: 1, care: 0, blunder: 0,
+    noise: 4, capture: 1, pressure: 1, care: 0, guard: 0.6, blunder: 0,
   },
   maestro: {
     id: 'maestro', name: 'Maestro', desc: 'No cuelga piezas y castiga cualquier descuido.',
-    noise: 0.5, capture: 1, pressure: 1.8, care: 1, blunder: 0,
+    noise: 0.5, capture: 1, pressure: 1.8, care: 1, guard: 1, blunder: 0,
   },
 };
 export const RIVAL_STEPS = ['aprendiz', 'oficial', 'maestro'];
@@ -45,8 +46,15 @@ export const DIFFICULTIES = {
 export function rivalForFloor(floor, floors, { up = 0, difficulty = 'normal' } = {}) {
   const shift = (DIFFICULTIES[difficulty] || DIFFICULTIES.normal).shift;
   const i = Math.max(0, Math.min(RIVAL_STEPS.length - 1, RIVAL_STEPS.indexOf(TIER_STEP[floorTier(floor, floors)]) + up + shift));
-  return RIVALS[RIVAL_STEPS[i]];
+  const R = RIVALS[RIVAL_STEPS[i]], next = RIVALS[RIVAL_STEPS[i + 1]];
+  // Dentro de su tercio el rival se va acercando al peldaño siguiente: la torre sube poco a
+  // poco en vez de dar un escalón brusco al cambiar de tercio.
+  const t = floors > 1 ? floor / (floors - 1) : 0;
+  const mix = next ? (t * 3) % 1 : 0;
+  if (!mix) return R;
+  return { ...R, ...Object.fromEntries(TUNING.map((k) => [k, R[k] + (next[k] - R[k]) * mix])) };
 }
+const TUNING = ['noise', 'capture', 'pressure', 'care', 'guard', 'blunder'];
 
 // Ritmo de mecánicas: el peso de cada una por tramo vive en su entrada de MODIFIERS; aquí solo
 // se separan mecánicas y minijuegos. El piso 1 va llano aparte y la Élite espera a que haya cartas.

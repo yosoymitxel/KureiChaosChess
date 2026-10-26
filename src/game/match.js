@@ -1,6 +1,6 @@
 // Match state: turns, moves, captures, boss HP, collapse, end of game.
 // Mutates its own state and returns plain "result" objects that the view animates.
-import { legalMoves, landing, buildOccupancy, hasAnyLegalMove, threatenedPieces, key, cellsOf, walkable, portalAt } from './rules.js';
+import { legalMoves, landing, buildOccupancy, hasAnyLegalMove, threatenedPieces, key, cellsOf, walkable, portalAt, canHit, ctxOf } from './rules.js';
 import { countMutations } from '../data/mutations.js';
 import { PIECE_VALUE } from '../data/pieces.js';
 import { RIVALS } from './difficulty.js';
@@ -242,9 +242,8 @@ function cheapestAttacker(match, mover, row, col, hits) {
   const enemies = virtual.filter((p) => p.color !== mover.color);
   enemies.sort((a, b) => (PIECE_VALUE[a.type] || 20) - (PIECE_VALUE[b.type] || 20));
   // Por golpe y no por casilla: un jefe ocupa varias y se le pega en cualquiera.
-  for (const e of enemies) {
-    if (legalMoves(e, virtual, match.board).some((m) => m.hits.includes(moved))) return PIECE_VALUE[e.type] || 20;
-  }
+  const ctx = ctxOf(virtual, match.board);
+  for (const e of enemies) if (canHit(e, moved, ctx)) return PIECE_VALUE[e.type] || 20;
   return null;
 }
 
@@ -257,8 +256,27 @@ export function botChooseMove(match) {
   const mine = pieces.filter((p) => p.color === color);
   const royal = pieces.find((p) => p.royal && p.color !== color);
   const options = [];
-  // Lo que vale perder la pieza: el jefe pierde una vida por golpe, no la partida de una vez.
-  const worth = (p) => (p.boss ? 60 * (p.hp || 1) : p.royal ? 400 : PIECE_VALUE[p.type] || 20);
+  // Lo que vale perder la pieza: el jefe pierde una vida por golpe, no la partida de una vez,
+  // pero cada golpe pesa más cuantas menos le quedan (con la última vale lo que un rey).
+  const worth = (p) => (p.boss ? 60 + 400 / (p.hp || 1) : p.royal ? 400 : PIECE_VALUE[p.type] || 20);
+  // Golpear a un jefe con vidas de sobra quita una, no gana: vale como una pieza grande.
+  const kills = (v) => v.royal && (v.hp || 1) <= 1;
+  // Cubrir al rey o al jefe: ¿la jugada lo deja a tiro? Mover el escudo, la pantalla de un cañón o
+  // al propio rey a una casilla atacada cuesta; tapar, capturar al atacante o apartarse, no.
+  const myRoyal = mine.find((p) => p.royal);
+  const guard = myRoyal ? Math.max(R.guard ?? 0.6, myRoyal.boss ? 1 : 0) : 0;
+  const exposes = (p, m) => {
+    const moved = { ...p, row: m.row, col: m.col };
+    const virtual = pieces.filter((x) => x !== p && !m.hits.includes(x)).concat([moved]);
+    const target = p === myRoyal ? moved : myRoyal;
+    const ctx = ctxOf(virtual, board);
+    return virtual.some((e) => e.color !== color && canHit(e, target, ctx));
+  };
+  // Solo hace falta mirarlo si el rey ya está a tiro, si se mueve él o si la pieza sale de una de
+  // sus líneas (fila, columna o diagonal): sin esto el bot tardaba medio segundo por jugada en móvil.
+  const lines = myRoyal ? cellsOf(myRoyal) : [];
+  const onLine = (p) => lines.some(([r, c]) => r === p.row || c === p.col || Math.abs(r - p.row) === Math.abs(c - p.col));
+  const underFire = guard > 0 && exposes(myRoyal, { row: myRoyal.row, col: myRoyal.col, hits: [] });
   for (const p of mine) {
     // Una pieza amenazada busca salir: sin esto el jefe se quedaba quieto mientras lo golpeaban.
     const care = p.royal || p.boss ? Math.max(R.care, 0.6) : R.care;
@@ -266,11 +284,12 @@ export function botChooseMove(match) {
     if (p.royal && !p.boss && mine.length > 2 && threat == null) continue;
     for (const m of match.legal(p)) {
       let score = Math.random() * R.noise;
-      for (const v of m.hits) score += v.royal ? 1000 : (PIECE_VALUE[v.type] || 20) * R.capture;
+      for (const v of m.hits) score += kills(v) ? 1000 : v.boss ? 60 * R.capture : (PIECE_VALUE[v.type] || 20) * R.capture;
       score += Math.max(board.rows, board.cols) - (Math.abs(m.row - (board.rows - 1) / 2) + Math.abs(m.col - (board.cols - 1) / 2));
       if (royal && R.pressure) score += R.pressure * Math.max(0, 10 - (Math.abs(m.row - royal.row) + Math.abs(m.col - royal.col)));
       if (p.boss) score += 2 + m.hits.length * 15; // el jefe toma la iniciativa y le gusta aplastar
       if (threat != null) score += care * Math.max(0, worth(p) - threat);
+      if (guard && !m.hits.some(kills) && (underFire || p === myRoyal || onLine(p)) && exposes(p, m)) score -= guard * worth(myRoyal);
       // Peón que quiere coronar (La cacería): cuanto más cerca del fondo, mejor.
       if (R.advance && p.type === 'pawn') score += R.advance * (p.color === 'light' ? board.rows - 1 - m.row : m.row);
       if (care) {

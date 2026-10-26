@@ -146,6 +146,17 @@ export function pieceCanMove(piece, r, c, pieces, board) {
   return canMove(piece, r, c, ctxOf(pieces, board));
 }
 
+// ¿Puede `piece` golpear a `target` en una jugada? Solo prueba las casillas desde las que lo pisaría,
+// no el tablero entero: el bot lo pregunta muchas veces por jugada.
+export function canHit(piece, target, ctx) {
+  const [h, w] = sizeOf(piece);
+  for (const [tr, tc] of cellsOf(target))
+    for (let r = tr - h + 1; r <= tr; r++)
+      for (let c = tc - w + 1; c <= tc; c++)
+        if (r >= 0 && c >= 0 && r <= ctx.board.rows - h && c <= ctx.board.cols - w && canMove(piece, r, c, ctx) && landing(piece, r, c, ctx).includes(target)) return true;
+  return false;
+}
+
 export function legalMoves(piece, pieces, board, ctx = ctxOf(pieces, board)) {
   const [h, w] = sizeOf(piece);
   const moves = [];
