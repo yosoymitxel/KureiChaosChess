@@ -547,6 +547,21 @@ export class BoardView {
     animate(stand, { scaleY: [amt, 1.08, 1], scaleX: [1 + (1 - amt) * 0.6, 0.96, 1], duration: this.d(380), ease: 'outQuad' });
   }
 
+  // Estirar en vuelo: la figura se alarga con la velocidad (más deprisa, más larga y más fina) y,
+  // en vector, se inclina hacia donde va. En píxel no se inclina: los sprites girados se deshacen.
+  stretcher(fig, st) {
+    const tilt = document.documentElement.dataset.art !== 'pixel';
+    let last = { r: st.r, c: st.c, z: st.z, t: performance.now() };
+    return () => {
+      const now = performance.now(), dt = Math.max(8, now - last.t) * this.speed;
+      const vx = ((st.c - last.c) * this.sq) / dt, vy = ((st.r - last.r) * this.sq) / dt, vz = (st.z - last.z) / dt;
+      last = { r: st.r, c: st.c, z: st.z, t: now };
+      const k = Math.min(0.26, Math.hypot(vx, vy, vz) * 0.45);
+      fig.style.scale = `${(1 / Math.sqrt(1 + k)).toFixed(3)} ${(1 + k).toFixed(3)}`;
+      if (tilt) fig.style.rotate = `${Math.max(-12, Math.min(12, vx * 26)).toFixed(1)}deg`;
+    };
+  }
+
   // Organizar: dos piezas propias cambian de casilla con un arco corto y aterrizan con aplomo.
   async swapPieces(a, b) {
     const sa = this.state.get(a), sb = this.state.get(b);
@@ -591,14 +606,16 @@ export class BoardView {
     const fig = this.els.get(piece)?.querySelector('.pc-fig');
     if (fig && !reduced()) {
       await animate(fig, { scaleY: 0.86, scaleX: 1.08, duration: this.d(80), ease: 'outQuad' });
-      animate(fig, { scaleY: [0.86, 1.06, 1], scaleX: [1.08, 0.96, 1], duration: this.d(260), ease: 'outQuad' });
+      animate(fig, { scaleY: 1, scaleX: 1, duration: this.d(120), ease: 'outQuad' });
     }
     // Jumpers fly over what is in between: a puddle oozing along the L would hide the jump.
     if (!reduced() && !jumper) await this.liquid(piece, from, to, dur);
+    const stretch = fig && !reduced() ? this.stretcher(fig, st) : null;
     await animate(st, {
       r: to.row, c: to.col, z: [0, arc, 0], duration: dur,
-      ease: 'inOutSine', onUpdate: () => this.apply(piece),
+      ease: 'inOutSine', onUpdate: () => { this.apply(piece); stretch?.(); },
     });
+    if (fig) fig.style.scale = fig.style.rotate = '';
     const c = this.centerOf(piece);
     // El sonido va al aterrizar, no al decidir la jugada: así se oye cuando se ve el golpe.
     playSfx(piece.boss ? 'stomp' : victims.length ? 'capture' : 'move');
@@ -677,10 +694,18 @@ export class BoardView {
     this.gooEl.appendChild(g);
     const [neck, tail, head] = g.querySelectorAll('polyline, ellipse');
     const s = { head: 0, tail: 0 };
+    // El charco conserva su volumen: cuanto más se estira, más fino el cuello; la cabeza se
+    // alarga hacia donde corre y la cola se encoge mientras se vacía.
+    const r0 = Math.min(rx, ry), dir = (t) => { const [a, b] = [point(Math.max(0, t - 0.02)), point(Math.min(1, t + 0.02))]; return (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI; };
     const draw = () => {
       const [hx, hy] = point(s.head), [tx, ty] = point(s.tail);
+      const len = (s.head - s.tail) * total, thin = 1 / (1 + 0.45 * len), lead = 1 + 0.35 * Math.min(1, len);
       head.setAttribute('cx', hx); head.setAttribute('cy', hy);
+      head.setAttribute('rx', rx * lead); head.setAttribute('ry', ry / Math.sqrt(lead));
+      head.setAttribute('transform', `rotate(${dir(s.head)} ${hx} ${hy})`);
       tail.setAttribute('cx', tx); tail.setAttribute('cy', ty);
+      tail.setAttribute('rx', rx * (0.55 + 0.45 * thin)); tail.setAttribute('ry', ry * (0.55 + 0.45 * thin));
+      neck.setAttribute('stroke-width', r0 * Math.max(0.42, 1.1 * thin));
       neck.setAttribute('points', route(s.tail, s.head).map((q) => q.join(',')).join(' '));
     };
     draw();
@@ -691,7 +716,11 @@ export class BoardView {
       base.style.opacity = '';
       animate(base, { scaleX: [1.16, 0.95, 1], scaleY: [0.86, 1.04, 1], duration: this.d(320), ease: 'outQuad' });
     } });
-    return animate(s, { head: 1, duration: reach, ease: 'outExpo', onUpdate: draw }).then(() => {});
+    // Al llegar, unas gotas saltan del frente del charco.
+    return animate(s, { head: 1, duration: reach, ease: 'outExpo', onUpdate: draw }).then(() => {
+      const c = this.centerOf(p, to.row, to.col);
+      this.fx.burst(c.x, c.y, { count: 8, color: [css('--side-' + p.color)], speed: [40, 120], size: [2, 4], life: [0.25, 0.5], gravity: 500 });
+    });
   }
 
   // Ice: the piece keeps going one tile, skating low with frost spraying behind it.
