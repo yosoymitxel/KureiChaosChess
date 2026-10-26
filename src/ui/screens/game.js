@@ -267,6 +267,13 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         if (piece.color === d.feats.human) award('crowned');
       }
       await d.view.playMove(res);
+      if (res.woke?.length) {
+        const w = res.woke[0];
+        addLog(`${tag}¡La bruja despierta!`);
+        playSfx('stomp');
+        d.view.shake(10, 420);
+        d.moments.callout({ text: '¡La bruja despierta!', sub: 'La miraste: ahora va a por ti', piece: { type: artOf(w), side: w.color }, tone: 'danger', anim: 'tremble', tier: 'major' });
+      }
       const fallenBoss = res.victims.find((v) => v.killed && v.piece.boss)?.piece;
       if (fallenBoss) {
         playSfx('shatter');

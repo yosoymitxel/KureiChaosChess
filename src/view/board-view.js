@@ -30,6 +30,7 @@ const BADGES = {
   lock: '<svg viewBox="0 0 24 24"><path d="M7 10V7.5a5 5 0 0 1 10 0V10h-2.6V7.5a2.4 2.4 0 0 0-4.8 0V10z"/><rect x="4.5" y="10" width="15" height="11.5" rx="2.5"/></svg>',
   last: '<svg viewBox="0 0 24 24"><path d="M5 2.5h2.6v19H5z"/><path d="M7.6 3.5h11.9l-2.6 4 2.6 4H7.6z"/></svg>',
   lent: '<svg viewBox="0 0 24 24"><path d="M12 1.8l2.6 7 7.4.4-5.7 4.7 1.9 7.2L12 17l-6.2 4.1 1.9-7.2L2 9.2l7.4-.4z"/></svg>',
+  eye: '<svg viewBox="0 0 24 24"><path d="M12 5C6.5 5 2.7 9.2 1.5 12c1.2 2.8 5 7 10.5 7s9.3-4.2 10.5-7C21.3 9.2 17.5 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/><circle cx="12" cy="12" r="2"/></svg>',
   mut: '<svg viewBox="0 0 24 24"><path d="M9 2.5h6v2h-1v4.6l5.7 9.4c1 1.7-.2 3.5-2 3.5H6.3c-1.8 0-3-1.8-2-3.5L10 9.1V4.5H9z"/></svg>',
 };
 
@@ -225,9 +226,12 @@ export class BoardView {
       const on = isImmune(p);
       const mut = !on && !!p.extraMoveTypes?.length;
       // Flask = the player's run mutation; star = moves lent by a card or a boss.
-      const kind = on ? (p.trait === 'last' ? 'last' : 'lock') : mut ? (p.mutationExtras?.length ? 'mut' : 'lent') : '';
-      el.classList.toggle('guarded', on);
-      el.classList.toggle('mutated', mut);
+      const kind = p.witch ? 'eye' : on ? (p.trait === 'last' ? 'last' : 'lock') : mut ? (p.mutationExtras?.length ? 'mut' : 'lent') : '';
+      el.classList.toggle('guarded', on && !p.witch);
+      el.classList.toggle('mutated', mut && !p.witch);
+      // Bruja: ojo rojo, que se enciende al despertar.
+      el.classList.toggle('witch', !!p.witch);
+      el.classList.toggle('awake', !!p.awake);
       const badge = el.querySelector('.pc-badge');
       if (badge && badge.dataset.kind !== kind) { badge.dataset.kind = kind; badge.innerHTML = kind ? BADGES[kind] : ''; }
       const escort = on && p.escort && pieces.find((o) => o.id === p.escort);

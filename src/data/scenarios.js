@@ -491,6 +491,24 @@ Object.assign(SCENARIOS, {
       };
     },
   },
+  witch: {
+    id: 'witch',
+    goal: 'Cruza hasta la fila de arriba sin mirar a las brujas (ojo rojo): si alguna de tus jugadas posibles puede tocarla, despierta y te persigue moviéndose casi como una reina.',
+    levels: {
+      facil: { witches: 2, guards: ['pawn', 'pawn'], holes: 4, rounds: 12, rival: 'oficial' },
+      normal: { witches: 3, guards: ['pawn', 'pawn', 'pawn'], holes: 6, rounds: 10, rival: 'oficial' },
+      dificil: { witches: 4, guards: ['pawn', 'pawn', 'pawn', 'knight'], holes: 6, rounds: 9, rival: 'maestro' },
+    },
+    setup: (lv, rng) => passable(lv, () => {
+      const b = board(), runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
+      rubble(rng, b, pieces, lv.holes);
+      // Dormidas y fuera de la vista del caballo al empezar.
+      const sees = (r, c) => legalMoves(runner, pieces, b).some((m) => m.row === r && m.col === c);
+      for (const [r, c] of spots(rng, pieces, b, 1, N - 3, lv.witches * 3).filter(([r, c]) => !sees(r, c)).slice(0, lv.witches))
+        pieces.push(makePiece('queen', 'dark', r, c, { witch: true, moves: ['rook2', 'bishop2', 'knight'] }));
+      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Pasaste sin despertarlas… o sin que te alcanzaran.' });
+    }),
+  },
   blind: {
     id: 'blind',
     modifier: 'fog',

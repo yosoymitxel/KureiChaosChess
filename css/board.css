@@ -201,6 +201,10 @@
 .pc.guarded .pc-badge svg { fill: var(--paper); }
 .pc.guarded:not(.threat, .sel, .eligible) .pc-base::after { border: 3px solid var(--elite); }
 .pc.mutated .pc-badge svg { fill: var(--gain); }
+.pc.witch .pc-badge { display: grid; background: var(--ink); }
+.pc.witch .pc-badge svg { fill: var(--gain); }
+.pc.witch.awake .pc-badge { background: var(--danger); }
+.pc.witch.awake .pc-badge svg { fill: var(--paper); }
 .tether {
   position: absolute; left: 0; top: 0; height: 0; width: calc(var(--len) * var(--sq));
   transform-origin: 0 50%;

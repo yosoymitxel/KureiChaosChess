@@ -42,6 +42,7 @@ export const MODIFIERS = {
   outbreak: { id: 'outbreak', name: 'Brote', desc: 'Minijuego: el Contagio en su mesa; pasa a tu bando las piezas pedidas a fuerza de capturas. Premio: mutación o pieza.', icon: 'drop', mini: true, weights: [0, 1, 1.5] },
   clock: { id: 'clock', name: 'Contrarreloj', desc: 'Minijuego: llega a la casilla del reloj antes de que se agote, junta monedas y esquiva a las piezas que van apareciendo. Premio: mutación o pieza.', icon: 'rush', mini: true, weights: [0.5, 1, 1] },
   blind: { id: 'blind', name: 'Alfiles a ciegas', desc: 'Minijuego: alfiles repartidos al azar entre la niebla y un tablero que se encoge. Premio: mutación o pieza.', icon: 'target', mini: true, weights: [0, 1, 1] },
+  witch: { id: 'witch', name: 'La bruja', desc: 'Minijuego: cruza sin mirar a las brujas dormidas; la que despierta te persigue. Premio: mutación o pieza.', icon: 'target', mini: true, weights: [0, 1, 1] },
   hockey: { id: 'hockey', name: 'Hockey de mesa', desc: 'Minijuego: arrastra tu torre y mete el disco en la portería del bot; gana quien llegue a cinco goles. Premio: mutación o pieza.', icon: 'hockey', mini: true, weights: [0.7, 1, 1] },
 };
 

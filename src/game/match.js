@@ -116,6 +116,7 @@ export class Match {
         }
       }
       if (this.modifier === 'contagion') res.infected = this.infect(piece, victims);
+      res.woke = this.wake(piece.color);
       res.absorbed = this.absorb(piece, victims);
       this.terrainAfterMove(piece, from, res);
     }
@@ -128,6 +129,16 @@ export class Match {
     this.movesThisTurn++;
     if (victims.length) this.quietTurns = 0;
     return res;
+  }
+
+  // Bruja: si alguna pieza de `color` puede tocar a una bruja dormida rival, la bruja despierta.
+  wake(color) {
+    const sleeping = this.pieces.filter((p) => p.witch && !p.awake && p.color !== color);
+    if (!sleeping.length) return [];
+    const ctx = ctxOf(this.pieces, this.board), mine = this.pieces.filter((p) => p.color === color);
+    const woke = sleeping.filter((w) => mine.some((p) => canHit(p, w, ctx)));
+    for (const w of woke) w.awake = true;
+    return woke;
   }
 
   // Contagio: las piezas menores pegadas a cada víctima (2 o 3 en total) cambian al bando que capturó.
@@ -307,6 +318,7 @@ export function botChooseMove(match) {
       score += Math.max(board.rows, board.cols) - (Math.abs(m.row - (board.rows - 1) / 2) + Math.abs(m.col - (board.cols - 1) / 2));
       if (royal && R.pressure) score += R.pressure * Math.max(0, 10 - (Math.abs(m.row - royal.row) + Math.abs(m.col - royal.col)));
       if (p.boss) score += m.hits.length * 15; // al jefe le gusta aplastar
+      if (p.awake) score += 4 + m.hits.length * 10; // la bruja despierta no para
       if (threat != null) score += care * Math.max(0, worth(p) - threat);
       if (guard && !m.hits.some(kills) && (underFire || p === myRoyal || onLine(p)) && exposes(p, m)) score -= guard * worth(myRoyal);
       // Peón que quiere coronar (La cacería): cuanto más cerca del fondo, mejor.
