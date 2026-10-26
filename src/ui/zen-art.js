@@ -219,3 +219,11 @@ export function rakeArt(n, objs, raw) {
     <rect width=${n} height=${n} fill="url(#zn-sun)"/>
   </svg>`;
 }
+
+// Coleccionables del tablero (src/data/pickups.js); la moneda usa su icono.
+export const PICKUP_ART = { leaf: mapleLeaf, seed: POUCH };
+
+// Estanque en el hueco central de un tablero: dos koi dando vueltas en sentidos contrarios.
+export const boardPond = html`<svg class="bd-pond" viewBox="0 0 20 20" aria-hidden="true">
+  ${['a', 'b'].map((k) => html`<g class=${'bd-koi zn-koi zn-koi-' + k}><g transform=${k === 'a' ? 'translate(10 5) scale(.9)' : 'translate(10 16.5) scale(.75)'}><g class="zn-vec">${KOI}<circle class="zn-koi-spot" cx="1.1" cy="-.2" r=".8"/></g>${px('koi', 8, 5, -4.4, -2.5)}</g></g>`)}
+</svg>`;

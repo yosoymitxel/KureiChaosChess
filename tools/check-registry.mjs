@@ -75,6 +75,11 @@ for (const id of BOSS_IDS) {
 // Cartas.
 for (const [id, c] of Object.entries(CARDS)) if (!hasIcon(c.icon)) fail(`carta ${id}: el icono "${c.icon}" no existe`);
 
+// Coleccionables: cada uno con dibujo (PICKUP_ART en zen-art.js) o un icono de su mismo id.
+const { PICKUPS } = await import('../src/data/pickups.js');
+const zenArt = read('src/ui/zen-art.js'), artKeys = zenArt.slice(zenArt.indexOf('PICKUP_ART')).split('\n')[0];
+for (const id of Object.keys(PICKUPS)) if (!hasIcon(id) && !new RegExp(`\\b${id}:`).test(artKeys)) fail(`coleccionable ${id}: sin dibujo ni icono`);
+
 // Mesas: todas definen las mismas variables que la de serie.
 const base = Object.keys(THEMES.walnut.vars);
 for (const t of Object.values(THEMES)) {

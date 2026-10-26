@@ -158,7 +158,7 @@ export class Moments {
     const el = this.mount('cine tone-brass', html`
       <i class="bar top"></i><i class="bar bottom"></i>
       <div class="cine-body">
-        <div class="cine-art coin-stage"><div class="coin"><i class="coin-face"></i><i class="coin-face side-dark"></i></div></div>
+        <div class="cine-art toss-stage"><div class="toss"><i class="toss-face"></i><i class="toss-face side-dark"></i></div></div>
         <div class="cine-text"><h2>${title}</h2>${sub && html`<p>${sub}</p>`}</div>
       </div>
       <span class="cine-skip">Toca o pulsa una tecla para seguir</span>`);
@@ -168,10 +168,10 @@ export class Moments {
       motion(el.querySelectorAll('.bar'), { scaleY: [0, 1] }, { duration: t(0.35), ease: OUT });
       q('.cine-text').style.opacity = 0;
       const spin = 360 * 5 + (heads ? 0 : 180);
-      motion(q('.coin'), { rotateX: [0, spin] }, { duration: t(1.4), ease: [0.2, 0.6, 0.35, 1] });
-      await motion(q('.coin-stage'), { y: [0, -150, 0], scale: [0.7, 1.15, 1] }, { duration: t(1.4), ease: [0.33, 0, 0.67, 1] });
-      this.dust(q('.coin-stage'));
-      await motion(q('.coin-stage'), { y: [0, -14, 0] }, { duration: t(0.25), ease: OUT });
+      motion(q('.toss'), { rotateX: [0, spin] }, { duration: t(1.4), ease: [0.2, 0.6, 0.35, 1] });
+      await motion(q('.toss-stage'), { y: [0, -150, 0], scale: [0.7, 1.15, 1] }, { duration: t(1.4), ease: [0.33, 0, 0.67, 1] });
+      this.dust(q('.toss-stage'));
+      await motion(q('.toss-stage'), { y: [0, -14, 0] }, { duration: t(0.25), ease: OUT });
       await motion(q('.cine-text'), { opacity: [0, 1], y: [10, 0] }, { duration: t(0.35), ease: OUT });
       await sleep(t(1.1));
     })();

@@ -6,6 +6,8 @@ import { pieceSVG, headTop, artOf } from './piece-art.js';
 import { Fx } from './fx.js';
 import { playSfx } from '../ui/sfx.js';
 import { key, cellsOf, sizeOf, portalAt } from '../game/rules.js';
+import { render } from '../ui/lib.js';
+import { boardPond } from '../ui/zen-art.js';
 
 export const CAMERAS = { flat: 0, tilt: 40, epic: 56 };
 const JUMPERS = new Set(['knight', 'camel', 'elephant']);
@@ -166,9 +168,51 @@ export class BoardView {
       this.tiles.set(key(r, c), t);
     }
     this.tilesEl.appendChild(frag);
+    this.pond(board);
     this.gooEl.setAttribute('viewBox', `0 0 ${cols} ${rows}`); // one unit = one tile
     this.refreshEdges();
     this.layout();
+  }
+
+  // Centro abierto: si el hueco del medio está casi lleno, se vuelve un estanque con dos koi.
+  pond({ rows, cols, holes }) {
+    const mid = [...holes].map((k) => k.split(',').map(Number)).filter(([r, c]) => Math.abs(r - (rows - 1) / 2) <= rows * 0.2 && Math.abs(c - (cols - 1) / 2) <= cols * 0.2);
+    if (mid.length < 2) return;
+    const rs = mid.map(([r]) => r), cs = mid.map(([, c]) => c);
+    const [r0, r1, c0, c1] = [Math.min(...rs), Math.max(...rs), Math.min(...cs), Math.max(...cs)];
+    if (mid.length < (r1 - r0 + 1) * (c1 - c0 + 1) * 0.7) return;
+    for (const [r, c] of mid) {
+      const w = document.createElement('div');
+      w.className = 'pond-tile';
+      w.style.setProperty('--r', r); w.style.setProperty('--c', c);
+      this.tilesEl.appendChild(w);
+    }
+    const el = document.createElement('div');
+    el.className = 'pond';
+    Object.entries({ '--r': r0, '--c': c0, '--h': r1 - r0 + 1, '--w': c1 - c0 + 1 }).forEach(([k, v]) => el.style.setProperty(k, v));
+    this.tilesEl.appendChild(el);
+    render(boardPond, el);
+  }
+
+  // Objetos tumbados sobre una casilla (los coleccionables): caen rebotando; devuelve el elemento.
+  addProp(row, col, cls) {
+    const el = document.createElement('div');
+    el.className = 'prop ' + cls;
+    el.style.setProperty('--r', row); el.style.setProperty('--c', col);
+    this.tilesEl.appendChild(el);
+    if (!reduced()) animate(el, { translateZ: [this.sq * 1.2, 0], opacity: [0, 1], duration: this.d(520), ease: 'outBounce' });
+    return el;
+  }
+
+  // Recogido sube girando con chispas; perdido se encoge.
+  async takeProp(el, mine) {
+    if (mine) {
+      const c = this.fx.pointOf(el);
+      this.fx.burst(c.x, c.y, { count: 14, color: ['#ffd36b', '#fff2c2', '#fff'], speed: [50, 180], size: [2, 4], life: [0.3, 0.6], shape: 'spark' });
+    }
+    await animate(el, mine ? { translateZ: [0, this.sq * 1.4], rotate: [0, 360], opacity: [1, 0], duration: this.d(520), ease: 'outQuad' }
+      : { scale: [1, 0], opacity: [1, 0], duration: this.d(260), ease: 'inQuad' });
+    el.remove();
   }
 
   // Tiles whose south neighbour is missing show their thickness.

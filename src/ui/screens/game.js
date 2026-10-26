@@ -1,8 +1,7 @@
 // Game screen: the "director" that wires Match (rules) to BoardView (3D) and the HUD.
-import { html, useState, useEffect, useRef, motion, motionStagger } from '../lib.js';
+import { html, render, useState, useEffect, useRef, motion, motionStagger } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { TurnBanner, CardFace, MiniEnd } from '../components.js';
-import { isShopCard } from '../../game/shop.js';
 import { BoardView } from '../../view/board-view.js';
 import { artOf } from '../../view/piece-art.js';
 import { Match, botChooseMove } from '../../game/match.js';
@@ -20,6 +19,10 @@ import { PauseOverlay } from './overlays.js';
 import { Moments } from '../moments.js';
 import { playSfx } from '../sfx.js';
 import { award, seePieces, seeMutations } from '../../game/achievements.js';
+import { PICKUPS, dropPickups } from '../../data/pickups.js';
+import { PICKUP_ART } from '../zen-art.js';
+import { isShopCard, addCoins } from '../../game/shop.js';
+import { addZenSeeds, pickSeed, ZEN_NAMES } from '../../game/zen.js';
 
 const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
 
@@ -267,6 +270,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         if (piece.color === d.feats.human) award('crowned');
       }
       await d.view.playMove(res);
+      pickUp(piece);
       if (res.woke?.length) {
         const w = res.woke[0];
         addLog(`${tag}¡La bruja despierta!`);
@@ -300,6 +304,31 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       await Promise.all([...spawned.map((p) => d.view.dropIn(p)), ...fallen.map((p) => d.view.kill(p, p, p)), sunk.length && d.view.collapse(sunk)]);
     };
 
+    // Coleccionables: caen una vez por piso, después del primer «Tu turno», para no frenar la entrada.
+    const dropProps = () => {
+      if (d.props || scenario || node.versus) return;
+      d.props = new Map();
+      for (const { id, row, col } of dropPickups(board, match.pieces)) {
+        const el = d.view.addProp(row, col, id);
+        render(PICKUP_ART[id] || html`<${Icon} name=${id} size=${24} />`, el);
+        d.props.set(key(row, col), { id, el });
+      }
+    };
+    const pickUp = (piece) => {
+      if (!d.props?.size) return;
+      for (const [k, prop] of d.props) {
+        const onIt = piece.row + ',' + piece.col === k, sunk = board.holes.has(k);
+        if (!onIt && !sunk) continue;
+        d.props.delete(k);
+        const mine = onIt && piece.color === human, it = PICKUPS[prop.id];
+        d.view.takeProp(prop.el, mine);
+        if (!mine) { if (onIt) addLog(`${pieceName(piece)} rival se lleva: ${it.name.toLowerCase()}`); continue; }
+        playSfx('coin');
+        if (it.coins) { addCoins(it.coins); addLog(`${it.name}: +${it.coins} monedas`); }
+        if (it.seed) { const kind = pickSeed(); addZenSeeds(kind, it.seed); addLog(`Semilla de ${ZEN_NAMES[kind].toLowerCase()} para el jardín`); }
+      }
+    };
+
     const startTurn = (newTurn = true) => {
       refresh();
       const p = match.player;
@@ -324,7 +353,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (p.kind === 'human' && newTurn && !warned && seats.length > 1) {
         // Let queued callouts (capture, collapse, jaque) finish before "Tu turno", so nothing overlaps.
         const text = seats.filter((s) => s.kind === 'human').length > 1 ? `Turno de ${p.name}` : 'Tu turno';
-        d.moments.whenIdle().then(() => setBanner({ key: Date.now(), text, side: p.color }));
+        d.moments.whenIdle().then(() => { setBanner({ key: Date.now(), text, side: p.color }); setTimeout(() => !d.dead && dropProps(), 900); });
       }
     };
 

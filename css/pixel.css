@@ -66,4 +66,4 @@
 [data-art="pixel"] .zn-rake { display: none; }
 [data-art="pixel"] :is(.zn-plant, .zn-standart) { filter: drop-shadow(0 2px 0 oklch(0.15 0.03 55 / 0.35)); }
 /* La moneda de cara o cruz, en escalones. */
-[data-art="pixel"] .coin-face { clip-path: polygon(25% 0, 75% 0, 75% 8%, 92% 8%, 92% 25%, 100% 25%, 100% 75%, 92% 75%, 92% 92%, 75% 92%, 75% 100%, 25% 100%, 25% 92%, 8% 92%, 8% 75%, 0 75%, 0 25%, 8% 25%, 8% 8%, 25% 8%); outline: 0; }
+[data-art="pixel"] .toss-face { clip-path: polygon(25% 0, 75% 0, 75% 8%, 92% 8%, 92% 25%, 100% 25%, 100% 75%, 92% 75%, 92% 92%, 75% 92%, 75% 100%, 25% 100%, 25% 92%, 8% 92%, 8% 75%, 0 75%, 0 25%, 8% 25%, 8% 8%, 25% 8%); outline: 0; }
