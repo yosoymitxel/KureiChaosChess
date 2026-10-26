@@ -37,7 +37,7 @@
 /* Logotipo: «Kure'i» con relleno de tablero y la corona sobre la i; «ChaosChess» en una cinta,
    con las letras de Chaos desordenadas y Chess derecha. */
 .logo-main { display: inline-block; position: relative; color: var(--paper);
-  background: repeating-conic-gradient(var(--paper) 0 25%, color-mix(in oklch, var(--paper), var(--accent) 38%) 0 50%) 0 0 / 0.3em 0.3em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2' shape-rendering='crispEdges'%3E%3Crect width='2' height='2' fill='%23f4e9d6'/%3E%3Cpath d='M1 0h1v1H1zM0 1h1v1H0z' fill='%23e3b98f'/%3E%3C/svg%3E") 0 0 / 0.3em 0.3em;
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none;
   filter: drop-shadow(0 2px 0 var(--paper-3)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 12px 14px oklch(0.1 0.03 55 / 0.5)); }
 .logo-i { position: relative; display: inline-block; background: inherit; -webkit-background-clip: text; background-clip: text; }
