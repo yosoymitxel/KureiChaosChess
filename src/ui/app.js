@@ -262,7 +262,7 @@ export function App() {
     ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} onAchievements=${(focus) => { setAchFrom({ back: 'gallery', focus }); goTo('achievements'); }} />`}
     ${screen === 'achievements' && html`<${AchievementsScreen} focus=${achFrom.focus} onBack=${() => goTo(achFrom.back)} onGallery=${() => goTo('gallery')} />`}
     ${howTo && html`<${HowToOverlay} onClose=${() => setHowTo(false)} />`}
-    <div class="curtain" ref=${curtain}><span>Zugzwang</span></div>
+    <div class="curtain" ref=${curtain}><span>Kure'iChaosChess</span></div>
     <${AchievementToast} />
   `;
 }

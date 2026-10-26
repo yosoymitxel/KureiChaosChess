@@ -1,4 +1,4 @@
-# Zugzwang
+# Kure'iChaosChess
 
 Ajedrez mutante en formato roguelike de mesa. Tablero procedural con agujeros, piezas
 extra (guardia, camello, cañón…), mutaciones que se acumulan durante la run y jefes que

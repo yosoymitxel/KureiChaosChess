@@ -1,7 +1,9 @@
-# Zugzwang
+# Kure'iChaosChess
 
 Roguelike de ajedrez web: HTML/JS sin build, Preact + htm + anime.js + Motion por importmap
-(`index.html`). Responde en español. No renombrar el juego. Lanzamiento cercano: cambios acotados.
+(`index.html`). Responde en español. El juego se llama Kure'iChaosChess (antes Zugzwang; las claves
+internas `zugzwang.*` se quedan para no borrar partidas guardadas). Rama principal: `main`.
+Lanzamiento cercano: cambios acotados.
 
 ## Mapa
 - `src/data/`: lo que crece. `pieces.js`, `bosses.js`, `mutations.js`, `modifiers.js` (mecánicas y

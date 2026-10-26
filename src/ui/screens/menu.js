@@ -88,7 +88,7 @@ export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onS
       onTutorial=${hasRun ? () => setAskTutorial(true) : go(onTutorial)} />
     <div class="menu-col">
       <div class="logo" data-enter>
-        <h1>Zug<span>zwang</span></h1>
+        <h1>Kure'i<span>ChaosChess</span></h1>
         <p>Ajedrez que muta en cada piso. Sube la torre, gana piezas raras y derriba al coloso del final.</p>
       </div>
       <nav class="menu-actions">
