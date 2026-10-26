@@ -295,10 +295,11 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       }
       if (p.kind === 'bot') {
         // The bot waits for the labels on screen: its move used to land under a collapse or a capture.
+        // It checks again right before moving, since the "Jaque" of this same turn queues after this.
         d.moments.whenIdle().then(() => {
           if (d.leaving || d.dead || match.over) return;
           d.timer = setTimeout(function step() {
-            if (d.paused) { d.timer = setTimeout(step, 300); return; }
+            if (d.paused || d.moments.playing) { d.timer = setTimeout(step, 300); return; }
             const mv = scenario?.bot?.(match) || botChooseMove(match);
             if (mv) doMove(mv.piece, mv.target);
           }, 450 + Math.random() * 300);
@@ -613,7 +614,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       <ol class="log" aria-live="polite" aria-label="Registro de jugadas">${log.slice(-6).map((l, i) => html`<li key=${log.length - 6 + i}>${l}</li>`)}</ol>
     </aside>
     ${paused && !end && html`<${PauseOverlay} settings=${settings} setSettings=${setSettings}
-      onResume=${() => setPaused(false)} onRestart=${() => leave('reset', onRestart)} onExit=${() => leave('exit', onExit)} onMenu=${() => leave('exit', onMenu)} onAbandon=${() => leave('resign', onAbandon)}
+      onResume=${() => setPaused(false)} onRestart=${onRestart && (() => leave('reset', onRestart))} onExit=${() => leave('exit', onExit)} onMenu=${() => leave('exit', onMenu)} onAbandon=${() => leave('resign', onAbandon)}
       onHowTo=${() => { setPaused(false); onHowTo(); }} />`}
     ${end && !scenario && html`<${EndOverlay} state=${end} isFinal=${node.isBoss} exitLabel=${scenario?.endLabel} onContinue=${() => leave('exit', () => onWin(ref.current.bossId))} onRetry=${() => leave('reset', onRestart)} onMap=${() => leave('exit', onExit)}
       onMenu=${() => leave('exit', end.victory ? () => onWin(ref.current.bossId, { toMenu: true }) : onMenu)} />`}

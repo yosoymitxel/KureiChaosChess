@@ -34,7 +34,7 @@ export function PauseOverlay({ onResume, onRestart, onExit, onMenu, onAbandon, o
       </div>
       <div class="pause-grid">
         <button class="btn sm" onClick=${onHowTo}><${Icon} name="book" size=${16} />Reglas</button>
-        <button class="btn sm" onClick=${onRestart}><${Icon} name="refresh" size=${16} />Reiniciar</button>
+        ${onRestart && html`<button class="btn sm" onClick=${onRestart}><${Icon} name="refresh" size=${16} />Reiniciar</button>`}
         <button class="btn sm" onClick=${onExit}><${Icon} name="map" size=${16} />Al mapa</button>
         <button class="btn sm" onClick=${onMenu}><${Icon} name="home" size=${16} />Menú</button>
         <${ConfirmButton} class="btn sm danger wide" onConfirm=${onAbandon} confirmLabel="¿Seguro? Se pierde la run"><${Icon} name="skull" size=${16} />Abandonar run<//>
