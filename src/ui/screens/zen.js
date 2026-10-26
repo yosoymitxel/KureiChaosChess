@@ -6,10 +6,11 @@ import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Topbar, useEnter } from '../components.js';
 import { Icon } from '../icons.js';
 import { Fx } from '../../view/fx.js';
-import { chipArt, POT, SOIL, plantArt, pondArt, MOSS, STEP, LANTERN, BRANCH, mapleLeaf, rakeArt, orbit, KOI_ORBITS, BUTTERFLY, CAN, SHEARS, SHOVEL, POUCH, px } from '../zen-art.js';
-import { ZEN_KINDS, ZEN_NAMES, ZEN_MAX, ZEN_BASE, BASE_GRID, cellKey, expandCost, zenStage, zenSow, zenWater, zenDig, zenHarvest, zenExpand, zenLeaves, zenSweep, LEAF_COINS, BUTTERFLY_MS, butterflyGift, loadZen, saveZen } from '../../game/zen.js';
+import { chipArt, POT, SOIL, plantArt, pondArt, MOSS, STEP, LANTERN, BRANCH, mapleLeaf, rakeArt, orbit, KOI_ORBITS, BUTTERFLY, CAN, SHEARS, SHOVEL, POUCH, px, stoneArt, ITEM_ART, KOI_ART } from '../zen-art.js';
+import { ZEN_KINDS, ZEN_NAMES, ZEN_MAX, cellKey, cellType, lakeBox, expandCost, zenStage, zenSow, zenWater, zenWaterAround, zenDig, digWait, zenBreak, zenHarvest, zenExpand, zenLake, zenPlace, zenLeaves, zenSweep, LEAF_COINS, BUTTERFLY_MS, butterflyGift, loadZen, saveZen } from '../../game/zen.js';
+import { SEEDS, GARDEN_ITEMS, LAKE_MAX, lakeCost } from '../../data/garden.js';
 import { award } from '../../game/achievements.js';
-import { COINS_PER_FLOWER, addCoins, charge, loadShop } from '../../game/shop.js';
+import { addCoins, charge, loadShop } from '../../game/shop.js';
 import { playSfx } from '../sfx.js';
 
 const ETAPAS = { empty: 'vacía', sprout: 'con brote', bud: 'con capullo', bloom: 'lista para cortar' };
@@ -21,7 +22,7 @@ const TOOLS = [
   { id: 'cut', icon: 'shears', name: 'Cortar' },
 ];
 // Lo que se lleva en la mano: sigue al puntero sobre el jardín y hace el gesto al tocar.
-const TOOL_ART = { sow: POUCH, water: CAN, dig: SHOVEL, cut: SHEARS };
+const TOOL_ART = { sow: POUCH, water: CAN, dig: SHOVEL, cut: SHEARS, lantern: ITEM_ART.lantern, pot: ITEM_ART.pot };
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const later = (fn, ms = 40) => setTimeout(fn, ms); // tras el repintado de Preact
 // "el romero", "la salvia": el artículo que pide cada especie, para los avisos.
@@ -163,7 +164,8 @@ export function ZenScreen({ onBack, onShop }) {
     const p = at(cell, 0.7);
     fxRef.current.burst(p.x, p.y, { count: 16, color: SOIL_COLORS, speed: [80, 260], life: [0.4, 0.8], size: [2.5, 5], gravity: 700, shape: 'chunk', spread: Math.PI * 0.9, angle: -Math.PI / 2 });
     fxRef.current.dust(p.x, p.y, 0.9);
-    motion(cell.querySelector('.zn-plant'), { scale: [0.4, 1.12, 1], y: [8, -4, 0] }, { duration: 0.5, ease: OUT });
+    const art = cell.querySelector('.zn-plant, .zn-stone');
+    if (art) motion(art, { scale: [0.4, 1.12, 1], y: [8, -4, 0] }, { duration: 0.5, ease: OUT });
   };
   const fxBloom = (key) => {
     const cell = cellOf(key);
@@ -177,10 +179,10 @@ export function ZenScreen({ onBack, onShop }) {
   const harvest = (key, kind) => {
     const cell = cellOf(key);
     const done = () => {
-      const next = zenHarvest(z, key, Date.now());
+      const next = zenHarvest(z, key, Date.now()), pays = SEEDS[kind].pays;
       apply(next);
-      setGain(`+${COINS_PER_FLOWER} monedas por ${the(kind)}.`);
-      flyCoins(cell?.getBoundingClientRect(), 3, COINS_PER_FLOWER);
+      setGain(`+${pays} monedas por ${the(kind)}${next.gift ? ' y suelta una semilla' : ''}${next.pots[key] ? '. Rebrota' : ''}.`);
+      flyCoins(cell?.getBoundingClientRect(), 3, pays);
       award('flower_1');
       playSfx('flower');
       const flores = ZEN_KINDS.reduce((n, k) => n + (next.flores[k] || 0), 0);
@@ -203,9 +205,24 @@ export function ZenScreen({ onBack, onShop }) {
 
   // Un toque aplica la herramienta elegida; el estado cuenta la espera y las novedades.
   const tap = (type, key) => {
+    if (GARDEN_ITEMS[tool]) {
+      const next = zenPlace(z, tool, key);
+      if (next === z) return say(tool === 'lantern' ? 'El farol va en un tiesto vacío.' : 'La maceta va sobre tierra virgen o una piedra.');
+      apply(next); playSfx('dig');
+      if (!next.items[tool]) setTool('sow');
+      return say(tool === 'lantern' ? 'Farol puesto: lo que crece a su lado abre antes.' : 'Maceta puesta: ya se puede sembrar.');
+    }
+    if (type === 'rock') {
+      if (tool !== 'dig') return say('Una piedra: con la pala se parte.');
+      const { z: next, broke } = zenBreak(z, key);
+      apply(next); fxDig(key);
+      return say(broke ? 'La piedra se parte: queda tierra virgen.' : 'La piedra se agrieta: otro golpe.');
+    }
     if (type === 'raw') {
-      if (tool === 'dig') { apply(zenDig(z, key)); fxDig(key); say('Tiesto nuevo: siembra cuando quieras.'); }
-      else say('Tierra virgen: elige Cavar para hacer un tiesto.');
+      if (tool !== 'dig') return say('Tierra virgen: elige Cavar para hacer un tiesto.');
+      const wait = digWait(z, now);
+      if (wait) return say(`La pala descansa: ${secs(wait)}. La de acero de la tienda no espera.`);
+      apply(zenDig(z, key, now)); fxDig(key); say('Tiesto nuevo: siembra cuando quieras.');
       return;
     }
     const st = zenStage(z, key, now);
@@ -222,7 +239,7 @@ export function ZenScreen({ onBack, onShop }) {
       else if (st.stage === 'bloom') say(`${cap(the(st.kind))} ya está en flor: córtala.`);
       else if (st.watered) say('Ya la regaste: cada planta se riega una vez.');
       else {
-        const next = zenWater(z, key, now);
+        const next = z.items.can ? zenWaterAround(z, key, now) : zenWater(z, key, now);
         apply(next);
         fxWater(key);
         say(`Regaste ${the(st.kind)}: flor en ${secs(zenStage(next, key, now).msLeft)}.`);
@@ -417,34 +434,67 @@ export function ZenScreen({ onBack, onShop }) {
     </button>`;
   };
 
-  // El cantero se arma fila por fila: el 4×4 base arriba a la izquierda y los anillos al sur y al este.
-  // De paso se anota qué ocupa cada casilla, para que la arena se rastrille a su alrededor.
+  // El cantero se arma fila por fila en coordenadas absolutas: el 4×4 base de r0c0 a r3c3 y los
+  // anillos alrededor (`off` filas y columnas arriba a la izquierda). De paso se anota qué ocupa cada
+  // casilla, para que la arena se rastrille a su alrededor.
+  const off = z.off || 0, [la, lb] = lakeBox(z.lake || 2), lakeN = lb - la;
   const cells = [], objs = [], raw = [];
-  const keep = (r, c, room) => objs.push({ x: c + 0.5, y: r + 0.62, r: room });
-  for (let r = 0; r < z.size; r++) {
-    for (let c = 0; c < z.size; c++) {
-      const key = cellKey(r, c);
-      if (r < ZEN_BASE && c < ZEN_BASE) {
-        const t = BASE_GRID[r][c];
-        if (t === 'pond') {
-          if (r === 1 && c === 2) {
-            cells.push(html`<button key="pond" class="bm-cell zen-pond" aria-label="Estanque: toca el agua para dar de comer a los koi" onClick=${feed}>${pondArt(reduced())}</button>`);
-            objs.push({ x: c + 1, y: r + 1.02, r: 0.78, sx: 1.06 });
-          }
-          continue;
+  const keep = (r, c, room) => objs.push({ x: c + off + 0.5, y: r + off + 0.62, r: room });
+  for (let r = -off; r < z.size - off; r++) {
+    for (let c = -off; c < z.size - off; c++) {
+      const key = cellKey(r, c), t = cellType(z, key);
+      if (t === 'pond') {
+        if (r === la && c === la) {
+          cells.push(html`<button key="pond" class="bm-cell zen-pond" style=${{ gridRow: `span ${lakeN}`, gridColumn: `span ${lakeN}` }} aria-label="Estanque: toca el agua para dar de comer a los koi" onClick=${feed}>${pondArt(reduced())}</button>`);
+          objs.push({ x: la + off + lakeN / 2, y: la + off + lakeN / 2 + 0.02, r: 0.39 * lakeN, sx: 1.06 });
         }
-        if (t === 'lawn') { cells.push(html`<span key=${key} class="bm-cell zn-deco" aria-hidden="true">${MOSS}</span>`); keep(r, c, ROOM.moss); continue; }
-        if (t === 'step') {
-          const lantern = key === 'r3c1';
-          cells.push(html`<span key=${key} class=${'bm-cell zn-deco' + (lantern ? ' zn-tall' : '')} aria-hidden="true">${lantern ? LANTERN : STEP}</span>`);
-          keep(r, c, lantern ? ROOM.lantern : ROOM.step);
-          continue;
-        }
-        cells.push(potCell(key)); keep(r, c, ROOM.pot);
-      } else if (z.pots[key] !== undefined) { cells.push(potCell(key)); keep(r, c, ROOM.pot); }
-      else { cells.push(html`<button key=${key} class="bm-cell zn-raw" aria-label="Tierra sin cavar" onClick=${() => tap('raw', key)}></button>`); raw.push([r, c]); }
+        continue;
+      }
+      if (t === 'lawn') { cells.push(html`<span key=${key} class="bm-cell zn-deco" aria-hidden="true">${MOSS}</span>`); keep(r, c, ROOM.moss); continue; }
+      if (t === 'step') {
+        const lantern = key === 'r3c1';
+        cells.push(html`<span key=${key} class=${'bm-cell zn-deco' + (lantern ? ' zn-tall' : '')} aria-hidden="true">${lantern ? LANTERN : STEP}</span>`);
+        keep(r, c, lantern ? ROOM.lantern : ROOM.step);
+        continue;
+      }
+      if (t === 'lantern') { cells.push(html`<span key=${key} class="bm-cell zn-deco zn-tall zn-lit" aria-label="Farol encendido">${LANTERN}</span>`); keep(r, c, ROOM.lantern); continue; }
+      if (t === 'pot') { cells.push(potCell(key)); keep(r, c, ROOM.pot); continue; }
+      if (t === 'rock') {
+        const hp = z.rocks[key];
+        cells.push(html`<button key=${key} data-k=${key} class="bm-cell zn-rockcell" aria-label="Piedra: pártela con la pala" onClick=${() => tap('rock', key)}>${stoneArt(Math.max(0, 3 - hp))}</button>`);
+        keep(r, c, ROOM.step);
+        continue;
+      }
+      cells.push(html`<button key=${key} data-k=${key} class="bm-cell zn-raw" aria-label="Tierra sin cavar" onClick=${() => tap('raw', key)}></button>`); raw.push([r + off, c + off]);
     }
   }
+
+  // Barrer todas las hojas de una vez y echar comida en medio del estanque.
+  const sweepAll = () => {
+    const els = [...(yardRef.current?.querySelectorAll('.zn-fallen') || [])];
+    if (!els.length) return say('No hay hojas que barrer.');
+    els.forEach((el, i) => setTimeout(() => el.click(), i * 90));
+  };
+  const feedCenter = () => {
+    const btn = yardRef.current?.querySelector('.zen-pond'), r = btn?.querySelector('.zn-pondart')?.getBoundingClientRect();
+    if (!r) return;
+    feed({ currentTarget: btn, clientX: r.left + r.width * (0.4 + Math.random() * 0.2), clientY: r.top + r.height * (0.4 + Math.random() * 0.2) });
+  };
+  // Ampliar el estanque: igual que el cantero, un toque avisa y otro paga.
+  const [lakeArmed, setLakeArmed] = useState(false);
+  const growLake = () => {
+    const n = z.lake || 2, cost = lakeCost(n);
+    if (n >= LAKE_MAX) return;
+    if (coins < cost) return say(`Ampliar el estanque cuesta ${cost} monedas: te faltan ${cost - coins}.`);
+    if (!lakeArmed) { setLakeArmed(true); setMsg(`El estanque pasa a ${n + 1}×${n + 1} por ${cost} monedas; lo que haya debajo vuelve a la bolsa. Toca otra vez.`); return; }
+    setLakeArmed(false);
+    if (!charge(cost)) return say('Faltan monedas.');
+    setCoins(loadShop().coins);
+    apply(zenLake(z));
+    playSfx('splash');
+    say(`El estanque crece a ${n + 1}×${n + 1}.`);
+  };
+  const owned = Object.entries(GARDEN_ITEMS).filter(([id, it]) => it.stack && z.items[id] > 0);
 
   return html`<div class="screen mini zen-screen" ref=${ref}>
     <${Topbar} title="Jardín Zen" sub="Un rincón tranquilo entre runs" onBack=${onBack}>
@@ -487,6 +537,9 @@ export function ZenScreen({ onBack, onShop }) {
             <h3>Herramientas</h3>
             <div class="zn-tools">
               ${TOOLS.map((t) => html`<button class=${'zn-tool' + (tool === t.id ? ' on' : '')} aria-pressed=${tool === t.id} onClick=${() => pickTool(t.id)}><span class="zn-tool-ic"><${Icon} name=${t.icon} size=${22} /></span><span>${t.name}</span></button>`)}
+              <button class="zn-tool" onClick=${sweepAll}><span class="zn-tool-ic zn-art-ic">${mapleLeaf}</span><span>Barrer</span></button>
+              <button class="zn-tool" onClick=${feedCenter}><span class="zn-tool-ic zn-art-ic">${KOI_ART}</span><span>Dar de comer</span></button>
+              ${owned.map(([id, it]) => html`<button class=${'zn-tool' + (tool === id ? ' on' : '')} aria-pressed=${tool === id} onClick=${() => pickTool(id)}><span class="zn-tool-ic zn-art-ic">${ITEM_ART[id]}</span><span>${it.name} ×${z.items[id]}</span></button>`)}
             </div>
           </section>
           <button class=${'zen-expand' + (armed ? ' on' : '')} disabled=${z.size >= ZEN_MAX}
@@ -496,6 +549,11 @@ export function ZenScreen({ onBack, onShop }) {
             <span class="zen-expand-text">${z.size >= ZEN_MAX ? 'Cantero al máximo · 8×8' : armed ? `Confirmar ${z.size + 1}×${z.size + 1}` : `Ampliar a ${z.size + 1}×${z.size + 1}`}</span>
             ${z.size < ZEN_MAX && html`<b class="zen-cost"><${Icon} name="coin" size=${13} />${expandCost(z.size)}</b>`}
           </button>
+          ${(z.lake || 2) < LAKE_MAX && html`<button class=${'zen-expand' + (lakeArmed ? ' on' : '')} onClick=${growLake}>
+            <span class="zn-art-ic">${KOI_ART}</span>
+            <span class="zen-expand-text">${lakeArmed ? 'Confirmar estanque' : `Estanque a ${(z.lake || 2) + 1}×${(z.lake || 2) + 1}`}</span>
+            <b class="zen-cost"><${Icon} name="coin" size=${13} />${lakeCost(z.lake || 2)}</b>
+          </button>`}
           <button class="btn sm ghost zen-shop" onClick=${onShop}><${Icon} name="coin" size=${16} />Tienda del jardín</button>
         </div>
       </div>
@@ -503,9 +561,9 @@ export function ZenScreen({ onBack, onShop }) {
     ${help && html`<div class="overlay" onClick=${(e) => e.target === e.currentTarget && setHelp(false)}>
       <div class="panel mini-sheet" role="dialog" aria-modal="true" aria-label="Cómo se cuida el jardín">
         <h2>Cómo se cuida el jardín</h2>
-        <p>Las semillas caen al ganar un nodo y se compran en la tienda. Elige un sobre y toca un tiesto para sembrar. Cada planta se riega una vez y así abre antes. Cuando la flor abre, córtala con las tijeras: cada flor paga ${COINS_PER_FLOWER} monedas.</p>
+        <p>Las semillas caen al ganar un nodo y se compran en la tienda. Elige un sobre y toca un tiesto para sembrar. Cada planta se riega una vez y así abre antes. Cuando la flor abre, córtala con las tijeras: cada flor paga según su especie: ${ZEN_KINDS.map((k) => `${ZEN_NAMES[k].toLowerCase()} ${SEEDS[k].pays}`).join(', ')}. La salvia rebrota una vez y la lavanda, rara, a veces suelta su semilla.</p>
         <p>Del arce caen hojas a la arena, también mientras no estás: tócalas para barrerlas (una moneda cada una). Si una mariposa se posa en una flor, tócala y te deja un regalo. Toca el agua del estanque para dar de comer a los koi.</p>
-        <p>Con monedas el cantero crece hasta 8×8; la tierra nueva se cava para hacer tiestos.</p>
+        <p>Con monedas el cantero crece hasta 8×8, un anillo abajo a la derecha y el siguiente arriba a la izquierda. La tierra nueva se cava (la pala descansa entre cava y cava) y a veces sale con piedras que se parten a golpes de pala. El estanque también crece, hasta 4×4. En la tienda hay pala de acero, regadera grande, faroles que aceleran lo que crece a su lado y macetas.</p>
         <button class="btn primary" autofocus onClick=${() => setHelp(false)}>Entendido</button>
       </div>
     </div>`}
