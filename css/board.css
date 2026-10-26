@@ -87,6 +87,8 @@
   animation: mark-in 0.22s var(--ease-out) both;
 }
 .tile.foot { box-shadow: inset 0 0 0 999px oklch(0.77 0.12 80 / 0.45); }
+/* Casilla que la defensa de un minijuego captura (Yo, Zombi). */
+.tile.hot { box-shadow: inset 0 0 0 999px color-mix(in oklch, var(--danger), transparent 55%); }
 /* Terrain: ice is a pale frozen slab with cracks; portals are rings, coloured per pair. */
 .tile.ice { background-color: oklch(0.9 0.04 230); background-image: var(--grain), linear-gradient(125deg, transparent 40%, oklch(1 0 0 / 0.7) 41% 43%, transparent 44%), linear-gradient(35deg, transparent 62%, oklch(1 0 0 / 0.5) 63% 64%, transparent 65%); }
 .tile.portal::before { content: ''; position: absolute; inset: 14%; border-radius: 50%; background: radial-gradient(circle, var(--ink) 0 28%, var(--pair) 29% 46%, var(--ink) 47% 58%, var(--pair) 59% 70%, transparent 71%); }

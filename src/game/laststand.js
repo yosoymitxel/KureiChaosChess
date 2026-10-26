@@ -17,7 +17,7 @@ export const newStand = (key = 'normal') => {
   const diff = DIFFS[key] || DIFFS.normal;
   return {
     board: { rows: ROWS, cols: COLS, holes: new Set(), terrain: new Map(), portals: new Map() },
-    pieces: [], budget: diff.budget, diff, coins: Infinity, wave: 0, phase: 'setup', over: null, falls: [],
+    pieces: [], budget: diff.budget, diff, coins: Infinity, wave: 0, phase: 'setup', over: null, captures: [],
   };
 };
 

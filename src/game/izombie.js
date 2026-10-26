@@ -29,7 +29,7 @@ export function newZombie(key = 'normal', rng = Math.random) {
   return {
     board: { rows: ROWS, cols: COLS, holes: new Set(), terrain: new Map(), portals: new Map() },
     pieces: defense.map(([t, r, c]) => makePiece(t, 'light', r, c, { royal: false })),
-    coins: diff.budget, over: null, falls: [], captures: [], diff,
+    coins: diff.budget, over: null, captures: [], diff,
     trophies: new Set(diff.trophies), taken: [],
   };
 }
@@ -57,10 +57,9 @@ export function buy(s, type, c) {
 }
 
 // Un avance: cada atacante (de abajo arriba) da su paso más profundo; después cada defensor captura uno.
-// `s.falls` guarda dónde cae cada víctima: la pantalla levanta ahí la copia que se derrumba.
+// `s.captures` guarda las capturas de la defensa quieta: la pantalla las anima como embestidas.
 export function advance(s, maxStep = Infinity) {
   if (s.over) return null;
-  s.falls = [];
   s.captures = [];
   s.taken = [];
   const caught = [];
@@ -71,10 +70,7 @@ export function advance(s, maxStep = Infinity) {
       .sort((a, b) => b.row - a.row || b.hits.length - a.hits.length)[0];
     if (!best) continue;
     moved = true;
-    for (const v of best.hits) {
-      s.falls.push({ row: v.row, col: v.col, type: v.type, color: v.color });
-      if (s.trophies && v.color === 'light') s.coins += LOOT[v.type] || 1;
-    }
+    for (const v of best.hits) if (s.trophies && v.color === 'light') s.coins += LOOT[v.type] || 1;
     s.pieces = s.pieces.filter((x) => !best.hits.includes(x));
     p.row = best.row; p.col = best.col;
     if (p.row !== ROWS - 1) continue;
@@ -87,8 +83,7 @@ export function advance(s, maxStep = Infinity) {
   for (const d of s.pieces.filter((x) => x.color === 'light')) {
     const prey = legalMoves(d, s.pieces, s.board).flatMap((m) => m.hits).sort((a, b) => b.row - a.row)[0];
     if (prey && s.pieces.includes(prey)) {
-      s.falls.push({ row: prey.row, col: prey.col, type: prey.type, color: prey.color });
-      s.captures.push({ captorRow: d.row, captorCol: d.col, capturedRow: prey.row, capturedCol: prey.col });
+      s.captures.push({ id: prey.id, from: { row: d.row, col: d.col }, to: { row: prey.row, col: prey.col } });
       s.pieces = s.pieces.filter((x) => x !== prey);
       caught.push(prey);
     }
