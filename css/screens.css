@@ -119,6 +119,11 @@
 .setup-body { flex: 1; overflow: auto; display: flex; flex-direction: column; justify-content: safe center; gap: 16px; padding: 8px 20px 40px; width: min(560px, 100%); margin: 0 auto; }
 .setup-card { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
 .setup-card h2 + .segmented { margin-top: -2px; }
+/* Partida local, pestaña Minijuegos: lista de los que se juegan a dos. */
+.duo-list li { padding: 0; }
+.duo-list button { display: flex; gap: 10px; align-items: center; width: 100%; padding: 10px; border: 2px solid transparent; border-radius: 10px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.duo-list button.on { border-color: var(--ink); background: var(--brass); }
+.duo-list button div { display: grid; }
 /* En PC la mesa cabe sin desplazar: las mecánicas en su columna, el resto en la otra. */
 @media (min-width: 900px) {
   .setup .setup-body:has(.prefs) { display: grid; grid-template-columns: repeat(2, minmax(0, 480px)); justify-content: center; align-content: safe center; align-items: start; width: min(1040px, 100%); }

@@ -202,7 +202,11 @@ export class BoardView {
     el.className = 'prop ' + cls;
     el.style.setProperty('--r', row); el.style.setProperty('--c', col);
     this.tilesEl.appendChild(el);
-    if (!reduced()) animate(el, { translateZ: [this.sq * 1.2, 0], opacity: [0, 1], duration: this.d(520), ease: 'outBounce' });
+    if (reduced()) return el;
+    // La hoja cae de lo alto meciéndose, como del arce del jardín; lo demás cae rebotando.
+    const q = this.sq;
+    if (cls === 'leaf') animate(el, { translateZ: [q * 6, q * 3.6, q * 1.4, 0], translateX: [-q * 0.6, q * 0.5, -q * 0.3, 0], rotate: [-35, 28, -12, 0], opacity: [0, 1, 1, 1], duration: this.d(3200), ease: 'inOutSine' });
+    else animate(el, { translateZ: [q * 1.2, 0], opacity: [0, 1], duration: this.d(520), ease: 'outBounce' });
     return el;
   }
 

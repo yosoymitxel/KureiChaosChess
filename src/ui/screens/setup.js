@@ -46,19 +46,22 @@ function VersusCard({ cfg, onCfg }) {
   const set = (k, v) => onCfg({ ...cfg, [k]: v });
   const seg = (k, list) => html`<div class="segmented sm" role="group">${list.map(([v, label]) => html`<button class=${cfg[k] === v ? 'on' : ''} aria-pressed=${cfg[k] === v} onClick=${() => set(k, v)}>${label}</button>`)}</div>`;
   const mods = ['random', 'none', ...RUN_MECHANICS.filter((id) => id !== 'elite')];
-  // Juegos a dos: el ajedrez de la run y los minijuegos que lo admiten (`duo` en modifiers.js).
-  const games = [{ id: 'chess', name: 'Ajedrez', icon: 'king', desc: 'La partida de la run, con la mesa a elegir.' }, ...Object.values(MODIFIERS).filter((m) => m.duo)];
-  const picker = html`<h2>Juego</h2><div class="pref-grid">
-    ${games.map((g) => html`<button class=${'pref' + ((cfg.game || 'chess') === g.id ? ' fav' : '')} aria-pressed=${(cfg.game || 'chess') === g.id} title=${g.desc} onClick=${() => set('game', g.id)}><${Icon} name=${g.icon} size=${20} /><span>${g.name}</span></button>`)}
+  // Dos pestañas: el ajedrez de la run y la lista de minijuegos que ya se juegan a dos (`duo` en modifiers.js).
+  const minis = Object.values(MODIFIERS).filter((m) => m.duo), duo = MODIFIERS[cfg.game]?.duo;
+  const tabs = html`<div class="segmented" role="tablist" aria-label="Qué jugar">
+    <button role="tab" class=${duo ? '' : 'on'} aria-selected=${!duo} onClick=${() => set('game', 'chess')}><${Icon} name="king" size=${16} />Ajedrez</button>
+    <button role="tab" class=${duo ? 'on' : ''} aria-selected=${!!duo} onClick=${() => duo || set('game', minis[0].id)}><${Icon} name="hockey" size=${16} />Minijuegos</button>
   </div>`;
-  const duo = MODIFIERS[cfg.game]?.duo;
   if (duo) return html`<section class="panel setup-card prefs" data-enter>
-    ${picker}
+    ${tabs}
+    <ul class="mut-list duo-list" role="listbox" aria-label="Minijuegos a dos">
+      ${minis.map((m) => html`<li><button role="option" class=${cfg.game === m.id ? 'on' : ''} aria-selected=${cfg.game === m.id} onClick=${() => set('game', m.id)}>
+        <${Icon} name=${m.icon} size=${18} /><div><strong>${m.name}</strong><span>${m.duo.desc}</span></div></button></li>`)}
+    </ul>
     ${duo.opt && html`<h2>${duo.label}</h2>${seg(duo.opt, duo.choices)}`}
-    <p class="setup-note">En la misma pantalla, por turnos o cada uno en su mitad.</p>
   </section>`;
   return html`<section class="panel setup-card prefs" data-enter>
-    ${picker}
+    ${tabs}
     <h2>Mesa</h2>
     ${seg('rounds', VERSUS_ROUNDS)}
     <p class="setup-note">${cfg.rounds > 1 ? `${cfg.size === 'random' ? 'Cada ronda es un piso más: el tablero crece.' : 'Cada ronda, mesa nueva.'} Gana quien llegue antes a ${Math.floor(cfg.rounds / 2) + 1}.` : 'Una sola partida con esta mesa.'}</p>
