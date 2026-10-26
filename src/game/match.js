@@ -27,9 +27,12 @@ export class Match {
 
   get player() { return this.players[this.current]; }
   movesFor(color) { return (this.modifier === 'rush' ? 2 : 1) + (this.bonusMoves[color] || 0) + (color === this.player.color ? this.turnBonus || 0 : 0); }
-  // The extra move from Paso doble cannot capture: a free second capture ended matches too
-  // fast (tools/balance.mjs).
-  quietOnly() { return this.turnBonus > 0 && this.movesThisTurn >= this.movesFor(this.player.color) - this.turnBonus; }
+  // The extra moves (Paso doble, Furia) cannot capture: a free second capture ended matches too
+  // fast (tools/balance.mjs; Furia won 94% of bot games).
+  quietOnly() {
+    const extra = (this.turnBonus || 0) + (this.bonusMoves[this.player.color] || 0);
+    return extra > 0 && this.movesThisTurn >= this.movesFor(this.player.color) - extra;
+  }
   legal(piece) {
     const all = [...legalMoves(piece, this.pieces, this.board), ...this.special(piece)];
     return piece.color === this.player.color && this.quietOnly() ? all.filter((m) => !m.hits.length) : all;

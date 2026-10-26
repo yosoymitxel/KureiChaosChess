@@ -42,13 +42,13 @@ import { CARDS, HAND_LIMIT, pickCardChoices } from '../game/cards.js';
 const REST_CARDS = [
   { id: 'extra_mut', name: 'Meditar', desc: 'Elige una mutación de entre tres.', icon: 'scroll', kind: 'boon' },
   { id: 'promote_one', name: 'Ascenso', desc: 'Un peón empieza el próximo nodo como reina.', icon: 'queen', kind: 'boon' },
-  { id: 'fury_now', name: 'Impulso', desc: '+1 movimiento por turno en el próximo nodo.', icon: 'boot', kind: 'boon' },
+  { id: 'fury_now', name: 'Impulso', desc: '+1 movimiento sin captura por turno en el próximo nodo.', icon: 'boot', kind: 'boon' },
 ];
 const BAG_CARDS = [
   { id: 'mut', name: 'Frasco extraño', desc: 'Una mutación al azar, ahora mismo.', icon: 'flask', rarity: 'rare', kind: 'boon' },
   { id: 'deck', name: 'Mazo táctico', desc: 'Dos cartas tácticas al azar para tu mano.', icon: 'hand', rarity: 'rare', kind: 'boon' },
   { id: 'extra_pawn', name: 'Recluta', desc: '+1 peón en tu formación en el próximo nodo.', icon: 'pawn', kind: 'boon' },
-  { id: 'fury', name: 'Furia menor', desc: '+1 movimiento permanente (máx. 3).', icon: 'boot', rarity: 'rare', kind: 'boon' },
+  { id: 'fury', name: 'Furia menor', desc: '+1 movimiento sin captura por turno, permanente (máx. 3).', icon: 'boot', rarity: 'rare', kind: 'boon' },
   { id: 'extra_rook', name: 'Torre mercenaria', desc: '+1 torre en tu última fila en el próximo nodo.', icon: 'rook', kind: 'boon' },
 ];
 const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3);

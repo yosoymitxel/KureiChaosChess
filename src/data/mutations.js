@@ -1,16 +1,16 @@
 import { mulberry32 } from '../core/rng.js';
 
 export const MUTATIONS = {
-  fury: { id: 'fury', name: 'Furia', icon: 'boot', desc: '+1 movimiento por turno (máx. 3).', stack: true, maxStack: 3, rarity: 'rare' },
+  fury: { id: 'fury', name: 'Furia', icon: 'boot', desc: '+1 movimiento por turno que no captura (máx. 3).', stack: true, maxStack: 3, rarity: 'rare' },
   crown: { id: 'crown', name: 'Corona doble', icon: 'crown', desc: 'Tus peones coronan siempre en la última fila.', rarity: 'common' },
   knightBishop: { id: 'knightBishop', name: 'Caballo loco', icon: 'knight', desc: 'Tus caballos también se mueven como alfiles.', rarity: 'rare' },
-  towerDiag: { id: 'towerDiag', name: 'Torre diagonal', icon: 'rook', desc: 'Tus torres también se mueven 1 en diagonal.', rarity: 'common' },
+  towerDiag: { id: 'towerDiag', name: 'Torre diagonal', icon: 'rook', desc: 'Tus torres también se mueven hasta 2 en diagonal.', rarity: 'common' },
   pawnBack: { id: 'pawnBack', name: 'Retroceso', icon: 'pawn', desc: 'Tus peones pueden retroceder 1.', rarity: 'common' },
   kingRook: { id: 'kingRook', name: 'Rey blindado', icon: 'king', desc: 'Tu rey puede moverse 2 en línea recta.', rarity: 'common' },
   guardKnight: { id: 'guardKnight', name: 'Guardia montado', icon: 'guard', desc: 'Tus guardias saltan como caballos.', rarity: 'rare' },
   cannonRange: { id: 'cannonRange', name: 'Artillería', icon: 'cannon', desc: 'Tus cañones saltan 2 piezas propias.', rarity: 'common' },
   queenKnight: { id: 'queenKnight', name: 'Reina estratega', icon: 'queenKnight', desc: 'Tu reina también salta como caballo.', rarity: 'epic' },
-  bishopOrth: { id: 'bishopOrth', name: 'Alfil blindado', icon: 'bishop', desc: 'Tus alfiles también se mueven 1 ortogonal.', rarity: 'common' },
+  bishopOrth: { id: 'bishopOrth', name: 'Alfil blindado', icon: 'bishop', desc: 'Tus alfiles también se mueven hasta 2 en línea recta.', rarity: 'common' },
 };
 const KEYS = Object.keys(MUTATIONS);
 
@@ -28,8 +28,8 @@ export function pickMutationChoices(seed, owned) {
 }
 
 export const EXTRA_MOVES = {
-  knightBishop: ['knight', 'bishop'], towerDiag: ['rook', 'advisor'], kingRook: ['king', 'rook2'],
-  guardKnight: ['guard', 'knight'], queenKnight: ['queen', 'knight'], bishopOrth: ['bishop', 'guard'],
+  knightBishop: ['knight', 'bishop'], towerDiag: ['rook', 'bishop2'], kingRook: ['king', 'rook2'],
+  guardKnight: ['guard', 'knight'], queenKnight: ['queen', 'knight'], bishopOrth: ['bishop', 'rook2'],
   pawnBack: ['pawn', 'pawnBack'],
 };
 
