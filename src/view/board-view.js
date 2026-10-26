@@ -675,8 +675,7 @@ export class BoardView {
       await animate(fig, { scaleY: 0.86, scaleX: 1.08, duration: this.d(80), ease: 'outQuad' });
       animate(fig, { scaleY: 1, scaleX: 1, duration: this.d(120), ease: 'outQuad' });
     }
-    // El charco líquido es un filtro de desenfoque: en las mesas píxel la pieza salta sin él.
-    if (!reduced() && document.documentElement.dataset.art !== 'pixel') this.liquid(piece, from, to, dur);
+    if (!reduced()) this.liquid(piece, from, to, dur);
     const stretch = fig && !reduced() ? this.stretcher(fig, st) : null;
     await animate(st, {
       r: to.row, c: to.col, z: [0, arc, 0], duration: dur,
@@ -729,7 +728,7 @@ export class BoardView {
     const rx = k * w, ry = k * h;
     base.style.opacity = 0;
     liquid(this.gooEl, {
-      side: p.color, rx, ry, px: 1 / this.sq, area: [this.board.cols, this.board.rows], dur,
+      side: p.color, rx, ry, px: 1 / this.sq, area: [this.board.cols, this.board.rows], dur, pixel: document.documentElement.dataset.art === 'pixel',
       from: [from.col + w / 2, from.row + h / 2], to: [to.col + w / 2, to.row + h / 2],
     }).then(() => {
       base.style.opacity = '';

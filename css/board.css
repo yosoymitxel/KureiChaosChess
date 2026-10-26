@@ -29,6 +29,9 @@
 .goo .ink { flood-color: var(--ink); }
 .goo .rim { flood-color: var(--pc-2); }
 .goo .fill { flood-color: var(--pc); }
+.goo .px-ink { fill: var(--ink); }
+.goo .px-shade { fill: var(--pc-2); }
+.goo .px-fill { fill: var(--pc); }
 
 /* Tiles */
 .tile {
