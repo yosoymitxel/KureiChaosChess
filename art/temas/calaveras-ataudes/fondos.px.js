@@ -1,7 +1,7 @@
 // Panteón de noche: lápidas con relieves intencionales, losas de cantera y mesa de ataúdes lacados.
 pal({
-  k:"#211a1d",a:"#d9d0c2",A:"#f1e6d5",c:"#b9a995",C:"#83756c",
-  d:"#a89a90",D:"#c8b4a1",e:"#6f5c59",E:"#493d3a",
+  k:"#211a1d",a:"#a8a29a",A:"#bcb6ad",c:"#928b83",C:"#79726b",
+  d:"#6e6862",D:"#807a74",e:"#5a544f",E:"#403a37",
   r:"#302027",R:"#49313a",z:"#24191f",J:"#1a1117",j:"#110c10",
   y:"#d2a84a",Y:"#806020",v:"#6d8a62",V:"#3d5b43",p:"#9b667e",P:"#684052"
 });

@@ -1,16 +1,16 @@
 {
   "nombre": "Muñeca Vampírica",
   "precio": 0,
-  "descripcion": "Waifus góticas de estética alternativa: encaje negro, vino tinto, plata fría y detalles violeta.",
+  "descripcion": "Muñecas de porcelana vampiras: lazos, enaguas, colmillos y juguetes encantados.",
   "colores": {
     "table": "#100d16",
     "table-2": "#1b1422",
     "tile-a": "#c8bdc9",
     "tile-b": "#514454",
     "tile-side": "#302638",
-    "side-light": "#eadfe9",
-    "side-dark": "#b33b61",
-    "side-wild": "#8ed1c1"
+    "side-light": "#f7d3e2",
+    "side-dark": "#86223f",
+    "side-wild": "#64bfa0"
   },
   "interfaz": {
     "paper": "#eee4ed",
@@ -25,25 +25,25 @@
   },
   "bandos": {
     "claro": [
-      "#f5e6ef",
-      "#dfbfd4",
-      "#bd8aaf",
-      "#8c5b84",
-      "#583751"
+      "#fff4f8",
+      "#f7d3e2",
+      "#e3a2c0",
+      "#b26d92",
+      "#6e3a57"
     ],
     "oscuro": [
-      "#f4d3de",
-      "#d88ca6",
-      "#b84f72",
-      "#81304f",
-      "#4b1d32"
+      "#e4b0bd",
+      "#b85470",
+      "#86223f",
+      "#541228",
+      "#2c0814"
     ],
     "salvaje": [
-      "#dff5e9",
-      "#a8dfc9",
-      "#6bb99f",
-      "#3e806e",
-      "#234d44"
+      "#e0fff4",
+      "#a6e8d0",
+      "#64bfa0",
+      "#38806b",
+      "#1d4a3e"
     ]
   }
 }

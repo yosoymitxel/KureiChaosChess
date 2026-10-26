@@ -29,19 +29,19 @@ export const PIXEL_THEMES = {
     "price": 160,
     "swatch": [
       "#19151a",
-      "#d9d0c2",
-      "#8d293c",
-      "#d2a84a"
+      "#a8a29a",
+      "#a44758",
+      "#78ad67"
     ],
     "vars": {
       "table": "#19151a",
       "table-2": "#282027",
-      "tile-a": "#d9d0c2",
-      "tile-b": "#83756c",
-      "tile-side": "#493d3a",
-      "side-light": "#f2e7d5",
-      "side-dark": "#8d293c",
-      "side-wild": "#d2a84a",
+      "tile-a": "#a8a29a",
+      "tile-b": "#6e6862",
+      "tile-side": "#403a37",
+      "side-light": "#d9cbbb",
+      "side-dark": "#a44758",
+      "side-wild": "#78ad67",
       "paper": "#eee5d8",
       "paper-2": "#d8cbb9",
       "paper-3": "#b9a995",
@@ -62,8 +62,8 @@ export const PIXEL_THEMES = {
     "swatch": [
       "#211a31",
       "#e8d8f2",
-      "#a66bd0",
-      "#65c5a1"
+      "#8457cc",
+      "#52c49b"
     ],
     "vars": {
       "table": "#211a31",
@@ -71,9 +71,9 @@ export const PIXEL_THEMES = {
       "tile-a": "#e8d8f2",
       "tile-b": "#bca4d7",
       "tile-side": "#78628f",
-      "side-light": "#fbf0ff",
-      "side-dark": "#a66bd0",
-      "side-wild": "#65c5a1",
+      "side-light": "#f6e3c4",
+      "side-dark": "#8457cc",
+      "side-wild": "#52c49b",
       "paper": "#f5ecfb",
       "paper-2": "#e2d2f0",
       "paper-3": "#c4addb",
@@ -126,8 +126,8 @@ export const PIXEL_THEMES = {
     "swatch": [
       "#171923",
       "#e8d8b9",
-      "#e77927",
-      "#8bbf79"
+      "#5a8f45",
+      "#5a7fd0"
     ],
     "vars": {
       "table": "#171923",
@@ -135,9 +135,9 @@ export const PIXEL_THEMES = {
       "tile-a": "#e8d8b9",
       "tile-b": "#b68a62",
       "tile-side": "#684632",
-      "side-light": "#fff0d2",
-      "side-dark": "#e77927",
-      "side-wild": "#8bbf79",
+      "side-light": "#cdb2f0",
+      "side-dark": "#5a8f45",
+      "side-wild": "#5a7fd0",
       "paper": "#f7edda",
       "paper-2": "#e9d8b9",
       "paper-3": "#cdb793",
@@ -156,19 +156,19 @@ export const PIXEL_THEMES = {
     "name": "Gótico Sepulcral",
     "swatch": [
       "#121318",
-      "#c2c0bb",
-      "#586b55",
-      "#9cae94"
+      "#8e8a94",
+      "#77415c",
+      "#789a60"
     ],
     "vars": {
       "table": "#121318",
       "table-2": "#1d1e25",
-      "tile-a": "#c2c0bb",
-      "tile-b": "#65636d",
-      "tile-side": "#3b3b45",
-      "side-light": "#d9d7cc",
-      "side-dark": "#586b55",
-      "side-wild": "#9cae94",
+      "tile-a": "#8e8a94",
+      "tile-b": "#57535e",
+      "tile-side": "#343541",
+      "side-light": "#cfc9bf",
+      "side-dark": "#77415c",
+      "side-wild": "#789a60",
       "paper": "#e6e2d8",
       "paper-2": "#cbc8c1",
       "paper-3": "#aaa7a4",
@@ -188,8 +188,8 @@ export const PIXEL_THEMES = {
     "swatch": [
       "#100d16",
       "#c8bdc9",
-      "#b33b61",
-      "#8ed1c1"
+      "#86223f",
+      "#64bfa0"
     ],
     "vars": {
       "table": "#100d16",
@@ -197,9 +197,9 @@ export const PIXEL_THEMES = {
       "tile-a": "#c8bdc9",
       "tile-b": "#514454",
       "tile-side": "#302638",
-      "side-light": "#eadfe9",
-      "side-dark": "#b33b61",
-      "side-wild": "#8ed1c1",
+      "side-light": "#f7d3e2",
+      "side-dark": "#86223f",
+      "side-wild": "#64bfa0",
       "paper": "#eee4ed",
       "paper-2": "#d9cbd9",
       "paper-3": "#bcaabb",
@@ -284,8 +284,8 @@ export const PIXEL_THEMES = {
     "swatch": [
       "#182622",
       "#e6e0cf",
-      "#c76a3b",
-      "#76b8a0"
+      "#b0353f",
+      "#5ca88f"
     ],
     "vars": {
       "table": "#182622",
@@ -293,9 +293,9 @@ export const PIXEL_THEMES = {
       "tile-a": "#e6e0cf",
       "tile-b": "#a6aa96",
       "tile-side": "#606f5e",
-      "side-light": "#f5f0e2",
-      "side-dark": "#c76a3b",
-      "side-wild": "#76b8a0",
+      "side-light": "#b5d8f5",
+      "side-dark": "#b0353f",
+      "side-wild": "#5ca88f",
       "paper": "#f1ecdc",
       "paper-2": "#ddd7c3",
       "paper-3": "#bbb9a1",
@@ -380,8 +380,8 @@ export const PIXEL_THEMES = {
     "swatch": [
       "#18241f",
       "#c5d99a",
-      "#bd83e8",
-      "#8ee6c0"
+      "#7d47c2",
+      "#3bb3d6"
     ],
     "vars": {
       "table": "#18241f",
@@ -389,9 +389,9 @@ export const PIXEL_THEMES = {
       "tile-a": "#c5d99a",
       "tile-b": "#52744b",
       "tile-side": "#2e4838",
-      "side-light": "#f2e8bd",
-      "side-dark": "#bd83e8",
-      "side-wild": "#8ee6c0",
+      "side-light": "#ff6b5a",
+      "side-dark": "#7d47c2",
+      "side-wild": "#3bb3d6",
       "paper": "#f2edda",
       "paper-2": "#e0dfc1",
       "paper-3": "#c0cba5",
@@ -442,25 +442,25 @@ export const PIXEL_THEMES = {
     "name": "Vesper",
     "swatch": [
       "#0a0810",
-      "#2a2230",
-      "#b33b61",
-      "#8ed1c1"
+      "#7a6680",
+      "#ab2d50",
+      "#8c5ac8"
     ],
     "vars": {
       "table": "#0a0810",
       "table-2": "#15101c",
-      "tile-a": "#2a2230",
-      "tile-b": "#1a1420",
-      "tile-side": "#3a2d40",
-      "side-light": "#e8d8e0",
-      "side-dark": "#b33b61",
-      "side-wild": "#8ed1c1",
-      "paper": "#1a1420",
-      "paper-2": "#2a2230",
-      "paper-3": "#3a2d40",
-      "ink": "#e8d8e0",
-      "ink-2": "#c9b8c4",
-      "accent": "#b33b61",
+      "tile-a": "#7a6680",
+      "tile-b": "#4e4056",
+      "tile-side": "#342a3c",
+      "side-light": "#d9cdd6",
+      "side-dark": "#ab2d50",
+      "side-wild": "#8c5ac8",
+      "paper": "#efe4ec",
+      "paper-2": "#dccbd8",
+      "paper-3": "#bfa9ba",
+      "ink": "#1f1624",
+      "ink-2": "#46354d",
+      "accent": "#ab2d50",
       "accent-ink": "#fff0f5",
       "brass": "#c9a36a",
       "muted": "#726174"

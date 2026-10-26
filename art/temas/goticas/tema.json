@@ -5,12 +5,12 @@
   "colores": {
     "table": "#121318",
     "table-2": "#1d1e25",
-    "tile-a": "#c2c0bb",
-    "tile-b": "#65636d",
-    "tile-side": "#3b3b45",
-    "side-light": "#d9d7cc",
-    "side-dark": "#586b55",
-    "side-wild": "#9cae94"
+    "tile-a": "#8e8a94",
+    "tile-b": "#57535e",
+    "tile-side": "#343541",
+    "side-light": "#cfc9bf",
+    "side-dark": "#77415c",
+    "side-wild": "#789a60"
   },
   "interfaz": {
     "paper": "#e6e2d8",
@@ -25,25 +25,25 @@
   },
   "bandos": {
     "claro": [
-      "#d9d7cc",
-      "#b8b7b0",
-      "#8b8b94",
-      "#5d5e6b",
-      "#343541"
+      "#eeeae2",
+      "#cfc9bf",
+      "#a8a196",
+      "#7a7369",
+      "#4a453f"
     ],
     "oscuro": [
-      "#e0c9ce",
-      "#c59aa6",
-      "#956979",
-      "#634453",
-      "#3b2938"
+      "#d6a9bc",
+      "#a66b86",
+      "#77415c",
+      "#4c243b",
+      "#29101f"
     ],
     "salvaje": [
-      "#dce4d2",
-      "#b7c9a8",
-      "#879d77",
-      "#586c59",
-      "#303d32"
+      "#d8e8c8",
+      "#a9c694",
+      "#789a60",
+      "#4e6b3e",
+      "#2b3d22"
     ]
   }
 }
