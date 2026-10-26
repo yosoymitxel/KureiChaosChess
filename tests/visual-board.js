@@ -13,7 +13,7 @@ const chosenTheme = THEMES[theme] ? theme : theme === 'pixel' ? pixelTheme.id : 
 if (variant !== 'boss' && !MODIFIERS[variant]) throw new Error('Variante de tablero desconocida: ' + variant);
 applyTheme(chosenTheme);
 const noop = () => {};
-const difficulty = diff === 'easy' ? 'facil' : diff === 'hard' ? 'dificil' : 'normal';
+const difficulty = ['facil', 'dificil'].includes(diff) ? diff : 'normal';
 const node = {
   id: 'visual-board-' + variant,
   seed: 20261021,
