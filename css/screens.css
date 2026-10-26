@@ -1102,9 +1102,6 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .br-wall.ghost { background: var(--brass); opacity: 0.8; }
 .br-wall.ghost.bad { background: var(--danger); }
 .btn.on { background: var(--brass); color: var(--ink); }
-.bm-cell.drop { box-shadow: inset 0 0 0 3px var(--brass); }
-.bm-cell.goal { background-color: color-mix(in oklch, var(--tile-a), var(--side-dark) 25%); }
-.bm-cell.goal.aim { box-shadow: inset 0 0 0 2px color-mix(in oklch, var(--brass), transparent 40%); }
 /* El aro de vida del tablero (pc-hp) a escala de casilla, dentro de ella para que la fila de arriba no lo recorte. */
 .bm .pc-hp { top: 1px; translate: -50% 0; gap: calc(var(--cell) * 0.06); padding: calc(var(--cell) * 0.05) calc(var(--cell) * 0.1); pointer-events: none; }
 .bm .pc-hp b { width: calc(var(--cell) * 0.16); height: calc(var(--cell) * 0.16); }
@@ -1126,20 +1123,6 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .dots i.off { background: oklch(1 0 0 / 0.14); }
 /* La última oleada es la horda: su punto es un banderín bermellón. */
 .dots i.flag { border-radius: 2px 6px 6px 2px; width: 12px; outline: 2px solid var(--accent); outline-offset: 1px; }
-/* En Yo, Zombi la fila de compra llama con un + en cada hueco donde cabe la pieza elegida. */
-/* Casillas que la defensa captura: tinte rojo, la lectura que le faltaba al minijuego. */
-.iz .bm-cell.hot { background-color: color-mix(in oklch, var(--tile-a), var(--danger) 48%); }
-.iz .bm-cell.b.hot { background-color: color-mix(in oklch, var(--tile-b), var(--danger) 48%); }
-/* Trofeo por tomar en su columna de la meta (los cerebros de I, Zombie). */
-.iz .bm-cell.trophy::before {
-  content: ''; position: absolute; right: 4%; bottom: 4%; width: 38%; height: 38%; z-index: 3; background: var(--ink);
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 3h12v5.5a6 6 0 0 1-12 0zM6 5H3v2a4 4 0 0 0 3.6 4l.6-1.8A2 2 0 0 1 5 7V5zM18 5h3v2a4 4 0 0 1-3.6 4l-.6-1.8A2 2 0 0 0 19 7V5zM10.5 13.5h3v4h-3zM7 17.5h10v3.5H7z'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 3h12v5.5a6 6 0 0 1-12 0zM6 5H3v2a4 4 0 0 0 3.6 4l.6-1.8A2 2 0 0 1 5 7V5zM18 5h3v2a4 4 0 0 1-3.6 4l-.6-1.8A2 2 0 0 0 19 7V5zM10.5 13.5h3v4h-3zM7 17.5h10v3.5H7z'/%3E%3C/svg%3E") center / contain no-repeat;
-  opacity: 0.85; pointer-events: none;
-}
-.iz .bm-cell.drop::after { content: '+'; position: absolute; inset: 0; display: grid; place-items: center; font-size: calc(var(--cell) * 0.42); font-weight: 800; color: var(--brass); opacity: 0.9; pointer-events: none; }
-/* En Última resistencia la casilla admite un plano: borde discontinuo, sin signo. */
-.ls .bm-cell.drop { box-shadow: none; outline: 2px dashed var(--brass); outline-offset: -4px; }
 .bm-cell.lane { background-color: color-mix(in oklch, var(--tile-a), var(--side-light) 45%); }
 /* El número del carril en su esquina: es la tecla que lo lanza. */
 .bw { counter-reset: lane; }
@@ -1149,7 +1132,6 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .bw .bm-cell.lane0::before { counter-increment: lane; content: counter(lane); position: absolute; top: 0; left: 3px; z-index: 2; font-size: max(11px, calc(var(--cell) * 0.24)); font-weight: 800; color: var(--ink-2); pointer-events: none; }
 /* La línea roja del original: hasta ahí se lanza. */
 .bw .bm-cell.line { background-image: linear-gradient(to left, var(--accent) 3px, transparent 3px); }
-.bw .bm-cell.drop { box-shadow: none; }
 /* La ficha que rueda va como elemento para que Motion la pueda mover entre casillas. */
 /* La ficha es una pieza de damas vista en perspectiva: disco con estrías concéntricas y canto grueso. */
 .bm-tok {
@@ -1187,33 +1169,6 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .bm-ghost svg { width: 92%; height: 92%; }
 .bm-pc.hit svg { filter: brightness(2.4) saturate(0.25); }
 .bm.lost { filter: saturate(0.35) brightness(0.85); transition: filter 0.8s var(--ease-out); }
-.bm-cell.mv::after { content: ''; position: absolute; width: 26%; height: 26%; border-radius: 50%; background: var(--legal); border: 2px solid var(--ink); z-index: 2; }
-.bm-cell.sel { box-shadow: inset 0 0 0 3px var(--brass); }
-/* Damas: la misma ficha de damas de Bolos, del color de cada bando; la coronada lleva corona de latón. */
-.ck-tok {
-  --tk: var(--side-light); --tk-2: color-mix(in oklch, var(--side-light), var(--ink) 38%);
-  position: absolute; left: 14%; right: 14%; top: 24%; bottom: 20%; border-radius: 50%; z-index: 1; pointer-events: none;
-  background: radial-gradient(closest-side, var(--tk) 0 34%, var(--tk-2) 36% 42%, var(--tk) 44% 70%, var(--tk-2) 72% 78%, var(--tk) 80%);
-  outline: 2px solid var(--ink); outline-offset: -2px;
-  box-shadow: 0 calc(var(--cell) * 0.08) 0 var(--tk-2), 0 calc(var(--cell) * 0.08) 0 2px var(--ink), 0 calc(var(--cell) * 0.14) 6px oklch(0 0 0 / 0.35);
-}
-.ck-tok.tk-dark { --tk: var(--side-dark); --tk-2: color-mix(in oklch, var(--side-dark), black 40%); }
-.ck-tok.king::after {
-  content: ''; position: absolute; inset: 26% 24% 30%; background: var(--brass);
-  clip-path: polygon(0 100%, 0 20%, 25% 55%, 50% 0, 75% 55%, 100% 20%, 100% 100%);
-}
-.ck .bm-cell.a { background-color: var(--tile-a); cursor: default; }
-.ck .bm-cell.can .ck-tok { outline-color: var(--brass); outline-width: 3px; }
-.ck .bm-cell.jump::after { background: var(--danger); }
-/* El número de paso sobre la casilla ya pisada: la ruta se lee como un recorrido. */
-.bm-lbl {
-  position: absolute; top: 4%; right: 5%; min-width: 24%; height: 24%; display: grid; place-items: center;
-  z-index: 3; border-radius: 50%; padding: 0 2px; font-size: max(9px, calc(var(--cell) * 0.22));
-  line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--ink);
-  background: color-mix(in oklch, var(--paper), transparent 8%); outline: 1px solid color-mix(in oklch, var(--brass), var(--ink) 25%);
-  box-shadow: 0 1px 2px oklch(0 0 0 / 0.35); pointer-events: none;
-}
-.bm-cell.foe { outline: calc(var(--cell) * 0.07) solid var(--danger); outline-offset: calc(var(--cell) * -0.07); }
 /* Selector de mecánicas de la run: favorita en latón, vetada tachada en rojo. */
 .pref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
 .pref { display: grid; justify-items: center; gap: 2px; min-height: 76px; padding: 8px 6px; border-radius: 10px; border: 2px solid var(--ink); background: var(--paper-2); color: var(--ink); font: inherit; font-weight: 750; cursor: pointer; }

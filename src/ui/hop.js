@@ -3,7 +3,6 @@
 import { animate } from 'animejs';
 import { motion } from './lib.js';
 import { loadSettings } from '../game/run.js';
-import { pieceSVG } from '../view/piece-art.js';
 import { playSfx } from './sfx.js';
 
 const OUT = [0.16, 1, 0.3, 1];
@@ -117,66 +116,9 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows, liq
   liquid(grid, from, to, { side, cell: cw, cols, rows });
 }
 
-// Captura a distancia (Yo, Zombi / Última resistencia): la ficha que captura salta a la casilla
-// de la víctima, la derriba al llegar y vuelve a su origen. `onHit` dispara el derribo en el
-// momento del choque, no antes; así se lee quién captura a quién.
-export function captureHop(grid, pcEl, { from, to, side = 'light', cols, rows, onHit }) {
-  if (!grid || !pcEl || reduced()) { onHit?.(); return 0; }
-  const cellEl = grid.querySelector('.bm-cell, .br-cell');
-  const dr = to.row - from.row, dc = to.col - from.col;
-  if (!cellEl || (!dr && !dc)) { onHit?.(); return 0; }
-  const cw = cellEl.offsetWidth, chh = cellEl.offsetHeight;
-  const dx = dc * cw, dy = dr * chh;
-  const lift = Math.min(chh * 0.5, (to.row + 0.06) * chh);
-  const dur = 0.52 / speed();
-  playSfx('step');
-  liquid(grid, from, to, { side, cell: cw, cols, rows });
-  pcEl.classList.add('hopping');
-  motion(pcEl, { x: [0, dx / 2, dx, dx, dx / 2, 0], y: [0, -lift, dy, dy, -lift, 0] },
-    { duration: dur, ease: 'easeInOut', onComplete: () => pcEl.classList.remove('hopping') });
-  motion(pcEl, { scaleY: [0.8, 1.1, 1], scaleX: [1.1, 0.95, 1] }, { duration: 0.3 / speed(), delay: dur - 0.05, ease: OUT });
-  setTimeout(() => onHit?.(), dur * 400); // 40 % del recorrido: la ficha ya está sobre la víctima
-  return dur;
-}
-
-// Instantánea de piezas (id -> casilla, bando y tipo) para comparar antes y después de una acción.
-export const snapPieces = (pieces) => new Map(pieces.map((p) => [p.id, { row: p.row, col: p.col, color: p.color, type: p.type }]));
-
-// Fichas que saltaron y fichas que entraron, medido ya sobre el tablero repintado:
-// el elemento de cada una vive en la casilla nueva, índice fila×columnas + columna.
-export function pieceDiffs(grid, before, pieces, cols) {
-  const hops = [], born = [];
-  const cells = grid?.children;
-  if (!cells) return { hops, born };
-  for (const p of pieces) {
-    const el = cells[p.row * cols + p.col]?.querySelector('.bm-pc');
-    if (!el) continue;
-    const b = before.get(p.id);
-    if (!b) born.push(el);
-    else if (b.row !== p.row || b.col !== p.col) hops.push({ el, from: b, to: { row: p.row, col: p.col }, side: p.color });
-  }
-  return { hops, born };
-}
-
 // La ficha que entra al tablero (compra, oleada, reina colocada) brota.
 export function popPiece(grid, el) {
   playSfx('pop');
   if (!grid || !el || reduced()) return;
   motion(el, { scale: [0.35, 1.14, 1] }, { duration: 0.34 / speed(), ease: OUT });
-}
-
-// La pieza capturada cae: el estado ya la quitó, así que la copia se anima donde estaba,
-// volcada sobre su base, como el derribo de los bolos.
-export function fallPiece(grid, { row, col, type, side, cols }) {
-  playSfx('capture');
-  if (!grid || reduced()) return;
-  const cellEl = grid.children[row * cols + col];
-  if (!cellEl) return;
-  const g = document.createElement('span');
-  g.className = `bm-ghost side-${side}`;
-  g.style.inset = '0';
-  g.innerHTML = pieceSVG(type);
-  cellEl.appendChild(g);
-  const dir = (row + col) % 2 ? 1 : -1;
-  motion(g, { rotate: dir * 88, x: dir * cellEl.offsetWidth * 0.3, opacity: [1, 1, 0] }, { duration: 0.5 / speed(), ease: 'easeIn', onComplete: () => g.remove() });
 }
