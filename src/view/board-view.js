@@ -188,7 +188,7 @@ export class BoardView {
   addPiece(p) {
     const el = document.createElement('div');
     const [h, w] = sizeOf(p);
-    el.className = `pc side-${p.color}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}`;
+    el.className = `pc side-${p.color}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}${p.disc ? ' disc' : ''}${p.crown ? ' crown' : ''}`;
     el.dataset.pid = p.id;
     el.style.setProperty('--h', h); el.style.setProperty('--w', w);
     el.style.setProperty('--s', h * w > 1 ? Math.max(h, w) * 0.85 : 1); // multi-cell figures read bigger than one tile

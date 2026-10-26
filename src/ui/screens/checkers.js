@@ -1,6 +1,5 @@
 // Damas: marfil (tú) contra carmesí (bot) con fichas de damas de verdad. Toca una ficha y luego su destino;
-// las capturas son obligatorias y la misma ficha sigue saltando mientras pueda. Las fichas son peones y la
-// coronada, dama (reina), sobre el tablero de la partida.
+// las capturas son obligatorias y la misma ficha sigue saltando mientras pueda.
 import { html, useState, useEffect, useRef } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { DIFFS, newCheckers, legal, play, botMove, pieceAt } from '../../game/checkers.js';
@@ -53,7 +52,7 @@ export function CheckersScreen({ sub, onBack, onEnd, endLabel = 'Continuar', set
   const moves = s.turn === 'light' && !s.over ? legal(s) : [];
   const movable = new Set(moves.map((m) => m.p));
   const targets = sel ? moves.filter((m) => m.p === sel) : [];
-  const pieces = s.pieces.map((p) => ({ id: p.id, type: p.king ? 'queen' : 'pawn', color: p.side, row: p.r, col: p.c }));
+  const pieces = s.pieces.map((p) => ({ id: p.id, type: p.king ? 'queen' : 'pawn', disc: true, crown: p.king, color: p.side, row: p.r, col: p.c }));
   const marks = new Map(sel ? [[key(sel.r, sel.c), 'foot'], ...targets.map((m) => [key(m.to.r, m.to.c), m.cap ? 'cap' : 'mv'])] : [...movable].map((p) => [key(p.r, p.c), 'target']));
   const mustJump = moves.some((m) => m.cap);
   const left = { light: s.pieces.filter((p) => p.side === 'light').length, dark: s.pieces.filter((p) => p.side === 'dark').length };

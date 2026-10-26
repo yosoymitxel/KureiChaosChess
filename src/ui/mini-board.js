@@ -47,7 +47,11 @@ async function sync(v, pieces, strikes = []) {
     if (!moved) { if (art) v.setArt(p); continue; }
     if (victim) gone.delete(victim.id);
     // Cambiar de figura al moverse es coronar: gira al aterrizar.
-    moves.push(step(p, to, victim ? [{ piece: victim, killed: true }] : []).then(() => art && v.promote(p)));
+    moves.push(step(p, to, victim ? [{ piece: victim, killed: true }] : []).then(() => {
+      if (!art) return;
+      v.els.get(p)?.classList.toggle('crown', !!p.crown);
+      return v.promote(p);
+    }));
   }
   if (!gone.size) return;
   await Promise.all(moves);
