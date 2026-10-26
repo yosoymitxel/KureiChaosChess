@@ -4,13 +4,13 @@
 import { animate, stagger } from 'animejs';
 import { pieceSVG, headTop, artOf } from './piece-art.js';
 import { Fx } from './fx.js';
+import { liquid } from './liquid.js';
 import { playSfx } from '../ui/sfx.js';
 import { key, cellsOf, sizeOf, portalAt } from '../game/rules.js';
 
 export const CAMERAS = { flat: 0, tilt: 40, epic: 56 };
 const JUMPERS = new Set(['knight', 'camel', 'elephant']);
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-let gooCount = 0; // filter ids must be unique across every board on the page
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
@@ -637,47 +637,11 @@ export class BoardView {
     const [h, w] = sizeOf(p);
     const k = el.classList.contains('boss') ? 0.36 : 0.27; // matches the .pc-base inset
     const rx = k * w, ry = k * h;
-    const [ox, oy] = [from.col + w / 2, from.row + h / 2], [dx, dy] = [to.col + w / 2, to.row + h / 2];
-
-    const id = `goo-${++gooCount}`, px = 1 / this.sq;
-    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.setAttribute('class', `side-${p.color}`);
-    // Blur + alpha threshold melts the shapes together; the erosions redraw the token's
-    // ink outline (1.5px) and inner rim (4px) on whatever shape the puddle takes.
-    g.innerHTML = `<filter id="${id}" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" x="-1" y="-1" width="${this.board.cols + 2}" height="${this.board.rows + 2}">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="0.07"/>
-        <feComponentTransfer result="g"><feFuncA type="linear" slope="24" intercept="-11"/></feComponentTransfer>
-        <feFlood class="ink"/><feComposite in2="g" operator="in" result="o"/>
-        <feMorphology in="g" operator="erode" radius="${1.5 * px}" result="e1"/>
-        <feFlood class="rim"/><feComposite in2="e1" operator="in" result="r"/>
-        <feMorphology in="g" operator="erode" radius="${4 * px}" result="e2"/>
-        <feFlood class="fill"/><feComposite in2="e2" operator="in" result="f"/>
-        <feMerge><feMergeNode in="o"/><feMergeNode in="r"/><feMergeNode in="f"/></feMerge>
-      </filter>
-      <g filter="url(#${id})"><ellipse/><circle/><circle/><ellipse/></g>`;
-    this.gooEl.appendChild(g);
-    const [melt, dropL, dropR, rise] = g.querySelectorAll('ellipse, circle');
-    const r0 = Math.min(rx, ry) * 0.45;
-    const s = { m: 1, u: 0 };
-    const draw = () => {
-      // Melting: it spreads and flattens before draining away; the drops fly out and shrink.
-      const f = 1 - s.m;
-      melt.setAttribute('cx', ox); melt.setAttribute('cy', oy + ry * 0.25 * f);
-      melt.setAttribute('rx', Math.max(0, rx * s.m * (1 + 0.5 * f))); melt.setAttribute('ry', Math.max(0, ry * s.m * s.m));
-      for (const [d, sg] of [[dropL, -1], [dropR, 1]]) {
-        d.setAttribute('cx', ox + sg * rx * (0.3 + 1.1 * f)); d.setAttribute('cy', oy + ry * 0.3 * f);
-        d.setAttribute('r', Math.max(0, r0 * (1 - f) * Math.min(1, f * 4)));
-      }
-      rise.setAttribute('cx', dx); rise.setAttribute('cy', dy);
-      rise.setAttribute('rx', Math.max(0, rx * s.u)); rise.setAttribute('ry', Math.max(0, ry * s.u));
-    };
-    draw();
     base.style.opacity = 0;
-    Promise.all([
-      animate(s, { m: 0, duration: dur * 0.55, ease: 'inQuad', onUpdate: draw }),
-      animate(s, { u: 1, delay: dur * 0.45, duration: dur * 0.55, ease: 'outBack', onUpdate: draw }),
-    ]).then(() => {
-      g.remove();
+    liquid(this.gooEl, {
+      side: p.color, rx, ry, px: 1 / this.sq, area: [this.board.cols, this.board.rows], dur,
+      from: [from.col + w / 2, from.row + h / 2], to: [to.col + w / 2, to.row + h / 2],
+    }).then(() => {
       base.style.opacity = '';
       animate(base, { scaleX: [1.16, 0.95, 1], scaleY: [0.86, 1.04, 1], duration: this.d(320), ease: 'outQuad' });
     });
