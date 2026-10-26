@@ -17,18 +17,10 @@ try {
   console.error('[Banco de pruebas] No se pudieron cargar todos los temas; se usa el catálogo básico.', error);
 }
 
-const BOARD_VARIANTS = [
-  ['board:none', 'TABLERO NORMAL · Terreno llano'],
-  ['board:promote', 'TABLERO NORMAL · Coronación'],
-  ['board:chaos', 'TABLERO NORMAL · Terreno inestable'],
-  ['board:rush', 'TABLERO NORMAL · Prisa'],
-  ['board:fog', 'TABLERO NORMAL · Niebla densa'],
-  ['board:ice', 'TABLERO NORMAL · Lago helado'],
-  ['board:portal', 'TABLERO NORMAL · Portales'],
-  ['board:zombie', 'TABLERO NORMAL · Plaga zombi'],
-  ['board:elite', 'TABLERO NORMAL · Élite'],
-  ['board:boss', 'TABLERO NORMAL · Jefe final'],
-];
+// Variantes de tablero: las mecánicas de partida de modifiers.js (sin descanso ni bolsa) y el jefe.
+const { MODIFIERS } = await import('./data/modifiers.js');
+const BOARD_VARIANTS = Object.values(MODIFIERS).filter((m) => !m.mini && !['rest', 'bag'].includes(m.id))
+  .map((m) => [`board:${m.id}`, `TABLERO NORMAL · ${m.id === 'boss' ? 'Jefe final' : m.name}`]);
 const MINIS = [
   ...Object.entries((await import('./data/minigame-catalog.js')).MINIGAMES)
     .map(([id, game]) => [id, `Minijuego · ${game.name}`]),

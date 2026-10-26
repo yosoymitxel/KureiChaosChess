@@ -71,7 +71,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   useEffect(() => {
     const d = ref.current;
     const board = scenario?.board || generateBoard(node.seed, node.floor, run.map.floors, node.modifier);
-    const pieces = scenario?.pieces || placePieces(board, { playerCount: seats.length, isBoss: node.isBoss, isMiniBoss: node.isMiniBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses, floor: node.floor, totalFloors: run.map.floors });
+    const pieces = scenario?.pieces || placePieces(board, { modifier: node.modifier, playerCount: seats.length, isBoss: node.isBoss, isMiniBoss: node.isMiniBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses, floor: node.floor, totalFloors: run.map.floors });
     // El rival lo manda el tramo de la torre (difficulty.js); el ajuste de dificultad corre la
     // escalera y el mini-jefe sube un peldaño.
     const rival = scenario?.rival || rivalForFloor(node.floor, run.map.floors, { up: node.isMiniBoss ? 1 : 0, difficulty: run.tutorial ? 'facil' : settings.difficulty });
@@ -260,7 +260,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       else if (res.victims.length) addLog(`${tag}${nm} captura ${res.victims.map((v) => (v.piece.boss ? v.piece.name : pieceName(v.piece).toLowerCase())).join(', ')}`);
       else if (res.castle) addLog(`${tag}Enroque`);
       else addLog(`${tag}${nm} mueve`);
-      if (res.zombie) addLog(`${tag}El peón caído se levanta como zombi`);
+      if (res.zombie) addLog(`${tag}${pieceName(res.zombie)} se levanta como zombi`);
+      if (res.infected?.length) addLog(`${tag}Contagio: ${res.infected.map((p) => pieceName(p).toLowerCase()).join(', ')} cambian de bando`);
       if (res.promoted) {
         addLog(`${tag}¡Coronación!`);
         if (piece.color === d.feats.human) award('crowned');

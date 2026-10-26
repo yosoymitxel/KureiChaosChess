@@ -2,7 +2,7 @@
 // Mutates its own state and returns plain "result" objects that the view animates.
 import { legalMoves, landing, buildOccupancy, hasAnyLegalMove, threatenedPieces, key, cellsOf, walkable, portalAt, canHit, ctxOf } from './rules.js';
 import { countMutations } from '../data/mutations.js';
-import { PIECE_VALUE } from '../data/pieces.js';
+import { PIECE_VALUE, MINOR_TYPES } from '../data/pieces.js';
 import { RIVALS } from './difficulty.js';
 
 // Turns per player without a capture before the game is decided on piece count.
@@ -103,16 +103,17 @@ export class Match {
       if (m.ep) res.enPassant = true;
       // Disfrazada: un paso de rey no la delata; cualquier otro movimiento sí.
       if (piece.disguise && !piece.unmasked && Math.max(Math.abs(to.row - from.row), Math.abs(to.col - from.col)) > 1) piece.unmasked = res.unmasked = true;
-      // Plaga zombi: el peón derribado se levanta en la casilla que dejó el atacante, para su bando.
-      // Un zombi que cae ya no vuelve.
+      // Plaga zombi: la pieza menor derribada se levanta en la casilla que dejó el atacante, para su
+      // bando. Un zombi que cae ya no vuelve.
       if (this.modifier === 'zombie') {
-        const risen = victims.find((v) => v.killed && v.piece.type === 'pawn' && !v.piece.zombie && !v.piece.royal);
+        const risen = victims.find((v) => v.killed && MINOR_TYPES.includes(v.piece.type) && !v.piece.zombie && !v.piece.royal);
         if (risen) {
           const z = { ...risen.piece, id: risen.piece.id + '-z', color: piece.color, row: from.row, col: from.col, hp: 1, zombie: true, moved: true, startRow: -1, extraMoveTypes: undefined, mutationExtras: undefined, canCrown: false };
           this.pieces.push(z);
           res.zombie = z;
         }
       }
+      if (this.modifier === 'contagion') res.infected = this.infect(piece, victims);
       res.absorbed = this.absorb(piece, victims);
       this.terrainAfterMove(piece, from, res);
     }
@@ -125,6 +126,21 @@ export class Match {
     this.movesThisTurn++;
     if (victims.length) this.quietTurns = 0;
     return res;
+  }
+
+  // Contagio: las piezas menores pegadas a cada víctima (2 o 3 en total) cambian al bando que capturó.
+  infect(piece, victims) {
+    const out = [];
+    for (const v of victims) {
+      if (!v.killed) continue;
+      const near = this.pieces.filter((p) => p.color === v.piece.color && !p.royal && !p.boss && MINOR_TYPES.includes(p.type)
+        && Math.max(Math.abs(p.row - v.piece.row), Math.abs(p.col - v.piece.col)) === 1);
+      for (const p of near.sort(() => Math.random() - 0.5).slice(0, 2 + (Math.random() < 0.5 ? 1 : 0) - out.length)) {
+        Object.assign(p, { color: piece.color, zombie: true, escort: undefined, trait: undefined });
+        out.push(p);
+      }
+    }
+    return out;
   }
 
   // Devourer-type bosses learn the movement of every piece they crush (up to 4 patterns).

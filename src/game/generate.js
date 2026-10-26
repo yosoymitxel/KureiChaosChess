@@ -99,7 +99,8 @@ export function generateBoard(seed, floor, totalFloors, modifier) {
   // de ahí el tablero crece hasta 12.
   const small = t < 0.2;
   const base = 8 + Math.round(t * 4);
-  const rows = small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)));
+  // El Contagio pide 10 filas: cuatro líneas por bando y dos de tierra de nadie.
+  const rows = Math.max(modifier === 'contagion' ? 10 : 0, small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0))));
   const cols = small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)));
   const safe = rows <= 9 ? 2 : rows <= 10 ? 3 : 4;
   const shape = pickFrom(rng, SHAPES);
@@ -277,7 +278,7 @@ export function placePieces(board, opts) {
   return best;
 }
 
-function placeOnce(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutations, bonuses, floor, totalFloors }) {
+function placeOnce(board, { modifier, playerCount, isBoss, isMiniBoss, elite, seed, mutations, bonuses, floor, totalFloors }) {
   const rng = mulberry32(seed + 7);
   const guide = floor == null ? ARMY_STEPS[2] : armyForFloor(floor, totalFloors || 1);
   // La variedad nunca debe anular una mutación del jugador: fuera las doctrinas que le quitan su pieza.
@@ -285,8 +286,10 @@ function placeOnce(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutati
   const blocked = new Set([clash('bishopOrth', 'caballeria'), clash('knightBishop', 'exotica'), clash('towerDiag', 'asedio')].filter(Boolean));
   const pool = FORMATION_POOL.filter((f) => !blocked.has(f));
   const swaps = FORMATIONS[pickFrom(rng, pool.length ? pool : ['clasica'])];
-  const deploy = pickFrom(rng, DEPLOY_POOL);
-  const layers = pickFrom(rng, guide.layers);
+  // Contagio: cuatro líneas de defensa, para que infectar al peón de al lado no deje el rey a tiro.
+  const contagion = modifier === 'contagion';
+  const deploy = pickFrom(rng, contagion ? DEPLOY_POOL.filter((d) => d !== 'simple') : DEPLOY_POOL);
+  const layers = contagion ? 4 : pickFrom(rng, guide.layers);
   const { rows, cols } = board;
   const pieces = [];
   const valid = (r, c) => r >= 0 && r < rows && c >= 0 && c < cols && !board.holes.has(key(r, c));

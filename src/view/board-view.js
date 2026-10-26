@@ -605,6 +605,7 @@ export class BoardView {
     if (victims.length) await this.hitStop(victims, victims.some((v) => v.piece.royal) || victims.length > 1 ? 160 : 70);
     await Promise.all(victims.map((v) => this.kill(v.piece, from, to)));
     if (res.zombie) await this.rise(res.zombie);
+    if (res.infected?.length) await this.infect(res.infected);
     if (res.slide) await this.slide(piece, res.slide);
     if (res.portal) await this.warp(piece, res.portal);
     if (res.unmasked) {
@@ -843,6 +844,18 @@ export class BoardView {
   }
 
   // Plaga zombi: el peón sale de la tierra en verde, sacudiéndose, con esporas alrededor.
+  // Contagio: la pieza vira al bando nuevo con una nube verde.
+  async infect(pieces) {
+    playSfx('zombie');
+    for (const p of pieces) {
+      const c = this.centerOf(p);
+      this.fx.burst(c.x, c.y - this.sq * 0.3, { count: 14, color: [css('--side-zombie'), 'oklch(0.82 0.12 128)'], speed: [30, 120], life: [0.4, 0.8], size: [3, 6], gravity: -80, drag: 0.9 });
+      this.remake(p);
+      this.squash(p, 0.75);
+    }
+    await wait(this.d(260));
+  }
+
   async rise(p) {
     const el = this.addPiece(p), st = this.state.get(p);
     const c = this.centerOf(p);
