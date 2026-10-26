@@ -13,12 +13,12 @@
     "side-wild": "#8c5ac8"
   },
   "interfaz": {
-    "paper": "#1a1420",
-    "paper-2": "#2a2230",
-    "paper-3": "#3a2d40",
-    "ink": "#e8d8e0",
-    "ink-2": "#c9b8c4",
-    "accent": "#b33b61",
+    "paper": "#efe4ec",
+    "paper-2": "#dccbd8",
+    "paper-3": "#bfa9ba",
+    "ink": "#1f1624",
+    "ink-2": "#46354d",
+    "accent": "#ab2d50",
     "accent-ink": "#fff0f5",
     "brass": "#c9a36a",
     "muted": "#726174"
