@@ -40,7 +40,7 @@ function PrefsCard({ prefs, onPrefs }) {
 
 // Bandos fijos: en la run tú contra el bot (o contra dos); en la partida local (`versus`, aparte
 // de la run) dos personas, con un bot opcional de tercero.
-export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings, onPrefs, onHowTo, versus }) {
+export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings, setSettings, onPrefs, onHowTo, versus }) {
   const ref = useRef(null);
   useEnter(ref);
   const [count, setCount] = useState(defaultCount || 2);
@@ -83,6 +83,9 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
           <span class=${'token side-' + s.color}></span>
           <div class="grow"><strong>${s.name}</strong><small>${SIDES[i].label}</small></div>
         </div>`)}
+        ${setSettings && html`<div class="segmented" role="group" aria-label="Quién empieza">
+          ${[[false, `Empieza ${seats[0].name === 'Tú' ? 'tú' : seats[0].name}`], [true, 'Cara o cruz']].map(([v, label]) => html`<button class=${!!settings.coin === v ? 'on' : ''} aria-pressed=${!!settings.coin === v} onClick=${() => setSettings((st) => ({ ...st, coin: v }))}>${label}</button>`)}
+        </div>`}
       </section>
       <button class="btn primary big" data-enter onClick=${() => onStart(seats)}>Repartir piezas</button>
     </div>

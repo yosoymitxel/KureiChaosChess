@@ -414,6 +414,15 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       for (const id of takeNewDemos(run)) await playDemo(d.moments, mutationDemo(id, human));
       if (boss && !loadBosses().includes(boss.boss)) await playDemo(d.moments, bossDemo(boss.boss, boss.color));
     };
+    // Cara o cruz (ajuste de la mesa): cara empieza el primer asiento; cruz, el siguiente.
+    const tossCoin = () => {
+      if (!settings.coin || scenario || seats.length < 2) return;
+      const heads = Math.random() < 0.5, starter = seats[heads ? 0 : 1];
+      match.current = heads ? 0 : 1;
+      addLog(`${heads ? 'Cara' : 'Cruz'}: empieza ${starter.name}`);
+      playSfx('select');
+      return d.moments.coin({ heads, title: heads ? 'Cara' : 'Cruz', sub: starter.name === 'Tú' ? 'Empiezas tú' : `Empieza ${starter.name}` });
+    };
     const beginPlacing = () => {
       if (d.hand.indexOf('organize') < 0 || !mine.size) { d.busy = false; return startTurn(); }
       // La carta se juega sola al empezar y sale de la mano: 2, 4, 6 u 8 intercambios según el tablero (8×8 a 11×11+).
@@ -520,6 +529,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     ])
       .then(() => boss && d.moments.cinematic({ title: boss.name, sub: bossSub, piece: { type: artOf(boss), side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger', anim: 'stomp' }))
       .then(() => playDemos(boss))
+      .then(() => tossCoin())
       .then(() => beginPlacing());
     const onKey = (e) => e.key === 'Escape' && setPaused((v) => !v);
     addEventListener('keydown', onKey);

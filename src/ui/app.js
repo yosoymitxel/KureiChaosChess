@@ -240,9 +240,9 @@ export function App() {
     ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} onVersus=${newVersus} settings=${settings} setSettings=${setSettings} />`}
     ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} onShop=${openShop('map')} />`}
-    ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} settings=${settings} defaultCount=${seats?.length} onHowTo=${() => setHowTo(true)} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame}
+    ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} settings=${settings} setSettings=${setSettings} defaultCount=${seats?.length} onHowTo=${() => setHowTo(true)} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame}
       onPrefs=${run && !run.tutorial && !Object.keys(run.completed).length ?(prefs) => { const r = withPrefs(run, prefs); setRun(r); setNode(r.map.nodes[0]); } : null} />`}
-    ${screen === 'versus-setup' && versus && html`<${SetupScreen} versus node=${versus.node} run=${versus.run} settings=${settings} onBack=${() => goTo('menu')}
+    ${screen === 'versus-setup' && versus && html`<${SetupScreen} versus node=${versus.node} run=${versus.run} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')}
       onStart=${(s) => { setVersus((v) => ({ ...v, seats: s })); goTo('versus'); }} />`}
     ${screen === 'versus' && versus?.seats && html`<${GameScreen} key=${versus.node.id + '-' + versus.key}
       node=${versus.node} run=${versus.run} seats=${versus.seats} settings=${settings} setSettings=${setSettings} exitLabel="Al menú"

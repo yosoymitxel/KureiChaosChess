@@ -151,6 +151,36 @@ export class Moments {
     el.remove();
   }
 
+  // Cara o cruz: la ficha de damas sube girando y cae enseñando el bando que empieza (cara, marfil).
+  async coin({ heads, title, sub }) {
+    if (!this.enabled) return;
+    await this.whenIdle();
+    const el = this.mount('cine tone-brass', html`
+      <i class="bar top"></i><i class="bar bottom"></i>
+      <div class="cine-body">
+        <div class="cine-art coin-stage"><div class="coin"><i class="coin-face"></i><i class="coin-face side-dark"></i></div></div>
+        <div class="cine-text"><h2>${title}</h2>${sub && html`<p>${sub}</p>`}</div>
+      </div>
+      <span class="cine-skip">Toca o pulsa una tecla para seguir</span>`);
+    const q = (s) => el.querySelector(s), t = (s) => this.t(s);
+    const { skipped, release } = skippable(el);
+    const play = (async () => {
+      motion(el.querySelectorAll('.bar'), { scaleY: [0, 1] }, { duration: t(0.35), ease: OUT });
+      q('.cine-text').style.opacity = 0;
+      const spin = 360 * 5 + (heads ? 0 : 180);
+      motion(q('.coin'), { rotateX: [0, spin] }, { duration: t(1.4), ease: [0.2, 0.6, 0.35, 1] });
+      await motion(q('.coin-stage'), { y: [0, -150, 0], scale: [0.7, 1.15, 1] }, { duration: t(1.4), ease: [0.33, 0, 0.67, 1] });
+      this.dust(q('.coin-stage'));
+      await motion(q('.coin-stage'), { y: [0, -14, 0] }, { duration: t(0.25), ease: OUT });
+      await motion(q('.cine-text'), { opacity: [0, 1], y: [10, 0] }, { duration: t(0.35), ease: OUT });
+      await sleep(t(1.1));
+    })();
+    await Promise.race([play, skipped]);
+    release();
+    await motion(el, { opacity: [1, 0] }, { duration: t(0.28), ease: IN });
+    el.remove();
+  }
+
   // Demo breve de una pieza (mutación nueva o jefe): tablerito con su alcance de siempre y, en azul,
   // lo que se añade; la pieza salta a una casilla nueva. Se salta con un toque, como las cinemáticas.
   async demo({ title, sub, piece, base, extra = [], n = 7, at, size = [1, 1], anchors, tone = 'paper' }) {
