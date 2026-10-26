@@ -1166,8 +1166,12 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 /* Cara o cruz: la misma ficha, de canto a cara; marfil por delante, carmesí por detrás. */
 .toss-stage { perspective: 600px; }
 .toss { --cell: 40px; position: relative; width: clamp(110px, 16vw, 170px); aspect-ratio: 1; transform-style: preserve-3d; }
-.toss-face { inset: 0; backface-visibility: hidden; box-shadow: none; }
+.toss-face { inset: 0; display: grid; place-items: center; backface-visibility: hidden; box-shadow: none; }
 .toss-face.side-dark { --tk: var(--side-dark); --tk-2: color-mix(in oklch, var(--side-dark), black 40%); transform: rotateX(180deg); }
+.toss-px { display: none; }
+.toss-mark { display: grid; place-items: center; width: 36%; aspect-ratio: 1; color: var(--tk-2); }
+.toss-mark svg { width: 100%; height: 100%; fill: currentColor; }
+.toss-face.side-dark .toss-mark { color: var(--paper); }
 .pc.disc .pc-art { position: relative; }
 .pc.disc .pc-art::before { content: ''; top: auto; bottom: 6%; height: 56%; }
 .pc.disc .pc-art svg, .pc.disc .pc-base i { display: none; }
