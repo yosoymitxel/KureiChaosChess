@@ -75,9 +75,51 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
   </div>`;
 }
 
+// La corona hace de punto de la ı. Se dibuja la letra con la fuente que pinta este dispositivo (su
+// forma cambia con el tamaño y entre fuentes) y se busca el palo a media altura: su centro va a
+// --cx y su remate a --top, donde se apoya el pie de la corona.
+function fitCrown(el) {
+  const cs = getComputedStyle(el);
+  const g = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+  const font = (px) => `${cs.fontWeight} ${px}px ${cs.fontFamily}`;
+  // El lienzo no aplica font-size-adjust (la letra píxel lo usa): se escala a mano por la altura de la x.
+  let fs = parseFloat(cs.fontSize);
+  const adjust = parseFloat(cs.fontSizeAdjust);
+  if (adjust) { g.font = font(fs); fs *= adjust / (g.measureText('x').actualBoundingBoxAscent / fs); }
+  g.font = font(fs);
+  const m = g.measureText('ı'), pad = Math.ceil(fs * 0.2);
+  const w = Math.ceil(m.width + pad * 2), asc = Math.ceil(m.actualBoundingBoxAscent), h = asc + pad;
+  Object.assign(g.canvas, { width: w, height: h });
+  g.font = font(fs);
+  g.fillText('ı', pad, asc + 1);
+  const px = g.getImageData(0, 0, w, h).data, ink = (x, y) => px[(y * w + x) * 4 + 3] > 128;
+  const mid = asc + 1 - Math.round(asc / 2);
+  let l = 0;
+  while (l < w && !ink(l, mid)) l++;
+  let r = l;
+  while (r < w && ink(r, mid)) r++;
+  let top = 0;
+  while (top < mid && !ink(Math.floor((l + r) / 2), top)) top++;
+  const lh = parseFloat(cs.lineHeight);
+  const baseline = (lh - m.fontBoundingBoxAscent - m.fontBoundingBoxDescent) / 2 + m.fontBoundingBoxAscent;
+  const icon = [...el.querySelectorAll('.icon')].find((i) => getComputedStyle(i).display !== 'none');
+  const size = parseFloat(getComputedStyle(icon).width);
+  // Pie de la corona dentro de su caja: fila 14 de 16 en píxel, y = 21.8 de 24 en vector.
+  const foot = document.documentElement.dataset.art === 'pixel' ? 14 / 16 : 21.8 / 24;
+  el.style.setProperty('--cx', `${(l + r) / 2 - pad}px`);
+  el.style.setProperty('--top', `${baseline - (asc + 1 - top) + fs * 0.012 - size * foot}px`);
+}
+
 export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onSettings, onMinis, onVersus, onZen, onShop, onGallery, onAchievements, settings, setSettings }) {
   const ref = useRef(null);
   useEnter(ref);
+  const crown = useRef(null);
+  useEffect(() => {
+    const fit = () => crown.current && fitCrown(crown.current);
+    document.fonts.ready.then(fit);
+    addEventListener('resize', fit);
+    return () => removeEventListener('resize', fit);
+  }, [settings.theme]);
   const [askTutorial, setAskTutorial] = useState(false);
   const full = useFullscreen();
   const toggleFull = () => { setFullscreen(!full); setSettings((s) => ({ ...s, fullscreen: !full })); };
@@ -88,7 +130,7 @@ export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onS
       onTutorial=${hasRun ? () => setAskTutorial(true) : go(onTutorial)} />
     <div class="menu-col">
       <div class="logo" data-enter>
-        <h1 aria-label="Kure'i ChaosChess"><span class="logo-main" aria-hidden="true">Kure'<span class="logo-i">ı<${Icon} name="crown" size=${40} /></span></span>
+        <h1 aria-label="Kure'i ChaosChess"><span class="logo-main" aria-hidden="true">Kure'<span class="logo-i" ref=${crown}>ı<${Icon} name="crown" size=${40} /></span></span>
           <span class="logo-sub" aria-hidden="true"><span class="logo-chaos">${[...'Chaos'].map((ch, i) => html`<i style=${{ '--i': i }}>${ch}</i>`)}</span>Chess</span></h1>
         <p>Ajedrez que muta en cada piso. Sube la torre, gana piezas raras y derriba al coloso del final.</p>
       </div>
