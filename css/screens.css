@@ -44,19 +44,47 @@
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none;
   filter: drop-shadow(0 2px 0 var(--paper-3)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 12px 14px oklch(0.1 0.03 55 / 0.5)); }
 .logo-i { position: relative; display: inline-block; background: inherit; -webkit-background-clip: text; background-clip: text; }
-.logo-i .icon { position: absolute; left: 50%; top: 0.02em; width: 0.3em; height: 0.3em; translate: -50% 0; color: var(--brass); filter: drop-shadow(0 3px 0 var(--ink)); -webkit-text-fill-color: initial; }
+/* La corona hace de punto de la ı: centrada en el palo medido de la letra (--cx) y apoyada en su
+   remate (--top), con el mismo canto de tinta que las letras. Cada tanto da un saltito. */
+.logo-i { --cx: 0.114em; --top: 0em; --cs: 0.26em; }
+.logo-i .icon { position: absolute; left: calc(var(--cx) - var(--cs) / 2); top: var(--top); width: var(--cs); height: var(--cs); color: var(--brass);
+  stroke: var(--ink); stroke-width: 1.6px; paint-order: stroke; transform-origin: 50% 90%; -webkit-text-fill-color: initial;
+  animation: crown-hop 5s 1.2s var(--ease-out) infinite; }
+@keyframes crown-hop {
+  0%, 76%, 100% { translate: 0 0; rotate: 0deg; scale: 1; }
+  80% { translate: 0 0; scale: 1.12 0.82; }
+  86% { translate: 0 -0.16em; rotate: -14deg; scale: 0.94 1.08; }
+  92% { translate: 0 0; rotate: 6deg; scale: 1.1 0.88; }
+  96% { rotate: -2deg; scale: 1; }
+}
 .logo-sub { display: flex; justify-content: center; align-items: baseline; margin-top: 0.2em; padding: 0.08em 0.2em 0.12em; font-size: 0.4em; letter-spacing: 0; color: var(--paper);
   background: var(--accent); border: 3px solid var(--ink); border-radius: var(--r-md); text-shadow: 0 3px 0 var(--ink); box-shadow: 0 6px 0 var(--ink); }
 .logo-chaos { display: inline-flex; margin-right: 0.06em; }
-.logo-chaos i { font-style: normal; display: inline-block; rotate: calc((var(--i) - 2) * 7deg * (1 - 2 * mod(var(--i), 2))); translate: 0 calc(mod(var(--i), 2) * -0.08em); transition: rotate 0.3s var(--ease-out); }
-.logo:hover .logo-chaos i { rotate: calc((var(--i) - 2) * -9deg); }
-@media (prefers-reduced-motion: reduce) { .logo-chaos i { transition: none; } }
+/* Chaos no se está quieto: cada letra cabecea a su ritmo. */
+.logo-chaos i { --tilt: calc((var(--i) - 2) * 7deg * (1 - 2 * mod(var(--i), 2))); font-style: normal; display: inline-block; rotate: var(--tilt);
+  translate: 0 calc(mod(var(--i), 2) * -0.08em); animation: chaos-wob calc(1.6s + var(--i) * 0.23s) calc(var(--i) * -0.4s) ease-in-out infinite alternate; }
+@keyframes chaos-wob { to { rotate: calc(var(--tilt) * -1 + 4deg); translate: 0 calc((1 - mod(var(--i), 2)) * -0.08em); } }
+/* Entrada: el nombre cae y rebota, la cinta llega de un golpe. */
+.logo-main { animation: logo-drop 0.7s var(--ease-out) both; }
+.logo-sub { animation: logo-slap 0.5s 0.35s var(--ease-out) both; }
+@keyframes logo-drop { 0% { translate: 0 -0.5em; opacity: 0; } 55% { translate: 0 0.04em; opacity: 1; scale: 1.03 0.94; } 100% { translate: 0 0; } }
+@keyframes logo-slap { 0% { scale: 1.4; rotate: -8deg; opacity: 0; } 70% { scale: 0.97; rotate: 1deg; opacity: 1; } 100% { scale: 1; rotate: 0deg; } }
+@media (prefers-reduced-motion: reduce) { .logo-chaos i, .logo-i .icon, .logo-main, .logo-sub { animation: none; } }
 .logo p { margin: 24px 0 0; font-size: 16px; line-height: 1.45; color: var(--paper-2); text-wrap: pretty; }
 .menu-actions { display: flex; flex-direction: column; gap: 12px; }
 /* Botones del menú: icono en una ficha a la izquierda y el texto alineado detrás. */
 .menu-actions > .btn { justify-content: flex-start; min-height: 56px; padding: 8px 18px 8px 8px; gap: 14px; font-size: 16px; }
 .menu-actions > .btn > .icon { box-sizing: content-box; padding: 8px; border-radius: calc(var(--r-md) - 4px); background: var(--fg); color: var(--bg); --icon-cut: var(--fg); }
-.menu-actions > .btn::after { content: ''; margin-left: auto; width: 8px; height: 8px; border: solid currentColor; border-width: 2.5px 2.5px 0 0; rotate: 45deg; opacity: 0.55; }
+.menu-actions > .btn::after { content: ''; margin-left: auto; width: 8px; height: 8px; border: solid currentColor; border-width: 2.5px 2.5px 0 0; rotate: 45deg; opacity: 0.55; transition: translate 0.2s var(--ease-out), opacity 0.2s; }
+.menu-actions > .btn > .icon { transition: rotate 0.25s var(--ease-out), scale 0.25s var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .menu-actions > .btn:hover::after { translate: 4px 0; opacity: 1; }
+  .menu-actions > .btn:hover > .icon { rotate: -8deg; scale: 1.08; }
+}
+/* El botón principal invita: la flecha empuja hacia delante cada poco. */
+.menu-actions > .btn.primary::after { animation: nudge 2.4s 1.5s ease-in-out infinite; }
+@keyframes nudge { 0%, 70%, 100% { translate: 0 0; } 80% { translate: 5px 0; } 90% { translate: 1px 0; } }
+@media (prefers-reduced-motion: reduce) { .menu-actions > .btn.primary::after { animation: none; } }
 .menu-row { display: flex; gap: 12px; }
 .menu-row .btn { flex: 1; }
 .menu-row .btn.icon-only { flex: none; width: 48px; }
