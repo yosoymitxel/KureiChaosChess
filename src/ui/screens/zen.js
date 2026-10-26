@@ -469,17 +469,6 @@ export function ZenScreen({ onBack, onShop }) {
     }
   }
 
-  // Barrer todas las hojas de una vez y echar comida en medio del estanque.
-  const sweepAll = () => {
-    const els = [...(yardRef.current?.querySelectorAll('.zn-fallen') || [])];
-    if (!els.length) return say('No hay hojas que barrer.');
-    els.forEach((el, i) => setTimeout(() => el.click(), i * 90));
-  };
-  const feedCenter = () => {
-    const btn = yardRef.current?.querySelector('.zen-pond'), r = btn?.querySelector('.zn-pondart')?.getBoundingClientRect();
-    if (!r) return;
-    feed({ currentTarget: btn, clientX: r.left + r.width * (0.4 + Math.random() * 0.2), clientY: r.top + r.height * (0.4 + Math.random() * 0.2) });
-  };
   // Ampliar el estanque: igual que el cantero, un toque avisa y otro paga.
   const [lakeArmed, setLakeArmed] = useState(false);
   const growLake = () => {
@@ -537,8 +526,6 @@ export function ZenScreen({ onBack, onShop }) {
             <h3>Herramientas</h3>
             <div class="zn-tools">
               ${TOOLS.map((t) => html`<button class=${'zn-tool' + (tool === t.id ? ' on' : '')} aria-pressed=${tool === t.id} onClick=${() => pickTool(t.id)}><span class="zn-tool-ic"><${Icon} name=${t.icon} size=${22} /></span><span>${t.name}</span></button>`)}
-              <button class="zn-tool" onClick=${sweepAll}><span class="zn-tool-ic zn-art-ic">${mapleLeaf}</span><span>Barrer</span></button>
-              <button class="zn-tool" onClick=${feedCenter}><span class="zn-tool-ic zn-art-ic">${KOI_ART}</span><span>Dar de comer</span></button>
               ${owned.map(([id, it]) => html`<button class=${'zn-tool' + (tool === id ? ' on' : '')} aria-pressed=${tool === id} onClick=${() => pickTool(id)}><span class="zn-tool-ic zn-art-ic">${ITEM_ART[id]}</span><span>${it.name} ×${z.items[id]}</span></button>`)}
             </div>
           </section>

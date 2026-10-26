@@ -311,24 +311,32 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (d.props || scenario || node.versus) return;
       d.props = new Map();
       for (const { id, row, col } of dropPickups(board, match.pieces)) {
-        const el = d.view.addProp(row, col, id);
+        const el = d.view.addProp(row, col, id), it = PICKUPS[id];
         render(PICKUP_ART[id] || html`<${Icon} name=${id} size=${24} />`, el);
-        d.props.set(key(row, col), { id, el });
+        if (it.hand) {
+          el.classList.add('hand');
+          el.setAttribute('role', 'button'); el.setAttribute('aria-label', `${it.name}: tócala para quitarla`);
+          el.addEventListener('take', () => { if (d.props.delete(key(row, col))) take(it, el, true); });
+        }
+        d.props.set(key(row, col), { id, el, hand: it.hand });
       }
     };
     const pickUp = (piece) => {
       if (!d.props?.size) return;
       for (const [k, prop] of d.props) {
-        const onIt = piece.row + ',' + piece.col === k, sunk = board.holes.has(k);
+        const onIt = piece.row + ',' + piece.col === k && !prop.hand, sunk = board.holes.has(k);
         if (!onIt && !sunk) continue;
         d.props.delete(k);
         const mine = onIt && piece.color === human, it = PICKUPS[prop.id];
-        d.view.takeProp(prop.el, mine);
-        if (!mine) { if (onIt) addLog(`${pieceName(piece)} rival se lleva: ${it.name.toLowerCase()}`); continue; }
-        playSfx('coin');
-        if (it.coins) { addCoins(it.coins); addLog(`${it.name}: +${it.coins} monedas`); }
-        if (it.seed) { const kind = pickSeed(); addZenSeeds(kind, it.seed); addLog(`Semilla de ${ZEN_NAMES[kind].toLowerCase()} para el jardín`); }
+        if (!mine) { d.view.takeProp(prop.el, false); if (onIt) addLog(`${pieceName(piece)} rival se lleva: ${it.name.toLowerCase()}`); continue; }
+        take(it, prop.el);
       }
+    };
+    const take = (it, el, hand) => {
+      d.view.takeProp(el, true, hand);
+      playSfx(hand ? 'leaf' : 'coin');
+      if (it.coins) { addCoins(it.coins); addLog(`${it.name}: +${it.coins} moneda${it.coins > 1 ? 's' : ''}`); }
+      if (it.seed) { const kind = pickSeed(); addZenSeeds(kind, it.seed); addLog(`Semilla de ${ZEN_NAMES[kind].toLowerCase()} para el jardín`); }
     };
 
     const startTurn = (newTurn = true) => {
@@ -476,6 +484,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       startTurn();
     };
     const onTap = (hit) => {
+      // Una hoja en la casilla tocada se quita con la mano, aunque alguna figura la tape un poco.
+      const leaf = !hit.piece && d.props?.get(key(hit.row, hit.col));
+      if (leaf?.hand) { d.props.delete(key(hit.row, hit.col)); return take(PICKUPS[leaf.id], leaf.el, true); }
       if (d.placing) return placeTap(hit);
       if (!humanTurn()) return;
       if (d.cardSel != null) {

@@ -204,8 +204,14 @@ export class BoardView {
     return el;
   }
 
-  // Recogido sube girando con chispas; perdido se encoge.
-  async takeProp(el, mine) {
+  // Recogido sube girando con chispas; la hoja quitada con la mano sale volando de lado; perdido se encoge.
+  async takeProp(el, mine, blown) {
+    if (blown) {
+      el.style.pointerEvents = 'none';
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      await animate(el, { translateX: [0, dir * this.sq * 1.6], translateZ: [0, this.sq], rotate: [0, dir * 300], opacity: [1, 1, 0], duration: this.d(650), ease: 'outQuad' });
+      return el.remove();
+    }
     if (mine) {
       const c = this.fx.pointOf(el);
       this.fx.burst(c.x, c.y, { count: 14, color: ['#ffd36b', '#fff2c2', '#fff'], speed: [50, 180], size: [2, 4], life: [0.3, 0.6], shape: 'spark' });
@@ -428,6 +434,9 @@ export class BoardView {
     const mid = () => { const [a, b] = [...touches.values()]; return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
     const down = (e) => {
       if (e.button > 0) return;
+      // Lo que se quita con la mano (las hojas) gana aunque una figura de delante lo tape un poco.
+      const prop = document.elementsFromPoint(e.clientX, e.clientY).map((x) => x.closest?.('.prop.hand')).find(Boolean);
+      if (prop) return prop.dispatchEvent(new Event('take'));
       if (e.pointerType !== 'mouse') {
         touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
         if (touches.size === 2) {
