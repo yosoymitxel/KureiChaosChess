@@ -108,6 +108,8 @@
 /* Peón zombi de la Plaga: figura verde podrida, base del color de su dueño (así se lee de quién es). */
 .pc.zombie .pc-art { --pc: var(--side-zombie); --pc-2: color-mix(in oklch, var(--side-zombie), black 45%); }
 [data-art="pixel"] .pc.zombie .pc-art image { filter: hue-rotate(80deg) saturate(0.7); }
+/* Contagiada: conserva el color de su bando nuevo y lleva un halo verde de la plaga. */
+.pc.infected .pc-art { filter: drop-shadow(0 0 2px var(--side-zombie)) drop-shadow(0 0 2px var(--side-zombie)); }
 
 /* Posición de casillas y piezas: no se heredan. Heredadas, mover una pieza (que cambia --r, --c
    y --z en cada fotograma) obligaba a recalcular el estilo de todo su dibujo por dentro. */

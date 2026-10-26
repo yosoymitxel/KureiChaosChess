@@ -146,7 +146,7 @@ export function generateBoard(seed, floor, totalFloors, modifier) {
 }
 
 // Terrain lives in the middle rows, mirrored so neither side gets the better half.
-function addTerrain(board, rng, kind) {
+export function addTerrain(board, rng, kind) {
   const { rows, cols, holes, protectRows: safe, terrain } = board;
   const mid = [];
   for (let r = safe; r < rows - safe; r++) for (let c = 0; c < cols; c++) if (!holes.has(key(r, c))) mid.push([r, c]);

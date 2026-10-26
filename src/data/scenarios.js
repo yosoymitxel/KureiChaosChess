@@ -2,7 +2,7 @@
 // cada uno solo dice cómo se arma la mesa, con qué rival y cuándo se gana o se pierde.
 // `setup(level, seed)` devuelve { board, pieces, rival, objective, status, labels?, hideRoyal?, single? }.
 import { mulberry32, pickFrom } from '../core/rng.js';
-import { makePiece, placeBoss } from '../game/generate.js';
+import { makePiece, placeBoss, addTerrain, generateBoard, placePieces } from '../game/generate.js';
 import { MINI_BOSSES, FINAL_BOSSES, RIVALS } from '../game/difficulty.js';
 import { legalMoves, key } from '../game/rules.js';
 import { applyMutations, EXTRA_MOVES } from './mutations.js';
@@ -395,6 +395,48 @@ function knightRoute(rng, [r0, c0]) {
 }
 
 // Arma una partida del minijuego: mesa, rival (un perfil de difficulty.js o uno propio) y jugadores.
+// Minijuegos que estrenan una mecánica de los pisos sobre su propio tablero (`modifier`).
+Object.assign(SCENARIOS, {
+  blizzard: {
+    id: 'blizzard',
+    modifier: 'fog',
+    goal: 'Cruza el lago helado hasta la fila de arriba con tu caballo. En el hielo se patina una casilla más y la niebla esconde a los guardias.',
+    levels: {
+      facil: { guards: ['pawn', 'pawn', 'pawn', 'knight'], holes: 4, rounds: 12, rival: 'aprendiz' },
+      normal: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight'], holes: 6, rounds: 10, rival: 'oficial' },
+      dificil: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop'], holes: 8, rounds: 9, rival: 'maestro' },
+    },
+    setup: (lv, rng) => passable(lv, () => {
+      const b = { ...board(), protectRows: 2 }, runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
+      rubble(rng, b, pieces, lv.holes);
+      addTerrain(b, rng, 'ice');
+      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Cruzaste el lago helado.' });
+    }),
+  },
+  outbreak: {
+    id: 'outbreak',
+    modifier: 'contagion',
+    goal: 'Cada captura contagia a las piezas menores pegadas a la víctima y pasan al bando que capturó. Pasa a tu bando las piezas pedidas antes de que se acaben las rondas, sin perder a tu rey.',
+    levels: {
+      facil: { need: 5, rounds: 16, rival: 'aprendiz' },
+      normal: { need: 7, rounds: 14, rival: 'oficial' },
+      dificil: { need: 9, rounds: 12, rival: 'maestro' },
+    },
+    setup(lv, rng) {
+      const seed = Math.floor(rng() * 1e9), b = generateBoard(seed, 4, 10, 'contagion');
+      const pieces = placePieces(b, { modifier: 'contagion', playerCount: 2, seed, mutations: [], bonuses: {}, floor: 4, totalFloors: 10 });
+      const turned = (m) => m.pieces.filter((p) => p.color === 'light' && p.infected).length;
+      return {
+        board: b, pieces, rival: lv.rival,
+        objective: (m) => m.eliminated.light ? { victory: false, note: 'Cayó tu rey.' }
+          : turned(m) >= lv.need || m.eliminated.dark ? { victory: true, note: 'El brote es tuyo.' }
+          : rounds(m) >= lv.rounds ? { victory: false, note: 'El brote no llegó a tanto.' } : null,
+        status: (m) => `Contagiadas ${turned(m)}/${lv.need} · quedan ${lv.rounds - rounds(m)} rondas`,
+      };
+    },
+  },
+});
+
 export function buildScenario(id, level = 'normal', seed = Math.floor(Math.random() * 1e9)) {
   const def = SCENARIOS[id];
   const lv = def.levels[level] || def.levels.normal;

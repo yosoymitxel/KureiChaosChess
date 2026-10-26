@@ -38,6 +38,8 @@ export const MODIFIERS = {
   fusion: { id: 'fusion', name: 'Fusión', desc: 'Minijuego: el 2048 con piezas; junta dos iguales para subir de peón a la pieza meta. Premio: mutación o pieza.', icon: 'swap', mini: true, weights: [0.7, 1, 1] },
   checkers: { id: 'checkers', name: 'Damas', desc: 'Minijuego: damas de siempre contra el bot; la captura es obligatoria y los saltos se encadenan. Premio: mutación o pieza.', icon: 'checkers', mini: true, weights: [0.7, 1, 1] },
   marcianos: { id: 'marcianos', name: 'Matamarcianos', desc: 'Minijuego: oleadas retro; dispara y aguanta tres oleadas con tres vidas. Premio: mutación o pieza.', icon: 'invader', mini: true, weights: [0, 1, 1] },
+  blizzard: { id: 'blizzard', name: 'Ventisca', desc: 'Minijuego: cruza el lago helado entre la niebla; en el hielo se patina. Premio: mutación o pieza.', icon: 'ice', mini: true, weights: [0, 1, 1] },
+  outbreak: { id: 'outbreak', name: 'Brote', desc: 'Minijuego: el Contagio en su mesa; pasa a tu bando las piezas pedidas a fuerza de capturas. Premio: mutación o pieza.', icon: 'drop', mini: true, weights: [0, 1, 1.5] },
   hockey: { id: 'hockey', name: 'Hockey de mesa', desc: 'Minijuego: arrastra tu torre y mete el disco en la portería del bot; gana quien llegue a cinco goles. Premio: mutación o pieza.', icon: 'hockey', mini: true, weights: [0.7, 1, 1] },
 };
 

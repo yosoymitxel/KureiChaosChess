@@ -136,7 +136,7 @@ export class Match {
       const near = this.pieces.filter((p) => p.color === v.piece.color && !p.royal && !p.boss && MINOR_TYPES.includes(p.type)
         && Math.max(Math.abs(p.row - v.piece.row), Math.abs(p.col - v.piece.col)) === 1);
       for (const p of near.sort(() => Math.random() - 0.5).slice(0, 2 + (Math.random() < 0.5 ? 1 : 0) - out.length)) {
-        Object.assign(p, { color: piece.color, zombie: true, escort: undefined, trait: undefined });
+        Object.assign(p, { color: piece.color, infected: true, escort: undefined, trait: undefined });
         out.push(p);
       }
     }

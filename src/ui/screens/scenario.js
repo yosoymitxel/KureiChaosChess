@@ -11,7 +11,7 @@ const noop = () => {};
 // En la run (`diff` fijo por el piso) no se reinicia: se gana o se pierde y se avanza.
 function ScenarioScreen({ id, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
   const [game] = useState(() => ({ ...buildScenario(id, diff || settings.miniDiff?.[id]), endLabel }));
-  return html`<${GameScreen} node=${{ id: 'mini-' + id, seed: 0, floor: 0, modifier: 'none' }} run=${RUN} seats=${game.seats} scenario=${game}
+  return html`<${GameScreen} node=${{ id: 'mini-' + id, seed: 0, floor: 0, modifier: game.modifier || 'none' }} run=${RUN} seats=${game.seats} scenario=${game}
     settings=${settings} setSettings=${setSettings} onWin=${() => onEnd(true)} onExit=${() => onEnd(false)} onMenu=${onBack} onAbandon=${onBack}
     onRestart=${diff ? null : onRestart} onHowTo=${noop} onUseCard=${noop}
     tools=${html`<${MiniTools} mini=${id} cinematic=${false} diffs=${LEVELS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${SCENARIOS[id].goal}<//>`} />`;
@@ -29,3 +29,5 @@ export const LaboratoryScreen = screen('laboratory');
 export const CollapsingFloorScreen = screen('collapsingFloor');
 export const KnightScreen = screen('knight');
 export const MatesScreen = screen('mates');
+export const BlizzardScreen = screen('blizzard');
+export const OutbreakScreen = screen('outbreak');
