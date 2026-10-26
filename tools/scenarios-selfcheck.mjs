@@ -5,8 +5,8 @@ import { Match, botChooseMove } from '../src/game/match.js';
 import { RIVALS } from '../src/game/difficulty.js';
 import { key } from '../src/game/rules.js';
 
-const matchOf = (sc) => new Match({ board: sc.board, pieces: sc.pieces, players: sc.seats, modifier: 'none', mutations: [], bonuses: {},
-  rival: sc.rival, rivals: { dark: sc.rival, light: RIVALS.maestro }, objective: sc.objective, bonus: sc.bonus });
+const matchOf = (sc) => new Match({ board: sc.board, pieces: sc.pieces, players: sc.seats, modifier: sc.modifier || 'none', mutations: [], bonuses: {},
+  rival: sc.rival, rivals: { dark: sc.rival, light: RIVALS.maestro }, objective: sc.objective, bonus: sc.bonus, tick: sc.tick });
 function play(m, sc) {
   for (let i = 0; i < 400 && !m.over; i++) {
     const mv = m.canMove() && ((m.player.color === 'dark' && sc.bot?.(m)) || botChooseMove(m));

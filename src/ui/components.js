@@ -57,7 +57,7 @@ export function MiniDiff({ mini, diffs, fixed, settings, setSettings, onRestart 
 // Ayuda y nivel del minijuego en un solo botón: abre una hoja encima del juego con cómo se juega
 // y el nivel (elegible en partida libre). La primera vez que se entra a cada minijuego se abre sola,
 // así debajo del tablero solo queda lo que se usa para jugar.
-export function MiniTools({ mini, title: introTitle, cinematic = true, diffs, fixed, settings, setSettings, onRestart, children }) {
+export function MiniTools({ mini, cinematic = true, diffs, fixed, settings, setSettings, onRestart, children }) {
   const [open, setOpen] = useState(() => !settings.helpSeen?.[mini]);
   useEffect(() => {
     if (!settings.helpSeen?.[mini]) setSettings((t) => ({ ...t, helpSeen: { ...t.helpSeen, [mini]: true } }));
@@ -87,7 +87,7 @@ export function MiniTools({ mini, title: introTitle, cinematic = true, diffs, fi
       layer.remove();
     };
     moments.cinematic({
-      title: introTitle || mini,
+      title: MODIFIERS[mini]?.name || mini,
       sub: sub || undefined,
       icon: modifier?.icon || 'flag',
     }).then(dispose, dispose);

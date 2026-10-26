@@ -6,6 +6,7 @@ import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { DIFFS, LADDER, newFusion, slide } from '../../game/fusion.js';
+import { MODIFIERS } from '../../data/modifiers.js';
 
 const KEYS = { arrowup: 'up', w: 'up', arrowdown: 'down', s: 'down', arrowleft: 'left', a: 'left', arrowright: 'right', d: 'right' };
 const PAD = [['up', '↑', 'Arriba'], ['left', '←', 'Izquierda'], ['right', '→', 'Derecha'], ['down', '↓', 'Abajo']];
@@ -37,7 +38,7 @@ export function FusionScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
 
   const goal = LADDER[s.diff.goal];
   return html`<div class="screen mini">
-    <${Topbar} title="Fusión" sub=${sub} onBack=${onBack} />
+    <${Topbar} title=${MODIFIERS.fusion.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
         <div class="mini-stage">
@@ -58,7 +59,7 @@ export function FusionScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
             : html`<div class="bm-pad" role="group" aria-label="Empujar">
               ${PAD.map(([d, g, label]) => html`<button class=${'btn sm pad-' + d} aria-label=${label} onClick=${() => go(d)}>${g}</button>`)}
             </div>`}
-          <${MiniTools} mini="fusion" title="Fusión" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Desliza el dedo, usa las flechas o el mando: todas las piezas corren hacia ese lado. Dos piezas iguales que chocan se funden en la siguiente de la escalera, de peón a rey. Tras cada jugada entra un peón. Forma la pieza meta antes de que el tablero se llene.<//>
+          <${MiniTools} mini="fusion" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Desliza el dedo, usa las flechas o el mando: todas las piezas corren hacia ese lado. Dos piezas iguales que chocan se funden en la siguiente de la escalera, de peón a rey. Tras cada jugada entra un peón. Forma la pieza meta antes de que el tablero se llene.<//>
         </div>
       </div>
     </div>

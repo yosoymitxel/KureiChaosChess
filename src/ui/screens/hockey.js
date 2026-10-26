@@ -4,20 +4,25 @@ import { reduced } from '../hop.js';
 import { Fx } from '../../view/fx.js';
 import { playSfx } from '../sfx.js';
 import { pieceSVG } from '../../view/piece-art.js';
-import { W, H, COLS, ROWS, GOALS, PUCK_MAX, PLAYER_MAX, HOLD_T, DIFFS, newHockey, step, aim } from '../../game/hockey.js';
+import { W, H, COLS, ROWS, PUCK_MAX, PLAYER_MAX, HOLD_T, DIFFS, newHockey, step, aim } from '../../game/hockey.js';
+import { MODIFIERS } from '../../data/modifiers.js';
 
 // Flechas o WASD empujan tu torre; el puntero (dedo o ratón) la lleva directa.
 const KEYS = { arrowleft: [-1, 0], a: [-1, 0], arrowright: [1, 0], d: [1, 0], arrowup: [0, -1], w: [0, -1], arrowdown: [0, 1], s: [0, 1] };
+// A dos (`duo`): flechas para la torre de abajo, WASD para la de arriba; cada dedo mueve la de su mitad.
+const TOP_KEYS = new Set(['a', 'd', 'w', 's']);
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
-  const [s] = useState(() => newHockey(diff || settings.miniDiff?.hockey));
+// `duo` (partida local): { goals, names: [abajo, arriba] }.
+export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff, duo }) {
+  const [s] = useState(() => newHockey(diff || settings.miniDiff?.hockey, Math.random, duo ? { goals: duo.goals, duo: true } : undefined));
+  const [meName, foeName] = duo?.names || ['Tú', 'Bot'];
   const [score, setScore] = useState({ me: 0, bot: 0 });
   const [over, setOver] = useState(null);
   const tableRef = useRef(null), wrapRef = useRef(null), screenRef = useRef(null);
   const meRef = useRef(null), botRef = useRef(null), puckRef = useRef(null);
   const rect = useRef(null); // caja de la mesa: se mide al tocar y al cambiar de tamaño, nunca por fotograma
-  const drag = useRef(null);
+  const drag = useRef(new Map()); // dedo -> torre que lleva
   const keys = useRef(new Set());
 
   const toTable = (e) => {
@@ -29,12 +34,17 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
     e.preventDefault();
     rect.current = tableRef.current.getBoundingClientRect();
     tableRef.current.setPointerCapture?.(e.pointerId);
-    drag.current = e.pointerId;
-    aim(s, ...toTable(e));
+    const at = toTable(e), side = duo && at[1] < H / 2 ? 'bot' : 'me';
+    drag.current.set(e.pointerId, side);
+    aim(s, ...at, side);
   };
-  // Con ratón la torre sigue al cursor aunque no haya botón pulsado; con el dedo, mientras arrastra.
-  const move = (e) => { if (!s.over && (drag.current === e.pointerId || e.pointerType === 'mouse')) aim(s, ...toTable(e)); };
-  const up = (e) => { if (drag.current === e.pointerId) drag.current = null; };
+  // Con ratón la torre sigue al cursor aunque no haya botón pulsado (solo contra el bot); con el dedo, mientras arrastra.
+  const move = (e) => {
+    if (s.over) return;
+    const side = drag.current.get(e.pointerId) || (!duo && e.pointerType === 'mouse' ? 'me' : null);
+    if (side) aim(s, ...toTable(e), side);
+  };
+  const up = (e) => drag.current.delete(e.pointerId);
 
   useEffect(() => {
     const table = tableRef.current, wrap = wrapRef.current;
@@ -81,7 +91,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
           shake(10);
           puckRef.current.classList.add('gone');
           setScore({ ...s.score });
-          if (!s.over) banner(mine ? '¡Gol!' : 'Gol del bot');
+          if (!s.over) banner(duo ? `Gol de ${mine ? meName : foeName}` : mine ? '¡Gol!' : 'Gol del bot');
         } else if (e.kind === 'serve') {
           // El disco reaparece en el saque con un brote, cuando ya se vio el gol.
           setTimeout(() => {
@@ -94,7 +104,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
         } else if (e.kind === 'hold') {
           playSfx('invalid');
           puckRef.current.classList.add('gone');
-          banner(e.side === 'me' ? 'Siete segundos: saca el bot' : 'Siete segundos: sacas tú');
+          banner(duo ? `Siete segundos: saca ${e.side === 'me' ? foeName : meName}` : e.side === 'me' ? 'Siete segundos: saca el bot' : 'Siete segundos: sacas tú');
         }
       }
     };
@@ -104,13 +114,13 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
       const dt = Math.min((now - last) / 1000, 1 / 20);
       last = now;
       if (keys.current.size && !s.over) {
-        let dx = 0, dy = 0;
-        for (const key of keys.current) { dx += KEYS[key][0]; dy += KEYS[key][1]; }
+        const push = { me: [0, 0], bot: [0, 0] };
+        for (const key of keys.current) { const v = push[duo && TOP_KEYS.has(key) ? 'bot' : 'me']; v[0] += KEYS[key][0]; v[1] += KEYS[key][1]; }
         const reach = PLAYER_MAX * 0.12;
-        aim(s, s.me.x + dx * reach, s.me.y + dy * reach);
+        for (const side of ['me', 'bot']) if (push[side][0] || push[side][1]) aim(s, s[side].x + push[side][0] * reach, s[side].y + push[side][1] * reach, side);
       }
       // Con la hoja de ayuda abierta la mesa espera: ni corre el reloj de los siete segundos.
-      if (!screenRef.current?.querySelector('.overlay')) step(s, dt);
+      if (!screenRef.current?.querySelector('.overlay')) step(s, dt, duo ? [] : ['bot']);
       place(meRef.current, s.me);
       place(botRef.current, s.bot);
       place(puckRef.current, s.puck);
@@ -164,7 +174,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
   </span>`;
 
   return html`<div class="screen mini" ref=${screenRef}>
-    <${Topbar} title="Hockey de mesa" sub=${sub} onBack=${onBack} />
+    <${Topbar} title=${MODIFIERS.hockey.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
         <div class="mini-stage">
@@ -183,12 +193,12 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
         </div>
         <div class="mini-side">
           ${!over && html`<div class="mini-stats ah-score" aria-live="polite">
-            <span class="chip"><i class="ah-dot me"></i>Tú <b>${score.me}</b></span>
-            <span class="chip">A ${GOALS} goles</span>
-            <span class="chip"><i class="ah-dot foe"></i>Bot <b>${score.bot}</b></span>
+            <span class="chip"><i class="ah-dot me"></i>${meName} <b>${score.me}</b></span>
+            <span class="chip">A ${s.goals} goles</span>
+            <span class="chip"><i class="ah-dot foe"></i>${foeName} <b>${score.bot}</b></span>
           </div>`}
-          ${over && html`<${MiniEnd} win=${over === 'win'} note=${over === 'win' ? `Ganaste ${score.me} a ${score.bot}: el disco ya es tuyo.` : `El bot llegó a ${GOALS}: perdiste ${score.me} a ${score.bot}.`} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
-          <${MiniTools} mini="hockey" title="Hockey de mesa" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Arrastra tu torre, la de abajo, con el dedo o el ratón (o muévela con las flechas) por tu mitad de la mesa y golpea el disco hacia la portería de arriba. Cuanto más rápido lo golpeas, más fuerte sale, y las bandas sirven para tiros al rebote. Gana quien meta cinco goles; tras cada gol saca quien lo encajó. No retengas el disco en tu mitad más de siete segundos o el saque pasa al rival.<//>
+          ${over && html`<${MiniEnd} win=${over === 'win'} note=${duo ? `Gana ${over === 'win' ? meName : foeName}, ${Math.max(score.me, score.bot)} a ${Math.min(score.me, score.bot)}.` : over === 'win' ? `Ganaste ${score.me} a ${score.bot}: el disco ya es tuyo.` : `El bot llegó a ${s.goals}: perdiste ${score.me} a ${score.bot}.`} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
+          ${duo ? html`<p class="mini-help">${meName} abajo y ${foeName} arriba: cada uno arrastra la torre de su mitad (en teclado, flechas y WASD). Gana quien meta ${s.goals}.</p>` : html`<${MiniTools} mini="hockey" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Arrastra tu torre, la de abajo, con el dedo o el ratón (o muévela con las flechas) por tu mitad de la mesa y golpea el disco hacia la portería de arriba. Cuanto más rápido lo golpeas, más fuerte sale, y las bandas sirven para tiros al rebote. Gana quien meta cinco goles; tras cada gol saca quien lo encajó. No retengas el disco en tu mitad más de siete segundos o el saque pasa al rival.<//>`}
         </div>
       </div>
     </div>

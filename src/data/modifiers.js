@@ -8,13 +8,15 @@ export const MODIFIERS = {
   fog: { id: 'fog', name: 'Niebla densa', desc: 'El tablero se oscurece lejos de tus piezas.', icon: 'fog', weights: [0, 1, 2] },
   ice: { id: 'ice', name: 'Lago helado', desc: 'Al acabar sobre hielo, la pieza resbala una casilla más.', icon: 'ice', weights: [2, 2, 1] },
   portal: { id: 'portal', name: 'Portales', desc: 'Una pieza que acaba en un portal sale por su gemelo, al otro lado.', icon: 'portal', weights: [0, 2, 2] },
-  zombie: { id: 'zombie', name: 'Plaga zombi', desc: 'Los peones no se quedan muertos: el capturado se levanta como zombi del bando que lo derribó.', icon: 'skull', weights: [0, 1.5, 2] },
+  contagion: { id: 'contagion', name: 'Contagio', desc: 'Cada captura contagia de 2 a 3 piezas menores pegadas a la víctima: pasan al bando que capturó. Se juega con cuatro líneas de defensa.', icon: 'drop', weights: [0, 1, 1.5] },
+  zombie: { id: 'zombie', name: 'Plaga zombi', desc: 'Las piezas menores (peón, caballo, alfil, guardia, consejero, elefante) no se quedan muertas: la capturada se levanta como zombi del bando que la derribó.', icon: 'skull', weights: [0, 1.5, 2] },
+  coven: { id: 'coven', name: 'Aquelarre', desc: 'Cada rival esconde una bruja dormida (ojo verde). Si alguna de tus piezas puede tocarla, despierta (ojo rojo) y caza como casi una reina.', icon: 'target', weights: [0, 1, 1.5] },
   elite: { id: 'elite', name: 'Élite', desc: 'Sus piezas clave siguen reglas de élite, marcadas en violeta. Recompensa: mutación.', icon: 'swords', weights: [0, 2, 3] },
   boss: { id: 'boss', name: 'El jefe', desc: 'Un coloso de varias casillas guarda el último piso.', icon: 'boss' },
   rest: { id: 'rest', name: 'Descanso', desc: 'Un respiro. Elige un beneficio.', icon: 'rest', kind: 'rest', weights: [3, 3, 2] },
   bag: { id: 'bag', name: 'Bolsa', desc: 'Una bolsa con un objeto.', icon: 'bag', kind: 'bag', weights: [3, 2, 2] },
   // Minigames: an interlude with its own rules. Winning pays a mutation or a piece and unlocks it in the menu.
-  // Each one also needs its screen in MINI_SCREENS (src/ui/app.js); tools/check-registry.mjs checks it.
+  // Each one also needs its screen in src/data/minigame-catalog.js; tools/check-registry.mjs checks it.
   bodyguard: { id: 'bodyguard', name: 'El guardaespaldas', desc: 'Minijuego: protege al rey marfil de una escuadra de caballos y peones durante varios turnos. Premio: mutación o pieza.', icon: 'guard', mini: true, weights: [0, 0.5, 1] },
   escape: { id: 'escape', name: 'Escape del tablero', desc: 'Minijuego: lleva el caballo a la salida antes de que el guardia cierre el paso. Premio: mutación o pieza.', icon: 'flag', mini: true, weights: [0.7, 1, 1] },
   caceria: { id: 'caceria', name: 'La cacería', desc: 'Minijuego: alcanza al peón fugitivo antes de que escape. Premio: mutación o pieza.', icon: 'hunt', mini: true, weights: [0.7, 1, 1] },
@@ -37,6 +39,11 @@ export const MODIFIERS = {
   fusion: { id: 'fusion', name: 'Fusión', desc: 'Minijuego: el 2048 con piezas; junta dos iguales para subir de peón a la pieza meta. Premio: mutación o pieza.', icon: 'swap', mini: true, weights: [0.7, 1, 1] },
   checkers: { id: 'checkers', name: 'Damas', desc: 'Minijuego: damas de siempre contra el bot; la captura es obligatoria y los saltos se encadenan. Premio: mutación o pieza.', icon: 'checkers', mini: true, weights: [0.7, 1, 1] },
   marcianos: { id: 'marcianos', name: 'Matamarcianos', desc: 'Minijuego: oleadas retro; dispara y aguanta tres oleadas con tres vidas. Premio: mutación o pieza.', icon: 'invader', mini: true, weights: [0, 1, 1] },
+  blizzard: { id: 'blizzard', name: 'Ventisca', desc: 'Minijuego: cruza el lago helado entre la niebla; en el hielo se patina. Premio: mutación o pieza.', icon: 'ice', mini: true, weights: [0, 1, 1] },
+  outbreak: { id: 'outbreak', name: 'Brote', desc: 'Minijuego: el Contagio en su mesa; pasa a tu bando las piezas pedidas a fuerza de capturas. Premio: mutación o pieza.', icon: 'drop', mini: true, weights: [0, 1, 1.5] },
+  clock: { id: 'clock', name: 'Contrarreloj', desc: 'Minijuego: llega a la casilla del reloj antes de que se agote, junta monedas y esquiva a las piezas que van apareciendo. Premio: mutación o pieza.', icon: 'rush', mini: true, weights: [0.5, 1, 1] },
+  blind: { id: 'blind', name: 'Alfiles a ciegas', desc: 'Minijuego: alfiles repartidos al azar entre la niebla y un tablero que se encoge. Premio: mutación o pieza.', icon: 'target', mini: true, weights: [0, 1, 1] },
+  witch: { id: 'witch', name: 'La bruja', desc: 'Minijuego: cruza sin mirar a las brujas dormidas; la que despierta te persigue. Premio: mutación o pieza.', icon: 'target', mini: true, weights: [0, 1, 1] },
   hockey: { id: 'hockey', name: 'Hockey de mesa', desc: 'Minijuego: arrastra tu torre y mete el disco en la portería del bot; gana quien llegue a cinco goles. Premio: mutación o pieza.', icon: 'hockey', mini: true, weights: [0.7, 1, 1] },
 };
 

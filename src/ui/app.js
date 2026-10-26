@@ -9,25 +9,13 @@ import { GameScreen } from './screens/game.js';
 import { HowToOverlay } from './screens/overlays.js';
 import { setFullscreen } from './fullscreen.js';
 import { setSfxEnabled, setSfxVolume, startAmbient, setMusicScene, playSfx } from './sfx.js';
-import { Connect4Screen } from './screens/connect4.js';
 import { MinisScreen } from './screens/minis.js';
 import { ZenScreen } from './screens/zen.js';
 import { ShopScreen } from './screens/shop.js';
 import { GalleryScreen } from './screens/gallery.js';
 import { AchievementsScreen } from './screens/achievements.js';
-import { BomberScreen } from './screens/bomber.js';
-import { BarrierScreen } from './screens/barrier.js';
-import { IZombieScreen } from './screens/izombie.js';
-import { BowlingScreen } from './screens/bowling.js';
-import { LastStandScreen } from './screens/laststand.js';
-import { QueensScreen } from './screens/queens.js';
-import { MarcianosScreen } from './screens/marcianos.js';
-import { CheckersScreen } from './screens/checkers.js';
-import { FusionScreen } from './screens/fusion.js';
-import { DuelScreen } from './screens/duel.js';
-import { HockeyScreen } from './screens/hockey.js';
-import { CaceriaScreen, BodyguardScreen, GiantHuntScreen, MinefieldScreen, KingImpostorScreen, EscapeScreen, ContrabandScreen, LaboratoryScreen, CollapsingFloorScreen, KnightScreen, MatesScreen } from './screens/scenario.js';
 import { MODIFIERS } from '../data/modifiers.js';
+import { MINIGAMES } from '../data/minigame-catalog.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs, takeNewDemos } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard } from '../game/shop.js';
 import { ZEN_NAMES, addZenSeeds, pickSeed } from '../game/zen.js';
@@ -54,8 +42,6 @@ const BAG_CARDS = [
 const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3);
 // A won minigame pays a mutation or a piece the army already knows.
 const MINI_PRIZES = BAG_CARDS.filter((c) => ['mut', 'extra_rook', 'extra_pawn'].includes(c.id));
-const MINI_SCREENS = { laboratory: LaboratoryScreen, collapsingFloor: CollapsingFloorScreen, kingImpostor: KingImpostorScreen, giantHunt: GiantHuntScreen, minefield: MinefieldScreen, contraband: ContrabandScreen, bodyguard: BodyguardScreen, escape: EscapeScreen, caceria: CaceriaScreen, connect4: Connect4Screen, bomber: BomberScreen, barrier: BarrierScreen, izombie: IZombieScreen, bowling: BowlingScreen, laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen, marcianos: MarcianosScreen, checkers: CheckersScreen, fusion: FusionScreen, duel: DuelScreen, hockey: HockeyScreen };
-const SCENARIO_MINIS = new Set(['caceria', 'bodyguard', 'giantHunt', 'minefield', 'kingImpostor']);
 const ONE_SHOT =['promoteOne', 'furyNow', 'extraPawn', 'extraRook'];
 
 export function App() {
@@ -125,12 +111,36 @@ export function App() {
   const newRun = (tutorial = !settings.tutorialSeen && !loadAchievements().length) => {
     if (tutorial) setSettings((s) => ({ ...s, tutorialSeen: true }));
     const r = createRun({ tutorial }); setRun(r); setNode(r.map.nodes[0]); setSeats(null); goTo('setup'); };
-  const newVersus = () => {
+  // Partida local: la mesa (mecánica, tamaño, forma) se elige o sale al azar; una serie a 3 o 5
+  // rondas sube de piso en cada una, como una run corta, y gana quien llegue antes a la mitad.
+  const VERSUS_MODS = ['none', ...RUN_MECHANICS.filter((id) => id !== 'elite')];
+  const versusNode = (cfg, round = 0) => {
     const seed = Math.floor(Math.random() * 1e6);
-    const mods = ['none', ...RUN_MECHANICS.filter((id) => id !== 'elite')];
-    setVersus({ key: 0, run: { seed, map: { floors: 1 }, mutations: [], bonuses: {}, cards: [], completed: {} },
-      node: { id: 'versus-' + seed, seed, floor: 0, versus: true, modifier: mods[seed % mods.length] } });
+    const modifier = cfg.mod === 'random' ? VERSUS_MODS[seed % VERSUS_MODS.length] : cfg.mod;
+    const board = { size: cfg.size === 'random' ? undefined : cfg.size, shape: cfg.shape === 'random' ? undefined : cfg.shape };
+    return { id: `versus-${seed}`, seed, floor: round, versus: true, modifier, board };
+  };
+  const versusRun = (cfg) => ({ seed: 0, map: { floors: Math.max(cfg.rounds, 1) }, mutations: [], bonuses: {}, cards: [], completed: {} });
+  const newVersus = (cfg = versus?.cfg || { game: 'chess', mod: 'random', size: 'random', shape: 'random', rounds: 1, goals: 5 }) => {
+    setVersus({ key: 0, cfg, score: {}, round: 0, run: versusRun(cfg), node: versusNode(cfg) });
     goTo('versus-setup');
+  };
+  const setVersusCfg = (cfg) => setVersus((v) => ({ ...v, cfg, run: versusRun(cfg), node: versusNode(cfg) }));
+  // Fin de una ronda: suma el punto y devuelve la nota de la ficha final.
+  const versusRound = (r) => {
+    const v = versus, score = { ...v.score }, name = (c) => v.seats.find((s) => s.color === c)?.name;
+    if (r.winner) score[r.winner] = (score[r.winner] || 0) + 1;
+    const need = Math.floor(v.cfg.rounds / 2) + 1, champ = Object.keys(score).find((c) => score[c] >= need);
+    const done = v.cfg.rounds <= 1 || !!champ || v.round + 1 >= v.cfg.rounds;
+    setVersus((x) => ({ ...x, prev: x.score, score, ended: true, done }));
+    const head = r.tie ? 'Tablas.' : `Gana ${r.winnerName}.`;
+    if (v.cfg.rounds <= 1) return head;
+    const tally = v.seats.map((s) => `${s.name} ${score[s.color] || 0}`).join(' · ');
+    return `${head} Serie: ${tally}.${champ ? ` ¡${name(champ)} gana la serie!` : done ? ' Serie terminada.' : ''}`;
+  };
+  const versusNext = () => {
+    if (!versus?.ended || versus.done) return goTo('menu');
+    setVersus((v) => ({ ...v, key: v.key + 1, round: v.round + 1, ended: false, node: versusNode(v.cfg, v.round + 1) }));
   };
   const openShop = (from) => () => { setShopFrom(from); goTo('shop'); };
 
@@ -247,21 +257,25 @@ export function App() {
     bag: ['Encuentras una bolsa', 'Llévate un objeto.'],
     mini: ['¡Minijuego superado!', 'Elige tu premio. Ya puedes jugarlo cuando quieras desde el menú.'],
   };
-  const Mini = MINI_SCREENS[node?.modifier];
-  const FreeMini = MINI_SCREENS[freeMini];
+  const Mini = MINIGAMES[node?.modifier]?.Screen;
+  const FreeMini = MINIGAMES[freeMini]?.Screen;
 
   return html`
-    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} onVersus=${newVersus} settings=${settings} setSettings=${setSettings} />`}
+    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} onVersus=${() => newVersus()} settings=${settings} setSettings=${setSettings} />`}
     ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} onShop=${openShop('map')} />`}
-    ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} settings=${settings} defaultCount=${seats?.length} onHowTo=${() => setHowTo(true)} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame}
+    ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} settings=${settings} setSettings=${setSettings} defaultCount=${seats?.length} onHowTo=${() => setHowTo(true)} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame}
       onPrefs=${run && !run.tutorial && !Object.keys(run.completed).length ?(prefs) => { const r = withPrefs(run, prefs); setRun(r); setNode(r.map.nodes[0]); } : null} />`}
-    ${screen === 'versus-setup' && versus && html`<${SetupScreen} versus node=${versus.node} run=${versus.run} settings=${settings} onBack=${() => goTo('menu')}
-      onStart=${(s) => { setVersus((v) => ({ ...v, seats: s })); goTo('versus'); }} />`}
+    ${screen === 'versus-setup' && versus && html`<${SetupScreen} versus node=${versus.node} run=${versus.run} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')}
+      versusCfg=${versus.cfg} onVersusCfg=${setVersusCfg}
+      onStart=${(s) => { setVersus((v) => ({ ...v, seats: s, score: {}, round: 0, ended: false, done: false, node: v.round ? versusNode(v.cfg) : v.node })); goTo(versus.cfg.game === 'hockey' ? 'versus-hockey' : 'versus'); }} />`}
+    ${screen === 'versus-hockey' && versus?.seats && html`<${MINIGAMES.hockey.Screen} key=${'vh-' + versus.key} sub="Partida local" settings=${settings} setSettings=${setSettings}
+      duo=${{ goals: versus.cfg.goals, names: versus.seats.map((s) => s.name) }} endLabel="Al menú" onBack=${() => goTo('menu')} onEnd=${() => goTo('menu')}
+      onRestart=${() => setVersus((v) => ({ ...v, key: v.key + 1 }))} />`}
     ${screen === 'versus' && versus?.seats && html`<${GameScreen} key=${versus.node.id + '-' + versus.key}
-      node=${versus.node} run=${versus.run} seats=${versus.seats} settings=${settings} setSettings=${setSettings} exitLabel="Al menú"
-      onExit=${() => goTo('menu')} onMenu=${() => goTo('menu')} onAbandon=${() => goTo('menu')} onWin=${() => goTo('menu')}
-      onUseCard=${() => {}} onRestart=${() => setVersus((v) => ({ ...v, key: v.key + 1 }))} onHowTo=${() => setHowTo(true)} />`}
+      node=${versus.node} run=${versus.run} seats=${versus.seats} settings=${settings} setSettings=${setSettings} exitLabel=${versus.ended && !versus.done ? 'Siguiente ronda' : 'Al menú'}
+      onRound=${versusRound} onExit=${versusNext} onMenu=${() => goTo('menu')} onAbandon=${() => goTo('menu')} onWin=${versusNext}
+      onUseCard=${() => {}} onRestart=${() => setVersus((v) => ({ ...v, key: v.key + 1, ended: false, done: false, score: v.ended ? v.prev : v.score }))} onHowTo=${() => setHowTo(true)} />`}
     ${screen === 'reward' && reward && html`<${CardPick} key=${reward.kind + reward.cards.map((c) => c.id).join()}
       title=${REWARD_TEXT[reward.kind][0]}
       subtitle=${REWARD_TEXT[reward.kind][1] + (reward.coins ? ` La victoria paga ${reward.coins} monedas del jardín.` : '') + (reward.seed ? ` Cayó una semilla de ${ZEN_NAMES[reward.seed]}.` : '')}
@@ -276,8 +290,8 @@ export function App() {
       settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />`}
     ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
     ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub="Partida libre" onBack=${() => goTo('minis')}
-      endLabel=${SCENARIO_MINIS.has(freeMini) ? 'Volver a los minijuegos' : 'Otra partida'}
-      onEnd=${() => SCENARIO_MINIS.has(freeMini) ? goTo('minis') : setFreeKey((k) => k + 1)}
+      endLabel="Otra partida"
+      onEnd=${() => setFreeKey((k) => k + 1)}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => goTo(shopFrom)} />`}

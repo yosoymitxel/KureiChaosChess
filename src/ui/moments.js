@@ -21,6 +21,21 @@ function skippable(el) {
   addEventListener('keydown', onKey, true);
   return { skipped, release: () => removeEventListener('keydown', onKey, true) };
 }
+// Las dos caras de la moneda de cara o cruz: la ficha de damas (vector) y su versión píxel 16×16
+// (disco escalonado con canto y estría); encima, la corona (cara) o la cruz (cruz).
+const discPx = (() => {
+  const run = (test) => {
+    let d = '';
+    for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) if (test(Math.hypot(x - 7.5, y - 7.5))) d += `M${x} ${y}h1v1h-1z`;
+    return d;
+  };
+  return { ink: run((r) => r <= 8 && r > 6.9), fill: run((r) => r <= 6.9), groove: run((r) => r <= 5.4 && r > 4.5) };
+})();
+const TOSS_CROSS = html`<svg class="toss-cross" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path d="M6 2h4v4h4v4h-4v4H6v-4H2V6h4z"/></svg>`;
+const tossFace = (side, mark) => html`<div class=${'toss-face side-' + side}>
+  <svg class="toss-px" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><path class="ink" d=${discPx.ink}/><path class="fill" d=${discPx.fill}/><path class="groove" d=${discPx.groove}/></svg>
+  <span class="toss-mark">${mark}</span>
+</div>`;
 const color = (side) => getComputedStyle(document.documentElement).getPropertyValue('--side-' + side).trim() || '#fff';
 
 export class Moments {
@@ -148,6 +163,38 @@ export class Moments {
     await Promise.race([Promise.all([art, waveDone]), skipped]);
     release();
     await motion(el, { opacity: [1, 0] }, { duration: this.t(0.28), ease: IN });
+    el.remove();
+  }
+
+  // Cara o cruz: la ficha de damas sube girando y cae enseñando el bando que empieza (cara, marfil).
+  async coin({ heads, title, sub }) {
+    if (!this.enabled) return;
+    await this.whenIdle();
+    const el = this.mount('cine tone-brass', html`
+      <i class="bar top"></i><i class="bar bottom"></i>
+      <div class="cine-body">
+        <div class="cine-art toss-stage"><div class="toss">${tossFace('light', html`<${Icon} name="crown" size=${48} />`)}${tossFace('dark', TOSS_CROSS)}</div></div>
+        <div class="cine-text"><h2>${title}</h2>${sub && html`<p>${sub}</p>`}</div>
+      </div>
+      <span class="cine-skip">Toca o pulsa una tecla para seguir</span>`);
+    const q = (s) => el.querySelector(s), t = (s) => this.t(s);
+    const { skipped, release } = skippable(el);
+    const play = (async () => {
+      motion(el.querySelectorAll('.bar'), { scaleY: [0, 1] }, { duration: t(0.35), ease: OUT });
+      q('.cine-text').style.opacity = 0;
+      // En píxel el giro va a saltos, como fotogramas de sprite.
+      const pixel = document.documentElement.dataset.art === 'pixel', frames = (n, e) => (pixel ? (x) => Math.round(e(x) * n) / n : e);
+      const spin = 360 * 5 + (heads ? 0 : 180);
+      motion(q('.toss'), { rotateX: [0, spin] }, { duration: t(1.4), ease: frames(40, (x) => 1 - (1 - x) ** 2.4) });
+      await motion(q('.toss-stage'), { y: [0, -150, 0], scale: [0.7, 1.15, 1] }, { duration: t(1.4), ease: frames(14, (x) => x) });
+      this.dust(q('.toss-stage'));
+      await motion(q('.toss-stage'), { y: [0, -14, 0] }, { duration: t(0.25), ease: OUT });
+      await motion(q('.cine-text'), { opacity: [0, 1], y: [10, 0] }, { duration: t(0.35), ease: OUT });
+      await sleep(t(1.1));
+    })();
+    await Promise.race([play, skipped]);
+    release();
+    await motion(el, { opacity: [1, 0] }, { duration: t(0.28), ease: IN });
     el.remove();
   }
 

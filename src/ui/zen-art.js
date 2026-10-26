@@ -219,3 +219,25 @@ export function rakeArt(n, objs, raw) {
     <rect width=${n} height=${n} fill="url(#zn-sun)"/>
   </svg>`;
 }
+
+// Coleccionables del tablero (src/data/pickups.js); la moneda usa su icono.
+export const PICKUP_ART = { leaf: mapleLeaf, seed: POUCH };
+
+// Estanque en el hueco central de un tablero: dos koi dando vueltas en sentidos contrarios.
+export const boardPond = html`<svg class="bd-pond" viewBox="0 0 20 20" aria-hidden="true">
+  ${['a', 'b'].map((k) => html`<g class=${'bd-koi zn-koi zn-koi-' + k}><g transform=${k === 'a' ? 'translate(10 5) scale(.9)' : 'translate(10 16.5) scale(.75)'}><g class="zn-vec">${KOI}<circle class="zn-koi-spot" cx="1.1" cy="-.2" r=".8"/></g>${px('koi', 8, 5, -4.4, -2.5)}</g></g>`)}
+</svg>`;
+
+// Piedra que sale al ampliar: canto rodado con su cara al sol; `cracks` grietas según los golpes.
+export const stoneArt = (cracks = 0) => html`<svg class="zn-standart zn-stone" viewBox="0 0 24 24" aria-hidden="true">${px('stone', 24, 24)}<g class="zn-vec">
+  <path class="zn-rock" d="M3 22 2 17 4 11 8 7 13 5 18 7 21 12 22 18 21 22Z"/>
+  <path class="zn-rock-lit" d="M2 17 4 11 8 7 13 5 11 10 9 15 7 22 3 22Z"/>
+</g>${cracks > 0 && html`<path class="zn-crack" d="M12 6 10.6 10.4 13 13 11 17.6"/>`}${cracks > 1 && html`<path class="zn-crack" d="M18 9 15.6 12.4 17.4 15.4"/>`}</svg>`;
+
+// Lo que se compra para el jardín (src/data/garden.js), con el mismo dibujo que en el cantero.
+export const ITEM_ART = {
+  shovel: SHOVEL, can: CAN, lantern: LANTERN,
+  pot: html`<svg viewBox="0 0 24 24" aria-hidden="true"><g class="zn-vec">${POT}</g>${px('pot', 24, 24)}</svg>`,
+};
+// Peces del estanque, para el botón de dar de comer.
+export const KOI_ART = html`<svg viewBox="-4.5 -3 9 6" aria-hidden="true"><g class="zn-koi zn-koi-a"><g class="zn-vec">${KOI}<circle class="zn-koi-spot" cx="1.1" cy="-.2" r=".8"/></g>${px('koi', 8, 5, -4.4, -2.5)}</g></svg>`;

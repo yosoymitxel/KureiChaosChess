@@ -609,6 +609,14 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .zn-fleck { fill: oklch(0.48 0.01 80); }
 .zn-lstone { fill: oklch(0.74 0.012 85); stroke: var(--ink); stroke-width: .7; stroke-linejoin: round; }
 .zn-lwin { fill: url(#zn-glow); stroke: var(--ink); stroke-width: .6; }
+.zn-lit .zn-lwin { fill: oklch(0.9 0.14 85); filter: drop-shadow(0 0 1.5px oklch(0.88 0.16 80)); }
+/* Piedras de la tierra nueva: canto rodado con la cara al sol y grietas según los golpes. */
+.zn-rock { fill: oklch(0.66 0.012 80); stroke: var(--ink); stroke-width: .8; stroke-linejoin: round; }
+.zn-rock-lit { fill: oklch(0.8 0.01 85); }
+.zn-crack { fill: none; stroke: var(--ink); stroke-width: .9; stroke-linecap: round; stroke-linejoin: round; }
+.zn-tray .bm-cell.zn-rockcell { cursor: default; }
+.zn-yard.dig .bm-cell.zn-rockcell { cursor: pointer; }
+.zn-stone { inset: 10%; width: 80%; height: 80%; }
 .zn-halo { fill: oklch(0.92 0.1 85 / 0.22); }
 /* La rama de arce asoma por la esquina y suelta, muy de vez en cuando, una hoja que cae. */
 .zn-branch { position: absolute; z-index: 4; left: -9%; top: -9%; width: 36%; pointer-events: none; overflow: visible; filter: drop-shadow(0 6px 4px oklch(0 0 0 / 0.3)); }
@@ -715,10 +723,12 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .zn-packet:hover { translate: 0 -2px; }
 .zn-packet.on { translate: 0 -5px; box-shadow: 0 0 0 3px var(--brass), 0 9px 0 color-mix(in oklch, var(--ink), transparent 40%); }
 .zn-packet.off { opacity: 0.55; }
-.zn-tools { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.zn-tools { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 8px; }
 .zn-tool { display: grid; justify-items: center; gap: 6px; padding: 0; border: 0; background: none; font-weight: 750; font-size: 12.5px; color: var(--paper-2); cursor: pointer; }
 .zn-tool-ic { display: grid; place-items: center; width: 54px; height: 54px; border: 2px solid var(--ink); border-radius: 50%; background: var(--paper); background-image: var(--grain); color: var(--ink); box-shadow: 0 4px 0 color-mix(in oklch, var(--ink), transparent 40%); transition: translate 0.18s var(--ease-out); }
 .zn-tool:hover .zn-tool-ic { translate: 0 -2px; }
+.zn-art-ic svg { width: 58%; height: 58%; overflow: visible; }
+:is(.zn-art-ic, .zn-item) .zn-standart { position: static; }
 .zn-tool.on { color: var(--paper); }
 .zn-tool.on .zn-tool-ic { background: var(--brass); translate: 0 -3px; }
 .zn-packet:focus-visible, .zn-tool:focus-visible { outline: 3px solid var(--brass); outline-offset: 3px; }
@@ -726,6 +736,8 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 /* Ampliar: barra con precio y confirmación; al armarse se pinta de latón. */
 .zen-expand { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border: 2px solid var(--ink); border-radius: 10px; background: var(--paper); background-image: var(--grain); font-weight: 750; font-size: 13px; color: var(--ink-2); cursor: pointer; }
 .zen-expand > .icon { width: 18px; height: 18px; flex: none; }
+.zen-expand > .zn-art-ic { display: grid; place-items: center; width: 22px; height: 18px; flex: none; }
+.zen-expand > .zn-art-ic svg { width: 100%; height: 100%; }
 .zen-expand-text { flex: 1; text-align: left; }
 .zen-expand:hover:not(:disabled) { filter: brightness(1.05); }
 .zen-expand.on { background: var(--brass); color: var(--ink); }
@@ -1143,7 +1155,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 /* La ficha que rueda va como elemento para que Motion la pueda mover entre casillas. */
 /* La ficha es una pieza de damas vista en perspectiva: disco con estrías concéntricas y canto grueso.
    La misma ficha hace de pieza en Damas (.pc.disc del tablero común, en lugar de la figura). */
-.bm-tok, .pc.disc .pc-art::before {
+.bm-tok, .pc.disc .pc-art::before, .toss-face {
   --tk: var(--side-light); --tk-2: color-mix(in oklch, var(--side-light), var(--ink) 38%);
   position: absolute; left: 12%; right: 12%; top: 30%; bottom: 18%; border-radius: 50%; pointer-events: none; z-index: 1;
   background: radial-gradient(closest-side, var(--tk) 0 34%, var(--tk-2) 36% 42%, var(--tk) 44% 70%, var(--tk-2) 72% 78%, var(--tk) 80%);
@@ -1151,6 +1163,15 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
   box-shadow: 0 calc(var(--cell) * 0.08) 0 var(--tk-2), 0 calc(var(--cell) * 0.08) 0 2px var(--ink), 0 calc(var(--cell) * 0.14) 6px oklch(0 0 0 / 0.35);
 }
 .pc.disc { --cell: var(--sq); }
+/* Cara o cruz: la misma ficha, de canto a cara; marfil por delante, carmesí por detrás. */
+.toss-stage { perspective: 600px; }
+.toss { --cell: 40px; position: relative; width: clamp(110px, 16vw, 170px); aspect-ratio: 1; transform-style: preserve-3d; }
+.toss-face { inset: 0; display: grid; place-items: center; backface-visibility: hidden; box-shadow: none; }
+.toss-face.side-dark { --tk: var(--side-dark); --tk-2: color-mix(in oklch, var(--side-dark), black 40%); transform: rotateX(180deg); }
+.toss-px { display: none; }
+.toss-mark { display: grid; place-items: center; width: 36%; aspect-ratio: 1; color: var(--tk-2); }
+.toss-mark svg { width: 100%; height: 100%; fill: currentColor; }
+.toss-face.side-dark .toss-mark { color: var(--paper); }
 .pc.disc .pc-art { position: relative; }
 .pc.disc .pc-art::before { content: ''; top: auto; bottom: 6%; height: 56%; }
 .pc.disc .pc-art svg, .pc.disc .pc-base i { display: none; }

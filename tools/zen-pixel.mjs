@@ -10,7 +10,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const SRC = root + 'art/zen/out/sprites/', OUT = root + 'assets/zen/';
 const PLANTS = ['romero', 'salvia', 'lavanda'].flatMap((k) => ['sprout', 'bud', 'bloom'].map((s) => [`${k}-${s}`, 24, 24]));
 export const ZEN_SPRITES = [
-  ['pot', 24, 24], ...PLANTS, ['moss', 24, 24], ['step', 24, 24], ['lantern', 24, 32], ['pond', 48, 48], ['koi', 8, 5],
+  ['pot', 24, 24], ...PLANTS, ['moss', 24, 24], ['step', 24, 24], ['stone', 24, 24], ['lantern', 24, 32], ['pond', 48, 48], ['koi', 8, 5],
   ['sand', 24, 24], ['raw', 24, 24], ['leaf', 7, 7], ['branch', 40, 26], ['can', 16, 12], ['shears', 16, 16], ['shovel', 8, 18], ['pouch', 11, 12],
 ];
 

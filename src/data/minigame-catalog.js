@@ -1,7 +1,7 @@
 // Registro único de minijuegos del banco de pruebas.
 // Al incorporar un minijuego nuevo, registrá su id, nombre y pantalla solamente aquí.
 // El selector y la vista de prueba consumen este mismo registro.
-import { CaceriaScreen, BodyguardScreen, GiantHuntScreen, MinefieldScreen, KingImpostorScreen, EscapeScreen, ContrabandScreen, LaboratoryScreen, CollapsingFloorScreen, KnightScreen, MatesScreen } from '../ui/screens/scenario.js';
+import { CaceriaScreen, BodyguardScreen, GiantHuntScreen, MinefieldScreen, KingImpostorScreen, EscapeScreen, ContrabandScreen, LaboratoryScreen, CollapsingFloorScreen, KnightScreen, MatesScreen, BlizzardScreen, OutbreakScreen, ClockScreen, BlindScreen, WitchScreen } from '../ui/screens/scenario.js';
 import { Connect4Screen } from '../ui/screens/connect4.js';
 import { BomberScreen } from '../ui/screens/bomber.js';
 import { BarrierScreen } from '../ui/screens/barrier.js';
@@ -25,5 +25,6 @@ const SCREENS = {
   bomber: BomberScreen, barrier: BarrierScreen, izombie: IZombieScreen, bowling: BowlingScreen,
   laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen,
   marcianos: MarcianosScreen, checkers: CheckersScreen, fusion: FusionScreen, duel: DuelScreen, hockey: HockeyScreen,
+  blizzard: BlizzardScreen, outbreak: OutbreakScreen, clock: ClockScreen, blind: BlindScreen, witch: WitchScreen,
 };
 export const MINIGAMES = Object.fromEntries(Object.entries(SCREENS).map(([id, Screen]) => [id, { name: MODIFIERS[id].name, Screen }]));

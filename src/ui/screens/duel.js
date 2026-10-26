@@ -7,6 +7,7 @@ import { PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { DIFFS, MOVES, FIGHTERS, TYPE_NAME, newDuel, turn, active, effect } from '../../game/duel.js';
 import { reduced } from '../hop.js';
+import { MODIFIERS } from '../../data/modifiers.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const OUT = [0.16, 1, 0.3, 1];
@@ -85,7 +86,7 @@ export function DuelScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setting
 
   const me = active(s.mine) || s.mine[s.mine.length - 1], foe = active(s.foes) || s.foes[s.foes.length - 1];
   return html`<div class="screen mini">
-    <${Topbar} title="Duelo" sub=${sub} onBack=${onBack} />
+    <${Topbar} title=${MODIFIERS.duel.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
         <div class="mini-stage">
@@ -107,7 +108,7 @@ export function DuelScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setting
                 </button>`;
               })}
             </div>`}
-          <${MiniTools} mini="duel" title="Duelo" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Tres piezas por bando; elige un ataque y el rival responde. El tipo sale de cómo se mueve la pieza: Línea gana a Salto, Salto a Diagonal y Diagonal a Línea (golpe y medio); al revés, el golpe se queda en dos tercios. Guardia parte la próxima herida, Cargado sube el próximo golpe, y las curas valen dos veces por pieza.<//>
+          <${MiniTools} mini="duel" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Tres piezas por bando; elige un ataque y el rival responde. El tipo sale de cómo se mueve la pieza: Línea gana a Salto, Salto a Diagonal y Diagonal a Línea (golpe y medio); al revés, el golpe se queda en dos tercios. Guardia parte la próxima herida, Cargado sube el próximo golpe, y las curas valen dos veces por pieza.<//>
         </div>
       </div>
     </div>

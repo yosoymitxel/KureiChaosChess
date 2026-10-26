@@ -1,6 +1,6 @@
 // Procedural generation: run map, board shapes and starting armies.
 import { mulberry32, pickFrom } from '../core/rng.js';
-import { key, threatenedPieces, legalMoves, ctxOf, linkPortalPair } from './rules.js';
+import { key, threatenedPieces, legalMoves, ctxOf, linkPortalPair, canHit, cellsOf } from './rules.js';
 import { BOSSES } from '../data/bosses.js';
 import { applyMutations } from '../data/mutations.js';
 import { pickModifier, miniBossFloors, armyForFloor, ARMY_STEPS, isMiniModifier, RARE_TYPES, MINI_BOSSES, FINAL_BOSSES } from './difficulty.js';
@@ -92,17 +92,19 @@ export function tutorialMap(seed) {
 
 const SHAPES = ['diamond', 'hourglass', 'cross', 'fortress', 'random', 'stripes', 'scatter', 'lake', 'canyon', 'islands', 'ring', 'bridges', 'checker'];
 
-export function generateBoard(seed, floor, totalFloors, modifier) {
+// `opts` (partida local): `size` fija filas y columnas; `shape` fija la forma ('classic': sin huecos).
+export function generateBoard(seed, floor, totalFloors, modifier, opts = {}) {
   const rng = mulberry32(seed);
   const t = totalFloors > 1 ? floor / (totalFloors - 1) : 0;
   // Los primeros pisos son un 8×8 de los de siempre para aprender piezas y mutaciones;
   // de ahí el tablero crece hasta 12.
   const small = t < 0.2;
   const base = 8 + Math.round(t * 4);
-  const rows = small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)));
-  const cols = small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)));
+  // El Contagio pide 10 filas: cuatro líneas por bando y dos de tierra de nadie.
+  const rows = Math.max(modifier === 'contagion' ? 10 : 0, opts.size || (small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)))));
+  const cols = opts.size || (small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0))));
   const safe = rows <= 9 ? 2 : rows <= 10 ? 3 : 4;
-  const shape = pickFrom(rng, SHAPES);
+  const shape = opts.shape || pickFrom(rng, SHAPES);
   const holes = new Set();
   const addSym = (r, c) => {
     for (const [rr, cc] of [[r, c], [rows - 1 - r, c], [r, cols - 1 - c], [rows - 1 - r, cols - 1 - c]])
@@ -145,7 +147,7 @@ export function generateBoard(seed, floor, totalFloors, modifier) {
 }
 
 // Terrain lives in the middle rows, mirrored so neither side gets the better half.
-function addTerrain(board, rng, kind) {
+export function addTerrain(board, rng, kind) {
   const { rows, cols, holes, protectRows: safe, terrain } = board;
   const mid = [];
   for (let r = safe; r < rows - safe; r++) for (let c = 0; c < cols; c++) if (!holes.has(key(r, c))) mid.push([r, c]);
@@ -249,21 +251,35 @@ function ensureRare(pieces, color, cols) {
   if (cand) cand.type = 'camel';
 }
 
-// No match starts with a piece hanging: corner rooks on open files used to face each other on move 1.
-// Re-roll the deployment (new seed, same board) until no side has a piece under attack.
-// A boss's wide reach can make that impossible, so keep the least exposed try.
+// Piezas que, con una jugada tranquila, ya golpearían a un rey o jefe rival: un camello en la
+// segunda fila de un 8×8 encerraba al rey de casa en dos jugadas, antes de que pudiera salir.
+const strikesSoon = (e, royal, pieces, board) => legalMoves(e, pieces, board).some((m) => {
+  if (m.hits.length) return false;
+  const q = { ...e, row: m.row, col: m.col };
+  return canHit(q, royal, ctxOf(pieces.map((x) => (x === e ? q : x)), board));
+});
+function quickThreats(pieces, board) {
+  let n = 0;
+  for (const royal of pieces.filter((p) => p.royal))
+    for (const e of pieces) if (e.color !== royal.color && !e.royal && strikesSoon(e, royal, pieces, board)) n++;
+  return n;
+}
+
+// No match starts with a piece hanging (corner rooks on open files used to face each other on
+// move 1) nor with a royal two moves from falling. Re-roll the deployment (new seed, same board)
+// until neither happens; a boss's wide reach can make that impossible, so keep the least bad try.
 export function placePieces(board, opts) {
   let best = null, least = Infinity;
   for (let k = 0; k < 30 && least > 0; k++) {
     const pieces = placeOnce(board, { ...opts, seed: opts.seed + k * 101 });
     const colors = [...new Set(pieces.map((p) => p.color))];
-    const exposed = colors.reduce((n, c) => n + threatenedPieces(pieces, c, board).size, 0);
+    const exposed = colors.reduce((n, c) => n + threatenedPieces(pieces, c, board).size, 0) * 10 + quickThreats(pieces, board);
     if (exposed < least) { best = pieces; least = exposed; }
   }
   return best;
 }
 
-function placeOnce(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutations, bonuses, floor, totalFloors }) {
+function placeOnce(board, { modifier, playerCount, isBoss, isMiniBoss, elite, seed, mutations, bonuses, floor, totalFloors }) {
   const rng = mulberry32(seed + 7);
   const guide = floor == null ? ARMY_STEPS[2] : armyForFloor(floor, totalFloors || 1);
   // La variedad nunca debe anular una mutación del jugador: fuera las doctrinas que le quitan su pieza.
@@ -271,8 +287,10 @@ function placeOnce(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutati
   const blocked = new Set([clash('bishopOrth', 'caballeria'), clash('knightBishop', 'exotica'), clash('towerDiag', 'asedio')].filter(Boolean));
   const pool = FORMATION_POOL.filter((f) => !blocked.has(f));
   const swaps = FORMATIONS[pickFrom(rng, pool.length ? pool : ['clasica'])];
-  const deploy = pickFrom(rng, DEPLOY_POOL);
-  const layers = pickFrom(rng, guide.layers);
+  // Contagio: cuatro líneas de defensa, para que infectar al peón de al lado no deje el rey a tiro.
+  const contagion = modifier === 'contagion';
+  const deploy = pickFrom(rng, contagion ? DEPLOY_POOL.filter((d) => d !== 'simple') : DEPLOY_POOL);
+  const layers = contagion ? 4 : pickFrom(rng, guide.layers);
   const { rows, cols } = board;
   const pieces = [];
   const valid = (r, c) => r >= 0 && r < rows && c >= 0 && c < cols && !board.holes.has(key(r, c));
@@ -298,10 +316,10 @@ function placeOnce(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutati
       const r = backRow + dir;
       if (valid(r, p.col) && !occupied(r, p.col)) pieces.push(makePiece('pawn', color, r, p.col));
     }
-    // En los pisos altos el cañón no se queda delante del rey: un paso al costado, si se puede.
+    // El cañón no se queda delante del rey (hace de pantalla al cañón rival): un paso al costado, si se puede.
     const king = pieces.find((x) => x.color === color && x.type === 'king');
     const front = king && pieces.find((x) => x.color === color && x.type === 'cannon' && x.col === king.col && x.row === king.row + dir);
-    if (front && floor >= 3) {
+    if (front) {
       const side = pieces.find((x) => x.color === color && x.row === front.row && Math.abs(x.col - front.col) === 1 && x.type !== 'cannon');
       if (side) [side.type, front.type] = [front.type, side.type];
     }
@@ -310,12 +328,22 @@ function placeOnce(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutati
   side('light', rows - 1, -1);
   ensureRare(pieces, 'dark', cols);
   ensureRare(pieces, 'light', cols);
-  // Con huecos, un elefante o un camello puede no tener ni una casilla a la que saltar en todo el
-  // nivel (se mira el tablero vacío): pasa a ser la primera pieza que sí pueda moverse.
+  // Elefante y camello saltan a casillas fijas: con huecos pueden quedar encerrados a un par de
+  // saltos de casa. Se mira en el tablero vacío si llegan a las tres filas del fondo rival; si no,
+  // pasan a ser la primera pieza que sí llegue. El tablero es espejo, así que cambia en los dos bandos.
+  const reachesFoe = (p, t) => {
+    const seen = new Set([key(p.row, p.col)]), todo = [[p.row, p.col]];
+    while (todo.length) {
+      const [r, c] = todo.pop();
+      if (p.color === 'light' ? r <= 2 : r >= rows - 3) return true;
+      const q = { ...p, type: t, row: r, col: c };
+      for (const m of legalMoves(q, [q], board)) if (!seen.has(key(m.row, m.col))) { seen.add(key(m.row, m.col)); todo.push([m.row, m.col]); }
+    }
+    return false;
+  };
   for (const p of pieces) {
     if (p.type !== 'elephant' && p.type !== 'camel') continue;
-    const alone = (t) => { const q = { ...p, type: t }; return legalMoves(q, [q], board).length; };
-    if (!alone(p.type)) p.type = ['knight', 'bishop', 'guard', 'pawn'].find((t) => alone(t)) || p.type;
+    if (!reachesFoe(p, p.type)) p.type = ['knight', 'bishop', 'guard', 'pawn'].find((t) => reachesFoe(p, t)) || p.type;
   }
 
   if (playerCount === 3) {
@@ -339,9 +367,21 @@ function placeOnce(board, { playerCount, isBoss, isMiniBoss, elite, seed, mutati
         const set = new Set(), n = rng() < 0.35 ? 2 : 1;
         while (set.size < n) { const t = pickFrom(rng, extras); if (t !== p.type) set.add(t); }
         p.extraMoveTypes = [...set];
-        if (!legalMoves(p, pieces, board, ctx).some((m) => m.hits.some((v) => v.color === 'light'))) { p.lent = true; break; }
+        const king = pieces.find((x) => x.royal && x.color === 'light');
+        if (!legalMoves(p, pieces, board, ctx).some((m) => m.hits.some((v) => v.color === 'light')) && !(king && strikesSoon(p, king, pieces, board))) { p.lent = true; break; }
         delete p.extraMoveTypes;
       }
+    }
+  }
+
+  // Aquelarre: cada rival esconde una bruja dormida en la tierra de nadie, fuera del alcance de los demás.
+  if (modifier === 'coven') {
+    const ctx = ctxOf(pieces, board);
+    for (const color of [...new Set(pieces.map((p) => p.color))].filter((c) => c !== 'light')) {
+      const seen = new Set(pieces.filter((p) => p.color !== color).flatMap((f) => legalMoves(f, pieces, board, ctx).map((m) => key(m.row, m.col))));
+      const safe = [];
+      for (let r = 2; r < rows - 2; r++) for (let c = 0; c < cols; c++) if (valid(r, c) && !occupied(r, c) && !seen.has(key(r, c))) safe.push([r, c]);
+      if (safe.length) { const [r, c] = pickFrom(rng, safe); pieces.push(makePiece('queen', color, r, c, { witch: true, moves: ['rook2', 'bishop2', 'knight'] })); }
     }
   }
 
@@ -365,13 +405,31 @@ export function placeBoss(pieces, board, bossId) {
   for (let i = 0; i < h; i++) for (let j = 0; j < w; j++) cells.push(key(i, col + j));
   // Clear the footprint (a 3×3 may reach past the safe rows) and the old king: the boss is the new royal piece.
   cells.forEach((k) => board.holes.delete(k));
-  for (let i = pieces.length - 1; i >= 0; i--) {
-    const p = pieces[i];
-    if (p.color === 'dark' && (p.type === 'king' || cells.includes(key(p.row, p.col)))) pieces.splice(i, 1);
-  }
+  const king = pieces.findIndex((p) => p.color === 'dark' && p.type === 'king');
+  if (king >= 0) pieces.splice(king, 1);
   const boss = makePiece('boss-' + def.id, 'dark', 0, col, {
     boss: def.id, h, w, hp: def.hp, maxHp: def.hp, moves: [...def.moves], royal: true, name: def.name, absorb: !!def.absorb,
   });
+  // Lo que estaba en su sitio, o pegado a él, se aparta a la casilla libre más cercana de su campo
+  // en vez de desaparecer: el 3×3 del Gólem dejaba al jefe con cuatro piezas menos. Las de delante
+  // se apartan hasta que el jefe tenga dos salidas: dos de cada tres empezaban encerrados.
+  const taken = (r, c) => pieces.some((p) => cellsOf(p).some(([a, b]) => a === r && b === c));
+  const ring = (r, c) => r <= h && c >= col - 1 && c <= col + w;
+  const aside = (p) => {
+    const spots = [];
+    for (let r = 0; r < Math.max(board.protectRows ?? 2, h + 2); r++)
+      for (let c = 0; c < board.cols; c++) if (!board.holes.has(key(r, c)) && !taken(r, c) && !ring(r, c)) spots.push([r, c]);
+    const [r, c] = spots.sort((a, b) => Math.abs(a[0] - p.row) + Math.abs(a[1] - p.col) - Math.abs(b[0] - p.row) - Math.abs(b[1] - p.col))[0] || [];
+    if (r == null) pieces.splice(pieces.indexOf(p), 1);
+    else Object.assign(p, { row: r, col: c }, p.type === 'pawn' ? { startRow: r } : {});
+  };
+  pieces.filter((p) => p.color === 'dark' && cells.includes(key(p.row, p.col))).forEach(aside);
   pieces.push(boss);
+  const near = (p) => p.color === 'dark' && p !== boss && p.row <= h && p.col >= col - 1 && p.col <= col + w;
+  for (let k = 0; k < 6 && legalMoves(boss, pieces, board).length < 2; k++) {
+    const blocker = pieces.filter(near).sort((a, b) => b.row - a.row || Math.abs(a.col - col) - Math.abs(b.col - col))[0];
+    if (!blocker) break;
+    aside(blocker);
+  }
   return boss;
 }

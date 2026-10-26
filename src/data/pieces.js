@@ -20,6 +20,8 @@ export const PIECES = {
 const EXTRA_PATTERNS = { pawnBack: 'retroceso', rook2: 'torre corta', bishop2: 'alfil corto' };
 
 export const PIECE_TYPES = Object.keys(PIECES);
+// Piezas menores: las que la Plaga zombi levanta y el Contagio infecta (las mayores no caen en eso).
+export const MINOR_TYPES = ['pawn', 'knight', 'bishop', 'guard', 'advisor', 'elephant'];
 export const PIECE_NAMES = Object.fromEntries(PIECE_TYPES.map((t) => [t, PIECES[t].name]));
 export const PIECE_VALUE = Object.fromEntries(PIECE_TYPES.map((t) => [t, PIECES[t].value]));
 export const PIECE_RULES = PIECE_TYPES.map((t) => [t, PIECES[t].rule]);

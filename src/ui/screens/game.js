@@ -1,8 +1,7 @@
 // Game screen: the "director" that wires Match (rules) to BoardView (3D) and the HUD.
-import { html, useState, useEffect, useRef, motion, motionStagger } from '../lib.js';
+import { html, render, useState, useEffect, useRef, motion, motionStagger } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { TurnBanner, CardFace, MiniEnd } from '../components.js';
-import { isShopCard } from '../../game/shop.js';
 import { BoardView } from '../../view/board-view.js';
 import { artOf } from '../../view/piece-art.js';
 import { Match, botChooseMove } from '../../game/match.js';
@@ -20,6 +19,10 @@ import { PauseOverlay } from './overlays.js';
 import { Moments } from '../moments.js';
 import { playSfx } from '../sfx.js';
 import { award, seePieces, seeMutations } from '../../game/achievements.js';
+import { PICKUPS, dropPickups } from '../../data/pickups.js';
+import { PICKUP_ART } from '../zen-art.js';
+import { isShopCard, addCoins } from '../../game/shop.js';
+import { addZenSeeds, pickSeed, ZEN_NAMES } from '../../game/zen.js';
 
 const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
 
@@ -48,7 +51,8 @@ function cardEffect(card, piece, pv) {
 
 // `scenario` (un minijuego de src/data/scenarios.js ya armado): trae tablero, piezas, rival y objetivo
 // propios; el resto (vista, bot, avisos, demos) es el de cualquier piso.
-export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools, exitLabel }) {
+// `onRound(result)` (partida local): cuenta la ronda y devuelve la nota de la ficha final.
+export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools, exitLabel, onRound }) {
   const hostRef = useRef(null);
   const mainRef = useRef(null);
   const ref = useRef({}); // mutable director state: view, match, busy, selected
@@ -70,12 +74,12 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
 
   useEffect(() => {
     const d = ref.current;
-    const board = scenario?.board || generateBoard(node.seed, node.floor, run.map.floors, node.modifier);
-    const pieces = scenario?.pieces || placePieces(board, { playerCount: seats.length, isBoss: node.isBoss, isMiniBoss: node.isMiniBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses, floor: node.floor, totalFloors: run.map.floors });
+    const board = scenario?.board || generateBoard(node.seed, node.floor, run.map.floors, node.modifier, node.board);
+    const pieces = scenario?.pieces || placePieces(board, { modifier: node.modifier, playerCount: seats.length, isBoss: node.isBoss, isMiniBoss: node.isMiniBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses, floor: node.floor, totalFloors: run.map.floors });
     // El rival lo manda el tramo de la torre (difficulty.js); el ajuste de dificultad corre la
     // escalera y el mini-jefe sube un peldaño.
     const rival = scenario?.rival || rivalForFloor(node.floor, run.map.floors, { up: node.isMiniBoss ? 1 : 0, difficulty: run.tutorial ? 'facil' : settings.difficulty });
-    const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses, rival, objective: scenario?.objective, bonus: scenario?.bonus });
+    const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses, rival, objective: scenario?.objective, bonus: scenario?.bonus, tick: scenario?.tick });
     // Foto del bando humano al repartir: decide los logros de fin de partida.
     const human = seats.find((s) => s.kind === 'human')?.color || 'light';
     d.feats = { human, mine: new Set(pieces.filter((p) => p.color === human)), cards: 0, hadCards: d.hand.length > 0 };
@@ -228,6 +232,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
 
     const finish = async () => {
       const r = match.over;
+      if (onRound) r.note = onRound(r);
       if (!scenario) { if (r.victory) playSfx('win'); else if (!r.tie) playSfx('lose'); }
       const human = seats.find((s) => s.kind === 'human')?.color || 'light';
       if (r.victory && !scenario) {
@@ -260,12 +265,21 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       else if (res.victims.length) addLog(`${tag}${nm} captura ${res.victims.map((v) => (v.piece.boss ? v.piece.name : pieceName(v.piece).toLowerCase())).join(', ')}`);
       else if (res.castle) addLog(`${tag}Enroque`);
       else addLog(`${tag}${nm} mueve`);
-      if (res.zombie) addLog(`${tag}El peón caído se levanta como zombi`);
+      if (res.zombie) addLog(`${tag}${pieceName(res.zombie)} se levanta como zombi`);
+      if (res.infected?.length) addLog(`${tag}Contagio: ${res.infected.map((p) => pieceName(p).toLowerCase()).join(', ')} cambian de bando`);
       if (res.promoted) {
         addLog(`${tag}¡Coronación!`);
         if (piece.color === d.feats.human) award('crowned');
       }
       await d.view.playMove(res);
+      pickUp(piece);
+      if (res.woke?.length) {
+        const w = res.woke[0];
+        addLog(`${tag}¡La bruja despierta!`);
+        playSfx('stomp');
+        d.view.shake(10, 420);
+        d.moments.callout({ text: '¡La bruja despierta!', sub: 'La miraste: ahora va a por ti', piece: { type: artOf(w), side: w.color }, tone: 'danger', anim: 'tremble', tier: 'major' });
+      }
       const fallenBoss = res.victims.find((v) => v.killed && v.piece.boss)?.piece;
       if (fallenBoss) {
         playSfx('shatter');
@@ -278,10 +292,43 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         d.moments.callout({ text: '¡Derrumbe!', sub: 'El borde cae al vacío', icon: 'collapse', tone: 'danger', anim: 'crumble', tier: 'major' });
         await d.view.collapse(after.collapse);
       }
+      await showTick(after.tick);
       d.busy = false;
       if (match.over) return finish(), true;
       startTurn(after.ended);
       return true;
+    };
+
+    // Lo que un minijuego hizo al cambiar de turno (match.tick): piezas que llegan, casillas que se hunden.
+    const showTick = async (tick) => {
+      if (!tick) return;
+      const { spawned = [], sunk = [], fallen = [] } = tick;
+      await Promise.all([...spawned.map((p) => d.view.dropIn(p)), ...fallen.map((p) => d.view.kill(p, p, p)), sunk.length && d.view.collapse(sunk)]);
+    };
+
+    // Coleccionables: caen una vez por piso, después del primer «Tu turno», para no frenar la entrada.
+    const dropProps = () => {
+      if (d.props || scenario || node.versus) return;
+      d.props = new Map();
+      for (const { id, row, col } of dropPickups(board, match.pieces)) {
+        const el = d.view.addProp(row, col, id);
+        render(PICKUP_ART[id] || html`<${Icon} name=${id} size=${24} />`, el);
+        d.props.set(key(row, col), { id, el });
+      }
+    };
+    const pickUp = (piece) => {
+      if (!d.props?.size) return;
+      for (const [k, prop] of d.props) {
+        const onIt = piece.row + ',' + piece.col === k, sunk = board.holes.has(k);
+        if (!onIt && !sunk) continue;
+        d.props.delete(k);
+        const mine = onIt && piece.color === human, it = PICKUPS[prop.id];
+        d.view.takeProp(prop.el, mine);
+        if (!mine) { if (onIt) addLog(`${pieceName(piece)} rival se lleva: ${it.name.toLowerCase()}`); continue; }
+        playSfx('coin');
+        if (it.coins) { addCoins(it.coins); addLog(`${it.name}: +${it.coins} monedas`); }
+        if (it.seed) { const kind = pickSeed(); addZenSeeds(kind, it.seed); addLog(`Semilla de ${ZEN_NAMES[kind].toLowerCase()} para el jardín`); }
+      }
     };
 
     const startTurn = (newTurn = true) => {
@@ -290,8 +337,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (!match.canMove()) {
         addLog(`${p.name} no puede moverse`);
         const a = match.afterMove({ pass: true });
-        if (match.over) return finish();
-        return setTimeout(() => startTurn(a.ended), 400);
+        return showTick(a.tick).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
       }
       if (p.kind === 'bot') {
         // The bot waits for the labels on screen: its move used to land under a collapse or a capture.
@@ -309,7 +355,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (p.kind === 'human' && newTurn && !warned && seats.length > 1) {
         // Let queued callouts (capture, collapse, jaque) finish before "Tu turno", so nothing overlaps.
         const text = seats.filter((s) => s.kind === 'human').length > 1 ? `Turno de ${p.name}` : 'Tu turno';
-        d.moments.whenIdle().then(() => setBanner({ key: Date.now(), text, side: p.color }));
+        d.moments.whenIdle().then(() => { setBanner({ key: Date.now(), text, side: p.color }); setTimeout(() => !d.dead && dropProps(), 900); });
       }
     };
 
@@ -398,6 +444,15 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       seeMutations(run.mutations || []);
       for (const id of takeNewDemos(run)) await playDemo(d.moments, mutationDemo(id, human));
       if (boss && !loadBosses().includes(boss.boss)) await playDemo(d.moments, bossDemo(boss.boss, boss.color));
+    };
+    // Cara o cruz (ajuste de la mesa): cara empieza el primer asiento; cruz, el siguiente.
+    const tossCoin = () => {
+      if (!settings.coin || scenario || seats.length < 2) return;
+      const heads = Math.random() < 0.5, starter = seats[heads ? 0 : 1];
+      match.current = heads ? 0 : 1;
+      addLog(`${heads ? 'Cara' : 'Cruz'}: empieza ${starter.name}`);
+      playSfx('select');
+      return d.moments.coin({ heads, title: heads ? 'Cara' : 'Cruz', sub: starter.name === 'Tú' ? 'Empiezas tú' : `Empieza ${starter.name}` });
     };
     const beginPlacing = () => {
       if (d.hand.indexOf('organize') < 0 || !mine.size) { d.busy = false; return startTurn(); }
@@ -505,6 +560,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     ])
       .then(() => boss && d.moments.cinematic({ title: boss.name, sub: bossSub, piece: { type: artOf(boss), side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger', anim: 'stomp' }))
       .then(() => playDemos(boss))
+      .then(() => tossCoin())
       .then(() => beginPlacing());
     const onKey = (e) => e.key === 'Escape' && setPaused((v) => !v);
     addEventListener('keydown', onKey);

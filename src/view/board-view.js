@@ -6,6 +6,8 @@ import { pieceSVG, headTop, artOf } from './piece-art.js';
 import { Fx } from './fx.js';
 import { playSfx } from '../ui/sfx.js';
 import { key, cellsOf, sizeOf, portalAt } from '../game/rules.js';
+import { render } from '../ui/lib.js';
+import { boardPond } from '../ui/zen-art.js';
 
 export const CAMERAS = { flat: 0, tilt: 40, epic: 56 };
 const JUMPERS = new Set(['knight', 'camel', 'elephant']);
@@ -30,6 +32,7 @@ const BADGES = {
   lock: '<svg viewBox="0 0 24 24"><path d="M7 10V7.5a5 5 0 0 1 10 0V10h-2.6V7.5a2.4 2.4 0 0 0-4.8 0V10z"/><rect x="4.5" y="10" width="15" height="11.5" rx="2.5"/></svg>',
   last: '<svg viewBox="0 0 24 24"><path d="M5 2.5h2.6v19H5z"/><path d="M7.6 3.5h11.9l-2.6 4 2.6 4H7.6z"/></svg>',
   lent: '<svg viewBox="0 0 24 24"><path d="M12 1.8l2.6 7 7.4.4-5.7 4.7 1.9 7.2L12 17l-6.2 4.1 1.9-7.2L2 9.2l7.4-.4z"/></svg>',
+  eye: '<svg viewBox="0 0 24 24"><path d="M12 5C6.5 5 2.7 9.2 1.5 12c1.2 2.8 5 7 10.5 7s9.3-4.2 10.5-7C21.3 9.2 17.5 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/><circle cx="12" cy="12" r="2"/></svg>',
   mut: '<svg viewBox="0 0 24 24"><path d="M9 2.5h6v2h-1v4.6l5.7 9.4c1 1.7-.2 3.5-2 3.5H6.3c-1.8 0-3-1.8-2-3.5L10 9.1V4.5H9z"/></svg>',
 };
 
@@ -165,9 +168,51 @@ export class BoardView {
       this.tiles.set(key(r, c), t);
     }
     this.tilesEl.appendChild(frag);
+    this.pond(board);
     this.gooEl.setAttribute('viewBox', `0 0 ${cols} ${rows}`); // one unit = one tile
     this.refreshEdges();
     this.layout();
+  }
+
+  // Centro abierto: si el hueco del medio está casi lleno, se vuelve un estanque con dos koi.
+  pond({ rows, cols, holes }) {
+    const mid = [...holes].map((k) => k.split(',').map(Number)).filter(([r, c]) => Math.abs(r - (rows - 1) / 2) <= rows * 0.2 && Math.abs(c - (cols - 1) / 2) <= cols * 0.2);
+    if (mid.length < 2) return;
+    const rs = mid.map(([r]) => r), cs = mid.map(([, c]) => c);
+    const [r0, r1, c0, c1] = [Math.min(...rs), Math.max(...rs), Math.min(...cs), Math.max(...cs)];
+    if (mid.length < (r1 - r0 + 1) * (c1 - c0 + 1) * 0.7) return;
+    for (const [r, c] of mid) {
+      const w = document.createElement('div');
+      w.className = 'pond-tile';
+      w.style.setProperty('--r', r); w.style.setProperty('--c', c);
+      this.tilesEl.appendChild(w);
+    }
+    const el = document.createElement('div');
+    el.className = 'pond';
+    Object.entries({ '--r': r0, '--c': c0, '--h': r1 - r0 + 1, '--w': c1 - c0 + 1 }).forEach(([k, v]) => el.style.setProperty(k, v));
+    this.tilesEl.appendChild(el);
+    render(boardPond, el);
+  }
+
+  // Objetos tumbados sobre una casilla (los coleccionables): caen rebotando; devuelve el elemento.
+  addProp(row, col, cls) {
+    const el = document.createElement('div');
+    el.className = 'prop ' + cls;
+    el.style.setProperty('--r', row); el.style.setProperty('--c', col);
+    this.tilesEl.appendChild(el);
+    if (!reduced()) animate(el, { translateZ: [this.sq * 1.2, 0], opacity: [0, 1], duration: this.d(520), ease: 'outBounce' });
+    return el;
+  }
+
+  // Recogido sube girando con chispas; perdido se encoge.
+  async takeProp(el, mine) {
+    if (mine) {
+      const c = this.fx.pointOf(el);
+      this.fx.burst(c.x, c.y, { count: 14, color: ['#ffd36b', '#fff2c2', '#fff'], speed: [50, 180], size: [2, 4], life: [0.3, 0.6], shape: 'spark' });
+    }
+    await animate(el, mine ? { translateZ: [0, this.sq * 1.4], rotate: [0, 360], opacity: [1, 0], duration: this.d(520), ease: 'outQuad' }
+      : { scale: [1, 0], opacity: [1, 0], duration: this.d(260), ease: 'inQuad' });
+    el.remove();
   }
 
   // Tiles whose south neighbour is missing show their thickness.
@@ -188,7 +233,7 @@ export class BoardView {
   addPiece(p) {
     const el = document.createElement('div');
     const [h, w] = sizeOf(p);
-    el.className = `pc side-${p.color}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}${p.disc ? ' disc' : ''}${p.crown ? ' crown' : ''}`;
+    el.className = `pc side-${p.color}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}${p.infected ? ' infected' : ''}${p.disc ? ' disc' : ''}${p.crown ? ' crown' : ''}`;
     el.dataset.pid = p.id;
     el.style.setProperty('--h', h); el.style.setProperty('--w', w);
     el.style.setProperty('--s', h * w > 1 ? Math.max(h, w) * 0.85 : 1); // multi-cell figures read bigger than one tile
@@ -225,9 +270,12 @@ export class BoardView {
       const on = isImmune(p);
       const mut = !on && !!p.extraMoveTypes?.length;
       // Flask = the player's run mutation; star = moves lent by a card or a boss.
-      const kind = on ? (p.trait === 'last' ? 'last' : 'lock') : mut ? (p.mutationExtras?.length ? 'mut' : 'lent') : '';
-      el.classList.toggle('guarded', on);
-      el.classList.toggle('mutated', mut);
+      const kind = p.witch ? 'eye' : on ? (p.trait === 'last' ? 'last' : 'lock') : mut ? (p.mutationExtras?.length ? 'mut' : 'lent') : '';
+      el.classList.toggle('guarded', on && !p.witch);
+      el.classList.toggle('mutated', mut && !p.witch);
+      // Bruja: ojo rojo, que se enciende al despertar.
+      el.classList.toggle('witch', !!p.witch);
+      el.classList.toggle('awake', !!p.awake);
       const badge = el.querySelector('.pc-badge');
       if (badge && badge.dataset.kind !== kind) { badge.dataset.kind = kind; badge.innerHTML = kind ? BADGES[kind] : ''; }
       const escort = on && p.escort && pieces.find((o) => o.id === p.escort);
@@ -543,6 +591,22 @@ export class BoardView {
     animate(stand, { scaleY: [amt, 1.08, 1], scaleX: [1 + (1 - amt) * 0.6, 0.96, 1], duration: this.d(380), ease: 'outQuad' });
   }
 
+  // Estirar en vuelo: la figura se alarga con la velocidad (más deprisa, más larga y más fina) y,
+  // en vector, se inclina hacia donde va. En píxel no se inclina: los sprites girados se deshacen.
+  stretcher(fig, st) {
+    const tilt = document.documentElement.dataset.art !== 'pixel';
+    let last = { r: st.r, c: st.c, z: st.z, t: performance.now() };
+    return () => {
+      const now = performance.now(), dt = Math.max(8, now - last.t) * this.speed;
+      const vx = ((st.c - last.c) * this.sq) / dt, vy = ((st.r - last.r) * this.sq) / dt, vz = (st.z - last.z) / dt;
+      last = { r: st.r, c: st.c, z: st.z, t: now };
+      let k = Math.min(0.26, Math.hypot(vx, vy, vz) * 0.45);
+      if (!tilt) k = Math.round(k * 8) / 8; // en píxel, a escalones de un píxel de sprite
+      fig.style.scale = `${(1 / Math.sqrt(1 + k)).toFixed(3)} ${(1 + k).toFixed(3)}`;
+      if (tilt) fig.style.rotate = `${Math.max(-12, Math.min(12, vx * 26)).toFixed(1)}deg`;
+    };
+  }
+
   // Organizar: dos piezas propias cambian de casilla con un arco corto y aterrizan con aplomo.
   async swapPieces(a, b) {
     const sa = this.state.get(a), sb = this.state.get(b);
@@ -587,14 +651,17 @@ export class BoardView {
     const fig = this.els.get(piece)?.querySelector('.pc-fig');
     if (fig && !reduced()) {
       await animate(fig, { scaleY: 0.86, scaleX: 1.08, duration: this.d(80), ease: 'outQuad' });
-      animate(fig, { scaleY: [0.86, 1.06, 1], scaleX: [1.08, 0.96, 1], duration: this.d(260), ease: 'outQuad' });
+      animate(fig, { scaleY: 1, scaleX: 1, duration: this.d(120), ease: 'outQuad' });
     }
     // Jumpers fly over what is in between: a puddle oozing along the L would hide the jump.
-    if (!reduced() && !jumper) await this.liquid(piece, from, to, dur);
+    // El charco líquido es un filtro de desenfoque: en las mesas píxel la pieza salta sin él.
+    if (!reduced() && !jumper && document.documentElement.dataset.art !== 'pixel') await this.liquid(piece, from, to, dur);
+    const stretch = fig && !reduced() ? this.stretcher(fig, st) : null;
     await animate(st, {
       r: to.row, c: to.col, z: [0, arc, 0], duration: dur,
-      ease: 'inOutSine', onUpdate: () => this.apply(piece),
+      ease: 'inOutSine', onUpdate: () => { this.apply(piece); stretch?.(); },
     });
+    if (fig) fig.style.scale = fig.style.rotate = '';
     const c = this.centerOf(piece);
     // El sonido va al aterrizar, no al decidir la jugada: así se oye cuando se ve el golpe.
     playSfx(piece.boss ? 'stomp' : victims.length ? 'capture' : 'move');
@@ -605,6 +672,7 @@ export class BoardView {
     if (victims.length) await this.hitStop(victims, victims.some((v) => v.piece.royal) || victims.length > 1 ? 160 : 70);
     await Promise.all(victims.map((v) => this.kill(v.piece, from, to)));
     if (res.zombie) await this.rise(res.zombie);
+    if (res.infected?.length) await this.infect(res.infected);
     if (res.slide) await this.slide(piece, res.slide);
     if (res.portal) await this.warp(piece, res.portal);
     if (res.unmasked) {
@@ -672,10 +740,18 @@ export class BoardView {
     this.gooEl.appendChild(g);
     const [neck, tail, head] = g.querySelectorAll('polyline, ellipse');
     const s = { head: 0, tail: 0 };
+    // El charco conserva su volumen: cuanto más se estira, más fino el cuello; la cabeza se
+    // alarga hacia donde corre y la cola se encoge mientras se vacía.
+    const r0 = Math.min(rx, ry), dir = (t) => { const [a, b] = [point(Math.max(0, t - 0.02)), point(Math.min(1, t + 0.02))]; return (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI; };
     const draw = () => {
       const [hx, hy] = point(s.head), [tx, ty] = point(s.tail);
+      const len = (s.head - s.tail) * total, thin = 1 / (1 + 0.45 * len), lead = 1 + 0.35 * Math.min(1, len);
       head.setAttribute('cx', hx); head.setAttribute('cy', hy);
+      head.setAttribute('rx', rx * lead); head.setAttribute('ry', ry / Math.sqrt(lead));
+      head.setAttribute('transform', `rotate(${dir(s.head)} ${hx} ${hy})`);
       tail.setAttribute('cx', tx); tail.setAttribute('cy', ty);
+      tail.setAttribute('rx', rx * (0.55 + 0.45 * thin)); tail.setAttribute('ry', ry * (0.55 + 0.45 * thin));
+      neck.setAttribute('stroke-width', r0 * Math.max(0.42, 1.1 * thin));
       neck.setAttribute('points', route(s.tail, s.head).map((q) => q.join(',')).join(' '));
     };
     draw();
@@ -686,7 +762,11 @@ export class BoardView {
       base.style.opacity = '';
       animate(base, { scaleX: [1.16, 0.95, 1], scaleY: [0.86, 1.04, 1], duration: this.d(320), ease: 'outQuad' });
     } });
-    return animate(s, { head: 1, duration: reach, ease: 'outExpo', onUpdate: draw }).then(() => {});
+    // Al llegar, unas gotas saltan del frente del charco.
+    return animate(s, { head: 1, duration: reach, ease: 'outExpo', onUpdate: draw }).then(() => {
+      const c = this.centerOf(p, to.row, to.col);
+      this.fx.burst(c.x, c.y, { count: 8, color: [css('--side-' + p.color)], speed: [40, 120], size: [2, 4], life: [0.25, 0.5], gravity: 500 });
+    });
   }
 
   // Ice: the piece keeps going one tile, skating low with frost spraying behind it.
@@ -843,6 +923,18 @@ export class BoardView {
   }
 
   // Plaga zombi: el peón sale de la tierra en verde, sacudiéndose, con esporas alrededor.
+  // Contagio: la pieza vira al bando nuevo con una nube verde.
+  async infect(pieces) {
+    playSfx('zombie');
+    for (const p of pieces) {
+      const c = this.centerOf(p);
+      this.fx.burst(c.x, c.y - this.sq * 0.3, { count: 14, color: [css('--side-zombie'), 'oklch(0.82 0.12 128)'], speed: [30, 120], life: [0.4, 0.8], size: [3, 6], gravity: -80, drag: 0.9 });
+      this.remake(p);
+      this.squash(p, 0.75);
+    }
+    await wait(this.d(260));
+  }
+
   async rise(p) {
     const el = this.addPiece(p), st = this.state.get(p);
     const c = this.centerOf(p);

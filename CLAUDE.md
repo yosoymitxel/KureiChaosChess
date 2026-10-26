@@ -9,7 +9,7 @@ Lanzamiento cercano: cambios acotados.
 - `src/data/`: lo que crece. `pieces.js`, `bosses.js`, `mutations.js`, `modifiers.js` (mecánicas y
   minijuegos), `themes.js` (mesas), `pixel-packs.js`/`pixel-themes.js` (generados).
 - `src/game/`: lógica pura (`rules.js`, `match.js`, `run.js`, `achievements.js`, un archivo por minijuego).
-- `src/ui/`: `app.js` (pantallas, `MINI_SCREENS`), `screens/*.js`, `components.js`, `icons.js` (vector)
+- `src/ui/`: `app.js` (pantallas; los minijuegos en `src/data/minigame-catalog.js`), `screens/*.js`, `components.js`, `icons.js` (vector)
   + `pixel-icons.js` (generado), `demos.js` (demos de pieza/mutación/jefe), `sfx.js` (efectos y música),
   `moments.js` (cinemáticas y demos), `zen-art.js`.
 - `src/view/`: tablero (`board-view.js`), `piece-art.js`, `piece-bodies.js` (generado), `fx.js`.

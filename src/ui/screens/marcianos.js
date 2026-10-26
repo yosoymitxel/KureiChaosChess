@@ -5,6 +5,7 @@ import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { WAVES, DIFFS, newMarcianos, step } from '../../game/marcianos.js';
 import { hopPiece } from '../hop.js';
+import { MODIFIERS } from '../../data/modifiers.js';
 
 // Flechas o A/D mueven el cañón; espacio dispara y S o flecha abajo esperan.
 const KEYS = { arrowleft: -1, a: -1, arrowright: 1, d: 1 };
@@ -71,7 +72,7 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
   const zapped = (r, c) => s.zaps.some((z) => z.row === r && z.col === c);
 
   return html`<div class="screen mini">
-    <${Topbar} title="Matamarcianos" sub=${sub} onBack=${onBack} />
+    <${Topbar} title=${MODIFIERS.marcianos.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
         <div class="mini-stage">
@@ -106,7 +107,7 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
                 <button class="btn sm primary" onClick=${() => act({ shoot: true })}><${Icon} name="cannon" size=${16} />Disparar</button>
               </div>
             </div>`}
-          <${MiniTools} mini="marcianos" title="Matamarcianos" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve con las flechas o A/D, dispara con espacio y espera con S. Cada pieza baja a su manera: el peón recto, el caballo cambiando de columna, el alfil en diagonal y el elefante a veces de dos en dos. Desde la segunda oleada disparan proyectiles: apártate de su columna. Tras tres oleadas llega la gran horda; si un carmesí pisa tu fila, pierdes una vida.<//>
+          <${MiniTools} mini="marcianos" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve con las flechas o A/D, dispara con espacio y espera con S. Cada pieza baja a su manera: el peón recto, el caballo cambiando de columna, el alfil en diagonal y el elefante a veces de dos en dos. Desde la segunda oleada disparan proyectiles: apártate de su columna. Tras tres oleadas llega la gran horda; si un carmesí pisa tu fila, pierdes una vida.<//>
         </div>
       </div>
     </div>

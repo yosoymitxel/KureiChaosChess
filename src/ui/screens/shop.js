@@ -5,9 +5,10 @@ import { Icon } from '../icons.js';
 import { CARDS, HAND_LIMIT } from '../../game/cards.js';
 import { THEMES } from '../../data/themes.js';
 import { award } from '../../game/achievements.js';
-import { CARD_PRICE, COINS_PER_FLOWER, COINS_PER_NODE, PENDING_LIMIT, SEED_PRICE, THEME_SHOP, addPending, addToHand, consumeCard, charge, grantTheme, isShopCard, loadShop, themeOwned } from '../../game/shop.js';
-import { ZEN_KINDS, ZEN_NAMES, addZenSeeds, loadZen } from '../../game/zen.js';
-import { chipArt } from '../zen-art.js';
+import { CARD_PRICE, COINS_PER_NODE, PENDING_LIMIT, THEME_SHOP, addPending, addToHand, consumeCard, charge, grantTheme, isShopCard, loadShop, themeOwned } from '../../game/shop.js';
+import { ZEN_KINDS, ZEN_NAMES, addZenSeeds, addZenItem, loadZen } from '../../game/zen.js';
+import { SEEDS, GARDEN_ITEMS } from '../../data/garden.js';
+import { chipArt, ITEM_ART } from '../zen-art.js';
 import { playSfx } from '../sfx.js';
 
 const CARD_LIST = Object.values(CARDS);
@@ -17,6 +18,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
   useEnter(ref);
   const [shop, setShop] = useState(loadShop);
   const [seeds, setSeeds] = useState(() => loadZen().seeds);
+  const [items, setItems] = useState(() => loadZen().items);
   const refresh = () => setShop(loadShop());
 
   const [swap, setSwap] = useState(null); // carta por comprar con la mano llena: antes se elige cuál sale
@@ -44,8 +46,14 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
     refresh();
   };
   const buySeed = (kind) => {
-    if (!charge(SEED_PRICE)) return;
+    if (!charge(SEEDS[kind].price)) return;
     setSeeds(addZenSeeds(kind, 1));
+    playSfx('coin');
+    refresh();
+  };
+  const buyItem = (id) => {
+    if (!charge(GARDEN_ITEMS[id].price)) return;
+    setItems(addZenItem(id));
     playSfx('coin');
     refresh();
   };
@@ -58,7 +66,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
     </${Topbar}>
     <div class="mini-body shop-body">
       <div class="shop-main">
-        <p class="mini-help">Cada flor del Jardín Zen paga ${COINS_PER_FLOWER} monedas y cada victoria de la travesía deja de ${COINS_PER_NODE.normal} a ${COINS_PER_NODE.boss}. Aquí se cambian por cartas, mesas y semillas.</p>
+        <p class="mini-help">Cada flor del Jardín Zen paga de ${SEEDS.romero.pays} a ${SEEDS.lavanda.pays} monedas y cada victoria de la travesía deja de ${COINS_PER_NODE.normal} a ${COINS_PER_NODE.boss}. Aquí se cambian por cartas, mesas y semillas.</p>
 
         <section class="panel shop-card shop-pane-hand" data-enter>
           <h2>${run ? 'Tu mano en la run' : 'Para la próxima run'}</h2>
@@ -93,12 +101,22 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
           <h2>Semillas</h2>
           <p class="shop-note">Una semilla por siembra en el Jardín Zen; también caen al ganar nodos de la travesía.</p>
           ${ZEN_KINDS.map((k) => {
-            const can = shop.coins >= SEED_PRICE;
+            const can = shop.coins >= SEEDS[k].price;
             return html`<div class="shop-row">
               <span class=${'mod-icon seed-icon zn-k-' + k}>${chipArt(k)}</span>
-              <div class="shop-info"><strong>Semilla de ${ZEN_NAMES[k]}</strong><small>En la bolsa del jardín: ${seeds[k] || 0}.</small></div>
-              <span class="price"><${Icon} name="coin" size=${14} />${SEED_PRICE}</span>
+              <div class="shop-info"><strong>Semilla de ${ZEN_NAMES[k]} · ${SEEDS[k].rarity}</strong><small>${SEEDS[k].desc} Paga ${SEEDS[k].pays}. En la bolsa: ${seeds[k] || 0}.</small></div>
+              <span class="price"><${Icon} name="coin" size=${14} />${SEEDS[k].price}</span>
               <button class="btn sm" disabled=${!can} title=${can ? '' : 'Faltan monedas'} onClick=${() => buySeed(k)}>Comprar</button>
+            </div>`;
+          })}
+          <h2>Para el jardín</h2>
+          ${Object.values(GARDEN_ITEMS).map((it) => {
+            const owned = !it.stack && items[it.id], can = !owned && shop.coins >= it.price;
+            return html`<div class="shop-row">
+              <span class="mod-icon seed-icon zn-item">${ITEM_ART[it.id]}</span>
+              <div class="shop-info"><strong>${it.name}</strong><small>${it.desc}${it.stack && items[it.id] ? ` Por poner: ${items[it.id]}.` : ''}</small></div>
+              ${owned ? html`<span class="price">Tuya</span>` : html`<span class="price"><${Icon} name="coin" size=${14} />${it.price}</span>`}
+              <button class="btn sm" disabled=${!can} title=${owned ? 'Ya la tienes' : can ? '' : 'Faltan monedas'} onClick=${() => buyItem(it.id)}>Comprar</button>
             </div>`;
           })}
         </section>

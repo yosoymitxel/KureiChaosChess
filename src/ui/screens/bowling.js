@@ -6,6 +6,7 @@ import { Fx } from '../../view/fx.js';
 import { playSfx } from '../sfx.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { LAUNCH_COLS, DIFFS, newBowling, launch, tick } from '../../game/bowling.js';
+import { MODIFIERS } from '../../data/modifiers.js';
 
 const TICK_MS = 280;
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -171,7 +172,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
   const next = s.belt[0];
 
   return html`<div class="screen mini">
-    <${Topbar} title="Bolos de nuez" sub=${sub} onBack=${onBack} />
+    <${Topbar} title=${MODIFIERS.bowling.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
         <${MiniGrid} rows=${s.rows} cols=${s.cols} cell=${cell} disabled=${!!s.over} label="Bolera" gridRef=${gridRef} boardClass="bm-slab bw"
@@ -190,7 +191,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
             <span class="bw-belt-row">${Array.from({ length: 4 }, (_, i) => html`<i class=${'bw-slot' + (s.belt[i] ? ' on ' + s.belt[i] : '') + (i === 0 ? ' first' : '')} />`)}</span>
           </div>`}
           ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Aguantaste la gran horda: ${s.down} piezas derribadas${s.best > 1 ? `, con una cadena de ×${s.best}` : ''}.` : 'Una pieza llegó a tu borde.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
-          <${MiniTools} mini="bowling" title="Bolos de nuez" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Las piezas carmesí cruzan de derecha a izquierda. La cinta te trae fichas: toca una casilla antes de la línea roja (o pulsa el número del carril) para lanzar la primera. Al chocar, la ficha rebota en diagonal y puede encadenar golpes. La explosiva, en bermellón, limpia un 3×3. El peón cae al primer golpe; el caballo aguanta 2 y salta la primera ficha, el alfil aguanta 2, la torre 3 y la reina 4, y se apura al recibir el primero.<//>
+          <${MiniTools} mini="bowling" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Las piezas carmesí cruzan de derecha a izquierda. La cinta te trae fichas: toca una casilla antes de la línea roja (o pulsa el número del carril) para lanzar la primera. Al chocar, la ficha rebota en diagonal y puede encadenar golpes. La explosiva, en bermellón, limpia un 3×3. El peón cae al primer golpe; el caballo aguanta 2 y salta la primera ficha, el alfil aguanta 2, la torre 3 y la reina 4, y se apura al recibir el primero.<//>
         </div>
       </div>
     </div>
