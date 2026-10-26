@@ -32,5 +32,4 @@ export const MatesScreen = screen('mates');
 export const BlizzardScreen = screen('blizzard');
 export const OutbreakScreen = screen('outbreak');
 export const ClockScreen = screen('clock');
-export const BlindScreen = screen('blind');
 export const WitchScreen = screen('witch');

@@ -6,6 +6,9 @@ import { pieceSVG } from '../../view/piece-art.js';
 import { WAVES, DIFFS, newMarcianos, step } from '../../game/marcianos.js';
 import { hopPiece } from '../hop.js';
 import { MODIFIERS } from '../../data/modifiers.js';
+import { Fx } from '../../view/fx.js';
+
+const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 // Flechas o A/D mueven el cañón; espacio dispara y S o flecha abajo esperan.
 const KEYS = { arrowleft: -1, a: -1, arrowright: 1, d: 1 };
@@ -16,12 +19,22 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
   const [, tick] = useState(0);
   const gridRef = useRef(null);
   const hops = useRef(null); // saltos del último tic: quién se movió y de dónde a dónde
+  const shots = useRef(null); // disparo de este tic: { col, hit } para el rayo del cañón
+  const fx = useRef(null);
+  useEffect(() => () => fx.current?.destroy(), []);
 
   const snap = () => ({ player: s.player.col, enemies: s.enemies.map((e) => ({ id: e.id, row: e.row, col: e.col })) });
   const act = (a) => {
     const before = snap(), lives = s.lives;
     if (!step(s, a)) return;
-    if (a.shoot) playSfx('laser');
+    if (a.shoot) {
+      playSfx('laser');
+      // El rayo sube del cañón hasta lo que derriba en su columna, o hasta donde llega el proyectil.
+      const zap = s.zaps.find((z) => z.col === before.player && z.row < s.playerRow);
+      const ball = s.shots.find((x) => x.col === before.player);
+      shots.current = { col: before.player, row: zap ? zap.row : ball ? ball.row : 0, hit: !!zap };
+    }
+    if (s.zaps.length) shots.current = { ...(shots.current || {}), zaps: s.zaps.slice() };
     if (s.zaps.length) playSfx(s.lives < lives ? 'hit' : 'crunch');
     const after = snap(), moved = [];
     if (after.player !== before.player) moved.push({ sel: '.bm-pc.me', from: { row: s.playerRow, col: before.player }, to: { row: s.playerRow, col: after.player }, side: 'light' });
@@ -61,10 +74,19 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
 
   // Después de repintar, las fichas que se movieron saltan con su charco (criterio del tablero).
   useLayoutEffect(() => {
+    const shot = shots.current, grid = gridRef.current;
+    if (shot && grid) {
+      shots.current = null;
+      const f = (fx.current ||= new Fx(grid)), cell = (r, c) => grid.querySelector(`.bm-cell:nth-child(${r * s.cols + c + 1})`);
+      if (shot.col != null) {
+        const a = f.pointOf(cell(s.playerRow, shot.col), 0.3), b = f.pointOf(cell(shot.row, shot.col), 0.5);
+        f.beam(a.x, a.y, b.x, b.y, { color: css('--brass'), width: 5 });
+      }
+      for (const z of shot.zaps || []) { const p = f.pointOf(cell(z.row, z.col)); setTimeout(() => f.debris(p.x, p.y, css(z.row === s.playerRow ? '--side-light' : '--side-dark')), 120); }
+    }
     const moved = hops.current;
     if (!moved?.length) return;
     hops.current = null;
-    const grid = gridRef.current;
     for (const m of moved) hopPiece(grid, grid?.querySelector(m.sel), { ...m, cols: s.cols, rows: s.rows });
   });
 

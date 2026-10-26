@@ -822,6 +822,16 @@ export class BoardView {
     const c = this.centerOf(p); this.fx.dust(c.x, c.y, 0.9); this.squash(p, 0.7);
   }
 
+  // Se esconde sin caer (Damas a ciegas): se hunde en su casilla y se desvanece.
+  async vanish(p) {
+    const el = this.els.get(p), st = this.state.get(p);
+    if (!el) return;
+    animate(el, { opacity: [1, 0], duration: this.d(380) });
+    await animate(st, { z: -this.sq * 0.3, duration: this.d(380), ease: 'inQuad', onUpdate: () => this.apply(p) });
+    el.remove();
+    this.els.delete(p); this.state.delete(p);
+  }
+
   // Visual side of a played card (game/cards.js result).
   async applyCard(res) {
     const id = res.card.id, p = res.piece;

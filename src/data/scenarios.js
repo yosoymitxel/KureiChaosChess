@@ -529,48 +529,6 @@ Object.assign(SCENARIOS, {
       return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Pasaste sin despertarlas… o sin que te alcanzaran.' });
     }),
   },
-  blind: {
-    id: 'blind',
-    modifier: 'fog',
-    goal: 'Alfiles a ciegas: todos caen al azar y la niebla no deja ver a los rivales. Captúralos antes de que el tablero se encoja del todo; el borde se hunde cada pocas rondas.',
-    levels: {
-      facil: { n: 10, mine: 2, foes: 3, every: 3, rival: 'aprendiz' },
-      normal: { n: 11, mine: 2, foes: 4, every: 2, rival: 'oficial' },
-      dificil: { n: 12, mine: 2, foes: 5, every: 2, rival: 'oficial' },
-    },
-    setup(lv, rng) {
-      const b = board(lv.n), pieces = [];
-      // Al azar, pero sin nadie a tiro en la primera jugada.
-      for (;;) {
-        pieces.length = 0;
-        for (const [color, n] of [['light', lv.mine], ['dark', lv.foes]])
-          for (const [r, c] of shuffle(rng, freeTiles(b, pieces)).slice(0, n)) pieces.push(makePiece('bishop', color, r, c));
-        if (!pieces.some((p) => legalMoves(p, pieces, b).some((m) => m.hits.length))) break;
-      }
-      let ring = 0, lastSink = 0;
-      const mine = (m) => side(m, 'light').length, foes = (m) => side(m, 'dark').length;
-      const minSide = () => lv.n - 2 * ring <= 4;
-      return {
-        board: b, pieces, rival: lv.rival,
-        objective: (m) => !mine(m) ? { victory: false, note: 'Cayeron tus alfiles.' }
-          : !foes(m) ? { victory: true, note: 'Ni uno en pie.' }
-          : minSide() ? (mine(m) > foes(m) ? { victory: true, note: 'Quedaste con más alfiles al cerrarse el tablero.' } : { victory: false, note: 'El tablero se cerró y no les ganaste.' })
-          : null,
-        tick: (m) => {
-          const now = rounds(m);
-          if (m.player.color !== 'light' || now === lastSink || now % lv.every) return null;
-          lastSink = now;
-          const k = ring++, n = lv.n, sunk = [];
-          for (let r = 0; r < n; r++) for (let c = 0; c < n; c++)
-            if ((r === k || c === k || r === n - 1 - k || c === n - 1 - k) && Math.min(r, c, n - 1 - r, n - 1 - c) === k && !b.holes.has(key(r, c))) { b.holes.add(key(r, c)); sunk.push([r, c]); }
-          const fallen = m.pieces.filter((p) => b.holes.has(key(p.row, p.col)));
-          for (const p of fallen) m.pieces.splice(m.pieces.indexOf(p), 1);
-          return { sunk, fallen };
-        },
-        status: (m) => `Tus alfiles ${mine(m)} · rivales ${foes(m)} · tablero ${lv.n - 2 * ring}×${lv.n - 2 * ring}`,
-      };
-    },
-  },
 });
 
 export function buildScenario(id, level = 'normal', seed = Math.floor(Math.random() * 1e9)) {

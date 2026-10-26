@@ -46,6 +46,14 @@ export class Fx {
     }
     this.kick();
   }
+  // Disparo: un rayo que sale de (x, y) y llega a (x1, y1) en `grow` s, con un fogonazo al salir y
+  // chispas donde pega; luego se apaga. Para los cañones de Matamarcianos y las damas a ciegas.
+  beam(x, y, x1, y1, { color = '#ffcf6b', width = 5, life = 0.45, grow = 0.12 } = {}) {
+    this.parts.push({ x, y, x1, y1, vx: 0, vy: 0, life, max: life, grow, g: 0, drag: 1, size: width, color, shape: 'beam' });
+    this.burst(x, y, { count: 8, color: [color, '#fff'], speed: [40, 140], life: [0.15, 0.3], size: [1.5, 3], shape: 'spark' });
+    setTimeout(() => this.burst(x1, y1, { count: 12, color: [color, '#fff'], speed: [60, 200], life: [0.2, 0.45], size: [1.5, 3.5], shape: 'spark' }), grow * 1000);
+    this.kick();
+  }
   ring(x, y, { color = '#fff', radius = 60, life = 0.45, width = 3 } = {}) {
     this.parts.push({ x, y, vx: 0, vy: 0, life, max: life, g: 0, drag: 1, size: radius, color, shape: 'ring', width });
     this.kick();
@@ -114,6 +122,25 @@ export class Fx {
     }
   }
 
+  ray(p, pixel) {
+    const { ctx } = this, age = p.max - p.life, k = Math.min(1, age / p.grow), t = p.life / (p.max - p.grow);
+    const x1 = p.x + (p.x1 - p.x) * k, y1 = p.y + (p.y1 - p.y) * k, w = p.size * Math.min(1, t);
+    ctx.globalAlpha = Math.min(1, t * 1.5);
+    if (pixel) {
+      const G = 3, n = Math.max(1, Math.round(Math.hypot(x1 - p.x, y1 - p.y) / G)), s = Math.max(G, Math.round(w / G) * G);
+      ctx.fillStyle = p.color;
+      for (let i = 0; i <= n; i++) ctx.fillRect(Math.round((p.x + ((x1 - p.x) * i) / n - s / 2) / G) * G, Math.round((p.y + ((y1 - p.y) * i) / n - s / 2) / G) * G, s, s);
+      return;
+    }
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = p.color; ctx.lineWidth = w * 2.2; ctx.globalAlpha *= 0.35;
+    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(x1, y1); ctx.stroke();
+    ctx.globalAlpha = Math.min(1, t * 1.5); ctx.strokeStyle = p.color; ctx.lineWidth = w;
+    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(x1, y1); ctx.stroke();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = w * 0.4;
+    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(x1, y1); ctx.stroke();
+  }
+
   kick() { if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame((t) => this.loop(t)); } }
   loop(now) {
     const dt = Math.min((now - this.last) / 1000, 0.05);
@@ -130,6 +157,7 @@ export class Fx {
       p.rot += (p.vr || 0) * dt;
       const t = p.life / p.max;
       ctx.globalAlpha = Math.min(1, t * 1.6);
+      if (p.shape === 'beam') { this.ray(p, pixel); continue; }
       if (pixel) { this.block(p, t); continue; }
       if (p.shape === 'flash') {
         ctx.globalAlpha = t; ctx.fillStyle = p.color;
