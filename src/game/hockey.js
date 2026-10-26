@@ -30,9 +30,10 @@ const limits = (side) => side === 'me'
   : { x0: MALLET_R, x1: W - MALLET_R, y0: MALLET_R, y1: H / 2 - MALLET_R };
 const mallet = (side) => ({ side, x: W / 2, y: side === 'me' ? H - 2 * CELL : 2 * CELL, vx: 0, vy: 0, tx: W / 2, ty: side === 'me' ? H - 2 * CELL : 2 * CELL });
 
-export function newHockey(key = 'normal', rng = Math.random) {
+// `goals`: a cuántos se juega; `duo`: dos personas en la misma pantalla (la torre de arriba no piensa sola).
+export function newHockey(key = 'normal', rng = Math.random, { goals = GOALS, duo = false } = {}) {
   const diff = DIFFS[key] || DIFFS.normal;
-  const s = { diff, me: mallet('me'), bot: mallet('bot'), puck: { x: W / 2, y: H / 2, vx: 0, vy: 0 }, score: { me: 0, bot: 0 }, pause: 0, slow: 0, hold: 0, shots: 0, half: null, t: 0, over: null, events: [], ai: { me: null, bot: null }, rng };
+  const s = { diff, me: mallet('me'), bot: mallet('bot'), puck: { x: W / 2, y: H / 2, vx: 0, vy: 0 }, score: { me: 0, bot: 0 }, pause: 0, slow: 0, hold: 0, shots: 0, half: null, t: 0, over: null, events: [], ai: { me: null, bot: null }, rng, goals, duo };
   serve(s, 'me', 0);
   return s;
 }
@@ -183,7 +184,7 @@ function sub(s, dt, bots) {
     if (s.ai[side] <= 0) { s.ai[side] = d.react; think(s, side); }
   }
   drive(s.me, bots.includes('me') ? (s.foeDiff || s.diff).speed : PLAYER_MAX, dt);
-  drive(s.bot, s.diff.speed, dt);
+  drive(s.bot, s.duo ? PLAYER_MAX : s.diff.speed, dt);
   if (s.pause > 0) {
     // En el saque el disco está clavado: las torres no lo atraviesan (si no, al soltarlo salía hacia atrás).
     for (const m of [s.me, s.bot]) {
@@ -203,7 +204,7 @@ function sub(s, dt, bots) {
   if (scored) {
     s.score[scored] += 1;
     s.events.push({ kind: 'goal', by: scored, x: clamp(p.x, GOAL[0], GOAL[1]), y: scored === 'me' ? 0 : H });
-    if (s.score[scored] >= GOALS) { s.over = scored === 'me' ? 'win' : 'lose'; return; }
+    if (s.score[scored] >= s.goals) { s.over = scored === 'me' ? 'win' : 'lose'; return; }
     serve(s, scored === 'me' ? 'bot' : 'me');
     return;
   }

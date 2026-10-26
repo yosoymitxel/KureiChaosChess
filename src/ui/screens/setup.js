@@ -46,7 +46,17 @@ function VersusCard({ cfg, onCfg }) {
   const set = (k, v) => onCfg({ ...cfg, [k]: v });
   const seg = (k, list) => html`<div class="segmented sm" role="group">${list.map(([v, label]) => html`<button class=${cfg[k] === v ? 'on' : ''} aria-pressed=${cfg[k] === v} onClick=${() => set(k, v)}>${label}</button>`)}</div>`;
   const mods = ['random', 'none', ...RUN_MECHANICS.filter((id) => id !== 'elite')];
+  const games = [['chess', 'Ajedrez'], ['hockey', MODIFIERS.hockey.name]];
+  if (cfg.game === 'hockey') return html`<section class="panel setup-card prefs" data-enter>
+    <h2>Juego</h2>
+    ${seg('game', games)}
+    <h2>Goles para ganar</h2>
+    ${seg('goals', [[3, '3'], [5, '5'], [7, '7']])}
+    <p class="setup-note">En la misma pantalla: cada uno arrastra la torre de su mitad.</p>
+  </section>`;
   return html`<section class="panel setup-card prefs" data-enter>
+    <h2>Juego</h2>
+    ${seg('game', games)}
     <h2>Mesa</h2>
     ${seg('rounds', VERSUS_ROUNDS)}
     <p class="setup-note">${cfg.rounds > 1 ? `${cfg.size === 'random' ? 'Cada ronda es un piso más: el tablero crece.' : 'Cada ronda, mesa nueva.'} Gana quien llegue antes a ${Math.floor(cfg.rounds / 2) + 1}.` : 'Una sola partida con esta mesa.'}</p>
@@ -73,7 +83,8 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
   // El peldaño del rival lo fija el tramo de la torre, el ajuste de dificultad lo corre entero
   // y el piso de un mini-jefe sube uno.
   const rival = rivalForFloor(node.floor, run?.map?.floors ?? 1, { up: node.isMiniBoss ? 1 : 0, difficulty: run?.tutorial ? 'facil' : settings?.difficulty });
-  const seats = SIDES.slice(0, count).map((s, i) => ({ color: s.color, kind: kinds[i], name: kinds[i] === 'bot' ? `Bot ${s.label}` : versus ? `Jugador ${i + 1}` : 'Tú' }));
+  const hockey = versusCfg?.game === 'hockey';
+  const seats = SIDES.slice(0, hockey ? 2 : count).map((s, i) => ({ color: s.color, kind: kinds[i], name: kinds[i] === 'bot' ? `Bot ${s.label}` : versus ? `Jugador ${i + 1}` : 'Tú' }));
   return html`<div class="screen setup" ref=${ref}>
     <${Topbar} title="Prepara la mesa" sub=${versus ? 'Partida local' : `Piso ${node.floor + 1}`} onBack=${onBack} />
     <div class="setup-body">
@@ -82,14 +93,14 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
         <p>${node.lesson}</p>
         ${node.floor === 0 && onHowTo && html`<button class="btn sm" onClick=${onHowTo}>Cómo se mueve cada pieza</button>`}
       </section>`}
-      <section class="panel setup-card" data-enter>
+      ${versusCfg?.game !== 'hockey' && html`<section class="panel setup-card" data-enter>
         <div class="mod-card"><span class="mod-icon"><${Icon} name=${mod.icon} size=${24} /></span><div><h2>${mod.name}</h2><p>${mod.desc}</p></div></div>
         ${node.modifier === 'elite' && html`<ul class="elite-list">
           ${eliteVariants(node.floor, run?.map?.floors ?? 1).map((v) => html`<li><span class="elite-ico"><${Icon} name=${v.icon} size=${15} /></span><div><strong>${v.name}</strong><span>${v.desc}</span></div></li>`)}
         </ul>`}
         ${(!versus || count === 3) && html`<div class="rival-line"><${Icon} name="bot" size=${17} /><div><strong>Rival: ${rival.name}</strong><small>${rival.desc}</small></div></div>`}
         ${node.isBoss && !run?.mutations?.length ? html`<p class="setup-warn"><${Icon} name="boss" size=${15} />Sin mutaciones, solo una de cada cuatro veces se derriba al coloso. Esta mesa pide tus mejores cartas.</p>` : ''}
-      </section>
+      </section>`}
       ${versusCfg && html`<${VersusCard} cfg=${versusCfg} onCfg=${onVersusCfg} />`}
       ${onPrefs && html`<${PrefsCard} prefs=${run.prefs || { fav: [], ban: [] }} onPrefs=${onPrefs} />`}
       ${run?.mutations?.length ? html`<section class="panel setup-card" data-enter>
@@ -101,18 +112,18 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
       </section>` : ''}
       <section class="panel setup-card" data-enter>
         <h2>Jugadores</h2>
-        <div class="segmented" role="group" aria-label="Número de bandos">
+        ${!hockey && html`<div class="segmented" role="group" aria-label="Número de bandos">
           ${[2, 3].map((n) => html`<button class=${count === n ? 'on' : ''} aria-pressed=${count === n} onClick=${() => setCount(n)}>${n === 3 ? '+ Bot extra' : versus ? '1 contra 1' : 'Tú contra el bot'}</button>`)}
-        </div>
+        </div>`}
         ${seats.map((s, i) => html`<div class="seat-row">
           <span class=${'token side-' + s.color}></span>
           <div class="grow"><strong>${s.name}</strong><small>${SIDES[i].label}</small></div>
         </div>`)}
-        ${setSettings && html`<div class="segmented" role="group" aria-label="Quién empieza">
+        ${setSettings && !hockey && html`<div class="segmented" role="group" aria-label="Quién empieza">
           ${[[false, `Empieza ${seats[0].name === 'Tú' ? 'tú' : seats[0].name}`], [true, 'Cara o cruz']].map(([v, label]) => html`<button class=${!!settings.coin === v ? 'on' : ''} aria-pressed=${!!settings.coin === v} onClick=${() => setSettings((st) => ({ ...st, coin: v }))}>${label}</button>`)}
         </div>`}
       </section>
-      <button class="btn primary big" data-enter onClick=${() => onStart(seats)}>Repartir piezas</button>
+      <button class="btn primary big" data-enter onClick=${() => onStart(seats)}>${hockey ? "Jugar" : "Repartir piezas"}</button>
     </div>
   </div>`;
 }
