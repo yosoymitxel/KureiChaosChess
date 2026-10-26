@@ -106,6 +106,13 @@
 .setup-body { flex: 1; overflow: auto; display: flex; flex-direction: column; justify-content: safe center; gap: 16px; padding: 8px 20px 40px; width: min(560px, 100%); margin: 0 auto; }
 .setup-card { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
 .setup-card h2 + .segmented { margin-top: -2px; }
+/* En PC la mesa cabe sin desplazar: las mecánicas en su columna, el resto en la otra. */
+@media (min-width: 900px) {
+  .setup .setup-body:has(.prefs) { display: grid; grid-template-columns: repeat(2, minmax(0, 480px)); justify-content: center; align-content: safe center; align-items: start; width: min(1040px, 100%); }
+  .setup .setup-body:has(.prefs) > * { grid-column: 1; }
+  .setup .setup-body > .prefs { grid-column: 2; grid-row: 1 / span 5; }
+  .setup .setup-body:has(.prefs) > .btn.big { grid-column: 1 / -1; justify-self: center; }
+}
 .mod-card { display: flex; gap: 14px; align-items: flex-start; }
 .mod-card p { margin: 4px 0 0; font-size: 13.5px; color: var(--ink-2); }
 .rival-line { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding-top: 10px; border-top: 2px dashed color-mix(in oklch, var(--ink), transparent 85%); }
@@ -735,10 +742,11 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .zn-yard.dig .bm-cell.zn-raw { cursor: pointer; }
 .zn-yard.dig .bm-cell.zn-raw::after { border-color: var(--brass); }
 /* Galería: grupos de imágenes; las bloqueadas son placeholders honestos. */
-.gal-group { width: 100%; max-width: 560px; }
+.gal-group { width: 100%; max-width: 760px; }
 .gal-title { margin: 0 0 8px; font-size: 16px; font-weight: 800; color: var(--paper); }
-.gal-row { display: flex; flex-wrap: wrap; gap: 10px; }
-.gal-item { margin: 0; display: grid; justify-items: center; gap: 4px; }
+/* Celdas del mismo ancho: el nombre, corto o largo, no descuadra la fila. */
+.gal-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 12px 10px; }
+.gal-item { margin: 0; display: grid; justify-items: center; align-content: start; gap: 4px; text-align: center; }
 .gal-art { display: grid; place-items: center; width: 72px; height: 72px; padding: 8px; border: 2px solid var(--ink); border-radius: var(--r-md); background: var(--tile-b); background-image: var(--grain); }
 .gal-art svg { width: 100%; height: 100%; }
 .gal-item figcaption { font-size: 12px; font-weight: 700; color: var(--paper-3); }

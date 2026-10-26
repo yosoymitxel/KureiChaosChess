@@ -28,7 +28,7 @@ function PrefsCard({ prefs, onPrefs }) {
     onPrefs({ fav, ban });
   };
   const label = { fav: 'favorita', ban: 'vetada', '': 'normal' };
-  return html`<section class="panel setup-card" data-enter>
+  return html`<section class="panel setup-card prefs" data-enter>
     <h2>Mecánicas de esta run</h2>
     <p class="setup-note">Toca una mecánica: favorita (sale mucho más, hasta ${PREF_LIMITS.fav}), vetada (no sale, ${PREF_LIMITS.ban}) o normal. El mapa se vuelve a sortear.</p>
     <div class="pref-grid">
