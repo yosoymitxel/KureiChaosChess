@@ -4,6 +4,7 @@ import { html, useState, useRef, useEffect, motion } from '../lib.js';
 import { playSfx } from '../sfx.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { ROWS, COLS, emptyGrid, dropRow, lineAt, isFull, botColumn, DIFFS } from '../../game/connect4.js';
+import { MODIFIERS } from '../../data/modifiers.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -58,7 +59,7 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar', set
   const status = turn === 'light' ? 'Tu turno: elige columna' : 'Piensa el bot…';
 
   return html`<div class="screen mini">
-    <${Topbar} title="Conecta 4" sub=${sub} onBack=${onBack} />
+    <${Topbar} title=${MODIFIERS.connect4.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
         <div class="mini-stage">
@@ -79,7 +80,7 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar', set
           ${result && html`<${MiniEnd} win=${result.winner === 'light'} title=${result.winner ? undefined : 'Empate'}
             note=${result.winner === 'light' ? 'Cuatro en línea antes que el bot.' : result.winner === 'dark' ? 'El bot conectó cuatro antes que tú.' : 'Tablero lleno: nadie conectó cuatro.'}
             label=${endLabel} onEnd=${() => onEnd(result.winner === 'light')} />`}
-          <${MiniTools} mini="connect4" title="Conecta 4" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Elige columna con las flechas o pasando el ratón, y suelta la ficha con Enter o un toque. Ganas al conectar cuatro en línea antes que el carmesí.<//>
+          <${MiniTools} mini="connect4" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Elige columna con las flechas o pasando el ratón, y suelta la ficha con Enter o un toque. Ganas al conectar cuatro en línea antes que el carmesí.<//>
         </div>
       </div>
     </div>

@@ -9,25 +9,13 @@ import { GameScreen } from './screens/game.js';
 import { HowToOverlay } from './screens/overlays.js';
 import { setFullscreen } from './fullscreen.js';
 import { setSfxEnabled, setSfxVolume, startAmbient, setMusicScene, playSfx } from './sfx.js';
-import { Connect4Screen } from './screens/connect4.js';
 import { MinisScreen } from './screens/minis.js';
 import { ZenScreen } from './screens/zen.js';
 import { ShopScreen } from './screens/shop.js';
 import { GalleryScreen } from './screens/gallery.js';
 import { AchievementsScreen } from './screens/achievements.js';
-import { BomberScreen } from './screens/bomber.js';
-import { BarrierScreen } from './screens/barrier.js';
-import { IZombieScreen } from './screens/izombie.js';
-import { BowlingScreen } from './screens/bowling.js';
-import { LastStandScreen } from './screens/laststand.js';
-import { QueensScreen } from './screens/queens.js';
-import { MarcianosScreen } from './screens/marcianos.js';
-import { CheckersScreen } from './screens/checkers.js';
-import { FusionScreen } from './screens/fusion.js';
-import { DuelScreen } from './screens/duel.js';
-import { HockeyScreen } from './screens/hockey.js';
-import { CaceriaScreen, BodyguardScreen, GiantHuntScreen, MinefieldScreen, KingImpostorScreen, EscapeScreen, ContrabandScreen, LaboratoryScreen, CollapsingFloorScreen, KnightScreen, MatesScreen } from './screens/scenario.js';
 import { MODIFIERS } from '../data/modifiers.js';
+import { MINIGAMES } from '../data/minigame-catalog.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs, takeNewDemos } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard } from '../game/shop.js';
 import { ZEN_NAMES, addZenSeeds, pickSeed } from '../game/zen.js';
@@ -54,8 +42,6 @@ const BAG_CARDS = [
 const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3);
 // A won minigame pays a mutation or a piece the army already knows.
 const MINI_PRIZES = BAG_CARDS.filter((c) => ['mut', 'extra_rook', 'extra_pawn'].includes(c.id));
-const MINI_SCREENS = { laboratory: LaboratoryScreen, collapsingFloor: CollapsingFloorScreen, kingImpostor: KingImpostorScreen, giantHunt: GiantHuntScreen, minefield: MinefieldScreen, contraband: ContrabandScreen, bodyguard: BodyguardScreen, escape: EscapeScreen, caceria: CaceriaScreen, connect4: Connect4Screen, bomber: BomberScreen, barrier: BarrierScreen, izombie: IZombieScreen, bowling: BowlingScreen, laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen, marcianos: MarcianosScreen, checkers: CheckersScreen, fusion: FusionScreen, duel: DuelScreen, hockey: HockeyScreen };
-const SCENARIO_MINIS = new Set(['caceria', 'bodyguard', 'giantHunt', 'minefield', 'kingImpostor']);
 const ONE_SHOT =['promoteOne', 'furyNow', 'extraPawn', 'extraRook'];
 
 export function App() {
@@ -247,8 +233,8 @@ export function App() {
     bag: ['Encuentras una bolsa', 'Llévate un objeto.'],
     mini: ['¡Minijuego superado!', 'Elige tu premio. Ya puedes jugarlo cuando quieras desde el menú.'],
   };
-  const Mini = MINI_SCREENS[node?.modifier];
-  const FreeMini = MINI_SCREENS[freeMini];
+  const Mini = MINIGAMES[node?.modifier]?.Screen;
+  const FreeMini = MINIGAMES[freeMini]?.Screen;
 
   return html`
     ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} onVersus=${newVersus} settings=${settings} setSettings=${setSettings} />`}
@@ -276,8 +262,8 @@ export function App() {
       settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />`}
     ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
     ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub="Partida libre" onBack=${() => goTo('minis')}
-      endLabel=${SCENARIO_MINIS.has(freeMini) ? 'Volver a los minijuegos' : 'Otra partida'}
-      onEnd=${() => SCENARIO_MINIS.has(freeMini) ? goTo('minis') : setFreeKey((k) => k + 1)}
+      endLabel="Otra partida"
+      onEnd=${() => setFreeKey((k) => k + 1)}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => goTo(shopFrom)} />`}

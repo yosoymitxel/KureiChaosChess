@@ -5,6 +5,7 @@ import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { DIFFS, newCheckers, legal, play, botMove, pieceAt } from '../../game/checkers.js';
 import { MiniBoard } from '../mini-board.js';
 import { key } from '../../game/rules.js';
+import { MODIFIERS } from '../../data/modifiers.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -59,7 +60,7 @@ export function CheckersScreen({ sub, onBack, onEnd, endLabel = 'Continuar', set
   const status = s.turn === 'dark' ? 'Piensa el bot…' : s.chain ? '¡Sigue saltando con la misma ficha!' : mustJump ? 'Hay captura: es obligatoria.' : 'Tu turno: toca una ficha y luego su destino.';
 
   return html`<div class="screen mini">
-    <${Topbar} title="Damas" sub=${sub} onBack=${onBack} />
+    <${Topbar} title=${MODIFIERS.checkers.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
         <${MiniBoard} board=${board} pieces=${pieces} marks=${marks} disabled=${!!s.over} label="Tablero de damas" onTap=${tap} />
@@ -67,7 +68,7 @@ export function CheckersScreen({ sub, onBack, onEnd, endLabel = 'Continuar', set
           ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
           ${!s.over && html`<div class="mini-stats"><span class="chip">Tuyas ${left.light}</span><span class="chip">Rivales ${left.dark}</span></div>`}
           ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? 'El rival se quedó sin jugadas.' : 'Te quedaste sin jugadas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
-          <${MiniTools} mini="checkers" title="Damas" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Las fichas avanzan en diagonal por las casillas oscuras. Si puedes saltar una ficha rival que tienes al lado, es obligatorio, y si al caer puedes saltar otra, sigues. Al llegar a la última fila la ficha se corona y ya puede ir también hacia atrás. Gana quien deje al otro sin jugadas. Fácil 6×6, Normal 8×8 y Difícil 10×10.<//>
+          <${MiniTools} mini="checkers" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Las fichas avanzan en diagonal por las casillas oscuras. Si puedes saltar una ficha rival que tienes al lado, es obligatorio, y si al caer puedes saltar otra, sigues. Al llegar a la última fila la ficha se corona y ya puede ir también hacia atrás. Gana quien deje al otro sin jugadas. Fácil 6×6, Normal 8×8 y Difícil 10×10.<//>
         </div>
       </div>
     </div>

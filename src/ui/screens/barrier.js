@@ -5,6 +5,7 @@ import { pieceSVG } from '../../view/piece-art.js';
 import { hopPiece } from '../hop.js';
 import { playSfx } from '../sfx.js';
 import { N, DIFFS, newBarrier, act, steps, canWall, botAction } from '../../game/barrier.js';
+import { MODIFIERS } from '../../data/modifiers.js';
 
 const KEYS = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
 const anchor = (o, r, c) => ({ o, r: Math.min(r, N - 2), c: Math.min(c, N - 2) });
@@ -89,7 +90,7 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
   const status = s.turn === 'light' ? (mode === 'move' ? 'Mueve tu peón a la fila de arriba o pon una valla.' : 'Toca una casilla: la valla se pone en su borde.') : 'Piensa el bot…';
 
   return html`<div class="screen mini">
-    <${Topbar} title="Barrera" sub=${sub} onBack=${onBack} />
+    <${Topbar} title=${MODIFIERS.barrier.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
         <div class="mini-stage">
@@ -121,7 +122,7 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
               <span class="chip" title="Tus vallas"><${Icon} name="fence" size=${13} />Tú <b>${s.left.light}</b></span>
               <span class="chip" title="Vallas del bot"><${Icon} name="fence" size=${13} />Bot <b>${s.left.dark}</b></span>
             </div>`}
-          <${MiniTools} mini="barrier" title="Barrera" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Cruza a la fila de arriba antes que el peón carmesí, que baja hacia la suya. Muévete con las flechas o tocando una casilla, o gasta una valla para cerrar un borde.<//>
+          <${MiniTools} mini="barrier" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Cruza a la fila de arriba antes que el peón carmesí, que baja hacia la suya. Muévete con las flechas o tocando una casilla, o gasta una valla para cerrar un borde.<//>
         </div>
       </div>
     </div>

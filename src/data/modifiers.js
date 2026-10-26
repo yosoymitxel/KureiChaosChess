@@ -14,7 +14,7 @@ export const MODIFIERS = {
   rest: { id: 'rest', name: 'Descanso', desc: 'Un respiro. Elige un beneficio.', icon: 'rest', kind: 'rest', weights: [3, 3, 2] },
   bag: { id: 'bag', name: 'Bolsa', desc: 'Una bolsa con un objeto.', icon: 'bag', kind: 'bag', weights: [3, 2, 2] },
   // Minigames: an interlude with its own rules. Winning pays a mutation or a piece and unlocks it in the menu.
-  // Each one also needs its screen in MINI_SCREENS (src/ui/app.js); tools/check-registry.mjs checks it.
+  // Each one also needs its screen in src/data/minigame-catalog.js; tools/check-registry.mjs checks it.
   bodyguard: { id: 'bodyguard', name: 'El guardaespaldas', desc: 'Minijuego: protege al rey marfil de una escuadra de caballos y peones durante varios turnos. Premio: mutación o pieza.', icon: 'guard', mini: true, weights: [0, 0.5, 1] },
   escape: { id: 'escape', name: 'Escape del tablero', desc: 'Minijuego: lleva el caballo a la salida antes de que el guardia cierre el paso. Premio: mutación o pieza.', icon: 'flag', mini: true, weights: [0.7, 1, 1] },
   caceria: { id: 'caceria', name: 'La cacería', desc: 'Minijuego: alcanza al peón fugitivo antes de que escape. Premio: mutación o pieza.', icon: 'hunt', mini: true, weights: [0.7, 1, 1] },

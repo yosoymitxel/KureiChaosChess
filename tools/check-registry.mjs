@@ -52,18 +52,18 @@ for (const [id, m] of Object.entries(MUTATIONS)) {
 }
 
 // Mecánicas y minijuegos: icono, peso de aparición, pantalla y ayuda.
-const app = read('src/ui/app.js');
-const screens = new Set([...(app.match(/const MINI_SCREENS = \{([^}]*)\}/)?.[1] || '').matchAll(/(\w+):/g)].map((m) => m[1]));
+const catalog = read('src/data/minigame-catalog.js');
+const screens = new Set([...(catalog.match(/const SCREENS = \{([^}]*)\}/)?.[1] || '').matchAll(/(\w+):/g)].map((m) => m[1]));
 const screenSrc = walk('src/ui/screens').map(read).join('\n');
 for (const [id, m] of Object.entries(MODIFIERS)) {
   if (!hasIcon(m.icon)) fail(`mecánica ${id}: el icono "${m.icon}" no existe`);
   if (!m.mini) continue;
   if (!m.weights) fail(`minijuego ${id}: falta "weights" en src/data/modifiers.js (no saldría en el mapa)`);
-  if (!screens.has(id)) fail(`minijuego ${id}: falta su pantalla en MINI_SCREENS (src/ui/app.js)`);
+  if (!screens.has(id)) fail(`minijuego ${id}: falta su pantalla en SCREENS (src/data/minigame-catalog.js)`);
   // Los de tablero (scenarios.js) llevan MiniTools en su pantalla común.
   if (!SCENARIOS[id] && !screenSrc.includes(`mini="${id}"`)) fail(`minijuego ${id}: su pantalla no tiene MiniTools (ayuda y nivel)`);
 }
-for (const id of screens) if (!MODIFIERS[id]?.mini) fail(`MINI_SCREENS.${id}: no hay minijuego con ese id en src/data/modifiers.js`);
+for (const id of screens) if (!MODIFIERS[id]?.mini) fail(`SCREENS.${id}: no hay minijuego con ese id en src/data/modifiers.js`);
 
 // Jefes: dibujo y tramo en el que aparecen.
 for (const id of BOSS_IDS) {

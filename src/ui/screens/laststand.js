@@ -5,6 +5,7 @@ import { PIECE_NAMES } from '../../data/pieces.js';
 import { MiniBoard, zombies } from '../mini-board.js';
 import { key } from '../../game/rules.js';
 import { ROWS, COLS, DIFFS, PRICES, newStand, place, canPlace, step, nextWave, building } from '../../game/laststand.js';
+import { MODIFIERS } from '../../data/modifiers.js';
 
 export function LastStandScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newStand(diff || settings.miniDiff?.laststand));
@@ -35,7 +36,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
   const marks = new Map();
   for (let r = ROWS - 3; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (canPlace(s, pick, r, c)) marks.set(key(r, c), 'target');
   return html`<div class="screen mini">
-    <${Topbar} title="Última resistencia" sub=${sub} onBack=${onBack} />
+    <${Topbar} title=${MODIFIERS.laststand.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
         <${MiniBoard} board=${s.board} pieces=${zombies(s.pieces)} marks=${marks} strikes=${s.captures} disabled=${!building(s)} label="Tablero de Última resistencia" hostRef=${host}
@@ -54,7 +55,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = 'Continuar', se
                 disabled=${cost > s.budget} title=${PIECE_NAMES[t]} onClick=${() => setPick(t)}><${PieceIcon} type=${t} side="light" size=${22} />${cost}</button>`)}
             </div>
             <button class="btn primary" disabled=${!s.pieces.length} onClick=${launch}>${s.phase === 'setup' ? 'Empezar el asalto' : last ? '¡Que venga la horda!' : 'Siguiente oleada'}</button>`}
-          <${MiniTools} mini="laststand" title="Última resistencia" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Compra piezas tocando las tres filas de abajo y empieza el asalto. El carmesí ataca en ${s.diff.waves} oleadas; la última es una gran horda. Entre oleadas cobras ${s.diff.bonus} monedas y puedes reforzar con lo que tengas: aguanta sin ceder la línea.<//>
+          <${MiniTools} mini="laststand" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Compra piezas tocando las tres filas de abajo y empieza el asalto. El carmesí ataca en ${s.diff.waves} oleadas; la última es una gran horda. Entre oleadas cobras ${s.diff.bonus} monedas y puedes reforzar con lo que tengas: aguanta sin ceder la línea.<//>
         </div>
       </div>
     </div>

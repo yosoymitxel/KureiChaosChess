@@ -6,6 +6,7 @@ import { pieceSVG } from '../../view/piece-art.js';
 import { newBomber, step, blastOf, doorOpen, DIFFS, FOES } from '../../game/bomber.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { hopPiece, reduced } from '../hop.js';
+import { MODIFIERS } from '../../data/modifiers.js';
 
 // Arrows and WASD both move; space or B drops a bomb, Enter waits.
 const KEYS = { arrowup: [-1, 0], w: [-1, 0], arrowdown: [1, 0], s: [1, 0], arrowleft: [0, -1], a: [0, -1], arrowright: [0, 1], d: [0, 1] };
@@ -90,7 +91,7 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
   const kinds = [...new Set(s.diff.roster)];
 
   return html`<div class="screen mini">
-    <${Topbar} title="Bomberman" sub=${sub} onBack=${onBack} />
+    <${Topbar} title=${MODIFIERS.bomber.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
         <div class="mini-stage">
@@ -122,7 +123,7 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
                 <button class="btn sm ghost" onClick=${() => act({ wait: true })}>Esperar</button>
               </div>
             </div>`}
-          <${MiniTools} mini="bomber" title="Bomberman" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha da 5 turnos para salir del radio, las casillas con borde rojo estallan en la próxima jugada y algunas cajas sueltan bomba extra o más alcance. Como en el original, la puerta de salida está escondida bajo una caja: derriba a todos los enemigos y entra por ella. Enemigos de este nivel: ${kinds.map((t) => `${PIECE_NAMES[t].toLowerCase()} (${FOES[t].replace(/\.$/, '').toLowerCase()})`).join('; ')}.<//>
+          <${MiniTools} mini="bomber" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha da 5 turnos para salir del radio, las casillas con borde rojo estallan en la próxima jugada y algunas cajas sueltan bomba extra o más alcance. Como en el original, la puerta de salida está escondida bajo una caja: derriba a todos los enemigos y entra por ella. Enemigos de este nivel: ${kinds.map((t) => `${PIECE_NAMES[t].toLowerCase()} (${FOES[t].replace(/\.$/, '').toLowerCase()})`).join('; ')}.<//>
         </div>
       </div>
     </div>

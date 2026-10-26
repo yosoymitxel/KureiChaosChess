@@ -5,6 +5,7 @@ import { Fx } from '../../view/fx.js';
 import { playSfx } from '../sfx.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { W, H, COLS, ROWS, GOALS, PUCK_MAX, PLAYER_MAX, HOLD_T, DIFFS, newHockey, step, aim } from '../../game/hockey.js';
+import { MODIFIERS } from '../../data/modifiers.js';
 
 // Flechas o WASD empujan tu torre; el puntero (dedo o ratón) la lleva directa.
 const KEYS = { arrowleft: [-1, 0], a: [-1, 0], arrowright: [1, 0], d: [1, 0], arrowup: [0, -1], w: [0, -1], arrowdown: [0, 1], s: [0, 1] };
@@ -164,7 +165,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
   </span>`;
 
   return html`<div class="screen mini" ref=${screenRef}>
-    <${Topbar} title="Hockey de mesa" sub=${sub} onBack=${onBack} />
+    <${Topbar} title=${MODIFIERS.hockey.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
         <div class="mini-stage">
@@ -188,7 +189,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
             <span class="chip"><i class="ah-dot foe"></i>Bot <b>${score.bot}</b></span>
           </div>`}
           ${over && html`<${MiniEnd} win=${over === 'win'} note=${over === 'win' ? `Ganaste ${score.me} a ${score.bot}: el disco ya es tuyo.` : `El bot llegó a ${GOALS}: perdiste ${score.me} a ${score.bot}.`} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
-          <${MiniTools} mini="hockey" title="Hockey de mesa" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Arrastra tu torre, la de abajo, con el dedo o el ratón (o muévela con las flechas) por tu mitad de la mesa y golpea el disco hacia la portería de arriba. Cuanto más rápido lo golpeas, más fuerte sale, y las bandas sirven para tiros al rebote. Gana quien meta cinco goles; tras cada gol saca quien lo encajó. No retengas el disco en tu mitad más de siete segundos o el saque pasa al rival.<//>
+          <${MiniTools} mini="hockey" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Arrastra tu torre, la de abajo, con el dedo o el ratón (o muévela con las flechas) por tu mitad de la mesa y golpea el disco hacia la portería de arriba. Cuanto más rápido lo golpeas, más fuerte sale, y las bandas sirven para tiros al rebote. Gana quien meta cinco goles; tras cada gol saca quien lo encajó. No retengas el disco en tu mitad más de siete segundos o el saque pasa al rival.<//>
         </div>
       </div>
     </div>
