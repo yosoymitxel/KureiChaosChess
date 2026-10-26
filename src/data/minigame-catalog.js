@@ -17,28 +17,15 @@ import { FusionScreen } from '../ui/screens/fusion.js';
 import { DuelScreen } from '../ui/screens/duel.js';
 import { HockeyScreen } from '../ui/screens/hockey.js';
 
-export const MINIGAMES = {
-  caceria: { name: 'La cacería', Screen: CaceriaScreen },
-  escape: { name: 'Escape del tablero', Screen: EscapeScreen },
-  bodyguard: { name: 'El guardaespaldas', Screen: BodyguardScreen },
-  giantHunt: { name: 'Caza de gigantes', Screen: GiantHuntScreen },
-  minefield: { name: 'Campo minado', Screen: MinefieldScreen },
-  contraband: { name: 'Contrabando dimensional', Screen: ContrabandScreen },
-  laboratory: { name: 'El laboratorio', Screen: LaboratoryScreen },
-  collapsingFloor: { name: 'El suelo se acaba', Screen: CollapsingFloorScreen },
-  kingImpostor: { name: 'El rey impostor', Screen: KingImpostorScreen },
-  connect4: { name: 'Conecta 4', Screen: Connect4Screen },
-  bomber: { name: 'Bombardero', Screen: BomberScreen },
-  barrier: { name: 'Barrera', Screen: BarrierScreen },
-  izombie: { name: 'Yo, zombi', Screen: IZombieScreen },
-  bowling: { name: 'Boliche', Screen: BowlingScreen },
-  laststand: { name: 'Última resistencia', Screen: LastStandScreen },
-  mates: { name: 'Captura al rey', Screen: MatesScreen },
-  knight: { name: 'Ruta del caballo', Screen: KnightScreen },
-  queens: { name: 'Reinas', Screen: QueensScreen },
-  marcianos: { name: 'Marcianitos', Screen: MarcianosScreen },
-  checkers: { name: 'Damas', Screen: CheckersScreen },
-  fusion: { name: 'Fusión', Screen: FusionScreen },
-  duel: { name: 'Duelo', Screen: DuelScreen },
-  hockey: { name: 'Hockey de mesa', Screen: HockeyScreen },
+import { MODIFIERS } from './modifiers.js';
+
+// El nombre sale de modifiers.js (registro único); aquí solo se ata cada id a su pantalla.
+const SCREENS = {
+  caceria: CaceriaScreen, escape: EscapeScreen, bodyguard: BodyguardScreen, giantHunt: GiantHuntScreen,
+  minefield: MinefieldScreen, contraband: ContrabandScreen, laboratory: LaboratoryScreen,
+  collapsingFloor: CollapsingFloorScreen, kingImpostor: KingImpostorScreen, connect4: Connect4Screen,
+  bomber: BomberScreen, barrier: BarrierScreen, izombie: IZombieScreen, bowling: BowlingScreen,
+  laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen,
+  marcianos: MarcianosScreen, checkers: CheckersScreen, fusion: FusionScreen, duel: DuelScreen, hockey: HockeyScreen,
 };
+export const MINIGAMES = Object.fromEntries(Object.entries(SCREENS).map(([id, Screen]) => [id, { name: MODIFIERS[id].name, Screen }]));
