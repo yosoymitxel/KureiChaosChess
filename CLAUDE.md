@@ -39,3 +39,14 @@ Lanzamiento cercano: cambios acotados.
   `web-game-toolkit` para arte, iconos, audio y pruebas.
 - Probar en navegador a 360×800 táctil y en PC, mesa normal y `pixelada`, antes de dar algo por hecho.
 - Rama de trabajo indicada en la sesión; push frecuente. Sin PR salvo que se pida.
+
+## Minijuegos
+1. Nombre e icono solo en `src/data/modifiers.js`; el resto los lee de ahí.
+2. Mecánicas del tablero principal (`rules.js`, `match.js`, bot por perfiles); solo los juegos de otra
+   naturaleza (hockey, bolos, conecta 4…) traen las suyas.
+3. Variedad: posición, piezas y, si encaja, tamaño de tablero al azar en cada partida.
+4. Ponytail y antislop: reutilizar antes que escribir; nada nuevo sin necesidad real.
+5. Un solo tablero: `BoardView` (los de ajedrez se declaran en `src/data/scenarios.js`).
+6. Animaciones según el tipo (explosión, derrumbe, portal…), las del tablero; no todos llevan liquid.
+7. Tres dificultades con aleatoriedad, y cada mesa validada como pasable (selfcheck).
+8. Estilos: usar los existentes; crear CSS solo si no hay nada que encaje.

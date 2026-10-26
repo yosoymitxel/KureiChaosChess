@@ -1204,21 +1204,6 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .ck .bm-cell.jump::after { background: var(--danger); }
 .bm-cell.target { outline: calc(var(--cell) * 0.12) solid var(--brass); outline-offset: calc(var(--cell) * -0.12); }
 .bm-cell.closed { background: color-mix(in oklch, var(--tile-side), black 55%); box-shadow: inset 0 7px 12px oklch(0 0 0 / 0.62); }
-/* Suelo hundido: la casilla que se cae se lee como pozo, no como peligro. */
-.bm-cell.hole { background: radial-gradient(circle at 50% 38%, #000 0 42%, color-mix(in oklch, var(--tile-side), black 55%) 100%); box-shadow: inset 0 8px 14px oklch(0 0 0 / 0.78), inset 0 -2px 0 oklch(0 0 0 / 0.5); cursor: default; animation: hole-sink 0.42s var(--ease-out) both; }
-@keyframes hole-sink { 0% { transform: none; filter: none; } 35% { transform: scale(0.9); filter: brightness(0.4); } 100% { transform: none; filter: none; } }
-/* Contrabando: salida y portales se distinguen de un vistazo. */
-.bm-cell.exit { background: color-mix(in oklch, var(--tile-a), var(--brass) 30%); outline: calc(var(--cell) * 0.09) solid var(--brass); outline-offset: calc(var(--cell) * -0.09); }
-.bm-cell.portal {
-  background-image: radial-gradient(circle at 50% 50%, var(--ink) 0 28%, var(--pair, var(--brass)) 29% 46%, var(--ink) 47% 58%, var(--pair, var(--brass)) 59% 70%, transparent 71%);
-  background-size: 72% 72%; background-position: center; background-repeat: no-repeat;
-}
-.bm-cell.sample .bm-tok { --tk: var(--brass); --tk-2: color-mix(in oklch, var(--brass), var(--ink) 42%); }
-.bm-cell.sample.mv::after { inset: auto 8% 8% auto; width: 13%; height: 13%; }
-.bm-cell.exit.locked { outline-style: dashed; }
-/* Contrabando: el destello del portal de salida. */
-.bm-cell.portal-flash::before { content: ''; position: absolute; inset: 8%; border-radius: 50%; border: 3px solid var(--brass); animation: portal-out 0.7s var(--ease-out) forwards; pointer-events: none; }
-@keyframes portal-out { from { opacity: 1; scale: 0.4; } to { opacity: 0; scale: 1.6; } }
 /* El número de paso sobre la casilla ya pisada: la ruta se lee como un recorrido. */
 .bm-lbl {
   position: absolute; top: 4%; right: 5%; min-width: 24%; height: 24%; display: grid; place-items: center;
@@ -1338,15 +1323,3 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 @keyframes knight-collapse { 0% { transform: none; filter: none; } 30% { transform: scale(0.84) rotate(-2deg); filter: brightness(0.4); } 100% { transform: none; filter: none; } }
 .bm-cell.closed { animation: knight-collapse 0.35s var(--ease-out) both; }
 
-
-/* El minijuego usa la misma grieta y caída 3D que BoardView.collapse. */
-.mini-stage:has(.floor-game) { perspective: 1500px; perspective-origin: 50% 35%; }
-.floor-game { transform-style: preserve-3d; }
-.floor-game .bm-cell.hole { animation: none; }
-.floor-game .bm-cell.hole.falling { z-index: 3; pointer-events: none; transform-origin: 50% 50%; }
-.floor-game .bm-cell.cracking {
-  background-image: linear-gradient(115deg, transparent 45%, var(--ink) 46% 48%, transparent 49%),
-    linear-gradient(35deg, transparent 55%, var(--ink) 56% 57.5%, transparent 58%);
-  animation: crack 0.12s linear 4;
-}
-@media (prefers-reduced-motion: reduce) { .floor-game .bm-cell.cracking { animation: none; } }
