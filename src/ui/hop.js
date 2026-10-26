@@ -27,7 +27,7 @@ function gooOf(grid, cols, rows) {
 // (.bm-slab .bm-pc::after): elipse al 72 % de la casilla. dur en segundos, como Motion.
 function puddle(grid, from, to, { side, cell, cols, rows, dur }) {
   const at = (r, c) => [c + 0.5, r + 0.72];
-  liquid(gooOf(grid, cols, rows), { side, from: at(from.row, from.col), to: at(to.row, to.col), rx: 0.25, ry: 0.15, px: 1 / cell, area: [cols, rows], dur: dur * 1000 });
+  liquid(gooOf(grid, cols, rows), { side, from: at(from.row, from.col), to: at(to.row, to.col), rx: 0.25, ry: 0.15, px: 1 / cell, area: [cols, rows], dur: dur * 1000, pixel: document.documentElement.dataset.art === 'pixel' });
 }
 
 // Salta de `from` a `to` ({ row, col }) con su charco. Se llama después de repintar, con la ficha
