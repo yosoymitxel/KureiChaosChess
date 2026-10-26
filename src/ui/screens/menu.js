@@ -88,7 +88,8 @@ export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onS
       onTutorial=${hasRun ? () => setAskTutorial(true) : go(onTutorial)} />
     <div class="menu-col">
       <div class="logo" data-enter>
-        <h1>Kure'i<span>ChaosChess</span></h1>
+        <h1 aria-label="Kure'i ChaosChess"><span class="logo-main" aria-hidden="true">Kure'<span class="logo-i">i<${Icon} name="crown" size=${40} /></span></span>
+          <span class="logo-sub" aria-hidden="true"><span class="logo-chaos">${[...'Chaos'].map((ch, i) => html`<i style=${{ '--i': i }}>${ch}</i>`)}</span>Chess</span></h1>
         <p>Ajedrez que muta en cada piso. Sube la torre, gana piezas raras y derriba al coloso del final.</p>
       </div>
       <nav class="menu-actions">

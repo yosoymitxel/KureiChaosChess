@@ -34,7 +34,20 @@
   color: var(--paper);
   text-shadow: 0 1px 0 var(--paper-3), 0 2px 0 var(--paper-3), 0 3px 0 var(--paper-3), 0 4px 0 var(--ink), 0 5px 0 var(--ink), 0 6px 0 var(--ink), 0 14px 22px oklch(0.1 0.03 55 / 0.55);
 }
-.logo h1 span { color: var(--accent); display: block; font-size: 0.52em; }
+/* Logotipo: «Kure'i» con relleno de tablero y la corona sobre la i; «ChaosChess» en una cinta,
+   con las letras de Chaos desordenadas y Chess derecha. */
+.logo-main { display: inline-block; position: relative; color: var(--paper);
+  background: repeating-conic-gradient(var(--paper) 0 25%, color-mix(in oklch, var(--paper), var(--accent) 38%) 0 50%) 0 0 / 0.3em 0.3em;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none;
+  filter: drop-shadow(0 2px 0 var(--paper-3)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 12px 14px oklch(0.1 0.03 55 / 0.5)); }
+.logo-i { position: relative; display: inline-block; background: inherit; -webkit-background-clip: text; background-clip: text; }
+.logo-i .icon { position: absolute; left: 50%; top: -0.08em; width: 0.36em; height: 0.36em; translate: -50% 0; rotate: 12deg; color: var(--brass); filter: drop-shadow(0 3px 0 var(--ink)); -webkit-text-fill-color: initial; }
+.logo-sub { display: inline-flex; align-items: baseline; margin-top: 0.12em; padding: 0.06em 0.22em 0.1em; font-size: 0.4em; letter-spacing: 0; color: var(--paper);
+  background: var(--accent); border: 3px solid var(--ink); border-radius: 10px; rotate: -3deg; text-shadow: 0 3px 0 var(--ink); box-shadow: 0 6px 0 var(--ink); }
+.logo-chaos { display: inline-flex; margin-right: 0.06em; }
+.logo-chaos i { font-style: normal; display: inline-block; rotate: calc((var(--i) - 2) * 7deg * (1 - 2 * mod(var(--i), 2))); translate: 0 calc(mod(var(--i), 2) * -0.08em); transition: rotate 0.3s var(--ease-out); }
+.logo:hover .logo-chaos i { rotate: calc((var(--i) - 2) * -9deg); }
+@media (prefers-reduced-motion: reduce) { .logo-chaos i { transition: none; } }
 .logo p { margin: 22px 0 0; max-width: 34ch; font-size: 16px; color: var(--paper-2); }
 .menu-actions { display: flex; flex-direction: column; gap: 14px; margin-top: 34px; max-width: 320px; }
 .menu-row { display: flex; gap: 10px; }
