@@ -287,7 +287,7 @@ export function botChooseMove(match) {
       for (const v of m.hits) score += kills(v) ? 1000 : v.boss ? 60 * R.capture : (PIECE_VALUE[v.type] || 20) * R.capture;
       score += Math.max(board.rows, board.cols) - (Math.abs(m.row - (board.rows - 1) / 2) + Math.abs(m.col - (board.cols - 1) / 2));
       if (royal && R.pressure) score += R.pressure * Math.max(0, 10 - (Math.abs(m.row - royal.row) + Math.abs(m.col - royal.col)));
-      if (p.boss) score += 2 + m.hits.length * 15; // el jefe toma la iniciativa y le gusta aplastar
+      if (p.boss) score += m.hits.length * 15; // al jefe le gusta aplastar
       if (threat != null) score += care * Math.max(0, worth(p) - threat);
       if (guard && !m.hits.some(kills) && (underFire || p === myRoyal || onLine(p)) && exposes(p, m)) score -= guard * worth(myRoyal);
       // Peón que quiere coronar (La cacería): cuanto más cerca del fondo, mejor.

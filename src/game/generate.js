@@ -390,29 +390,31 @@ export function placeBoss(pieces, board, bossId) {
   for (let i = 0; i < h; i++) for (let j = 0; j < w; j++) cells.push(key(i, col + j));
   // Clear the footprint (a 3×3 may reach past the safe rows) and the old king: the boss is the new royal piece.
   cells.forEach((k) => board.holes.delete(k));
-  for (let i = pieces.length - 1; i >= 0; i--) {
-    const p = pieces[i];
-    if (p.color === 'dark' && (p.type === 'king' || cells.includes(key(p.row, p.col)))) pieces.splice(i, 1);
-  }
+  const king = pieces.findIndex((p) => p.color === 'dark' && p.type === 'king');
+  if (king >= 0) pieces.splice(king, 1);
   const boss = makePiece('boss-' + def.id, 'dark', 0, col, {
     boss: def.id, h, w, hp: def.hp, maxHp: def.hp, moves: [...def.moves], royal: true, name: def.name, absorb: !!def.absorb,
   });
-  pieces.push(boss);
-  // El ejército no lo encierra: dos de cada tres jefes empezaban sin una sola jugada y esperaban
-  // quietos el golpe. Las piezas pegadas al jefe (las de delante primero) se apartan a la casilla
-  // libre más cercana de su campo hasta que tenga al menos dos salidas.
-  const near = (p) => p.color === 'dark' && p !== boss && p.row <= h && p.col >= col - 1 && p.col <= col + w;
+  // Lo que estaba en su sitio, o pegado a él, se aparta a la casilla libre más cercana de su campo
+  // en vez de desaparecer: el 3×3 del Gólem dejaba al jefe con cuatro piezas menos. Las de delante
+  // se apartan hasta que el jefe tenga dos salidas: dos de cada tres empezaban encerrados.
   const taken = (r, c) => pieces.some((p) => cellsOf(p).some(([a, b]) => a === r && b === c));
   const ring = (r, c) => r <= h && c >= col - 1 && c <= col + w;
-  for (let k = 0; k < 6 && legalMoves(boss, pieces, board).length < 2; k++) {
-    const blocker = pieces.filter(near).sort((a, b) => b.row - a.row || Math.abs(a.col - col) - Math.abs(b.col - col))[0];
-    if (!blocker) break;
+  const aside = (p) => {
     const spots = [];
     for (let r = 0; r < Math.max(board.protectRows ?? 2, h + 2); r++)
       for (let c = 0; c < board.cols; c++) if (!board.holes.has(key(r, c)) && !taken(r, c) && !ring(r, c)) spots.push([r, c]);
-    const [r, c] = spots.sort((a, b) => Math.abs(a[0] - blocker.row) + Math.abs(a[1] - blocker.col) - Math.abs(b[0] - blocker.row) - Math.abs(b[1] - blocker.col))[0] || [];
-    if (r == null) pieces.splice(pieces.indexOf(blocker), 1);
-    else Object.assign(blocker, { row: r, col: c }, blocker.type === 'pawn' ? { startRow: r } : {});
+    const [r, c] = spots.sort((a, b) => Math.abs(a[0] - p.row) + Math.abs(a[1] - p.col) - Math.abs(b[0] - p.row) - Math.abs(b[1] - p.col))[0] || [];
+    if (r == null) pieces.splice(pieces.indexOf(p), 1);
+    else Object.assign(p, { row: r, col: c }, p.type === 'pawn' ? { startRow: r } : {});
+  };
+  pieces.filter((p) => p.color === 'dark' && cells.includes(key(p.row, p.col))).forEach(aside);
+  pieces.push(boss);
+  const near = (p) => p.color === 'dark' && p !== boss && p.row <= h && p.col >= col - 1 && p.col <= col + w;
+  for (let k = 0; k < 6 && legalMoves(boss, pieces, board).length < 2; k++) {
+    const blocker = pieces.filter(near).sort((a, b) => b.row - a.row || Math.abs(a.col - col) - Math.abs(b.col - col))[0];
+    if (!blocker) break;
+    aside(blocker);
   }
   return boss;
 }
