@@ -29,16 +29,16 @@ export const PIXEL_THEMES = {
     "price": 160,
     "swatch": [
       "#19151a",
-      "#d9d0c2",
+      "#a8a29a",
       "#a44758",
       "#78ad67"
     ],
     "vars": {
       "table": "#19151a",
       "table-2": "#282027",
-      "tile-a": "#d9d0c2",
-      "tile-b": "#83756c",
-      "tile-side": "#493d3a",
+      "tile-a": "#a8a29a",
+      "tile-b": "#6e6862",
+      "tile-side": "#403a37",
       "side-light": "#d9cbbb",
       "side-dark": "#a44758",
       "side-wild": "#78ad67",
