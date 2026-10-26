@@ -121,7 +121,7 @@ export function App() {
     return { id: `versus-${seed}`, seed, floor: round, versus: true, modifier, board };
   };
   const versusRun = (cfg) => ({ seed: 0, map: { floors: Math.max(cfg.rounds, 1) }, mutations: [], bonuses: {}, cards: [], completed: {} });
-  const newVersus = (cfg = versus?.cfg || { game: 'chess', mod: 'random', size: 'random', shape: 'random', rounds: 1, goals: 5 }) => {
+  const newVersus = (cfg = versus?.cfg || { game: 'chess', mod: 'random', size: 'random', shape: 'random', rounds: 1, goals: 5, diff: 'normal' }) => {
     setVersus({ key: 0, cfg, score: {}, round: 0, run: versusRun(cfg), node: versusNode(cfg) });
     goTo('versus-setup');
   };
@@ -268,9 +268,9 @@ export function App() {
       onPrefs=${run && !run.tutorial && !Object.keys(run.completed).length ?(prefs) => { const r = withPrefs(run, prefs); setRun(r); setNode(r.map.nodes[0]); } : null} />`}
     ${screen === 'versus-setup' && versus && html`<${SetupScreen} versus node=${versus.node} run=${versus.run} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')}
       versusCfg=${versus.cfg} onVersusCfg=${setVersusCfg}
-      onStart=${(s) => { setVersus((v) => ({ ...v, seats: s, score: {}, round: 0, ended: false, done: false, node: v.round ? versusNode(v.cfg) : v.node })); goTo(versus.cfg.game === 'hockey' ? 'versus-hockey' : 'versus'); }} />`}
-    ${screen === 'versus-hockey' && versus?.seats && html`<${MINIGAMES.hockey.Screen} key=${'vh-' + versus.key} sub="Partida local" settings=${settings} setSettings=${setSettings}
-      duo=${{ goals: versus.cfg.goals, names: versus.seats.map((s) => s.name) }} endLabel="Al menú" onBack=${() => goTo('menu')} onEnd=${() => goTo('menu')}
+      onStart=${(s) => { setVersus((v) => ({ ...v, seats: s, score: {}, round: 0, ended: false, done: false, node: v.round ? versusNode(v.cfg) : v.node })); goTo(MODIFIERS[versus.cfg.game]?.duo ? 'versus-mini' : 'versus'); }} />`}
+    ${screen === 'versus-mini' && versus?.seats && html`<${MINIGAMES[versus.cfg.game].Screen} key=${'vm-' + versus.key} sub="Partida local" settings=${settings} setSettings=${setSettings}
+      diff=${versus.cfg.diff} duo=${{ goals: versus.cfg.goals, names: versus.seats.map((s) => s.name) }} endLabel="Al menú" onBack=${() => goTo('menu')} onEnd=${() => goTo('menu')}
       onRestart=${() => setVersus((v) => ({ ...v, key: v.key + 1 }))} />`}
     ${screen === 'versus' && versus?.seats && html`<${GameScreen} key=${versus.node.id + '-' + versus.key}
       node=${versus.node} run=${versus.run} seats=${versus.seats} settings=${settings} setSettings=${setSettings} exitLabel=${versus.ended && !versus.done ? 'Siguiente ronda' : 'Al menú'}

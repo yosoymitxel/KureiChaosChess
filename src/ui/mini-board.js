@@ -6,28 +6,31 @@ import { key } from '../game/rules.js';
 // El tablero de la partida para minijuegos sin Match. Piezas { id, type, color, row, col }: cada cambio
 // entre dos pintadas se anima como en la partida (entra cayendo, salta, captura al aterrizar, sale derribada).
 // `strikes` [{ id, from, to }]: capturas sin moverse (la pieza en `from` embiste a la `id` y vuelve), tras los saltos.
-export function MiniBoard({ board, pieces, onTap, marks, labels, strikes, disabled, label, hostRef }) {
+// `hidden` (ids): las que salen escondiéndose, no derribadas. `onView` recibe el tablero (para efectos propios).
+export function MiniBoard({ board, pieces, onTap, marks, labels, strikes, hidden, disabled, label, hostRef, onView }) {
   const own = useRef(null), host = hostRef || own, view = useRef(null), tap = useRef(null);
   tap.current = disabled ? null : onTap;
   useLayoutEffect(() => {
     const s = loadSettings();
     view.current = new BoardView(host.current, { camera: s.camera, shake: s.shake, speed: s.speed, framed: true, onTap: (hit) => tap.current?.(hit.row, hit.col) });
+    onView?.(view.current);
     return () => view.current.ro.disconnect();
   }, []);
   useLayoutEffect(() => {
     const v = view.current;
     if (v.board !== board) { v.setBoard(board); v.setPieces(pieces.map((p) => ({ ...p }))); v.intro([...v.els.keys()]); }
-    else sync(v, pieces, strikes);
+    else sync(v, pieces, strikes, hidden);
     v.clearMarks();
-    for (const [k, cls] of marks || []) v.tiles.get(k)?.classList.add(...cls.split(' '));
+    for (const [k, cls] of marks || []) v.tiles.get(k)?.classList.add(...cls.split(' ').filter(Boolean));
     v.setLabels(labels);
   });
   return html`<div class="mini-stage board-host" ref=${host} role="grid" aria-label=${label}></div>`;
 }
 
-async function sync(v, pieces, strikes = []) {
+async function sync(v, pieces, strikes = [], hidden = new Set()) {
   const live = new Map([...v.els.keys()].map((p) => [p.id, p]));
   const gone = new Map([...live].filter(([id]) => !pieces.some((q) => q.id === id)));
+  for (const [id, p] of gone) if (hidden.has(id)) { gone.delete(id); v.vanish(p); }
   const struck = new Map(strikes.filter((x) => gone.has(x.id)).map((x) => [x.id, x]));
   const step = (p, to, victims = []) => {
     const from = { row: p.row, col: p.col };

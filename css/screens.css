@@ -27,18 +27,67 @@
   from { transform: translateY(calc(var(--sq) * 0.35)) rotateX(var(--tilt)) rotateZ(-22deg); }
   to { transform: translateY(calc(var(--sq) * 0.35)) rotateX(var(--tilt)) rotateZ(-8deg); }
 }
-.menu-col { position: relative; z-index: 2; padding: clamp(24px, 6vw, 80px); max-width: 520px; }
+/* La columna mide lo que el título: texto y botones no aportan ancho (contain) y se estiran a él. */
+.menu-col { position: relative; z-index: 2; display: grid; gap: 28px; width: max-content; padding: clamp(24px, 6vw, 80px); }
+.menu-col > :not(.logo), .logo p { contain: inline-size; }
 /* Title is extruded like the lid lettering of a board-game box. */
 .logo h1 {
+  display: grid; justify-items: stretch; margin: 0;
   font-size: clamp(64px, 12vw, 136px); font-weight: 800; letter-spacing: -0.04em; line-height: 0.85;
   color: var(--paper);
   text-shadow: 0 1px 0 var(--paper-3), 0 2px 0 var(--paper-3), 0 3px 0 var(--paper-3), 0 4px 0 var(--ink), 0 5px 0 var(--ink), 0 6px 0 var(--ink), 0 14px 22px oklch(0.1 0.03 55 / 0.55);
 }
-.logo h1 span { color: var(--accent); display: block; font-size: 0.52em; }
-.logo p { margin: 22px 0 0; max-width: 34ch; font-size: 16px; color: var(--paper-2); }
-.menu-actions { display: flex; flex-direction: column; gap: 14px; margin-top: 34px; max-width: 320px; }
-.menu-row { display: flex; gap: 10px; }
+/* Logotipo: «Kure'i» con relleno de tablero y la corona sobre la i; «ChaosChess» en una cinta,
+   con las letras de Chaos desordenadas y Chess derecha. */
+.logo-main { display: block; position: relative; padding-top: 0.08em; color: var(--paper);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='2' shape-rendering='crispEdges'%3E%3Crect width='2' height='2' fill='%23f4e9d6'/%3E%3Cpath d='M1 0h1v1H1zM0 1h1v1H0z' fill='%23e3b98f'/%3E%3C/svg%3E") 0 0 / 0.3em 0.3em;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none;
+  filter: drop-shadow(0 2px 0 var(--paper-3)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 12px 14px oklch(0.1 0.03 55 / 0.5)); }
+.logo-i { position: relative; display: inline-block; background: inherit; -webkit-background-clip: text; background-clip: text; }
+/* La corona hace de punto de la ı: centrada en el palo medido de la letra (--cx) y apoyada en su
+   remate (--top), con el mismo canto de tinta que las letras. Cada tanto da un saltito. */
+.logo-i { --cx: 0.114em; --top: 0em; --cs: 0.26em; }
+.logo-i .icon { position: absolute; left: calc(var(--cx) - var(--cs) / 2); top: var(--top); width: var(--cs); height: var(--cs); color: var(--brass);
+  stroke: var(--ink); stroke-width: 1.6px; paint-order: stroke; transform-origin: 50% 90%; -webkit-text-fill-color: initial;
+  animation: crown-hop 5s 1.2s var(--ease-out) infinite; }
+@keyframes crown-hop {
+  0%, 76%, 100% { translate: 0 0; rotate: 0deg; scale: 1; }
+  80% { translate: 0 0; scale: 1.12 0.82; }
+  86% { translate: 0 -0.16em; rotate: -14deg; scale: 0.94 1.08; }
+  92% { translate: 0 0; rotate: 6deg; scale: 1.1 0.88; }
+  96% { rotate: -2deg; scale: 1; }
+}
+.logo-sub { display: flex; justify-content: center; align-items: baseline; margin-top: 0.2em; padding: 0.08em 0.2em 0.12em; font-size: 0.4em; letter-spacing: 0; color: var(--paper);
+  background: var(--accent); border: 3px solid var(--ink); border-radius: var(--r-md); text-shadow: 0 3px 0 var(--ink); box-shadow: 0 6px 0 var(--ink); }
+.logo-chaos { display: inline-flex; margin-right: 0.06em; }
+/* Chaos no se está quieto: cada letra cabecea a su ritmo. */
+.logo-chaos i { --tilt: calc((var(--i) - 2) * 7deg * (1 - 2 * mod(var(--i), 2))); font-style: normal; display: inline-block; rotate: var(--tilt);
+  translate: 0 calc(mod(var(--i), 2) * -0.08em); animation: chaos-wob calc(1.6s + var(--i) * 0.23s) calc(var(--i) * -0.4s) ease-in-out infinite alternate; }
+@keyframes chaos-wob { to { rotate: calc(var(--tilt) * -1 + 4deg); translate: 0 calc((1 - mod(var(--i), 2)) * -0.08em); } }
+/* Entrada: el nombre cae y rebota, la cinta llega de un golpe. */
+.logo-main { animation: logo-drop 0.7s var(--ease-out) both; }
+.logo-sub { animation: logo-slap 0.5s 0.35s var(--ease-out) both; }
+@keyframes logo-drop { 0% { translate: 0 -0.5em; opacity: 0; } 55% { translate: 0 0.04em; opacity: 1; scale: 1.03 0.94; } 100% { translate: 0 0; } }
+@keyframes logo-slap { 0% { scale: 1.4; rotate: -8deg; opacity: 0; } 70% { scale: 0.97; rotate: 1deg; opacity: 1; } 100% { scale: 1; rotate: 0deg; } }
+@media (prefers-reduced-motion: reduce) { .logo-chaos i, .logo-i .icon, .logo-main, .logo-sub { animation: none; } }
+.logo p { margin: 24px 0 0; font-size: 16px; line-height: 1.45; color: var(--paper-2); text-wrap: pretty; }
+.menu-actions { display: flex; flex-direction: column; gap: 12px; }
+/* Botones del menú: icono en una ficha a la izquierda y el texto alineado detrás. */
+.menu-actions > .btn { justify-content: flex-start; min-height: 56px; padding: 8px 18px 8px 8px; gap: 14px; font-size: 16px; }
+.menu-actions > .btn > .icon { box-sizing: content-box; padding: 8px; border-radius: calc(var(--r-md) - 4px); background: var(--fg); color: var(--bg); --icon-cut: var(--fg); }
+.menu-actions > .btn::after { content: ''; margin-left: auto; width: 8px; height: 8px; border: solid currentColor; border-width: 2.5px 2.5px 0 0; rotate: 45deg; opacity: 0.55; transition: translate 0.2s var(--ease-out), opacity 0.2s; }
+.menu-actions > .btn > .icon { transition: rotate 0.25s var(--ease-out), scale 0.25s var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .menu-actions > .btn:hover::after { translate: 4px 0; opacity: 1; }
+  .menu-actions > .btn:hover > .icon { rotate: -8deg; scale: 1.08; }
+}
+/* El botón principal invita: la flecha empuja hacia delante cada poco. */
+.menu-actions > .btn.primary::after { animation: nudge 2.4s 1.5s ease-in-out infinite; }
+@keyframes nudge { 0%, 70%, 100% { translate: 0 0; } 80% { translate: 5px 0; } 90% { translate: 1px 0; } }
+@media (prefers-reduced-motion: reduce) { .menu-actions > .btn.primary::after { animation: none; } }
+.menu-row { display: flex; gap: 12px; }
 .menu-row .btn { flex: 1; }
+.menu-row .btn.icon-only { flex: none; width: 48px; }
 .menu-ask { display: grid; gap: 10px; color: var(--paper); }
 .menu-ask p { margin: 0; font-size: 14px; line-height: 1.4; }
 .menu-extras { flex-wrap: wrap; }
@@ -47,10 +96,11 @@
   .menu { flex-direction: column; justify-content: flex-end; }
   .diorama { inset: 0 0 38% 0; }
   .diorama-wrap { inset: 0 0 38% 0; }
-  .menu-col { padding-bottom: calc(24px + env(safe-area-inset-bottom)); width: 100%; }
-  .logo h1 { font-size: 64px; }
+  .menu-col { gap: 18px; width: 100%; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); }
+  .logo { text-align: center; }
+  .logo h1 { font-size: 72px; justify-items: center; }
   .logo p { margin-top: 12px; font-size: 14px; }
-  .menu-actions { margin-top: 18px; max-width: none; }
+  .menu-actions > .btn { min-height: 52px; }
 }
 
 /* Map: the run is a printed track on a game sheet. */
@@ -106,6 +156,11 @@
 .setup-body { flex: 1; overflow: auto; display: flex; flex-direction: column; justify-content: safe center; gap: 16px; padding: 8px 20px 40px; width: min(560px, 100%); margin: 0 auto; }
 .setup-card { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
 .setup-card h2 + .segmented { margin-top: -2px; }
+/* Partida local, pestaña Minijuegos: lista de los que se juegan a dos. */
+.duo-list li { padding: 0; }
+.duo-list button { display: flex; gap: 10px; align-items: center; width: 100%; padding: 10px; border: 2px solid transparent; border-radius: 10px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.duo-list button.on { border-color: var(--ink); background: var(--brass); }
+.duo-list button div { display: grid; }
 /* En PC la mesa cabe sin desplazar: las mecánicas en su columna, el resto en la otra. */
 @media (min-width: 900px) {
   .setup .setup-body:has(.prefs) { display: grid; grid-template-columns: repeat(2, minmax(0, 480px)); justify-content: center; align-content: safe center; align-items: start; width: min(1040px, 100%); }
@@ -1289,25 +1344,19 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
   .lab-board { min-width: 0; min-height: 0; width: 100%; height: 100%; }
 }
 
-/* Mobile: floating sandwich button for minigame controls (lab + minigames). */
+/* Móvil: «Cómo se juega» va arriba a la derecha, a la altura de la barra, sin tapar el marcador. */
 @media (max-width: 700px) {
   .mini-tools {
     position: fixed;
     right: 12px;
-    bottom: calc(12px + env(safe-area-inset-bottom));
+    top: calc(14px + env(safe-area-inset-top));
     z-index: 90;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
+    width: 44px;
+    height: 44px;
     padding: 0;
     justify-content: center;
-    box-shadow: 0 4px 14px #0006;
-    background: var(--ink);
-    color: var(--paper);
-    border: 2px solid var(--paper-2);
   }
-  .mini-tools .mini-tools-label { display: none; }\n  .mini-tools .icon { display: none; }
-  .mini-tools::before { content: '\2630'; font-size: 22px; line-height: 1; }
+  .mini-tools .mini-tools-label { display: none; }
 }
 
 

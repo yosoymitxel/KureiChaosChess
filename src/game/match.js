@@ -7,6 +7,7 @@ import { RIVALS } from './difficulty.js';
 
 // Turns per player without a capture before the game is decided on piece count.
 export const QUIET_LIMIT = 20;
+export const METEOR_EVERY = 4;
 
 export class Match {
   // `objective(match)` (minijuegos de src/data/scenarios.js) reemplaza el fin de partida por rey
@@ -208,13 +209,34 @@ export class Match {
     this.turn++;
     this.quietTurns++;
     const collapse = this.modifier === 'chaos' && this.turn % 3 === 0 ? this.collapse() : null;
+    const meteor = this.modifier === 'meteor' ? this.meteor() : null;
     let next = this.current;
     do next = (next + 1) % this.players.length; while (this.eliminated[this.players[next].color] && next !== this.current);
     this.current = next;
     this.turnBonus = this.bonus?.(this) || 0;
     const tick = this.tick?.(this) || null;
-    if (this.checkOver()) return { ended: true, collapse, tick, over: this.over };
-    return { ended: true, collapse, tick };
+    if (this.checkOver()) return { ended: true, collapse, meteor, tick, over: this.over };
+    return { ended: true, collapse, meteor, tick };
+  }
+
+  // Meteorito: un turno avisa dónde caerá (`doom`, una cruz de cinco casillas) y el siguiente cae:
+  // las casillas se hunden y lo que haya encima se pierde, rey incluido. Cada METEOR_EVERY turnos.
+  meteor() {
+    if (this.doom) {
+      const cells = this.doom, lost = this.pieces.filter((p) => !p.boss && cellsOf(p).some(([r, c]) => cells.some(([a, b]) => a === r && b === c)));
+      this.doom = null;
+      for (const [r, c] of cells) this.board.holes.add(key(r, c));
+      for (const p of lost) this.pieces.splice(this.pieces.indexOf(p), 1);
+      for (const p of lost) if (p.royal && !this.pieces.some((q) => q.royal && q.color === p.color)) this.eliminated[p.color] = true;
+      return { cells, lost };
+    }
+    if (this.turn % METEOR_EVERY !== METEOR_EVERY - 1) return null;
+    const { rows, cols, holes } = this.board, cand = [];
+    for (let r = 1; r < rows - 1; r++) for (let c = 1; c < cols - 1; c++) if (!holes.has(key(r, c))) cand.push([r, c]);
+    if (!cand.length) return null;
+    const [r, c] = cand[Math.floor(Math.random() * cand.length)];
+    this.doom = [[r, c], [r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]].filter(([a, b]) => a >= 0 && b >= 0 && a < rows && b < cols && !holes.has(key(a, b)));
+    return { warn: this.doom };
   }
 
   // Two edge tiles (mirrored when possible) fall into the void.
@@ -280,6 +302,7 @@ function cheapestAttacker(match, mover, row, col, hits) {
 // Greedy bot: captures by value, centralisation, pressure on the enemy royal. The rival profile
 // (difficulty.js) dials what it sees, what it protects and how often it blunders.
 export function botChooseMove(match) {
+  const doomed = match.doom && ((r, c) => match.doom.some(([a, b]) => a === r && b === c));
   const { pieces, board } = match;
   const R = match.rivals?.[match.player.color] || match.rival || RIVALS.oficial;
   const color = match.player.color;
@@ -319,6 +342,8 @@ export function botChooseMove(match) {
       if (royal && R.pressure) score += R.pressure * Math.max(0, 10 - (Math.abs(m.row - royal.row) + Math.abs(m.col - royal.col)));
       if (p.boss) score += m.hits.length * 15; // al jefe le gusta aplastar
       if (p.awake) score += 4 + m.hits.length * 10; // la bruja despierta no para
+      // Meteorito avisado: salir de la cruz y no meterse en ella (el rey, sobre todo).
+      if (doomed) { if (doomed(m.row, m.col)) score -= worth(p); else if (doomed(p.row, p.col)) score += worth(p); }
       if (threat != null) score += care * Math.max(0, worth(p) - threat);
       if (guard && !m.hits.some(kills) && (underFire || p === myRoyal || onLine(p)) && exposes(p, m)) score -= guard * worth(myRoyal);
       // Peón que quiere coronar (La cacería): cuanto más cerca del fondo, mejor.
