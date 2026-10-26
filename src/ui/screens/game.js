@@ -75,7 +75,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     // El rival lo manda el tramo de la torre (difficulty.js); el ajuste de dificultad corre la
     // escalera y el mini-jefe sube un peldaño.
     const rival = scenario?.rival || rivalForFloor(node.floor, run.map.floors, { up: node.isMiniBoss ? 1 : 0, difficulty: run.tutorial ? 'facil' : settings.difficulty });
-    const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses, rival, objective: scenario?.objective, bonus: scenario?.bonus });
+    const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses, rival, objective: scenario?.objective, bonus: scenario?.bonus, tick: scenario?.tick });
     // Foto del bando humano al repartir: decide los logros de fin de partida.
     const human = seats.find((s) => s.kind === 'human')?.color || 'light';
     d.feats = { human, mine: new Set(pieces.filter((p) => p.color === human)), cards: 0, hadCards: d.hand.length > 0 };
@@ -279,10 +279,18 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         d.moments.callout({ text: '¡Derrumbe!', sub: 'El borde cae al vacío', icon: 'collapse', tone: 'danger', anim: 'crumble', tier: 'major' });
         await d.view.collapse(after.collapse);
       }
+      await showTick(after.tick);
       d.busy = false;
       if (match.over) return finish(), true;
       startTurn(after.ended);
       return true;
+    };
+
+    // Lo que un minijuego hizo al cambiar de turno (match.tick): piezas que llegan, casillas que se hunden.
+    const showTick = async (tick) => {
+      if (!tick) return;
+      const { spawned = [], sunk = [], fallen = [] } = tick;
+      await Promise.all([...spawned.map((p) => d.view.dropIn(p)), ...fallen.map((p) => d.view.kill(p, p, p)), sunk.length && d.view.collapse(sunk)]);
     };
 
     const startTurn = (newTurn = true) => {
@@ -291,8 +299,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (!match.canMove()) {
         addLog(`${p.name} no puede moverse`);
         const a = match.afterMove({ pass: true });
-        if (match.over) return finish();
-        return setTimeout(() => startTurn(a.ended), 400);
+        return showTick(a.tick).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
       }
       if (p.kind === 'bot') {
         // The bot waits for the labels on screen: its move used to land under a collapse or a capture.

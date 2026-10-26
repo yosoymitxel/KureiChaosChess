@@ -12,8 +12,10 @@ export class Match {
   // `objective(match)` (minijuegos de src/data/scenarios.js) reemplaza el fin de partida por rey
   // caído: devuelve { victory, note } cuando la partida termina, o null.
   // `bonus(match)`: jugadas extra sin captura del turno que empieza (El guardaespaldas).
-  constructor({ board, pieces, players, modifier, mutations, bonuses, rival, rivals, objective, bonus }) {
-    Object.assign(this, { board, pieces, players, modifier, rival, rivals, objective, bonus });
+  // `tick(match)` (minijuegos) corre al cambiar de turno: hace aparecer piezas o hunde casillas y
+  // devuelve { spawned, sunk, fallen } para que el tablero lo anime.
+  constructor({ board, pieces, players, modifier, mutations, bonuses, rival, rivals, objective, bonus, tick }) {
+    Object.assign(this, { board, pieces, players, modifier, rival, rivals, objective, bonus, tick });
     this.current = 0;
     this.movesThisTurn = 0;
     this.turn = 0;
@@ -199,8 +201,9 @@ export class Match {
     do next = (next + 1) % this.players.length; while (this.eliminated[this.players[next].color] && next !== this.current);
     this.current = next;
     this.turnBonus = this.bonus?.(this) || 0;
-    if (this.checkOver()) return { ended: true, collapse, over: this.over };
-    return { ended: true, collapse };
+    const tick = this.tick?.(this) || null;
+    if (this.checkOver()) return { ended: true, collapse, tick, over: this.over };
+    return { ended: true, collapse, tick };
   }
 
   // Two edge tiles (mirrored when possible) fall into the void.
