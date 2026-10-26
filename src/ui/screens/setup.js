@@ -38,19 +38,18 @@ function PrefsCard({ prefs, onPrefs }) {
   </section>`;
 }
 
-// En la run juegas tú contra bots y solo se elige si entra un bando bot extra; quién es humano y
-// quién bot se elige en la partida local (`versus`), que va aparte de la run.
+// Bandos fijos: en la run tú contra el bot (o contra dos); en la partida local (`versus`, aparte
+// de la run) dos personas, con un bot opcional de tercero.
 export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings, onPrefs, onHowTo, versus }) {
   const ref = useRef(null);
   useEnter(ref);
   const [count, setCount] = useState(defaultCount || 2);
-  const [kinds, setKinds] = useState(versus ? ['human', 'human', 'bot'] : ['human', 'bot', 'bot']);
+  const kinds = versus ? ['human', 'human', 'bot'] : ['human', 'bot', 'bot'];
   const mod = nodeModifier(node);
   // El peldaño del rival lo fija el tramo de la torre, el ajuste de dificultad lo corre entero
   // y el piso de un mini-jefe sube uno.
   const rival = rivalForFloor(node.floor, run?.map?.floors ?? 1, { up: node.isMiniBoss ? 1 : 0, difficulty: run?.tutorial ? 'facil' : settings?.difficulty });
   const seats = SIDES.slice(0, count).map((s, i) => ({ color: s.color, kind: kinds[i], name: kinds[i] === 'bot' ? `Bot ${s.label}` : versus ? `Jugador ${i + 1}` : 'Tú' }));
-  const setKind = (i, kind) => setKinds((k) => k.map((v, j) => (j === i ? kind : v)));
   return html`<div class="screen setup" ref=${ref}>
     <${Topbar} title="Prepara la mesa" sub=${versus ? 'Partida local' : `Piso ${node.floor + 1}`} onBack=${onBack} />
     <div class="setup-body">
@@ -78,15 +77,11 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
       <section class="panel setup-card" data-enter>
         <h2>Jugadores</h2>
         <div class="segmented" role="group" aria-label="Número de bandos">
-          ${[2, 3].map((n) => html`<button class=${count === n ? 'on' : ''} aria-pressed=${count === n} onClick=${() => setCount(n)}>${versus ? `${n} bandos` : n === 2 ? 'Tú contra el bot' : '+ Bot extra'}</button>`)}
+          ${[2, 3].map((n) => html`<button class=${count === n ? 'on' : ''} aria-pressed=${count === n} onClick=${() => setCount(n)}>${n === 3 ? '+ Bot extra' : versus ? '1 contra 1' : 'Tú contra el bot'}</button>`)}
         </div>
         ${seats.map((s, i) => html`<div class="seat-row">
           <span class=${'token side-' + s.color}></span>
           <div class="grow"><strong>${s.name}</strong><small>${SIDES[i].label}</small></div>
-          ${versus && html`<div class="segmented sm" role="group" aria-label=${'Control de ' + SIDES[i].label}>
-            <button class=${s.kind === 'human' ? 'on' : ''} aria-pressed=${s.kind === 'human'} onClick=${() => setKind(i, 'human')}><${Icon} name="human" size=${14} />Humano</button>
-            <button class=${s.kind === 'bot' ? 'on' : ''} aria-pressed=${s.kind === 'bot'} onClick=${() => setKind(i, 'bot')}><${Icon} name="bot" size=${14} />Bot</button>
-          </div>`}
         </div>`)}
       </section>
       <button class="btn primary big" data-enter onClick=${() => onStart(seats)}>Repartir piezas</button>
