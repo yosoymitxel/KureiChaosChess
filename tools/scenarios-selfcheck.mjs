@@ -22,7 +22,7 @@ for (const id of Object.keys(SCENARIOS)) for (const level of ['facil', 'normal',
   let wins = 0;
   for (let seed = 1; seed <= 25; seed++) {
     const sc = buildScenario(id, level, seed);
-    layouts.add(sc.pieces.map((p) => p.type + key(p.row, p.col)).join() + [...sc.board.holes, ...(sc.board.mines || [])].join());
+    layouts.add(sc.pieces.map((p) => p.type + key(p.row, p.col)).join() + [...sc.board.holes, ...(sc.board.mines || []), ...(sc.labels?.({ pieces: [] }).keys() || [])].join());
     assert.ok(sc.pieces.some((p) => p.color === 'light'), `${id}: the player has pieces`);
     assert.equal(typeof sc.status(matchOf(sc)), 'string');
     const over = play(matchOf(sc), sc);

@@ -10,7 +10,7 @@ import { MODIFIERS } from './modifiers.js';
 
 export const LEVELS = { facil: { name: 'Fácil' }, normal: { name: 'Normal' }, dificil: { name: 'Difícil' } };
 const N = 8;
-const board = () => ({ rows: N, cols: N, holes: new Set(), terrain: new Map(), portals: new Map() });
+const board = (n = N) => ({ rows: n, cols: n, holes: new Set(), terrain: new Map(), portals: new Map() });
 const rounds = (m) => Math.floor(m.turn / m.players.length);
 const side = (m, color) => m.pieces.filter((p) => p.color === color);
 const shuffle = (rng, list) => list.map((x) => [rng(), x]).sort((a, b) => a[0] - b[0]).map((x) => x[1]);
@@ -263,6 +263,44 @@ Object.assign(SCENARIOS, {
       rubble(rng, b, pieces, lv.holes);
       return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'El experimento salió bien.', samples: lv.samples });
     }),
+  },
+  // Ruta del caballo: pisar todas las casillas marcadas; lo pisado se hunde. Las marcas salen de
+  // un paseo real del caballo, así que siempre hay solución.
+  knight: {
+    id: 'knight', single: true,
+    goal: 'Pisa con el caballo todas las casillas marcadas ◎. Cada casilla que dejas se hunde: si te quedas sin saltos, pierdes.',
+    levels: {
+      facil: { size: 5, length: 8, marks: 3 },
+      normal: { size: 6, length: 12, marks: 6 },
+      dificil: { size: 7, length: 16, marks: 9 },
+    },
+    setup(lv, rng) {
+      for (;;) {
+        const b = board(lv.size);
+        b.sinking = 'light';
+        const knight = makePiece('knight', 'light', Math.floor(rng() * lv.size), Math.floor(rng() * lv.size), { royal: true });
+        const path = [];
+        let at = { ...knight };
+        while (path.length < lv.length - 1) {
+          const opts = legalMoves(at, [at], b).filter((m) => m.row !== knight.row || m.col !== knight.col).filter((m) => !path.includes(key(m.row, m.col)));
+          if (!opts.length) break;
+          const m = pickFrom(rng, opts);
+          at = { ...at, row: m.row, col: m.col };
+          path.push(key(m.row, m.col));
+        }
+        if (path.length < lv.length - 1) continue;
+        const left = new Set([path.at(-1), ...shuffle(rng, path).slice(0, lv.marks - 1)]);
+        return {
+          board: b, pieces: [knight], rival: 'oficial',
+          objective: (m) => {
+            left.delete(key(knight.row, knight.col));
+            return !left.size ? { victory: true, note: 'Ruta completa.' } : !m.canMove() ? { victory: false, note: 'El caballo se quedó sin saltos.' } : null;
+          },
+          labels: () => new Map([...left].map((k) => [k, '◎'])),
+          status: () => `Faltan ${left.size} casillas`,
+        };
+      }
+    },
   },
   collapsingFloor: {
     id: 'collapsingFloor',

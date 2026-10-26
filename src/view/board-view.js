@@ -34,12 +34,13 @@ const BADGES = {
 };
 
 export class BoardView {
-  constructor(host, { camera = 'tilt', shake = true, speed = 1, onTap, onDrop, canDrag, onImpact, onHover, onZoom } = {}) {
+  // `framed`: el marco de losa de los minijuegos alrededor del mismo tablero.
+  constructor(host, { camera = 'tilt', shake = true, speed = 1, framed = false, onTap, onDrop, canDrag, onImpact, onHover, onZoom } = {}) {
     Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, onHover, onZoom, shakeOn: shake, speed });
     this.tilt = CAMERAS[camera] ?? 40;
     this.zoom = 1; this.pan = { x: 0, y: 0 };
     host.classList.add('table');
-    host.innerHTML = `<div class="stage"><div class="board"><div class="tiles"></div><svg class="goo" preserveAspectRatio="none" aria-hidden="true"></svg><div class="pieces"></div></div></div>`;
+    host.innerHTML = `<div class="stage"><div class="board${framed ? ' framed' : ''}"><div class="tiles"></div><svg class="goo" preserveAspectRatio="none" aria-hidden="true"></svg><div class="pieces"></div></div></div>`;
     this.stage = host.querySelector('.stage');
     this.boardEl = host.querySelector('.board');
     this.tilesEl = host.querySelector('.tiles');

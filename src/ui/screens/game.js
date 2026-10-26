@@ -349,7 +349,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (res.absorbed?.length) d.moments.callout({ text: '¡Aprende!', sub: `${res.piece.name} roba: ${res.absorbed.map((t) => MOVE_NAMES[t]).join(', ')}`, tone, piece: art(res.piece), anim: 'tremble' });
       if (killed.some((p) => p.boss)) return;
       const royal = killed.find((p) => p.royal);
-      if (royal) return d.moments.callout({ text: '¡Rey caído!', sub: `Cae el bando ${SIDE_NAME[royal.color]}`, tone, piece: art(royal), anim: 'explode', tier: 'major' });
+      if (royal) return d.moments.callout({ text: royal.type === 'king' ? '¡Rey caído!' : `¡${pieceName(royal)} cae!`, sub: `Cae el bando ${SIDE_NAME[royal.color]}`, tone, piece: art(royal), anim: 'explode', tier: 'major' });
       if (killed.length > 1) d.moments.callout({ text: res.piece.boss ? `¡Aplastados ×${killed.length}!` : `¡Captura ×${killed.length}!`, tone, piece: art(res.piece), anim: 'stomp' });
       else {
         const big = killed.find((p) => p.type === 'queen' || p.type === 'rook');
@@ -484,7 +484,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.match = match;
     d.check = {};
     d.moments = new Moments(mainRef.current, { speed: settings.speed, enabled: settings.moments });
-    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
+    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, framed: !!scenario, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
     d.view.setBoard(board);
     d.view.setPieces(pieces);
     seePieces(pieces.filter((p) => !p.boss).map((p) => p.type));
