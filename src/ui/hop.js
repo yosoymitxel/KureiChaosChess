@@ -1,14 +1,13 @@
 // Movimiento de fichas en los minijuegos, con los criterios del tablero (BoardView.playMove,
-// liquid y squash): el charco (anime.js) llega primero, la ficha salta en arco (Motion) y aterriza aplastada.
-import { animate } from 'animejs';
+// liquid y squash): la peana se derrite al salir y brota al llegar, la ficha salta en arco (Motion) y aterriza aplastada.
 import { motion } from './lib.js';
+import { liquid } from '../view/liquid.js';
 import { loadSettings } from '../game/run.js';
 import { playSfx } from './sfx.js';
 
 const OUT = [0.16, 1, 0.3, 1];
 export const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const speed = () => loadSettings().speed || 1;
-let gooCount = 0; // los ids de filtro tienen que ser únicos en toda la página
 
 // Un <svg> con una unidad por casilla, por encima de las celdas del tablero.
 function gooOf(grid, cols, rows) {
@@ -24,56 +23,11 @@ function gooOf(grid, cols, rows) {
   return svg;
 }
 
-// El charco: la receta del tablero (desenfoque + umbral de alfa que funde formas y dos erosiones
-// que redibujan contorno y canto). Se estira por el recorrido (dobla la esquina de la L) y se recoge detrás.
-function liquid(grid, from, to, { side, cell, cols, rows }) {
-  const svg = gooOf(grid, cols, rows);
-  // Mismo sitio y tamaño que la peana (.bm-slab .bm-pc::after): elipse al 72 % de la casilla.
-  const rx = 0.25, ry = 0.15;
+// El charco del tablero (src/view/liquid.js) a la medida de la peana de estas rejillas
+// (.bm-slab .bm-pc::after): elipse al 72 % de la casilla. dur en segundos, como Motion.
+function puddle(grid, from, to, { side, cell, cols, rows, dur }) {
   const at = (r, c) => [c + 0.5, r + 0.72];
-  const dr = to.row - from.row, dc = to.col - from.col;
-  const pts = [at(from.row, from.col)];
-  if (dr && dc && Math.abs(dr) !== Math.abs(dc)) pts.push(Math.abs(dr) > Math.abs(dc) ? at(to.row, from.col) : at(from.row, to.col));
-  pts.push(at(to.row, to.col));
-  const lens = pts.slice(1).map((b, i) => Math.hypot(b[0] - pts[i][0], b[1] - pts[i][1]));
-  const total = lens.reduce((a, b) => a + b, 0) || 1;
-  const cum = lens.reduce((acc, l) => [...acc, acc[acc.length - 1] + l / total], [0]);
-  const point = (t) => {
-    const i = Math.max(0, cum.findIndex((v, j) => j > 0 && t <= v) - 1);
-    const f = cum[i + 1] > cum[i] ? (t - cum[i]) / (cum[i + 1] - cum[i]) : 0;
-    return pts[i].map((v, j) => v + (pts[i + 1][j] - v) * Math.min(1, f));
-  };
-  const route = (t0, t1) => [point(t0), ...pts.filter((_, i) => cum[i] > t0 && cum[i] < t1), point(t1)];
-
-  const id = `goo-mini-${++gooCount}`, px = 1 / cell;
-  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  g.setAttribute('class', `side-${side}`);
-  g.innerHTML = `<filter id="${id}" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" x="-1" y="-1" width="${cols + 2}" height="${rows + 2}">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="0.07"/>
-      <feComponentTransfer result="g"><feFuncA type="linear" slope="24" intercept="-11"/></feComponentTransfer>
-      <feFlood class="ink"/><feComposite in2="g" operator="in" result="o"/>
-      <feMorphology in="g" operator="erode" radius="${1.5 * px}" result="e1"/>
-      <feFlood class="rim"/><feComposite in2="e1" operator="in" result="r"/>
-      <feMorphology in="g" operator="erode" radius="${4 * px}" result="e2"/>
-      <feFlood class="fill"/><feComposite in2="e2" operator="in" result="f"/>
-      <feMerge><feMergeNode in="o"/><feMergeNode in="r"/><feMergeNode in="f"/></feMerge>
-    </filter>
-    <g filter="url(#${id})"><polyline fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="${Math.min(rx, ry) * 1.1}"/><ellipse rx="${rx}" ry="${ry}"/><ellipse rx="${rx}" ry="${ry}"/></g>`;
-  svg.appendChild(g);
-
-  const [neck, tail, head] = g.querySelectorAll('polyline, ellipse');
-  const s = { head: 0, tail: 0 };
-  const draw = () => {
-    const [hx, hy] = point(s.head), [tx, ty] = point(s.tail);
-    head.setAttribute('cx', hx); head.setAttribute('cy', hy);
-    tail.setAttribute('cx', tx); tail.setAttribute('cy', ty);
-    neck.setAttribute('points', route(s.tail, s.head).map((q) => q.join(',')).join(' '));
-  };
-  draw();
-
-  const reach = 170 / speed();
-  animate(s, { head: 1, duration: reach, ease: 'outExpo', onUpdate: draw });
-  animate(s, { tail: 1, delay: reach + 140 / speed(), duration: 250 / speed(), ease: 'inOutSine', onUpdate: draw, onComplete: () => g.remove() });
+  liquid(gooOf(grid, cols, rows), { side, from: at(from.row, from.col), to: at(to.row, to.col), rx: 0.25, ry: 0.15, px: 1 / cell, area: [cols, rows], dur: dur * 1000 });
 }
 
 // Salta de `from` a `to` ({ row, col }) con su charco. Se llama después de repintar, con la ficha
@@ -100,7 +54,7 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows, liq
     pcEl.style.transformOrigin = '50% 72%';
     motion(pcEl, { x: [dx, dx / 2, 0], y: [dy, dy / 2 - chh * 0.07, 0, -chh * 0.07, 0], rotate: [0, -5, 0, 5, 0] }, { duration: dur, ease: 'linear' });
     if (hp) motion(hp, { x: [dx, 0], y: [dy, 0] }, { duration: dur, ease: 'linear' });
-    if (forceLiquid) liquid(grid, from, to, { side, cell: cw, cols, rows });
+    if (forceLiquid) puddle(grid, from, to, { side, cell: cw, cols, rows, dur });
     return;
   }
   if (hp) motion(hp, { x: [dx, 0], y: [dy, 0] }, { duration: 0.4 / speed(), ease: 'easeInOut' });
@@ -113,7 +67,7 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows, liq
   setTimeout(() => { pcEl.classList.remove('hopping'); playSfx('land'); }, dur * 1000);
   motion(pcEl, { x: [dx, dx / 2, 0], y: [dy, dy / 2 - lift, 0] }, { duration: dur, ease: 'easeInOut' });
   motion(pcEl, { scaleY: [0.78, 1.08, 1], scaleX: [1.13, 0.96, 1] }, { duration: 0.32 / speed(), delay: dur - 0.06, ease: OUT });
-  liquid(grid, from, to, { side, cell: cw, cols, rows });
+  puddle(grid, from, to, { side, cell: cw, cols, rows, dur });
 }
 
 // La ficha que entra al tablero (compra, oleada, reina colocada) brota.
