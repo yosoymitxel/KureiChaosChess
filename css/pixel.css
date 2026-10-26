@@ -14,7 +14,6 @@
   --font: 'Jersey 10', 'Trebuchet MS', sans-serif;
   --r-sm: 0px; --r-md: 0px; --r-lg: 0px;
   --lift: 4px 4px 0 oklch(0.1 0.03 300 / 0.45);
-  --ease-out: steps(4, end);
   --grain: none; --wood: none;
 }
 [data-art="pixel"] body { -webkit-font-smoothing: none; font-synthesis: none; font-size-adjust: 0.56; }
