@@ -589,8 +589,7 @@ export class BoardView {
       await animate(fig, { scaleY: 0.86, scaleX: 1.08, duration: this.d(80), ease: 'outQuad' });
       animate(fig, { scaleY: [0.86, 1.06, 1], scaleX: [1.08, 0.96, 1], duration: this.d(260), ease: 'outQuad' });
     }
-    // Jumpers fly over what is in between: a puddle oozing along the L would hide the jump.
-    if (!reduced() && !jumper) await this.liquid(piece, from, to, dur);
+    if (!reduced()) this.liquid(piece, from, to, dur);
     await animate(st, {
       r: to.row, c: to.col, z: [0, arc, 0], duration: dur,
       ease: 'inOutSine', onUpdate: () => this.apply(piece),
@@ -629,29 +628,16 @@ export class BoardView {
     if (promoted) await this.promote(piece);
   }
 
-  // Liquid base: the token melts into a puddle that reaches over every tile of the route
-  // (round the corner of an L), then its tail drains after the piece and it sets as a disc again.
-  // Resolves once the puddle has reached the destination, so the piece takes off on cue.
+  // Liquid base: the token melts away where it stands (flattens, splashes two drops) and
+  // wells up again where the piece lands. Nothing crosses the board, so an L or a 2×2 boss
+  // never drags a puddle round corners. Runs alongside the flight; the base is back on landing.
   liquid(p, from, to, dur) {
     const el = this.els.get(p), base = el?.querySelector('.pc-base');
-    if (!base) return Promise.resolve();
+    if (!base) return;
     const [h, w] = sizeOf(p);
     const k = el.classList.contains('boss') ? 0.36 : 0.27; // matches the .pc-base inset
     const rx = k * w, ry = k * h;
-    const at = (r, c) => [c + w / 2, r + h / 2];
-    const dr = to.row - from.row, dc = to.col - from.col;
-    const pts = [at(from.row, from.col)];
-    if (dr && dc && Math.abs(dr) !== Math.abs(dc)) pts.push(Math.abs(dr) > Math.abs(dc) ? at(to.row, from.col) : at(from.row, to.col));
-    pts.push(at(to.row, to.col));
-    const lens = pts.slice(1).map((b, i) => Math.hypot(b[0] - pts[i][0], b[1] - pts[i][1]));
-    const total = lens.reduce((a, b) => a + b, 0) || 1;
-    const cum = lens.reduce((acc, l) => [...acc, acc[acc.length - 1] + l / total], [0]);
-    const point = (t) => {
-      const i = Math.max(0, cum.findIndex((v, j) => j > 0 && t <= v) - 1);
-      const f = cum[i + 1] > cum[i] ? (t - cum[i]) / (cum[i + 1] - cum[i]) : 0;
-      return pts[i].map((v, j) => v + (pts[i + 1][j] - v) * Math.min(1, f));
-    };
-    const route = (t0, t1) => [point(t0), ...pts.filter((_, i) => cum[i] > t0 && cum[i] < t1), point(t1)];
+    const [ox, oy] = [from.col + w / 2, from.row + h / 2], [dx, dy] = [to.col + w / 2, to.row + h / 2];
 
     const id = `goo-${++gooCount}`, px = 1 / this.sq;
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -668,25 +654,33 @@ export class BoardView {
         <feFlood class="fill"/><feComposite in2="e2" operator="in" result="f"/>
         <feMerge><feMergeNode in="o"/><feMergeNode in="r"/><feMergeNode in="f"/></feMerge>
       </filter>
-      <g filter="url(#${id})"><polyline fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="${Math.min(rx, ry) * 1.1}"/><ellipse rx="${rx}" ry="${ry}"/><ellipse rx="${rx}" ry="${ry}"/></g>`;
+      <g filter="url(#${id})"><ellipse/><circle/><circle/><ellipse/></g>`;
     this.gooEl.appendChild(g);
-    const [neck, tail, head] = g.querySelectorAll('polyline, ellipse');
-    const s = { head: 0, tail: 0 };
+    const [melt, dropL, dropR, rise] = g.querySelectorAll('ellipse, circle');
+    const r0 = Math.min(rx, ry) * 0.45;
+    const s = { m: 1, u: 0 };
     const draw = () => {
-      const [hx, hy] = point(s.head), [tx, ty] = point(s.tail);
-      head.setAttribute('cx', hx); head.setAttribute('cy', hy);
-      tail.setAttribute('cx', tx); tail.setAttribute('cy', ty);
-      neck.setAttribute('points', route(s.tail, s.head).map((q) => q.join(',')).join(' '));
+      // Melting: it spreads and flattens before draining away; the drops fly out and shrink.
+      const f = 1 - s.m;
+      melt.setAttribute('cx', ox); melt.setAttribute('cy', oy + ry * 0.25 * f);
+      melt.setAttribute('rx', Math.max(0, rx * s.m * (1 + 0.5 * f))); melt.setAttribute('ry', Math.max(0, ry * s.m * s.m));
+      for (const [d, sg] of [[dropL, -1], [dropR, 1]]) {
+        d.setAttribute('cx', ox + sg * rx * (0.3 + 1.1 * f)); d.setAttribute('cy', oy + ry * 0.3 * f);
+        d.setAttribute('r', Math.max(0, r0 * (1 - f) * Math.min(1, f * 4)));
+      }
+      rise.setAttribute('cx', dx); rise.setAttribute('cy', dy);
+      rise.setAttribute('rx', Math.max(0, rx * s.u)); rise.setAttribute('ry', Math.max(0, ry * s.u));
     };
     draw();
     base.style.opacity = 0;
-    const reach = this.d(Math.min(260, 120 + total * 40));
-    animate(s, { tail: 1, delay: reach, duration: dur, ease: 'inOutSine', onUpdate: draw, onComplete: () => {
+    Promise.all([
+      animate(s, { m: 0, duration: dur * 0.55, ease: 'inQuad', onUpdate: draw }),
+      animate(s, { u: 1, delay: dur * 0.45, duration: dur * 0.55, ease: 'outBack', onUpdate: draw }),
+    ]).then(() => {
       g.remove();
       base.style.opacity = '';
       animate(base, { scaleX: [1.16, 0.95, 1], scaleY: [0.86, 1.04, 1], duration: this.d(320), ease: 'outQuad' });
-    } });
-    return animate(s, { head: 1, duration: reach, ease: 'outExpo', onUpdate: draw }).then(() => {});
+    });
   }
 
   // Ice: the piece keeps going one tile, skating low with frost spraying behind it.
