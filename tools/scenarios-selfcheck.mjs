@@ -9,7 +9,7 @@ const matchOf = (sc) => new Match({ board: sc.board, pieces: sc.pieces, players:
   rival: sc.rival, rivals: { dark: sc.rival, light: RIVALS.maestro }, objective: sc.objective, bonus: sc.bonus });
 function play(m, sc) {
   for (let i = 0; i < 400 && !m.over; i++) {
-    const mv = m.canMove() && botChooseMove(m);
+    const mv = m.canMove() && ((m.player.color === 'dark' && sc.bot?.(m)) || botChooseMove(m));
     if (mv) assert.ok(m.move(mv.piece, mv.target), 'bot move is legal');
     sc.labels?.(m);
     m.afterMove({ pass: !mv });
@@ -29,7 +29,8 @@ for (const id of Object.keys(SCENARIOS)) for (const level of ['facil', 'normal',
     assert.ok(over && typeof over.victory === 'boolean' && over.note, `${id}/${level}/${seed} ends with a verdict`);
     if (over.victory) wins++;
   }
-  assert.ok(layouts.size >= 20, `${id}/${level}: tables vary (${layouts.size})`);
+  // Mates sale de una biblioteca de problemas validados: varía menos.
+  assert.ok(layouts.size >= (id === 'mates' ? 15 : 20), `${id}/${level}: tables vary (${layouts.size})`);
   console.log(`${id.padEnd(13)} ${level.padEnd(8)} bot maestro gana ${wins}/25`);
 }
 

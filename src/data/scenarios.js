@@ -7,6 +7,8 @@ import { MINI_BOSSES, FINAL_BOSSES, RIVALS } from '../game/difficulty.js';
 import { legalMoves, key } from '../game/rules.js';
 import { applyMutations, EXTRA_MOVES } from './mutations.js';
 import { MODIFIERS } from './modifiers.js';
+import { MATES } from './mates.js';
+import { SIZE as MATE_SIZE, board as mateBoard, defend, isCheckmate } from '../game/mates.js';
 
 export const LEVELS = { facil: { name: 'Fácil' }, normal: { name: 'Normal' }, dificil: { name: 'Difícil' } };
 const N = 8;
@@ -300,6 +302,29 @@ Object.assign(SCENARIOS, {
           status: () => `Faltan ${left.size} casillas`,
         };
       }
+    },
+  },
+  // Mate en 1 o 2 de la colección validada (src/data/mates.js); el rival defiende con la mejor
+  // respuesta legal (game/mates.js). Variedad: problema al azar y tablero espejado.
+  mates: {
+    id: 'mates',
+    goal: 'Da jaque mate al rey carmesí en las jugadas indicadas. El rival defiende con su mejor respuesta.',
+    levels: { facil: { mateIn: [1] }, normal: { mateIn: [1, 2] }, dificil: { mateIn: [2] } },
+    setup(lv, rng) {
+      const n = pickFrom(rng, lv.mateIn), flip = rng() < 0.5;
+      const pieces = pickFrom(rng, MATES[n]).map(([t, color, r, c]) => makePiece(t, color, r, flip ? MATE_SIZE - 1 - c : c));
+      const b = mateBoard();
+      return {
+        board: b, pieces, rival: 'maestro',
+        bot: (m) => {
+          const d = defend(m.pieces, Math.max(1, n - rounds(m)));
+          return d && { piece: d.p, target: { row: d.m.row, col: d.m.col } };
+        },
+        objective: (m) => isCheckmate(m.pieces, 'dark', b) ? { victory: true, note: '¡Jaque mate!' }
+          : m.eliminated.light ? { victory: false, note: 'Dejaste a tu rey a tiro.' }
+          : rounds(m) >= n ? { victory: false, note: `No llegó el mate en ${n}.` } : null,
+        status: (m) => `Mate en ${n} · te quedan ${n - rounds(m)} jugadas`,
+      };
     },
   },
   collapsingFloor: {

@@ -299,7 +299,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
           if (d.leaving || d.dead || match.over) return;
           d.timer = setTimeout(function step() {
             if (d.paused) { d.timer = setTimeout(step, 300); return; }
-            const mv = botChooseMove(match);
+            const mv = scenario?.bot?.(match) || botChooseMove(match);
             if (mv) doMove(mv.piece, mv.target);
           }, 450 + Math.random() * 300);
         });
