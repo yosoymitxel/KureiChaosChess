@@ -46,17 +46,19 @@ function VersusCard({ cfg, onCfg }) {
   const set = (k, v) => onCfg({ ...cfg, [k]: v });
   const seg = (k, list) => html`<div class="segmented sm" role="group">${list.map(([v, label]) => html`<button class=${cfg[k] === v ? 'on' : ''} aria-pressed=${cfg[k] === v} onClick=${() => set(k, v)}>${label}</button>`)}</div>`;
   const mods = ['random', 'none', ...RUN_MECHANICS.filter((id) => id !== 'elite')];
-  const games = [['chess', 'Ajedrez'], ['hockey', MODIFIERS.hockey.name]];
-  if (cfg.game === 'hockey') return html`<section class="panel setup-card prefs" data-enter>
-    <h2>Juego</h2>
-    ${seg('game', games)}
-    <h2>Goles para ganar</h2>
-    ${seg('goals', [[3, '3'], [5, '5'], [7, '7']])}
-    <p class="setup-note">En la misma pantalla: cada uno arrastra la torre de su mitad.</p>
+  // Juegos a dos: el ajedrez de la run y los minijuegos que lo admiten (`duo` en modifiers.js).
+  const games = [{ id: 'chess', name: 'Ajedrez', icon: 'king', desc: 'La partida de la run, con la mesa a elegir.' }, ...Object.values(MODIFIERS).filter((m) => m.duo)];
+  const picker = html`<h2>Juego</h2><div class="pref-grid">
+    ${games.map((g) => html`<button class=${'pref' + ((cfg.game || 'chess') === g.id ? ' fav' : '')} aria-pressed=${(cfg.game || 'chess') === g.id} title=${g.desc} onClick=${() => set('game', g.id)}><${Icon} name=${g.icon} size=${20} /><span>${g.name}</span></button>`)}
+  </div>`;
+  const duo = MODIFIERS[cfg.game]?.duo;
+  if (duo) return html`<section class="panel setup-card prefs" data-enter>
+    ${picker}
+    ${duo.opt && html`<h2>${duo.label}</h2>${seg(duo.opt, duo.choices)}`}
+    <p class="setup-note">En la misma pantalla, por turnos o cada uno en su mitad.</p>
   </section>`;
   return html`<section class="panel setup-card prefs" data-enter>
-    <h2>Juego</h2>
-    ${seg('game', games)}
+    ${picker}
     <h2>Mesa</h2>
     ${seg('rounds', VERSUS_ROUNDS)}
     <p class="setup-note">${cfg.rounds > 1 ? `${cfg.size === 'random' ? 'Cada ronda es un piso más: el tablero crece.' : 'Cada ronda, mesa nueva.'} Gana quien llegue antes a ${Math.floor(cfg.rounds / 2) + 1}.` : 'Una sola partida con esta mesa.'}</p>
@@ -83,7 +85,7 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
   // El peldaño del rival lo fija el tramo de la torre, el ajuste de dificultad lo corre entero
   // y el piso de un mini-jefe sube uno.
   const rival = rivalForFloor(node.floor, run?.map?.floors ?? 1, { up: node.isMiniBoss ? 1 : 0, difficulty: run?.tutorial ? 'facil' : settings?.difficulty });
-  const hockey = versusCfg?.game === 'hockey';
+  const hockey = !!MODIFIERS[versusCfg?.game]?.duo; // minijuego a dos: sin mesa de ajedrez
   const seats = SIDES.slice(0, hockey ? 2 : count).map((s, i) => ({ color: s.color, kind: kinds[i], name: kinds[i] === 'bot' ? `Bot ${s.label}` : versus ? `Jugador ${i + 1}` : 'Tú' }));
   return html`<div class="screen setup" ref=${ref}>
     <${Topbar} title="Prepara la mesa" sub=${versus ? 'Partida local' : `Piso ${node.floor + 1}`} onBack=${onBack} />
@@ -93,7 +95,7 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
         <p>${node.lesson}</p>
         ${node.floor === 0 && onHowTo && html`<button class="btn sm" onClick=${onHowTo}>Cómo se mueve cada pieza</button>`}
       </section>`}
-      ${versusCfg?.game !== 'hockey' && html`<section class="panel setup-card" data-enter>
+      ${!hockey && html`<section class="panel setup-card" data-enter>
         <div class="mod-card"><span class="mod-icon"><${Icon} name=${mod.icon} size=${24} /></span><div><h2>${mod.name}</h2><p>${mod.desc}</p></div></div>
         ${node.modifier === 'elite' && html`<ul class="elite-list">
           ${eliteVariants(node.floor, run?.map?.floors ?? 1).map((v) => html`<li><span class="elite-ico"><${Icon} name=${v.icon} size=${15} /></span><div><strong>${v.name}</strong><span>${v.desc}</span></div></li>`)}
