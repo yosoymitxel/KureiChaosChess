@@ -5,6 +5,7 @@ import { DIFFS, DIRS, newBlizzard, slide, move } from '../../game/blizzard.js';
 import { MiniBoard } from '../mini-board.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { playSfx } from '../sfx.js';
+import { award } from '../../game/achievements.js';
 
 const KEYS = { arrowup: 0, w: 0, arrowright: 1, d: 1, arrowdown: 2, s: 2, arrowleft: 3, a: 3 };
 
@@ -17,6 +18,7 @@ export function BlizzardScreen({ sub, onBack, onEnd, endLabel = 'Continuar', set
     const res = move(s, dir);
     if (!res) return playSfx('invalid');
     playSfx(res.sunk ? 'splash' : 'whoosh');
+    if (s.over === 'win' && s.moves <= s.best) award('blizzard_best');
     tick((n) => n + 1);
   };
   // Un toque en la fila o columna de la torre resbala hacia allí; si no, hacia el eje más cercano.

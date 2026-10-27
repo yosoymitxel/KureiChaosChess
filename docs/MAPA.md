@@ -71,25 +71,25 @@ src/data/themes.js:70 PX_IMAGES
 src/data/themes.js:71 pixelImages
 src/data/themes.js:82 applied
 src/data/themes.js:83 +applyTheme
-## src/game/achievements.js (95L)
+## src/game/achievements.js (103L)
 src/game/achievements.js:5 KEY
 src/game/achievements.js:6 read
 src/game/achievements.js:7 write
 src/game/achievements.js:10 +ACHIEVEMENT_GROUPS
 src/game/achievements.js:14 +achievementGroups
 src/game/achievements.js:21 +ACHIEVEMENTS
-src/game/achievements.js:58 STATS_KEY
-src/game/achievements.js:59 +loadStats
-src/game/achievements.js:60 +bump
-src/game/achievements.js:62 +loadAchievements
-src/game/achievements.js:63 +saveAchievements
-src/game/achievements.js:67 +award
-src/game/achievements.js:79 SEEN_KEY
-src/game/achievements.js:80 +loadSeen
-src/game/achievements.js:81 +seePieces
-src/game/achievements.js:89 MUT_KEY
-src/game/achievements.js:90 +loadMutSeen
-src/game/achievements.js:91 +seeMutations
+src/game/achievements.js:66 STATS_KEY
+src/game/achievements.js:67 +loadStats
+src/game/achievements.js:68 +bump
+src/game/achievements.js:70 +loadAchievements
+src/game/achievements.js:71 +saveAchievements
+src/game/achievements.js:75 +award
+src/game/achievements.js:87 SEEN_KEY
+src/game/achievements.js:88 +loadSeen
+src/game/achievements.js:89 +seePieces
+src/game/achievements.js:97 MUT_KEY
+src/game/achievements.js:98 +loadMutSeen
+src/game/achievements.js:99 +seeMutations
 ## src/game/barrier.js (109L)
 src/game/barrier.js:2 +N
 src/game/barrier.js:4 +DIFFS
@@ -518,15 +518,15 @@ src/lab.js:95 play
 src/lab.js:100 scenes
 src/lab.js:106 cams
 ## src/main.js (5L)
-## src/ui/app.js (353L)
+## src/ui/app.js (354L)
 src/ui/app.js:30 REST_CARDS
 src/ui/app.js:35 BAG_CARDS
 src/ui/app.js:42 shuffle3
 src/ui/app.js:44 MINI_PRIZES
 src/ui/app.js:45 ONE_SHOT
 src/ui/app.js:47 +App
-src/ui/app.js:309 MutationReveal
-src/ui/app.js:325 AchievementToast
+src/ui/app.js:310 MutationReveal
+src/ui/app.js:326 AchievementToast
 ## src/ui/components.js (221L)
 src/ui/components.js:11 +ThemeLook
 src/ui/components.js:19 +Topbar
@@ -601,9 +601,9 @@ src/ui/screens/blind.js:12 wait
 src/ui/screens/blind.js:13 css
 src/ui/screens/blind.js:14 asPiece
 src/ui/screens/blind.js:16 +BlindScreen
-## src/ui/screens/blizzard.js (64L)
-src/ui/screens/blizzard.js:9 KEYS
-src/ui/screens/blizzard.js:11 +BlizzardScreen
+## src/ui/screens/blizzard.js (66L)
+src/ui/screens/blizzard.js:10 KEYS
+src/ui/screens/blizzard.js:12 +BlizzardScreen
 ## src/ui/screens/bomber.js (132L)
 src/ui/screens/bomber.js:12 KEYS
 src/ui/screens/bomber.js:13 PAD
@@ -633,13 +633,13 @@ src/ui/screens/gallery.js:25 ThemeGroup
 src/ui/screens/gallery.js:40 RULE
 src/ui/screens/gallery.js:41 Locked
 src/ui/screens/gallery.js:43 +GalleryScreen
-## src/ui/screens/game.js (734L)
+## src/ui/screens/game.js (737L)
 src/ui/screens/game.js:27 SIDE_NAME
 src/ui/screens/game.js:30 pieceName
 src/ui/screens/game.js:32 TIPS
 src/ui/screens/game.js:41 cardEffect
 src/ui/screens/game.js:55 +GameScreen
-src/ui/screens/game.js:705 EndOverlay
+src/ui/screens/game.js:708 EndOverlay
 ## src/ui/screens/hockey.js (207L)
 src/ui/screens/hockey.js:11 KEYS
 src/ui/screens/hockey.js:13 TOP_KEYS
@@ -657,10 +657,10 @@ src/ui/screens/marcianos.js:11 css
 src/ui/screens/marcianos.js:14 KEYS
 src/ui/screens/marcianos.js:15 WAIT
 src/ui/screens/marcianos.js:17 +MarcianosScreen
-## src/ui/screens/menu.js (156L)
-src/ui/screens/menu.js:10 Diorama
-src/ui/screens/menu.js:81 fitCrown
-src/ui/screens/menu.js:113 +MenuScreen
+## src/ui/screens/menu.js (172L)
+src/ui/screens/menu.js:12 Diorama
+src/ui/screens/menu.js:97 fitCrown
+src/ui/screens/menu.js:129 +MenuScreen
 ## src/ui/screens/mini-grid.js (21L)
 src/ui/screens/mini-grid.js:5 +MiniGrid
 ## src/ui/screens/minis.js (20L)
@@ -705,10 +705,10 @@ src/ui/screens/setup.js:136 +SettingsScreen
 ## src/ui/screens/shop.js (142L)
 src/ui/screens/shop.js:14 CARD_LIST
 src/ui/screens/shop.js:16 +ShopScreen
-## src/ui/screens/witch.js (59L)
-src/ui/screens/witch.js:10 KEYS
-src/ui/screens/witch.js:11 SFX
-src/ui/screens/witch.js:13 +WitchScreen
+## src/ui/screens/witch.js (61L)
+src/ui/screens/witch.js:11 KEYS
+src/ui/screens/witch.js:12 SFX
+src/ui/screens/witch.js:14 +WitchScreen
 ## src/ui/screens/zen.js (559L)
 src/ui/screens/zen.js:16 ETAPAS
 src/ui/screens/zen.js:18 TOOLS
@@ -894,135 +894,136 @@ css/pixel.css:64 /* Jardín Zen: cada dibujo trae su sprite (zen-art.js) y aquí
 css/pixel.css:73 /* La moneda de cara o cruz, en escalones.
 css/pixel.css:81 /* Sombra de la pieza y koi del estanque del tablero, sin degra
 css/pixel.css:84 /* Fichas de damas (bolos, damas): disco escalonado y estrías d
-## css/screens.css (1365L)
+## css/screens.css (1369L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
 css/screens.css:12 /* Menu: asymmetric, the diorama is the focal point and the tit
 css/screens.css:17 /* Extras: the labelled pieces show the brass ring on hover and
-css/screens.css:30 /* La columna mide lo que el título: texto y botones no aportan
-css/screens.css:33 /* Title is extruded like the lid lettering of a board-game box
-css/screens.css:40 /* Logotipo: «Kure'i» con relleno de tablero y la corona sobre 
-css/screens.css:47 /* La corona hace de punto de la ı: centrada en el palo medido 
-css/screens.css:63 /* Chaos no se está quieto: cada letra cabecea a su ritmo.
-css/screens.css:67 /* Entrada: el nombre cae y rebota, la cinta llega de un golpe.
-css/screens.css:69 /* Tras llegar, la cinta se balancea como un sube y baja: el ce
-css/screens.css:77 /* Botones del menú: icono en una ficha a la izquierda y el tex
-css/screens.css:86 /* El botón principal invita: la flecha empuja hacia delante ca
-css/screens.css:108 /* Map: the run is a printed track on a game sheet.
-css/screens.css:140 /* Mini-jefe: el rombo de latón. La ficha gira 45° y escala 0.7
-css/screens.css:144 /* El troquel dice qué es el nodo: cuadrada y verde = minijuego
-css/screens.css:157 /* Setup and settings
-css/screens.css:161 /* Partida local, pestaña Minijuegos: lista de los que se juega
-css/screens.css:166 /* En PC la mesa cabe sin desplazar: las mecánicas en su column
-css/screens.css:208 /* Muestra de mesa en la tienda: damero de sus casillas sobre s
-css/screens.css:223 /* Rewards
-css/screens.css:226 /* Elegir premio: la carta tocada avanza y las otras se apagan 
-css/screens.css:230 /* En teléfono no caben a lo ancho: abanico superpuesto sin scr
-css/screens.css:243 /* Game: the board is the focal point, the HUD is a score sheet
-css/screens.css:249 /* Organizar: barra de la fase previa, encima del tablero.
-css/screens.css:259 /* Pellizco: el botón cuadrado devuelve el encuadre cuando hay 
-css/screens.css:327 /* Hand of tactic cards: fanned in the bottom-left corner, like
-css/screens.css:328 /* Its own strip under the board, so cards never cover pieces; 
-css/screens.css:329 /* La carta de mano se dibuja siempre a 120px de ancho y el blo
-css/screens.css:342 /* Rareza visible en la mano: la gema de la carta grande, en pe
-css/screens.css:353 /* What the aimed card would do: a paper slip centred above the
-css/screens.css:361 /* Foreground moments (src/ui/moments.js). Colour says who bene
-css/screens.css:400 /* Piece demo: a small board with the usual reach (ink dots) an
-css/screens.css:414 /* Callout tiers: major lands bigger, info reads small and ligh
-css/screens.css:419 /* Trim the line box to cap height so big display text centres 
-css/screens.css:436 /* Overlays
-css/screens.css:442 /* Pausa: solo las mesas que tienes, en una tira que se desliza
-css/screens.css:461 /* Rubber stamp: the result is "stamped" onto the score sheet.
-css/screens.css:468 /* Animation lab (lab.html)
-css/screens.css:478 /* El laboratorio también sirve en móvil: el menú pasa arriba y
-css/screens.css:490 /* Minigames (src/ui/screens/connect4.js …): same table, same t
-css/screens.css:492 /* El tablero mide su hueco real (cqw/cqh), como el tablero gra
-css/screens.css:496 /* En la run el nivel lo fija el piso: se anuncia como dato, si
-css/screens.css:498 /* Ayuda y nivel en un solo botón: las reglas y el selector viv
-css/screens.css:505 /* Minijuegos con tablero vertical: en pantalla ancha el tabler
-css/screens.css:512 /* El texto de turno cambia de largo: reservar dos líneas evita
-css/screens.css:520 /* Cierre de minijuego: misma superficie que los tableros (gran
-css/screens.css:527 /* Onboarding de Yo, Zombi: el paso activo queda encendido y lo
-css/screens.css:544 /* The hole: a dark well cut into the board, so tokens read as 
-css/screens.css:551 /* La ficha fantasma asoma en la casilla donde caería tu próxim
-css/screens.css:555 /* La ficha cuadrada del minijuego, versión lista: misma forma 
-css/screens.css:557 /* Jardín Zen: un karesansui sobre la mesa. Marco de madera, ar
-css/screens.css:565 /* El cantero arranca en 4×4 y crece hasta 8×8: la pantalla man
-css/screens.css:591 /* Las plantas se mecen despacio, cada una a su ritmo (--d).
-css/screens.css:594 /* Burbuja de necesidad, como en PvZ: gota si falta riego, tije
-css/screens.css:607 /* Maceta con planta: anclada a su base, sombra de contacto en 
-css/screens.css:615 /* Esmalte de la maceta y color de la flor por especie; la vací
-css/screens.css:639 /* Estanque: orilla de musgo, agua con hondura, koi, nenúfares,
-css/screens.css:659 /* Musgo, pisadera y farol.
-css/screens.css:670 /* Piedras de la tierra nueva: canto rodado con la cara al sol 
-css/screens.css:678 /* La rama de arce asoma por la esquina y suelta, muy de vez en
-css/screens.css:687 /* Hojas caídas sobre la arena: se tocan para barrerlas.
-css/screens.css:692 /* Asa de las animaciones de la planta: escala desde donde nace
-css/screens.css:694 /* Tierra húmeda tras regar, hasta que la flor abre.
-css/screens.css:696 /* La regadera aparece sobre la maceta, se inclina, riega y se 
-css/screens.css:708 /* El chorro sale del pico mientras la regadera está inclinada;
-css/screens.css:713 /* Herramientas: dibujo común.
-css/screens.css:723 /* La mano: la herramienta elegida acompaña al ratón sobre el j
-css/screens.css:733 /* El gesto al tocar: las tijeras bajan al tallo y cortan dos v
-css/screens.css:749 /* Mariposa: vuela hasta la flor, bate las alas y se posa.
-css/screens.css:759 /* Alimento de los koi: bolitas que flotan hasta que se las com
-css/screens.css:761 /* Estado del jardín: una línea tranquila bajo el cantero.
-css/screens.css:763 /* Panel: sobres de semillas, herramientas con mango redondo, a
-css/screens.css:774 /* El sobre va cerrado arriba con la costura en zigzag de los s
-css/screens.css:793 /* Ampliar: barra con precio y confirmación; al armarse se pint
-css/screens.css:805 /* Tierra virgen de los anillos: se cava para hacer un tiesto; 
-css/screens.css:806 /* Tierra virgen de los anillos: arena sin rastrillar, más oscu
-css/screens.css:808 /* La tierra sin cavar se marca siempre con su recuadro puntead
-css/screens.css:813 /* Galería: grupos de imágenes; las bloqueadas son placeholders
-css/screens.css:816 /* Celdas del mismo ancho: el nombre, corto o largo, no descuad
-css/screens.css:827 /* Logros en la Galería: los mismos grupos que la pantalla de L
-css/screens.css:830 /* Un jefe derrotado es un botón: su ficha de siempre, que al t
-css/screens.css:840 /* Tienda del jardín: monedero, estantería y la marca de lo com
-css/screens.css:843 /* Jardín Zen en pantalla ancha: el cantero ocupa la izquierda 
-css/screens.css:849 /* En el teléfono la escena y el panel se apilan con su alto na
-css/screens.css:861 /* Semillas en la tienda: la flor recortada sobre el verde del 
-css/screens.css:876 /* Fila de tienda en teléfono: el nombre y la descripción ocupa
-css/screens.css:889 /* Tienda en pantalla ancha: el catálogo de cartas a la izquier
-css/screens.css:905 /* Logros: progreso total, grupos con barra y rejilla de fichas
-css/screens.css:924 /* El logro que se tocó en la Galería destella al llegar.
-css/screens.css:930 /* Aviso de logro: la ficha sube desde el borde inferior y se v
-css/screens.css:953 /* La bomba del cañón enemigo lleva su color y un aro carmesí, 
-css/screens.css:955 /* Puerta de salida, como la del NES: un portón de piedra que s
-css/screens.css:961 /* Duelo: arena de papel con dos peanas en diagonal, como los c
-css/screens.css:997 /* Fusión: bandeja de madera con huecos; cada ficha es una losa
-css/screens.css:1035 /* Tablero del Bomberman con cuerpo: la losa del cantero, celda
-css/screens.css:1043 /* El marco de losa: el mismo para el tablero de minijuego (Boa
-css/screens.css:1062 /* La figura va SOBRE su peana: sin z-index la peana la tapaba 
-css/screens.css:1075 /* En la fila del fondo la figura se contiene para que la cabez
-css/screens.css:1090 /* Matamarcianos: la bola en vuelo, las vidas y el mando de dos
-css/screens.css:1095 /* Tu fila, marcada: pisarla cuesta una vida.
-css/screens.css:1102 /* Hockey de mesa: un tablero de 6×10 hace de mesa, la banda es
-css/screens.css:1114 /* Rayas de la mesa: la central, el círculo de saque y el área 
-css/screens.css:1123 /* Lo que se mueve: origen arriba a la izquierda y el script po
-css/screens.css:1127 /* La peana es la huella que choca; la torre se alza sobre ella
-css/screens.css:1138 /* Regla de los siete segundos: los tres últimos, el disco parp
-css/screens.css:1146 /* La mesa es alta: en el teléfono el escenario le da más alto 
-css/screens.css:1149 /* Píxel: losas del tema en las casillas y lo redondo, octógono
-css/screens.css:1165 /* Peón levantado mientras se arrastra, y la casilla a la que i
-css/screens.css:1169 /* La valla cae en su sitio con un golpe seco.
-css/screens.css:1182 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
-css/screens.css:1186 /* En pantallas bajas el tablero vale más que el chrome: menos 
-css/screens.css:1188 /* En el teléfono la compra se aprieta a una fila de ficha y pr
-css/screens.css:1194 /* Estado de los minis sobre la losa: ficha de monedas y contad
-css/screens.css:1197 /* Contadores en fila: un punto por unidad; apagado queda lo ga
-css/screens.css:1201 /* La última oleada es la horda: su punto es un banderín bermel
-css/screens.css:1204 /* El número del carril en su esquina: es la tecla que lo lanza
-css/screens.css:1206 /* La bolera es apaisada: su escenario no reserva el alto pensa
-css/screens.css:1210 /* La línea roja del original: hasta ahí se lanza.
-css/screens.css:1212 /* La ficha que rueda va como elemento para que Motion la pueda
-css/screens.css:1213 /* La ficha es una pieza de damas vista en perspectiva: disco c
-css/screens.css:1223 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
-css/screens.css:1241 /* Avance de la oleada con el banderín de la horda al 70 %.
-css/screens.css:1248 /* La cinta: las fichas que vienen, la primera se lanza al toca
-css/screens.css:1260 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
-css/screens.css:1265 /* Selector de mecánicas de la run: favorita en latón, vetada t
-css/screens.css:1274 /* Mobile-first repair: keep the game surface visible instead o
-css/screens.css:1306 /* The animation lab must give its remaining viewport to the li
-css/screens.css:1349 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
+css/screens.css:20 /* Secreto del menú: el Titán se sacude cuando lo tocan.
+css/screens.css:34 /* La columna mide lo que el título: texto y botones no aportan
+css/screens.css:37 /* Title is extruded like the lid lettering of a board-game box
+css/screens.css:44 /* Logotipo: «Kure'i» con relleno de tablero y la corona sobre 
+css/screens.css:51 /* La corona hace de punto de la ı: centrada en el palo medido 
+css/screens.css:67 /* Chaos no se está quieto: cada letra cabecea a su ritmo.
+css/screens.css:71 /* Entrada: el nombre cae y rebota, la cinta llega de un golpe.
+css/screens.css:73 /* Tras llegar, la cinta se balancea como un sube y baja: el ce
+css/screens.css:81 /* Botones del menú: icono en una ficha a la izquierda y el tex
+css/screens.css:90 /* El botón principal invita: la flecha empuja hacia delante ca
+css/screens.css:112 /* Map: the run is a printed track on a game sheet.
+css/screens.css:144 /* Mini-jefe: el rombo de latón. La ficha gira 45° y escala 0.7
+css/screens.css:148 /* El troquel dice qué es el nodo: cuadrada y verde = minijuego
+css/screens.css:161 /* Setup and settings
+css/screens.css:165 /* Partida local, pestaña Minijuegos: lista de los que se juega
+css/screens.css:170 /* En PC la mesa cabe sin desplazar: las mecánicas en su column
+css/screens.css:212 /* Muestra de mesa en la tienda: damero de sus casillas sobre s
+css/screens.css:227 /* Rewards
+css/screens.css:230 /* Elegir premio: la carta tocada avanza y las otras se apagan 
+css/screens.css:234 /* En teléfono no caben a lo ancho: abanico superpuesto sin scr
+css/screens.css:247 /* Game: the board is the focal point, the HUD is a score sheet
+css/screens.css:253 /* Organizar: barra de la fase previa, encima del tablero.
+css/screens.css:263 /* Pellizco: el botón cuadrado devuelve el encuadre cuando hay 
+css/screens.css:331 /* Hand of tactic cards: fanned in the bottom-left corner, like
+css/screens.css:332 /* Its own strip under the board, so cards never cover pieces; 
+css/screens.css:333 /* La carta de mano se dibuja siempre a 120px de ancho y el blo
+css/screens.css:346 /* Rareza visible en la mano: la gema de la carta grande, en pe
+css/screens.css:357 /* What the aimed card would do: a paper slip centred above the
+css/screens.css:365 /* Foreground moments (src/ui/moments.js). Colour says who bene
+css/screens.css:404 /* Piece demo: a small board with the usual reach (ink dots) an
+css/screens.css:418 /* Callout tiers: major lands bigger, info reads small and ligh
+css/screens.css:423 /* Trim the line box to cap height so big display text centres 
+css/screens.css:440 /* Overlays
+css/screens.css:446 /* Pausa: solo las mesas que tienes, en una tira que se desliza
+css/screens.css:465 /* Rubber stamp: the result is "stamped" onto the score sheet.
+css/screens.css:472 /* Animation lab (lab.html)
+css/screens.css:482 /* El laboratorio también sirve en móvil: el menú pasa arriba y
+css/screens.css:494 /* Minigames (src/ui/screens/connect4.js …): same table, same t
+css/screens.css:496 /* El tablero mide su hueco real (cqw/cqh), como el tablero gra
+css/screens.css:500 /* En la run el nivel lo fija el piso: se anuncia como dato, si
+css/screens.css:502 /* Ayuda y nivel en un solo botón: las reglas y el selector viv
+css/screens.css:509 /* Minijuegos con tablero vertical: en pantalla ancha el tabler
+css/screens.css:516 /* El texto de turno cambia de largo: reservar dos líneas evita
+css/screens.css:524 /* Cierre de minijuego: misma superficie que los tableros (gran
+css/screens.css:531 /* Onboarding de Yo, Zombi: el paso activo queda encendido y lo
+css/screens.css:548 /* The hole: a dark well cut into the board, so tokens read as 
+css/screens.css:555 /* La ficha fantasma asoma en la casilla donde caería tu próxim
+css/screens.css:559 /* La ficha cuadrada del minijuego, versión lista: misma forma 
+css/screens.css:561 /* Jardín Zen: un karesansui sobre la mesa. Marco de madera, ar
+css/screens.css:569 /* El cantero arranca en 4×4 y crece hasta 8×8: la pantalla man
+css/screens.css:595 /* Las plantas se mecen despacio, cada una a su ritmo (--d).
+css/screens.css:598 /* Burbuja de necesidad, como en PvZ: gota si falta riego, tije
+css/screens.css:611 /* Maceta con planta: anclada a su base, sombra de contacto en 
+css/screens.css:619 /* Esmalte de la maceta y color de la flor por especie; la vací
+css/screens.css:643 /* Estanque: orilla de musgo, agua con hondura, koi, nenúfares,
+css/screens.css:663 /* Musgo, pisadera y farol.
+css/screens.css:674 /* Piedras de la tierra nueva: canto rodado con la cara al sol 
+css/screens.css:682 /* La rama de arce asoma por la esquina y suelta, muy de vez en
+css/screens.css:691 /* Hojas caídas sobre la arena: se tocan para barrerlas.
+css/screens.css:696 /* Asa de las animaciones de la planta: escala desde donde nace
+css/screens.css:698 /* Tierra húmeda tras regar, hasta que la flor abre.
+css/screens.css:700 /* La regadera aparece sobre la maceta, se inclina, riega y se 
+css/screens.css:712 /* El chorro sale del pico mientras la regadera está inclinada;
+css/screens.css:717 /* Herramientas: dibujo común.
+css/screens.css:727 /* La mano: la herramienta elegida acompaña al ratón sobre el j
+css/screens.css:737 /* El gesto al tocar: las tijeras bajan al tallo y cortan dos v
+css/screens.css:753 /* Mariposa: vuela hasta la flor, bate las alas y se posa.
+css/screens.css:763 /* Alimento de los koi: bolitas que flotan hasta que se las com
+css/screens.css:765 /* Estado del jardín: una línea tranquila bajo el cantero.
+css/screens.css:767 /* Panel: sobres de semillas, herramientas con mango redondo, a
+css/screens.css:778 /* El sobre va cerrado arriba con la costura en zigzag de los s
+css/screens.css:797 /* Ampliar: barra con precio y confirmación; al armarse se pint
+css/screens.css:809 /* Tierra virgen de los anillos: se cava para hacer un tiesto; 
+css/screens.css:810 /* Tierra virgen de los anillos: arena sin rastrillar, más oscu
+css/screens.css:812 /* La tierra sin cavar se marca siempre con su recuadro puntead
+css/screens.css:817 /* Galería: grupos de imágenes; las bloqueadas son placeholders
+css/screens.css:820 /* Celdas del mismo ancho: el nombre, corto o largo, no descuad
+css/screens.css:831 /* Logros en la Galería: los mismos grupos que la pantalla de L
+css/screens.css:834 /* Un jefe derrotado es un botón: su ficha de siempre, que al t
+css/screens.css:844 /* Tienda del jardín: monedero, estantería y la marca de lo com
+css/screens.css:847 /* Jardín Zen en pantalla ancha: el cantero ocupa la izquierda 
+css/screens.css:853 /* En el teléfono la escena y el panel se apilan con su alto na
+css/screens.css:865 /* Semillas en la tienda: la flor recortada sobre el verde del 
+css/screens.css:880 /* Fila de tienda en teléfono: el nombre y la descripción ocupa
+css/screens.css:893 /* Tienda en pantalla ancha: el catálogo de cartas a la izquier
+css/screens.css:909 /* Logros: progreso total, grupos con barra y rejilla de fichas
+css/screens.css:928 /* El logro que se tocó en la Galería destella al llegar.
+css/screens.css:934 /* Aviso de logro: la ficha sube desde el borde inferior y se v
+css/screens.css:957 /* La bomba del cañón enemigo lleva su color y un aro carmesí, 
+css/screens.css:959 /* Puerta de salida, como la del NES: un portón de piedra que s
+css/screens.css:965 /* Duelo: arena de papel con dos peanas en diagonal, como los c
+css/screens.css:1001 /* Fusión: bandeja de madera con huecos; cada ficha es una losa
+css/screens.css:1039 /* Tablero del Bomberman con cuerpo: la losa del cantero, celda
+css/screens.css:1047 /* El marco de losa: el mismo para el tablero de minijuego (Boa
+css/screens.css:1066 /* La figura va SOBRE su peana: sin z-index la peana la tapaba 
+css/screens.css:1079 /* En la fila del fondo la figura se contiene para que la cabez
+css/screens.css:1094 /* Matamarcianos: la bola en vuelo, las vidas y el mando de dos
+css/screens.css:1099 /* Tu fila, marcada: pisarla cuesta una vida.
+css/screens.css:1106 /* Hockey de mesa: un tablero de 6×10 hace de mesa, la banda es
+css/screens.css:1118 /* Rayas de la mesa: la central, el círculo de saque y el área 
+css/screens.css:1127 /* Lo que se mueve: origen arriba a la izquierda y el script po
+css/screens.css:1131 /* La peana es la huella que choca; la torre se alza sobre ella
+css/screens.css:1142 /* Regla de los siete segundos: los tres últimos, el disco parp
+css/screens.css:1150 /* La mesa es alta: en el teléfono el escenario le da más alto 
+css/screens.css:1153 /* Píxel: losas del tema en las casillas y lo redondo, octógono
+css/screens.css:1169 /* Peón levantado mientras se arrastra, y la casilla a la que i
+css/screens.css:1173 /* La valla cae en su sitio con un golpe seco.
+css/screens.css:1186 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
+css/screens.css:1190 /* En pantallas bajas el tablero vale más que el chrome: menos 
+css/screens.css:1192 /* En el teléfono la compra se aprieta a una fila de ficha y pr
+css/screens.css:1198 /* Estado de los minis sobre la losa: ficha de monedas y contad
+css/screens.css:1201 /* Contadores en fila: un punto por unidad; apagado queda lo ga
+css/screens.css:1205 /* La última oleada es la horda: su punto es un banderín bermel
+css/screens.css:1208 /* El número del carril en su esquina: es la tecla que lo lanza
+css/screens.css:1210 /* La bolera es apaisada: su escenario no reserva el alto pensa
+css/screens.css:1214 /* La línea roja del original: hasta ahí se lanza.
+css/screens.css:1216 /* La ficha que rueda va como elemento para que Motion la pueda
+css/screens.css:1217 /* La ficha es una pieza de damas vista en perspectiva: disco c
+css/screens.css:1227 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
+css/screens.css:1245 /* Avance de la oleada con el banderín de la horda al 70 %.
+css/screens.css:1252 /* La cinta: las fichas que vienen, la primera se lanza al toca
+css/screens.css:1264 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
+css/screens.css:1269 /* Selector de mecánicas de la run: favorita en latón, vetada t
+css/screens.css:1278 /* Mobile-first repair: keep the game surface visible instead o
+css/screens.css:1310 /* The animation lab must give its remaining viewport to the li
+css/screens.css:1353 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
 ## css/tokens.css (40L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.

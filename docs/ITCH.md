@@ -90,7 +90,7 @@ QUÉ TRAE
 • 28 minijuegos inspirados en clásicos de NES: la bruja (Pac-Man), brote (Dr. Mario), damas a ciegas, ventisca, hockey de mesa, conecta 4…
 • Partida local a dos en el mismo dispositivo.
 • 23 mesas, 17 en pixel art, que cambian todo el juego: piezas, letra, sonido y música.
-• Un jardín zen entre runs, tienda, galería y 33 logros.
+• Un jardín zen entre runs, tienda, galería y 41 logros.
 
 Se juega en el navegador, en móvil o en PC, con toque, ratón o teclado.
 

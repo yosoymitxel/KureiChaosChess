@@ -4,11 +4,13 @@ import { useEnter, ConfirmButton } from '../components.js';
 import { BoardView } from '../../view/board-view.js';
 import { makePiece } from '../../game/generate.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
+import { award } from '../../game/achievements.js';
+import { playSfx } from '../sfx.js';
 
 // Decorative diorama: a small board with a boss facing a few pieces, gently swaying.
 // Five more pieces, labelled above, turn into the extras: Jardín Zen, Tienda, Galería, Logros and Tutorial.
 function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
-  const host = useRef(null), tags = useRef(null);
+  const host = useRef(null), tags = useRef(null), titan = useRef({ id: null, n: 0, t: 0 });
   const open = { 'x-zen': onZen, 'x-tienda': onShop, 'x-galeria': onGallery, 'x-logros': onAchievements, 'x-tutorial': onTutorial };
   useEffect(() => {
     const v = new BoardView(host.current, { camera: 'epic' });
@@ -18,6 +20,7 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
       makePiece('knight', 'light', 4, 1), makePiece('queen', 'light', 4, 3), makePiece('pawn', 'light', 3, 2),
       makePiece('rook', 'light', 5, 0), makePiece('pawn', 'dark', 2, 3),
     ];
+    titan.current.id = pieces[0].id;
     v.setBoard(board);
     v.setPieces(pieces);
     // Extras: five jade pieces wear the boss label and open a screen when tapped. Listed far to
@@ -65,8 +68,21 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
     follow();
     return () => { cancelAnimationFrame(raf); tags.current?.replaceChildren(); v.destroy(); };
   }, []);
+  // Secreto: tres toques seguidos al Titán lo despiertan.
+  const poke = (el) => {
+    const t = titan.current, now = performance.now();
+    t.n = now - t.t < 1200 ? t.n + 1 : 1;
+    t.t = now;
+    el.classList.remove('poked');
+    void el.offsetWidth;
+    el.classList.add('poked');
+    playSfx(t.n >= 3 ? 'stomp' : 'hit');
+    if (t.n >= 3) { t.n = 0; award('titan_poke'); }
+  };
   const pick = (e) => {
-    const fn = open[e.target.closest?.('[data-pid]')?.dataset.pid];
+    const pc = e.target.closest?.('[data-pid]');
+    if (pc && pc.dataset.pid === titan.current.id) return poke(pc);
+    const fn = open[pc?.dataset.pid];
     if (fn) fn();
   };
   return html`<div class="diorama-wrap">

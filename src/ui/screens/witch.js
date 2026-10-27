@@ -6,6 +6,7 @@ import { MiniBoard } from '../mini-board.js';
 import { key } from '../../game/rules.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { playSfx } from '../sfx.js';
+import { award } from '../../game/achievements.js';
 
 const KEYS = { arrowup: [-1, 0], w: [-1, 0], arrowdown: [1, 0], s: [1, 0], arrowleft: [0, -1], a: [0, -1], arrowright: [0, 1], d: [0, 1] };
 const SFX = { coin: 'coin', potion: 'flower', eat: 'crunch', caught: 'hit' };
@@ -20,6 +21,7 @@ export function WitchScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settin
     if (!ev) return;
     const loud = ev.find((e) => e.kind !== 'coin') || ev[0];
     if (loud) playSfx(SFX[loud.kind]);
+    if (ev.some((e) => e.kind === 'eat')) award('witch_eat');
     tick((n) => n + 1);
   };
   const tap = (r, c) => {

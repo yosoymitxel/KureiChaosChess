@@ -7,7 +7,7 @@ const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null')
 const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
 // Los grupos se muestran en este orden en la pantalla de Logros.
-export const ACHIEVEMENT_GROUPS = ['Partida', 'Travesía', 'Minijuegos', 'Jardín Zen', 'Tienda', 'Largo plazo'];
+export const ACHIEVEMENT_GROUPS = ['Partida', 'Travesía', 'Minijuegos', 'Jardín Zen', 'Tienda', 'Largo plazo', 'Secretos'];
 
 // Los logros por grupo, en el orden de la pantalla y con los conseguidos primero: Logros y la
 // Galería los muestran igual.
@@ -51,6 +51,14 @@ export const ACHIEVEMENTS = [
   { id: 'flower_3', group: 'Jardín Zen', name: 'Jardín en flor', desc: 'Cosecha tres flores en el Jardín Zen.', icon: 'rest' },
   { id: 'zen_ring', group: 'Jardín Zen', name: 'Cantero nuevo', desc: 'Amplía el jardín con un anillo nuevo.', icon: 'expand' },
   { id: 'zen_all', group: 'Jardín Zen', name: 'Todo florece', desc: 'Cosecha una flor de cada especie.', icon: 'seed' },
+  { id: 'meteor_win', group: 'Partida', name: 'Bajo la lluvia', desc: 'Gana un piso con Lluvia de meteoritos.', icon: 'meteor' },
+  { id: 'coven_win', group: 'Partida', name: 'Caza de brujas', desc: 'Gana un piso de Aquelarre.', icon: 'target' },
+  { id: 'leaf_hand', group: 'Partida', name: 'Mano verde', desc: 'Quita a mano una hoja que cayó en el tablero.', icon: 'hand' },
+  { id: 'witch_eat', group: 'Minijuegos', name: 'La cazadora cazada', desc: 'En La bruja, atrapa a una bruja asustada.', icon: 'flask' },
+  { id: 'blizzard_best', group: 'Minijuegos', name: 'Patinaje perfecto', desc: 'Sal de la Ventisca en el mínimo de jugadas.', icon: 'ice' },
+  { id: 'versus_done', group: 'Minijuegos', name: 'Cara a cara', desc: 'Termina una partida local a dos.', icon: 'human' },
+  { id: 'duo_mini', group: 'Minijuegos', name: 'Revancha', desc: 'Juega un minijuego a dos en partida local.', icon: 'hockey' },
+  { id: 'titan_poke', group: 'Secretos', name: 'No despiertes al Titán', desc: 'Alguien en el menú no quiere que lo molesten.', icon: 'boss' },
   { id: 'rich', group: 'Tienda', name: 'Bolsillo lleno', desc: 'Ten 100 monedas a la vez.', icon: 'coin' },
 ];
 

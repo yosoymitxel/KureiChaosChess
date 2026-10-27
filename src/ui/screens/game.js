@@ -242,6 +242,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         else if (lost.some((p) => p.type === 'queen')) award('queen_win');
         if (d.feats.cards === 0 && d.feats.hadCards) award('no_cards');
         if (node.modifier === 'fog') award('fog_win');
+        if (node.modifier === 'meteor') award('meteor_win');
+        if (node.modifier === 'coven') award('coven_win');
         if (node.modifier === 'elite') award('elite_slain');
         if (node.isMiniBoss) award('mini_boss_slain');
       }
@@ -348,6 +350,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const take = (it, el, hand) => {
       d.view.takeProp(el, true, hand);
       playSfx(hand ? 'leaf' : 'coin');
+      if (hand) award('leaf_hand');
       if (it.coins) { addCoins(it.coins); addLog(`${it.name}: +${it.coins} moneda${it.coins > 1 ? 's' : ''}`); }
       if (it.seed) { const kind = pickSeed(); addZenSeeds(kind, it.seed); addLog(`Semilla de ${ZEN_NAMES[kind].toLowerCase()} para el jardín`); }
     };
