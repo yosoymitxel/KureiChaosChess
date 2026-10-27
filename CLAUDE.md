@@ -41,7 +41,7 @@ Lanzamiento cercano: cambios acotados.
 - Skills: antislop, ponytail (mínimo + autocomprobación), impeccable, taste; `gaming-references` antes de diseñar;
   `web-game-toolkit` para arte, iconos, audio y pruebas.
 - Probar en navegador a 360×800 táctil y en PC, mesa normal y `pixelada`, antes de dar algo por hecho.
-- Rama de trabajo indicada en la sesión; push frecuente. Al acabar cada cambio, PR y merge a `main` siempre.
+- Commits directos a `main` y push; sin PR ni ramas nuevas.
 
 ## Minijuegos
 1. Nombre e icono solo en `src/data/modifiers.js`; el resto los lee de ahí.

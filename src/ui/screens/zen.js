@@ -12,7 +12,7 @@ import { SEEDS, GARDEN_ITEMS, LAKE_MAX, lakeCost } from '../../data/garden.js';
 import { award } from '../../game/achievements.js';
 import { addCoins, charge, loadShop } from '../../game/shop.js';
 import { playSfx } from '../sfx.js';
-import { flyCoins as fly } from '../coins.js';
+import { flyCoins as coinsTo } from '../coins.js';
 import { t, tp } from '../../i18n/index.js';
 
 const ETAPAS = { empty: t('zen.stage.empty', 'vacía'), sprout: t('zen.stage.sprout', 'con brote'), bud: t('zen.stage.bud', 'con capullo'), bloom: t('zen.stage.bloom', 'lista para cortar') };
@@ -115,7 +115,7 @@ export function ZenScreen({ onBack, onShop }) {
   };
   const unhover = () => handRef.current?.classList.remove('on');
 
-  const flyCoins = (from, n, amount) => fly(from, coinRef.current, n, () => setCoins(addCoins(amount)));
+  const flyCoins = (from, n, amount) => coinsTo(from, coinRef.current, n, () => setCoins(addCoins(amount)));
 
   // Gestos de cada acción.
   const fxSow = (key) => later(() => {
