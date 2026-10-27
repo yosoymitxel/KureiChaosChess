@@ -197,6 +197,10 @@
   border-radius: 50% 50% 40% 40%;
   background: radial-gradient(closest-side, oklch(0.75 0.02 260 / 0.55), oklch(0.75 0.02 260 / 0));
 }
+/* Chrome recortaba el cartel por arriba con la caja de la peana (cámara épica, jefe del fondo):
+   como plano 3D propio se pinta entero. */
+.pc:has(.pc-hp) :is(.pc-stand, .pc-fig) { transform-style: preserve-3d; }
+.pc-hp { transform: translateZ(1px); }
 .pc-hp { position: absolute; left: 50%; top: calc(var(--head, 0.1) * 100% - 4px); translate: -50% -100%; display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: var(--ink); border-radius: 6px; white-space: nowrap; }
 .pc-hp span { margin-right: 4px; font: 800 calc(var(--sq) * 0.26)/1 var(--font); color: var(--paper); text-box: trim-both cap alphabetic; }
 .pc-hp b { display: block; width: calc(var(--sq) * 0.18); height: calc(var(--sq) * 0.18); border-radius: 50%; background: oklch(1 0 0 / 0.15); }
