@@ -5,6 +5,7 @@
 export const LANGS = { es: 'Español', en: 'English' };
 
 function saved() {
+  if (typeof window === 'undefined') return null; // Node (tools): no hay localStorage
   try { return JSON.parse(localStorage.getItem('zugzwang.settings.v2'))?.lang; } catch { return null; }
 }
 // Sin ajuste guardado: el primer idioma del navegador que tengamos, si no inglés (público de itch).

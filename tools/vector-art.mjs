@@ -22,7 +22,24 @@ const FIGURES = [...PIECE_TYPES.map((t) => ['piezas', t, PIECES[t].name]), ...BO
 const STROKE = 1.6;
 
 const toFile = (s) => COLORS.reduce((a, [hex, v]) => a.replaceAll(v, hex), s);
-const toGame = (s) => COLORS.reduce((a, [hex, v]) => a.replace(new RegExp(hex, 'gi'), v), s);
+// Los editores guardan variantes casi iguales de los cuatro colores (#f3ead9, #cd9942…). Se lleva
+// cada una al color de trabajo más cercano; si se aleja demasiado se avisa y se deja tal cual.
+const SNAP = 80;
+const palette = COLORS.map(([hex, v]) => [v, [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16))]);
+const unmapped = new Set();
+function toGame(s) {
+  return s.replace(/#[0-9a-fA-F]{6}/g, (hex) => {
+    const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+    let best = null;
+    for (const [v, p] of palette) {
+      const d = Math.hypot(c[0] - p[0], c[1] - p[1], c[2] - p[2]);
+      if (!best || d < best[1]) best = [v, d];
+    }
+    if (best[1] <= SNAP) return best[0];
+    unmapped.add(hex.toLowerCase());
+    return hex;
+  });
+}
 
 if (process.argv.includes('--exportar')) {
   const { RAW_BODIES } = await import('../src/view/piece-art.js');
@@ -66,16 +83,21 @@ const clean = (s) => s
   .replace(/\s(?:inkscape|sodipodi|xml|data-name|serif):[\w-]+="[^"]*"/g, '')
   .replace(/\s(?:id|class|data-name)="[^"]*"/g, '')
   .replace(/\s+/g, ' ').replace(/>\s+</g, '><').trim();
+// Los calcos traen un estilo fill por trazo: sin aislar el grupo heredan el contorno del juego y
+// cada detalle sale rebordeado. El editor pierde ese stroke="none" al guardar, así que se repone.
+const noInherit = (s) =>
+  s.includes('style="fill:') && !/^<g\b[^>]*\bstroke="none"/.test(s) ? `<g stroke="none">${s}</g>` : s;
 
 const bodies = {};
 for (const [group, id] of FIGURES) {
   const file = `${DIR}${group}/${id}.svg`;
   if (!existsSync(file)) throw new Error(`falta ${file} (node tools/vector-art.mjs --exportar lo crea)`);
-  bodies[id] = toGame(clean(groupBody(readFileSync(file, 'utf8'), file)));
+  bodies[id] = toGame(noInherit(clean(groupBody(readFileSync(file, 'utf8'), file))));
 }
 for (const group of ['piezas', 'jefes']) for (const f of existsSync(DIR + group) ? readdirSync(DIR + group) : []) {
   if (f.endsWith('.svg') && !FIGURES.some(([g, id]) => g === group && id + '.svg' === f)) console.warn(`  aviso: ${group}/${f}: el juego no tiene esa figura, se ignora`);
 }
+if (unmapped.size) console.warn(`  aviso: colores fuera de la paleta: ${[...unmapped].join(', ')}`);
 writeFileSync(OUT, `// Generado por tools/vector-art.mjs desde art/vector/: no editar a mano.
 // Cuerpo de cada pieza y jefe en sus coordenadas de dibujo; piece-art.js lo mide, lo escala y lo centra.
 export const BODIES = ${JSON.stringify(bodies, null, 2)};
