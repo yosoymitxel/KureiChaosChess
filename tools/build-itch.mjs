@@ -49,6 +49,7 @@ writeFileSync(join(out, 'index.html'), page);
 
 const count = (d) => readdirSync(d).reduce((n, f) => n + (statSync(join(d, f)).isDirectory() ? count(join(d, f)) : 1), 0);
 if (count(out) > 1000) throw new Error('itch admite como mucho 1000 archivos');
-execFileSync('powershell', ['-NoProfile', '-Command', `Compress-Archive -Path "${out}\\*" -DestinationPath "${zip}" -CompressionLevel Optimal -Force`]);
+if (process.platform === 'win32') execFileSync('powershell', ['-NoProfile', '-Command', `Compress-Archive -Path "${out}\\*" -DestinationPath "${zip}" -CompressionLevel Optimal -Force`]);
+else execFileSync('zip', ['-qr', zip, '.'], { cwd: out });
 const mb = (statSync(zip).size / 1048576).toFixed(1);
 console.log(`itch: ${count(out)} archivos, ${mb} MB → dist/kurei-chaos-chess-itch.zip`);

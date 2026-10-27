@@ -14,10 +14,10 @@
 - 11 piezas: las del ajedrez y otras como la guardia, el camello o el cañón.
 - Mutaciones y cartas tácticas que se acumulan durante la run.
 - 7 jefes de varias casillas, con vidas.
-- 15 mecánicas de piso que se combinan: agujeros, lago helado, portales, niebla, plaga zombi, meteoritos.
+- 11 reglas de piso que se combinan: lago helado, portales, niebla, plaga zombi, meteoritos, suelo que se derrumba; en tableros con agujeros y formas distintas.
 - 28 minijuegos inspirados en clásicos de NES: la bruja (Pac-Man), brote (Dr. Mario), damas a ciegas, ventisca, hockey de mesa, conecta 4.
 - Partida local a dos en el mismo dispositivo.
-- 23 mesas, 17 en pixel art, que cambian piezas, letra, sonido y música.
+- 26 mesas, 17 en pixel art, que cambian piezas, letra, sonido y música.
 - Jardín zen entre runs, tienda, galería y logros.
 - Controles: toque, ratón, teclado o mando.
 

@@ -20,20 +20,20 @@ carga todo desde dentro del zip:
 
 | Campo | Valor |
 |---|---|
-| Title | Kure'iChaosChess |
+| Title | Kure'i Chaos Chess (con espacios: el buscador de itch solo mira el título, y así casa con "chaos chess") |
 | Project URL | `kurei-chaos-chess` |
-| Short description | Ajedrez que muta en cada piso: un roguelike de mesa con jefes gigantes y 28 minijuegos. |
+| Short description | Free chess roguelike in your browser: every floor breaks the rules and the bosses fill the board. |
 | Classification | Games |
 | Kind of project | HTML |
-| Release status | Released (o In development si sale como demo) |
-| Pricing | No payments o Donate (gratis con donación opcional) |
-| Uploads | el zip, marcado **This file will be played in the browser** |
+| Release status | Released |
+| Pricing | $0 or donate |
+| Uploads | **uno solo**, el canal `web` que sube `publicar.ps1` (butler), marcado *This file will be played in the browser*. Borra el zip subido a mano: dos archivos hacen que aparezca **Descargar ahora**, que no lleva a nada útil. |
 
 ### Opciones del embed
 
 | Opción | Valor |
 |---|---|
-| Embed options | Embed in page |
+| Embed options | Embed in page (no "Click to launch in fullscreen": en PC se juega sin salir de la página y la descripción queda a la vista) |
 | Viewport dimensions | 1280 × 720 |
 | Mobile friendly | Sí, orientación **Portrait** (el juego está pensado también para 360×800) |
 | Automatically start on page load | No: con un clic para empezar, el navegador deja sonar el audio |
@@ -57,59 +57,167 @@ El juego guarda la partida en `localStorage`; en itch funciona igual dentro del 
   6. `docs/img/mini-hockey.jpg`
   7. `docs/img/jardin.jpg`
   8. `docs/img/movil.jpg`
-- **Trailer:** pendiente (vídeo promocional).
+- **Trailer:** pendiente (vídeo promocional). Mientras tanto, un GIF de 5 s del jefe cayendo sobre el tablero vale más que dos capturas.
 
 Para regenerar las capturas, abre el juego en 1280×720 y repite las mismas pantallas: menú, primer piso de una run,
 la mesa pixelada, la bruja, brote, hockey y el jardín.
+
+**Promo images** (Metadatos → Promo images), ya hechas con el propio juego:
+
+| Campo | Archivo |
+|---|---|
+| Social media image | `docs/itch/social-1200x630.png` (o `social-1200x630-pixel.png`) |
+| Favicon | `docs/itch/favicon-512.png` |
+| Wide cover (21:9) | `docs/itch/wide-cover-21x9.png` (2520×1080) |
+| Logo | `docs/itch/logo.png` (PNG transparente, se lee sobre blanco y sobre negro) |
 
 ### Metadatos
 
 | Campo | Valor |
 |---|---|
 | Genre | Strategy |
-| Tags | chess, roguelike, roguelite, board-game, turn-based, pixel-art, minigames, local-multiplayer, singleplayer, casual |
-| AI generation disclosure | Sí: la música de Open Lo-Fi está generada con Suno. Revisa también el código y el arte antes de marcarlo. |
-| Languages | Spanish, English |
-| Inputs | Mouse, Touchscreen, Keyboard |
-| Average session | A few minutes |
+| Tags (10) | chess, roguelike, roguelite, turn-based-strategy, board-game, boss-battle, pixel-art, minigames, procedural-generation, singleplayer. Fuera `casual` (no describe nada) y `turn-based` (ya va en turn-based-strategy, que tiene su propia página de Browse). |
+| AI generation disclosure | **Yes**: código escrito con Claude y la música de Open Lo-Fi generada con Suno. Itch pide marcarlo aunque esté editado a mano. |
+| Languages | English, Spanish; Castilian, Spanish; Latin America |
+| Inputs | Keyboard, Mouse, Touchscreen, **Gamepad (any)** (el juego tiene mando básico) |
+| Accessibility | Interactive tutorial (la run tutorial de 4 pisos) |
+| Average session | About a half-hour (una run) |
 | Multiplayer | Local multiplayer (mismo dispositivo) |
 | Player count | 1–2 |
+| External links | el repositorio de GitHub, si sigue público |
+
+### Tema de la página (Edit theme)
+
+Ahora mismo la página usa el tema por defecto de itch (gris claro, rojo de itch, Lato): no se parece al juego.
+Con los colores del propio juego, una base, una tinta y un acento:
+
+| Campo | Valor | Qué es en el juego |
+|---|---|---|
+| BG | `#24180f` | la mesa de nogal |
+| BG 2 | `#f6eedc` | el papel de los paneles |
+| Text | `#1d140d` | la tinta |
+| Link | `#c12d00` | el rojo de la cinta del logo |
+| Button (More options) | fondo `#c12d00`, texto `#f6eedc` | el botón Empezar run |
+| Banner | `docs/itch/logo.png` | el logo encima de todo, sin repetir el título en texto |
+| Background | sin imagen: color plano | |
+| Screenshots | a la derecha (Right column), para que la descripción no quede debajo de ocho capturas |
+
+En la descripción, una imagen entre secciones (el jefe, la mesa pixelada, un minijuego) y nada de líneas
+decorativas (`———`) ni títulos en mayúsculas: la sección se nombra con un encabezado normal.
 
 ### Descripción (copiar tal cual)
 
-```
-Ajedrez que muta en cada piso.
-
-Kure'iChaosChess es un roguelike de mesa: subes una torre de partidas de ajedrez donde cada piso cambia las reglas. Tableros con agujeros, lago helado, portales, niebla, plaga zombi, lluvia de meteoritos… y al final, colosos que ocupan varias casillas y aplastan lo que pisan.
-
-QUÉ TRAE
-• 11 piezas: las del ajedrez y otras como la guardia, el camello o el cañón.
-• Mutaciones y cartas tácticas que se acumulan durante la run.
-• 7 jefes de varias casillas, con vidas.
-• 15 mecánicas de piso que se combinan.
-• 28 minijuegos inspirados en clásicos de NES: la bruja (Pac-Man), brote (Dr. Mario), damas a ciegas, ventisca, hockey de mesa, conecta 4…
-• Partida local a dos en el mismo dispositivo.
-• 23 mesas, 17 en pixel art, que cambian todo el juego: piezas, letra, sonido y música.
-• Un jardín zen entre runs, tienda, galería y 41 logros.
-
-Se juega en el navegador, en móvil o en PC, con toque, ratón o teclado.
-
-Idiomas: español e inglés (Ajustes → Idioma). Se juega también con mando.
-```
+El primer párrafo es lo que leen Google y los buscadores con IA: dice qué es, que es gratis y dónde se
+juega. Los `##` son encabezados (en el editor de itch: Heading 2). Entre secciones, una captura.
 
 ```
-Chess that mutates every floor.
+Kure'i Chaos Chess is a free chess roguelike you play in the browser. Climb a tower of chess matches where every floor breaks a rule, and face colossal bosses that take up several squares at the top.
 
-Kure'iChaosChess is a tabletop roguelike: climb a tower of chess matches where every floor bends the rules. Boards with holes, frozen lakes, portals, fog, zombie plague, meteor showers… and at the top, colossal bosses that take up several squares and crush whatever they step on.
+## Every floor bends the rules
+Frozen lakes where pieces slide, portals, thick fog, a zombie plague, meteor showers, a board that collapses under you. Eleven floor rules that mix as you climb, on boards of different sizes and shapes.
 
-• 11 pieces, mutations and tactical cards
-• 7 multi-square bosses
-• 15 floor mechanics and 28 NES-inspired minigames
-• Local two-player mode
-• 23 tables, 17 of them in pixel art
+## Your army mutates
+Eleven pieces: the classic six plus the guard, the camel, the cannon and more. Win floors to earn mutations (a knight that also moves like a bishop, a king that walks two squares) and tactical cards you play once per turn.
 
-Plays in the browser on mobile or desktop, with touch, mouse, keyboard or a controller. Languages: English and Spanish (Settings → Language).
+## Seven bosses
+The Titan, the Hydra, the Golem and four more: colossi with several lives that take up several squares and crush whatever they step on.
+
+## 28 minigames between floors
+Short games inspired by NES classics, played with chess pieces: a witch maze in the style of Pac-Man, a chain outbreak in the style of Dr. Mario, blind queens, a blizzard, connect four, air hockey.
+
+## And more
+Local two-player mode on the same device. 26 tables (17 in pixel art) that change pieces, font, sound and music. A zen garden between runs, a shop, a gallery and 68 achievements.
+
+## Questions
+Is it free? Yes, and it runs in the browser: nothing to install.
+Does it work on a phone? Yes, it is built for touch screens from 360 px wide.
+Can two people play? Yes, on the same device.
+How long is a run? About half an hour; the tutorial run takes four floors.
+Languages? English and Spanish (Settings → Language).
+Controls? Touch, mouse, keyboard or a gamepad.
 ```
+
+```
+Kure'i Chaos Chess es un roguelike de ajedrez gratis que se juega en el navegador. Subes una torre de partidas de ajedrez donde cada piso rompe una regla, y arriba esperan colosos que ocupan varias casillas.
+
+## Cada piso cambia las reglas
+Lagos helados donde las piezas resbalan, portales, niebla densa, plaga zombi, lluvia de meteoritos, un suelo que se derrumba. Once reglas de piso que se mezclan mientras subes, en tableros de tamaños y formas distintas.
+
+## Tu ejército muta
+Once piezas: las seis del ajedrez y la guardia, el camello, el cañón y más. Cada piso ganado da mutaciones (un caballo que también se mueve como alfil, un rey que anda dos casillas) y cartas tácticas que juegas una por turno.
+
+## Siete jefes
+El Titán, la Hidra, el Gólem y cuatro más: colosos con varias vidas que ocupan varias casillas y aplastan lo que pisan.
+
+## 28 minijuegos entre pisos
+Juegos cortos inspirados en clásicos de NES, con piezas de ajedrez: la bruja (al estilo Pac-Man), brote (al estilo Dr. Mario), damas a ciegas, ventisca, conecta 4, hockey de mesa.
+
+## Y además
+Partida local a dos en el mismo dispositivo. 26 mesas (17 en pixel art) que cambian piezas, letra, sonido y música. Un jardín zen entre runs, tienda, galería y 68 logros.
+
+## Preguntas
+¿Es gratis? Sí, y se juega en el navegador: no hay que instalar nada.
+¿Funciona en el móvil? Sí, está pensado para pantallas táctiles desde 360 px de ancho.
+¿Se puede jugar a dos? Sí, en el mismo dispositivo.
+¿Cuánto dura una run? Una media hora; la run de tutorial son cuatro pisos.
+¿Idiomas? Español e inglés (Ajustes → Idioma).
+¿Controles? Toque, ratón, teclado o mando.
+```
+
+### Devlog de lanzamiento (Devlog → New post, tipo *Release*)
+
+Va por correo a quien te sigue y aparece en la portada de devlogs: publícalo el mismo día que pasas la
+página a Public. Adjunta la captura de la mesa pixelada como imagen del post.
+
+```
+Título: Kure'i Chaos Chess is out: chess that mutates every floor
+
+Kure'i Chaos Chess is now public and free to play in the browser.
+
+It started as a question: what if every game of chess broke one rule, and you had to climb a tower of them? The answer became a roguelike with frozen lakes, portals, zombie plagues and a Titan that takes up four squares.
+
+What's in this first release
+- 11 pieces, 11 floor rules, 7 bosses and 28 NES-inspired minigames
+- 26 tables, 17 in pixel art
+- English and Spanish, touch, mouse, keyboard and gamepad
+- A zen garden where the coins you earn on the board grow flowers
+
+Recently added
+- Leave a match and come back to it later, or restart the floor with the hand you had
+- Coins, leaves and the odd butterfly to collect on the board
+- Tap a side in the panel to see every square it can reach next move
+
+What's next
+Bug fixes from your comments first, then a trailer and more bosses.
+
+If you play, tell me in the comments which floor rule beat you.
+```
+
+```
+Título: Kure'i Chaos Chess ya está aquí: ajedrez que muta en cada piso
+
+Kure'i Chaos Chess ya es público y se juega gratis en el navegador.
+
+Empezó con una pregunta: ¿y si cada partida de ajedrez rompiera una regla y tuvieras que subir una torre de ellas? La respuesta fue un roguelike con lagos helados, portales, plagas zombi y un Titán que ocupa cuatro casillas.
+
+Qué trae esta primera versión
+- 11 piezas, 11 reglas de piso, 7 jefes y 28 minijuegos inspirados en NES
+- 26 mesas, 17 en pixel art
+- Español e inglés; toque, ratón, teclado y mando
+- Un jardín zen donde las monedas que ganas en el tablero se vuelven flores
+
+Lo último
+- Sal de una partida y retómala después, o reinicia el piso con la mano que tenías
+- Monedas, hojas y alguna mariposa que recoger en el tablero
+- Toca un bando en el panel y ves todas las casillas a las que llega
+
+Lo que viene
+Primero los errores que comentéis, después un tráiler y más jefes.
+
+Si juegas, cuéntame en los comentarios qué regla de piso te ganó.
+```
+
+Comunidad: activa **Comentarios** (el devlog pide que comenten y la actividad cuenta para Browse).
 
 ## 4. Posicionamiento (SEO, GEO, AEO)
 

@@ -30,7 +30,7 @@ Si caes, vuelves a empezar con otra torre, otros tableros y otras reglas.
 - **Mutaciones y cartas.** Una pieza que salta, otra que aguanta un golpe, un peón que da paso doble…
 - **7 jefes.** Titán, Ariete, Hidra, el Devorador y más: ocupan 2×2 o 3×3, tienen vidas y te
   devuelven los golpes hasta el último.
-- **15 reglas de piso** que se combinan: lago helado, portales, niebla densa, plaga zombi, contagio,
+- **11 reglas de piso** que se combinan: lago helado, portales, niebla densa, plaga zombi, contagio,
   aquelarre de brujas, lluvia de meteoritos, prisa, élite…
 - **28 minijuegos** que salen por el camino y dan premio. Muchos son homenajes a clásicos de NES:
 
@@ -55,9 +55,9 @@ quién empieza y elige:
 
 - **Jardín zen.** Siembra, riega y corta flores; amplía el jardín y llena el estanque de kois.
 - **Tienda.** Compra mesas nuevas y cosas para el jardín con las monedas de las runs.
-- **23 mesas.** 17 son de pixel art y cambian el juego entero: piezas, letra, sonidos y música.
+- **26 mesas.** 17 son de pixel art y cambian el juego entero: piezas, letra, sonidos y música.
   Hay mesa de gatos, piratas, zombis, marcianitos, Halloween, reino de los hongos…
-- **Galería y 41 logros** para ver todo lo que has descubierto.
+- **Galería y 68 logros** para ver todo lo que has descubierto.
 
 <p align="center"><img src="docs/img/jardin.jpg" alt="El jardín zen con su estanque de kois" width="720" /></p>
 
