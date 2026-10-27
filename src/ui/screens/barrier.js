@@ -6,11 +6,12 @@ import { hopPiece } from '../hop.js';
 import { playSfx } from '../sfx.js';
 import { N, DIFFS, newBarrier, act, steps, canWall, botAction } from '../../game/barrier.js';
 import { MODIFIERS } from '../../data/modifiers.js';
+import { t } from '../../i18n/index.js';
 
 const KEYS = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
 const anchor = (o, r, c) => ({ o, r: Math.min(r, N - 2), c: Math.min(c, N - 2) });
 
-export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
+export function BarrierScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newBarrier(diff || settings.miniDiff?.barrier));
   const [mode, setMode] = useState('move');
   const [ghost, setGhost] = useState(null);
@@ -87,7 +88,7 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
 
   const reach = new Set(s.turn === 'light' && mode === 'move' && !s.over ? steps(s, 'light').map((m) => m.r * N + m.c) : []);
   const wallEl = (w, cls) => html`<i class=${'br-wall ' + w.o + ' ' + cls} style=${{ '--r': w.r, '--c': w.c }}></i>`;
-  const status = s.turn === 'light' ? (mode === 'move' ? 'Mueve tu peón a la fila de arriba o pon una valla.' : 'Toca una casilla: la valla se pone en su borde.') : 'Piensa el bot…';
+  const status = s.turn === 'light' ? (mode === 'move' ? t('barrier.move', 'Mueve tu peón a la fila de arriba o pon una valla.') : t('barrier.fence', 'Toca una casilla: la valla se pone en su borde.')) : t('mini.botThinks', 'Piensa el bot…');
 
   return html`<div class="screen mini">
     <${Topbar} title=${MODIFIERS.barrier.name} sub=${sub} onBack=${onBack} />
@@ -101,7 +102,7 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
               const who = ['light', 'dark'].find((k) => s.pos[k].r === r && s.pos[k].c === c);
               const aim = drag && mode === 'move' && drag.r === r && drag.c === c && reach.has(i);
               return html`<button class=${'br-cell' + (reach.has(i) ? ' mv' : '') + (aim ? ' aim' : '') + (r === 0 ? ' goal-light' : r === N - 1 ? ' goal-dark' : '')}
-                data-r=${r} data-c=${c} disabled=${!!s.over || s.turn !== 'light'} aria-label=${`Fila ${r + 1}, columna ${c + 1}`}
+                data-r=${r} data-c=${c} disabled=${!!s.over || s.turn !== 'light'} aria-label=${t('mini.cell', 'Fila {r}, columna {c}', { r: r + 1, c: c + 1 })}
                 onClick=${(e) => e.detail === 0 && tap(r, c)}>
                 ${who && html`<span class=${'bm-pc side-' + who} dangerouslySetInnerHTML=${{ __html: pieceSVG('pawn') }} />`}
               </button>`;
@@ -112,17 +113,17 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
         </div>
         <div class="mini-side">
           ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-          ${s.over ? html`<${MiniEnd} win=${s.over === 'light'} note=${s.over === 'light' ? 'Tu peón cruzó antes que el carmesí.' : 'El peón carmesí cruzó primero.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'light')} />`
-            : html`<div class="bm-actions" role="group" aria-label="Acción">
-              <button class=${'btn sm' + (mode === 'move' ? ' on' : ' ghost')} aria-pressed=${mode === 'move'} onClick=${() => { setMode('move'); setGhost(null); }}>Mover</button>
-              <button class=${'btn sm' + (mode === 'h' ? ' on' : ' ghost')} aria-pressed=${mode === 'h'} disabled=${!s.left.light} onClick=${() => setMode('h')}>Valla ─</button>
-              <button class=${'btn sm' + (mode === 'v' ? ' on' : ' ghost')} aria-pressed=${mode === 'v'} disabled=${!s.left.light} onClick=${() => setMode('v')}>Valla │</button>
+          ${s.over ? html`<${MiniEnd} win=${s.over === 'light'} note=${s.over === 'light' ? t('barrier.won', 'Tu peón cruzó antes que el carmesí.') : t('barrier.lost', 'El peón carmesí cruzó primero.')} label=${endLabel} onEnd=${() => onEnd(s.over === 'light')} />`
+            : html`<div class="bm-actions" role="group" aria-label=${t('barrier.action', 'Acción')}>
+              <button class=${'btn sm' + (mode === 'move' ? ' on' : ' ghost')} aria-pressed=${mode === 'move'} onClick=${() => { setMode('move'); setGhost(null); }}>${t('barrier.moveBtn', 'Mover')}</button>
+              <button class=${'btn sm' + (mode === 'h' ? ' on' : ' ghost')} aria-pressed=${mode === 'h'} disabled=${!s.left.light} onClick=${() => setMode('h')}>${t('barrier.fenceBtn', 'Valla')} ─</button>
+              <button class=${'btn sm' + (mode === 'v' ? ' on' : ' ghost')} aria-pressed=${mode === 'v'} disabled=${!s.left.light} onClick=${() => setMode('v')}>${t('barrier.fenceBtn', 'Valla')} │</button>
             </div>
             <div class="mini-stats" aria-live="polite">
-              <span class="chip" title="Tus vallas"><${Icon} name="fence" size=${13} />Tú <b>${s.left.light}</b></span>
-              <span class="chip" title="Vallas del bot"><${Icon} name="fence" size=${13} />Bot <b>${s.left.dark}</b></span>
+              <span class="chip" title=${t('barrier.yourFences', 'Tus vallas')}><${Icon} name="fence" size=${13} />${t('seat.you', 'Tú')} <b>${s.left.light}</b></span>
+              <span class="chip" title=${t('barrier.botFences', 'Vallas del bot')}><${Icon} name="fence" size=${13} />Bot <b>${s.left.dark}</b></span>
             </div>`}
-          <${MiniTools} mini="barrier" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Cruza a la fila de arriba antes que el peón carmesí, que baja hacia la suya. Muévete con las flechas o tocando una casilla, o gasta una valla para cerrar un borde.<//>
+          <${MiniTools} mini="barrier" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('barrier.help', 'Cruza a la fila de arriba antes que el peón carmesí, que baja hacia la suya. Muévete con las flechas o tocando una casilla, o gasta una valla para cerrar un borde.')}<//>
         </div>
       </div>
     </div>

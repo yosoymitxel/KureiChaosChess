@@ -1,5 +1,6 @@
 // Bomberman por turnos, fiel al de NES: arena apaisada con pilares, cajas, enemigos con su manera
 // de moverse y la puerta de salida escondida bajo una caja. Cada acción del jugador avanza un tic.
+import { localize } from '../i18n/index.js';
 const FUSE = 5, MAX_RANGE = 3; // la mecha corre en el mismo turno: cuatro jugadas antes de estallar
 const L_JUMP = [[-2, -1], [-2, 1], [2, -1], [2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2]];
 const DIAG = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
@@ -10,12 +11,12 @@ const DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 //  alfil  vaga y, cerca de ti, se acerca en diagonal.
 //  cañón  vaga y, si te tiene en línea a tiro, suelta una bomba y huye de ella.
 //  caballo salta en L hacia ti cuando estás cerca (solo en Difícil).
-export const FOES = {
+export const FOES = localize('bomberFoes', {
   pawn: 'Vaga despacio y sigue recto hasta chocar.',
   bishop: 'Cerca de ti se acerca en diagonal.',
   cannon: 'Si te tiene en línea, suelta una bomba y huye.',
   knight: 'Salta en L hacia ti cuando estás cerca.',
-};
+});
 // La dificultad crece a lo ancho y en quién sale; la arena es apaisada como la del original.
 export const DIFFS = {
   facil: { name: 'Fácil', rows: 9, cols: 11, sight: 3, crates: 0.3, roster: ['pawn', 'pawn', 'bishop'] },

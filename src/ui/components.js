@@ -128,8 +128,8 @@ export function BossCard({ boss, unlocked }) {
       ? html`<${PieceIcon} type=${'boss-' + boss.id} side="dark" size=${44} />`
       : html`<span class="rule-lock"><${Icon} name="lock" size=${22} /></span>`}
     <div>
-      <strong>${unlocked ? boss.name : 'Jefe por descubrir'}</strong>
-      <span>${unlocked ? `${boss.desc} Se mueve como: ${boss.moves.map((m) => MOVE_NAMES[m]).join(' y ')}.` : 'Derriba a este coloso para estudiarlo.'}</span>
+      <strong>${unlocked ? boss.name : t('boss.unknown', 'Jefe por descubrir')}</strong>
+      <span>${unlocked ? boss.desc + ' ' + t('boss.movesAs', 'Se mueve como: {list}.', { list: boss.moves.map((m) => MOVE_NAMES[m]).join(t('common.and', ' y ')) }) : t('boss.studyIt', 'Derriba a este coloso para estudiarlo.')}</span>
     </div>
   </div>`;
 }
@@ -160,26 +160,26 @@ function Card({ card, chosen, onPick, style }) {
   </div>`;
 }
 
-const KIND_LABEL = { tactic: 'Táctica', mutation: 'Mutación', boon: 'Objeto' };
-export const RARITY_LABEL = { common: 'común', rare: 'rara', epic: 'épica' };
+const KIND_LABEL = { tactic: t('kind.tactic', 'Táctica'), mutation: t('game.mutation', 'Mutación'), boon: t('kind.boon', 'Objeto') };
+export const RARITY_LABEL = { common: t('rarity.common', 'común'), rare: t('rarity.rare', 'rara'), epic: t('rarity.epic', 'épica') };
 
 // One card anatomy for every card in the game (rewards, hand, previews):
 // frame colour = kind, gem = rarity, title plate, art window, type line, rules box.
 export function CardFace({ card, mini = false, shop = false }) {
   const kind = card.kind || 'boon', rarity = card.rarity || 'common';
   return html`<div class=${`face kind-${kind} ${rarity}${card.preMatch ? " pre" : ""}`}>
-    ${card.preMatch && html`<span class="pre-ribbon">Al empezar</span>`}
+    ${card.preMatch && html`<span class="pre-ribbon">${t('card.atStart', 'Al empezar')}</span>`}
     <span class=${'gem ' + rarity} title=${RARITY_LABEL[rarity]}></span>
     <div class="plate">${card.name}</div>
     <div class="art"><${Icon} name=${card.icon} size=${mini ? 34 : 72} /></div>
     <div class="type">${KIND_LABEL[kind]} · ${RARITY_LABEL[rarity]}${card.stack > 1 ? ` · ×${card.stack}` : ''}</div>
     ${!mini && html`<p class="desc">${card.desc}</p>`}
-    ${shop && html`<i class="shop-mark" title="Comprada en la tienda del jardín"><${Icon} name="coin" size=${mini ? 12 : 18} /></i>`}
+    ${shop && html`<i class="shop-mark" title=${t('card.bought', 'Comprada en la tienda del jardín')}><${Icon} name="coin" size=${mini ? 12 : 18} /></i>`}
   </div>`;
 }
 
 // Deck-builder style pick: cards are dealt face down and flip over.
-export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = 'Quedármela', onBack }) {
+export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = t('card.keep', 'Quedármela'), onBack }) {
   const [chosen, setChosen] = useState(null);
   const row = useRef(null);
   useEffect(() => {

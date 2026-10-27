@@ -69,7 +69,7 @@ la mesa pixelada, la bruja, brote, hockey y el jardín.
 | Genre | Strategy |
 | Tags | chess, roguelike, roguelite, board-game, turn-based, pixel-art, minigames, local-multiplayer, singleplayer, casual |
 | AI generation disclosure | Sí: la música de Open Lo-Fi está generada con Suno. Revisa también el código y el arte antes de marcarlo. |
-| Languages | Spanish |
+| Languages | Spanish, English |
 | Inputs | Mouse, Touchscreen, Keyboard |
 | Average session | A few minutes |
 | Multiplayer | Local multiplayer (mismo dispositivo) |
@@ -94,7 +94,7 @@ QUÉ TRAE
 
 Se juega en el navegador, en móvil o en PC, con toque, ratón o teclado.
 
-Idioma: español.
+Idiomas: español e inglés (Ajustes → Idioma). Se juega también con mando.
 ```
 
 ```
@@ -108,7 +108,7 @@ Kure'iChaosChess is a tabletop roguelike: climb a tower of chess matches where e
 • Local two-player mode
 • 23 tables, 17 of them in pixel art
 
-Plays in the browser on mobile or desktop. Language: Spanish.
+Plays in the browser on mobile or desktop, with touch, mouse, keyboard or a controller. Languages: English and Spanish (Settings → Language).
 ```
 
 ## 4. Antes de publicar

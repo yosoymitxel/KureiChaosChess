@@ -6,10 +6,11 @@ import { DIFFS, newOutbreak, chain, dose } from '../../game/outbreak.js';
 import { MiniBoard } from '../mini-board.js';
 import { key } from '../../game/rules.js';
 import { MODIFIERS } from '../../data/modifiers.js';
+import { t } from '../../i18n/index.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-export function OutbreakScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
+export function OutbreakScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newOutbreak(diff || settings.miniDiff?.outbreak));
   const [board] = useState(() => ({ rows: s.n, cols: s.n, holes: new Set() }));
   const [sel, setSel] = useState(null);
@@ -44,12 +45,12 @@ export function OutbreakScreen({ sub, onBack, onEnd, endLabel = 'Continuar', set
     <${Topbar} title=${MODIFIERS.outbreak.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
-        <${MiniBoard} board=${board} pieces=${pieces} marks=${[...marks]} disabled=${!!s.over || busy} label="Tablero del brote" onTap=${tap} onView=${(v) => (view.current = v)} />
+        <${MiniBoard} board=${board} pieces=${pieces} marks=${[...marks]} disabled=${!!s.over || busy} label=${t('outbreak.board', 'Tablero del brote')} onTap=${tap} onView=${(v) => (view.current = v)} />
         <div class="mini-side">
-          ${!s.over && html`<p class="mini-status" aria-live="polite">${sel ? `Esta dosis contagiaría ${[...marks.keys()].length}. Toca otra vez para usarla.` : 'Toca una pieza carmesí para ver hasta dónde llega el contagio.'}</p>`}
-          ${!s.over && html`<div class="mini-stats"><span class="chip">Dosis ${s.doses - s.used}</span><span class="chip">Sanas ${left}</span></div>`}
-          ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Brote completo con ${s.used} dosis.` : `Quedaron ${left} piezas sanas.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
-          <${MiniTools} mini="outbreak" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Tienes unas pocas dosis. La pieza que contagias contagia a su vez a todas las que ataca según cómo se mueve (la torre en línea recta, el caballo en L, el alfil en diagonal; el peón contagiado ataca en diagonal hacia arriba), y la cadena sigue. Un toque enseña hasta dónde llegaría; otro toque en la misma pieza gasta la dosis. Contagia a todas.<//>
+          ${!s.over && html`<p class="mini-status" aria-live="polite">${sel ? t('outbreak.preview', 'Esta dosis contagiaría {n}. Toca otra vez para usarla.', { n: [...marks.keys()].length }) : t('outbreak.status', 'Toca una pieza carmesí para ver hasta dónde llega el contagio.')}</p>`}
+          ${!s.over && html`<div class="mini-stats"><span class="chip">${t('outbreak.doses', 'Dosis {n}', { n: s.doses - s.used })}</span><span class="chip">${t('outbreak.healthy', 'Sanas {n}', { n: left })}</span></div>`}
+          ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? t('outbreak.won', 'Brote completo con {n} dosis.', { n: s.used }) : t('outbreak.lost', 'Quedaron {n} piezas sanas.', { n: left })} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+          <${MiniTools} mini="outbreak" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('outbreak.help', 'Tienes unas pocas dosis. La pieza que contagias contagia a su vez a todas las que ataca según cómo se mueve (la torre en línea recta, el caballo en L, el alfil en diagonal; el peón contagiado ataca en diagonal hacia arriba), y la cadena sigue. Un toque enseña hasta dónde llegaría; otro toque en la misma pieza gasta la dosis. Contagia a todas.')}<//>
         </div>
       </div>
     </div>

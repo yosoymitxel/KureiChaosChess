@@ -4,7 +4,7 @@
 Sube la torre, gana piezas raras y derriba al coloso del final.</p>
 
 <p align="center"><a href="https://yosoymitxel.github.io/KureiChaosChess/"><b>▶ Jugar gratis en el navegador</b></a><br/>
-<sub>Móvil o PC · sin instalar · en español</sub></p>
+<sub>Móvil o PC · sin instalar · español e inglés · con mando</sub></p>
 
 ![El menú: el título sobre una mesa donde el Titán espera frente a tus piezas](docs/img/menu-walnut.jpg)
 

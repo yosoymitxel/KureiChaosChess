@@ -121,27 +121,27 @@ src/game/blizzard.js:31 +shortest
 src/game/blizzard.js:51 +newBlizzard
 src/game/blizzard.js:74 +look
 src/game/blizzard.js:79 +move
-## src/game/bomber.js (205L)
-src/game/bomber.js:3 FUSE
-src/game/bomber.js:4 L_JUMP
-src/game/bomber.js:5 DIAG
-src/game/bomber.js:6 DIRS
-src/game/bomber.js:13 +FOES
-src/game/bomber.js:20 +DIFFS
-src/game/bomber.js:26 dist
-src/game/bomber.js:28 +newBomber
-src/game/bomber.js:56 inside
-src/game/bomber.js:57 free
-src/game/bomber.js:58 +doorOpen
-src/game/bomber.js:62 rays
-src/game/bomber.js:76 +blastOf
-src/game/bomber.js:78 explode
-src/game/bomber.js:94 huntStep
-src/game/bomber.js:113 wander
-src/game/bomber.js:123 leap
-src/game/bomber.js:133 inSight
-src/game/bomber.js:142 moveFoe
-src/game/bomber.js:169 +step
+## src/game/bomber.js (206L)
+src/game/bomber.js:4 FUSE
+src/game/bomber.js:5 L_JUMP
+src/game/bomber.js:6 DIAG
+src/game/bomber.js:7 DIRS
+src/game/bomber.js:14 +FOES
+src/game/bomber.js:21 +DIFFS
+src/game/bomber.js:27 dist
+src/game/bomber.js:29 +newBomber
+src/game/bomber.js:57 inside
+src/game/bomber.js:58 free
+src/game/bomber.js:59 +doorOpen
+src/game/bomber.js:63 rays
+src/game/bomber.js:77 +blastOf
+src/game/bomber.js:79 explode
+src/game/bomber.js:95 huntStep
+src/game/bomber.js:114 wander
+src/game/bomber.js:124 leap
+src/game/bomber.js:134 inSight
+src/game/bomber.js:143 moveFoe
+src/game/bomber.js:170 +step
 ## src/game/bowling.js (107L)
 src/game/bowling.js:4 +LAUNCH_COLS
 src/game/bowling.js:7 +DIFFS
@@ -221,19 +221,19 @@ src/game/difficulty.js:112 +FINAL_BOSSES
 src/game/difficulty.js:117 +RARE_TYPES
 src/game/difficulty.js:118 +ARMY_STEPS
 src/game/difficulty.js:123 +armyForFloor
-## src/game/duel.js (97L)
-src/game/duel.js:5 +BEATS
-src/game/duel.js:6 +TYPE_NAME
-src/game/duel.js:10 +MOVES
-src/game/duel.js:27 +FIGHTERS
-src/game/duel.js:39 +DIFFS
-src/game/duel.js:45 unit
-src/game/duel.js:47 +newDuel
-src/game/duel.js:52 +active
-src/game/duel.js:53 +effect
-src/game/duel.js:56 strike
-src/game/duel.js:75 foeChoice
-src/game/duel.js:85 +turn
+## src/game/duel.js (98L)
+src/game/duel.js:6 +BEATS
+src/game/duel.js:7 +TYPE_NAME
+src/game/duel.js:11 +MOVES
+src/game/duel.js:28 +FIGHTERS
+src/game/duel.js:40 +DIFFS
+src/game/duel.js:46 unit
+src/game/duel.js:48 +newDuel
+src/game/duel.js:53 +active
+src/game/duel.js:54 +effect
+src/game/duel.js:57 strike
+src/game/duel.js:76 foeChoice
+src/game/duel.js:86 +turn
 ## src/game/fusion.js (70L)
 src/game/fusion.js:4 +LADDER
 src/game/fusion.js:6 +DIFFS
@@ -497,14 +497,16 @@ src/game/zen.js:223 +BUTTERFLY_MS
 src/game/zen.js:224 +butterflyGift
 src/game/zen.js:229 +addZenSeeds
 src/game/zen.js:236 +pickSeed
-## src/i18n/en.js (339L)
-## src/i18n/index.js (31L)
+## src/i18n/en.js (974L)
+## src/i18n/index.js (38L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
 src/i18n/index.js:10 +LANG
 src/i18n/index.js:11 dict
 src/i18n/index.js:15 +t
-src/i18n/index.js:21 +localize
+src/i18n/index.js:21 plural
+src/i18n/index.js:22 +tp
+src/i18n/index.js:28 +localize
 ## src/lab-catalog.js (71L)
 src/lab-catalog.js:2 FALLBACK_THEMES
 src/lab-catalog.js:10 THEMES
@@ -527,15 +529,15 @@ src/lab.js:95 play
 src/lab.js:100 scenes
 src/lab.js:106 cams
 ## src/main.js (7L)
-## src/ui/app.js (354L)
-src/ui/app.js:30 REST_CARDS
-src/ui/app.js:35 BAG_CARDS
-src/ui/app.js:42 shuffle3
-src/ui/app.js:44 MINI_PRIZES
-src/ui/app.js:45 ONE_SHOT
-src/ui/app.js:47 +App
-src/ui/app.js:310 MutationReveal
-src/ui/app.js:326 AchievementToast
+## src/ui/app.js (355L)
+src/ui/app.js:31 REST_CARDS
+src/ui/app.js:36 BAG_CARDS
+src/ui/app.js:43 shuffle3
+src/ui/app.js:45 MINI_PRIZES
+src/ui/app.js:46 ONE_SHOT
+src/ui/app.js:48 +App
+src/ui/app.js:311 MutationReveal
+src/ui/app.js:327 AchievementToast
 ## src/ui/components.js (225L)
 src/ui/components.js:12 +ThemeLook
 src/ui/components.js:20 +Topbar
@@ -553,30 +555,33 @@ src/ui/components.js:168 +CardFace
 src/ui/components.js:182 +CardPick
 src/ui/components.js:208 +TurnBanner
 src/ui/components.js:219 +Toggle
-## src/ui/demos.js (30L)
-src/ui/demos.js:9 +pieceDemo
-src/ui/demos.js:14 +mutationDemo
-src/ui/demos.js:23 +bossDemo
-src/ui/demos.js:29 +playDemo
+## src/ui/demos.js (31L)
+src/ui/demos.js:10 +pieceDemo
+src/ui/demos.js:15 +mutationDemo
+src/ui/demos.js:24 +bossDemo
+src/ui/demos.js:30 +playDemo
 ## src/ui/fullscreen.js (23L)
 src/ui/fullscreen.js:5 +canFullscreen
 src/ui/fullscreen.js:6 isFull
 src/ui/fullscreen.js:8 +setFullscreen
 src/ui/fullscreen.js:14 +useFullscreen
-## src/ui/gamepad.js (82L)
-src/ui/gamepad.js:5 BUTTONS
-src/ui/gamepad.js:6 DIRS
-src/ui/gamepad.js:7 FIRST
-src/ui/gamepad.js:8 FOCUSABLE
-src/ui/gamepad.js:10 visible
-src/ui/gamepad.js:15 scope
-src/ui/gamepad.js:17 focus
-src/ui/gamepad.js:23 moveFocus
-src/ui/gamepad.js:46 press
-src/ui/gamepad.js:56 held
-src/ui/gamepad.js:57 poll
-src/ui/gamepad.js:76 running
-src/ui/gamepad.js:77 +startGamepad
+## src/ui/gamepad.js (93L)
+src/ui/gamepad.js:7 BUTTONS
+src/ui/gamepad.js:8 DIRS
+src/ui/gamepad.js:9 SECOND
+src/ui/gamepad.js:10 FIRST
+src/ui/gamepad.js:11 FOCUSABLE
+src/ui/gamepad.js:13 visible
+src/ui/gamepad.js:18 scope
+src/ui/gamepad.js:20 focus
+src/ui/gamepad.js:27 moveFocus
+src/ui/gamepad.js:50 targets
+src/ui/gamepad.js:51 release
+src/ui/gamepad.js:55 press
+src/ui/gamepad.js:66 held
+src/ui/gamepad.js:67 poll
+src/ui/gamepad.js:87 running
+src/ui/gamepad.js:88 +startGamepad
 ## src/ui/hop.js (79L)
 src/ui/hop.js:8 OUT
 src/ui/hop.js:9 +reduced
@@ -602,61 +607,61 @@ src/ui/lib.js:4 +html
 src/ui/mini-board.js:10 +MiniBoard
 src/ui/mini-board.js:30 sync
 src/ui/mini-board.js:71 +zombies
-## src/ui/moments.js (309L)
-src/ui/moments.js:11 OUT
-src/ui/moments.js:12 IN
-src/ui/moments.js:13 reduced
-src/ui/moments.js:14 sleep
-src/ui/moments.js:16 skippable
-src/ui/moments.js:26 discPx
-src/ui/moments.js:34 TOSS_CROSS
-src/ui/moments.js:35 tossFace
-src/ui/moments.js:39 color
-src/ui/moments.js:41 +Moments
+## src/ui/moments.js (310L)
+src/ui/moments.js:12 OUT
+src/ui/moments.js:13 IN
+src/ui/moments.js:14 reduced
+src/ui/moments.js:15 sleep
+src/ui/moments.js:17 skippable
+src/ui/moments.js:27 discPx
+src/ui/moments.js:35 TOSS_CROSS
+src/ui/moments.js:36 tossFace
+src/ui/moments.js:40 color
+src/ui/moments.js:42 +Moments
 ## src/ui/screens/achievements.js (48L)
 src/ui/screens/achievements.js:9 Bar
 src/ui/screens/achievements.js:12 +AchievementsScreen
-## src/ui/screens/barrier.js (131L)
-src/ui/screens/barrier.js:10 KEYS
-src/ui/screens/barrier.js:11 anchor
-src/ui/screens/barrier.js:13 +BarrierScreen
-## src/ui/screens/blind.js (86L)
-src/ui/screens/blind.js:12 wait
-src/ui/screens/blind.js:13 css
-src/ui/screens/blind.js:14 asPiece
-src/ui/screens/blind.js:16 +BlindScreen
-## src/ui/screens/blizzard.js (66L)
-src/ui/screens/blizzard.js:10 KEYS
-src/ui/screens/blizzard.js:12 +BlizzardScreen
-## src/ui/screens/bomber.js (132L)
-src/ui/screens/bomber.js:12 KEYS
-src/ui/screens/bomber.js:13 PAD
-src/ui/screens/bomber.js:15 +BomberScreen
-## src/ui/screens/bowling.js (200L)
-src/ui/screens/bowling.js:11 TICK_MS
-src/ui/screens/bowling.js:12 css
-src/ui/screens/bowling.js:14 +BowlingScreen
-## src/ui/screens/checkers.js (79L)
-src/ui/screens/checkers.js:10 wait
-src/ui/screens/checkers.js:13 +CheckersScreen
-## src/ui/screens/connect4.js (94L)
-src/ui/screens/connect4.js:9 wait
-src/ui/screens/connect4.js:12 +Connect4Screen
-## src/ui/screens/duel.js (117L)
-src/ui/screens/duel.js:12 wait
-src/ui/screens/duel.js:13 OUT
-src/ui/screens/duel.js:15 Plate
-src/ui/screens/duel.js:26 +DuelScreen
-## src/ui/screens/fusion.js (68L)
-src/ui/screens/fusion.js:11 KEYS
-src/ui/screens/fusion.js:12 PAD
-src/ui/screens/fusion.js:14 +FusionScreen
-## src/ui/screens/gallery.js (120L)
-src/ui/screens/gallery.js:19 SOON
-src/ui/screens/gallery.js:25 ThemeGroup
-src/ui/screens/gallery.js:40 RULE
-src/ui/screens/gallery.js:41 Locked
-src/ui/screens/gallery.js:43 +GalleryScreen
+## src/ui/screens/barrier.js (132L)
+src/ui/screens/barrier.js:11 KEYS
+src/ui/screens/barrier.js:12 anchor
+src/ui/screens/barrier.js:14 +BarrierScreen
+## src/ui/screens/blind.js (87L)
+src/ui/screens/blind.js:13 wait
+src/ui/screens/blind.js:14 css
+src/ui/screens/blind.js:15 asPiece
+src/ui/screens/blind.js:17 +BlindScreen
+## src/ui/screens/blizzard.js (67L)
+src/ui/screens/blizzard.js:11 KEYS
+src/ui/screens/blizzard.js:13 +BlizzardScreen
+## src/ui/screens/bomber.js (133L)
+src/ui/screens/bomber.js:13 KEYS
+src/ui/screens/bomber.js:14 PAD
+src/ui/screens/bomber.js:16 +BomberScreen
+## src/ui/screens/bowling.js (201L)
+src/ui/screens/bowling.js:12 TICK_MS
+src/ui/screens/bowling.js:13 css
+src/ui/screens/bowling.js:15 +BowlingScreen
+## src/ui/screens/checkers.js (80L)
+src/ui/screens/checkers.js:11 wait
+src/ui/screens/checkers.js:14 +CheckersScreen
+## src/ui/screens/connect4.js (95L)
+src/ui/screens/connect4.js:10 wait
+src/ui/screens/connect4.js:13 +Connect4Screen
+## src/ui/screens/duel.js (118L)
+src/ui/screens/duel.js:13 wait
+src/ui/screens/duel.js:14 OUT
+src/ui/screens/duel.js:16 Plate
+src/ui/screens/duel.js:27 +DuelScreen
+## src/ui/screens/fusion.js (69L)
+src/ui/screens/fusion.js:12 KEYS
+src/ui/screens/fusion.js:13 PAD
+src/ui/screens/fusion.js:15 +FusionScreen
+## src/ui/screens/gallery.js (121L)
+src/ui/screens/gallery.js:20 SOON
+src/ui/screens/gallery.js:26 ThemeGroup
+src/ui/screens/gallery.js:41 RULE
+src/ui/screens/gallery.js:42 Locked
+src/ui/screens/gallery.js:44 +GalleryScreen
 ## src/ui/screens/game.js (738L)
 src/ui/screens/game.js:28 SIDE_NAME
 src/ui/screens/game.js:31 pieceName
@@ -669,54 +674,54 @@ src/ui/screens/hockey.js:12 KEYS
 src/ui/screens/hockey.js:14 TOP_KEYS
 src/ui/screens/hockey.js:15 css
 src/ui/screens/hockey.js:18 +HockeyScreen
-## src/ui/screens/izombie.js (56L)
-src/ui/screens/izombie.js:10 +IZombieScreen
-## src/ui/screens/laststand.js (64L)
-src/ui/screens/laststand.js:10 +LastStandScreen
-## src/ui/screens/map.js (69L)
-src/ui/screens/map.js:9 ROW
-src/ui/screens/map.js:11 +MapScreen
-## src/ui/screens/marcianos.js (138L)
-src/ui/screens/marcianos.js:11 css
-src/ui/screens/marcianos.js:14 KEYS
-src/ui/screens/marcianos.js:15 WAIT
-src/ui/screens/marcianos.js:17 +MarcianosScreen
-## src/ui/screens/menu.js (173L)
-src/ui/screens/menu.js:13 Diorama
-src/ui/screens/menu.js:98 fitCrown
-src/ui/screens/menu.js:130 +MenuScreen
-## src/ui/screens/mini-grid.js (21L)
-src/ui/screens/mini-grid.js:5 +MiniGrid
-## src/ui/screens/minis.js (20L)
-src/ui/screens/minis.js:7 +MinisScreen
-## src/ui/screens/outbreak.js (58L)
-src/ui/screens/outbreak.js:10 wait
-src/ui/screens/outbreak.js:12 +OutbreakScreen
+## src/ui/screens/izombie.js (57L)
+src/ui/screens/izombie.js:11 +IZombieScreen
+## src/ui/screens/laststand.js (65L)
+src/ui/screens/laststand.js:11 +LastStandScreen
+## src/ui/screens/map.js (70L)
+src/ui/screens/map.js:10 ROW
+src/ui/screens/map.js:12 +MapScreen
+## src/ui/screens/marcianos.js (139L)
+src/ui/screens/marcianos.js:12 css
+src/ui/screens/marcianos.js:15 KEYS
+src/ui/screens/marcianos.js:16 WAIT
+src/ui/screens/marcianos.js:18 +MarcianosScreen
+## src/ui/screens/menu.js (174L)
+src/ui/screens/menu.js:14 Diorama
+src/ui/screens/menu.js:99 fitCrown
+src/ui/screens/menu.js:131 +MenuScreen
+## src/ui/screens/mini-grid.js (22L)
+src/ui/screens/mini-grid.js:6 +MiniGrid
+## src/ui/screens/minis.js (21L)
+src/ui/screens/minis.js:8 +MinisScreen
+## src/ui/screens/outbreak.js (59L)
+src/ui/screens/outbreak.js:11 wait
+src/ui/screens/outbreak.js:13 +OutbreakScreen
 ## src/ui/screens/overlays.js (71L)
 src/ui/screens/overlays.js:12 closeOnBackdrop
 src/ui/screens/overlays.js:13 useEscape
 src/ui/screens/overlays.js:19 +PauseOverlay
 src/ui/screens/overlays.js:49 +HowToOverlay
-## src/ui/screens/queens.js (43L)
-src/ui/screens/queens.js:8 +QueensScreen
-## src/ui/screens/scenario.js (33L)
-src/ui/screens/scenario.js:8 RUN
-src/ui/screens/scenario.js:9 noop
-src/ui/screens/scenario.js:12 ScenarioScreen
-src/ui/screens/scenario.js:20 screen
-src/ui/screens/scenario.js:21 +CaceriaScreen
-src/ui/screens/scenario.js:22 +BodyguardScreen
-src/ui/screens/scenario.js:23 +GiantHuntScreen
-src/ui/screens/scenario.js:24 +MinefieldScreen
-src/ui/screens/scenario.js:25 +KingImpostorScreen
-src/ui/screens/scenario.js:26 +EscapeScreen
-src/ui/screens/scenario.js:27 +ContrabandScreen
-src/ui/screens/scenario.js:28 +LaboratoryScreen
-src/ui/screens/scenario.js:29 +CollapsingFloorScreen
-src/ui/screens/scenario.js:30 +KnightScreen
-src/ui/screens/scenario.js:31 +MatesScreen
-src/ui/screens/scenario.js:32 +ClockScreen
-## src/ui/screens/setup.js (196L)
+## src/ui/screens/queens.js (44L)
+src/ui/screens/queens.js:9 +QueensScreen
+## src/ui/screens/scenario.js (34L)
+src/ui/screens/scenario.js:9 RUN
+src/ui/screens/scenario.js:10 noop
+src/ui/screens/scenario.js:13 ScenarioScreen
+src/ui/screens/scenario.js:21 screen
+src/ui/screens/scenario.js:22 +CaceriaScreen
+src/ui/screens/scenario.js:23 +BodyguardScreen
+src/ui/screens/scenario.js:24 +GiantHuntScreen
+src/ui/screens/scenario.js:25 +MinefieldScreen
+src/ui/screens/scenario.js:26 +KingImpostorScreen
+src/ui/screens/scenario.js:27 +EscapeScreen
+src/ui/screens/scenario.js:28 +ContrabandScreen
+src/ui/screens/scenario.js:29 +LaboratoryScreen
+src/ui/screens/scenario.js:30 +CollapsingFloorScreen
+src/ui/screens/scenario.js:31 +KnightScreen
+src/ui/screens/scenario.js:32 +MatesScreen
+src/ui/screens/scenario.js:33 +ClockScreen
+## src/ui/screens/setup.js (195L)
 src/ui/screens/setup.js:14 SIDES
 src/ui/screens/setup.js:21 +RUN_MECHANICS
 src/ui/screens/setup.js:22 PrefsCard
@@ -726,26 +731,26 @@ src/ui/screens/setup.js:45 VERSUS_SHAPES
 src/ui/screens/setup.js:46 VersusCard
 src/ui/screens/setup.js:83 +SetupScreen
 src/ui/screens/setup.js:137 +SettingsScreen
-## src/ui/screens/shop.js (142L)
-src/ui/screens/shop.js:14 CARD_LIST
-src/ui/screens/shop.js:16 +ShopScreen
-## src/ui/screens/witch.js (61L)
-src/ui/screens/witch.js:11 KEYS
-src/ui/screens/witch.js:12 SFX
-src/ui/screens/witch.js:14 +WitchScreen
-## src/ui/screens/zen.js (559L)
-src/ui/screens/zen.js:16 ETAPAS
-src/ui/screens/zen.js:18 TOOLS
-src/ui/screens/zen.js:25 TOOL_ART
-src/ui/screens/zen.js:26 reduced
-src/ui/screens/zen.js:27 later
-src/ui/screens/zen.js:29 the
-src/ui/screens/zen.js:30 cap
-src/ui/screens/zen.js:32 ROOM
-src/ui/screens/zen.js:33 SOIL_COLORS
-src/ui/screens/zen.js:34 OUT
-src/ui/screens/zen.js:38 potArt
-src/ui/screens/zen.js:47 +ZenScreen
+## src/ui/screens/shop.js (143L)
+src/ui/screens/shop.js:15 CARD_LIST
+src/ui/screens/shop.js:17 +ShopScreen
+## src/ui/screens/witch.js (62L)
+src/ui/screens/witch.js:12 KEYS
+src/ui/screens/witch.js:13 SFX
+src/ui/screens/witch.js:15 +WitchScreen
+## src/ui/screens/zen.js (560L)
+src/ui/screens/zen.js:17 ETAPAS
+src/ui/screens/zen.js:19 TOOLS
+src/ui/screens/zen.js:26 TOOL_ART
+src/ui/screens/zen.js:27 reduced
+src/ui/screens/zen.js:28 later
+src/ui/screens/zen.js:30 the
+src/ui/screens/zen.js:31 cap
+src/ui/screens/zen.js:33 ROOM
+src/ui/screens/zen.js:34 SOIL_COLORS
+src/ui/screens/zen.js:35 OUT
+src/ui/screens/zen.js:39 potArt
+src/ui/screens/zen.js:48 +ZenScreen
 ## src/ui/sfx.js (357L)
 src/ui/sfx.js:7 +SFX_VOLUMES
 src/ui/sfx.js:14 JITTER
@@ -821,15 +826,15 @@ src/ui/zen-art.js:227 +boardPond
 src/ui/zen-art.js:232 +stoneArt
 src/ui/zen-art.js:238 +ITEM_ART
 src/ui/zen-art.js:243 +KOI_ART
-## src/view/board-view.js (1033L)
-src/view/board-view.js:14 +CAMERAS
-src/view/board-view.js:15 JUMPERS
-src/view/board-view.js:16 reduced
-src/view/board-view.js:17 wait
-src/view/board-view.js:18 css
-src/view/board-view.js:20 +collapseTiles
-src/view/board-view.js:32 BADGES
-src/view/board-view.js:40 +BoardView
+## src/view/board-view.js (1034L)
+src/view/board-view.js:15 +CAMERAS
+src/view/board-view.js:16 JUMPERS
+src/view/board-view.js:17 reduced
+src/view/board-view.js:18 wait
+src/view/board-view.js:19 css
+src/view/board-view.js:21 +collapseTiles
+src/view/board-view.js:33 BADGES
+src/view/board-view.js:41 +BoardView
 ## src/view/fx.js (194L)
 src/view/fx.js:6 +Fx
 ## src/view/liquid.js (90L)

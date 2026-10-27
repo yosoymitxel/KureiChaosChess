@@ -18,12 +18,12 @@ export function AchievementsScreen({ onBack, onGallery, focus }) {
   useEffect(() => { ref.current?.querySelector(`[data-ach="${focus}"]`)?.scrollIntoView({ block: 'center' }); }, [focus]);
   return html`<div class="screen mini" ref=${ref}>
     <${Topbar} title=${t('menu.achievements', 'Logros')} sub=${t('ach.sub', 'Hitos de tu progreso')} onBack=${onBack}>
-      ${onGallery && html`<button class="btn ghost sm" onClick=${onGallery}><${Icon} name="book" size=${16} />Galería</button>`}
+      ${onGallery && html`<button class="btn ghost sm" onClick=${onGallery}><${Icon} name="book" size=${16} />${t('menu.gallery', 'Galería')}</button>`}
     </${Topbar}>
     <div class="mini-body ach-body">
       <section class="ach-total" data-enter>
         <b>${total} de ${ACHIEVEMENTS.length}</b>
-        <span>${Math.round((100 * total) / ACHIEVEMENTS.length)}% completado</span>
+        <span>${t('ach.done', '{n}% completado', { n: Math.round((100 * total) / ACHIEVEMENTS.length) })}</span>
         <${Bar} n=${total} of=${ACHIEVEMENTS.length} />
       </section>
       ${groups.map(({ name, items, n }) => {

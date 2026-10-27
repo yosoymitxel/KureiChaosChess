@@ -148,7 +148,6 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
         <div class="segmented" role="group" aria-label=${t('settings.language', 'Idioma')}>
           ${Object.entries(LANGS).map(([id, name]) => html`<button class=${LANG === id ? 'on' : ''} aria-pressed=${LANG === id} lang=${id} onClick=${() => setLang(id)}>${name}</button>`)}
         </div>
-        ${LANG !== 'es' && html`<p class="setup-note">${t('settings.languageNote', '')}</p>`}
       </section>
       <section class="panel setup-card" data-enter>
         <h2>${t('settings.table', 'Mesa')}</h2>

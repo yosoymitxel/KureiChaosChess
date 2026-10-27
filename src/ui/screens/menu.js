@@ -3,6 +3,7 @@ import { Icon } from '../icons.js';
 import { useEnter, ConfirmButton } from '../components.js';
 import { BoardView } from '../../view/board-view.js';
 import { makePiece } from '../../game/generate.js';
+import { BOSSES } from '../../data/bosses.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
 import { award } from '../../game/achievements.js';
 import { playSfx } from '../sfx.js';
@@ -17,7 +18,7 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
     const v = new BoardView(host.current, { camera: 'epic' });
     const board = { rows: 6, cols: 6, holes: new Set(['2,0', '3,5', '2,5']) };
     const pieces = [
-      makePiece('king', 'dark', 0, 2, { boss: 'titan', h: 2, w: 2, hp: 3, maxHp: 3, name: 'Titán' }),
+      makePiece('king', 'dark', 0, 2, { boss: 'titan', h: 2, w: 2, hp: 3, maxHp: 3, name: BOSSES.titan.name }),
       makePiece('knight', 'light', 4, 1), makePiece('queen', 'light', 4, 3), makePiece('pawn', 'light', 3, 2),
       makePiece('rook', 'light', 5, 0), makePiece('pawn', 'dark', 2, 3),
     ];

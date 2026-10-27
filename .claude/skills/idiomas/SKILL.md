@@ -36,6 +36,10 @@ puede traducir por partes.
    - Una clave lleva siempre el mismo texto en español; el check falla si no.
    - Variables con `{nombre}`: `t('setup.floor', 'Piso {n}', { n })`. Nunca concatenes frases:
      el orden de las palabras cambia entre idiomas.
+   - Plurales con `tp('clave', n, '{n} moneda', '{n} monedas')`: en cada idioma, claves `clave.one` y
+     `clave.other` (reglas de `Intl.PluralRules`).
+   - Cuidado con variables locales llamadas `t` (`.map((t) => …)`, `const t = setTimeout(…)`): tapan
+     al traductor. Renómbralas (`ty`, `timer`) antes de usar `t()` en ese ámbito.
    - Las claves armadas en el momento (`t('diff.' + id, …)`) se dan por usadas a partir de su prefijo.
    - Atributos también: `aria-label`, `title`, `label`, `hint`, `confirmLabel`.
 3. Contenido nuevo en un registro de `src/data` o `src/game`:

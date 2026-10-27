@@ -7,6 +7,7 @@
 import { html, render, motion, motionStagger } from './lib.js';
 import { Icon, PieceIcon } from './icons.js';
 import { Fx } from '../view/fx.js';
+import { t, tp } from '../i18n/index.js';
 
 const OUT = [0.16, 1, 0.3, 1];
 const IN = [0.7, 0, 0.84, 0];
@@ -64,72 +65,72 @@ export class Moments {
 
   // Piece choreography, shared by cinematics and callouts. `el` is the art wrapper.
   async animate(kind, el, piece, hold) {
-    const t = (s) => this.t(s);
+    const ts = (s) => this.t(s);
     const side = color(piece?.side || 'light');
     switch (kind) {
       case 'spawn': // pieces rise one after another (floor intro)
-        await motion(el.querySelectorAll('.piece-icon'), { y: [40, 0], scale: [0.2, 1], opacity: [0, 1] }, { duration: t(0.45), delay: motionStagger(t(0.08)), ease: OUT });
+        await motion(el.querySelectorAll('.piece-icon'), { y: [40, 0], scale: [0.2, 1], opacity: [0, 1] }, { duration: ts(0.45), delay: motionStagger(ts(0.08)), ease: OUT });
         return sleep(hold);
       case 'stomp': // drops from above and slams (boss entrance, boss crush)
-        await motion(el, { y: [-220, 0], opacity: [0, 1] }, { duration: t(0.42), ease: IN });
+        await motion(el, { y: [-220, 0], opacity: [0, 1] }, { duration: ts(0.42), ease: IN });
         this.dust(el);
         this.burst(el, { count: 26, color: [side, '#fff'], speed: [80, 300], gravity: 400, shape: 'chunk', size: [3, 7] });
-        motion(this.host, { x: [0, -10, 8, -5, 0] }, { duration: t(0.35) });
-        await motion(el, { scaleY: [0.82, 1.06, 1], scaleX: [1.12, 0.97, 1] }, { duration: t(0.35), ease: OUT });
+        motion(this.host, { x: [0, -10, 8, -5, 0] }, { duration: ts(0.35) });
+        await motion(el, { scaleY: [0.82, 1.06, 1], scaleX: [1.12, 0.97, 1] }, { duration: ts(0.35), ease: OUT });
         return sleep(hold);
       case 'fall': // captured: tips over, breaks apart, fades (old "capture")
-        await motion(el, { scale: [1.3, 1], opacity: [0, 1] }, { duration: t(0.22), ease: OUT });
-        await sleep(t(0.15));
+        await motion(el, { scale: [1.3, 1], opacity: [0, 1] }, { duration: ts(0.22), ease: OUT });
+        await sleep(ts(0.15));
         this.fx2(el, (fx, p) => fx.debris(p.x, p.y, side, 1.6));
-        await motion(el, { rotate: [0, -85], y: [0, 26], opacity: [1, 0] }, { duration: t(0.5), ease: IN });
+        await motion(el, { rotate: [0, -85], y: [0, 26], opacity: [1, 0] }, { duration: ts(0.5), ease: IN });
         return sleep(Math.max(0, hold - 0.4));
       case 'explode': // royal falls: trembles, then bursts (old "king capture" / "explosion")
-        await motion(el, { scale: [1.4, 1], opacity: [0, 1] }, { duration: t(0.22), ease: OUT });
-        await motion(el, { x: [0, -6, 6, -5, 5, -3, 3, 0] }, { duration: t(0.4) });
+        await motion(el, { scale: [1.4, 1], opacity: [0, 1] }, { duration: ts(0.22), ease: OUT });
+        await motion(el, { x: [0, -6, 6, -5, 5, -3, 3, 0] }, { duration: ts(0.4) });
         this.fx2(el, (fx, p) => { fx.explosion(p.x, p.y, 2.2); fx.debris(p.x, p.y, side, 2); });
-        motion(this.host, { x: [0, -14, 12, -8, 6, 0] }, { duration: t(0.5) });
-        await motion(el, { scale: [1, 1.5], opacity: [1, 0] }, { duration: t(0.28), ease: OUT });
+        motion(this.host, { x: [0, -14, 12, -8, 6, 0] }, { duration: ts(0.5) });
+        await motion(el, { scale: [1, 1.5], opacity: [1, 0] }, { duration: ts(0.28), ease: OUT });
         return sleep(Math.max(0, hold - 0.4));
       case 'promote': { // pawn spins and comes out a queen (old "mutation")
         const from = el.querySelector('.piece-icon'), to = el.querySelector('.swap-to');
-        await motion(el, { scale: [1.3, 1], opacity: [0, 1] }, { duration: t(0.22), ease: OUT });
-        await motion(from, { rotateY: [0, 90] }, { duration: t(0.22), ease: IN });
+        await motion(el, { scale: [1.3, 1], opacity: [0, 1] }, { duration: ts(0.22), ease: OUT });
+        await motion(from, { rotateY: [0, 90] }, { duration: ts(0.22), ease: IN });
         from.style.display = 'none'; to.style.display = 'grid';
         this.fx2(el, (fx, p) => fx.sparkle(p.x, p.y, '#ffcf6b', 22));
-        await motion(to, { rotateY: [-90, 0], scale: [1.25, 1] }, { duration: t(0.4), ease: OUT });
+        await motion(to, { rotateY: [-90, 0], scale: [1.25, 1] }, { duration: ts(0.4), ease: OUT });
         return sleep(Math.max(0, hold - 0.3));
       }
       case 'tremble': // royal under threat shakes in place (check)
-        await motion(el, { scale: [1.3, 1], opacity: [0, 1] }, { duration: t(0.22), ease: OUT });
-        await motion(el, { x: [0, -5, 5, -4, 4, -3, 3, -2, 2, 0], rotate: [0, -4, 4, -3, 3, 0, 0, 0, 0, 0] }, { duration: t(0.7) });
+        await motion(el, { scale: [1.3, 1], opacity: [0, 1] }, { duration: ts(0.22), ease: OUT });
+        await motion(el, { x: [0, -5, 5, -4, 4, -3, 3, -2, 2, 0], rotate: [0, -4, 4, -3, 3, 0, 0, 0, 0, 0] }, { duration: ts(0.7) });
         return sleep(Math.max(0, hold - 0.5));
       case 'hit': // boss takes a blow: flash, recoil, splinters
-        await motion(el, { opacity: [0, 1] }, { duration: t(0.12) });
+        await motion(el, { opacity: [0, 1] }, { duration: ts(0.12) });
         el.classList.add('flash');
         this.burst(el, { count: 18, color: ['#fff', '#ffe2a8'], speed: [260, 560], size: [2, 4], life: [0.18, 0.35], shape: 'spark', drag: 0.85 });
         this.fx2(el, (fx, p) => fx.debris(p.x, p.y, side, 0.8));
-        await motion(el, { x: [0, 18, -10, 5, 0], scale: [1, 0.9, 1.04, 1] }, { duration: t(0.45), ease: OUT });
+        await motion(el, { x: [0, 18, -10, 5, 0], scale: [1, 0.9, 1.04, 1] }, { duration: ts(0.45), ease: OUT });
         el.classList.remove('flash');
         return sleep(Math.max(0, hold - 0.3));
       case 'crumble': // tile icon cracks and falls (collapse)
-        await motion(el, { scale: [1.3, 1], opacity: [0, 1] }, { duration: t(0.2), ease: OUT });
-        await motion(el, { x: [0, -3, 3, -3, 3, 0] }, { duration: t(0.3) });
+        await motion(el, { scale: [1.3, 1], opacity: [0, 1] }, { duration: ts(0.2), ease: OUT });
+        await motion(el, { x: [0, -3, 3, -3, 3, 0] }, { duration: ts(0.3) });
         this.burst(el, { count: 34, color: [color('light'), '#000', '#b08560'], speed: [60, 260], gravity: 600, shape: 'chunk', size: [3, 8] });
-        await motion(el, { y: [0, 40], rotate: [0, 12], opacity: [1, 0] }, { duration: t(0.45), ease: IN });
+        await motion(el, { y: [0, 40], rotate: [0, 12], opacity: [1, 0] }, { duration: ts(0.45), ease: IN });
         return sleep(Math.max(0, hold - 0.4));
       case 'down': // boss defeated: cracks, topples, rains debris
-        await motion(el, { x: [0, -8, 8, -6, 6, 0] }, { duration: t(0.5) });
+        await motion(el, { x: [0, -8, 8, -6, 6, 0] }, { duration: ts(0.5) });
         this.fx2(el, (fx, p) => { fx.explosion(p.x, p.y, 2.6); fx.debris(p.x, p.y, side, 2.4); setTimeout(() => fx.smoke(p.x, p.y + 30, 2), 250); });
-        await motion(el, { rotate: [0, -24], y: [0, 14], scale: [1, 0.9], opacity: [1, 0.2] }, { duration: t(0.7), ease: IN });
+        await motion(el, { rotate: [0, -24], y: [0, 14], scale: [1, 0.9], opacity: [1, 0.2] }, { duration: ts(0.7), ease: IN });
         return sleep(hold);
       case 'resign': // the classic gesture: the king is laid down on the board
-        await motion(el, { opacity: [0, 1] }, { duration: t(0.25) });
-        await sleep(t(0.35));
-        await motion(el, { rotate: [0, -90], scale: [1, 0.72], x: [0, 30] }, { duration: t(0.9), ease: [0.45, 0, 0.55, 1] });
+        await motion(el, { opacity: [0, 1] }, { duration: ts(0.25) });
+        await sleep(ts(0.35));
+        await motion(el, { rotate: [0, -90], scale: [1, 0.72], x: [0, 30] }, { duration: ts(0.9), ease: [0.45, 0, 0.55, 1] });
         this.dust(el);
         return sleep(hold);
       default:
-        await motion(el, { scale: [1.3, 1], opacity: [0, 1] }, { duration: t(0.25), ease: OUT });
+        await motion(el, { scale: [1.3, 1], opacity: [0, 1] }, { duration: ts(0.25), ease: OUT });
         return sleep(hold);
     }
   }
@@ -144,11 +145,11 @@ export class Moments {
         <div class="cine-text">
           <h2>${title}</h2>
           ${sub && html`<p>${sub}</p>`}
-          ${hp && html`<div class="cine-hp" aria-label=${hp.hp + ' vidas'}>${Array.from({ length: hp.max }, (_, i) => html`<b class=${i < hp.hp ? 'on' : ''}></b>`)}</div>`}
+          ${hp && html`<div class="cine-hp" aria-label=${tp('log.lives', hp.hp, '{n} vida', '{n} vidas')}>${Array.from({ length: hp.max }, (_, i) => html`<b class=${i < hp.hp ? 'on' : ''}></b>`)}</div>`}
           ${wave && html`<div class="cine-wave">${wave.map(([type, side]) => html`<${PieceIcon} type=${type} side=${side} size=${40} paper=${false} />`)}</div>`}
         </div>
       </div>
-      <span class="cine-skip">Toca o pulsa una tecla para seguir</span>`);
+      <span class="cine-skip">${t('cine.skip', 'Toca o pulsa una tecla para seguir')}</span>`);
     const q = (s) => el.querySelector(s);
     const { skipped, release } = skippable(el);
 
@@ -176,25 +177,25 @@ export class Moments {
         <div class="cine-art toss-stage"><div class="toss">${tossFace('light', html`<${Icon} name="crown" size=${48} />`)}${tossFace('dark', TOSS_CROSS)}</div></div>
         <div class="cine-text"><h2>${title}</h2>${sub && html`<p>${sub}</p>`}</div>
       </div>
-      <span class="cine-skip">Toca o pulsa una tecla para seguir</span>`);
-    const q = (s) => el.querySelector(s), t = (s) => this.t(s);
+      <span class="cine-skip">${t('cine.skip', 'Toca o pulsa una tecla para seguir')}</span>`);
+    const q = (s) => el.querySelector(s), ts = (s) => this.t(s);
     const { skipped, release } = skippable(el);
     const play = (async () => {
-      motion(el.querySelectorAll('.bar'), { scaleY: [0, 1] }, { duration: t(0.35), ease: OUT });
+      motion(el.querySelectorAll('.bar'), { scaleY: [0, 1] }, { duration: ts(0.35), ease: OUT });
       q('.cine-text').style.opacity = 0;
       // En píxel el giro va a saltos, como fotogramas de sprite.
       const pixel = document.documentElement.dataset.art === 'pixel', frames = (n, e) => (pixel ? (x) => Math.round(e(x) * n) / n : e);
       const spin = 360 * 5 + (heads ? 0 : 180);
-      motion(q('.toss'), { rotateX: [0, spin] }, { duration: t(1.4), ease: frames(40, (x) => 1 - (1 - x) ** 2.4) });
-      await motion(q('.toss-stage'), { y: [0, -150, 0], scale: [0.7, 1.15, 1] }, { duration: t(1.4), ease: frames(14, (x) => x) });
+      motion(q('.toss'), { rotateX: [0, spin] }, { duration: ts(1.4), ease: frames(40, (x) => 1 - (1 - x) ** 2.4) });
+      await motion(q('.toss-stage'), { y: [0, -150, 0], scale: [0.7, 1.15, 1] }, { duration: ts(1.4), ease: frames(14, (x) => x) });
       this.dust(q('.toss-stage'));
-      await motion(q('.toss-stage'), { y: [0, -14, 0] }, { duration: t(0.25), ease: OUT });
-      await motion(q('.cine-text'), { opacity: [0, 1], y: [10, 0] }, { duration: t(0.35), ease: OUT });
-      await sleep(t(1.1));
+      await motion(q('.toss-stage'), { y: [0, -14, 0] }, { duration: ts(0.25), ease: OUT });
+      await motion(q('.cine-text'), { opacity: [0, 1], y: [10, 0] }, { duration: ts(0.35), ease: OUT });
+      await sleep(ts(1.1));
     })();
     await Promise.race([play, skipped]);
     release();
-    await motion(el, { opacity: [1, 0] }, { duration: t(0.28), ease: IN });
+    await motion(el, { opacity: [1, 0] }, { duration: ts(0.28), ease: IN });
     el.remove();
   }
 
@@ -219,34 +220,34 @@ export class Moments {
         <div class="cine-text">
           <h2>${title}</h2>
           ${sub && html`<p>${sub}</p>`}
-          ${extra.length > 0 && html`<p class="dm-legend"><i></i>de siempre <i class="extra"></i>nuevo</p>`}
+          ${extra.length > 0 && html`<p class="dm-legend"><i></i>${t('demo.usual', 'de siempre')} <i class="extra"></i>${t('demo.new', 'nuevo')}</p>`}
         </div>
       </div>
-      <span class="cine-skip">Toca o pulsa una tecla para seguir</span>`);
+      <span class="cine-skip">${t('cine.skip', 'Toca o pulsa una tecla para seguir')}</span>`);
     const q = (s) => el.querySelector(s);
     const { skipped, release } = skippable(el);
-    const t = (s) => this.t(s);
+    const ts = (s) => this.t(s);
     const play = (async () => {
-      motion(el.querySelectorAll('.bar'), { scaleY: [0, 1] }, { duration: t(0.35), ease: OUT });
-      motion(q('.cine-text h2'), { clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)'] }, { duration: t(0.5), delay: t(0.12), ease: OUT });
-      motion(el.querySelectorAll('.cine-text p, .cine-skip'), { opacity: [0, 1], y: [10, 0] }, { duration: t(0.4), delay: t(0.3), ease: OUT });
-      await motion(q('.dm-board'), { scale: [0.85, 1], opacity: [0, 1] }, { duration: t(0.35), ease: OUT });
-      await motion(el.querySelectorAll('.dm-cell.base b'), { scale: [0, 1] }, { duration: t(0.25), delay: motionStagger(t(0.03)), ease: OUT });
-      if (extra.length) await motion(el.querySelectorAll('.dm-cell.extra b'), { scale: [0, 1.4, 1] }, { duration: t(0.35), delay: motionStagger(t(0.05)), ease: OUT });
+      motion(el.querySelectorAll('.bar'), { scaleY: [0, 1] }, { duration: ts(0.35), ease: OUT });
+      motion(q('.cine-text h2'), { clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)'] }, { duration: ts(0.5), delay: ts(0.12), ease: OUT });
+      motion(el.querySelectorAll('.cine-text p, .cine-skip'), { opacity: [0, 1], y: [10, 0] }, { duration: ts(0.4), delay: ts(0.3), ease: OUT });
+      await motion(q('.dm-board'), { scale: [0.85, 1], opacity: [0, 1] }, { duration: ts(0.35), ease: OUT });
+      await motion(el.querySelectorAll('.dm-cell.base b'), { scale: [0, 1] }, { duration: ts(0.25), delay: motionStagger(ts(0.03)), ease: OUT });
+      if (extra.length) await motion(el.querySelectorAll('.dm-cell.extra b'), { scale: [0, 1.4, 1] }, { duration: ts(0.35), delay: motionStagger(ts(0.05)), ease: OUT });
       // La pieza prueba una casilla: la nueva más lejana si la hay (un jefe, su destino más lejano).
       const pool = anchors || (extra.length ? extra : base).map((k) => k.split(',').map(Number));
       const far = [...pool].sort((a, b) => Math.hypot(b[0] - ar, b[1] - ac) - Math.hypot(a[0] - ar, a[1] - ac))[0];
       if (far) {
         const to = { x: ((far[1] - ac) * 100) / w + '%', y: ((far[0] - ar) * 100) / h + '%' };
-        await motion(q('.dm-piece'), { x: ['0%', to.x], y: ['0%', to.y], scale: [1, 1.15, 1] }, { duration: t(0.5), ease: [0.45, 0, 0.55, 1] });
-        await sleep(t(0.35));
-        await motion(q('.dm-piece'), { x: [to.x, '0%'], y: [to.y, '0%'] }, { duration: t(0.4), ease: OUT });
+        await motion(q('.dm-piece'), { x: ['0%', to.x], y: ['0%', to.y], scale: [1, 1.15, 1] }, { duration: ts(0.5), ease: [0.45, 0, 0.55, 1] });
+        await sleep(ts(0.35));
+        await motion(q('.dm-piece'), { x: [to.x, '0%'], y: [to.y, '0%'] }, { duration: ts(0.4), ease: OUT });
       }
-      await sleep(t(0.9));
+      await sleep(ts(0.9));
     })();
     await Promise.race([play, skipped]);
     release();
-    await motion(el, { opacity: [1, 0] }, { duration: t(0.28), ease: IN });
+    await motion(el, { opacity: [1, 0] }, { duration: ts(0.28), ease: IN });
     el.remove();
   }
 

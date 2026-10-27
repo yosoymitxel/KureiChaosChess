@@ -7,11 +7,12 @@ import { PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { DIFFS, LADDER, newFusion, slide } from '../../game/fusion.js';
 import { MODIFIERS } from '../../data/modifiers.js';
+import { t } from '../../i18n/index.js';
 
 const KEYS = { arrowup: 'up', w: 'up', arrowdown: 'down', s: 'down', arrowleft: 'left', a: 'left', arrowright: 'right', d: 'right' };
-const PAD = [['up', '↑', 'Arriba'], ['left', '←', 'Izquierda'], ['right', '→', 'Derecha'], ['down', '↓', 'Abajo']];
+const PAD = [['up', '↑', t('dir.up', 'Arriba')], ['left', '←', t('marcianos.left2', 'Izquierda')], ['right', '→', t('marcianos.right', 'Derecha')], ['down', '↓', t('dir.down', 'Abajo')]];
 
-export function FusionScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
+export function FusionScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newFusion(diff || settings.miniDiff?.fusion));
   const [, tick] = useState(0);
   const touch = useRef(null);
@@ -42,7 +43,7 @@ export function FusionScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
     <div class="mini-body side-body">
       <div class="mini-main">
         <div class="mini-stage">
-          <div class="fu" style=${{ '--n': s.n }} role="grid" aria-label="Tablero de Fusión" onPointerDown=${onDown} onPointerUp=${onUp} onPointerCancel=${onUp}>
+          <div class="fu" style=${{ '--n': s.n }} role="grid" aria-label=${t('fusion.board', 'Tablero de Fusión')} onPointerDown=${onDown} onPointerUp=${onUp} onPointerCancel=${onUp}>
             ${Array.from({ length: s.n * s.n }, (_, i) => html`<span key=${'c' + i} class="fu-cell"></span>`)}
             ${s.tiles.map((t) => html`<span key=${t.id} class=${'fu-tile lv' + t.lv + (t.born ? ' born' : '') + (t.merged ? ' merged' : '') + (t.gone ? ' gone' : '')}
               style=${{ translate: `calc(${t.c} * var(--step)) calc(${t.r} * var(--step))` }} aria-label=${PIECE_NAMES[LADDER[t.lv]]}>
@@ -52,14 +53,14 @@ export function FusionScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
         </div>
         <div class="mini-side">
           ${!s.over && html`<div class="fu-goal">
-            <span>Meta</span><${PieceIcon} type=${goal} side="dark" size=${30} /><b>${PIECE_NAMES[goal]}</b>
+            <span>${t('fusion.goal', 'Meta')}</span><${PieceIcon} type=${goal} side="dark" size=${30} /><b>${PIECE_NAMES[goal]}</b>
           </div>`}
-          ${!s.over && html`<ol class="fu-ladder" aria-label="Escalera de fusión">${LADDER.slice(0, s.diff.goal + 1).map((t, i) => html`<li class=${i <= s.best ? 'on' : ''}><${PieceIcon} type=${t} side=${i === s.diff.goal ? 'dark' : 'light'} size=${22} /></li>`)}</ol>`}
-          ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Formaste ${PIECE_NAMES[goal].toLowerCase()} en ${s.moves} jugadas.` : 'El tablero se llenó sin fusiones posibles.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
-            : html`<div class="bm-pad" role="group" aria-label="Empujar">
+          ${!s.over && html`<ol class="fu-ladder" aria-label=${t('fusion.ladder', 'Escalera de fusión')}>${LADDER.slice(0, s.diff.goal + 1).map((t, i) => html`<li class=${i <= s.best ? 'on' : ''}><${PieceIcon} type=${t} side=${i === s.diff.goal ? 'dark' : 'light'} size=${22} /></li>`)}</ol>`}
+          ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? t('fusion.won', 'Formaste {name} en {n} jugadas.', { name: PIECE_NAMES[goal].toLowerCase(), n: s.moves }) : t('fusion.lost', 'El tablero se llenó sin fusiones posibles.')} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
+            : html`<div class="bm-pad" role="group" aria-label=${t('fusion.push', 'Empujar')}>
               ${PAD.map(([d, g, label]) => html`<button class=${'btn sm pad-' + d} aria-label=${label} onClick=${() => go(d)}>${g}</button>`)}
             </div>`}
-          <${MiniTools} mini="fusion" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Desliza el dedo, usa las flechas o el mando: todas las piezas corren hacia ese lado. Dos piezas iguales que chocan se funden en la siguiente de la escalera, de peón a rey. Tras cada jugada entra un peón. Forma la pieza meta antes de que el tablero se llene.<//>
+          <${MiniTools} mini="fusion" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('fusion.help', 'Desliza el dedo, usa las flechas o el mando: todas las piezas corren hacia ese lado. Dos piezas iguales que chocan se funden en la siguiente de la escalera, de peón a rey. Tras cada jugada entra un peón. Forma la pieza meta antes de que el tablero se llene.')}<//>
         </div>
       </div>
     </div>

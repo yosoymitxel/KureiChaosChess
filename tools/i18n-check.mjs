@@ -20,6 +20,10 @@ for (const f of src) {
     if (prev && prev.es !== es) { console.log(`✗ ${key}: dos textos distintos (${prev.file} y ${f.slice(root.length)})`); errors++; }
     used.set(key, { es, file: f.slice(root.length) });
   }
+  for (const [, key, one, other] of readFileSync(f, 'utf8').matchAll(/\btp\(\s*'([^']+)'\s*,[^']*?'((?:[^'\\]|\\.)*)'\s*,\s*'((?:[^'\\]|\\.)*)'/g)) {
+    used.set(key + '.one', { es: one, file: f.slice(root.length) });
+    used.set(key + '.other', { es: other, file: f.slice(root.length) });
+  }
   // Claves armadas en el momento: t('diff.' + id, …) da por usadas todas las 'diff.*'.
   for (const [, pre] of readFileSync(f, 'utf8').matchAll(/\bt\(\s*'([\w.]+\.)'\s*\+/g)) prefixes.add(pre);
 }
@@ -27,11 +31,11 @@ for (const f of src) {
 // Registros traducibles: los que pasan por localize('tipo', …).
 const kinds = new Map();
 for (const f of src) for (const [, kind] of readFileSync(f, 'utf8').matchAll(/localize\('([^']+)'/g)) kinds.set(kind, f);
-const REG = { pieces: ['data/pieces.js', 'PIECES'], bosses: ['data/bosses.js', 'BOSSES'], mutations: ['data/mutations.js', 'MUTATIONS'], cards: ['game/cards.js', 'CARDS'], difficulties: ['game/difficulty.js', 'DIFFICULTIES'], modifiers: ['data/modifiers.js', 'MODIFIERS'], achievements: ['game/achievements.js', 'ACHIEVEMENTS'], themes: ['data/themes.js', 'THEMES'], seeds: ['data/garden.js', 'SEEDS'], gardenItems: ['data/garden.js', 'GARDEN_ITEMS'], pickups: ['data/pickups.js', 'PICKUPS'], rivals: ['game/difficulty.js', 'RIVALS'], eliteRules: ['game/generate.js', 'ELITE_RULES'] };
+const REG = { pieces: ['data/pieces.js', 'PIECES'], bosses: ['data/bosses.js', 'BOSSES'], mutations: ['data/mutations.js', 'MUTATIONS'], cards: ['game/cards.js', 'CARDS'], difficulties: ['game/difficulty.js', 'DIFFICULTIES'], modifiers: ['data/modifiers.js', 'MODIFIERS'], achievements: ['game/achievements.js', 'ACHIEVEMENTS'], themes: ['data/themes.js', 'THEMES'], seeds: ['data/garden.js', 'SEEDS'], gardenItems: ['data/garden.js', 'GARDEN_ITEMS'], pickups: ['data/pickups.js', 'PICKUPS'], rivals: ['game/difficulty.js', 'RIVALS'], eliteRules: ['game/generate.js', 'ELITE_RULES'], duelMoves: ['game/duel.js', 'MOVES'] };
 const TEXT = ['name', 'desc', 'rule', 'move', 'aim'];
 const registry = {};
 for (const kind of kinds.keys()) {
-  if (kind === 'patterns') continue;
+  if (['patterns', 'duelTypes', 'bomberFoes'].includes(kind)) continue; // textos sueltos { id: 'texto' }
   if (!REG[kind]) { console.log(`✗ localize('${kind}') sin entrada en REG de tools/i18n-check.mjs`); errors++; continue; }
   const reg = (await import(join(root, 'src', REG[kind][0])))[REG[kind][1]];
   const list = Array.isArray(reg) ? reg : Object.entries(reg).map(([id, v]) => ({ ...v, id: v.id || id }));

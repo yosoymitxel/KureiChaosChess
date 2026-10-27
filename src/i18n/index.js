@@ -17,6 +17,13 @@ export function t(key, es, vars) {
   return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m)) : s;
 }
 
+// Con plural: `one` y `other` son el español; {n} es la cantidad. Claves `key.one` y `key.other`.
+const plural = new Intl.PluralRules(LANG);
+export function tp(key, n, one, other, vars) {
+  const form = plural.select(n) === 'one' ? 'one' : 'other';
+  return t(`${key}.${form}`, form === 'one' ? one : other, { n, ...vars });
+}
+
 // Traduce en el sitio un registro ({ id: {...} }, [{ id, ... }] o { id: 'texto' }) con dict[kind].
 export function localize(kind, reg) {
   const over = dict[kind];

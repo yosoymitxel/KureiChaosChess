@@ -15,7 +15,7 @@ const TOP_KEYS = new Set(['a', 'd', 'w', 's']);
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 // `duo` (partida local): { goals, names: [abajo, arriba] }.
-export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff, duo }) {
+export function HockeyScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff, duo }) {
   const [s] = useState(() => newHockey(diff || settings.miniDiff?.hockey, Math.random, duo ? { goals: duo.goals, duo: true } : undefined));
   const [meName, foeName] = duo?.names || [t('seat.you', 'Tú'), 'Bot'];
   const [score, setScore] = useState({ me: 0, bot: 0 });
@@ -92,7 +92,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
           shake(10);
           puckRef.current.classList.add('gone');
           setScore({ ...s.score });
-          if (!s.over) banner(duo ? `Gol de ${mine ? meName : foeName}` : mine ? '¡Gol!' : 'Gol del bot');
+          if (!s.over) banner(duo ? t('hockey.goalOf', 'Gol de {name}', { name: mine ? meName : foeName }) : mine ? t('hockey.goal', '¡Gol!') : t('hockey.botGoal', 'Gol del bot'));
         } else if (e.kind === 'serve') {
           // El disco reaparece en el saque con un brote, cuando ya se vio el gol.
           setTimeout(() => {
@@ -105,7 +105,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
         } else if (e.kind === 'hold') {
           playSfx('invalid');
           puckRef.current.classList.add('gone');
-          banner(duo ? `Siete segundos: saca ${e.side === 'me' ? foeName : meName}` : e.side === 'me' ? 'Siete segundos: saca el bot' : 'Siete segundos: sacas tú');
+          banner(duo ? t('hockey.sevenServe', 'Siete segundos: saca {name}', { name: e.side === 'me' ? foeName : meName }) : e.side === 'me' ? t('hockey.sevenBot', 'Siete segundos: saca el bot') : t('hockey.sevenYou', 'Siete segundos: sacas tú'));
         }
       }
     };
@@ -180,7 +180,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
       <div class="mini-main">
         <div class="mini-stage">
           <div class="ah-wrap" ref=${wrapRef}>
-            <div class="ah" ref=${tableRef} role="application" aria-label="Mesa de hockey: arrastra tu torre por tu mitad"
+            <div class="ah" ref=${tableRef} role="application" aria-label=${t('hockey.aria', 'Mesa de hockey: arrastra tu torre por tu mitad')}
               onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${up} onLostPointerCapture=${up}>
               ${Array.from({ length: ROWS * COLS }, (_, i) => html`<i class=${'ah-cell ' + ((Math.floor(i / COLS) + i) % 2 ? 'b' : 'a')}></i>`)}
               <i class="ah-mid"></i><i class="ah-ring"></i>
@@ -195,11 +195,11 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
         <div class="mini-side">
           ${!over && html`<div class="mini-stats ah-score" aria-live="polite">
             <span class="chip"><i class="ah-dot me"></i>${meName} <b>${score.me}</b></span>
-            <span class="chip">A ${s.goals} goles</span>
+            <span class="chip">${t('hockey.to', 'A {n} goles', { n: s.goals })}</span>
             <span class="chip"><i class="ah-dot foe"></i>${foeName} <b>${score.bot}</b></span>
           </div>`}
-          ${over && html`<${MiniEnd} win=${over === 'win'} note=${duo ? `Gana ${over === 'win' ? meName : foeName}, ${Math.max(score.me, score.bot)} a ${Math.min(score.me, score.bot)}.` : over === 'win' ? `Ganaste ${score.me} a ${score.bot}: el disco ya es tuyo.` : `El bot llegó a ${s.goals}: perdiste ${score.me} a ${score.bot}.`} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
-          ${duo ? html`<p class="mini-help">${meName} abajo y ${foeName} arriba: cada uno arrastra la torre de su mitad (en teclado, flechas y WASD). Gana quien meta ${s.goals}.</p>` : html`<${MiniTools} mini="hockey" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Arrastra tu torre, la de abajo, con el dedo o el ratón (o muévela con las flechas) por tu mitad de la mesa y golpea el disco hacia la portería de arriba. Cuanto más rápido lo golpeas, más fuerte sale, y las bandas sirven para tiros al rebote. Gana quien meta cinco goles; tras cada gol saca quien lo encajó. No retengas el disco en tu mitad más de siete segundos o el saque pasa al rival.<//>`}
+          ${over && html`<${MiniEnd} win=${over === 'win'} note=${duo ? t('hockey.duoEnd', 'Gana {name}, {a} a {b}.', { name: over === 'win' ? meName : foeName, a: Math.max(score.me, score.bot), b: Math.min(score.me, score.bot) }) : over === 'win' ? t('hockey.won', 'Ganaste {a} a {b}: el disco ya es tuyo.', { a: score.me, b: score.bot }) : t('hockey.lost', 'El bot llegó a {n}: perdiste {a} a {b}.', { n: s.goals, a: score.me, b: score.bot })} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
+          ${duo ? html`<p class="mini-help">${t('hockey.duoHelp', '{a} abajo y {b} arriba: cada uno arrastra la torre de su mitad (en teclado, flechas y WASD; con dos mandos, uno cada uno). Gana quien meta {n}.', { a: meName, b: foeName, n: s.goals })}</p>` : html`<${MiniTools} mini="hockey" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('hockey.help', 'Arrastra tu torre, la de abajo, con el dedo o el ratón (o muévela con las flechas) por tu mitad de la mesa y golpea el disco hacia la portería de arriba. Cuanto más rápido lo golpeas, más fuerte sale, y las bandas sirven para tiros al rebote. Gana quien meta cinco goles; tras cada gol saca quien lo encajó. No retengas el disco en tu mitad más de siete segundos o el saque pasa al rival.')}<//>`}
         </div>
       </div>
     </div>

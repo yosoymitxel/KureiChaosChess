@@ -10,6 +10,7 @@ import { ZEN_KINDS, ZEN_NAMES, addZenSeeds, addZenItem, loadZen } from '../../ga
 import { SEEDS, GARDEN_ITEMS } from '../../data/garden.js';
 import { chipArt, ITEM_ART } from '../zen-art.js';
 import { playSfx } from '../sfx.js';
+import { t, tp } from '../../i18n/index.js';
 
 const CARD_LIST = Object.values(CARDS);
 
@@ -34,8 +35,8 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
   };
   if (swap) {
     const cards = (run.cards || []).map((id, slot) => ({ ...CARDS[id], kind: 'tactic', id: `${id}#${slot}`, slot }));
-    return html`<${CardPick} title="Mano llena" subtitle=${`Para comprar ${swap.name} sale una de tu mano.`}
-      cards=${cards} onBack=${() => setSwap(null)} confirmLabel="Que salga esta" onConfirm=${(c) => { setSwap(null); buyCard(swap, c.slot); }} />`;
+    return html`<${CardPick} title=${t('reward.swap', 'Mano llena')} subtitle=${t('shop.swapSub', 'Para comprar {card} sale una de tu mano.', { card: swap.name })}
+      cards=${cards} onBack=${() => setSwap(null)} confirmLabel=${t('reward.dropThis', 'Que salga esta')} onConfirm=${(c) => { setSwap(null); buyCard(swap, c.slot); }} />`;
   }
   const tapTheme = (id) => {
     if (themeOwned(id)) return setSettings((s) => ({ ...s, theme: id }));
@@ -61,28 +62,28 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
   const pending = shop.pending;
   const hand = run?.cards || [];
   return html`<div class="screen mini shop" ref=${ref}>
-    <${Topbar} title="Tienda del jardín" sub="Las flores pagan las monedas" onBack=${onBack}>
-      <span class="coin-chip" title="Monedas del jardín"><${Icon} name="coin" size=${16} /><b>${shop.coins}</b></span>
+    <${Topbar} title=${t('zen.shop', 'Tienda del jardín')} sub=${t('shop.sub', 'Las flores pagan las monedas')} onBack=${onBack}>
+      <span class="coin-chip" title=${t('zen.coins', 'Monedas del jardín')}><${Icon} name="coin" size=${16} /><b>${shop.coins}</b></span>
     </${Topbar}>
     <div class="mini-body shop-body">
       <div class="shop-main">
-        <p class="mini-help">Cada flor del Jardín Zen paga de ${SEEDS.romero.pays} a ${SEEDS.lavanda.pays} monedas y cada victoria de la travesía deja de ${COINS_PER_NODE.normal} a ${COINS_PER_NODE.boss}. Aquí se cambian por cartas, mesas y semillas.</p>
+        <p class="mini-help">${t('shop.help', 'Cada flor del Jardín Zen paga de {a} a {b} monedas y cada victoria de la travesía deja de {c} a {d}. Aquí se cambian por cartas, mesas y semillas.', { a: SEEDS.romero.pays, b: SEEDS.lavanda.pays, c: COINS_PER_NODE.normal, d: COINS_PER_NODE.boss })}</p>
 
         <section class="panel shop-card shop-pane-hand" data-enter>
-          <h2>${run ? 'Tu mano en la run' : 'Para la próxima run'}</h2>
+          <h2>${run ? t('shop.yourHand', 'Tu mano en la run') : t('shop.nextRun', 'Para la próxima run')}</h2>
           ${run
-            ? html`<p class="shop-note">Máximo ${HAND_LIMIT} cartas: si la mano está llena, al comprar eliges cuál sale. Las compradas llevan la moneda en la esquina.</p>
+            ? html`<p class="shop-note">${t('shop.handNote', 'Máximo {n} cartas: si la mano está llena, al comprar eliges cuál sale. Las compradas llevan la moneda en la esquina.', { n: HAND_LIMIT })}</p>
               <div class="shop-hand">
                 ${hand.map((id, i) => html`<div class="hand-card" key=${id + '-' + i}><${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini shop=${isShopCard(run, i)} /></div>`)}
               </div>`
-            : html`<p class="shop-note">${pending.length ? `Tus compras esperan aquí y entran al empezar una run (${pending.length} de ${PENDING_LIMIT}).` : 'Sin run en curso: lo que compres queda apartado para la próxima.'}</p>
+            : html`<p class="shop-note">${pending.length ? t('shop.pending', 'Tus compras esperan aquí y entran al empezar una run ({n} de {max}).', { n: pending.length, max: PENDING_LIMIT }) : t('shop.noRun', 'Sin run en curso: lo que compres queda apartado para la próxima.')}</p>
               ${pending.length > 0 && html`<div class="shop-hand">
                 ${pending.map((id, i) => html`<div class="hand-card" key=${id + '-' + i}><${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini shop /></div>`)}
               </div>`}`}
         </section>
 
         <section class="panel shop-card shop-pane-cards" data-enter>
-          <h2>Cartas tácticas</h2>
+          <h2>${t('shop.cards', 'Cartas tácticas')}</h2>
           ${CARD_LIST.map((c) => {
             const price = CARD_PRICE[c.rarity || 'common'];
             const packed = !run && pending.length >= PENDING_LIMIT;
@@ -92,45 +93,45 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
               <div class="shop-info"><strong>${c.name}</strong><small>${c.desc}</small></div>
               <span class=${'gem ' + (c.rarity || 'common')} role="img" aria-label=${'Rareza ' + RARITY_LABEL[c.rarity || 'common']} title=${'Rareza: ' + RARITY_LABEL[c.rarity || 'common']}></span>
               <span class="price"><${Icon} name="coin" size=${14} />${price}</span>
-              <button class="btn sm" disabled=${!can} title=${packed ? `El sobre ya tiene ${PENDING_LIMIT} cartas` : can ? '' : 'Faltan monedas'} onClick=${() => buyCard(c)}>Comprar</button>
+              <button class="btn sm" disabled=${!can} title=${packed ? t('shop.packed', 'El sobre ya tiene {n} cartas', { n: PENDING_LIMIT }) : can ? '' : t('zen.noCoins', 'Faltan monedas.')} onClick=${() => buyCard(c)}>${t('shop.buy', 'Comprar')}</button>
             </div>`;
           })}
         </section>
 
         <section class="panel shop-card shop-pane-seeds" data-enter>
-          <h2>Semillas</h2>
-          <p class="shop-note">Una semilla por siembra en el Jardín Zen; también caen al ganar nodos de la travesía.</p>
+          <h2>${t('zen.seeds', 'Semillas')}</h2>
+          <p class="shop-note">${t('shop.seedNote', 'Una semilla por siembra en el Jardín Zen; también caen al ganar nodos de la travesía.')}</p>
           ${ZEN_KINDS.map((k) => {
             const can = shop.coins >= SEEDS[k].price;
             return html`<div class="shop-row">
               <span class=${'mod-icon seed-icon zn-k-' + k}>${chipArt(k)}</span>
-              <div class="shop-info"><strong>Semilla de ${ZEN_NAMES[k]} · ${SEEDS[k].rarity}</strong><small>${SEEDS[k].desc} Paga ${SEEDS[k].pays}. En la bolsa: ${seeds[k] || 0}.</small></div>
+              <div class="shop-info"><strong>${t('shop.seedOf', 'Semilla de {kind}', { kind: ZEN_NAMES[k] })} · ${SEEDS[k].rarity}</strong><small>${SEEDS[k].desc} ${t('shop.seedPays', 'Paga {n}. En la bolsa: {have}.', { n: SEEDS[k].pays, have: seeds[k] || 0 })}</small></div>
               <span class="price"><${Icon} name="coin" size=${14} />${SEEDS[k].price}</span>
-              <button class="btn sm" disabled=${!can} title=${can ? '' : 'Faltan monedas'} onClick=${() => buySeed(k)}>Comprar</button>
+              <button class="btn sm" disabled=${!can} title=${can ? '' : t('zen.noCoins', 'Faltan monedas.')} onClick=${() => buySeed(k)}>${t('shop.buy', 'Comprar')}</button>
             </div>`;
           })}
-          <h2>Para el jardín</h2>
+          <h2>${t('shop.garden', 'Para el jardín')}</h2>
           ${Object.values(GARDEN_ITEMS).map((it) => {
             const owned = !it.stack && items[it.id], can = !owned && shop.coins >= it.price;
             return html`<div class="shop-row">
               <span class="mod-icon seed-icon zn-item">${ITEM_ART[it.id]}</span>
-              <div class="shop-info"><strong>${it.name}</strong><small>${it.desc}${it.stack && items[it.id] ? ` Por poner: ${items[it.id]}.` : ''}</small></div>
-              ${owned ? html`<span class="price">Tuya</span>` : html`<span class="price"><${Icon} name="coin" size=${14} />${it.price}</span>`}
-              <button class="btn sm" disabled=${!can} title=${owned ? 'Ya la tienes' : can ? '' : 'Faltan monedas'} onClick=${() => buyItem(it.id)}>Comprar</button>
+              <div class="shop-info"><strong>${it.name}</strong><small>${it.desc}${it.stack && items[it.id] ? ' ' + t('shop.toPlace', 'Por poner: {n}.', { n: items[it.id] }) : ''}</small></div>
+              ${owned ? html`<span class="price">${t('shop.owned', 'Tuya')}</span>` : html`<span class="price"><${Icon} name="coin" size=${14} />${it.price}</span>`}
+              <button class="btn sm" disabled=${!can} title=${owned ? t('shop.have', 'Ya la tienes') : can ? '' : t('zen.noCoins', 'Faltan monedas.')} onClick=${() => buyItem(it.id)}>${t('shop.buy', 'Comprar')}</button>
             </div>`;
           })}
         </section>
 
         <section class="panel shop-card shop-pane-mesas" data-enter>
-          <h2>Mesas</h2>
-          <p class="shop-note">Cada mesa con su pieza: las de arte píxel cambian también los sonidos. La comprada queda puesta.</p>
+          <h2>${t('shop.tables', 'Mesas')}</h2>
+          <p class="shop-note">${t('shop.tablesNote', 'Cada mesa con su pieza: las de arte píxel cambian también los sonidos. La comprada queda puesta.')}</p>
           <div class="theme-grid">
             ${Object.keys(THEME_SHOP).map((id) => {
-              const t = THEMES[id], owned = themeOwned(id), on = settings.theme === id;
-              return html`<button class=${'theme' + (on ? ' on' : '') + (owned ? ' owned' : '')} aria-pressed=${on} aria-label=${t.name}
-                disabled=${!owned && shop.coins < THEME_SHOP[id]} title=${owned ? t.name : `Se compra por ${THEME_SHOP[id]} monedas`} onClick=${() => tapTheme(id)}>
-                <${ThemeLook} t=${t} />
-                ${owned ? (on ? 'En uso' : 'Usar') : html`<span class="price"><${Icon} name="coin" size=${13} />${THEME_SHOP[id]}</span>`}
+              const th = THEMES[id], owned = themeOwned(id), on = settings.theme === id;
+              return html`<button class=${'theme' + (on ? ' on' : '') + (owned ? ' owned' : '')} aria-pressed=${on} aria-label=${th.name}
+                disabled=${!owned && shop.coins < THEME_SHOP[id]} title=${owned ? th.name : t('shop.themePrice', 'Se compra por {n} monedas', { n: THEME_SHOP[id] })} onClick=${() => tapTheme(id)}>
+                <${ThemeLook} t=${th} />
+                ${owned ? (on ? t('shop.inUse', 'En uso') : t('shop.use', 'Usar')) : html`<span class="price"><${Icon} name="coin" size=${13} />${THEME_SHOP[id]}</span>`}
               </button>`;
             })}
           </div>

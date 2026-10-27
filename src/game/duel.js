@@ -2,12 +2,13 @@
 // la siguiente. El tipo sale de cómo se mueve la pieza y hay un triángulo de ventajas:
 // línea (torre, reina) vence a salto, salto (caballo, camello) a diagonal, diagonal (alfil, reina) a línea.
 // Paso (peón, guardia, rey) es neutro. Reglas puras, sin DOM.
+import { localize } from '../i18n/index.js';
 export const BEATS = { linea: 'salto', salto: 'diagonal', diagonal: 'linea' };
-export const TYPE_NAME = { linea: 'Línea', salto: 'Salto', diagonal: 'Diagonal', paso: 'Paso' };
+export const TYPE_NAME = localize('duelTypes', { linea: 'Línea', salto: 'Salto', diagonal: 'Diagonal', paso: 'Paso' });
 
 // Ataques: poder, precisión y efecto. guard = la próxima herida a la mitad; boost = el próximo golpe ×1,5;
 // heal = cura (dos veces por pieza); pierce = ignora la guardia; recoil = parte del daño se lo lleva quien golpea.
-export const MOVES = {
+export const MOVES = localize('duelMoves', {
   empuje: { name: 'Empuje', type: 'paso', power: 4, acc: 1 },
   avance: { name: 'Avance', type: 'paso', power: 0, acc: 1, boost: true, desc: 'El próximo golpe hace un 50 % más.' },
   coz: { name: 'Coz', type: 'salto', power: 5, acc: 0.95 },
@@ -22,7 +23,7 @@ export const MOVES = {
   golpeReal: { name: 'Golpe real', type: 'paso', power: 6, acc: 1 },
   escudo: { name: 'Escudo', type: 'paso', power: 0, acc: 1, guard: true, desc: 'La próxima herida le hace la mitad.' },
   joroba: { name: 'Joroba', type: 'salto', power: 7, acc: 0.85 },
-};
+});
 
 export const FIGHTERS = {
   pawn: { type: 'paso', hp: 16, moves: ['empuje', 'avance'] },

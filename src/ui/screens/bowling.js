@@ -7,11 +7,12 @@ import { playSfx } from '../sfx.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { LAUNCH_COLS, DIFFS, newBowling, launch, tick } from '../../game/bowling.js';
 import { MODIFIERS } from '../../data/modifiers.js';
+import { t } from '../../i18n/index.js';
 
 const TICK_MS = 280;
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
+export function BowlingScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newBowling(diff || settings.miniDiff?.bowling));
   const [, redraw] = useState(0);
   const gridRef = useRef(null);
@@ -142,7 +143,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
         // El banderín del original: aviso grande sobre la bolera antes de la última oleada.
         const b = document.createElement('div');
         b.className = 'bw-horde';
-        b.textContent = '¡Llega una gran horda!';
+        b.textContent = t('mini.hordeComes', '¡Llega una gran horda!');
         grid.appendChild(b);
         motion(b, { scale: [1.4, 1], opacity: [0, 1] }, { duration: 0.3, ease: [0.16, 1, 0.3, 1] });
         motion(b, { opacity: [1, 0] }, { duration: 0.4, delay: 1.6, onComplete: () => b.remove() });
@@ -175,23 +176,23 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = 'Continuar', sett
     <${Topbar} title=${MODIFIERS.bowling.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
-        <${MiniGrid} rows=${s.rows} cols=${s.cols} cell=${cell} disabled=${!!s.over} label="Bolera" gridRef=${gridRef} boardClass="bm-slab bw"
+        <${MiniGrid} rows=${s.rows} cols=${s.cols} cell=${cell} disabled=${!!s.over} label=${t('bowling.alley', 'Bolera')} gridRef=${gridRef} boardClass="bm-slab bw"
           onTap=${(r, c) => shoot(r, c)} />
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">
-            <span class="bw-wave" aria-label=${s.horde == null ? `Oleada: ${Math.min(s.spawned, s.diff.goal)} de ${s.diff.goal} antes de la horda` : 'Gran horda en camino'}>
+            <span class="bw-wave" aria-label=${s.horde == null ? t('bowling.wave', 'Oleada: {n} de {total} antes de la horda', { n: Math.min(s.spawned, s.diff.goal), total: s.diff.goal }) : t('bowling.hordeOnWay', 'Gran horda en camino')}>
               <span class="bw-wave-bar"><i style=${{ width: (s.horde == null ? (s.spawned / s.diff.goal) * 70 : 70 + (1 - s.horde / s.diff.horde) * 30) + '%' }} /></span>
-              <span class="bw-flag" aria-hidden="true">${s.horde == null ? 'Horda' : '¡Horda!'}</span>
+              <span class="bw-flag" aria-hidden="true">${s.horde == null ? t('bowling.horde', 'Horda') : t('bowling.hordeNow', '¡Horda!')}</span>
             </span>
             <span class="chip">${s.down} derribadas</span>
-            ${s.best > 1 && html`<span class="chip">Mejor cadena <b>×${s.best}</b></span>`}
+            ${s.best > 1 && html`<span class="chip">${t('bowling.bestChain', 'Mejor cadena')} <b>×${s.best}</b></span>`}
           </div>
-          <div class="bw-belt" role="status" aria-label=${s.belt.length ? `En la cinta: ${s.belt.map((k) => (k === 'boom' ? 'explosiva' : 'ficha')).join(', ')}` : 'La cinta está vacía'}>
-            <span class="bw-belt-label">${next ? (next === 'boom' ? 'Sigue: explosiva' : 'Sigue: ficha') : 'Cinta vacía'}</span>
+          <div class="bw-belt" role="status" aria-label=${s.belt.length ? t('bowling.belt', 'En la cinta: {list}', { list: s.belt.map((k) => (k === 'boom' ? t('bowling.boom', 'explosiva') : t('bowling.disc', 'ficha'))).join(', ') }) : t('bowling.beltEmptyAria', 'La cinta está vacía')}>
+            <span class="bw-belt-label">${next ? t('bowling.next', 'Sigue: {kind}', { kind: next === 'boom' ? t('bowling.boom', 'explosiva') : t('bowling.disc', 'ficha') }) : t('bowling.beltEmpty', 'Cinta vacía')}</span>
             <span class="bw-belt-row">${Array.from({ length: 4 }, (_, i) => html`<i class=${'bw-slot' + (s.belt[i] ? ' on ' + s.belt[i] : '') + (i === 0 ? ' first' : '')} />`)}</span>
           </div>`}
-          ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Aguantaste la gran horda: ${s.down} piezas derribadas${s.best > 1 ? `, con una cadena de ×${s.best}` : ''}.` : 'Una pieza llegó a tu borde.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
-          <${MiniTools} mini="bowling" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Las piezas carmesí cruzan de derecha a izquierda. La cinta te trae fichas: toca una casilla antes de la línea roja (o pulsa el número del carril) para lanzar la primera. Al chocar, la ficha rebota en diagonal y puede encadenar golpes. La explosiva, en bermellón, limpia un 3×3. El peón cae al primer golpe; el caballo aguanta 2 y salta la primera ficha, el alfil aguanta 2, la torre 3 y la reina 4, y se apura al recibir el primero.<//>
+          ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? t('bowling.won', 'Aguantaste la gran horda: {n} piezas derribadas', { n: s.down }) + (s.best > 1 ? t('bowling.withChain', ', con una cadena de ×{n}', { n: s.best }) : '') + '.' : t('bowling.lost', 'Una pieza llegó a tu borde.')} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+          <${MiniTools} mini="bowling" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('bowling.help', 'Las piezas carmesí cruzan de derecha a izquierda. La cinta te trae fichas: toca una casilla antes de la línea roja (o pulsa el número del carril) para lanzar la primera. Al chocar, la ficha rebota en diagonal y puede encadenar golpes. La explosiva, en bermellón, limpia un 3×3. El peón cae al primer golpe; el caballo aguanta 2 y salta la primera ficha, el alfil aguanta 2, la torre 3 y la reina 4, y se apura al recibir el primero.')}<//>
         </div>
       </div>
     </div>

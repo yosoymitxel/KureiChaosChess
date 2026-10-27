@@ -6,10 +6,11 @@ import { MiniBoard } from '../mini-board.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { playSfx } from '../sfx.js';
 import { award } from '../../game/achievements.js';
+import { t } from '../../i18n/index.js';
 
 const KEYS = { arrowup: 0, w: 0, arrowright: 1, d: 1, arrowdown: 2, s: 2, arrowleft: 3, a: 3 };
 
-export function BlizzardScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
+export function BlizzardScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newBlizzard(diff || settings.miniDiff?.blizzard));
   const [board] = useState(() => ({ rows: s.n, cols: s.n, holes: s.holes, terrain: new Map([...Array(s.n * s.n).keys()].map((i) => [`${Math.floor(i / s.n)},${i % s.n}`, 'ice'])), portals: new Map() }));
   const [, tick] = useState(0);
@@ -52,12 +53,12 @@ export function BlizzardScreen({ sub, onBack, onEnd, endLabel = 'Continuar', set
     <${Topbar} title=${MODIFIERS.blizzard.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
-        <${MiniBoard} board=${board} pieces=${pieces} marks=${[...marks]} labels=${labels} disabled=${!!s.over} label="Lago helado" onTap=${tap} />
+        <${MiniBoard} board=${board} pieces=${pieces} marks=${[...marks]} labels=${labels} disabled=${!!s.over} label=${t('blizzard.board', 'Lago helado')} onTap=${tap} />
         <div class="mini-side">
-          ${!s.over && html`<p class="mini-status" aria-live="polite">${s.got.size < s.coins.length ? 'Recoge las monedas: la torre resbala hasta chocar.' : '¡Todas! Ahora a la bandera.'}</p>`}
-          ${!s.over && html`<div class="mini-stats"><span class="chip">Monedas ${s.got.size}/${s.coins.length}</span><span class="chip">Jugadas ${left}</span></div>`}
-          ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `Fuera en ${s.moves} jugadas (el mejor camino era de ${s.best}).` : s.holes.has(s.at.join(',')) ? 'La torre se hundió en un agujero del hielo.' : 'Se acabaron las jugadas.'} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
-          <${MiniTools} mini="blizzard" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>La torre resbala por el hielo en línea recta hasta chocar con un bloque o con el borde; si pasa por un agujero, se hunde. Toca hacia dónde quieres que vaya (o usa las flechas): las casillas marcadas son donde paras. Las monedas se recogen al pasar por encima y, con todas, sales por la bandera. La ventisca solo deja ver los bloques cerca de la torre. Las jugadas están contadas.<//>
+          ${!s.over && html`<p class="mini-status" aria-live="polite">${s.got.size < s.coins.length ? t('blizzard.status', 'Recoge las monedas: la torre resbala hasta chocar.') : t('blizzard.allCoins', '¡Todas! Ahora a la bandera.')}</p>`}
+          ${!s.over && html`<div class="mini-stats"><span class="chip">${t('witch.coins', 'Monedas {n}/{total}', { n: s.got.size, total: s.coins.length })}</span><span class="chip">${t('blizzard.moves', 'Jugadas {n}', { n: left })}</span></div>`}
+          ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? t('blizzard.won', 'Fuera en {n} jugadas (el mejor camino era de {best}).', { n: s.moves, best: s.best }) : s.holes.has(s.at.join(',')) ? t('blizzard.sunk', 'La torre se hundió en un agujero del hielo.') : t('blizzard.outOfMoves', 'Se acabaron las jugadas.')} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+          <${MiniTools} mini="blizzard" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('blizzard.help', 'La torre resbala por el hielo en línea recta hasta chocar con un bloque o con el borde; si pasa por un agujero, se hunde. Toca hacia dónde quieres que vaya (o usa las flechas): las casillas marcadas son donde paras. Las monedas se recogen al pasar por encima y, con todas, sales por la bandera. La ventisca solo deja ver los bloques cerca de la torre. Las jugadas están contadas.')}<//>
         </div>
       </div>
     </div>

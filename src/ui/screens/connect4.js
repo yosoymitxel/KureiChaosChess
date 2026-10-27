@@ -5,11 +5,12 @@ import { playSfx } from '../sfx.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { ROWS, COLS, emptyGrid, dropRow, lineAt, isFull, botColumn, DIFFS } from '../../game/connect4.js';
 import { MODIFIERS } from '../../data/modifiers.js';
+import { t } from '../../i18n/index.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // `duo` (partida local): { names: [marfil, carmesí] }; se turnan en la misma pantalla.
-export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff, duo }) {
+export function Connect4Screen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff, duo }) {
   // Profundidad del bot según el nivel: en la run la fija el piso, en libre la elige el jugador.
   const depth = (DIFFS[diff || settings.miniDiff?.connect4] || DIFFS.normal).depth;
   const [grid, setGrid] = useState(emptyGrid);
@@ -61,17 +62,17 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar', set
   const won = (r, c) => result?.line?.some(([a, b]) => a === r && b === c);
   const name = (w) => duo?.names[w === 'light' ? 0 : 1];
   const mine = duo || turn === 'light';
-  const status = duo ? `Turno de ${name(turn)}` : turn === 'light' ? 'Tu turno: elige columna' : 'Piensa el bot…';
+  const status = duo ? t('game.turnOf', 'Turno de {name}', { name: name(turn) }) : turn === 'light' ? t('c4.yourTurn', 'Tu turno: elige columna') : t('mini.botThinks', 'Piensa el bot…');
 
   return html`<div class="screen mini">
     <${Topbar} title=${MODIFIERS.connect4.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
         <div class="mini-stage">
-          <div class="c4" ref=${boardRef} style=${{ '--cols': COLS, '--rows': ROWS }} role="grid" aria-label="Tablero de Conecta 4">
+          <div class="c4" ref=${boardRef} style=${{ '--cols': COLS, '--rows': ROWS }} role="grid" aria-label=${t('c4.board', 'Tablero de Conecta 4')}>
             ${Array.from({ length: COLS }, (_, c) => {
               const land = dropRow(grid, c); // casilla donde caería la próxima ficha de esta columna
-              return html`<button class=${'c4-col' + (c === col && !result ? ' on' : '')} aria-label=${'Columna ' + (c + 1)}
+              return html`<button class=${'c4-col' + (c === col && !result ? ' on' : '')} aria-label=${t('c4.column', 'Columna {n}', { n: c + 1 })}
                 disabled=${!!result || !mine || land < 0} onPointerEnter=${() => setCol(c)} onClick=${() => play(c)}>
                 ${Array.from({ length: ROWS }, (_, r) => html`<span class="c4-cell" data-cell=${r + '-' + c}>
                   ${grid[r][c] && html`<i class=${'c4-token side-' + grid[r][c] + (won(r, c) ? ' won' : '')}></i>`}
@@ -82,10 +83,10 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = 'Continuar', set
         </div>
         <div class="mini-side">
           ${!result && html`<p class="mini-status" aria-live="polite">${status}</p>`}
-          ${result && html`<${MiniEnd} win=${result.winner === 'light'} title=${result.winner ? undefined : 'Empate'}
-            note=${duo ? (result.winner ? `${name(result.winner)} conecta cuatro.` : 'Tablero lleno: nadie conectó cuatro.') : result.winner === 'light' ? 'Cuatro en línea antes que el bot.' : result.winner === 'dark' ? 'El bot conectó cuatro antes que tú.' : 'Tablero lleno: nadie conectó cuatro.'}
+          ${result && html`<${MiniEnd} win=${result.winner === 'light'} title=${result.winner ? undefined : t('c4.draw', 'Empate')}
+            note=${duo ? (result.winner ? t('c4.duoWin', '{name} conecta cuatro.', { name: name(result.winner) }) : t('c4.full', 'Tablero lleno: nadie conectó cuatro.')) : result.winner === 'light' ? t('c4.won', 'Cuatro en línea antes que el bot.') : result.winner === 'dark' ? t('c4.lost', 'El bot conectó cuatro antes que tú.') : t('c4.full', 'Tablero lleno: nadie conectó cuatro.')}
             label=${endLabel} onEnd=${() => onEnd(result.winner === 'light')} />`}
-          ${duo ? html`<p class="mini-help">Por turnos en la misma pantalla: ${duo.names[0]} marfil, ${duo.names[1]} carmesí.</p>` : html`<${MiniTools} mini="connect4" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Elige columna con las flechas o pasando el ratón, y suelta la ficha con Enter o un toque. Ganas al conectar cuatro en línea antes que el carmesí.<//>`}
+          ${duo ? html`<p class="mini-help">${t('c4.duoHelp', 'Por turnos en la misma pantalla: {a} marfil, {b} carmesí.', { a: duo.names[0], b: duo.names[1] })}</p>` : html`<${MiniTools} mini="connect4" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('connect4.help', 'Elige columna con las flechas o pasando el ratón, y suelta la ficha con Enter o un toque. Ganas al conectar cuatro en línea antes que el carmesí.')}<//>`}
         </div>
       </div>
     </div>

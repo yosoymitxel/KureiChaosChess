@@ -5,6 +5,7 @@ import { PIECES } from '../data/pieces.js';
 import { BOSSES } from '../data/bosses.js';
 import { MUTATIONS, EXTRA_MOVES } from '../data/mutations.js';
 import { reachPreview } from '../game/rules.js';
+import { t } from '../i18n/index.js';
 
 export const pieceDemo = (type, side = 'light') => ({
   title: PIECES[type].name, sub: PIECES[type].rule, piece: { type, side }, ...reachPreview({ type }),
@@ -23,7 +24,7 @@ export function mutationDemo(id, side = 'light') {
 export function bossDemo(id, side = 'dark') {
   const { name, desc, moves, size } = BOSSES[id];
   const n = size[0] === 2 && size[1] === 2 ? 8 : Math.max(7, size[0] + 6, size[1] + 6) | 1;
-  return { title: `Así se mueve ${name}`, sub: desc, piece: { type: 'boss-' + id, side }, ...reachPreview({ moves, size }, n), n, tone: 'danger' };
+  return { title: t('demo.bossMoves', 'Así se mueve {name}', { name }), sub: desc, piece: { type: 'boss-' + id, side }, ...reachPreview({ moves, size }, n), n, tone: 'danger' };
 }
 
 export const playDemo = (moments, spec) => (spec.cinematic ? moments.cinematic(spec) : moments.demo(spec));
