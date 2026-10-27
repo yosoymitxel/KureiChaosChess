@@ -1,5 +1,6 @@
 const fs=require('fs');
-const b=n=>+(1.435+0.5495*n).toFixed(3);
+const BT=JSON.parse(fs.readFileSync(__dirname+'/beats.json'));
+const b=n=>{const g=1.435+0.5495*n;return BT.reduce((a,x)=>Math.abs(x-g)<Math.abs(a-g)?x:a);};
 const END=41;
 let clips=[],tw=[],sfx=[];
 let id=0;
@@ -29,9 +30,9 @@ tw.push(`tl.fromTo("#logoi",{scale:2.4,opacity:0},{scale:1,opacity:1,duration:.3
 snd('stomp-1',b(4)+0.3,1);
 // matches
 const M=[['match_portals','Portals','Floor rule'],['match_ice_pixel','Frozen lake','Floor rule'],['match_zombie','Zombie plague','Floor rule'],['match_meteor','Meteor shower','Floor rule'],['match_fog','Thick fog','Floor rule']];
-const ms={match_portals:3,match_ice_pixel:3,match_zombie:3,match_meteor:4.5,match_fog:2.5};
+const ms={match_portals:3.6,match_ice_pixel:3.8,match_zombie:9.0,match_meteor:8.6,match_fog:3.0};
 const fx=['warp-1','shatter-1','zombie-1','bigboom-1','whoosh-1'];
-M.forEach(([n,t,k],j)=>{const s=b(10+4*j),e=j==4?b(29):b(14+4*j);vid(n,s,e,{zoom:1.32,ox:40,oy:55,ms:ms[n]});label(t,s,e,k);snd(fx[j],s+0.15,0.6);});
+M.forEach(([n,t,k],j)=>{const s=b(10+4*j),e=j==4?b(29):b(14+4*j);vid(n,s,e,{zoom:1.32,ox:40,oy:55,ms:ms[n]});label(t,s,e,k);snd(fx[j],s+0.15,0.35);});
 card('Every floor bends the rules.',b(29),b(32),'red');
 // minis
 const N=['mini_witch','mini_outbreak','mini_giant','mini_hockey','mini_marcianos','mini_connect4','mini_bowling'];
@@ -78,7 +79,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:var(--ground)}
 <div id="root" data-composition-id="main" data-start="0" data-duration="${END}" data-width="1920" data-height="1080">
 ${clips.join('\n')}
 <div id="bars"></div>
-<audio id="music" class="clip" src="assets/boss.mp3" data-start="0" data-duration="${END}" data-volume="0.9" data-fade-out="2.5" data-track-index="4"></audio>
+<audio id="music" class="clip" src="assets/music.mp3" data-start="0" data-duration="${END}" data-volume="1" data-fade-out="2.5" data-track-index="4"></audio>
 ${sfx.join('\n')}
 </div>
 <script>

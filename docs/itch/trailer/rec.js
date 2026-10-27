@@ -5,8 +5,8 @@ const W=1920,H=1080;
 async function take(b,name,{theme='walnut',lang='en',path='',viewport=[W,H],before,act,ms=6000,settle=0,speed=0.5}={}){
   const ctx=await b.newContext({viewport:{width:viewport[0],height:viewport[1]},deviceScaleFactor:W/viewport[0]});const p=await ctx.newPage();
   await p.addInitScript(([t,l,sp])=>{localStorage.setItem('zugzwang.settings.v2',JSON.stringify({theme:t,lang:l,sound:false,coin:false,speed:sp,moments:true}));},[theme,lang,speed]);
-  await p.goto(URL+path);
   await p.addInitScript(()=>addEventListener('DOMContentLoaded',()=>{const st=document.createElement('style');st.textContent='.turn-banner{display:none!important}';document.head.appendChild(st);}));
+  await p.goto(URL+path);
   if(before)await before(p);
   if(settle)await p.waitForTimeout(settle);
   const cdp=await ctx.newCDPSession(p);const frames=[];
@@ -23,15 +23,16 @@ async function take(b,name,{theme='walnut',lang='en',path='',viewport=[W,H],befo
   console.log(name,frames.length,'frames');
 }
 // Juega: toca una pieza propia con jugadas y una casilla marcada (prefiere capturas).
-async function play(p,moves=6,pause=1600){
+async function play(p,moves=6,pause=1600,prefer=[]){
   for(let m=0;m<moves;m++){
     const side=await p.evaluate(()=>document.querySelector('.seat.cur .token')?.className.match(/side-(\w+)/)?.[1]||'light');
     const pcs=p.locator(`.pc.side-${side} .pc-base`);const n=await pcs.count();let ok=false;
     const order=[...Array(n).keys()].sort(()=>Math.random()-.5);
     for(const i of order){await pcs.nth(i).click({force:true}).catch(()=>{});await p.waitForTimeout(120);
       const cap=p.locator('.tile.cap'),mv=p.locator('.tile.mv');
+      for(const c of prefer){const t=p.locator(`.tile.mv.${c}, .tile.cap.${c}`);if(await t.count()){await t.first().click({force:true});ok=true;break;}}if(ok)break;
       if(await cap.count()){await cap.first().click({force:true});ok=true;break;}
-      if(await mv.count()&&Math.random()<.5){const k=await mv.count();await mv.nth(Math.floor(Math.random()*k)).click({force:true});ok=true;break;}}
+      if(await mv.count()&&Math.random()<(prefer.length?.15:.5)){const k=await mv.count();await mv.nth(Math.floor(Math.random()*k)).click({force:true});ok=true;break;}}
     if(!ok)break;await p.waitForTimeout(pause);
   }
 }
