@@ -1,0 +1,28 @@
+# Kure'iChaosChess
+
+> Roguelike de ajedrez gratis que se juega en el navegador (móvil y PC). Subes una torre de partidas de ajedrez donde cada piso cambia las reglas, y arriba esperan jefes que ocupan varias casillas. Free browser chess roguelike: every floor bends the rules.
+
+- Jugar: https://yosoymitxel.github.io/KureiChaosChess/
+- itch.io: https://yosoymitxel.itch.io/kurei-chaos-chess
+- Código: https://github.com/yosoymitxel/KureiChaosChess
+- Autor: yosoymitxel
+- Idiomas: español e inglés
+- Precio: gratis
+
+## Qué trae
+
+- 11 piezas: las del ajedrez y otras como la guardia, el camello o el cañón.
+- Mutaciones y cartas tácticas que se acumulan durante la run.
+- 7 jefes de varias casillas, con vidas.
+- 15 mecánicas de piso que se combinan: agujeros, lago helado, portales, niebla, plaga zombi, meteoritos.
+- 28 minijuegos inspirados en clásicos de NES: la bruja (Pac-Man), brote (Dr. Mario), damas a ciegas, ventisca, hockey de mesa, conecta 4.
+- Partida local a dos en el mismo dispositivo.
+- 23 mesas, 17 en pixel art, que cambian piezas, letra, sonido y música.
+- Jardín zen entre runs, tienda, galería y logros.
+- Controles: toque, ratón, teclado o mando.
+
+## Preguntas frecuentes
+
+- ¿Es gratis? Sí, se juega gratis en el navegador, sin descargar nada.
+- ¿Funciona en el móvil? Sí, está pensado para pantallas táctiles desde 360 px de ancho.
+- ¿Se puede jugar a dos? Sí, en el mismo dispositivo.

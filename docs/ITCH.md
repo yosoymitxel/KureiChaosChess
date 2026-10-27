@@ -111,7 +111,52 @@ Kure'iChaosChess is a tabletop roguelike: climb a tower of chess matches where e
 Plays in the browser on mobile or desktop, with touch, mouse, keyboard or a controller. Languages: English and Spanish (Settings → Language).
 ```
 
-## 4. Antes de publicar
+## 4. Posicionamiento (SEO, GEO, AEO)
+
+Cómo funciona itch ([guía oficial](https://itch.io/docs/creators/getting-indexed)):
+
+- **El buscador de itch solo busca por título.** El texto y las tags no son consultas: por eso el título
+  único (Kure'iChaosChess) ya ayuda. Las tags sirven para las páginas de Browse (`/games/tag-chess`…).
+- **Indexado:** pública, con portada, jugable en el navegador. Primera venta → revisión manual de días.
+- **Browse sube por actividad real:** visitas, clics en la portada (CTR), colecciones y seguidores en las
+  primeras horas. Avisar a conocidos el día de salida; no salir durante un Ludum Dare.
+- **Tags:** 10 como máximo, de lo general a lo concreto (género, tema, mecánica). Mal etiquetar puede
+  desindexar.
+- **Metadatos completos** (idiomas, entradas, jugadores, accesibilidad): cada campo es otra página de Browse.
+- **Devlogs** en cada actualización grande: van por correo a seguidores y cuentan para el ranking.
+
+Google (SEO) lee la página de itch, no el `index.html` del zip (va en un iframe). Ahí cuentan el título,
+la Short description (sale como meta description: frase con "chess roguelike" y "browser") y el primer
+párrafo de la descripción.
+
+IA (GEO/AEO: ChatGPT, Perplexity, AI Overviews) cita lo que encuentra en texto plano y en sitios que ya
+cita: Reddit (r/WebGames, r/chess, r/roguelikes), Wikipedia, YouTube. Ayuda:
+
+- Una frase-respuesta al principio: "Kure'iChaosChess es un roguelike de ajedrez gratis para el navegador…".
+- Datos concretos y contables (11 piezas, 7 jefes, 28 minijuegos), ya en la descripción.
+- Un bloque de preguntas cortas al final de la descripción de itch (¿Es gratis? ¿Va en el móvil?…).
+- El mismo nombre exacto en todas partes (itch, GitHub, Reddit, vídeos).
+
+Web propia (GitHub Pages): `index.html` lleva canonical, Open Graph con imagen, Twitter card, JSON-LD
+`VideoGame` y un `<noscript>` con texto legible para buscadores; `sitemap.xml` y `llms.txt` en la raíz.
+La página de itch (https://yosoymitxel.itch.io/kurei-chaos-chess) ya está en `sameAs` del JSON-LD y en
+`llms.txt`; al pasarla a Public, enlazarla también desde el README.
+Dar de alta `sitemap.xml` en Google Search Console (un sitio de proyecto en `github.io` no controla
+`robots.txt`, que solo vale en la raíz del dominio).
+
+Skills de referencia (auditorías con Claude Code, no instaladas): [claude-seo](https://github.com/AgriciDaniel/claude-seo),
+[geo-seo-claude](https://github.com/zubair-trabzada/geo-seo-claude),
+[SEO-GEO-AEO-Skill](https://github.com/SNLabat/SEO-GEO-AEO-Skill). Sirven para webs con muchas páginas;
+para un juego de una sola página basta con esta lista.
+
+### Cuándo publicar
+
+Martes a jueves, a las 14:00 UTC (11:00 en Paraguay, 9:00 en Nueva York): pilla la mañana de EE. UU. y
+la tarde de Europa, y deja todo el día para la primera ola de visitas. Evitar las fechas en que acaban
+jams grandes (muchas entregas a la vez): en noviembre de 2026, la Unity Game Jam (≈ 12–14 nov) y la
+Game Off (cierra el 1 dic), y la semana de Acción de Gracias (26–30 nov).
+
+## 5. Antes de publicar
 
 - [ ] `node tools/check-registry.mjs` y `node tools/art-check.mjs` en verde.
 - [ ] `node tools/build-itch.mjs` sin errores.
