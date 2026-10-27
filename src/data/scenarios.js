@@ -429,7 +429,7 @@ const freeTiles = (b, pieces) => {
 Object.assign(SCENARIOS, {
   clock: {
     id: 'clock',
-    goal: t('sc.clock.goal', 'Llega a la casilla del reloj antes de que se agote (el número son tus jugadas) y recoge las monedas ●. Van apareciendo piezas carmesí que te cazan; tú también puedes capturarlas.'),
+    goal: t('sc.clock.goal', 'Llega a la casilla del reloj antes de que se agote (el número son tus jugadas) y recoge las monedas. Van apareciendo piezas carmesí que te cazan; tú también puedes capturarlas.'),
     levels: {
       facil: { coins: 4, time: 6, every: 4, foes: ['pawn', 'pawn', 'knight'], rival: 'aprendiz', piece: ['queen', 'rook'] },
       normal: { coins: 5, time: 5, every: 3, foes: ['pawn', 'knight', 'bishop'], rival: 'oficial', piece: ['rook', 'bishop', 'knight'] },
@@ -471,6 +471,48 @@ Object.assign(SCENARIOS, {
         },
         labels: (m) => new Map([...[...coins].map((k) => [k, 'icon:coin']), ...(clock.k ? [[clock.k, Math.max(0, clock.until - (m.players ? rounds(m) : 0))]] : [])]),
         status: (m) => t('sc.clock.status', 'Monedas {got}/{total} · reloj {n}', { got, total: lv.coins, n: Math.max(0, clock.until - rounds(m)) }),
+      };
+    },
+  },
+});
+
+// La bruja: la regla del Aquelarre a solas (match.wake). Las brujas duermen hasta que una de tus piezas
+// puede tocarlas; entonces despiertan y cazan como casi una reina.
+const WITCH_MOVES = ['rook2', 'bishop2', 'knight'];
+Object.assign(SCENARIOS, {
+  witch: {
+    id: 'witch',
+    goal: t('sc.witch.goal', 'Recoge las monedas antes del amanecer sin despertar a las brujas: si una de tus piezas puede tocar a una bruja dormida (ojo verde), despierta (ojo rojo) y te caza. Puedes capturarla, pero solo despierta.'),
+    levels: {
+      facil: { team: ['rook', 'knight', 'bishop'], witches: 2, guards: 2, coins: 4, rubble: 3, turns: 30, rival: 'aprendiz' },
+      normal: { team: ['rook', 'knight', 'bishop'], witches: 3, guards: 2, coins: 5, rubble: 4, turns: 30, rival: 'oficial' },
+      dificil: { team: ['rook', 'knight', 'bishop'], witches: 4, guards: 3, coins: 5, rubble: 4, turns: 28, rival: 'oficial' },
+    },
+    setup(lv, rng) {
+      const b = board(), pieces = [];
+      const cols = shuffle(rng, [...Array(N).keys()]);
+      lv.team.forEach((type, i) => pieces.push(makePiece(type, 'light', N - 1, cols[i])));
+      for (const [r, c] of spots(rng, pieces, b, 0, 1, lv.guards)) pieces.push(makePiece('pawn', 'dark', r, c, { startRow: -1 }));
+      rubble(rng, b, pieces, lv.rubble);
+      // Cada bruja duerme donde ninguna de tus piezas llega al empezar.
+      const seen = () => new Set(side({ pieces }, 'light').flatMap((p) => legalMoves(p, pieces, b).map((m) => key(m.row, m.col))));
+      for (let i = 0; i < lv.witches; i++) {
+        const watched = seen(), at = spots(rng, pieces, b, 1, N - 3, 40).find(([r, c]) => !watched.has(key(r, c)));
+        if (at) pieces.push(makePiece('queen', 'dark', at[0], at[1], { witch: true, moves: WITCH_MOVES, startRow: -1 }));
+      }
+      const coins = new Set(spots(rng, pieces, b, 1, N - 2, lv.coins).map(([r, c]) => key(r, c)));
+      const total = coins.size;
+      const awake = (m) => side(m, 'dark').filter((p) => p.witch && p.awake).length;
+      return {
+        board: b, pieces, rival: lv.rival,
+        objective: (m) => {
+          for (const p of side(m, 'light')) coins.delete(key(p.row, p.col));
+          if (!side(m, 'light').length) return { victory: false, note: t('sc.witch.lost', 'Las brujas cazaron a todas tus piezas.') };
+          if (!coins.size) return awake(m) ? { victory: true, note: t('sc.witch.won', 'Todas las monedas.') } : { victory: true, award: 'witch_clean', note: t('sc.witch.clean', 'Todas las monedas sin despertar a ninguna bruja.') };
+          return rounds(m) >= lv.turns ? { victory: false, note: t('sc.witch.dawn', 'Amaneció con monedas sin recoger.') } : null;
+        },
+        labels: () => new Map([...coins].map((k) => [k, 'icon:coin'])),
+        status: (m) => t('sc.witch.status', 'Monedas {got}/{total} · brujas despiertas {n} · turnos {left}', { got: total - coins.size, total, n: awake(m), left: Math.max(0, lv.turns - rounds(m)) }),
       };
     },
   },

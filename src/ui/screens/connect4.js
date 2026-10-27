@@ -18,18 +18,22 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = t('common.contin
   const [turn, setTurn] = useState('light');
   const [result, setResult] = useState(null); // { winner: 'light' | 'dark' | null, line }
   const busy = useRef(false);
+  // La fantasma espera a que la ficha aterrice: si no, asoma encima antes de que llegue.
+  const [falling, setFalling] = useState(false);
   const boardRef = useRef(null);
 
   // Drop a token: update the grid, then let it fall from above the board into its cell.
   const drop = async (c, who) => {
     const r = dropRow(grid, c);
     if (r < 0) return null;
+    setFalling(true);
     grid[r][c] = who;
     setGrid(grid.map((row) => row.slice()));
     await wait(0);
     const el = boardRef.current?.querySelector(`[data-cell="${r}-${c}"] .c4-token`);
     if (el) await motion(el, { y: [-(r + 1) * el.offsetHeight * 1.15, 0] }, { duration: 0.25 + r * 0.05, ease: [0.55, 0, 1, 0.45] });
     playSfx('land');
+    setFalling(false);
     if (el) motion(el, { scaleY: [0.82, 1], scaleX: [1.12, 1] }, { duration: 0.18, ease: [0.16, 1, 0.3, 1] });
     const line = lineAt(grid, r, c, who);
     if (line || isFull(grid)) { setResult({ winner: line ? who : null, line }); return 'over'; }
@@ -76,7 +80,7 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = t('common.contin
                 disabled=${!!result || !mine || land < 0} onPointerEnter=${() => setCol(c)} onClick=${() => play(c)}>
                 ${Array.from({ length: ROWS }, (_, r) => html`<span class="c4-cell" data-cell=${r + '-' + c}>
                   ${grid[r][c] && html`<i class=${'c4-token side-' + grid[r][c] + (won(r, c) ? ' won' : '')}></i>`}
-                  ${!grid[r][c] && r === land && c === col && mine && !result && html`<i class=${'c4-ghost side-' + turn}></i>`}</span>`)}
+                  ${!grid[r][c] && r === land && c === col && mine && !result && !falling && html`<i class=${'c4-ghost side-' + turn}></i>`}</span>`)}
               </button>`;
             })}
           </div>

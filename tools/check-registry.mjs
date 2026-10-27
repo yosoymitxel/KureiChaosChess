@@ -89,7 +89,7 @@ for (const t of Object.values(THEMES)) {
 
 // Logros: cada uno con icono, cada award('id') apunta a uno que existe y cada uno se otorga en algún sitio.
 const code = walk('src').map(read).join('\n');
-const awarded = new Set([...code.matchAll(/award\('(\w+)'\)/g)].map((m) => m[1]));
+const awarded = new Set([...code.matchAll(/award(?:\('|: ')(\w+)'/g)].map((m) => m[1])); // award('id') o, en un minijuego, award: 'id'
 const ids = new Set(ACHIEVEMENTS.map((a) => a.id));
 for (const a of ACHIEVEMENTS) {
   if (!hasIcon(a.icon)) fail(`logro ${a.id}: el icono "${a.icon}" no existe`);

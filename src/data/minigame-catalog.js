@@ -1,7 +1,7 @@
 // Registro único de minijuegos del banco de pruebas.
 // Al incorporar un minijuego nuevo, registrá su id, nombre y pantalla solamente aquí.
 // El selector y la vista de prueba consumen este mismo registro.
-import { CaceriaScreen, BodyguardScreen, GiantHuntScreen, MinefieldScreen, KingImpostorScreen, EscapeScreen, ContrabandScreen, LaboratoryScreen, CollapsingFloorScreen, KnightScreen, MatesScreen, ClockScreen } from '../ui/screens/scenario.js';
+import { CaceriaScreen, BodyguardScreen, GiantHuntScreen, MinefieldScreen, KingImpostorScreen, EscapeScreen, ContrabandScreen, LaboratoryScreen, CollapsingFloorScreen, KnightScreen, MatesScreen, ClockScreen, WitchScreen } from '../ui/screens/scenario.js';
 import { Connect4Screen } from '../ui/screens/connect4.js';
 import { BomberScreen } from '../ui/screens/bomber.js';
 import { BarrierScreen } from '../ui/screens/barrier.js';
@@ -17,7 +17,6 @@ import { HockeyScreen } from '../ui/screens/hockey.js';
 import { BlindScreen } from '../ui/screens/blind.js';
 import { BlizzardScreen } from '../ui/screens/blizzard.js';
 import { OutbreakScreen } from '../ui/screens/outbreak.js';
-import { WitchScreen } from '../ui/screens/witch.js';
 
 import { MODIFIERS } from './modifiers.js';
 

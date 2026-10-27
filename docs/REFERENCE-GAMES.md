@@ -155,7 +155,7 @@ Reutiliza el caballo y `legalMoves`; cada casilla abandonada se agrega al conjun
 Deducción sobre `rules.js`: la pista es una casilla que el impostor amenaza (destinos legales; el peón, sus diagonales). Las rondas se generan para que la primera pista apunte a varios y todas juntas a uno solo.
 
 ## NES llevados al tablero (minijuegos distintos de su mecánica)
-- **Pac-Man** (Namco) → *La bruja*: laberinto, monedas, brujas que persiguen paso a paso, pócimas que las asustan (`src/game/witch.js`).
+- **Aquelarre** (mecánica propia) → *La bruja*: brujas dormidas que despiertan si una pieza tuya puede tocarlas; escenario en `src/data/scenarios.js`.
 - **Dr. Mario** (Nintendo) → *Brote*: limpiar todo con pocas dosis; el contagio sigue el ataque de cada pieza (`src/game/outbreak.js`).
 - **Kickle Cubicle** (Irem) y las cuevas de hielo → *Ventisca*: resbalar hasta chocar, niebla, monedas y salida (`src/game/blizzard.js`).
 - **Battleship** (versiones NES) → *Damas a ciegas*: colocar y apuntar a ciegas, descarga simultánea (`src/game/blind.js`).
