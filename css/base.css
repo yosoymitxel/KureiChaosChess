@@ -199,10 +199,10 @@ h2 { font-size: 17px; font-weight: 750; }
 /* Botones sin texto y cosas del jardín: el botón va en su esquina. */
 [data-input="pad"] .icon-only[data-pad-on] { position: relative; }
 [data-input="pad"] :is(.icon-only, .zn-fallen, .zn-fly)[data-pad-on]::before { position: absolute; right: -7px; bottom: -7px; scale: 0.9; }
-/* Grupos: L y R a los lados de la fila (pestañas, acciones, mano) o junto al título de su sección. */
-[data-input="pad"] [data-pad-on][data-pad*=" "]:not(.segmented, .bm-actions, .hand) { position: relative; }
-[data-input="pad"] [data-pad-on][data-pad*=" "]:not(.segmented, .bm-actions, .hand)::before { position: absolute; top: 0; right: calc(var(--padw) + 6px); }
-[data-input="pad"] [data-pad-on][data-pad*=" "]:not(.segmented, .bm-actions, .hand)::after { position: absolute; top: 0; right: 0; }
+/* Grupos: L a la izquierda y R a la derecha de la fila; en una rejilla, en sus márgenes. */
+[data-input="pad"] [data-pad-on][data-pad*=" "]:not(.segmented, .bm-actions, .hand) { position: relative; padding-inline: 34px; }
+[data-input="pad"] [data-pad-on][data-pad*=" "]:not(.segmented, .bm-actions, .hand)::before { position: absolute; left: 0; top: 50%; translate: 0 -50%; }
+[data-input="pad"] [data-pad-on][data-pad*=" "]:not(.segmented, .bm-actions, .hand)::after { position: absolute; right: 0; top: 50%; translate: 0 -50%; }
 [data-input="pad"] :is(.segmented, .bm-actions)[data-pad-on]::before, [data-input="pad"] :is(.segmented, .bm-actions)[data-pad-on]::after { align-self: center; }
 [data-input="pad"] .hand[data-pad-on]::before, [data-input="pad"] .hand[data-pad-on]::after { align-self: center; margin: 0 12px; }
 

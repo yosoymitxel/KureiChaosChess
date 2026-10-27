@@ -504,9 +504,9 @@ export function ZenScreen({ onBack, onShop }) {
           <p class="zn-status" aria-live="polite">${status}</p>
         </div>
         <div class="zen-panel">
-          <section class="zn-sec" data-pad="l2 r2" aria-label=${t('zen.seedPick', 'Semilla para sembrar')}>
+          <section class="zn-sec" aria-label=${t('zen.seedPick', 'Semilla para sembrar')}>
             <h3>${t('zen.seeds', 'Semillas')}</h3>
-            <div class="zn-packets">
+            <div class="zn-packets" data-pad="l2 r2">
               ${ZEN_KINDS.map((k, ki) => {
                 const n = z.seeds[k] || 0;
                 return html`<button class=${'zn-packet zn-k-' + k + (seed === ki ? ' on' : '') + (n ? '' : ' off')} aria-pressed=${seed === ki} aria-label=${`Semilla de ${ZEN_NAMES[k]}: tienes ${n}`} onClick=${() => { setSeed(ki); pickTool('sow'); }}>
@@ -515,9 +515,9 @@ export function ZenScreen({ onBack, onShop }) {
               })}
             </div>
           </section>
-          <section class="zn-sec" data-pad="l1 r1" aria-label=${t('zen.tools', 'Herramientas')}>
+          <section class="zn-sec" aria-label=${t('zen.tools', 'Herramientas')}>
             <h3>${t('zen.tools', 'Herramientas')}</h3>
-            <div class="zn-tools">
+            <div class="zn-tools" data-pad="l1 r1">
               ${TOOLS.map((t) => html`<button class=${'zn-tool' + (tool === t.id ? ' on' : '')} aria-pressed=${tool === t.id} onClick=${() => pickTool(t.id)}><span class="zn-tool-ic"><${Icon} name=${t.icon} size=${22} /></span><span>${t.name}</span></button>`)}
               ${owned.map(([id, it]) => html`<button class=${'zn-tool' + (tool === id ? ' on' : '')} aria-pressed=${tool === id} onClick=${() => pickTool(id)}><span class="zn-tool-ic zn-art-ic">${ITEM_ART[id]}</span><span>${it.name} ×${z.items[id]}</span></button>`)}
             </div>
