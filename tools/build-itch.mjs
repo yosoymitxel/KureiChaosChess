@@ -6,7 +6,8 @@ import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync, readdirSync, st
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 
-const root = new URL('..', import.meta.url).pathname;
+import { fileURLToPath } from 'node:url';
+const root = fileURLToPath(new URL('..', import.meta.url));
 const out = join(root, 'dist/itch');
 const zip = join(root, 'dist/kurei-chaos-chess-itch.zip');
 rmSync(join(root, 'dist'), { recursive: true, force: true });
@@ -16,7 +17,11 @@ mkdirSync(out, { recursive: true });
 // (más de mil) van incrustados en src/data/pixel-src.js: itch admite como mucho 1000 archivos.
 const skip = new Set(['src/lab.js', 'src/lab-catalog.js', 'assets/plantilla-pieza.svg', 'assets/pixel']);
 for (const dir of ['src', 'css', 'assets', 'vendor']) {
-  cpSync(join(root, dir), join(out, dir), { recursive: true, filter: (p) => !skip.has(p.slice(root.length)) });
+  cpSync(join(root, dir), join(out, dir), { recursive: true, filter: (p) => {
+    const rel = p.slice(root.length).replace(/\\/g, '/').replace(/^\/+/, '');
+    if (rel === 'assets/pixel' || rel.startsWith('assets/pixel/')) return false;
+    return !skip.has(rel);
+  } });
 }
 
 const pixel = join(root, 'assets/pixel'), data = {};
@@ -44,6 +49,6 @@ writeFileSync(join(out, 'index.html'), page);
 
 const count = (d) => readdirSync(d).reduce((n, f) => n + (statSync(join(d, f)).isDirectory() ? count(join(d, f)) : 1), 0);
 if (count(out) > 1000) throw new Error('itch admite como mucho 1000 archivos');
-execFileSync('zip', ['-qr9', zip, '.'], { cwd: out });
+execFileSync('powershell', ['-NoProfile', '-Command', `Compress-Archive -Path "${out}\\*" -DestinationPath "${zip}" -CompressionLevel Optimal -Force`]);
 const mb = (statSync(zip).size / 1048576).toFixed(1);
 console.log(`itch: ${count(out)} archivos, ${mb} MB → dist/kurei-chaos-chess-itch.zip`);
