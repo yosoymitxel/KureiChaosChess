@@ -288,10 +288,8 @@ export class Moments {
     const dir = ['left', 'right', 'top'][Math.floor(Math.random() * 3)];
     const band = el.querySelector('.band');
     if (dir === 'top') motion(el, { y: [-this.host.clientHeight * 0.4, 0] }, { duration: this.t(0.3), ease: OUT });
-    else {
-      band.style.transformOrigin = dir === 'left' ? '0 50%' : '100% 50%';
-      motion(band, { scaleX: [0, 1] }, { duration: this.t(0.22), ease: OUT });
-    }
+    // clip-path y no scaleX: mover transform-origin a un lado también movía el eje del giro de la banda.
+    else motion(band, { clipPath: [dir === 'left' ? 'inset(0 100% 0 0)' : 'inset(0 0 0 100%)', 'inset(0 0% 0 0%)'] }, { duration: this.t(0.22), ease: OUT });
     motion(el.querySelectorAll('strong, small'), { scale: [1.5, 1], opacity: [0, 1] }, { duration: this.t(0.3), ease: OUT });
     const art = el.querySelector('.callout-art');
     await (art ? this.animate(anim, art, piece, this.t(hold)) : sleep(this.t(hold + 0.15)));
