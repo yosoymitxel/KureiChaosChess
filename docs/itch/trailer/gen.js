@@ -1,7 +1,7 @@
 const fs=require('fs');
 const BT=JSON.parse(fs.readFileSync(__dirname+'/beats.json'));
 const b=n=>{const g=1.435+0.5495*n;return BT.reduce((a,x)=>Math.abs(x-g)<Math.abs(a-g)?x:a);};
-const END=41;
+const END=42;
 let clips=[],tw=[],sfx=[];
 let id=0;
 function vid(name,s,e,{zoom=1,ox=50,oy=50,ms=0.3,push=0.06}={}){
@@ -30,25 +30,25 @@ tw.push(`tl.fromTo("#logoi",{scale:2.4,opacity:0},{scale:1,opacity:1,duration:.3
 snd('stomp-1',b(4)+0.3,1);
 // matches
 const M=[['match_portals','Portals','Floor rule'],['match_ice_pixel','Frozen lake','Floor rule'],['match_zombie','Zombie plague','Floor rule'],['match_meteor','Meteor shower','Floor rule'],['match_fog','Thick fog','Floor rule']];
-const ms={match_portals:3.6,match_ice_pixel:3.8,match_zombie:9.0,match_meteor:8.6,match_fog:3.0};
+const ms={match_portals:3.6,match_ice_pixel:3.8,match_zombie:9.0,match_meteor:6.0,match_fog:3.0};
 const fx=['warp-1','shatter-1','zombie-1','bigboom-1','whoosh-1'];
-M.forEach(([n,t,k],j)=>{const s=b(10+4*j),e=j==4?b(29):b(14+4*j);vid(n,s,e,{zoom:1.32,ox:40,oy:55,ms:ms[n]});label(t,s,e,k);snd(fx[j],s+0.15,0.35);});
-card('Every floor bends the rules.',b(29),b(32),'red');
+M.forEach(([n,t,k],j)=>{const SL=[10,14,18,22,28,31],s=b(SL[j]),e=b(SL[j+1]);vid(n,s,e,{zoom:1.32,ox:n=='match_meteor'?62:40,oy:n=='match_meteor'?40:55,ms:ms[n]});label(t,s,e,k);snd(fx[j],s+0.15,0.35);});
+card('Every floor bends the rules.',b(31),b(34),'red');
 // minis
 const N=['mini_witch','mini_outbreak','mini_giant','mini_hockey','mini_marcianos','mini_connect4','mini_bowling'];
 const NT=['The witch','Outbreak','Giant hunt','Air hockey','Invaders','Connect 4','Bowling'];
-card('28 minigames<br>between floors.',b(32),b(34));
-N.forEach((n,j)=>{const s=b(34+2*j),e=b(36+2*j);vid(n,s,e,{zoom:n=='mini_giant'?1.25:n=='mini_hockey'?1.25:1.9,ox:n=='mini_hockey'?12:n=='mini_giant'?45:42,oy:55,ms:0.6});label(NT[j],s,e);});
-card('26 tables.<br><em>17 in pixel art.</em>',b(48),b(51));
+card('28 minigames<br>between floors.',b(34),b(36));
+N.forEach((n,j)=>{const s=b(36+2*j),e=b(38+2*j);vid(n,s,e,{zoom:n=='mini_giant'?1.25:n=='mini_hockey'?1.25:1.9,ox:n=='mini_hockey'?12:n=='mini_giant'?45:42,oy:55,ms:0.6});label(NT[j],s,e);});
+card('26 tables.<br><em>17 in pixel art.</em>',b(50),b(53));
 const T=['menu_goticas','menu_halloween','menu_marcianitos','menu_piratas','menu_vocaloid'];
-T.forEach((n,j)=>vid(n,b(51+j),b(52+j),{zoom:1.15,ox:68,oy:55,ms:0.6}));
-vid('zen',b(56),b(62),{zoom:1.25,ox:45,oy:45,ms:0,push:0.1});
-label('A zen garden between runs',b(56),b(62));
-snd('coin-1',b(58),0.5);
+T.forEach((n,j)=>vid(n,b(53+j),b(54+j),{zoom:1.15,ox:68,oy:55,ms:0.6}));
+vid('zen',b(58),b(64),{zoom:1.25,ox:45,oy:45,ms:0,push:0.1});
+label('A zen garden between runs',b(58),b(64));
+snd('coin-1',b(60),0.5);
 // end
-clips.push(`<div id="end" class="clip card" data-start="${b(62)}" data-duration="${(END-b(62)).toFixed(3)}" data-track-index="2"><img id="endlogo" src="assets/logo.png"><p id="endt">Free · Play in your browser</p><p id="endu">yosoymitxel.itch.io/kurei-chaos-chess</p></div>`);
-tw.push(`tl.fromTo("#endlogo",{scale:1.6,opacity:0},{scale:1,opacity:1,duration:.4,ease:"power4.in"},${b(62)});tl.fromTo("#endt",{y:30,opacity:0},{y:0,opacity:1,duration:.5,ease:"expo.out"},${b(64)});tl.fromTo("#endu",{y:30,opacity:0},{y:0,opacity:1,duration:.5,ease:"expo.out"},${b(65)});`);
-snd('stomp-1',b(62)+0.38,1);
+clips.push(`<div id="end" class="clip card" data-start="${b(64)}" data-duration="${(END-b(64)).toFixed(3)}" data-track-index="2"><img id="endlogo" src="assets/logo.png"><p id="endt">Free · Play in your browser</p><p id="endu">yosoymitxel.itch.io/kurei-chaos-chess</p></div>`);
+tw.push(`tl.fromTo("#endlogo",{scale:1.6,opacity:0},{scale:1,opacity:1,duration:.4,ease:"power4.in"},${b(64)});tl.fromTo("#endt",{y:30,opacity:0},{y:0,opacity:1,duration:.5,ease:"expo.out"},${b(66)});tl.fromTo("#endu",{y:30,opacity:0},{y:0,opacity:1,duration:.5,ease:"expo.out"},${b(67)});`);
+snd('stomp-1',b(64)+0.38,1);
 const html=`<!doctype html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=1920, height=1080">
 <script src="assets/gsap.min.js"></script>
