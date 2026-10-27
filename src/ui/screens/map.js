@@ -5,6 +5,7 @@ import { Topbar } from '../components.js';
 import { nodeModifier } from '../../data/modifiers.js';
 import { isAvailable } from '../../game/run.js';
 import { loadShop } from '../../game/shop.js';
+import { lessonText } from '../../game/generate.js';
 import { t } from '../../i18n/index.js';
 
 const ROW = 110, PAD = 70;
@@ -36,7 +37,7 @@ export function MapScreen({ run, onBack, onSelect, onShop }) {
     <${Topbar} title=${t('map.title', 'Elige tu ruta')} sub=${t('game.floorOf', 'Piso {n} de {total}', { n: run.currentFloor + 1, total: floors })} onBack=${onBack} backLabel=${t('map.menu', 'Menú')}>
       <button class="btn ghost sm" onClick=${onShop} title=${t('zen.shop', 'Tienda del jardín')}><${Icon} name="coin" size=${16} />${loadShop().coins}</button>
     </${Topbar}>
-    ${run.tutorial && html`<p class="map-lesson"><${Icon} name="book" size=${16} />${nodes.find((n) => n.floor === run.currentFloor)?.lesson}</p>`}
+    ${run.tutorial && html`<p class="map-lesson"><${Icon} name="book" size=${16} />${lessonText(nodes.find((n) => n.floor === run.currentFloor) ?? {})}</p>`}
     <div class="map-scroll" ref=${wrap}>
       <div class="map-sheet" style=${{ height: H + 'px' }}>
         <svg class="trails" viewBox=${`0 0 100 ${H}`} preserveAspectRatio="none">
