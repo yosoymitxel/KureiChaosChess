@@ -39,7 +39,9 @@ Si caes, vuelves a empezar con otra torre, otros tableros y otras reglas.
 | ![La bruja: un laberinto con monedas y brujas](docs/img/mini-witch.jpg) | ![Brote: piezas carmesí listas para contagiarse en cadena](docs/img/mini-outbreak.jpg) |
 | **La bruja.** Pac-Man con un rey: recoge las monedas y usa las pócimas para cazar a las brujas. | **Brote.** Como Dr. Mario: con pocas dosis, contagia todo el tablero en cadena. |
 
-  También están damas a ciegas, ventisca, ruta del caballo, el suelo se acaba, matamarcianos y más.
+  También están damas a ciegas, ventisca, ruta del caballo, el suelo se acaba, matamarcianos y más:
+
+![Los 28 minijuegos, cada uno con su tablero y su nombre](docs/itch/minijuegos-28-es.jpg)
 
 ## Para jugar con alguien
 
