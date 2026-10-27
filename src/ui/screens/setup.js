@@ -8,7 +8,7 @@ import { THEMES } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
 import { themeOwned } from '../../game/shop.js';
-import { eliteVariants } from '../../game/generate.js';
+import { eliteVariants, lessonText } from '../../game/generate.js';
 import { t, LANG, LANGS } from '../../i18n/index.js';
 
 const SIDES = [
@@ -96,7 +96,7 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
     <div class="setup-body">
       ${node.lesson && html`<section class="panel setup-card lesson" data-enter>
         <h2><${Icon} name="book" size=${18} />${t('setup.tutorial', 'Tutorial · {n} de {total}', { n: node.floor + 1, total: run.map.floors })}</h2>
-        <p>${node.lesson}</p>
+        <p>${lessonText(node)}</p>
         ${node.floor === 0 && onHowTo && html`<button class="btn sm" onClick=${onHowTo}>${t('setup.howPieces', 'Cómo se mueve cada pieza')}</button>`}
       </section>`}
       ${!hockey && html`<section class="panel setup-card" data-enter>

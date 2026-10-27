@@ -7,7 +7,14 @@ export const LANGS = { es: 'Español', en: 'English' };
 function saved() {
   try { return JSON.parse(localStorage.getItem('zugzwang.settings.v2'))?.lang; } catch { return null; }
 }
-export const LANG = LANGS[saved()] ? saved() : 'es';
+// Sin ajuste guardado: el primer idioma del navegador que tengamos, si no inglés (público de itch).
+// En Node (tools) no hay navigator: español.
+function browser() {
+  if (typeof navigator === 'undefined') return 'es';
+  const prefs = navigator.languages?.length ? navigator.languages : [navigator.language];
+  return prefs.map((l) => String(l).slice(0, 2).toLowerCase()).find((l) => LANGS[l]) ?? 'en';
+}
+export const LANG = LANGS[saved()] ? saved() : browser();
 const dict = LANG === 'es' ? {} : (await import(`./${LANG}.js`)).default;
 if (typeof document !== 'undefined') document.documentElement.lang = LANG;
 

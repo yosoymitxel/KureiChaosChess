@@ -82,6 +82,10 @@ const LESSONS = [
   ['mates', t('lesson.mates', 'Entre partida y partida salen minijuegos. Si ganas, quedan abiertos para jugarlos sueltos desde el menú.')],
   ['boss', t('lesson.boss', 'Arriba de la torre espera un jefe: ocupa varias casillas y aguanta varios golpes. Las cartas de tu mano ayudan.')],
 ];
+// La lección se traduce al mostrarla: la run pudo crearse en otro idioma.
+export function lessonText(node) {
+  return node.lesson && (LESSONS.find(([m]) => m === node.modifier)?.[1] ?? node.lesson);
+}
 export function tutorialMap(seed) {
   const rng = mulberry32(seed);
   const last = LESSONS.length - 1;
