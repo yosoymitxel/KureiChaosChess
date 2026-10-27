@@ -61,6 +61,33 @@ export const THEMES = localize('themes', {
       'side-light': 'oklch(0.94 0.02 250)', 'side-dark': 'oklch(0.58 0.2 18)', 'side-wild': 'oklch(0.72 0.13 200)',
     },
   },
+  otono: {
+    id: 'otono', name: 'Otono', price: 60,
+    swatch: ['rgb(111, 107, 92)', 'rgb(240, 229, 208)', 'rgb(255, 109, 67)', 'rgb(232, 61, 51)', 'rgb(23, 26, 21)'],
+    vars: {
+      'table': 'rgb(23, 26, 21)', 'table-2': 'rgb(40, 44, 36)',
+      'tile-a': 'rgb(240, 229, 208)', 'tile-b': 'rgb(111, 107, 92)', 'tile-side': 'rgb(60, 58, 50)',
+      'side-light': 'rgb(240, 229, 208)', 'side-dark': 'rgb(232, 61, 51)', 'side-wild': 'rgb(255, 109, 67)',
+    },
+  },
+  arcilla: {
+    id: 'arcilla', name: 'Arcilla', price: 60,
+    swatch: ['rgb(85, 54, 29)', 'rgb(247, 98, 20)', 'rgb(211, 169, 33)', 'rgb(241, 196, 89)', 'rgb(96, 152, 83)'],
+    vars: {
+      'table': 'rgb(85, 54, 29)', 'table-2': 'rgb(110, 75, 45)',
+      'tile-a': 'rgb(241, 196, 89)', 'tile-b': 'rgb(211, 169, 33)', 'tile-side': 'rgb(60, 40, 22)',
+      'side-light': 'rgb(241, 196, 89)', 'side-dark': 'rgb(247, 98, 20)', 'side-wild': 'rgb(96, 152, 83)',
+    },
+  },
+  cosecha: {
+    id: 'cosecha', name: 'Cosecha', price: 60,
+    swatch: ['rgb(179, 168, 47)', 'rgb(236, 197, 70)', 'rgb(255, 156, 35)', 'rgb(239, 95, 60)', 'rgb(171, 51, 49)'],
+    vars: {
+      'table': 'rgb(171, 51, 49)', 'table-2': 'rgb(200, 80, 75)',
+      'tile-a': 'rgb(236, 197, 70)', 'tile-b': 'rgb(179, 168, 47)', 'tile-side': 'rgb(120, 40, 38)',
+      'side-light': 'rgb(236, 197, 70)', 'side-dark': 'rgb(239, 95, 60)', 'side-wild': 'rgb(255, 156, 35)',
+    },
+  },
   // Las mesas píxel: una por carpeta de art/temas (tools/pixel-art.mjs las genera). El modo
   // "pixel" pasa a píxel todo el juego: piezas, losas, mesa, marcos y letra.
   ...PIXEL_THEMES,
