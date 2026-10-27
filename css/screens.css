@@ -178,11 +178,11 @@
 .duo-list button { display: flex; gap: 10px; align-items: center; width: 100%; padding: 10px; border: 2px solid transparent; border-radius: 10px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .duo-list button.on { border-color: var(--ink); background: var(--brass); }
 .duo-list button div { display: grid; }
-/* Pantalla ancha (PC, tableta): las tarjetas se reparten en dos columnas y el botón va debajo. */
+/* Pantalla ancha (PC, tableta): las tarjetas se reparten en dos columnas y el botón cierra la segunda. */
 @media (min-width: 720px) {
   .setup .setup-body { display: block; columns: 2 320px; column-gap: 16px; width: min(1040px, 100%); padding-top: 24px; }
   .setup .setup-body > * { break-inside: avoid; margin-bottom: 16px; }
-  .setup .setup-body > .btn.big { column-span: all; display: flex; margin: 8px auto 0; }
+  .setup .setup-body > .btn.big { display: flex; width: 100%; min-height: 76px; font-size: 22px; }
 }
 .mod-card { display: flex; gap: 14px; align-items: flex-start; }
 .mod-card p { margin: 4px 0 0; font-size: 13.5px; color: var(--ink-2); }
