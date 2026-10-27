@@ -472,7 +472,7 @@ export default {
     "sc.knight.goal": "Step on every marked square ◎ with the knight. Every square you leave sinks: if you run out of jumps, you lose.",
     "sc.mates.goal": "Checkmate the crimson king in the given moves. The rival defends with its best reply.",
     "sc.collapsingFloor.goal": "Cross with the knight to the top row. Every square you leave sinks and the guards cut you off.",
-    "sc.clock.goal": "Reach the clock square before it runs out (the number is your moves) and collect the coins ●. Crimson pieces keep appearing to hunt you; you can capture them too.",
+    "sc.clock.goal": "Reach the clock square before it runs out (the number is your moves) and collect the coins. Crimson pieces keep appearing to hunt you; you can capture them too.",
     "sc.caceria.lost1": "A pawn reached the end and promoted.",
     "sc.caceria.lost2": "The pawns ate your hunters.",
     "sc.caceria.won": "Not a single runaway left.",

@@ -19,7 +19,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = t('common.continu
   const hot = s.over ? new Set() : danger(s);
   const marks = new Map([...hot].map((i) => [key(Math.floor(i / COLS), i % COLS), 'hot']));
   for (let c = 0; c < COLS; c++) if (canBuy(s, pick, c)) marks.set(key(0, c), 'target');
-  const labels = new Map([...s.trophies].map((c) => [key(ROWS - 1, c), '★']));
+  const labels = new Map([...s.trophies].map((c) => [key(ROWS - 1, c), 'icon:trophy']));
   const attackers = s.pieces.filter((p) => p.color === 'dark');
   const step = !attackers.length ? 1 : s.moved ? 3 : 2;
   const STEPS = [t('izombie.step1', 'Compra'), t('izombie.step2', 'Avanza'), t('izombie.step3', 'Trofeos')];

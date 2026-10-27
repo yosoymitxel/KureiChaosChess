@@ -1,6 +1,6 @@
 // Brote: dosis que contagian en cadena (src/game/outbreak.js). Un toque enseña hasta dónde llegaría
 // la cadena; el segundo toque en la misma pieza gasta la dosis.
-import { html, useState, useRef } from '../lib.js';
+import { html, useState, useRef, useEffect } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { DIFFS, newOutbreak, chain, dose } from '../../game/outbreak.js';
 import { MiniBoard } from '../mini-board.js';
@@ -15,7 +15,11 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 export function OutbreakScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newOutbreak(diff || settings.miniDiff?.outbreak));
   const [board] = useState(() => ({ rows: s.n, cols: s.n, holes: new Set() }));
-  const [sel, setSel] = useState(null);
+  const [sel, setSelState] = useState(null);
+  // La selección vive también en una ref: dos toques rápidos llegan antes del repintado y el segundo
+  // veía la pieza aún sin elegir, así que no gastaba la dosis.
+  const selRef = useRef(null);
+  const setSel = (p) => { selRef.current = p; setSelState(p); };
   const [shown, setShown] = useState(() => new Set()); // contagiadas ya pintadas
   const [busy, setBusy] = useState(false);
   const view = useRef(null);
@@ -24,7 +28,7 @@ export function OutbreakScreen({ sub, onBack, onEnd, endLabel = t('common.contin
     if (busy || s.over) return;
     const p = s.pieces.find((x) => x.row === r && x.col === c && !x.sick);
     if (!p) return setSel(null);
-    if (sel !== p) { playSfx('select'); return setSel(p); }
+    if (selRef.current !== p) { playSfx('select'); return setSel(p); }
     setSel(null); setBusy(true);
     const waves = dose(s, p), seen = new Set(shown);
     for (const w of waves) {
@@ -39,9 +43,14 @@ export function OutbreakScreen({ sub, onBack, onEnd, endLabel = t('common.contin
     if (s.over === 'win' && s.used === 1) award('outbreak_one');
   };
 
+  // La pieza elegida se levanta, como al seleccionar en la partida.
+  useEffect(() => {
+    for (const [p, el] of view.current?.els || []) el.classList.toggle('sel', p.id === sel?.id);
+  });
+
   const pieces = s.pieces.map((p) => ({ id: p.id, type: p.type, color: shown.has(p.id) ? 'light' : 'dark', infected: shown.has(p.id), row: p.row, col: p.col }));
   const marks = new Map();
-  if (sel) for (const [i, w] of chain(s, sel).entries()) for (const x of w) marks.set(key(x.row, x.col), i ? 'gain' : 'foot');
+  if (sel) for (const [i, w] of chain(s, sel).entries()) for (const x of w) marks.set(key(x.row, x.col), i ? 'hot gain' : 'foot');
   const left = s.pieces.filter((p) => !p.sick).length;
 
   return html`<div class="screen mini">

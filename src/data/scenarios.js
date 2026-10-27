@@ -429,7 +429,7 @@ const freeTiles = (b, pieces) => {
 Object.assign(SCENARIOS, {
   clock: {
     id: 'clock',
-    goal: t('sc.clock.goal', 'Llega a la casilla del reloj antes de que se agote (el número son tus jugadas) y recoge las monedas ●. Van apareciendo piezas carmesí que te cazan; tú también puedes capturarlas.'),
+    goal: t('sc.clock.goal', 'Llega a la casilla del reloj antes de que se agote (el número son tus jugadas) y recoge las monedas. Van apareciendo piezas carmesí que te cazan; tú también puedes capturarlas.'),
     levels: {
       facil: { coins: 4, time: 6, every: 4, foes: ['pawn', 'pawn', 'knight'], rival: 'aprendiz', piece: ['queen', 'rook'] },
       normal: { coins: 5, time: 5, every: 3, foes: ['pawn', 'knight', 'bishop'], rival: 'oficial', piece: ['rook', 'bishop', 'knight'] },
