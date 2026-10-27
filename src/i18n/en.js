@@ -507,6 +507,12 @@ export default {
     "sc.clock.won": "Every coin, and in time.",
     "sc.clock.lost": "The clock stopped.",
     "sc.clock.status": "Coins {got}/{total} · clock {n}",
+    "sc.witch.goal": "Collect the coins before dawn without waking the witches: if one of your pieces can touch a sleeping witch (green eye), she wakes (red eye) and hunts you. You can capture her, but only once she is awake.",
+    "sc.witch.lost": "The witches hunted down all your pieces.",
+    "sc.witch.won": "Every coin.",
+    "sc.witch.clean": "Every coin without waking a single witch.",
+    "sc.witch.status": "Coins {got}/{total} · witches awake {n} · turns {left}",
+    "sc.witch.dawn": "Dawn broke with coins left.",
     "sc.caught": "They caught you.",
     "sc.crossing.status": "{r} rounds left · {n} guards",
     "sc.crossing.samples": "samples {got}/{total}",
@@ -572,8 +578,6 @@ export default {
     "outbreak.help": "You have a few doses. The piece you infect infects in turn every piece it attacks according to how it moves (the rook in a straight line, the knight in an L, the bishop diagonally; an infected pawn attacks diagonally upwards), and the chain goes on. One tap shows how far it would reach; another tap on the same piece spends the dose. Infect them all.",
     // src/ui/screens/queens.js
     "queens.help": "Tap squares to place queens: none can share a row, column or diagonal, and the ones that clash are marked red. Place all {n} before time runs out.",
-    // src/ui/screens/witch.js
-    "witch.help": "Your king takes one step per turn (tap a neighboring square or use the arrows) and collects the coins it steps on. The witches move one straight step per turn and hunt you if they reach you. Potions scare them for a few turns: they flee, change color and you can catch them (they return home after a while). Collect every coin.",
     // src/ui/screens/duel.js
     "duel.hp": "Health {n} of {max}",
     "duel.guard": "Guard",
@@ -712,14 +716,8 @@ export default {
     "ck.duoEnd": "{name} wins: the other ran out of moves.",
     "ck.won": "The rival ran out of moves.",
     "ck.lost": "You ran out of moves.",
-    // src/ui/screens/witch.js
-    "witch.scared": "They're scared! Catch them: {n} turns.",
-    "witch.status": "Collect every coin; potions scare the witches.",
-    "witch.board": "The witch's maze",
+    // src/ui/screens/blizzard.js
     "witch.coins": "Coins {n}/{total}",
-    "witch.witches": "Witches {n}",
-    "witch.won": "Every coin in {n} turns.",
-    "witch.lost": "A witch caught your king.",
     // src/ui/screens/bomber.js
     "dir.up": "Up",
     "dir.down": "Down",
@@ -872,7 +870,7 @@ export default {
     outbreak: { name: 'Outbreak', desc: 'Minigame: with a few doses, infect every piece in a chain: each infected piece infects the ones it attacks. Reward: mutation or piece.' },
     clock: { name: 'Against the clock', desc: 'Minigame: reach the clock square before time runs out, grab coins and dodge the pieces that keep appearing. Reward: mutation or piece.' },
     blind: { name: 'Blind queens', desc: 'Minigame: place your queens and choose where each one fires; the rivals appear at random and everyone fires at once. Reward: mutation or piece.' },
-    witch: { name: 'The witch', desc: 'Minigame: a Pac-Man maze; collect every coin with your king while the witches chase you, and use the potions to scare them. Reward: mutation or piece.' },
+    witch: { name: 'The witch', desc: 'Minigame: collect the coins with your pieces without waking the sleeping witches; if one of your pieces can touch one, she wakes and hunts. Reward: mutation or piece.' },
     hockey: { name: 'Air hockey', desc: 'Minigame: drag your rook and score in the bot\'s goal; first to five goals wins. Reward: mutation or piece.', duo: { desc: 'At the same time: each moves the rook on their half.', opt: 'goals', label: 'Goals to win', choices: [[3, '3'], [5, '5'], [7, '7']] } },
   },
 
@@ -912,7 +910,7 @@ export default {
     meteor_win: { name: 'In the rain', desc: 'Win a Meteor shower floor.' },
     coven_win: { name: 'Witch hunt', desc: 'Win a Coven floor.' },
     leaf_hand: { name: 'Green thumb', desc: 'Pick up by hand a leaf that fell on the board.' },
-    witch_eat: { name: 'The hunter hunted', desc: 'In The witch, catch a scared witch.' },
+    witch_clean: { name: 'Deep sleep', desc: 'In The witch, collect every coin without waking a single witch.' },
     blizzard_best: { name: 'Perfect skating', desc: 'Leave the Blizzard in the fewest moves.' },
     versus_done: { name: 'Face to face', desc: 'Finish a local two-player match.' },
     duo_mini: { name: 'Rematch', desc: 'Play a two-player minigame in a local match.' },

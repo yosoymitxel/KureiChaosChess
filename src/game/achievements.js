@@ -56,7 +56,7 @@ export const ACHIEVEMENTS = localize('achievements', [
   { id: 'meteor_win', group: 'Partida', name: 'Bajo la lluvia', desc: 'Gana un piso con Lluvia de meteoritos.', icon: 'meteor' },
   { id: 'coven_win', group: 'Partida', name: 'Caza de brujas', desc: 'Gana un piso de Aquelarre.', icon: 'target' },
   { id: 'leaf_hand', group: 'Partida', name: 'Mano verde', desc: 'Quita a mano una hoja que cayó en el tablero.', icon: 'hand' },
-  { id: 'witch_eat', group: 'Minijuegos', name: 'La cazadora cazada', desc: 'En La bruja, atrapa a una bruja asustada.', icon: 'flask' },
+  { id: 'witch_clean', group: 'Minijuegos', name: 'Sueño profundo', desc: 'En La bruja, recoge todas las monedas sin despertar a ninguna bruja.', icon: 'flask' },
   { id: 'blizzard_best', group: 'Minijuegos', name: 'Patinaje perfecto', desc: 'Sal de la Ventisca en el mínimo de jugadas.', icon: 'ice' },
   { id: 'versus_done', group: 'Minijuegos', name: 'Cara a cara', desc: 'Termina una partida local a dos.', icon: 'human' },
   { id: 'duo_mini', group: 'Minijuegos', name: 'Revancha', desc: 'Juega un minijuego a dos en partida local.', icon: 'hockey' },

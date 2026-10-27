@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { SCENARIOS, buildScenario } from '../src/data/scenarios.js';
 import { Match, botChooseMove } from '../src/game/match.js';
 import { RIVALS } from '../src/game/difficulty.js';
-import { key } from '../src/game/rules.js';
+import { key, canHit, ctxOf } from '../src/game/rules.js';
 
 const matchOf = (sc) => new Match({ board: sc.board, pieces: sc.pieces, players: sc.seats, modifier: sc.modifier || 'none', mutations: [], bonuses: {},
   rival: sc.rival, rivals: { dark: sc.rival, light: RIVALS.maestro }, objective: sc.objective, bonus: sc.bonus, tick: sc.tick });
@@ -67,4 +67,38 @@ const ki = buildScenario('kingImpostor', 'normal', 4);
 const masked = ki.pieces.filter((p) => p.disguise);
 assert.ok(masked.length === 4 && masked.every((p) => p.type !== 'king'), 'impostors are disguised non-kings');
 assert.equal(ki.pieces.filter((p) => p.color === 'dark' && p.type === 'king').length, 1, 'one true king');
-console.log('Escenarios OK: mesas variables, final con veredicto, coronación, minas y disfraces');
+// La bruja es pasable: un jugador simple (va a la moneda más cercana, evita despertar brujas y quedar a
+// tiro) gana al menos 1 de cada 10 en cada dificultad.
+function coinSeeker(m, sc) {
+  const coins = [...sc.labels(m).keys()].map((c) => c.split(',').map(Number));
+  let best = null, top = -Infinity;
+  for (const p of m.pieces.filter((q) => q.color === 'light')) for (const mv of m.legal(p)) {
+    const at = [p.row, p.col], gone = new Set((mv.hits || []).map((v) => v.piece || v));
+    Object.assign(p, { row: mv.row, col: mv.col });
+    const alive = m.pieces.filter((q) => !gone.has(q)), ctx = ctxOf(alive, m.board);
+    const wakes = alive.filter((w) => w.witch && !w.awake && alive.some((q) => q.color === 'light' && canHit(q, w, ctx))).length;
+    const shot = alive.some((e) => e.color === 'dark' && (!e.witch || e.awake) && canHit(e, p, ctx));
+    const near = Math.min(99, ...coins.map(([r, c]) => Math.max(Math.abs(r - mv.row), Math.abs(c - mv.col))));
+    const score = (near === 0 ? 50 : -2 * near) - 30 * wakes - (shot ? 40 : 0) + 10 * gone.size + Math.random();
+    Object.assign(p, { row: at[0], col: at[1] });
+    if (score > top) { top = score; best = { piece: p, target: { row: mv.row, col: mv.col } }; }
+  }
+  return best;
+}
+for (const level of ['facil', 'normal', 'dificil']) {
+  let wins = 0;
+  for (let seed = 1; seed <= 40; seed++) {
+    const sc = buildScenario('witch', level, seed), m = matchOf(sc);
+    for (let i = 0; i < 400 && !m.over; i++) {
+      const mv = m.canMove() && (m.player.color === 'light' ? coinSeeker(m, sc) : botChooseMove(m));
+      if (mv) m.move(mv.piece, mv.target);
+      sc.labels(m);
+      m.afterMove({ pass: !mv });
+    }
+    if (m.over?.victory) wins++;
+  }
+  assert.ok(wins >= 4, `witch/${level}: a simple coin seeker wins ${wins}/40`);
+  console.log(`witch ${level}: buscador de monedas gana ${wins}/40`);
+}
+
+console.log('Escenarios OK: mesas variables, final con veredicto, coronación, minas, disfraces y brujas pasables');

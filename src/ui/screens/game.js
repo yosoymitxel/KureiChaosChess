@@ -256,6 +256,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (onRound) r.note = onRound(r);
       if (!scenario) { if (r.victory) playSfx('win'); else if (!r.tie) playSfx('lose'); }
       const human = seats.find((s) => s.kind === 'human')?.color || 'light';
+      if (r.victory && r.award) award(r.award); // logro propio de un minijuego (scenarios.js)
       if (r.victory && !scenario) {
         // La pérdida se lee por identidad: toda pieza caída sale de match.pieces.
         const lost = [...d.feats.mine].filter((p) => !match.pieces.includes(p));
