@@ -309,12 +309,12 @@ export class BoardView {
   apply(p) {
     const el = this.els.get(p), st = this.state.get(p);
     if (!el) return;
-    el.style.setProperty('--r', st.r);
-    el.style.setProperty('--c', st.c);
-    const z = st.z.toFixed(2);
-    el.style.setProperty('--z', z);
-    // La sombra se achica con la altura; --z no se hereda (board.css), así que va aparte.
-    (el.shadowEl ||= el.querySelector('.pc-shadow'))?.style.setProperty('--z', z);
+    // transform y opacity directos, no variables CSS: cambiar una variable, aunque no se herede,
+    // hacía a Chrome recalcular el estilo de todo el SVG de la pieza en cada fotograma.
+    const z = +st.z.toFixed(2);
+    el.style.transform = `translate3d(calc(${st.c} * var(--sq)), calc(${st.r} * var(--sq)), ${z + 1}px)`;
+    const sh = (el.shadowEl ||= el.querySelector('.pc-shadow'));
+    if (sh) { sh.style.transform = `translateZ(${-z}px) scale(${(1 + z * 0.006).toFixed(3)})`; sh.style.opacity = (1 - z * 0.004).toFixed(3); }
   }
 
   // Rótulos sobre casillas (las pistas de Campo minado): key -> texto.

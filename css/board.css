@@ -120,22 +120,18 @@
 /* Contagiada: conserva el color de su bando nuevo y lleva un halo verde de la plaga. */
 .pc.infected .pc-art { filter: drop-shadow(0 0 2px var(--side-zombie)) drop-shadow(0 0 2px var(--side-zombie)); }
 
-/* Posición de casillas y piezas: no se heredan. Heredadas, mover una pieza (que cambia --r, --c
-   y --z en cada fotograma) obligaba a recalcular el estilo de todo su dibujo por dentro. */
+/* Posición de casillas: no se hereda. Las piezas (y su sombra) se colocan con transform en línea
+   desde board-view.js (apply). */
 @property --r { syntax: '*'; inherits: false; }
 @property --c { syntax: '*'; inherits: false; }
-@property --z { syntax: '*'; inherits: false; }
 .pc {
   position: absolute; left: 0; top: 0;
   width: calc(var(--w, 1) * var(--sq)); height: calc(var(--h, 1) * var(--sq));
-  transform: translate3d(calc(var(--c) * var(--sq)), calc(var(--r) * var(--sq)), calc(var(--z, 0) * 1px + 1px));
   transform-style: preserve-3d;
 }
 .pc-shadow {
   position: absolute; inset: 14%; border-radius: 50%;
   background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.5), transparent);
-  transform: translateZ(calc(var(--z, 0) * -1px)) scale(calc(1 + var(--z, 0) * 0.006));
-  opacity: calc(1 - var(--z, 0) * 0.004);
 }
 /* Token base: three stacked discs give the coin its thickness; the figure stands on its centre. */
 .pc-base { position: absolute; inset: 23%; transform-style: preserve-3d; pointer-events: auto; cursor: pointer; }

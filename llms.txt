@@ -3,6 +3,7 @@
 > Roguelike de ajedrez gratis que se juega en el navegador (móvil y PC). Subes una torre de partidas de ajedrez donde cada piso cambia las reglas, y arriba esperan jefes que ocupan varias casillas. Free browser chess roguelike: every floor bends the rules.
 
 - Jugar: https://yosoymitxel.github.io/KureiChaosChess/
+- itch.io: https://yosoymitxel.itch.io/kurei-chaos-chess
 - Código: https://github.com/yosoymitxel/KureiChaosChess
 - Autor: yosoymitxel
 - Idiomas: español e inglés

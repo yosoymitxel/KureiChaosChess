@@ -139,7 +139,8 @@ cita: Reddit (r/WebGames, r/chess, r/roguelikes), Wikipedia, YouTube. Ayuda:
 
 Web propia (GitHub Pages): `index.html` lleva canonical, Open Graph con imagen, Twitter card, JSON-LD
 `VideoGame` y un `<noscript>` con texto legible para buscadores; `sitemap.xml` y `llms.txt` en la raíz.
-Al publicar en itch, añadir su URL a `sameAs` del JSON-LD y enlazar la página de itch desde el README.
+La página de itch (https://yosoymitxel.itch.io/kurei-chaos-chess) ya está en `sameAs` del JSON-LD y en
+`llms.txt`; al pasarla a Public, enlazarla también desde el README.
 Dar de alta `sitemap.xml` en Google Search Console (un sitio de proyecto en `github.io` no controla
 `robots.txt`, que solo vale en la raíz del dominio).
 
@@ -147,6 +148,13 @@ Skills de referencia (auditorías con Claude Code, no instaladas): [claude-seo](
 [geo-seo-claude](https://github.com/zubair-trabzada/geo-seo-claude),
 [SEO-GEO-AEO-Skill](https://github.com/SNLabat/SEO-GEO-AEO-Skill). Sirven para webs con muchas páginas;
 para un juego de una sola página basta con esta lista.
+
+### Cuándo publicar
+
+Martes a jueves, a las 14:00 UTC (11:00 en Paraguay, 9:00 en Nueva York): pilla la mañana de EE. UU. y
+la tarde de Europa, y deja todo el día para la primera ola de visitas. Evitar las fechas en que acaban
+jams grandes (muchas entregas a la vez): en noviembre de 2026, la Unity Game Jam (≈ 12–14 nov) y la
+Game Off (cierra el 1 dic), y la semana de Acción de Gracias (26–30 nov).
 
 ## 5. Antes de publicar
 
