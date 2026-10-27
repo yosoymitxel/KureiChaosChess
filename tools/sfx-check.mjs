@@ -38,7 +38,7 @@ class MockAudioContext {
   createGain() { return this.node('gain', { gain: param(1) }); }
   createOscillator() { return this.node('osc', { type: 'sine', frequency: param(440) }); }
   createBiquadFilter() { return this.node('filter', { type: 'lowpass', frequency: param(350), Q: param(1) }); }
-  createBufferSource() { return this.node('noise', { buffer: null, loop: false }); }
+  createBufferSource() { return this.node('noise', { buffer: null, loop: false, playbackRate: param(1) }); }
   node(kind, extra) {
     const n = {
       kind,
@@ -102,7 +102,12 @@ try {
   setSfxVolume('normal');
 
   // 2. Con AudioContext de mentira: creación perezosa, reanudación y capas.
+  // Las tomas grabadas quedan pendientes hasta soltar `pending`; las recetas se miran en mesa píxel.
+  const pending = [];
+  globalThis.fetch = (url) => new Promise((res) => pending.push(() => res({ arrayBuffer: async () => url })));
+  globalThis.document = { documentElement: { dataset: { art: 'pixel' } } };
   globalThis.window = { AudioContext: MockAudioContext };
+  MockAudioContext.prototype.decodeAudioData = async (url) => ({ sample: url });
   playSfx('move');
   const mock = MockAudioContext.last;
   if (!mock) throw new Error('playSfx no creó el AudioContext');
@@ -115,6 +120,20 @@ try {
     playSfx(name);
     checkBatch(mock.made.slice(from), name);
   }
+  // Mesa normal: mientras la toma baja no suena el sintetizado; al llegar suena la grabada.
+  document.documentElement.dataset.art = '';
+  from = mock.made.length;
+  playSfx('coin');
+  if (mock.made.length !== from) throw new Error('mesa normal: sonó el sintetizado mientras bajaba la toma');
+  for (const go of pending.splice(0)) go();
+  for (let i = 0; i < 5; i++) await new Promise((r) => setTimeout(r, 0));
+  const took = mock.made.slice(from).find((n) => n.kind === 'noise' && n.buffer?.sample);
+  if (!took || !took.buffer.sample.startsWith('assets/sfx/coin')) throw new Error('mesa normal: no sonó la toma grabada al llegar');
+  from = mock.made.length;
+  mock.currentTime = 1;
+  playSfx('coin');
+  if (!mock.made.slice(from).some((n) => n.kind === 'noise' && n.buffer?.sample)) throw new Error('mesa normal: con la toma lista no sonó la grabada');
+  delete globalThis.document;
   setSfxVolume('fuerte');
   if (mock.made[0].gain.value !== SFX_VOLUMES.fuerte) throw new Error('el volumen global no llega al master');
   setSfxVolume('normal');

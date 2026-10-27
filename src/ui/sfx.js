@@ -278,7 +278,14 @@ export function playSfx(name, pitch = 1) {
   const tune = (1 + (Math.random() * 2 - 1) * JITTER) * pitch;
   const pixel = typeof document !== 'undefined' && document.documentElement.dataset.art === 'pixel';
   const takes = !pixel && buffers[name];
-  if (takes?.length) return playSample(takes[Math.floor(Math.random() * takes.length)], now, tune, SAMPLE_GAIN[name] ?? 0.7);
+  const gain = SAMPLE_GAIN[name] ?? 0.7;
+  if (takes?.length) return playSample(takes[Math.floor(Math.random() * takes.length)], now, tune, gain);
+  // Mesa normal con la toma aún bajando (los primeros toques): se espera a la grabada y no suena
+  // el sintetizado, que es de las mesas píxel. Si llega tarde, se pierde; si no hay toma, se sintetiza.
+  if (!pixel && ready[name]) {
+    ready[name].then((buf) => { if (enabled && c.currentTime - now < 0.25) playSample(buf, c.currentTime, tune, gain); }, () => {});
+    return;
+  }
   for (const layer of layers) playLayer(layer, now, tune);
 }
 const last = {};
@@ -293,12 +300,14 @@ const SAMPLE_GAIN = {
   promote: 0.7, mini_win: 0.6, mini_lose: 0.6, achievement: 0.7, win: 0.75, lose: 0.75, tick: 0.35, alarm: 0.85,
 };
 const buffers = {};
+// Por efecto, la primera toma lista; si no baja ninguna, se borra y el efecto queda sintetizado.
+const ready = {};
 function loadSamples(c) {
   for (const [name, urls] of Object.entries(SFX_SAMPLES)) {
     buffers[name] = [];
-    for (const url of urls) {
-      fetch(url).then((r) => r.arrayBuffer()).then((b) => c.decodeAudioData(b)).then((buf) => buffers[name].push(buf)).catch(() => {});
-    }
+    ready[name] = Promise.any(urls.map((url) => fetch(url).then((r) => r.arrayBuffer()).then((b) => c.decodeAudioData(b))
+      .then((buf) => { buffers[name].push(buf); return buf; })));
+    ready[name].catch(() => { delete ready[name]; });
   }
 }
 function playSample(buf, t, tune, gain) {
