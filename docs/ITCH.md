@@ -57,6 +57,9 @@ El juego guarda la partida en `localStorage`; en itch funciona igual dentro del 
   6. `docs/img/mini-hockey.jpg`
   7. `docs/img/jardin.jpg`
   8. `docs/img/movil.jpg`
+- **Minijuegos:** `docs/itch/minijuegos-12-en.jpg` (12 destacados, 1904×964) como captura nº 4 de la lista;
+  `docs/itch/minijuegos-28-en.jpg` (los 28 con nombre, 1900×876) en la descripción, bajo "28 minigames between floors".
+  Hay versión `-es` de los dos.
 - **Trailer:** pendiente (vídeo promocional).
 - **GIF** (4,5 s, el Titán cae y se reparten las piezas): `docs/itch/menu-walnut.gif` y `docs/itch/menu-pixelada.gif`.
   Van dentro de la descripción, uno bajo el primer párrafo y el otro antes de "And more"; el devlog lleva el de pixelada.
