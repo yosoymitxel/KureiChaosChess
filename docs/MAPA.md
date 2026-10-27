@@ -500,7 +500,7 @@ src/game/zen.js:223 +BUTTERFLY_MS
 src/game/zen.js:224 +butterflyGift
 src/game/zen.js:229 +addZenSeeds
 src/game/zen.js:236 +pickSeed
-## src/i18n/en.js (1020L)
+## src/i18n/en.js (1015L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -572,39 +572,35 @@ src/ui/fullscreen.js:5 +canFullscreen
 src/ui/fullscreen.js:6 isFull
 src/ui/fullscreen.js:8 +setFullscreen
 src/ui/fullscreen.js:14 +useFullscreen
-## src/ui/gamepad.js (215L)
+## src/ui/gamepad.js (205L)
 src/ui/gamepad.js:14 BUTTONS
 src/ui/gamepad.js:15 DIRS
 src/ui/gamepad.js:16 SECOND
 src/ui/gamepad.js:17 ACTIONS
-src/ui/gamepad.js:18 PAIR
-src/ui/gamepad.js:19 FIRST
-src/ui/gamepad.js:20 FOCUSABLE
-src/ui/gamepad.js:21 CLICKABLE
-src/ui/gamepad.js:24 GLYPHS
-src/ui/gamepad.js:29 glyphs
-src/ui/gamepad.js:30 styleOf
-src/ui/gamepad.js:32 visible
-src/ui/gamepad.js:37 scope
-src/ui/gamepad.js:39 focus
-src/ui/gamepad.js:46 moveFocus
-src/ui/gamepad.js:70 declared
-src/ui/gamepad.js:71 +usePad
-src/ui/gamepad.js:77 entryOf
-src/ui/gamepad.js:83 assigned
-src/ui/gamepad.js:84 isGroup
-src/ui/gamepad.js:86 act
-src/ui/gamepad.js:106 targets
-src/ui/gamepad.js:107 release
-src/ui/gamepad.js:111 press
-src/ui/gamepad.js:125 scroll
-src/ui/gamepad.js:133 layer
-src/ui/gamepad.js:134 labelOf
-src/ui/gamepad.js:135 paint
-src/ui/gamepad.js:176 held
-src/ui/gamepad.js:177 poll
-src/ui/gamepad.js:205 running
-src/ui/gamepad.js:206 +startGamepad
+src/ui/gamepad.js:18 FIRST
+src/ui/gamepad.js:19 FOCUSABLE
+src/ui/gamepad.js:20 CLICKABLE
+src/ui/gamepad.js:23 styleOf
+src/ui/gamepad.js:25 visible
+src/ui/gamepad.js:30 scope
+src/ui/gamepad.js:32 focus
+src/ui/gamepad.js:39 moveFocus
+src/ui/gamepad.js:63 declared
+src/ui/gamepad.js:64 +usePad
+src/ui/gamepad.js:70 entryOf
+src/ui/gamepad.js:76 assigned
+src/ui/gamepad.js:77 isGroup
+src/ui/gamepad.js:79 act
+src/ui/gamepad.js:98 targets
+src/ui/gamepad.js:99 release
+src/ui/gamepad.js:103 press
+src/ui/gamepad.js:117 scroll
+src/ui/gamepad.js:126 legend
+src/ui/gamepad.js:127 paint
+src/ui/gamepad.js:166 held
+src/ui/gamepad.js:167 poll
+src/ui/gamepad.js:195 running
+src/ui/gamepad.js:196 +startGamepad
 ## src/ui/hop.js (79L)
 src/ui/hop.js:8 OUT
 src/ui/hop.js:9 +reduced
@@ -891,7 +887,7 @@ src/view/piece-art.js:109 +pieceSVG
 src/view/piece-art.js:123 +headTop
 src/view/piece-art.js:125 +RAW_BODIES
 src/view/piece-art.js:129 +artOf
-## css/base.css (178L)
+## css/base.css (220L)
 css/base.css:1 /* Reset, typography, browser surfaces and shared components.
 css/base.css:22 /* Icon() pinta las dos versiones; cada mesa muestra la suya (p
 css/base.css:30 /* Buttons are printed tokens: the solid bottom edge is the tok
@@ -905,7 +901,9 @@ css/base.css:121 /* Rareza con canal propio, independiente del color del tipo (e
 css/base.css:126 /* Rara: el título es una banda de plata pulida. Épica: latón c
 css/base.css:137 /* Every figure on a card is paper with an ink outline, so stam
 css/base.css:148 /* Card back carries the pawn emblem: the box's identity mark.
-css/base.css:159 /* Mando (src/ui/gamepad.js): el botón de cada elemento asignad
+css/base.css:159 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
+css/base.css:199 /* Botones sin texto y cosas del jardín: el botón va en su esqu
+css/base.css:202 /* Grupos: L y R a los lados de la fila (pestañas, acciones, ma
 ## css/board.css (319L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
@@ -941,19 +939,20 @@ css/board.css:283 /* Estanque del centro abierto y coleccionables: tumbados sobr
 css/board.css:300 /* La mariposa queda posada un poco en el aire (lo deja su vuel
 css/board.css:306 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
 css/board.css:314 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
-## css/pixel.css (90L)
+## css/pixel.css (93L)
 css/pixel.css:1 /* Modo píxel: con un tema píxel (data-art="pixel", ver src/dat
 css/pixel.css:6 /* Jersey 10 (OFL), servida desde el juego: el subconjunto lati
 css/pixel.css:20 /* Solo elementos: con ::before y ::after el navegador calculab
 css/pixel.css:24 /* Los dibujos vectoriales (iconos, jardín, minijuegos) sin sua
 css/pixel.css:28 /* Marcos del tema: el borde es la imagen cortada en nueve (esq
-css/pixel.css:35 /* Botón de 8 bits: el marco tiene las esquinas en escalera y t
-css/pixel.css:50 /* La fuente bitmap es más ancha: el nombre largo baja un punto
-css/pixel.css:57 /* Tableros de los minijuegos: las mismas losas del tema que el
-css/pixel.css:63 /* Jardín Zen: cada dibujo trae su sprite (zen-art.js) y aquí s
-css/pixel.css:72 /* La moneda de cara o cruz, en escalones.
-css/pixel.css:80 /* Sombra de la pieza y koi del estanque del tablero, sin degra
-css/pixel.css:82 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
+css/pixel.css:32 /* Mando: botones y leyenda con el marco del tema, como los bot
+css/pixel.css:38 /* Botón de 8 bits: el marco tiene las esquinas en escalera y t
+css/pixel.css:53 /* La fuente bitmap es más ancha: el nombre largo baja un punto
+css/pixel.css:60 /* Tableros de los minijuegos: las mismas losas del tema que el
+css/pixel.css:66 /* Jardín Zen: cada dibujo trae su sprite (zen-art.js) y aquí s
+css/pixel.css:75 /* La moneda de cara o cruz, en escalones.
+css/pixel.css:83 /* Sombra de la pieza y koi del estanque del tablero, sin degra
+css/pixel.css:85 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
 ## css/screens.css (1398L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of

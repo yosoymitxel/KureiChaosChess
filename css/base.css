@@ -156,21 +156,63 @@ h2 { font-size: 17px; font-weight: 750; }
 
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 7px; font-size: 12.5px; font-weight: 650; border: 1.5px solid currentColor; }
 
-/* Mando (src/ui/gamepad.js): el botón de cada elemento asignado y la leyenda, encima de todo. */
-.pad-layer { position: fixed; inset: 0; z-index: 90; pointer-events: none; }
-.pad-g {
-  display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 5px;
-  background: var(--paper); color: var(--ink); border: 2px solid var(--ink); border-radius: 11px; box-shadow: 0 2px 0 var(--ink);
-  font: 800 11px/1 var(--font); letter-spacing: 0; white-space: nowrap;
+/* Mando (src/ui/gamepad.js). El botón va dentro del elemento al que da (o junto al título de su
+   sección, si es un grupo) y se dibuja como en el mando: Xbox por defecto, PlayStation y Nintendo
+   según `data-pad-style`. Solo aparece mientras se juega con mando (`data-input="pad"`). */
+:root {
+  --padg-Enter: "A"; --padc-Enter: #7cc443; --padg-Escape: "B"; --padc-Escape: #ee4f45;
+  --padg-x: "X"; --padc-x: #3f95ec; --padg-y: "Y"; --padc-y: #f7c51e;
+  --padg-l1: "LB"; --padg-r1: "RB"; --padg-l2: "LT"; --padg-r2: "RT"; --padg-select: ""; --padg-start: "";
+  --padi-select: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23eee' stroke-width='1.7'%3E%3Crect x='2.5' y='2.5' width='7.5' height='7.5' rx='1.5'/%3E%3Cpath d='M6.5 13.5h5.5a1.5 1.5 0 0 0 1.5-1.5V6.5'/%3E%3C/svg%3E");
+  --padi-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23eee' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M3.5 4.5h9M3.5 8h9M3.5 11.5h9'/%3E%3C/svg%3E");
 }
-.pad-layer > .pad-g { position: absolute; translate: -50% -50%; }
+[data-pad-style="ps"] {
+  --padg-Enter: "✕"; --padc-Enter: #7aa6ee; --padg-Escape: "○"; --padc-Escape: #ef6a72;
+  --padg-x: "□"; --padc-x: #dc93cb; --padg-y: "△"; --padc-y: #4cc8aa;
+  --padg-l1: "L1"; --padg-r1: "R1"; --padg-l2: "L2"; --padg-r2: "R2";
+}
+[data-pad-style="nin"] {
+  --padg-Enter: "B"; --padg-Escape: "A"; --padg-x: "Y"; --padg-y: "X";
+  --padc-Enter: #eee; --padc-Escape: #eee; --padc-x: #eee; --padc-y: #eee;
+  --padg-l1: "L"; --padg-r1: "R"; --padg-l2: "ZL"; --padg-r2: "ZR"; --padg-select: "−"; --padg-start: "+"; --padi-select: none; --padi-start: none;
+}
+[data-g="Enter"] { --padg: var(--padg-Enter); --padc: var(--padc-Enter); }
+[data-g="Escape"] { --padg: var(--padg-Escape); --padc: var(--padc-Escape); }
+:is([data-g="x"], [data-pad="x"]) { --padg: var(--padg-x); --padc: var(--padc-x); }
+:is([data-g="y"], [data-pad="y"]) { --padg: var(--padg-y); --padc: var(--padc-y); }
+:is([data-g="select"], [data-pad="select"]) { --padg: var(--padg-select); --padi: var(--padi-select); }
+:is([data-g="start"], [data-pad="start"]) { --padg: var(--padg-start); --padi: var(--padi-start); }
+:is([data-g="l1"], [data-pad="l1 r1"]) { --padg: var(--padg-l1); --padg2: var(--padg-r1); --padr: 6px 6px 4px 4px; --padw: 30px; --padh: 19px; }
+[data-g="r1"] { --padg: var(--padg-r1); --padr: 6px 6px 4px 4px; --padw: 30px; --padh: 19px; }
+:is([data-g="l2"], [data-pad="l2 r2"]) { --padg: var(--padg-l2); --padg2: var(--padg-r2); --padr: 11px 11px 4px 4px; --padw: 26px; --padh: 21px; }
+[data-g="r2"] { --padg: var(--padg-r2); --padr: 11px 11px 4px 4px; --padw: 26px; --padh: 21px; }
+.pad-g, [data-input="pad"] [data-pad-on]::before, [data-input="pad"] [data-pad-on][data-pad*=" "]::after {
+  content: var(--padg); display: inline-grid; place-items: center; flex: none; box-sizing: border-box;
+  min-width: var(--padw, 22px); height: var(--padh, 22px); padding: 0 4px; border-radius: var(--padr, 50%);
+  background: #1d1d20 var(--padi, none) center / 13px no-repeat; color: var(--padc, #eee);
+  box-shadow: inset 0 0 0 1.5px oklch(1 0 0 / 0.16), 0 1.5px 0 oklch(0 0 0 / 0.55);
+  font: 800 12px/1 system-ui, sans-serif; letter-spacing: 0; text-transform: none; pointer-events: none;
+}
+[data-input="pad"] [data-pad-on][data-pad*=" "]::after { content: var(--padg2); }
+.pad-g::before { content: var(--padg); }
+[data-input="pad"] [data-pad-on]::before { order: -1; }
+/* Botones sin texto y cosas del jardín: el botón va en su esquina. */
+[data-input="pad"] .icon-only[data-pad-on] { position: relative; }
+[data-input="pad"] :is(.icon-only, .zn-fallen, .zn-fly)[data-pad-on]::before { position: absolute; right: -7px; bottom: -7px; scale: 0.9; }
+/* Grupos: L y R a los lados de la fila (pestañas, acciones, mano) o junto al título de su sección. */
+[data-input="pad"] [data-pad-on][data-pad*=" "]:not(.segmented, .bm-actions, .hand) { position: relative; }
+[data-input="pad"] [data-pad-on][data-pad*=" "]:not(.segmented, .bm-actions, .hand)::before { position: absolute; top: 0; right: calc(var(--padw) + 6px); }
+[data-input="pad"] [data-pad-on][data-pad*=" "]:not(.segmented, .bm-actions, .hand)::after { position: absolute; top: 0; right: 0; }
+[data-input="pad"] :is(.segmented, .bm-actions)[data-pad-on]::before, [data-input="pad"] :is(.segmented, .bm-actions)[data-pad-on]::after { align-self: center; }
+[data-input="pad"] .hand[data-pad-on]::before, [data-input="pad"] .hand[data-pad-on]::after { align-self: center; margin: 0 12px; }
+
 .pad-legend {
-  position: absolute; inset-inline: 0; bottom: calc(10px + env(safe-area-inset-bottom)); margin-inline: auto; width: fit-content;
-  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; max-width: calc(100% - 32px); padding: 7px 14px;
-  background: color-mix(in oklch, var(--ink), transparent 12%); color: var(--paper); border-radius: var(--r-md);
-  font-size: 12.5px; font-weight: 650;
+  position: fixed; z-index: 90; inset-inline: 0; bottom: calc(12px + env(safe-area-inset-bottom)); width: fit-content; margin-inline: auto; pointer-events: none;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; max-width: calc(100% - 32px); padding: 6px 12px 6px 6px;
+  background: oklch(0.16 0.01 55 / 0.82); color: var(--paper); border-radius: 999px;
+  font-size: 12.5px; font-weight: 700;
 }
-.pad-legend > span { display: inline-flex; align-items: center; gap: 5px; }
+.pad-legend > span { display: inline-flex; align-items: center; gap: 6px; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }

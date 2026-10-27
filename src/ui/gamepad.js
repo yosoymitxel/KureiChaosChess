@@ -7,7 +7,7 @@
 // El resto de botones (X, Y, gatillos, Select, Start) son acciones: pulsan el elemento visible que
 // lleve `data-pad="x"` (un grupo con `data-pad="l1 r1"` pasa a su opción anterior o siguiente sin
 // mover el foco), o lo que la pantalla declare con usePad(). Mientras se juega con mando, cada
-// elemento asignado lleva encima su botón y abajo queda la leyenda de la pantalla.
+// elemento asignado muestra su botón dentro.
 import { useEffect } from './lib.js';
 import { t } from '../i18n/index.js';
 
@@ -19,13 +19,7 @@ const FIRST = 320, REPEAT = 120; // ms hasta que una flecha mantenida se repite,
 const FOCUSABLE = 'button:not([disabled]), [href], input, select, [tabindex]:not([tabindex="-1"])';
 const CLICKABLE = 'button, [href], [role="button"], [role="tab"], [role="option"]';
 
-// Lo que pone cada mando en sus botones; Nintendo cambia de sitio A/B y X/Y.
-const GLYPHS = {
-  xbox: { dpad: '✛', Enter: 'A', Escape: 'B', x: 'X', y: 'Y', l1: 'LB', r1: 'RB', l2: 'LT', r2: 'RT', select: 'View', start: 'Menu' },
-  ps: { dpad: '✛', Enter: '✕', Escape: '○', x: '□', y: '△', l1: 'L1', r1: 'R1', l2: 'L2', r2: 'R2', select: 'Create', start: 'Options' },
-  nin: { dpad: '✛', Enter: 'B', Escape: 'A', x: 'Y', y: 'X', l1: 'L', r1: 'R', l2: 'ZL', r2: 'ZR', select: '−', start: '+' },
-};
-let glyphs = GLYPHS.xbox;
+// El dibujo de cada botón (Xbox, PlayStation o Nintendo) está en css/base.css, según `data-pad-style`.
 const styleOf = (id) => (/054c|playstation|dualsense|dualshock/i.test(id) ? 'ps' : /057e|nintendo|pro controller|joy-con/i.test(id) ? 'nin' : 'xbox');
 
 const visible = (el) => {
@@ -127,48 +121,46 @@ function scroll(dy) {
   el.scrollBy(0, dy * 18);
 }
 
-// Encima de la interfaz: el botón de cada elemento asignado y la leyenda de la pantalla.
-let layer = null, lastSig = '', nextPaint = 0;
-const labelOf = (el) => el.dataset.padLabel || el.getAttribute('aria-label') || el.title || el.textContent.trim().slice(0, 24);
+// El botón va dentro del elemento al que da (`data-pad-on`, lo dibuja el CSS); la leyenda de abajo
+// solo lleva lo que no tiene sitio en pantalla: A, B y lo que declare usePad().
+let legend = null, lastSig = '', nextPaint = 0, marked = [];
 function paint() {
-  const root = document.documentElement;
-  if (root.dataset.input !== 'pad') return layer?.replaceChildren();
-  if (!layer) { layer = document.createElement('div'); layer.className = 'pad-layer'; layer.setAttribute('aria-hidden', 'true'); document.body.appendChild(layer); }
-  const seen = new Set(), badges = [], legend = [];
-  for (const el of scope().querySelectorAll('[data-pad]')) {
-    const acts = el.dataset.pad.split(' ').filter((a) => !seen.has(a));
-    if (!acts.length || !visible(el)) continue;
+  const pad = document.documentElement.dataset.input === 'pad';
+  const seen = new Set(), on = [], items = [];
+  if (pad) for (const el of scope().querySelectorAll('[data-pad]')) {
+    const acts = el.dataset.pad.split(' ');
+    if (acts.some((a) => seen.has(a)) || !visible(el)) continue;
     acts.forEach((a) => seen.add(a));
-    // Un grupo lleva su botón sobre la última opción, no en el borde de su caja (la mano es ancha).
-    const r = (isGroup(el) && [...el.querySelectorAll(FOCUSABLE)].filter(visible).pop() || el).getBoundingClientRect();
-    badges.push({ x: Math.round(Math.min(r.right - 6, innerWidth - 24)), y: Math.round(Math.max(r.top - 6, 13)), text: acts.map((a) => glyphs[a]).join(' ') });
-    legend.push({ keys: acts, label: labelOf(el) });
+    on.push(el);
   }
-  for (const map of [...declared].reverse()) for (const [a, e] of Object.entries(map)) {
-    if (seen.has(a) || (e.when && !e.when())) continue;
-    seen.add(a);
-    legend.push({ keys: [a], label: e.label });
+  for (const el of marked) if (!on.includes(el)) delete el.dataset.padOn;
+  for (const el of on) el.dataset.padOn = '';
+  marked = on;
+  if (pad) {
+    items.push(['Enter', t('pad.ok', 'Elegir')]);
+    if (document.querySelector('.overlay, [data-back]')) items.push(['Escape', t('pad.back', 'Volver')]);
+    for (const map of [...declared].reverse()) for (const [a, e] of Object.entries(map)) {
+      if (seen.has(a) || (e.when && !e.when())) continue;
+      seen.add(a);
+      items.push([a, e.label]);
+    }
   }
-  const back = document.querySelector('.overlay') || document.querySelector('[data-back]');
-  if (!seen.has('Escape') && back) legend.push({ keys: ['Escape'], label: t('pad.back', 'Volver') });
-  if (!seen.has('Enter')) legend.unshift({ keys: ['Enter'], label: t('pad.ok', 'Elegir') });
-  const sig = JSON.stringify([badges, legend, glyphs.x]);
+  const sig = JSON.stringify(items);
   if (sig === lastSig) return;
   lastSig = sig;
-  const chip = (text) => Object.assign(document.createElement('kbd'), { className: 'pad-g', textContent: text });
-  const bar = document.createElement('div');
-  bar.className = 'pad-legend';
-  for (const { keys, label } of legend) {
+  legend?.remove();
+  legend = null;
+  if (!items.length) return;
+  legend = Object.assign(document.createElement('div'), { className: 'pad-legend' });
+  legend.setAttribute('aria-hidden', 'true');
+  for (const [g, label] of items) {
     const item = document.createElement('span');
-    keys.forEach((k) => item.append(chip(glyphs[k])));
-    item.append(label);
-    bar.append(item);
+    const kbd = Object.assign(document.createElement('kbd'), { className: 'pad-g' });
+    kbd.dataset.g = g;
+    item.append(kbd, label);
+    legend.append(item);
   }
-  layer.replaceChildren(bar, ...badges.map(({ x, y, text }) => {
-    const b = chip(text);
-    b.style.left = x + 'px'; b.style.top = y + 'px';
-    return b;
-  }));
+  document.body.appendChild(legend);
 }
 
 const held = new Map(); // tecla → { next: momento de la próxima repetición }
@@ -186,7 +178,7 @@ function poll(now) {
   });
   if (down.size || ry) {
     document.documentElement.dataset.input = 'pad';
-    glyphs = GLYPHS[styleOf(pads[0]?.id || '')];
+    document.documentElement.dataset.padStyle = styleOf(pads[0]?.id || '');
   }
   if (ry) scroll(ry);
   for (const key of held.keys()) if (!down.has(key)) { held.delete(key); release(key); }

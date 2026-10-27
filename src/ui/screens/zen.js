@@ -480,8 +480,8 @@ export function ZenScreen({ onBack, onShop }) {
 
   return html`<div class="screen mini zen-screen" ref=${ref}>
     <${Topbar} title=${t('menu.zen', 'Jardín Zen')} sub=${t('zen.sub', 'Un rincón tranquilo entre runs')} onBack=${onBack}>
-      <button class="btn ghost sm icon-only" data-pad="select" data-pad-label=${t('pad.help', 'Ayuda')} aria-label=${t('zen.help', 'Cómo se cuida el jardín')} title=${t('zen.help', 'Cómo se cuida el jardín')} onClick=${() => setHelp(true)}><${Icon} name="book" size=${16} /></button>
-      <button class="coin-chip" data-pad="y" data-pad-label=${t('pad.shop', 'Tienda')} ref=${coinRef} title=${t('zen.shop', 'Tienda del jardín')} aria-label=${t('zen.coinsShop', '{n} monedas: abrir la tienda', { n: coins })} onClick=${onShop}><${Icon} name="coin" size=${16} /><b>${coins}</b></button>
+      <button class="btn ghost sm icon-only" data-pad="select" aria-label=${t('zen.help', 'Cómo se cuida el jardín')} title=${t('zen.help', 'Cómo se cuida el jardín')} onClick=${() => setHelp(true)}><${Icon} name="book" size=${16} /></button>
+      <button class="coin-chip" data-pad="y" ref=${coinRef} title=${t('zen.shop', 'Tienda del jardín')} aria-label=${t('zen.coinsShop', '{n} monedas: abrir la tienda', { n: coins })} onClick=${onShop}><${Icon} name="coin" size=${16} /><b>${coins}</b></button>
     </${Topbar}>
     <div class="mini-body zen-body">
       <div class="zen-main">
@@ -491,22 +491,22 @@ export function ZenScreen({ onBack, onShop }) {
               <div class="bm zn-tray" style=${{ '--n': z.size }} role="group" aria-label=${t('zen.bed', 'Cantero del jardín')}>
                 ${rakeArt(z.size, objs, raw)}
                 ${cells}
-                ${z.leaves.map((l) => html`<button key=${`leaf-${l.x}-${l.y}`} class="zn-fallen" data-pad="x" data-pad-label=${t('pad.collect', 'Recoger')} style=${{ left: (l.x / z.size) * 100 + '%', top: (l.y / z.size) * 100 + '%', '--r': l.r + 'deg' }}
+                ${z.leaves.map((l) => html`<button key=${`leaf-${l.x}-${l.y}`} class="zn-fallen" data-pad="x" style=${{ left: (l.x / z.size) * 100 + '%', top: (l.y / z.size) * 100 + '%', '--r': l.r + 'deg' }}
                   aria-label=${t('zen.leafAria', 'Hoja caída: tócala para barrerla')} onClick=${(e) => sweep(l, e.currentTarget)}>${mapleLeaf}</button>`)}
               </div>
               ${BRANCH}
               ${pour && html`<span key=${pour.id} class="zn-canfx" style=${{ left: pour.x + 'px', top: pour.y + 'px' }} aria-hidden="true">${CAN}<i class="zn-stream"></i></span>`}
               ${act && html`<span key=${act.id} class=${'zn-toolfx t-' + act.tool} style=${{ left: act.x + 'px', top: act.y + 'px' }} aria-hidden="true">${TOOL_ART[act.tool]}</span>`}
               <span class=${'zn-hand t-' + tool} ref=${handRef} aria-hidden="true">${TOOL_ART[tool]}</span>
-              ${fly && html`<button key=${fly.id} ref=${flyRef} class="zn-fly" data-pad="x" data-pad-label=${t('pad.collect', 'Recoger')} aria-label=${t('zen.flyAria', 'Mariposa: tócala')} onClick=${catchFly}>${BUTTERFLY}</button>`}
+              ${fly && html`<button key=${fly.id} ref=${flyRef} class="zn-fly" data-pad="x" aria-label=${t('zen.flyAria', 'Mariposa: tócala')} onClick=${catchFly}>${BUTTERFLY}</button>`}
             </div>
           </div>
           <p class="zn-status" aria-live="polite">${status}</p>
         </div>
         <div class="zen-panel">
-          <section class="zn-sec" aria-label=${t('zen.seedPick', 'Semilla para sembrar')}>
+          <section class="zn-sec" data-pad="l2 r2" aria-label=${t('zen.seedPick', 'Semilla para sembrar')}>
             <h3>${t('zen.seeds', 'Semillas')}</h3>
-            <div class="zn-packets" data-pad="l2 r2" data-pad-label=${t('zen.seeds', 'Semillas')}>
+            <div class="zn-packets">
               ${ZEN_KINDS.map((k, ki) => {
                 const n = z.seeds[k] || 0;
                 return html`<button class=${'zn-packet zn-k-' + k + (seed === ki ? ' on' : '') + (n ? '' : ' off')} aria-pressed=${seed === ki} aria-label=${`Semilla de ${ZEN_NAMES[k]}: tienes ${n}`} onClick=${() => { setSeed(ki); pickTool('sow'); }}>
@@ -515,9 +515,9 @@ export function ZenScreen({ onBack, onShop }) {
               })}
             </div>
           </section>
-          <section class="zn-sec" aria-label=${t('zen.tools', 'Herramientas')}>
+          <section class="zn-sec" data-pad="l1 r1" aria-label=${t('zen.tools', 'Herramientas')}>
             <h3>${t('zen.tools', 'Herramientas')}</h3>
-            <div class="zn-tools" data-pad="l1 r1" data-pad-label=${t('zen.tools', 'Herramientas')}>
+            <div class="zn-tools">
               ${TOOLS.map((t) => html`<button class=${'zn-tool' + (tool === t.id ? ' on' : '')} aria-pressed=${tool === t.id} onClick=${() => pickTool(t.id)}><span class="zn-tool-ic"><${Icon} name=${t.icon} size=${22} /></span><span>${t.name}</span></button>`)}
               ${owned.map(([id, it]) => html`<button class=${'zn-tool' + (tool === id ? ' on' : '')} aria-pressed=${tool === id} onClick=${() => pickTool(id)}><span class="zn-tool-ic zn-art-ic">${ITEM_ART[id]}</span><span>${it.name} ×${z.items[id]}</span></button>`)}
             </div>
