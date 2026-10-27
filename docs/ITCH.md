@@ -60,7 +60,7 @@ El juego guarda la partida en `localStorage`; en itch funciona igual dentro del 
 - **Trailer:** pendiente (vídeo promocional).
 - **GIF** (4,5 s, el Titán cae y se reparten las piezas): `docs/itch/menu-walnut.gif` y `docs/itch/menu-pixelada.gif`.
   Van dentro de la descripción, uno bajo el primer párrafo y el otro antes de "And more"; el devlog lleva el de pixelada.
-  Se regeneran grabando el menú con Playwright y pasándolo por ffmpeg (paleta de 128 colores, 15 fps, 720 px).
+  Se regeneran grabando el menú con Playwright y pasándolo por ffmpeg (96 colores, 12 fps, 600 px): itch no acepta imágenes de más de 3 MB.
 
 Para regenerar las capturas, abre el juego en 1280×720 y repite las mismas pantallas: menú, primer piso de una run,
 la mesa pixelada, la bruja, brote, hockey y el jardín.
@@ -102,7 +102,7 @@ Con los colores del propio juego, una base, una tinta y un acento:
 | Link | `#c12d00` | el rojo de la cinta del logo |
 | Button (More options) | fondo `#c12d00`, texto `#f6eedc` | el botón Empezar run |
 | Banner | `docs/itch/logo.png` | el logo encima de todo, sin repetir el título en texto |
-| Embed BG | `docs/itch/embed-bg-1280x720.png` (1920×1080, mismo 16:9 que el embed) | el menú con el Titán, detrás del botón Run game |
+| Embed BG | `docs/itch/embed-bg-<ancho>x<alto>.png` del **mismo tamaño que el embed** (itch no la escala: si es más grande, recorta). Hay 1280×720, 960×540 y 640×360. | el menú con el Titán, detrás del botón Run game |
 | Background | sin imagen: color plano | |
 | Screenshots | a la derecha (Right column), para que la descripción no quede debajo de ocho capturas |
 
@@ -112,7 +112,8 @@ decorativas (`———`) ni títulos en mayúsculas: la sección se nombra con 
 ### Descripción (copiar tal cual)
 
 El primer párrafo es lo que leen Google y los buscadores con IA: dice qué es, que es gratis y dónde se
-juega. Los `##` son encabezados (en el editor de itch: Heading 2). Entre secciones, una captura.
+juega. El editor de itch no entiende markdown (los `##` salen tal cual): abre `docs/itch/descripcion.html`
+en el navegador, copia y pega, y los títulos llegan con formato. Los bloques de abajo son el mismo texto.
 
 ```
 Kure'i Chaos Chess is a free chess roguelike you play in the browser. Climb a tower of chess matches where every floor breaks a rule, and face colossal bosses that take up several squares at the top.
