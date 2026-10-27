@@ -20,7 +20,7 @@ import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, save
 import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard } from '../game/shop.js';
 import { ZEN_NAMES, addZenSeeds, pickSeed } from '../game/zen.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
-import { award, bump, loadAchievements, seeMutations } from '../game/achievements.js';
+import { award, bump, collect, loadAchievements, seeMutations } from '../game/achievements.js';
 import { Moments } from './moments.js';
 import { playDemo, mutationDemo } from './demos.js';
 import { BOSS_IDS } from '../data/bosses.js';
@@ -184,6 +184,7 @@ export function App() {
   // Slay the Spire rhythm: normal fights give a tactic card, elites give a mutation; every win pays coins.
   const onWin = (bossId, { toMenu } = {}) => {
     award('first_win');
+    if (bump('wins') >= 50) award('wins_50');
     const kind = node.isBoss ? 'boss' : node.isMiniBoss ? 'miniBoss' : node.modifier === 'elite' ? 'elite' : 'normal';
     const coins = COINS_PER_NODE[kind];
     addCoins(coins);
@@ -195,7 +196,11 @@ export function App() {
     }
     if (node.isBoss) {
       award('boss_slain');
-      { const runs = bump('runs'); if (runs >= 3) award('runs_3'); if (runs >= 10) award('runs_10'); }
+      { const runs = bump('runs'); if (runs >= 3) award('runs_3'); if (runs >= 10) award('runs_10'); if (runs >= 25) award('runs_25'); }
+      if (run.map.floors >= 12) award('long_run');
+      if (!(run.mutations || []).length) award('pure_boss');
+      if (settings.difficulty === 'dificil' && !run.tutorial) award('hard_run');
+      if (run.tutorial) award('tutorial_done');
       clearRun(); setRunState(null); return toMenu ? goTo('menu') : newRun();
     }
     if (node.isMiniBoss) { const next = completeNode(run, node); setRun(next); return mutationReward(next, coins, seed); }
@@ -209,7 +214,8 @@ export function App() {
   const onMiniEnd = (won) => {
     if (!won) { setRun(completeNode(run, node)); return goTo('map'); }
     award('mini_won');
-    if (floorTier(node.floor, run.map.floors) === 'dificil') award('mini_hard');
+    if (floorTier(node.floor, run.map.floors) === 'dificil') { award('mini_hard'); if (collect('hardMinis', node.modifier) >= 3) award('hard_trio'); }
+    if (bump('miniWins') >= 25) award('minis_25');
     unlockMini(node.modifier);
     if (loadUnlocked().length >= Object.values(MODIFIERS).filter((m) => m.mini).length) award('all_minis');
     setRun((r) => ({ ...r, minisWon: (r.minisWon || 0) + 1 }));
@@ -293,7 +299,7 @@ export function App() {
     ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
     ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub=${t('mini.free', 'Partida libre')} onBack=${() => goTo('minis')}
       endLabel=${t('mini.again', 'Otra partida')}
-      onEnd=${() => setFreeKey((k) => k + 1)}
+      onEnd=${(won) => { if (won) award('free_mini'); setFreeKey((k) => k + 1); }}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => goTo(shopFrom)} />`}

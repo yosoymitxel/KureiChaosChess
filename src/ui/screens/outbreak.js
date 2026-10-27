@@ -7,6 +7,7 @@ import { MiniBoard } from '../mini-board.js';
 import { key } from '../../game/rules.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t } from '../../i18n/index.js';
+import { award } from '../../game/achievements.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -34,6 +35,7 @@ export function OutbreakScreen({ sub, onBack, onEnd, endLabel = t('common.contin
       await wait(220);
     }
     setBusy(false);
+    if (s.over === 'win' && s.used === 1) award('outbreak_one');
   };
 
   const pieces = s.pieces.map((p) => ({ id: p.id, type: p.type, color: shown.has(p.id) ? 'light' : 'dark', infected: shown.has(p.id), row: p.row, col: p.col }));

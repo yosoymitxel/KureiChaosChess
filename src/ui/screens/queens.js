@@ -5,13 +5,18 @@ import { key } from '../../game/rules.js';
 import { DIFFS, newQueens, toggle, clashing } from '../../game/queens.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t } from '../../i18n/index.js';
+import { award } from '../../game/achievements.js';
 
 export function QueensScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newQueens(diff || settings.miniDiff?.queens));
   const [time, setTime] = useState(() => s.seconds);
   const [, redraw] = useState(0);
   const [board] = useState(() => ({ rows: s.n, cols: s.n, holes: new Set() }));
-  const tap = (r, c) => toggle(s, r, c) && redraw((n) => n + 1);
+  const tap = (r, c) => {
+    if (!toggle(s, r, c)) return;
+    if (s.over === 'win' && time >= 60) award('queens_fast');
+    redraw((n) => n + 1);
+  };
 
   useEffect(() => {
     const id = setInterval(() => setTime((t) => {
