@@ -164,9 +164,9 @@
   filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.35));
 }
 .pc.hit .pc-art svg { filter: brightness(2.5) saturate(0.2); }
-/* En el set píxel las piezas botan un píxel justo, a saltos y cada una a su ritmo (--bd), como
+/* En el set píxel las piezas botan un píxel justo, cada una a su ritmo (--bd), como
    los sprites clásicos; el set vectorial se queda quieto. */
-[data-art="pixel"] .pc-art svg { animation: px-bob 1.8s steps(1, end) var(--bd, 0s) infinite; }
+[data-art="pixel"] .pc-art svg { animation: px-bob 1.8s ease-in-out var(--bd, 0s) infinite; }
 /* El sprite ya trae contorno y la peana su sombra: sin drop-shadow, que en el tablero 3D era lo
    que más costaba dibujar (el reparto de piezas pasaba de 20 a 28 fps en un móvil lento). */
 [data-art="pixel"] .pc-art svg { filter: none; }
@@ -296,7 +296,6 @@
 .meteor-rock { position: absolute; left: 0; top: 0; z-index: 8; width: calc(var(--sq) * 0.8); aspect-ratio: 1; border-radius: 50%; pointer-events: none;
   background: radial-gradient(circle at 35% 35%, #ffcf6b, #e2552b 45%, #5a2c1c 75%); box-shadow: 0 calc(var(--sq) * 0.1) calc(var(--sq) * 0.4) #ff8a3d; }
 [data-art="pixel"] .meteor-rock { background: #e2552b; box-shadow: inset -6px -6px 0 #5a2c1c, inset 4px 4px 0 #ffcf6b; clip-path: polygon(25% 0, 75% 0, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0 75%, 0 25%); }
-[data-art="pixel"] .tile.doom { animation-timing-function: steps(2); }
 @media (prefers-reduced-motion: reduce) { .tile.doom { animation: none; } }
 
 /* Ventisca: bloque de hielo (frena al que resbala) y casillas tapadas por la ventisca. */
