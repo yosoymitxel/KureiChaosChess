@@ -12,6 +12,7 @@ import { SEEDS, GARDEN_ITEMS, LAKE_MAX, lakeCost } from '../../data/garden.js';
 import { award } from '../../game/achievements.js';
 import { addCoins, charge, loadShop } from '../../game/shop.js';
 import { playSfx } from '../sfx.js';
+import { flyCoins as fly } from '../coins.js';
 import { t, tp } from '../../i18n/index.js';
 
 const ETAPAS = { empty: t('zen.stage.empty', 'vacía'), sprout: t('zen.stage.sprout', 'con brote'), bud: t('zen.stage.bud', 'con capullo'), bloom: t('zen.stage.bloom', 'lista para cortar') };
@@ -114,21 +115,7 @@ export function ZenScreen({ onBack, onShop }) {
   };
   const unhover = () => handRef.current?.classList.remove('on');
 
-  // Las monedas saltan del punto de origen en arco y vuelan al monedero; el contador sube al llegar.
-  const flyCoins = (from, n, amount) => {
-    const to = coinRef.current?.getBoundingClientRect();
-    const land = () => { setCoins(addCoins(amount)); playSfx('coin'); motion(coinRef.current, { scale: [1, 1.35, 1] }, { duration: 0.5, ease: [0.22, 1, 0.36, 1] }); };
-    if (!from || !to || reduced()) return land();
-    const x0 = from.left + from.width / 2, y0 = from.top + from.height * 0.3, x1 = to.left + to.width * 0.3, y1 = to.top + to.height / 2;
-    for (let i = 0; i < n; i++) {
-      const c = document.createElement('i');
-      c.className = 'zn-coinpop';
-      c.style.left = x0 + 'px'; c.style.top = y0 + 'px';
-      document.body.appendChild(c);
-      const sx = (i - (n - 1) / 2) * 26;
-      motion(c, { x: [0, sx, x1 - x0], y: [0, -70 - i * 12, y1 - y0], scale: [0.4, 1.1, 0.7] }, { duration: 0.85, delay: i * 0.09, ease: 'easeInOut', onComplete: () => { c.remove(); if (i === n - 1) land(); } });
-    }
-  };
+  const flyCoins = (from, n, amount) => fly(from, coinRef.current, n, () => setCoins(addCoins(amount)));
 
   // Gestos de cada acción.
   const fxSow = (key) => later(() => {
@@ -494,7 +481,7 @@ export function ZenScreen({ onBack, onShop }) {
   return html`<div class="screen mini zen-screen" ref=${ref}>
     <${Topbar} title=${t('menu.zen', 'Jardín Zen')} sub=${t('zen.sub', 'Un rincón tranquilo entre runs')} onBack=${onBack}>
       <button class="btn ghost sm icon-only" aria-label=${t('zen.help', 'Cómo se cuida el jardín')} title=${t('zen.help', 'Cómo se cuida el jardín')} onClick=${() => setHelp(true)}><${Icon} name="book" size=${16} /></button>
-      <span class="coin-chip" ref=${coinRef} title=${t('zen.coins', 'Monedas del jardín')}><${Icon} name="coin" size=${16} /><b>${coins}</b></span>
+      <button class="coin-chip" ref=${coinRef} title=${t('zen.shop', 'Tienda del jardín')} aria-label=${t('zen.coinsShop', '{n} monedas: abrir la tienda', { n: coins })} onClick=${onShop}><${Icon} name="coin" size=${16} /><b>${coins}</b></button>
     </${Topbar}>
     <div class="mini-body zen-body">
       <div class="zen-main">
@@ -547,7 +534,10 @@ export function ZenScreen({ onBack, onShop }) {
             <span class="zen-expand-text">${lakeArmed ? t('zen.confirmPond', 'Confirmar estanque') : t('zen.pondTo', 'Estanque a {size}', { size: `${(z.lake || 2) + 1}×${(z.lake || 2) + 1}` })}</span>
             <b class="zen-cost"><${Icon} name="coin" size=${13} />${lakeCost(z.lake || 2)}</b>
           </button>`}
-          <button class="btn sm ghost zen-shop" onClick=${onShop}><${Icon} name="coin" size=${16} />${t('zen.shop', 'Tienda del jardín')}</button>
+          <button class="zen-shop" onClick=${onShop}>
+            <span class="zen-shop-text"><strong>${t('zen.shop', 'Tienda del jardín')}</strong><small>${t('zen.shopSub', 'Semillas, macetas, faroles y herramientas')}</small></span>
+            <span class="zen-shop-coins"><${Icon} name="coin" size=${16} />${coins}</span>
+          </button>
         </div>
       </div>
     </div>

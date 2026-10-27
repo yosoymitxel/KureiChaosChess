@@ -137,6 +137,10 @@ export default {
     'versus.size': 'Size',
     'versus.shape': 'Shape',
     'versus.mechanic': 'Mechanic',
+    'zen.shopSub': 'Seeds, pots, lanterns and tools',
+    'zen.coinsShop': '{n} coins: open the shop',
+    'game.coinsShop': '{n} coins: open the shop',
+    'game.reachHint': 'Show where it can go next move',
     'resume.title': 'Unfinished match',
     'resume.restart': 'Restart level',
     // Pause
