@@ -2,7 +2,7 @@
 // jugado; el resto llega después. Tocar una pieza, una mutación o un jefe abierto enseña cómo se mueve
 // con la misma demo de la partida (demos.js), y tocar un logro lleva a su ficha en Logros.
 import { html, useEffect, useRef, useState } from '../lib.js';
-import { Topbar, useEnter, BossCard } from '../components.js';
+import { Topbar, useEnter, BossCard, ThemeLook } from '../components.js';
 import { Icon } from '../icons.js';
 import { Moments } from '../moments.js';
 import { pieceSVG } from '../../view/piece-art.js';
@@ -21,7 +21,7 @@ const SOON = [
   { id: 'temporadas', name: 'Temporadas', items: [{ id: 'halloween', name: 'Halloween' }, { id: 'navidad', name: 'Navidad' }] },
 ];
 
-// Tableros y fondos salen de las mesas reales: las casillas y la madera de cada tema.
+// Tableros y fondos salen de las mesas reales: el tablero con su pieza, como en la tienda, y la madera de cada tema.
 function ThemeGroup({ name, keys }) {
   return html`<section class="gal-group">
     <h2 class="gal-title">${name}</h2>
@@ -29,7 +29,7 @@ function ThemeGroup({ name, keys }) {
       ${Object.values(THEMES).map((t) => {
         const owned = themeOwned(t.id);
         return html`<figure class=${'gal-item' + (owned ? '' : ' locked')} title=${owned ? t.name : 'Se compra en la tienda del Jardín Zen'}>
-          <div class="gal-art gal-table"><span class="gal-swatch">${keys.map((k) => html`<i style=${{ background: t.vars[k] }}></i>`)}</span>${owned ? '' : html`<${Icon} name="lock" size=${14} />`}</div>
+          <div class="gal-art gal-table">${keys ? html`<span class="gal-swatch">${keys.map((k) => html`<i style=${{ background: t.vars[k] }}></i>`)}</span>` : html`<${ThemeLook} t=${t} />`}${owned ? '' : html`<${Icon} name="lock" size=${14} />`}</div>
           <figcaption>${t.name}</figcaption>
         </figure>`;
       })}
@@ -105,7 +105,7 @@ export function GalleryScreen({ onBack, onAchievements }) {
             </button>`)}
           </div>`)}
       </section>
-      <${ThemeGroup} name="Tableros" keys=${['tile-a', 'tile-b', 'tile-side']} />
+      <${ThemeGroup} name="Tableros" />
       <${ThemeGroup} name="Fondos" keys=${['table', 'table-2']} />
       ${SOON.map((g) => html`<section class="gal-group">
         <h2 class="gal-title">${g.name}</h2>
