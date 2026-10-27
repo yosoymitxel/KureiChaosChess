@@ -188,6 +188,7 @@ export function ZenScreen({ onBack, onShop }) {
       playSfx('flower');
       const flores = ZEN_KINDS.reduce((n, k) => n + (next.flores[k] || 0), 0);
       if (flores >= 3) award('flower_3');
+      if (flores >= 25) award('flowers_25');
       if (ZEN_KINDS.every((k) => (next.flores[k] || 0) > 0)) award('zen_all');
     };
     if (!cell || reduced()) { playSfx('snip'); return done(); }
@@ -336,6 +337,7 @@ export function ZenScreen({ onBack, onShop }) {
     if (gift.coins) { flyCoins(from, 2, gift.coins); setGain(tp('zen.flyCoins', gift.coins, 'La mariposa deja {n} moneda.', 'La mariposa deja {n} monedas.')); }
     else { apply({ ...z, seeds: { ...z.seeds, [gift.seed]: (z.seeds[gift.seed] || 0) + 1 } }); setGain(t('zen.flySeed', 'La mariposa deja una semilla de {kind}.', { kind: ZEN_NAMES[gift.seed].toLowerCase() })); playSfx('flower'); }
     if (from && !reduced()) fxRef.current.sparkle(from.left - yardRef.current.getBoundingClientRect().left + from.width / 2, from.top - yardRef.current.getBoundingClientRect().top + from.height / 2, '#ffe2a8', 10);
+    award('butterfly');
     flyAway();
   };
 
@@ -397,6 +399,7 @@ export function ZenScreen({ onBack, onShop }) {
     feedRef.current = { pellets: [...(feedRef.current?.pellets.filter((p) => !p.eaten) || []), ...pellets] };
     playSfx('splash');
     say(t('zen.koiFeed', 'Los koi vienen a comer.'));
+    award('koi');
   };
 
   // Ampliar: el primer toque avisa el precio, el segundo paga y suma el anillo.
@@ -410,6 +413,7 @@ export function ZenScreen({ onBack, onShop }) {
     apply(zenExpand(z));
     playSfx('coin');
     award('zen_ring');
+    if (z.size + 1 >= ZEN_MAX) award('zen_max');
     say(t('zen.expanded', 'El cantero crece a {size}: la tierra nueva pide cava.', { size: `${z.size + 1}×${z.size + 1}` }));
   };
 
@@ -482,6 +486,7 @@ export function ZenScreen({ onBack, onShop }) {
     setCoins(loadShop().coins);
     apply(zenLake(z));
     playSfx('splash');
+    if (n + 1 >= LAKE_MAX) award('pond_max');
     say(t('zen.pondGrown', 'El estanque crece a {size}.', { size: `${n + 1}×${n + 1}` }));
   };
   const owned = Object.entries(GARDEN_ITEMS).filter(([id, it]) => it.stack && z.items[id] > 0);

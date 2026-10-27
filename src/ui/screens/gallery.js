@@ -9,7 +9,7 @@ import { pieceSVG } from '../../view/piece-art.js';
 import { PIECE_TYPES, PIECE_NAMES, PIECE_RULES } from '../../data/pieces.js';
 import { BOSSES, BOSS_IDS } from '../../data/bosses.js';
 import { MUTATIONS } from '../../data/mutations.js';
-import { ACHIEVEMENTS, achievementGroups, loadAchievements, loadSeen, loadMutSeen } from '../../game/achievements.js';
+import { ACHIEVEMENTS, achievementGroups, loadAchievements, loadSeen, loadMutSeen, shown } from '../../game/achievements.js';
 import { THEMES } from '../../data/themes.js';
 import { loadBosses, loadSettings } from '../../game/run.js';
 import { themeOwned } from '../../game/shop.js';
@@ -100,7 +100,7 @@ export function GalleryScreen({ onBack, onAchievements }) {
         ${achievementGroups(got).map(({ name, items, n }) => html`
           <h3 class="gal-sub">${t('achGroup.' + name, name)} <small>${n}/${items.length}</small></h3>
           <div class="gal-row">
-            ${items.map((a) => html`<button class=${'gal-item' + (got.includes(a.id) ? '' : ' locked')} title=${a.desc} onClick=${() => onAchievements?.(a.id)}>
+            ${items.map((x) => shown(x, got)).map((a) => html`<button class=${'gal-item' + (got.includes(a.id) ? '' : ' locked')} title=${a.desc} onClick=${() => onAchievements?.(a.id)}>
               <div class="gal-art"><${Icon} name=${got.includes(a.id) ? a.icon : 'lock'} size=${got.includes(a.id) ? 40 : 26} /></div>
               <span class="gal-cap">${a.name}</span>
             </button>`)}

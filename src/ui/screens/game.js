@@ -247,7 +247,10 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         if (node.modifier === 'coven') award('coven_win');
         if (node.modifier === 'elite') award('elite_slain');
         if (node.isMiniBoss) award('mini_boss_slain');
+        if (Math.floor(match.turn / seats.length) <= 10) award('quick_win');
+        if ([...d.feats.mine].filter((p) => match.pieces.includes(p)).length <= 3) award('last_stand');
       }
+      if (!r.victory && !r.tie && !scenario && !node.versus && Math.floor(match.turn / seats.length) <= 5) award('early_fall');
       await d.moments.whenIdle(); // the closing callout (fallen king) plays before the end screen
       if (r.victory) await d.view.victory(human);
       else if (!r.tie) await d.view.defeat(human);
@@ -268,6 +271,13 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       else if (res.victims.length) addLog(tag + t('log.captures', '{a} captura {list}', { a: nm, list: res.victims.map((v) => (v.piece.boss ? v.piece.name : pieceName(v.piece).toLowerCase())).join(', ') }));
       else if (res.castle) addLog(tag + t('log.castle', 'Enroque'));
       else addLog(tag + t('log.moves', '{a} mueve', { a: nm }));
+      if (match.player.kind === 'human' && !scenario) {
+        if (res.castle) award('castle');
+        if (res.enPassant) award('en_passant');
+        if (piece.type === 'pawn' && res.victims.some((v) => v.killed && v.piece.type === 'king')) award('humble_mate');
+        if (piece.type === 'pawn' && res.victims.some((v) => v.killed && v.piece.boss)) award('david');
+        if (piece.type === 'king' && !piece.boss && res.victims.some((v) => v.killed && v.piece.type === 'queen')) award('king_hunt');
+      }
       if (res.zombie) addLog(tag + t('log.zombie', '{a} se levanta como zombi', { a: pieceName(res.zombie) }));
       if (res.infected?.length) addLog(tag + t('log.infected', 'Contagio: {list} cambian de bando', { list: res.infected.map((p) => pieceName(p).toLowerCase()).join(', ') }));
       if (res.promoted) {

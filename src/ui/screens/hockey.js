@@ -7,6 +7,7 @@ import { pieceSVG } from '../../view/piece-art.js';
 import { W, H, COLS, ROWS, PUCK_MAX, PLAYER_MAX, HOLD_T, DIFFS, newHockey, step, aim } from '../../game/hockey.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t } from '../../i18n/index.js';
+import { award } from '../../game/achievements.js';
 
 // Flechas o WASD empujan tu torre; el puntero (dedo o ratón) la lleva directa.
 const KEYS = { arrowleft: [-1, 0], a: [-1, 0], arrowright: [1, 0], d: [1, 0], arrowup: [0, -1], w: [0, -1], arrowdown: [0, 1], s: [0, 1] };
@@ -135,6 +136,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = t('common.continue
       juice();
       if (s.over) {
         setOver(s.over);
+        if (s.over === 'win' && !duo && !s.score.bot) award('hockey_shutout');
         if (s.over === 'win' && !still) fx.confetti([color.me, color.accent, color.brass, css('--side-wild')]);
         if (s.over === 'lose') table.classList.add('lost');
         return;

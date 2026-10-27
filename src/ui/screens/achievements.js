@@ -3,7 +3,7 @@
 import { html, useRef, useEffect } from '../lib.js';
 import { Topbar, useEnter } from '../components.js';
 import { Icon } from '../icons.js';
-import { ACHIEVEMENTS, achievementGroups, loadAchievements } from '../../game/achievements.js';
+import { ACHIEVEMENTS, achievementGroups, loadAchievements, shown } from '../../game/achievements.js';
 import { t } from '../../i18n/index.js';
 
 const Bar = ({ n, of }) => html`<span class="ach-bar" role="progressbar" aria-valuemin="0" aria-valuemax=${of} aria-valuenow=${n}><i style=${{ width: (100 * n) / of + '%' }}></i></span>`;
@@ -22,7 +22,7 @@ export function AchievementsScreen({ onBack, onGallery, focus }) {
     </${Topbar}>
     <div class="mini-body ach-body">
       <section class="ach-total" data-enter>
-        <b>${total} de ${ACHIEVEMENTS.length}</b>
+        <b>${t('ach.total', '{n} de {total}', { n: total, total: ACHIEVEMENTS.length })}</b>
         <span>${t('ach.done', '{n}% completado', { n: Math.round((100 * total) / ACHIEVEMENTS.length) })}</span>
         <${Bar} n=${total} of=${ACHIEVEMENTS.length} />
       </section>
@@ -31,8 +31,8 @@ export function AchievementsScreen({ onBack, onGallery, focus }) {
           <h3><span>${t('achGroup.' + name, name)}</span><small>${n}/${items.length}</small></h3>
           <${Bar} n=${n} of=${items.length} />
           <div class="ach-grid">
-            ${items.map((a) => {
-              const on = got.includes(a.id);
+            ${items.map((x) => {
+              const on = got.includes(x.id), a = shown(x, got);
               return html`<div key=${a.id} data-ach=${a.id} class=${'ach-tile' + (on ? ' on' : '') + (a.id === focus ? ' focus' : '')}>
                 <span class="ach-badge"><${Icon} name=${on ? a.icon : 'lock'} size=${24} /></span>
                 <b>${a.name}</b>
