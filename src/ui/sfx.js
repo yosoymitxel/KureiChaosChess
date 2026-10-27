@@ -290,7 +290,7 @@ const SAMPLE_GAIN = {
   select: 0.35, tap: 0.4, step: 0.35, invalid: 0.4, leaf: 0.45, pop: 0.5, card: 0.55, coin: 0.55, snip: 0.6, dig: 0.6,
   move: 0.65, land: 0.7, water: 0.55, splash: 0.6, flower: 0.55, whoosh: 0.5, warp: 0.6, laser: 0.45, zombie: 0.6,
   capture: 0.85, hit: 0.8, crunch: 0.75, shatter: 0.85, boom: 0.85, stomp: 0.95, bigboom: 1,
-  promote: 0.7, mini_win: 0.6, mini_lose: 0.6, achievement: 0.7, win: 0.75, lose: 0.75, tick: 0.35, alarm: 0.6,
+  promote: 0.7, mini_win: 0.6, mini_lose: 0.6, achievement: 0.7, win: 0.75, lose: 0.75, tick: 0.35, alarm: 0.85,
 };
 const buffers = {};
 function loadSamples(c) {
