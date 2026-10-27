@@ -1,74 +1,83 @@
-# Kure'iChaosChess
+<h1 align="center">Kure'iChaosChess</h1>
 
-Ajedrez mutante en formato roguelike de mesa. Tablero procedural con agujeros, piezas
-extra (guardia, camello, cañón…), mutaciones que se acumulan durante la run y jefes que
-ocupan varias casillas.
+<p align="center"><b>Ajedrez que muta en cada piso.</b><br/>
+Sube la torre, gana piezas raras y derriba al coloso del final.</p>
 
-**Jugar:** https://yosoymitxel.github.io/Zug/ · [laboratorio de animaciones](https://yosoymitxel.github.io/Zug/lab.html)
+<p align="center"><a href="https://yosoymitxel.github.io/KureiChaosChess/"><b>▶ Jugar gratis en el navegador</b></a><br/>
+<sub>Móvil o PC · sin instalar · en español</sub></p>
 
-## Jugar en local
+![El menú: el título sobre una mesa donde el Titán espera frente a tus piezas](docs/img/menu-walnut.jpg)
 
-No hay paso de build. Sirve la carpeta con cualquier servidor estático:
+## De qué va
 
-```sh
-npx http-server -c-1 .
-# o
-python3 -m http.server
-```
+Una run es una torre de partidas de ajedrez. En cada piso, las reglas cambian un poco: el tablero
+tiene agujeros, el suelo se hiela, una niebla tapa medio campo o empiezan a caer meteoritos. Ganas
+capturando al rey enemigo, cobras tu recompensa y eliges por dónde seguir subiendo.
 
-- `index.html`: el juego.
-- `lab.html`: laboratorio de animaciones (escenas aisladas: golpe al jefe, aplastamiento,
-  salto, coronación, derrumbe, victoria).
+Lo que ganas se queda contigo hasta el final de la run: piezas nuevas, mutaciones que cambian
+cómo se mueven las tuyas y cartas tácticas para jugar una por turno. Arriba esperan los jefes:
+colosos de varias casillas que aplastan lo que pisan y aguantan varios golpes.
 
-Las dependencias (Preact, htm, anime.js, Motion) se cargan desde jsDelivr con un import map;
-hace falta conexión la primera vez.
+Si caes, vuelves a empezar con otra torre, otros tableros y otras reglas.
 
-## Documentación
+| | |
+|---|---|
+| ![Un piso con agujeros en el tablero y tres cartas en la mano](docs/img/partida.jpg) | ![El mismo piso con la mesa pixelada](docs/img/partida-pixel.jpg) |
 
-- [DESIGN.md](DESIGN.md): dirección visual, diales y la razón de cada decisión.
-- [PRODUCT.md](PRODUCT.md): qué es el juego, para quién y en qué escena se usa.
-- [Arquitectura](docs/ARCHITECTURE.md): carpetas, flujo de una jugada, jefes multi-casilla,
-  cómo funciona la coreografía.
-- [Investigación de herramientas](docs/RESEARCH.md): qué se usa de cada librería pedida y por qué.
-- `legacy/index.v1.4.html`: la versión monolítica anterior.
+## Qué te espera
 
-## Agregar contenido
+- **11 piezas.** Las del ajedrez de siempre y otras raras: la guardia, el camello, el cañón…
+- **Mutaciones y cartas.** Una pieza que salta, otra que aguanta un golpe, un peón que da paso doble…
+- **7 jefes.** Titán, Ariete, Hidra, el Devorador y más: ocupan 2×2 o 3×3, tienen vidas y te
+  devuelven los golpes hasta el último.
+- **15 reglas de piso** que se combinan: lago helado, portales, niebla densa, plaga zombi, contagio,
+  aquelarre de brujas, lluvia de meteoritos, prisa, élite…
+- **28 minijuegos** que salen por el camino y dan premio. Muchos son homenajes a clásicos de NES:
 
-Cada familia vive en un solo registro y el resto del juego (mapa, ayudas, galería, tienda,
-logros) lo lee de ahí:
+| | |
+|---|---|
+| ![La bruja: un laberinto con monedas y brujas](docs/img/mini-witch.jpg) | ![Brote: piezas carmesí listas para contagiarse en cadena](docs/img/mini-outbreak.jpg) |
+| **La bruja.** Pac-Man con un rey: recoge las monedas y usa las pócimas para cazar a las brujas. | **Brote.** Como Dr. Mario: con pocas dosis, contagia todo el tablero en cadena. |
 
-| Qué | Dónde se declara | Qué más pide |
-|---|---|---|
-| Pieza | `src/data/pieces.js` (nombre, movimiento, valor, regla) | dibujo en `src/view/piece-art.js`, set píxel, movimiento en `src/game/rules.js` |
-| Mecánica | `src/data/modifiers.js` (con `weights` por tramo) | su efecto en `src/game/match.js` |
-| Minijuego | `src/data/modifiers.js` (`mini: true` y `weights`) | pantalla en `MINI_SCREENS` (`src/ui/app.js`) con `MiniTools` |
-| Mutación | `src/data/mutations.js` | si presta movimiento, en `EXTRA_MOVES` |
-| Jefe | `src/data/bosses.js` | dibujo `boss-<id>` y estar en `MINI_BOSSES` o `FINAL_BOSSES` |
-| Mesa | `src/data/themes.js` (con `price` si se compra) | nada: tienda, pausa, ajustes y galería la leen solas |
-| Logro | `src/game/achievements.js` | un `award('<id>')` donde ocurre |
+  También están damas a ciegas, ventisca, ruta del caballo, el suelo se acaba, matamarcianos y más.
 
-`node tools/check-registry.mjs` revisa que nada quede a medias (pieza sin dibujo, minijuego sin
-pantalla, icono inexistente, logro que nadie otorga…). Correrlo junto con `node tools/simulate.mjs`
-antes de subir.
+## Para jugar con alguien
 
-## Novedades v2
+**Partida local** en el mismo móvil o PC, uno contra uno. Echa una moneda a cara o cruz para ver
+quién empieza y elige:
 
-- Mesa en 3D con CSS: plano inclinado, casillas con grosor, piezas como *standees* de cartón,
-  tres cámaras (cenital, mesa, épica).
-- Jefes de 2×2 (Titán, Ariete, Hidra) con vidas: aplastan lo que pisan y los atacantes rebotan
-  hasta el último golpe.
-- Terreno inestable: las casillas se agrietan y caen al vacío.
-- Mapa como tablero de juego con un peón que avanza; recompensas como cartas que se reparten
-  y se giran.
-- Límite de turnos sin capturas: las partidas bloqueadas se deciden por recuento de piezas
-  (antes podían quedarse en bucle).
+- **Ajedrez** con el tablero, el tamaño, la forma y la regla de piso que quieras, a una o varias rondas.
+- **Minijuegos a dos:** hockey de mesa, conecta 4 y damas.
 
-## Novedades v2.2
+![Hockey de mesa a dos, en pixel art](docs/img/mini-hockey.jpg)
 
-- Cartas tácticas en la mano (una por turno): Coloso, Ascenso, Montura, Fortificar, Terremoto,
-  Refuerzo, Paso doble. Al apuntar, el tablero enseña cómo quedará la pieza.
-- Jefes de 3×3, 2×1 y 1×2, y el Devorador, que roba el movimiento de lo que aplasta.
-- Nodos de élite: la reina enemiga solo cae la última y sus torres solo tras su escolta.
-- Tableros nuevos (anillo, río con puentes, damero) y terreno: hielo y portales.
-- Salidas animadas: al mapa, reinicio y rendición tienen cada una su gesto.
-- Base líquida: al mover, la ficha se derrite sobre el recorrido y se vuelve a cuajar en destino.
+## Entre run y run
+
+- **Jardín zen.** Siembra, riega y corta flores; amplía el jardín y llena el estanque de kois.
+- **Tienda.** Compra mesas nuevas y cosas para el jardín con las monedas de las runs.
+- **23 mesas.** 17 son de pixel art y cambian el juego entero: piezas, letra, sonidos y música.
+  Hay mesa de gatos, piratas, zombis, marcianitos, Halloween, reino de los hongos…
+- **Galería y 33 logros** para ver todo lo que has descubierto.
+
+<p align="center"><img src="docs/img/jardin.jpg" alt="El jardín zen con su estanque de kois" width="720" /></p>
+
+## Cómo se juega
+
+- **Objetivo:** captura el rey enemigo. Si la partida se estanca, gana quien tenga más piezas.
+- **Mover:** toca una pieza y luego su destino. Toca una pieza enemiga para ver su alcance en rojo.
+- **Cartas:** puedes jugar una por turno; al apuntar, el tablero te enseña cómo quedará.
+- **Teclado:** flechas para recorrer el tablero, Enter para elegir y Escape para pausar.
+- Valen el enroque y la captura al paso.
+- Cada minijuego tiene su botón **«Cómo se juega»** y tres dificultades.
+
+<p align="center"><img src="docs/img/movil.jpg" alt="Una partida en el móvil" width="280" /></p>
+
+## Créditos
+
+Diseño y desarrollo: [yosoymitxel](https://github.com/yosoymitxel).
+
+- Música: Open Lo-Fi (btahir) y Ninja Adventure (Pixel-boy), CC0.
+- Sonidos: Kenney, OpenGameArt y Ninja Adventure, CC0.
+- Letras: Bricolage Grotesque y Jersey 10 (SIL OFL).
+
+¿Quieres ver cómo está hecho o añadir algo? Mira la [guía de desarrollo](docs/DESARROLLO.md).

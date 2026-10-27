@@ -3,6 +3,7 @@
 // Shop, pause, settings and gallery all read this list, so a new table is one entry here.
 import { PIXEL_THEMES } from './pixel-themes.js';
 import { PIXEL_PACKS, PIXEL_BASE } from './pixel-packs.js';
+import { pixelSrc } from './pixel-src.js';
 
 export const THEMES = {
   walnut: {
@@ -73,7 +74,7 @@ function pixelImages(pack) {
   for (const [name, alts] of Object.entries(PX_IMAGES)) {
     const own = [name, ...alts].find((n) => has(pack, n));
     const [p, n] = own ? [pack, own] : [PIXEL_BASE, name];
-    out['px-' + name] = `url(../assets/pixel/${p}/${n}.png)`; // relativa a css/, donde se usa
+    out['px-' + name] = `url("${new URL(pixelSrc(p, n), document.baseURI).href}")`; // absoluta: la variable se usa desde css/
   }
   return out;
 }

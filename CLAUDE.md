@@ -22,6 +22,7 @@ Lanzamiento cercano: cambios acotados.
 - Servidor: `npx http-server -p 8123 -s -c-1 .`
 - Comprobar: `node tools/check-registry.mjs` · `node tools/art-check.mjs` · `node tools/sfx-check.mjs` ·
   `node tools/simulate.mjs` · `node tools/scenarios-selfcheck.mjs` · `node tools/blind-selfcheck.mjs` · `node tools/blizzard-selfcheck.mjs` · `node tools/outbreak-selfcheck.mjs` · `node tools/witch-selfcheck.mjs` · `node tools/barrier-check.mjs` · `node tools/hockey-selfcheck.mjs`
+- itch.io: `node tools/build-itch.mjs` → `dist/kurei-chaos-chess-itch.zip` (sin CDN; guía en `docs/ITCH.md`).
 - Importar: `tools/pixel-art.mjs` (temas), `tools/vector-art.mjs` (piezas SVG), `tools/pixel-icons.mjs`
   (iconos, tras `pxl build art/iconos/iconos.px.js`), `tools/zen-pixel.mjs`, `tools/sfx-import.mjs`.
 - Calidad: detector impeccable a 0 (`impeccable detect css src index.html lab.html`).

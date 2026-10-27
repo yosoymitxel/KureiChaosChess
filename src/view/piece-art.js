@@ -5,6 +5,7 @@
 // Los cuerpos se dibujan a mano en art/vector/ (un .svg por figura) y tools/vector-art.mjs los
 // trae a piece-bodies.js; acá se miden en el navegador, así un dibujo editado se reescala solo.
 import { PIXEL_PACKS, PIXEL_BASE } from '../data/pixel-packs.js';
+import { pixelSrc } from '../data/pixel-src.js';
 import { BODIES } from './piece-bodies.js';
 
 const F = 'var(--pc)', F2 = 'var(--pc-2)', S = 'var(--ink)';
@@ -93,7 +94,7 @@ function pixelArt(type, want = document.documentElement.dataset.pack) {
   if (!size) return null;
   const w = size[0] * PX, h = size[1] * PX;
   const L = { left: CX - w / 2, right: CX + w / 2, top: PX_BOTTOM - h };
-  const img = (side) => `<image class="px-${side}" href="assets/pixel/${pack}/${type}_${side}.png" x="${L.left}" y="${L.top}" width="${w}" height="${h}"/>`;
+  const img = (side) => `<image class="px-${side}" href="${pixelSrc(pack, `${type}_${side}`)}" x="${L.left}" y="${L.top}" width="${w}" height="${h}"/>`;
   return { L, svg: img('l') + img('d') + img('w') };
 }
 
