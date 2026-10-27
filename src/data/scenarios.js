@@ -9,6 +9,7 @@ import { applyMutations, EXTRA_MOVES } from './mutations.js';
 import { MODIFIERS } from './modifiers.js';
 import { MATES } from './mates.js';
 import { SIZE as MATE_SIZE, board as mateBoard, defend, isCheckmate } from '../game/mates.js';
+import { t } from '../i18n/index.js';
 
 export const LEVELS = { facil: { name: 'Fácil' }, normal: { name: 'Normal' }, dificil: { name: 'Difícil' } };
 const N = 8;
@@ -480,7 +481,8 @@ export function buildScenario(id, level = 'normal', seed = Math.floor(Math.rando
   const lv = def.levels[level] || def.levels.normal;
   const game = def.setup(lv, mulberry32(seed));
   const rival = typeof game.rival === 'string' ? RIVALS[game.rival] : { id: 'mini', name: 'Bot', desc: '', blunder: 0, ...game.rival };
-  const seats = def.single ? [{ color: 'light', kind: 'human', name: 'Tú' }] : [{ color: 'light', kind: 'human', name: 'Tú' }, { color: 'dark', kind: 'bot', name: 'Bot carmesí' }];
+  const you = { color: 'light', kind: 'human', name: t('seat.you', 'Tú') };
+  const seats = def.single ? [you] : [you, { color: 'dark', kind: 'bot', name: t('seat.bot', 'Bot {side}', { side: t('side.darkLower', 'carmesí') }) }];
   // Nombre e icono salen del registro de mecánicas: un solo sitio para cada minijuego.
   return { ...def, name: MODIFIERS[id].name, icon: MODIFIERS[id].icon, ...game, rival, seats, level };
 }

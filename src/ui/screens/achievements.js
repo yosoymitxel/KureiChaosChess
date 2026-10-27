@@ -4,6 +4,7 @@ import { html, useRef, useEffect } from '../lib.js';
 import { Topbar, useEnter } from '../components.js';
 import { Icon } from '../icons.js';
 import { ACHIEVEMENTS, achievementGroups, loadAchievements } from '../../game/achievements.js';
+import { t } from '../../i18n/index.js';
 
 const Bar = ({ n, of }) => html`<span class="ach-bar" role="progressbar" aria-valuemin="0" aria-valuemax=${of} aria-valuenow=${n}><i style=${{ width: (100 * n) / of + '%' }}></i></span>`;
 
@@ -16,7 +17,7 @@ export function AchievementsScreen({ onBack, onGallery, focus }) {
   const total = ACHIEVEMENTS.filter((a) => got.includes(a.id)).length;
   useEffect(() => { ref.current?.querySelector(`[data-ach="${focus}"]`)?.scrollIntoView({ block: 'center' }); }, [focus]);
   return html`<div class="screen mini" ref=${ref}>
-    <${Topbar} title="Logros" sub="Hitos de tu progreso" onBack=${onBack}>
+    <${Topbar} title=${t('menu.achievements', 'Logros')} sub=${t('ach.sub', 'Hitos de tu progreso')} onBack=${onBack}>
       ${onGallery && html`<button class="btn ghost sm" onClick=${onGallery}><${Icon} name="book" size=${16} />Galería</button>`}
     </${Topbar}>
     <div class="mini-body ach-body">
@@ -27,7 +28,7 @@ export function AchievementsScreen({ onBack, onGallery, focus }) {
       </section>
       ${groups.map(({ name, items, n }) => {
         return html`<section class="ach-group" key=${name} data-enter>
-          <h3><span>${name}</span><small>${n}/${items.length}</small></h3>
+          <h3><span>${t('achGroup.' + name, name)}</span><small>${n}/${items.length}</small></h3>
           <${Bar} n=${n} of=${items.length} />
           <div class="ach-grid">
             ${items.map((a) => {

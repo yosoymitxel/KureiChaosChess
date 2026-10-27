@@ -23,6 +23,7 @@ import { PICKUPS, dropPickups } from '../../data/pickups.js';
 import { PICKUP_ART } from '../zen-art.js';
 import { isShopCard, addCoins } from '../../game/shop.js';
 import { addZenSeeds, pickSeed, ZEN_NAMES } from '../../game/zen.js';
+import { t } from '../../i18n/index.js';
 
 const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
 
@@ -476,7 +477,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       match.current = heads ? 0 : 1;
       addLog(`${heads ? 'Cara' : 'Cruz'}: empieza ${starter.name}`);
       playSfx('select');
-      return d.moments.coin({ heads, title: heads ? 'Cara' : 'Cruz', sub: starter.name === 'Tú' ? 'Empiezas tú' : `Empieza ${starter.name}` });
+      return d.moments.coin({ heads, title: heads ? t('coin.heads', 'Cara') : t('coin.tails', 'Cruz'), sub: starter.name === t('seat.you', 'Tú') ? t('coin.youStart', 'Empiezas tú') : t('setup.starts', 'Empieza {name}', { name: starter.name }) });
     };
     const beginPlacing = () => {
       if (d.hand.indexOf('organize') < 0 || !mine.size) { d.busy = false; return startTurn(); }
@@ -589,7 +590,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       .then(() => playDemos(boss))
       .then(() => tossCoin())
       .then(() => beginPlacing());
-    const onKey = (e) => e.key === 'Escape' && setPaused((v) => !v);
+    const onKey = (e) => e.key === 'Escape' && (e.preventDefault(), setPaused((v) => !v));
     addEventListener('keydown', onKey);
     return () => { d.dead = true; clearTimeout(d.timer); removeEventListener('keydown', onKey); d.view.destroy(); d.moments.destroy(); };
   }, []);

@@ -4,6 +4,7 @@ import { key, threatenedPieces, legalMoves, ctxOf, linkPortalPair, canHit, cells
 import { BOSSES } from '../data/bosses.js';
 import { applyMutations } from '../data/mutations.js';
 import { pickModifier, miniBossFloors, armyForFloor, ARMY_STEPS, isMiniModifier, RARE_TYPES, MINI_BOSSES, FINAL_BOSSES } from './difficulty.js';
+import { localize } from '../i18n/index.js';
 
 export function generateMap(seed, prefs) {
   const rng = mulberry32(seed);
@@ -221,9 +222,13 @@ export function makePiece(type, color, row, col, extra = {}) {
 
 // Las reglas de élite llegan de a una: la reina última desde el primer piso de élite,
 // las escoltas solo en la segunda mitad de la torre.
+export const ELITE_RULES = localize('eliteRules', {
+  last: { id: 'last', icon: 'flag', name: 'Reina última', desc: 'Su reina (o una torre) no cae hasta que sea la última pieza de su bando.' },
+  escort: { id: 'escort', icon: 'lock', name: 'Escolta', desc: 'Hasta dos torres o cañones no caen mientras viva la guardia atada a ellos con la cuerda.' },
+});
 export function eliteVariants(floor, floors) {
-  const v = [{ id: 'last', icon: 'flag', name: 'Reina última', desc: 'Su reina (o una torre) no cae hasta que sea la última pieza de su bando.' }];
-  if (floors > 1 && floor / (floors - 1) >= 0.5) v.push({ id: 'escort', icon: 'lock', name: 'Escolta', desc: 'Hasta dos torres o cañones no caen mientras viva la guardia atada a ellos con la cuerda.' });
+  const v = [ELITE_RULES.last];
+  if (floors > 1 && floor / (floors - 1) >= 0.5) v.push(ELITE_RULES.escort);
   return v;
 }
 

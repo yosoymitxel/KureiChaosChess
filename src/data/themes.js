@@ -4,8 +4,9 @@
 import { PIXEL_THEMES } from './pixel-themes.js';
 import { PIXEL_PACKS, PIXEL_BASE } from './pixel-packs.js';
 import { pixelSrc } from './pixel-src.js';
+import { localize } from '../i18n/index.js';
 
-export const THEMES = {
+export const THEMES = localize('themes', {
   walnut: {
     id: 'walnut', name: 'Nogal',
     swatch: ['oklch(0.27 0.03 55)', 'oklch(0.93 0.03 85)', 'oklch(0.62 0.19 35)', 'oklch(0.72 0.12 85)'],
@@ -63,7 +64,7 @@ export const THEMES = {
   // Las mesas píxel: una por carpeta de art/temas (tools/pixel-art.mjs las genera). El modo
   // "pixel" pasa a píxel todo el juego: piezas, losas, mesa, marcos y letra.
   ...PIXEL_THEMES,
-};
+});
 
 // Fondos y marcos del tema píxel como variables de CSS. Una variante que el tema no dibujó usa su
 // losa lisa; si tampoco la tiene, la del tema base.

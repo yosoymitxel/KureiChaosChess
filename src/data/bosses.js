@@ -2,7 +2,8 @@
 // A boss lands on every cell of its footprint and crushes every enemy there.
 // Attacks against it take 1 HP; the attacker bounces back until the last hit.
 // Rule of thumb: the bigger the footprint, the plainer the movement.
-export const BOSSES = {
+import { localize } from '../i18n/index.js';
+export const BOSSES = localize('bosses', {
   titan: {
     id: 'titan', name: 'Titán', size: [2, 2], hp: 3, moves: ['king'],
     desc: 'Ocupa 2×2. Avanza 1 casilla y aplasta todo lo que pisa. 3 vidas.',
@@ -31,5 +32,5 @@ export const BOSSES = {
     id: 'devourer', name: 'Devorador', size: [2, 2], hp: 3, moves: ['king'], absorb: true,
     desc: 'Ocupa 2×2. Empieza lento, pero aprende el movimiento de cada pieza que aplasta. 3 vidas.',
   },
-};
+});
 export const BOSS_IDS = Object.keys(BOSSES);

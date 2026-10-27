@@ -4,6 +4,7 @@
 import { mulberry32 } from '../core/rng.js';
 import { cellsOf, key, walkable, legalMoves, moveCells } from './rules.js';
 import { makePiece } from './generate.js';
+import { localize } from '../i18n/index.js';
 
 const behind = (p) => (p.color === 'light' ? 1 : -1);
 const occupiedBy = (m, r, c) => m.pieces.find((p) => cellsOf(p).some(([a, b]) => a === r && b === c));
@@ -11,7 +12,7 @@ const freeTile = (m, r, c) => walkable(m.board, r, c) && !occupiedBy(m, r, c);
 // A colossus grows backwards when there is room, otherwise forwards; undefined if neither tile is free.
 const growDir = (m, p) => [behind(p), -behind(p)].find((d) => freeTile(m, p.row + d, p.col));
 
-export const CARDS = {
+export const CARDS = localize('cards', {
   colossus: {
     id: 'colossus', aim: 'Elige una torre o guardia con una casilla libre detrás o delante.', name: 'Coloso', rarity: 'rare', icon: 'rook', target: 'piece',
     desc: 'Una torre o guardia crece a 2×1 (hacia atrás si cabe): se mueve como rey, aplasta lo que pisa y aguanta 3 golpes.',
@@ -67,7 +68,7 @@ export const CARDS = {
     desc: 'Se juega sola al empezar la próxima partida: intercambia de casilla de 2 a 8 parejas de tus piezas (más cuanto más grande el tablero).',
     apply: () => {},
   },
-};
+});
 export const CARD_IDS = Object.keys(CARDS);
 export const HAND_LIMIT = 5;
 export const STARTER_CARDS = ['ascend', 'fortify', 'haste'];

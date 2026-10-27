@@ -1,6 +1,7 @@
 // Logros: hitos armados con lo que el juego ya hace. Se otorgan en caliente y se guardan.
 import { HAND_LIMIT } from './cards.js';
 import { PIECE_TYPES } from '../data/pieces.js';
+import { localize } from '../i18n/index.js';
 
 const KEY = 'zugzwang.achievements.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
@@ -18,7 +19,7 @@ export const achievementGroups = (got) => ACHIEVEMENT_GROUPS
   })
   .filter((g) => g.items.length);
 
-export const ACHIEVEMENTS = [
+export const ACHIEVEMENTS = localize('achievements', [
   { id: 'first_win', group: 'Partida', name: 'Primera victoria', desc: 'Gana tu primera partida.', icon: 'check' },
   { id: 'crowned', group: 'Partida', name: 'Coronación', desc: 'Corona un peón durante una partida.', icon: 'crown' },
   { id: 'queen_win', group: 'Partida', name: 'Sin dama', desc: 'Gana una partida después de perder tu reina.', icon: 'shield' },
@@ -60,7 +61,7 @@ export const ACHIEVEMENTS = [
   { id: 'duo_mini', group: 'Minijuegos', name: 'Revancha', desc: 'Juega un minijuego a dos en partida local.', icon: 'hockey' },
   { id: 'titan_poke', group: 'Secretos', name: 'No despiertes al Titán', desc: 'Alguien en el menú no quiere que lo molesten.', icon: 'boss' },
   { id: 'rich', group: 'Tienda', name: 'Bolsillo lleno', desc: 'Ten 100 monedas a la vez.', icon: 'coin' },
-];
+]);
 
 // Contadores que cruzan runs (runs completas): los logros de largo plazo los leen.
 const STATS_KEY = 'zugzwang.stats.v1';

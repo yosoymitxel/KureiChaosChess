@@ -2,11 +2,12 @@
 // la tierra de nadie. Los recoge la primera pieza tuya que se pare encima; si llega antes una rival,
 // se lo lleva. Los de `hand` (las hojas) no los pisa nadie: se quitan con un toque, como en el jardín.
 // Agregar uno es agregar su entrada aquí y su dibujo en src/ui/zen-art.js (PICKUP_ART) o un icono con su mismo id; tools/check-registry.mjs lo comprueba.
-export const PICKUPS = {
+import { localize } from '../i18n/index.js';
+export const PICKUPS = localize('pickups', {
   coin: { id: 'coin', name: 'Moneda', weight: 5, coins: 2 },
   leaf: { id: 'leaf', name: 'Hoja de arce', weight: 4, coins: 1, hand: true },
   seed: { id: 'seed', name: 'Semilla', weight: 1, seed: 1 },
-};
+});
 export const PICKUPS_PER_BOARD = [1, 3];
 
 // Casillas vacías entre las dos zonas de despliegue, sin terreno especial.

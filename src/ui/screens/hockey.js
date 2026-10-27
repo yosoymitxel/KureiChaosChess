@@ -6,6 +6,7 @@ import { playSfx } from '../sfx.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { W, H, COLS, ROWS, PUCK_MAX, PLAYER_MAX, HOLD_T, DIFFS, newHockey, step, aim } from '../../game/hockey.js';
 import { MODIFIERS } from '../../data/modifiers.js';
+import { t } from '../../i18n/index.js';
 
 // Flechas o WASD empujan tu torre; el puntero (dedo o ratón) la lleva directa.
 const KEYS = { arrowleft: [-1, 0], a: [-1, 0], arrowright: [1, 0], d: [1, 0], arrowup: [0, -1], w: [0, -1], arrowdown: [0, 1], s: [0, 1] };
@@ -16,7 +17,7 @@ const css = (name) => getComputedStyle(document.documentElement).getPropertyValu
 // `duo` (partida local): { goals, names: [abajo, arriba] }.
 export function HockeyScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff, duo }) {
   const [s] = useState(() => newHockey(diff || settings.miniDiff?.hockey, Math.random, duo ? { goals: duo.goals, duo: true } : undefined));
-  const [meName, foeName] = duo?.names || ['Tú', 'Bot'];
+  const [meName, foeName] = duo?.names || [t('seat.you', 'Tú'), 'Bot'];
   const [score, setScore] = useState({ me: 0, bot: 0 });
   const [over, setOver] = useState(null);
   const tableRef = useRef(null), wrapRef = useRef(null), screenRef = useRef(null);

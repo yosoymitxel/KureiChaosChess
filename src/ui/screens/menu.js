@@ -6,6 +6,7 @@ import { makePiece } from '../../game/generate.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
 import { award } from '../../game/achievements.js';
 import { playSfx } from '../sfx.js';
+import { t } from '../../i18n/index.js';
 
 // Decorative diorama: a small board with a boss facing a few pieces, gently swaying.
 // Five more pieces, labelled above, turn into the extras: Jardín Zen, Tienda, Galería, Logros and Tutorial.
@@ -26,11 +27,11 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
     // Extras: five jade pieces wear the boss label and open a screen when tapped. Listed far to
     // near so the near one paints over the one behind; the host resolves the tap by data-pid.
     for (const [id, label, type, row, col] of [
-      ['x-zen', 'Jardín Zen', 'pawn', 3, 0],
-      ['x-tutorial', 'Tutorial', 'king', 4, 5],
-      ['x-logros', 'Logros', 'rook', 5, 2],
-      ['x-galeria', 'Galería', 'bishop', 2, 4],
-      ['x-tienda', 'Tienda', 'knight', 5, 4],
+      ['x-zen', t('menu.zen', 'Jardín Zen'), 'pawn', 3, 0],
+      ['x-tutorial', t('menu.tutorial', 'Tutorial'), 'king', 4, 5],
+      ['x-logros', t('menu.achievements', 'Logros'), 'rook', 5, 2],
+      ['x-galeria', t('menu.gallery', 'Galería'), 'bishop', 2, 4],
+      ['x-tienda', t('menu.shop', 'Tienda'), 'knight', 5, 4],
     ]) {
       if (!open[id]) continue;
       const p = makePiece(type, 'wild', row, col, { id });
@@ -70,14 +71,14 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
   }, []);
   // Secreto: tres toques seguidos al Titán lo despiertan.
   const poke = (el) => {
-    const t = titan.current, now = performance.now();
-    t.n = now - t.t < 1200 ? t.n + 1 : 1;
-    t.t = now;
+    const st = titan.current, now = performance.now();
+    st.n = now - st.t < 1200 ? st.n + 1 : 1;
+    st.t = now;
     el.classList.remove('poked');
     void el.offsetWidth;
     el.classList.add('poked');
-    playSfx(t.n >= 3 ? 'stomp' : 'hit');
-    if (t.n >= 3) { t.n = 0; award('titan_poke'); }
+    playSfx(st.n >= 3 ? 'stomp' : 'hit');
+    if (st.n >= 3) { st.n = 0; award('titan_poke'); }
   };
   const pick = (e) => {
     const pc = e.target.closest?.('[data-pid]');
@@ -86,7 +87,7 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
     if (fn) fn();
   };
   return html`<div class="diorama-wrap">
-    <div class="diorama" ref=${host} role="group" aria-label="Extras" onClick=${pick}></div>
+    <div class="diorama" ref=${host} role="group" aria-label=${t('menu.extras', 'Extras')} onClick=${pick}></div>
     <div class="x-tags" ref=${tags} aria-hidden="true" onClick=${pick}></div>
   </div>`;
 }
@@ -148,22 +149,22 @@ export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onS
       <div class="logo" data-enter>
         <h1 aria-label="Kure'i ChaosChess"><span class="logo-main" aria-hidden="true">Kure'<span class="logo-i" ref=${crown}>ı<${Icon} name="crown" size=${40} /></span></span>
           <span class="logo-sub" aria-hidden="true"><span class="logo-chaos">${[...'Chaos'].map((ch, i) => html`<i style=${{ '--i': i }}>${ch}</i>`)}</span>Chess</span></h1>
-        <p>Ajedrez que muta en cada piso. Sube la torre, gana piezas raras y derriba al coloso del final.</p>
+        <p>${t('menu.tagline', 'Ajedrez que muta en cada piso. Sube la torre, gana piezas raras y derriba al coloso del final.')}</p>
       </div>
       <nav class="menu-actions">
         ${askTutorial && html`<div class="menu-ask" role="alert">
-          <p>El tutorial es una run corta de cuatro pisos y reemplaza la run actual.</p>
-          <div class="menu-row"><button class="btn primary" onClick=${go(onTutorial)}>Empezar tutorial</button><button class="btn ghost" onClick=${() => setAskTutorial(false)}>Cancelar</button></div>
+          <p>${t('menu.tutorialAsk', 'El tutorial es una run corta de cuatro pisos y reemplaza la run actual.')}</p>
+          <div class="menu-row"><button class="btn primary" onClick=${go(onTutorial)}>${t('menu.tutorialStart', 'Empezar tutorial')}</button><button class="btn ghost" onClick=${() => setAskTutorial(false)}>${t('menu.cancel', 'Cancelar')}</button></div>
         </div>`}
-        ${!askTutorial && html`<button class="btn primary" data-enter onClick=${go(hasRun ? onContinue : onNew)}><${Icon} name=${hasRun ? 'map' : 'swords'} />${hasRun ? 'Continuar run' : 'Empezar run'}</button>`}
-        ${hasRun && !askTutorial && html`<${ConfirmButton} class="btn" enter onConfirm=${onNew} confirmLabel="Se pierde la run actual. ¿Seguro?"><${Icon} name="refresh" />Nueva run<//>`}
-        ${onMinis && html`<button class="btn" data-enter onClick=${onMinis}><${Icon} name="connect4" />Minijuegos</button>`}
-        ${!askTutorial && html`<button class="btn" data-enter onClick=${go(onVersus)}><${Icon} name="human" />Partida local</button>`}
+        ${!askTutorial && html`<button class="btn primary" data-enter onClick=${go(hasRun ? onContinue : onNew)}><${Icon} name=${hasRun ? 'map' : 'swords'} />${hasRun ? t('menu.continue', 'Continuar run') : t('menu.start', 'Empezar run')}</button>`}
+        ${hasRun && !askTutorial && html`<${ConfirmButton} class="btn" enter onConfirm=${onNew} confirmLabel=${t('menu.newRunConfirm', 'Se pierde la run actual. ¿Seguro?')}><${Icon} name="refresh" />${t('menu.newRun', 'Nueva run')}<//>`}
+        ${onMinis && html`<button class="btn" data-enter onClick=${onMinis}><${Icon} name="connect4" />${t('menu.minis', 'Minijuegos')}</button>`}
+        ${!askTutorial && html`<button class="btn" data-enter onClick=${go(onVersus)}><${Icon} name="human" />${t('menu.versus', 'Partida local')}</button>`}
         <div class="menu-row" data-enter>
-          <button class="btn ghost" onClick=${onHowTo}><${Icon} name="book" />Reglas</button>
-          <button class="btn ghost" onClick=${onSettings}><${Icon} name="gear" />Ajustes</button>
-          ${canFullscreen && html`<button class="btn ghost icon-only" aria-pressed=${full} aria-label=${full ? 'Salir de pantalla completa' : 'Pantalla completa'}
-            title=${full ? 'Salir de pantalla completa' : 'Pantalla completa'} onClick=${toggleFull}><${Icon} name=${full ? 'shrink' : 'expand'} /></button>`}
+          <button class="btn ghost" onClick=${onHowTo}><${Icon} name="book" />${t('menu.rules', 'Reglas')}</button>
+          <button class="btn ghost" onClick=${onSettings}><${Icon} name="gear" />${t('menu.settings', 'Ajustes')}</button>
+          ${canFullscreen && html`<button class="btn ghost icon-only" aria-pressed=${full} aria-label=${full ? t('menu.exitFullscreen', 'Salir de pantalla completa') : t('menu.fullscreen', 'Pantalla completa')}
+            title=${full ? t('menu.exitFullscreen', 'Salir de pantalla completa') : t('menu.fullscreen', 'Pantalla completa')} onClick=${toggleFull}><${Icon} name=${full ? 'shrink' : 'expand'} /></button>`}
         </div>
       </nav>
     </div>

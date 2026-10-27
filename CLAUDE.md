@@ -21,7 +21,7 @@ Lanzamiento cercano: cambios acotados.
 ## Comandos
 - Servidor: `npx http-server -p 8123 -s -c-1 .`
 - Comprobar: `node tools/check-registry.mjs` · `node tools/art-check.mjs` · `node tools/sfx-check.mjs` ·
-  `node tools/simulate.mjs` · `node tools/scenarios-selfcheck.mjs` · `node tools/blind-selfcheck.mjs` · `node tools/blizzard-selfcheck.mjs` · `node tools/outbreak-selfcheck.mjs` · `node tools/witch-selfcheck.mjs` · `node tools/barrier-check.mjs` · `node tools/hockey-selfcheck.mjs`
+  `node tools/simulate.mjs` · `node tools/scenarios-selfcheck.mjs` · `node tools/blind-selfcheck.mjs` · `node tools/blizzard-selfcheck.mjs` · `node tools/outbreak-selfcheck.mjs` · `node tools/witch-selfcheck.mjs` · `node tools/barrier-check.mjs` · `node tools/hockey-selfcheck.mjs` · `node tools/i18n-check.mjs`
 - itch.io: `node tools/build-itch.mjs` → `dist/kurei-chaos-chess-itch.zip` (sin CDN; guía en `docs/ITCH.md`).
 - Importar: `tools/pixel-art.mjs` (temas), `tools/vector-art.mjs` (piezas SVG), `tools/pixel-icons.mjs`
   (iconos, tras `pxl build art/iconos/iconos.px.js`), `tools/zen-pixel.mjs`, `tools/sfx-import.mjs`.
@@ -35,6 +35,7 @@ Lanzamiento cercano: cambios acotados.
 - Capturas a densidad 1 salvo que haga falta detalle; `/compact` al cerrar cada pieza larga.
 - Editar con la herramienta Edit, no con scripts. No tocar archivos "Generado por …".
 - Todo vive centralizado en `src/data/` y según tema píxel o no; lo nuevo se registra ahí y pasa `check-registry`.
+- Idiomas: todo texto para el jugador pasa por `t()` o `localize()` (`src/i18n`, skill `idiomas`); el español va en el código.
 - Sonido: grabado en mesas normales, sintetizado en mesas píxel. Iconos y jardín: dos versiones, CSS elige.
 - Skills: antislop, ponytail (mínimo + autocomprobación), impeccable, taste; `gaming-references` antes de diseñar;
   `web-game-toolkit` para arte, iconos, audio y pruebas.

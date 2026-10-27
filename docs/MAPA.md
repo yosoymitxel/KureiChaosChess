@@ -4,92 +4,92 @@
 src/core/rng.js:2 +mulberry32
 src/core/rng.js:10 +pickFrom
 src/core/rng.js:11 +randomSeed
-## src/data/bosses.js (36L)
-src/data/bosses.js:5 +BOSSES
-src/data/bosses.js:35 +BOSS_IDS
-## src/data/garden.js (29L)
-src/data/garden.js:8 +SEEDS
-src/data/garden.js:15 +GARDEN_ITEMS
-src/data/garden.js:22 +DIG_COOLDOWN
-src/data/garden.js:23 +ROCK_CHANCE
-src/data/garden.js:24 +ROCK_HP
-src/data/garden.js:25 +LANTERN_BOOST
-src/data/garden.js:27 +LAKE_MAX
-src/data/garden.js:28 +lakeCost
+## src/data/bosses.js (37L)
+src/data/bosses.js:6 +BOSSES
+src/data/bosses.js:36 +BOSS_IDS
+## src/data/garden.js (30L)
+src/data/garden.js:9 +SEEDS
+src/data/garden.js:16 +GARDEN_ITEMS
+src/data/garden.js:23 +DIG_COOLDOWN
+src/data/garden.js:24 +ROCK_CHANCE
+src/data/garden.js:25 +ROCK_HP
+src/data/garden.js:26 +LANTERN_BOOST
+src/data/garden.js:28 +LAKE_MAX
+src/data/garden.js:29 +lakeCost
 ## src/data/mates.js (2L)
 src/data/mates.js:1 +MATES
 ## src/data/minigame-catalog.js (35L)
 src/data/minigame-catalog.js:25 SCREENS
 src/data/minigame-catalog.js:34 +MINIGAMES
-## src/data/modifiers.js (57L)
-src/data/modifiers.js:1 +MODIFIERS
-src/data/modifiers.js:53 +nodeModifier
-## src/data/mutations.js (52L)
-src/data/mutations.js:3 +MUTATIONS
-src/data/mutations.js:15 KEYS
-src/data/mutations.js:17 +countMutations
-src/data/mutations.js:19 +pickMutationChoices
-src/data/mutations.js:30 +EXTRA_MOVES
-src/data/mutations.js:36 +applyMutations
-## src/data/pickups.js (28L)
-src/data/pickups.js:5 +PICKUPS
-src/data/pickups.js:10 +PICKUPS_PER_BOARD
-src/data/pickups.js:13 +dropPickups
-## src/data/pieces.js (30L)
-src/data/pieces.js:5 +PIECES
-src/data/pieces.js:20 EXTRA_PATTERNS
-src/data/pieces.js:22 +PIECE_TYPES
-src/data/pieces.js:24 +MINOR_TYPES
-src/data/pieces.js:25 +PIECE_NAMES
-src/data/pieces.js:26 +PIECE_VALUE
-src/data/pieces.js:27 +PIECE_RULES
-src/data/pieces.js:29 +MOVE_NAMES
+## src/data/modifiers.js (58L)
+src/data/modifiers.js:2 +MODIFIERS
+src/data/modifiers.js:54 +nodeModifier
+## src/data/mutations.js (53L)
+src/data/mutations.js:4 +MUTATIONS
+src/data/mutations.js:16 KEYS
+src/data/mutations.js:18 +countMutations
+src/data/mutations.js:20 +pickMutationChoices
+src/data/mutations.js:31 +EXTRA_MOVES
+src/data/mutations.js:37 +applyMutations
+## src/data/pickups.js (29L)
+src/data/pickups.js:6 +PICKUPS
+src/data/pickups.js:11 +PICKUPS_PER_BOARD
+src/data/pickups.js:14 +dropPickups
+## src/data/pieces.js (31L)
+src/data/pieces.js:6 +PIECES
+src/data/pieces.js:21 EXTRA_PATTERNS
+src/data/pieces.js:23 +PIECE_TYPES
+src/data/pieces.js:25 +MINOR_TYPES
+src/data/pieces.js:26 +PIECE_NAMES
+src/data/pieces.js:27 +PIECE_VALUE
+src/data/pieces.js:28 +PIECE_RULES
+src/data/pieces.js:30 +MOVE_NAMES
 ## src/data/pixel-src.js (5L)
 src/data/pixel-src.js:4 +pixelSrc
-## src/data/scenarios.js (487L)
-src/data/scenarios.js:13 +LEVELS
-src/data/scenarios.js:14 N
-src/data/scenarios.js:15 board
-src/data/scenarios.js:16 rounds
-src/data/scenarios.js:17 side
-src/data/scenarios.js:18 shuffle
-src/data/scenarios.js:19 taken
-src/data/scenarios.js:21 spots
-src/data/scenarios.js:27 rubble
-src/data/scenarios.js:34 +SCENARIOS
-src/data/scenarios.js:200 crossing
-src/data/scenarios.js:369 routeLen
-src/data/scenarios.js:389 passable
-src/data/scenarios.js:398 knightRoute
-src/data/scenarios.js:423 freeTiles
-src/data/scenarios.js:478 +buildScenario
+## src/data/scenarios.js (489L)
+src/data/scenarios.js:14 +LEVELS
+src/data/scenarios.js:15 N
+src/data/scenarios.js:16 board
+src/data/scenarios.js:17 rounds
+src/data/scenarios.js:18 side
+src/data/scenarios.js:19 shuffle
+src/data/scenarios.js:20 taken
+src/data/scenarios.js:22 spots
+src/data/scenarios.js:28 rubble
+src/data/scenarios.js:35 +SCENARIOS
+src/data/scenarios.js:201 crossing
+src/data/scenarios.js:370 routeLen
+src/data/scenarios.js:390 passable
+src/data/scenarios.js:399 knightRoute
+src/data/scenarios.js:424 freeTiles
+src/data/scenarios.js:479 +buildScenario
 ## src/data/sfx-samples.js (109L)
 src/data/sfx-samples.js:3 +SFX_SAMPLES
-## src/data/themes.js (95L)
-src/data/themes.js:8 +THEMES
-src/data/themes.js:70 PX_IMAGES
-src/data/themes.js:71 pixelImages
-src/data/themes.js:82 applied
-src/data/themes.js:83 +applyTheme
-## src/game/achievements.js (103L)
-src/game/achievements.js:5 KEY
-src/game/achievements.js:6 read
-src/game/achievements.js:7 write
-src/game/achievements.js:10 +ACHIEVEMENT_GROUPS
-src/game/achievements.js:14 +achievementGroups
-src/game/achievements.js:21 +ACHIEVEMENTS
-src/game/achievements.js:66 STATS_KEY
-src/game/achievements.js:67 +loadStats
-src/game/achievements.js:68 +bump
-src/game/achievements.js:70 +loadAchievements
-src/game/achievements.js:71 +saveAchievements
-src/game/achievements.js:75 +award
-src/game/achievements.js:87 SEEN_KEY
-src/game/achievements.js:88 +loadSeen
-src/game/achievements.js:89 +seePieces
-src/game/achievements.js:97 MUT_KEY
-src/game/achievements.js:98 +loadMutSeen
-src/game/achievements.js:99 +seeMutations
+## src/data/themes.js (96L)
+src/data/themes.js:9 +THEMES
+src/data/themes.js:71 PX_IMAGES
+src/data/themes.js:72 pixelImages
+src/data/themes.js:83 applied
+src/data/themes.js:84 +applyTheme
+## src/game/achievements.js (104L)
+src/game/achievements.js:6 KEY
+src/game/achievements.js:7 read
+src/game/achievements.js:8 write
+src/game/achievements.js:11 +ACHIEVEMENT_GROUPS
+src/game/achievements.js:15 +achievementGroups
+src/game/achievements.js:22 +ACHIEVEMENTS
+src/game/achievements.js:67 STATS_KEY
+src/game/achievements.js:68 +loadStats
+src/game/achievements.js:69 +bump
+src/game/achievements.js:71 +loadAchievements
+src/game/achievements.js:72 +saveAchievements
+src/game/achievements.js:76 +award
+src/game/achievements.js:88 SEEN_KEY
+src/game/achievements.js:89 +loadSeen
+src/game/achievements.js:90 +seePieces
+src/game/achievements.js:98 MUT_KEY
+src/game/achievements.js:99 +loadMutSeen
+src/game/achievements.js:100 +seeMutations
 ## src/game/barrier.js (109L)
 src/game/barrier.js:2 +N
 src/game/barrier.js:4 +DIFFS
@@ -155,19 +155,19 @@ src/game/bowling.js:33 +newBowling
 src/game/bowling.js:41 +canLaunch
 src/game/bowling.js:43 +launch
 src/game/bowling.js:49 +tick
-## src/game/cards.js (124L)
-src/game/cards.js:8 behind
-src/game/cards.js:9 occupiedBy
-src/game/cards.js:10 freeTile
-src/game/cards.js:12 growDir
-src/game/cards.js:14 +CARDS
-src/game/cards.js:71 +CARD_IDS
-src/game/cards.js:72 +HAND_LIMIT
-src/game/cards.js:73 +STARTER_CARDS
-src/game/cards.js:75 +pickCardChoices
-src/game/cards.js:84 +cardTargets
-src/game/cards.js:96 +previewMoves
-src/game/cards.js:108 +playCard
+## src/game/cards.js (125L)
+src/game/cards.js:9 behind
+src/game/cards.js:10 occupiedBy
+src/game/cards.js:11 freeTile
+src/game/cards.js:13 growDir
+src/game/cards.js:15 +CARDS
+src/game/cards.js:72 +CARD_IDS
+src/game/cards.js:73 +HAND_LIMIT
+src/game/cards.js:74 +STARTER_CARDS
+src/game/cards.js:76 +pickCardChoices
+src/game/cards.js:85 +cardTargets
+src/game/cards.js:97 +previewMoves
+src/game/cards.js:109 +playCard
 ## src/game/checkers.js (101L)
 src/game/checkers.js:4 +DIFFS
 src/game/checkers.js:9 DIAG
@@ -198,29 +198,29 @@ src/game/connect4.js:55 weight
 src/game/connect4.js:57 evaluate
 src/game/connect4.js:70 search
 src/game/connect4.js:91 +botColumn
-## src/game/difficulty.js (123L)
-src/game/difficulty.js:8 +floorTier
-src/game/difficulty.js:12 BAND
-src/game/difficulty.js:13 +bandOf
-src/game/difficulty.js:19 +RIVALS
-src/game/difficulty.js:33 +RIVAL_STEPS
-src/game/difficulty.js:34 TIER_STEP
-src/game/difficulty.js:38 +DIFFICULTIES
-src/game/difficulty.js:46 +rivalForFloor
-src/game/difficulty.js:57 TUNING
-src/game/difficulty.js:61 weightsOf
-src/game/difficulty.js:62 +MOD_WEIGHTS
-src/game/difficulty.js:63 +MINI_WEIGHTS
-src/game/difficulty.js:64 +isMiniModifier
-src/game/difficulty.js:66 draw
-src/game/difficulty.js:77 +FAV_WEIGHT
-src/game/difficulty.js:78 +pickModifier
-src/game/difficulty.js:93 +miniBossFloors
-src/game/difficulty.js:110 +MINI_BOSSES
-src/game/difficulty.js:111 +FINAL_BOSSES
-src/game/difficulty.js:116 +RARE_TYPES
-src/game/difficulty.js:117 +ARMY_STEPS
-src/game/difficulty.js:122 +armyForFloor
+## src/game/difficulty.js (124L)
+src/game/difficulty.js:9 +floorTier
+src/game/difficulty.js:13 BAND
+src/game/difficulty.js:14 +bandOf
+src/game/difficulty.js:20 +RIVALS
+src/game/difficulty.js:34 +RIVAL_STEPS
+src/game/difficulty.js:35 TIER_STEP
+src/game/difficulty.js:39 +DIFFICULTIES
+src/game/difficulty.js:47 +rivalForFloor
+src/game/difficulty.js:58 TUNING
+src/game/difficulty.js:62 weightsOf
+src/game/difficulty.js:63 +MOD_WEIGHTS
+src/game/difficulty.js:64 +MINI_WEIGHTS
+src/game/difficulty.js:65 +isMiniModifier
+src/game/difficulty.js:67 draw
+src/game/difficulty.js:78 +FAV_WEIGHT
+src/game/difficulty.js:79 +pickModifier
+src/game/difficulty.js:94 +miniBossFloors
+src/game/difficulty.js:111 +MINI_BOSSES
+src/game/difficulty.js:112 +FINAL_BOSSES
+src/game/difficulty.js:117 +RARE_TYPES
+src/game/difficulty.js:118 +ARMY_STEPS
+src/game/difficulty.js:123 +armyForFloor
 ## src/game/duel.js (97L)
 src/game/duel.js:5 +BEATS
 src/game/duel.js:6 +TYPE_NAME
@@ -243,32 +243,33 @@ src/game/fusion.js:20 at
 src/game/fusion.js:22 spawn
 src/game/fusion.js:34 +slide
 src/game/fusion.js:65 canMove
-## src/game/generate.js (436L)
-src/game/generate.js:8 +generateMap
-src/game/generate.js:78 LESSONS
-src/game/generate.js:84 +tutorialMap
-src/game/generate.js:93 SHAPES
-src/game/generate.js:96 +generateBoard
-src/game/generate.js:150 +addTerrain
-src/game/generate.js:171 BACK_RANK
-src/game/generate.js:178 SECOND_RANK
-src/game/generate.js:185 pawnRank
-src/game/generate.js:186 centered
-src/game/generate.js:190 FORMATIONS
-src/game/generate.js:197 FORMATION_POOL
-src/game/generate.js:201 DEPLOYS
-src/game/generate.js:207 DEPLOY_POOL
-src/game/generate.js:208 spread
-src/game/generate.js:215 nextId
-src/game/generate.js:216 +makePiece
-src/game/generate.js:224 +eliteVariants
-src/game/generate.js:230 protectElites
-src/game/generate.js:245 ensureRare
-src/game/generate.js:256 strikesSoon
-src/game/generate.js:261 quickThreats
-src/game/generate.js:271 +placePieces
-src/game/generate.js:282 placeOnce
-src/game/generate.js:400 +placeBoss
+## src/game/generate.js (441L)
+src/game/generate.js:9 +generateMap
+src/game/generate.js:79 LESSONS
+src/game/generate.js:85 +tutorialMap
+src/game/generate.js:94 SHAPES
+src/game/generate.js:97 +generateBoard
+src/game/generate.js:151 +addTerrain
+src/game/generate.js:172 BACK_RANK
+src/game/generate.js:179 SECOND_RANK
+src/game/generate.js:186 pawnRank
+src/game/generate.js:187 centered
+src/game/generate.js:191 FORMATIONS
+src/game/generate.js:198 FORMATION_POOL
+src/game/generate.js:202 DEPLOYS
+src/game/generate.js:208 DEPLOY_POOL
+src/game/generate.js:209 spread
+src/game/generate.js:216 nextId
+src/game/generate.js:217 +makePiece
+src/game/generate.js:225 +ELITE_RULES
+src/game/generate.js:229 +eliteVariants
+src/game/generate.js:235 protectElites
+src/game/generate.js:250 ensureRare
+src/game/generate.js:261 strikesSoon
+src/game/generate.js:266 quickThreats
+src/game/generate.js:276 +placePieces
+src/game/generate.js:287 placeOnce
+src/game/generate.js:405 +placeBoss
 ## src/game/hockey.js (221L)
 src/game/hockey.js:3 +CELL
 src/game/hockey.js:4 +W
@@ -496,6 +497,14 @@ src/game/zen.js:223 +BUTTERFLY_MS
 src/game/zen.js:224 +butterflyGift
 src/game/zen.js:229 +addZenSeeds
 src/game/zen.js:236 +pickSeed
+## src/i18n/en.js (339L)
+## src/i18n/index.js (31L)
+src/i18n/index.js:5 +LANGS
+src/i18n/index.js:7 saved
+src/i18n/index.js:10 +LANG
+src/i18n/index.js:11 dict
+src/i18n/index.js:15 +t
+src/i18n/index.js:21 +localize
 ## src/lab-catalog.js (71L)
 src/lab-catalog.js:2 FALLBACK_THEMES
 src/lab-catalog.js:10 THEMES
@@ -517,7 +526,7 @@ src/lab.js:94 moments
 src/lab.js:95 play
 src/lab.js:100 scenes
 src/lab.js:106 cams
-## src/main.js (5L)
+## src/main.js (7L)
 ## src/ui/app.js (354L)
 src/ui/app.js:30 REST_CARDS
 src/ui/app.js:35 BAG_CARDS
@@ -527,22 +536,23 @@ src/ui/app.js:45 ONE_SHOT
 src/ui/app.js:47 +App
 src/ui/app.js:310 MutationReveal
 src/ui/app.js:326 AchievementToast
-## src/ui/components.js (221L)
-src/ui/components.js:11 +ThemeLook
-src/ui/components.js:19 +Topbar
-src/ui/components.js:32 +MiniEnd
-src/ui/components.js:44 +MiniDiff
-src/ui/components.js:60 +MiniTools
-src/ui/components.js:110 +ConfirmButton
-src/ui/components.js:121 +BossCard
-src/ui/components.js:134 +useEnter
-src/ui/components.js:142 Card
-src/ui/components.js:159 KIND_LABEL
-src/ui/components.js:160 +RARITY_LABEL
-src/ui/components.js:164 +CardFace
-src/ui/components.js:178 +CardPick
-src/ui/components.js:204 +TurnBanner
-src/ui/components.js:215 +Toggle
+## src/ui/components.js (225L)
+src/ui/components.js:12 +ThemeLook
+src/ui/components.js:20 +Topbar
+src/ui/components.js:33 +MiniEnd
+src/ui/components.js:43 diffName
+src/ui/components.js:48 +MiniDiff
+src/ui/components.js:64 +MiniTools
+src/ui/components.js:114 +ConfirmButton
+src/ui/components.js:125 +BossCard
+src/ui/components.js:138 +useEnter
+src/ui/components.js:146 Card
+src/ui/components.js:163 KIND_LABEL
+src/ui/components.js:164 +RARITY_LABEL
+src/ui/components.js:168 +CardFace
+src/ui/components.js:182 +CardPick
+src/ui/components.js:208 +TurnBanner
+src/ui/components.js:219 +Toggle
 ## src/ui/demos.js (30L)
 src/ui/demos.js:9 +pieceDemo
 src/ui/demos.js:14 +mutationDemo
@@ -553,6 +563,20 @@ src/ui/fullscreen.js:5 +canFullscreen
 src/ui/fullscreen.js:6 isFull
 src/ui/fullscreen.js:8 +setFullscreen
 src/ui/fullscreen.js:14 +useFullscreen
+## src/ui/gamepad.js (82L)
+src/ui/gamepad.js:5 BUTTONS
+src/ui/gamepad.js:6 DIRS
+src/ui/gamepad.js:7 FIRST
+src/ui/gamepad.js:8 FOCUSABLE
+src/ui/gamepad.js:10 visible
+src/ui/gamepad.js:15 scope
+src/ui/gamepad.js:17 focus
+src/ui/gamepad.js:23 moveFocus
+src/ui/gamepad.js:46 press
+src/ui/gamepad.js:56 held
+src/ui/gamepad.js:57 poll
+src/ui/gamepad.js:76 running
+src/ui/gamepad.js:77 +startGamepad
 ## src/ui/hop.js (79L)
 src/ui/hop.js:8 OUT
 src/ui/hop.js:9 +reduced
@@ -589,9 +613,9 @@ src/ui/moments.js:34 TOSS_CROSS
 src/ui/moments.js:35 tossFace
 src/ui/moments.js:39 color
 src/ui/moments.js:41 +Moments
-## src/ui/screens/achievements.js (47L)
-src/ui/screens/achievements.js:8 Bar
-src/ui/screens/achievements.js:11 +AchievementsScreen
+## src/ui/screens/achievements.js (48L)
+src/ui/screens/achievements.js:9 Bar
+src/ui/screens/achievements.js:12 +AchievementsScreen
 ## src/ui/screens/barrier.js (131L)
 src/ui/screens/barrier.js:10 KEYS
 src/ui/screens/barrier.js:11 anchor
@@ -633,18 +657,18 @@ src/ui/screens/gallery.js:25 ThemeGroup
 src/ui/screens/gallery.js:40 RULE
 src/ui/screens/gallery.js:41 Locked
 src/ui/screens/gallery.js:43 +GalleryScreen
-## src/ui/screens/game.js (737L)
-src/ui/screens/game.js:27 SIDE_NAME
-src/ui/screens/game.js:30 pieceName
-src/ui/screens/game.js:32 TIPS
-src/ui/screens/game.js:41 cardEffect
-src/ui/screens/game.js:55 +GameScreen
-src/ui/screens/game.js:708 EndOverlay
-## src/ui/screens/hockey.js (207L)
-src/ui/screens/hockey.js:11 KEYS
-src/ui/screens/hockey.js:13 TOP_KEYS
-src/ui/screens/hockey.js:14 css
-src/ui/screens/hockey.js:17 +HockeyScreen
+## src/ui/screens/game.js (738L)
+src/ui/screens/game.js:28 SIDE_NAME
+src/ui/screens/game.js:31 pieceName
+src/ui/screens/game.js:33 TIPS
+src/ui/screens/game.js:42 cardEffect
+src/ui/screens/game.js:56 +GameScreen
+src/ui/screens/game.js:709 EndOverlay
+## src/ui/screens/hockey.js (208L)
+src/ui/screens/hockey.js:12 KEYS
+src/ui/screens/hockey.js:14 TOP_KEYS
+src/ui/screens/hockey.js:15 css
+src/ui/screens/hockey.js:18 +HockeyScreen
 ## src/ui/screens/izombie.js (56L)
 src/ui/screens/izombie.js:10 +IZombieScreen
 ## src/ui/screens/laststand.js (64L)
@@ -657,10 +681,10 @@ src/ui/screens/marcianos.js:11 css
 src/ui/screens/marcianos.js:14 KEYS
 src/ui/screens/marcianos.js:15 WAIT
 src/ui/screens/marcianos.js:17 +MarcianosScreen
-## src/ui/screens/menu.js (172L)
-src/ui/screens/menu.js:12 Diorama
-src/ui/screens/menu.js:97 fitCrown
-src/ui/screens/menu.js:129 +MenuScreen
+## src/ui/screens/menu.js (173L)
+src/ui/screens/menu.js:13 Diorama
+src/ui/screens/menu.js:98 fitCrown
+src/ui/screens/menu.js:130 +MenuScreen
 ## src/ui/screens/mini-grid.js (21L)
 src/ui/screens/mini-grid.js:5 +MiniGrid
 ## src/ui/screens/minis.js (20L)
@@ -668,11 +692,11 @@ src/ui/screens/minis.js:7 +MinisScreen
 ## src/ui/screens/outbreak.js (58L)
 src/ui/screens/outbreak.js:10 wait
 src/ui/screens/outbreak.js:12 +OutbreakScreen
-## src/ui/screens/overlays.js (70L)
-src/ui/screens/overlays.js:11 closeOnBackdrop
-src/ui/screens/overlays.js:12 useEscape
-src/ui/screens/overlays.js:18 +PauseOverlay
-src/ui/screens/overlays.js:48 +HowToOverlay
+## src/ui/screens/overlays.js (71L)
+src/ui/screens/overlays.js:12 closeOnBackdrop
+src/ui/screens/overlays.js:13 useEscape
+src/ui/screens/overlays.js:19 +PauseOverlay
+src/ui/screens/overlays.js:49 +HowToOverlay
 ## src/ui/screens/queens.js (43L)
 src/ui/screens/queens.js:8 +QueensScreen
 ## src/ui/screens/scenario.js (33L)
@@ -692,16 +716,16 @@ src/ui/screens/scenario.js:29 +CollapsingFloorScreen
 src/ui/screens/scenario.js:30 +KnightScreen
 src/ui/screens/scenario.js:31 +MatesScreen
 src/ui/screens/scenario.js:32 +ClockScreen
-## src/ui/screens/setup.js (186L)
-src/ui/screens/setup.js:13 SIDES
-src/ui/screens/setup.js:20 +RUN_MECHANICS
-src/ui/screens/setup.js:21 PrefsCard
-src/ui/screens/setup.js:42 VERSUS_ROUNDS
-src/ui/screens/setup.js:43 VERSUS_SIZES
-src/ui/screens/setup.js:44 VERSUS_SHAPES
-src/ui/screens/setup.js:45 VersusCard
-src/ui/screens/setup.js:82 +SetupScreen
-src/ui/screens/setup.js:136 +SettingsScreen
+## src/ui/screens/setup.js (196L)
+src/ui/screens/setup.js:14 SIDES
+src/ui/screens/setup.js:21 +RUN_MECHANICS
+src/ui/screens/setup.js:22 PrefsCard
+src/ui/screens/setup.js:43 VERSUS_ROUNDS
+src/ui/screens/setup.js:44 VERSUS_SIZES
+src/ui/screens/setup.js:45 VERSUS_SHAPES
+src/ui/screens/setup.js:46 VersusCard
+src/ui/screens/setup.js:83 +SetupScreen
+src/ui/screens/setup.js:137 +SettingsScreen
 ## src/ui/screens/shop.js (142L)
 src/ui/screens/shop.js:14 CARD_LIST
 src/ui/screens/shop.js:16 +ShopScreen
