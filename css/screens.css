@@ -582,7 +582,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .bm.zn-tray {
   --n: 4;
   /* Margen para el marco de madera y para lo que la perspectiva agranda abajo. */
-  --cell: max(18px, min(calc((100cqw - 76px) / var(--n)), calc((100cqh - 160px) / var(--n)), 120px));
+  --cell: max(18px, min(calc((100cqw - 76px) / var(--n)), calc((100cqh - 160px) / var(--n)), 110px));
   position: relative;
   transform: translateY(6%) rotateX(15deg);
   border: 0; border-radius: 4px; overflow: visible; /* las plantas de la fila de arriba asoman sobre el marco */
@@ -602,6 +602,8 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .zn-tray .bm-cell { position: relative; z-index: 1; background: transparent; }
 .bm-cell.zn-deco { cursor: default; }
 .zn-standart { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.3)); }
+/* En el cantero cada objeto deja aire a los lados: macetas vecinas no se tocan. */
+.zn-tray .zn-standart { left: 9%; width: 82%; }
 .zn-tall .zn-lantern { inset: auto 0 6% 0; height: 140%; }
 .bm-cell.zen-pond { grid-column: span 2; grid-row: span 2; width: auto; height: auto; cursor: pointer; display: grid; place-items: center; }
 /* Las plantas se mecen despacio, cada una a su ritmo (--d). */
@@ -882,6 +884,8 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 @media (min-width: 900px) {
   .zen-main { grid-template-columns: minmax(0, 1fr) clamp(290px, 26vw, 340px); column-gap: clamp(24px, 3.2vw, 48px); }
   .zen-scene .mini-stage { min-height: 0; max-height: calc(100dvh - 190px); }
+  /* El marco de madera y la perspectiva bajan del cantero: sin este margen pisaban el texto de debajo. */
+  .bm.zn-tray { --cell: max(18px, min(calc((100cqw - 76px) / var(--n)), calc((100cqh - 220px) / var(--n)), 110px)); }
   .zen-panel { align-self: center; }
 }
 /* Semillas en la tienda: la flor recortada sobre el verde del tablero. */
