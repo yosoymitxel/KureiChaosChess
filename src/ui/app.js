@@ -8,7 +8,7 @@ import { SetupScreen, SettingsScreen, RUN_MECHANICS } from './screens/setup.js';
 import { GameScreen } from './screens/game.js';
 import { HowToOverlay, ResumeOverlay } from './screens/overlays.js';
 import { setFullscreen } from './fullscreen.js';
-import { setSfxEnabled, setSfxVolume, startAmbient, setMusicScene, playSfx } from './sfx.js';
+import { setSfxEnabled, setSfxVolume, setMusicEnabled, startAmbient, setMusicScene, playSfx } from './sfx.js';
 import { MinisScreen } from './screens/minis.js';
 import { ZenScreen } from './screens/zen.js';
 import { ShopScreen } from './screens/shop.js';
@@ -77,15 +77,18 @@ export function App() {
   applyTheme(settings.theme);
   useEffect(() => { saveSettings(settings); }, [settings]);
   useEffect(() => { setSfxEnabled(settings.sound); setSfxVolume(settings.volume); }, [settings.sound, settings.volume]);
+  useEffect(() => { setMusicEnabled(settings.music !== false); }, [settings.music]);
   // El navegador no deja sonar sin un gesto: el fondo arranca con el primer toque. El listener
-  // se queda puesto: startAmbient() es idempotente y así vuelve al reactivar Sonidos.
+  // se queda puesto: startAmbient() es idempotente y así vuelve al reactivar la música.
   useEffect(() => {
     const wake = () => startAmbient();
     window.addEventListener('pointerdown', wake);
     return () => window.removeEventListener('pointerdown', wake);
   }, []);
-  // La música sigue a la pantalla y a la mesa (applyTheme ya puso data-art en este render).
-  useEffect(() => { setMusicScene(screen === 'zen'); }, [screen, settings.theme]);
+  // La música sigue a la pantalla, al jefe y a la mesa (applyTheme ya puso data-art en este render).
+  const boss = screen === 'game' && (node?.isBoss || node?.isMiniBoss);
+  const mood = screen === 'zen' ? 'zen' : screen === 'mini' || screen === 'free-mini' ? 'mini' : boss ? 'boss' : 'normal';
+  useEffect(() => { setMusicScene(mood); }, [mood, settings.theme]);
   // Una mesa guardada que no se compró vuelve a la de serie.
   useEffect(() => { if (!themeOwned(settings.theme)) setSettings((s) => ({ ...s, theme: DEFAULT_SETTINGS.theme })); }, []);
   // Hitos que dependen del avance de la run: se revisan al guardarla, en un solo lugar.

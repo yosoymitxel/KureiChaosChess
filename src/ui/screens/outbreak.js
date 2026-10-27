@@ -7,6 +7,7 @@ import { MiniBoard } from '../mini-board.js';
 import { key } from '../../game/rules.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t } from '../../i18n/index.js';
+import { playSfx } from '../sfx.js';
 import { award } from '../../game/achievements.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -23,7 +24,7 @@ export function OutbreakScreen({ sub, onBack, onEnd, endLabel = t('common.contin
     if (busy || s.over) return;
     const p = s.pieces.find((x) => x.row === r && x.col === c && !x.sick);
     if (!p) return setSel(null);
-    if (sel !== p) return setSel(p);
+    if (sel !== p) { playSfx('select'); return setSel(p); }
     setSel(null); setBusy(true);
     const waves = dose(s, p), seen = new Set(shown);
     for (const w of waves) {

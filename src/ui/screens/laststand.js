@@ -7,6 +7,7 @@ import { key } from '../../game/rules.js';
 import { ROWS, COLS, DIFFS, PRICES, newStand, place, canPlace, step, nextWave, building } from '../../game/laststand.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t, tp } from '../../i18n/index.js';
+import { playSfx } from '../sfx.js';
 
 export function LastStandScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newStand(diff || settings.miniDiff?.laststand));
@@ -24,6 +25,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = t('common.conti
   // Lanza la oleada; la última es la gran horda y se anuncia sobre el tablero, como el banderín de PvZ.
   const launch = () => {
     act(() => nextWave(s));
+    playSfx('alarm');
     if (!s.horde || !host.current) return;
     const b = document.createElement('div');
     b.className = 'mini-banner';
@@ -41,7 +43,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = t('common.conti
     <div class="mini-body side-body">
       <div class="mini-main">
         <${MiniBoard} board=${s.board} pieces=${zombies(s.pieces)} marks=${marks} strikes=${s.captures} disabled=${!building(s)} label=${t('laststand.board', 'Tablero de Última resistencia')} hostRef=${host}
-          onTap=${(r, c) => canPlace(s, pick, r, c) && act(() => place(s, pick, r, c))} />
+          onTap=${(r, c) => (canPlace(s, pick, r, c) ? act(() => place(s, pick, r, c)) : playSfx('invalid'))} />
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">
             ${building(s) && html`<span class="coin-chip" title=${t('laststand.budget', 'Presupuesto')}><${Icon} name="coin" size=${16} /><b>${s.budget}</b></span>`}

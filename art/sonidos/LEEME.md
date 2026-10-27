@@ -15,7 +15,7 @@ también en las mesas normales.
 
 Efectos: move, capture, select, invalid, step, land, hit, stomp, boom, bigboom, crunch, pop,
 whoosh, warp, laser, zombie, water, snip, dig, splash, leaf, promote, card, win, lose, coin, flower,
-tap, achievement, mini_win, mini_lose, shatter.
+tap, achievement, mini_win, mini_lose, shatter, alarm, tick.
 
 ## De dónde salen
 

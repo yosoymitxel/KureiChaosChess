@@ -179,6 +179,17 @@ const RECIPES = {
     { noise: true, dur: 0.1, gain: 0.22, cutoff: 6500, at: 0.02 },
     { osc: 'triangle', from: 900, to: 260, dur: 0.14, gain: 0.16 },
   ],
+  // Aviso de peligro (meteorito marcado, borde que va a caer, oleada que llega): campana grave.
+  alarm: [
+    { osc: 'square', from: 440, to: 430, dur: 0.12, gain: 0.12 },
+    { osc: 'square', from: 330, to: 322, dur: 0.18, gain: 0.12, at: 0.14 },
+    { osc: 'sine', from: 110, to: 104, dur: 0.4, gain: 0.2, at: 0.14 },
+  ],
+  // Reloj que se acaba: un tic seco por segundo en los últimos.
+  tick: [
+    { osc: 'square', from: 1800, to: 1700, dur: 0.018, gain: 0.08 },
+    { noise: true, dur: 0.012, gain: 0.08, cutoff: 5000, filter: 'highpass' },
+  ],
 };
 
 export const SFX_NAMES = Object.keys(RECIPES);
@@ -245,7 +256,6 @@ function playLayer(layer, t, tune = 1) {
 
 export function setSfxEnabled(on) {
   enabled = !!on;
-  if (!enabled) stopAmbient();
 }
 
 export function setSfxVolume(l) {
@@ -280,7 +290,7 @@ const SAMPLE_GAIN = {
   select: 0.35, tap: 0.4, step: 0.35, invalid: 0.4, leaf: 0.45, pop: 0.5, card: 0.55, coin: 0.55, snip: 0.6, dig: 0.6,
   move: 0.65, land: 0.7, water: 0.55, splash: 0.6, flower: 0.55, whoosh: 0.5, warp: 0.6, laser: 0.45, zombie: 0.6,
   capture: 0.85, hit: 0.8, crunch: 0.75, shatter: 0.85, boom: 0.85, stomp: 0.95, bigboom: 1,
-  promote: 0.7, mini_win: 0.6, mini_lose: 0.6, achievement: 0.7, win: 0.75, lose: 0.75,
+  promote: 0.7, mini_win: 0.6, mini_lose: 0.6, achievement: 0.7, win: 0.75, lose: 0.75, tick: 0.35, alarm: 0.6,
 };
 const buffers = {};
 function loadSamples(c) {
@@ -301,25 +311,37 @@ function playSample(buf, t, tune, gain) {
 }
 
 // Música de fondo: un bucle por ambiente (assets/musica/, créditos en CREDITOS.txt). Las mesas
-// normales llevan lo-fi, las píxel chiptune y el jardín zen el suyo. Se decodifica entera y suena con
-// AudioBufferSource.loop, que empalma sin el hueco que deja <audio loop>; cada pista se baja la
-// primera vez que hace falta. Al cambiar de ambiente, la que sale se apaga mientras entra la otra.
-export const MUSIC_TRACKS = ['normal', 'pixel', 'zen'];
+// normales llevan lo-fi y las píxel chiptune, cada una con su tema de jefe y de minijuego; el jardín
+// zen tiene el suyo. Se decodifica entera y suena con AudioBufferSource.loop, que empalma sin el
+// hueco que deja <audio loop>; cada pista se baja la primera vez que hace falta. Al cambiar de
+// ambiente, la que sale se apaga mientras entra la otra.
+export const MUSIC_MOODS = ['normal', 'boss', 'mini'];
+export const MUSIC_TRACKS = ['normal', 'boss', 'mini', 'pixel', 'pixel-boss', 'pixel-mini', 'zen'];
 const MUSIC_GAIN = 0.32;
 const tracks = {};
 let scene = 'normal';
+let musicOn = true;
 const track = (name) => (tracks[name] ||= fetch(`assets/musica/${name}.mp3`)
   .then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b))
   .catch(() => { delete tracks[name]; return null; }));
 
-// La pantalla avisa si es el jardín; la mesa (píxel o no) se lee del documento.
-export function setMusicScene(zen) {
-  scene = zen ? 'zen' : typeof document !== 'undefined' && document.documentElement.dataset.art === 'pixel' ? 'pixel' : 'normal';
+// La pantalla dice el ambiente ('normal', 'boss', 'mini' o 'zen'); la mesa (píxel o no) se lee del documento.
+export function setMusicScene(mood = 'normal') {
+  const pixel = typeof document !== 'undefined' && document.documentElement.dataset.art === 'pixel';
+  const m = mood === 'zen' || MUSIC_MOODS.includes(mood) ? mood : 'normal';
+  scene = m === 'zen' ? 'zen' : pixel ? (m === 'normal' ? 'pixel' : 'pixel-' + m) : m;
   if (ambient && ambient.name !== scene) { stopAmbient(); startAmbient(); }
 }
 
+// Música y efectos se apagan por separado; el volumen es común.
+export function setMusicEnabled(on) {
+  musicOn = !!on;
+  if (!musicOn) stopAmbient();
+  else if (ctx) startAmbient();
+}
+
 export function startAmbient() {
-  if (ambient || !enabled) return;
+  if (ambient || !musicOn) return;
   const c = ensureCtx();
   if (!c) return;
   const bus = c.createGain();
@@ -352,5 +374,5 @@ export function stopAmbient() {
 }
 
 export function sfxState() {
-  return { enabled, level, ambient: !!ambient, context: ctx ? ctx.state : null, samples: Object.values(buffers).flat().length };
+  return { enabled, music: musicOn, level, ambient: !!ambient, context: ctx ? ctx.state : null, samples: Object.values(buffers).flat().length };
 }

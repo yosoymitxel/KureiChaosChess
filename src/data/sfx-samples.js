@@ -4,6 +4,9 @@ export const SFX_SAMPLES = {
   "achievement": [
     "assets/sfx/achievement-1.mp3"
   ],
+  "alarm": [
+    "assets/sfx/alarm-1.mp3"
+  ],
   "bigboom": [
     "assets/sfx/bigboom-1.mp3"
   ],
@@ -89,6 +92,9 @@ export const SFX_SAMPLES = {
   ],
   "tap": [
     "assets/sfx/tap-1.mp3"
+  ],
+  "tick": [
+    "assets/sfx/tick-1.mp3"
   ],
   "warp": [
     "assets/sfx/warp-1.mp3"

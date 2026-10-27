@@ -5,6 +5,7 @@ import { key } from '../../game/rules.js';
 import { DIFFS, newQueens, toggle, clashing } from '../../game/queens.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t } from '../../i18n/index.js';
+import { playSfx } from '../sfx.js';
 import { award } from '../../game/achievements.js';
 
 export function QueensScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
@@ -13,7 +14,7 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = t('common.continue
   const [, redraw] = useState(0);
   const [board] = useState(() => ({ rows: s.n, cols: s.n, holes: new Set() }));
   const tap = (r, c) => {
-    if (!toggle(s, r, c)) return;
+    if (!toggle(s, r, c)) return playSfx('invalid');
     if (s.over === 'win' && time >= 60) award('queens_fast');
     redraw((n) => n + 1);
   };
@@ -22,6 +23,7 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = t('common.continue
     const id = setInterval(() => setTime((t) => {
       if (s.over) { clearInterval(id); return t; }
       if (t <= 1) { s.over = 'lose'; clearInterval(id); return 0; }
+      if (t <= 11) playSfx('tick');
       return t - 1;
     }), 1000);
     return () => clearInterval(id);

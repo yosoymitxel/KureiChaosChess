@@ -7,6 +7,7 @@ import { MiniBoard } from '../mini-board.js';
 import { key } from '../../game/rules.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t } from '../../i18n/index.js';
+import { playSfx } from '../sfx.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -40,7 +41,11 @@ export function CheckersScreen({ sub, onBack, onEnd, endLabel = t('common.contin
     if (busy.current || s.over || (!duo && s.turn !== 'light')) return;
     const p = pieceAt(s, r, c);
     const moves = legal(s);
-    if (p && p.side === s.turn && !s.chain) return setSel(moves.some((m) => m.p === p) ? p : null);
+    if (p && p.side === s.turn && !s.chain) {
+      const ok = moves.some((m) => m.p === p);
+      playSfx(ok ? 'select' : 'invalid');
+      return setSel(ok ? p : null);
+    }
     const m = sel && moves.find((x) => x.p === sel && x.to.r === r && x.to.c === c);
     if (!m) return;
     busy.current = true;
