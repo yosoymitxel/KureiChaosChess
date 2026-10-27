@@ -100,13 +100,19 @@
 .menu-extras .btn { flex: 1 1 40%; }
 @media (max-width: 760px) {
   .menu { flex-direction: column; justify-content: flex-end; }
-  .diorama { inset: 0 0 38% 0; }
-  .diorama-wrap { inset: 0 0 38% 0; }
+  /* El tablero ocupa lo que dejan libre el título y los botones, que cambian de alto con la run. */
+  .diorama-wrap { position: relative; inset: auto; flex: 1 1 0; min-height: 0; width: 100%; }
+  .diorama { inset: 28px 0 0; }
   .menu-col { gap: 18px; width: 100%; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); }
   .logo { text-align: center; }
   .logo h1 { font-size: 72px; justify-items: center; }
   .logo p { margin-top: 12px; font-size: 14px; }
   .menu-actions > .btn { min-height: 52px; }
+}
+/* Móvil bajo: sin la frase, el tablero de la portada conserva sitio. */
+@media (max-width: 760px) and (max-height: 700px) {
+  .logo p { display: none; }
+  .menu-col { gap: 14px; }
 }
 
 /* Map: the run is a printed track on a game sheet. */
@@ -838,6 +844,8 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .gal-item.locked .gal-art { border-style: dashed; }
 .gal-art.gal-table { gap: 5px; }
 .gal-art.gal-table > svg { width: 14px; height: 14px; }
+.gal-art.gal-table:has(.theme-look) { position: relative; padding: 0; border: 0; background: none; }
+.gal-art.gal-table:has(.theme-look) > svg { position: absolute; right: 4px; bottom: 4px; }
 .gal-swatch { display: inline-flex; border-radius: 6px; overflow: hidden; border: 2px solid var(--ink); }
 .gal-swatch i { width: 15px; height: 30px; }
 
