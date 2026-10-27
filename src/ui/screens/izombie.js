@@ -44,11 +44,11 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = t('common.continu
           ${!s.over && html`<p class="mini-steps">${STEPS.map((t, i) => html`<span class=${i + 1 === step ? 'on' : i + 1 < step ? 'done' : ''}>${i + 1} ${t}</span>`)}</p>`}
           ${!s.over && html`<p class="mini-step-hint">${HINTS[step]}</p>`}
           ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? t('izombie.won', 'Tomaste los {n} trofeos.', { n: s.diff.trophies.length }) : t('izombie.lost', 'Te quedaste sin piezas y sin monedas con {n} de {total} trofeos.', { n: s.diff.trophies.length - s.trophies.size, total: s.diff.trophies.length })} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
-            : html`<div class="bm-actions" role="group" aria-label=${t('mini.pieceToPlace', 'Pieza a colocar')}>
+            : html`<div class="bm-actions" data-pad="l1 r1" role="group" aria-label=${t('mini.pieceToPlace', 'Pieza a colocar')}>
               ${Object.entries(COST).map(([ty, cost]) => html`<button class=${'btn sm buy' + (pick === ty ? ' on' : ' ghost')} aria-pressed=${pick === ty} aria-label=${`${PIECE_NAMES[ty]}: ` + tp('game.coins', cost, '{n} moneda', '{n} monedas')}
                 disabled=${cost > s.coins} onClick=${() => setPick(ty)}><${PieceIcon} type=${ty} side="zombie" size=${22} /><span>${PIECE_NAMES[ty]}</span><b class="buy-cost">${cost}</b></button>`)}
             </div>
-            <button class="btn primary" onClick=${() => act(() => advance(s))}>${t('izombie.advance', 'Avanzar')}</button>`}
+            <button class="btn primary" data-pad="x" onClick=${() => act(() => advance(s))}>${t('izombie.advance', 'Avanzar')}</button>`}
           <${MiniTools} mini="izombie" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('izombie.help', 'Como Yo, Zombi de Plants vs. Zombies: atacas tú. La defensa marfil no se mueve, pero tras cada avance captura lo que pare en sus casillas (teñidas de rojo). Compra piezas en la fila de arriba; al pulsar Avanzar cada una da su paso de ajedrez más profundo. Lleva una pieza a cada trofeo de la última fila: la que llega lo toma y sale del tablero. Capturar un peón marfil paga 2 monedas; otra pieza, 1. Pierdes si te quedas sin piezas y sin monedas para un peón.')}<//>
         </div>
       </div>

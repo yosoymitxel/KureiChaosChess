@@ -53,11 +53,11 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = t('common.conti
           ${!s.over && s.phase === 'between' && html`<p class="mini-step-hint">${t('laststand.between', 'Oleada {n} superada: +{bonus} monedas. Refuerza la defensa antes de la siguiente.', { n: s.wave, bonus: s.diff.bonus })}</p>`}
           ${!s.over && s.phase === 'fight' && html`<p class="mini-step-hint">${s.horde ? t('mini.horde', '¡La gran horda!') : t('mini.waveOf', 'Oleada {n} de {total}', { n: s.wave, total: s.diff.waves })}</p>`}
           ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? t('laststand.won', 'Aguantaste las {n} oleadas y la gran horda sin ceder la línea.', { n: s.diff.waves }) : t('laststand.lost', 'El carmesí se abrió paso en la oleada {n}.', { n: s.wave })} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
-            : building(s) && html`<div class="bm-actions" role="group" aria-label=${t('mini.pieceToPlace', 'Pieza a colocar')}>
+            : building(s) && html`<div class="bm-actions" data-pad="l1 r1" role="group" aria-label=${t('mini.pieceToPlace', 'Pieza a colocar')}>
               ${Object.entries(PRICES).map(([ty, cost]) => html`<button class=${'btn sm' + (pick === ty ? ' on' : ' ghost')} aria-pressed=${pick === ty} aria-label=${`${PIECE_NAMES[ty]}: ` + tp('game.coins', cost, '{n} moneda', '{n} monedas')}
                 disabled=${cost > s.budget} title=${PIECE_NAMES[ty]} onClick=${() => setPick(ty)}><${PieceIcon} type=${ty} side="light" size=${22} />${cost}</button>`)}
             </div>
-            <button class="btn primary" disabled=${!s.pieces.length} onClick=${launch}>${s.phase === 'setup' ? t('laststand.start', 'Empezar el asalto') : last ? t('laststand.bringHorde', '¡Que venga la horda!') : t('laststand.next', 'Siguiente oleada')}</button>`}
+            <button class="btn primary" data-pad="x" disabled=${!s.pieces.length} onClick=${launch}>${s.phase === 'setup' ? t('laststand.start', 'Empezar el asalto') : last ? t('laststand.bringHorde', '¡Que venga la horda!') : t('laststand.next', 'Siguiente oleada')}</button>`}
           <${MiniTools} mini="laststand" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('laststand.help', 'Compra piezas tocando las tres filas de abajo y empieza el asalto. El carmesí ataca en {waves} oleadas; la última es una gran horda. Entre oleadas cobras {bonus} monedas y puedes reforzar con lo que tengas: aguanta sin ceder la línea.', { waves: s.diff.waves, bonus: s.diff.bonus })}<//>
         </div>
       </div>

@@ -49,7 +49,7 @@ function VersusCard({ cfg, onCfg }) {
   const mods = ['random', 'none', ...RUN_MECHANICS.filter((id) => id !== 'elite')];
   // Dos pestañas: el ajedrez de la run y la lista de minijuegos que ya se juegan a dos (`duo` en modifiers.js).
   const minis = Object.values(MODIFIERS).filter((m) => m.duo), duo = MODIFIERS[cfg.game]?.duo;
-  const tabs = html`<div class="segmented" role="tablist" aria-label=${t('versus.what', 'Qué jugar')}>
+  const tabs = html`<div class="segmented" data-pad="l1 r1" role="tablist" aria-label=${t('versus.what', 'Qué jugar')}>
     <button role="tab" class=${duo ? '' : 'on'} aria-selected=${!duo} onClick=${() => set('game', 'chess')}><${Icon} name="king" size=${16} />${t('versus.chess', 'Ajedrez')}</button>
     <button role="tab" class=${duo ? 'on' : ''} aria-selected=${!!duo} onClick=${() => duo || set('game', minis[0].id)}><${Icon} name="hockey" size=${16} />${t('menu.minis', 'Minijuegos')}</button>
   </div>`;

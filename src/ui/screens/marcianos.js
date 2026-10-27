@@ -126,8 +126,8 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = t('common.conti
                 <button class="btn sm" aria-label=${t('marcianos.right', 'Derecha')} onClick=${() => act({ move: 1 })}>→</button>
               </div>
               <div class="bm-actions">
-                <button class="btn sm" onClick=${() => act({ wait: true })}>${t('marcianos.wait', 'Esperar')}</button>
-                <button class="btn sm primary" onClick=${() => act({ shoot: true })}><${Icon} name="cannon" size=${16} />${t('marcianos.shoot', 'Disparar')}</button>
+                <button class="btn sm" data-pad="y" onClick=${() => act({ wait: true })}>${t('marcianos.wait', 'Esperar')}</button>
+                <button class="btn sm primary" data-pad="x" onClick=${() => act({ shoot: true })}><${Icon} name="cannon" size=${16} />${t('marcianos.shoot', 'Disparar')}</button>
               </div>
             </div>`}
           <${MiniTools} mini="marcianos" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('marcianos.help', 'Mueve con las flechas o A/D, dispara con espacio y espera con S. Cada pieza baja a su manera: el peón recto, el caballo cambiando de columna, el alfil en diagonal y el elefante a veces de dos en dos. Desde la segunda oleada disparan proyectiles: apártate de su columna. Tras tres oleadas llega la gran horda; si un carmesí pisa tu fila, pierdes una vida.')}<//>

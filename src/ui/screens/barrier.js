@@ -114,7 +114,7 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = t('common.continu
         <div class="mini-side">
           ${!s.over && html`<p class="mini-status" aria-live="polite">${status}</p>`}
           ${s.over ? html`<${MiniEnd} win=${s.over === 'light'} note=${s.over === 'light' ? t('barrier.won', 'Tu peón cruzó antes que el carmesí.') : t('barrier.lost', 'El peón carmesí cruzó primero.')} label=${endLabel} onEnd=${() => onEnd(s.over === 'light')} />`
-            : html`<div class="bm-actions" role="group" aria-label=${t('barrier.action', 'Acción')}>
+            : html`<div class="bm-actions" data-pad="l1 r1" role="group" aria-label=${t('barrier.action', 'Acción')}>
               <button class=${'btn sm' + (mode === 'move' ? ' on' : ' ghost')} aria-pressed=${mode === 'move'} onClick=${() => { setMode('move'); setGhost(null); }}>${t('barrier.moveBtn', 'Mover')}</button>
               <button class=${'btn sm' + (mode === 'h' ? ' on' : ' ghost')} aria-pressed=${mode === 'h'} disabled=${!s.left.light} onClick=${() => setMode('h')}>${t('barrier.fenceBtn', 'Valla')} ─</button>
               <button class=${'btn sm' + (mode === 'v' ? ' on' : ' ghost')} aria-pressed=${mode === 'v'} disabled=${!s.left.light} onClick=${() => setMode('v')}>${t('barrier.fenceBtn', 'Valla')} │</button>

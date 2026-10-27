@@ -2,6 +2,7 @@
 import { html, render, useState, useEffect, useRef, motion, motionStagger } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { TurnBanner, CardFace, MiniEnd } from '../components.js';
+import { usePad } from '../gamepad.js';
 import { BoardView } from '../../view/board-view.js';
 import { artOf } from '../../view/piece-art.js';
 import { Match, botChooseMove, freezeMatch, thawMatch } from '../../game/match.js';
@@ -544,6 +545,11 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       d.busy = false;
       startTurn();
     };
+    // Mando: X recoge la próxima hoja o mariposa sin llevar el cursor hasta ella.
+    d.grab = () => {
+      const k = [...(d.props || [])].find(([, p]) => p.hand)?.[0];
+      if (k) { const [row, col] = k.split(',').map(Number); onTap({ row, col }); }
+    };
     const onTap = (hit) => {
       if (d.reach) d.showReach(null);
       // Una hoja en la casilla tocada se quita con la mano, aunque alguna figura la tape un poco.
@@ -665,10 +671,16 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   };
   const hand = run.cards || [];
   const leave = (kind, then) => ref.current.leave(kind, then);
+  const zoomBy = (f) => ref.current.view?.setZoom(ref.current.view.zoom * f);
+  usePad({
+    x: { label: t('pad.collect', 'Recoger'), when: () => [...(ref.current.props?.values() || [])].some((p) => p.hand), run: () => ref.current.grab?.() },
+    l2: { label: t('pad.zoomOut', 'Alejar'), run: () => zoomBy(0.8) },
+    r2: { label: t('pad.zoomIn', 'Acercar'), run: () => zoomBy(1.25) },
+  });
   return html`<div class="screen game">
     <div class="game-main" ref=${mainRef}>
       <div class="game-top">
-        <button class="btn ghost sm icon-only" aria-label=${t('pause.title', 'Pausa')} title=${t('game.pauseKey', 'Pausa (Escape)')} onClick=${() => setPaused(true)}><${Icon} name="pause" /></button>
+        <button class="btn ghost sm icon-only" data-pad="start" data-pad-label=${t('pad.pause', 'Pausa')} aria-label=${t('pause.title', 'Pausa')} title=${t('game.pauseKey', 'Pausa (Escape)')} onClick=${() => setPaused(true)}><${Icon} name="pause" /></button>
         <h1 class="title">${scenario ? mod.name : node.versus ? t('menu.versus', 'Partida local') : node.isBoss ? t('game.finalFloor', 'Piso final') : node.isMiniBoss ? t('game.miniBoss', 'Mini-jefe') : t('game.floorOf', 'Piso {n} de {total}', { n: node.floor + 1, total: run.map.floors })}</h1>
         ${tools}
         ${!scenario && !node.versus && html`<button class="coin-chip" ref=${coinRef} title=${t('zen.shop', 'Tienda del jardín')} aria-label=${t('game.coinsShop', '{n} monedas: abrir la tienda', { n: coins })}
@@ -684,7 +696,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       </div>`}
       ${zoom > 1.01 && html`<button class="zoom-reset" aria-label=${t('game.unzoom', 'Quitar el zoom')} title=${t('game.unzoom', 'Quitar el zoom')} onClick=${() => ref.current.view?.resetZoom()}><${Icon} name="shrink" size=${18} /></button>`}
       ${banner && html`<${TurnBanner} key=${banner.key} text=${banner.text} side=${banner.side} />`}
-      ${hand.length > 0 && html`<div class=${'hand' + (hud?.canCard ? '' : ' spent')} role="group" aria-label=${t('game.hand', 'Mano de cartas tácticas')}>
+      ${hand.length > 0 && html`<div class=${'hand' + (hud?.canCard ? '' : ' spent')} data-pad="l1 r1" data-pad-label=${t('pad.card', 'Carta')} role="group" aria-label=${t('game.hand', 'Mano de cartas tácticas')}>
         ${hand.map((id, i) => html`<button key=${id + i} class=${'hand-card' + (cardSel === i ? ' on' : '')} style=${{ '--rot': (i - (hand.length - 1) / 2) * 7 + 'deg', '--drop': Math.abs(i - (hand.length - 1) / 2) * 7 + 'px' }}
             disabled=${!hud?.canCard || !!placing} aria-pressed=${cardSel === i} title=${CARDS[id].desc} onClick=${() => ref.current.pickCard(i)}>
           <${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini shop=${isShopCard(run, i)} />
@@ -719,7 +731,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         })}
       </section>
       <div class="chips">
-        ${hud?.threats > 0 && html`<button class="chip danger" aria-pressed=${chipInfo?.id === 'threats'} onClick=${() => explain('threats', t('game.inDanger', '{n} en peligro', { n: hud.threats }), t('game.inDangerText', 'Las piezas que laten en rojo pueden ser capturadas en la próxima jugada rival. Muévelas o protégelas.'))}><${Icon} name="warn" size=${12} /> ${t('game.inDanger', '{n} en peligro', { n: hud.threats })}</button>`}
+        ${hud?.threats > 0 && html`<button class="chip danger" data-pad="y" data-pad-label=${t('pad.danger', 'Peligro')} aria-pressed=${chipInfo?.id === 'threats'} onClick=${() => explain('threats', t('game.inDanger', '{n} en peligro', { n: hud.threats }), t('game.inDangerText', 'Las piezas que laten en rojo pueden ser capturadas en la próxima jugada rival. Muévelas o protégelas.'))}><${Icon} name="warn" size=${12} /> ${t('game.inDanger', '{n} en peligro', { n: hud.threats })}</button>`}
         ${node.modifier === 'chaos' && hud && html`<button class="chip" aria-pressed=${chipInfo?.id === 'chaos'} onClick=${() => explain('chaos', t('game.collapseIn', 'Derrumbe en {n}', { n: hud.chaosIn }), mod.desc + ' ' + t('game.collapseInText', 'Faltan {n} turnos para el próximo; lo que esté encima cae.', { n: hud.chaosIn }))}><${Icon} name="collapse" size=${12} /> ${t('game.collapseInChip', 'derrumbe en {n}', { n: hud.chaosIn })}</button>`}
         ${muts.map(([id, n]) => html`<button class="chip mut" aria-pressed=${chipInfo?.id === id} onClick=${() => explain(id, MUTATIONS[id]?.name + (n > 1 ? ' ×' + n : ''), MUTATIONS[id]?.desc + ' ' + t('game.mutChip', 'Es una mutación de tu ejército: dura toda la run.'))}><${Icon} name=${MUTATIONS[id]?.icon} size=${12} />${MUTATIONS[id]?.name}${n > 1 ? ' ×' + n : ''}</button>`)}
       </div>
