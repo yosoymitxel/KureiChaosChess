@@ -172,7 +172,8 @@
 [data-art="pixel"] .pc-art svg { filter: none; }
 /* Mientras caen las piezas al empezar, quietas: el bote de 32 piezas a la vez encarecía el reparto. */
 [data-art="pixel"] .dealing .pc-art svg { animation: none; }
-@keyframes px-bob { 50% { translate: 0 -2.4%; } }
+/* transform y no translate: con translate el bote se recalculaba en el hilo principal (40 piezas, tableta lenta). */
+@keyframes px-bob { 50% { transform: translateY(-2.4%); } }
 /* En el set píxel la peana también es de píxeles: disco escalonado con contorno de tinta y una
    banda de sombra abajo, en vez del disco liso del set vectorial. */
 [data-art="pixel"] .pc-base {
@@ -271,11 +272,14 @@
 
 /* Estanque del centro abierto y coleccionables: tumbados sobre el plano del tablero. */
 .pond-tile, .pond, .prop { position: absolute; left: calc(var(--c) * var(--sq)); top: calc(var(--r) * var(--sq)); pointer-events: none; }
+.pond-tile { pointer-events: auto; cursor: pointer; }
+.bd-food .zn-pellet { fill: oklch(0.7 0.1 70); stroke: var(--ink); stroke-width: .12; }
 .pond-tile { width: var(--sq); height: var(--sq); background: radial-gradient(circle at 40% 35%, oklch(0.58 0.07 205), oklch(0.42 0.065 225)); box-shadow: inset 0 calc(var(--sq) * 0.08) calc(var(--sq) * 0.2) oklch(0.25 0.05 235 / 0.6); }
 .pond { width: calc(var(--w) * var(--sq)); height: calc(var(--h) * var(--sq)); transform: translateZ(1px); }
-.bd-pond { width: 100%; height: 100%; overflow: hidden; }
-.bd-koi { transform-box: view-box; transform-origin: 50% 50%; animation: koi-swim 14s linear infinite; }
-.bd-koi.zn-koi-b { animation-duration: 19s; animation-direction: reverse; }
+.bd-pond { position: relative; width: 100%; height: 100%; overflow: hidden; }
+.bd-pond svg, .bd-koi { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bd-koi { animation: koi-swim 14s linear infinite; }
+.bd-koi-b { animation-duration: 19s; animation-direction: reverse; }
 @keyframes koi-swim { to { rotate: 360deg; } }
 .prop { width: var(--sq); height: var(--sq); display: flex; align-items: center; justify-content: center; transform: translateZ(2px); }
 .prop > * { flex: none; }

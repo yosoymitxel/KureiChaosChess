@@ -224,9 +224,12 @@ export function rakeArt(n, objs, raw) {
 export const PICKUP_ART = { leaf: mapleLeaf, seed: POUCH };
 
 // Estanque en el hueco central de un tablero: dos koi dando vueltas en sentidos contrarios.
-export const boardPond = html`<svg class="bd-pond" viewBox="0 0 20 20" aria-hidden="true">
-  ${['a', 'b'].map((k) => html`<g class=${'bd-koi zn-koi zn-koi-' + k}><g transform=${k === 'a' ? 'translate(10 5) scale(.9)' : 'translate(10 16.5) scale(.75)'}><g class="zn-vec">${KOI}<circle class="zn-koi-spot" cx="1.1" cy="-.2" r=".8"/></g>${px('koi', 8, 5, -4.4, -2.5)}</g></g>`)}
-</svg>`;
+// Cada koi va en su propia capa HTML que gira: girar un <g> dentro del SVG no pasa al compositor y
+// recalculaba el tablero entero en cada fotograma.
+export const boardPond = html`<div class="bd-pond" aria-hidden="true">
+  <svg viewBox="0 0 20 20"><g class="bd-food"></g></svg>
+  ${['a', 'b'].map((k) => html`<div class=${'bd-koi bd-koi-' + k}><svg viewBox="0 0 20 20"><g class=${'zn-koi zn-koi-' + k}><g transform=${k === 'a' ? 'translate(10 5) scale(.9)' : 'translate(10 16.5) scale(.75)'}><g class="zn-vec">${KOI}<circle class="zn-koi-spot" cx="1.1" cy="-.2" r=".8"/></g>${px('koi', 8, 5, -4.4, -2.5)}</g></g></svg></div>`)}
+</div>`;
 
 // Piedra que sale al ampliar: canto rodado con su cara al sol; `cracks` grietas según los golpes.
 export const stoneArt = (cracks = 0) => html`<svg class="zn-standart zn-stone" viewBox="0 0 24 24" aria-hidden="true">${px('stone', 24, 24)}<g class="zn-vec">
