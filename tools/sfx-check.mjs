@@ -1,9 +1,9 @@
 // Comprobación del motor de sonido: `node tools/sfx-check.mjs`.
 // Primero importa en Node puro (sin AudioContext, todo no-op), después monta un
 // AudioContext de mentira para revisar lo que cada receta agenda de verdad.
-import { SFX_NAMES, SFX_VOLUMES, MUSIC_TRACKS, setSfxEnabled, setSfxVolume, setMusicScene, playSfx, startAmbient, stopAmbient, sfxState } from '../src/ui/sfx.js';
+import { SFX_NAMES, SFX_VOLUMES, MUSIC_TRACKS, setSfxEnabled, setMusicEnabled, setSfxVolume, setMusicScene, playSfx, startAmbient, stopAmbient, sfxState } from '../src/ui/sfx.js';
 
-const NAMES = ['move', 'capture', 'select', 'invalid', 'step', 'land', 'hit', 'stomp', 'boom', 'bigboom', 'crunch', 'pop', 'whoosh', 'warp', 'laser', 'zombie', 'water', 'snip', 'dig', 'splash', 'leaf', 'promote', 'card', 'win', 'lose', 'coin', 'flower', 'tap', 'achievement', 'mini_win', 'mini_lose', 'shatter'];
+const NAMES = ['move', 'capture', 'select', 'invalid', 'step', 'land', 'hit', 'stomp', 'boom', 'bigboom', 'crunch', 'pop', 'whoosh', 'warp', 'laser', 'zombie', 'water', 'snip', 'dig', 'splash', 'leaf', 'promote', 'card', 'win', 'lose', 'coin', 'flower', 'tap', 'achievement', 'mini_win', 'mini_lose', 'shatter', 'alarm', 'tick'];
 const LEVELS = ['suave', 'normal', 'fuerte'];
 const WAVES = ['sine', 'triangle', 'square', 'sawtooth'];
 
@@ -126,8 +126,8 @@ try {
   globalThis.fetch = async (url) => { asked.push(url); return { arrayBuffer: async () => url }; };
   const tick = () => new Promise((r) => setTimeout(r, 0));
   const playing = (nodes) => nodes.find((n) => n.kind === 'noise' && n.loop);
-  if (MUSIC_TRACKS.join() !== 'normal,pixel,zen') throw new Error(`MUSIC_TRACKS inesperado: ${MUSIC_TRACKS}`);
-  setMusicScene(false);
+  if (MUSIC_TRACKS.join() !== 'normal,boss,mini,pixel,pixel-boss,pixel-mini,zen') throw new Error(`MUSIC_TRACKS inesperado: ${MUSIC_TRACKS}`);
+  setMusicScene('normal');
   from = mock.made.length;
   startAmbient();
   if (!sfxState().ambient) throw new Error('la música no quedó encendida');
@@ -139,17 +139,29 @@ try {
   from = mock.made.length;
   startAmbient();
   if (mock.made.length !== from) throw new Error('startAmbient duplicó la música');
-  setMusicScene(true);
+  // Cada ambiente, en mesa normal y píxel, pide su pista.
+  globalThis.document = { documentElement: { dataset: {} } };
+  for (const [art, mood, want] of [['', 'boss', 'boss'], ['', 'mini', 'mini'], ['pixel', 'normal', 'pixel'], ['pixel', 'boss', 'pixel-boss'], ['pixel', 'mini', 'pixel-mini'], ['', 'normal', 'normal']]) {
+    document.documentElement.dataset.art = art;
+    const mark = mock.made.length;
+    setMusicScene(mood);
+    await tick();
+    if (playing(mock.made.slice(mark))?.buffer?.url !== `assets/musica/${want}.mp3`) throw new Error(`música: ${art || 'normal'}/${mood} no suena ${want}.mp3`);
+  }
+  delete globalThis.document;
+  const back = playing(mock.made.slice(from).reverse());
+  from = mock.made.length;
+  setMusicScene('zen');
   await tick();
   const zen = playing(mock.made.slice(from));
-  if (song.stops.length !== 1) throw new Error('música: al entrar al jardín la anterior siguió sonando');
+  if (song.stops.length !== 1 || back.stops.length !== 1) throw new Error('música: al cambiar de ambiente la anterior siguió sonando');
   if (zen?.buffer?.url !== 'assets/musica/zen.mp3') throw new Error('música: no entró la del jardín');
   stopAmbient();
   if (sfxState().ambient) throw new Error('stopAmbient no apagó la música');
   if (zen.stops.length !== 1 || zen.stops[0] <= zen.starts[0]) throw new Error('al parar quedó la música viva');
   stopAmbient();
 
-  // 4. Apagado: nada suena ni crea nodos, y la música en curso se corta.
+  // 4. Apagado: sin efectos no suena ni crea nodos y la música sigue; sin música se corta.
   from = mock.made.length;
   startAmbient();
   await tick();
@@ -157,10 +169,16 @@ try {
   setSfxEnabled(false);
   playSfx('coin');
   if (mock.made.length !== off) throw new Error('sonó algo con el sonido apagado');
-  if (sfxState().ambient) throw new Error('el ambiente siguió con el sonido apagado');
+  if (!sfxState().ambient) throw new Error('apagar los efectos cortó la música');
+  setMusicEnabled(false);
+  if (sfxState().ambient) throw new Error('la música siguió con la música apagada');
   for (const s of sources(mock.made.slice(from))) {
-    if (s.stops.length !== 1) throw new Error('apagar el sonido dejó el ambiente vivo');
+    if (s.stops.length !== 1) throw new Error('apagar la música la dejó viva');
   }
+  startAmbient();
+  if (sfxState().ambient) throw new Error('la música arrancó estando apagada');
+  setMusicEnabled(true);
+  stopAmbient();
   setSfxEnabled(true);
 
   console.log(`sfx-check OK: ${SFX_NAMES.length} recetas, ${LEVELS.length} niveles, ${mock.made.length} nodos agendados`);

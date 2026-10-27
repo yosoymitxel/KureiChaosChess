@@ -33,3 +33,5 @@ achievement <- ninja-adventure/Jingles__LevelUp1.wav | alt: ninja-adventure/Bonu
 mini_win <- music-jingles/jingles-hit_06.ogg | alt: ninja-adventure/Jingles__Success1.wav
 mini_lose <- retro-sounds-1/lose4.ogg | alt: desert-shooter-pack/lose-d.ogg
 shatter <- oga-75-cc0-breaking-falling-hit-sfx/bfh1-glass-breaking-06.m4a | alt: oga-75-cc0-breaking-falling-hit-sfx/bfh1-glass-breaking-02.m4a
+alarm <- impact-sounds/impactBell_heavy_000.ogg (Kenney, CC0)
+tick <- interface-sounds/tick_002.ogg (Kenney, CC0)

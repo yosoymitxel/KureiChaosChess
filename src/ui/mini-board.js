@@ -2,6 +2,7 @@ import { html, useRef, useLayoutEffect } from './lib.js';
 import { BoardView } from '../view/board-view.js';
 import { loadSettings } from '../game/run.js';
 import { key } from '../game/rules.js';
+import { playSfx } from './sfx.js';
 
 // El tablero de la partida para minijuegos sin Match. Piezas { id, type, color, row, col }: cada cambio
 // entre dos pintadas se anima como en la partida (entra cayendo, salta, captura al aterrizar, sale derribada).
@@ -64,6 +65,7 @@ async function sync(v, pieces, strikes = [], hidden = new Set()) {
     if (piece) v.playMove({ piece, from, to: { row: victim.row, col: victim.col }, victims: [{ piece: victim, killed: true }], bounced: true });
     else gone.set(id, victim);
   }
+  if (gone.size) playSfx('capture');
   for (const p of gone.values()) v.kill(p, p, p);
 }
 

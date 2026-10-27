@@ -821,6 +821,7 @@ export class BoardView {
   async vanish(p) {
     const el = this.els.get(p), st = this.state.get(p);
     if (!el) return;
+    playSfx('whoosh');
     animate(el, { opacity: [1, 0], duration: this.d(380) });
     await animate(st, { z: -this.sq * 0.3, duration: this.d(380), ease: 'inQuad', onUpdate: () => this.apply(p) });
     el.remove();
@@ -1007,6 +1008,7 @@ export class BoardView {
 
   // Meteorito avisado: las casillas de la cruz laten en rojo hasta que cae.
   setDoom(cells = []) {
+    if (cells.length) playSfx('alarm');
     for (const t of this.tiles.values()) t.classList.remove('doom');
     for (const [r, c] of cells) this.tiles.get(key(r, c))?.classList.add('doom');
   }
@@ -1042,6 +1044,7 @@ export class BoardView {
     tiles.forEach((t) => t.classList.add('cracking'));
     await wait(this.d(420));
     this.shake(12, 500);
+    playSfx('crunch');
     for (const t of tiles) {
       const c = this.fx.pointOf(t);
       this.fx.burst(c.x, c.y, { count: 22, color: [css('--tile-side'), css('--tile-b'), '#000'], speed: [40, 180], gravity: 500, shape: 'chunk', size: [3, 8], life: [0.6, 1.1] });

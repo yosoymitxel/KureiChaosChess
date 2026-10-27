@@ -8,4 +8,16 @@ pixel.mp3 <- "33 - Calm Village", Ninja Adventure Asset Pack (musica de Pixel-bo
   https://pixel-boy.itch.io/ninja-adventure-asset-pack
   espejo: https://github.com/series-ai/jam-ready-assets/tree/main/ninja-adventure/2D/top-down-rpg/Audio/Musics
   Bucle original completo de 72.0 s; fundido de 3 ms al inicio y 5 ms al final, loudnorm I=-20 lineal, MP3 112k estereo.
+
+boss.mp3 <- "VHS Heartbeat" (Open Lo-Fi, categoria Hybrid, btahir, Suno v5), CC0-1.0
+  https://github.com/btahir/open-lofi  (vhs-heartbeat.mp3)
+  Bucle: 96.000 s -> 151.440 s, fundido cruzado de 1.5 s, volumen lineal a I=-20, MP3 96k estereo.
+mini.mp3 <- "Cassette Basement Bounce" (Open Lo-Fi, categoria Funk & Soul, btahir, Suno v5), CC0-1.0
+  https://github.com/btahir/open-lofi  (cassette-basement-bounce.mp3)
+  Bucle: 20.000 s -> 124.810 s, fundido cruzado de 1.5 s, volumen lineal a I=-20, MP3 96k estereo.
+pixel-boss.mp3 <- "24 - Final Area", Ninja Adventure Asset Pack (Pixel-boy), CC0-1.0
+  Bucle original completo de 63.4 s; fundido de 3 ms / 5 ms, volumen lineal a I=-20, MP3 112k estereo.
+pixel-mini.mp3 <- "20 - Good Time", Ninja Adventure Asset Pack (Pixel-boy), CC0-1.0
+  Bucle original completo de 64.0 s; fundido de 3 ms / 5 ms, volumen lineal a I=-20, MP3 112k estereo.
+
 Atribucion no obligatoria (CC0). Se agradece credito.

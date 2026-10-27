@@ -169,7 +169,8 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
       </section>
       <section class="panel setup-card" data-enter>
         <h2>${t('settings.fx', 'Efectos y ambiente')}</h2>
-        <${Toggle} on=${settings.sound} onChange=${set('sound')} label=${t('settings.sound', 'Sonidos')} hint=${t('settings.soundHint', 'Efectos de la mesa y música de fondo')} />
+        <${Toggle} on=${settings.sound} onChange=${set('sound')} label=${t('settings.sound', 'Sonidos')} hint=${t('settings.soundHint', 'Efectos de la mesa y de los minijuegos')} />
+        <${Toggle} on=${settings.music !== false} onChange=${set('music')} label=${t('settings.music', 'Música')} hint=${t('settings.musicHint', 'Un tema por ambiente: mesa, jefe, minijuego y jardín')} />
         <h2>${t('settings.volume', 'Volumen')}</h2>
         <div class="segmented" role="group" aria-label=${t('settings.volumeAria', 'Volumen del sonido')}>
           ${[['suave', t('settings.volSoft', 'Suave')], ['normal', t('settings.volNormal', 'Normal')], ['fuerte', t('settings.volLoud', 'Fuerte')]].map(([id, label]) => html`<button class=${settings.volume === id ? 'on' : ''} aria-pressed=${settings.volume === id} onClick=${() => set('volume')(id)}>${label}</button>`)}

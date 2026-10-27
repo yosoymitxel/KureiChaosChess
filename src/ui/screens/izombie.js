@@ -7,6 +7,7 @@ import { key } from '../../game/rules.js';
 import { ROWS, COLS, COST, DIFFS, newZombie, buy, canBuy, advance, danger } from '../../game/izombie.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t, tp } from '../../i18n/index.js';
+import { playSfx } from '../sfx.js';
 
 export function IZombieScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newZombie(diff || settings.miniDiff?.izombie));
@@ -33,7 +34,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = t('common.continu
     <div class="mini-body side-body">
       <div class="mini-main">
         <${MiniBoard} board=${s.board} pieces=${zombies(s.pieces)} marks=${marks} labels=${labels} strikes=${s.captures} disabled=${!!s.over} label=${t('izombie.board', 'Tablero de Yo, Zombi')}
-          onTap=${(r, c) => r === 0 && act(() => buy(s, pick, c))} />
+          onTap=${(r, c) => r === 0 && (canBuy(s, pick, c) ? act(() => buy(s, pick, c)) : playSfx('invalid'))} />
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">
             <span class="coin-chip" title=${t('izombie.coins', 'Monedas')}><${Icon} name="coin" size=${16} /><b>${s.coins}</b></span>
