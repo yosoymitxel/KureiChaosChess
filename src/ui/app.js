@@ -300,7 +300,7 @@ export function App() {
     ${screen === 'game' && node && seats && run && html`<${GameScreen} key=${node.id + '-' + gameKey}
       node=${node} run=${run} seats=${seats} settings=${settings} setSettings=${setSettings}
       onExit=${() => goTo('map')} onMenu=${() => goTo('menu')} onAbandon=${() => { setRun(null); goTo('menu'); }}
-      onUseCard=${(i) => setRun((r) => consumeCard(r, i))} resume=${resume}
+      onUseCard=${(i) => setRun((r) => consumeCard(r, i))} resume=${resume} onShop=${openShop('game')}
       onSuspend=${(match) => setRun((r) => ({ ...r, suspended: { node: node.id, seats, match } }))}
       onWin=${onWin} onRestart=${() => { setResume(null); setRun((r) => resetLevel(r)); setGameKey((k) => k + 1); }} onHowTo=${() => setHowTo(true)} />`}
     ${ask && html`<${ResumeOverlay} onClose=${() => setAsk(null)}
@@ -315,7 +315,13 @@ export function App() {
       onEnd=${(won) => { if (won) award('free_mini'); setFreeKey((k) => k + 1); }}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
-    ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => goTo(shopFrom)} />`}
+    ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => {
+      // Desde una partida: vuelve a la misma partida, donde quedó.
+      const s = shopFrom === 'game' && run?.suspended;
+      if (!s) return goTo(shopFrom);
+      setRun((r) => ({ ...r, suspended: undefined }));
+      startGame(s.seats, node, s.match);
+    }} />`}
     ${screen === 'gallery' && html`<${GalleryScreen} onBack=${() => goTo('menu')} onAchievements=${(focus) => { setAchFrom({ back: 'gallery', focus }); goTo('achievements'); }} />`}
     ${screen === 'achievements' && html`<${AchievementsScreen} focus=${achFrom.focus} onBack=${() => goTo(achFrom.back)} onGallery=${() => goTo('gallery')} />`}
     ${howTo && html`<${HowToOverlay} onClose=${() => setHowTo(false)} />`}

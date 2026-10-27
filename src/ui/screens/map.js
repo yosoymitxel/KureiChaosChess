@@ -35,7 +35,7 @@ export function MapScreen({ run, onBack, onSelect, onShop }) {
 
   return html`<div class="screen map">
     <${Topbar} title=${t('map.title', 'Elige tu ruta')} sub=${t('game.floorOf', 'Piso {n} de {total}', { n: run.currentFloor + 1, total: floors })} onBack=${onBack} backLabel=${t('map.menu', 'Menú')}>
-      <button class="btn ghost sm" onClick=${onShop} title=${t('zen.shop', 'Tienda del jardín')}><${Icon} name="coin" size=${16} />${loadShop().coins}</button>
+      <button class="coin-chip" onClick=${onShop} title=${t('zen.shop', 'Tienda del jardín')} aria-label=${t('zen.coinsShop', '{n} monedas: abrir la tienda', { n: loadShop().coins })}><${Icon} name="coin" size=${16} /><b>${loadShop().coins}</b></button>
     </${Topbar}>
     ${run.tutorial && html`<p class="map-lesson"><${Icon} name="book" size=${16} />${lessonText(nodes.find((n) => n.floor === run.currentFloor) ?? {})}</p>`}
     <div class="map-scroll" ref=${wrap}>

@@ -21,7 +21,8 @@ import { playSfx } from '../sfx.js';
 import { award, seePieces, seeMutations } from '../../game/achievements.js';
 import { PICKUPS, PICKUPS_EVERY, dropPickups } from '../../data/pickups.js';
 import { PICKUP_ART } from '../zen-art.js';
-import { isShopCard, addCoins } from '../../game/shop.js';
+import { isShopCard, addCoins, loadShop } from '../../game/shop.js';
+import { flyCoins } from '../coins.js';
 import { addZenSeeds, pickSeed, ZEN_NAMES } from '../../game/zen.js';
 import { t, tp } from '../../i18n/index.js';
 
@@ -53,7 +54,7 @@ function cardEffect(card, piece, pv) {
 // `scenario` (un minijuego de src/data/scenarios.js ya armado): trae tablero, piezas, rival y objetivo
 // propios; el resto (vista, bot, avisos, demos) es el de cualquier piso.
 // `onRound(result)` (partida local): cuenta la ronda y devuelve la nota de la ficha final.
-export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools, exitLabel, onRound, resume, onSuspend }) {
+export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools, exitLabel, onRound, resume, onSuspend, onShop }) {
   const hostRef = useRef(null);
   const mainRef = useRef(null);
   const ref = useRef({}); // mutable director state: view, match, busy, selected
@@ -68,6 +69,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   const [cardTip, setCardTip] = useState(null); // what the aimed card would do to the previewed target
   const [placing, setPlacing] = useState(null); // fase previa de "Organizar": { left, total }
   const [zoom, setZoom] = useState(1); // pellizco sobre el tablero; por encima de 1 asoma el botón de encuadre
+  const [coins, setCoins] = useState(() => loadShop().coins);
+  const coinRef = useRef(null);
+  const [reach, setReach] = useState(null); // bando cuyo alcance se ve en el tablero
   const mod = scenario || nodeModifier(node);
   ref.current.hand = run.cards || [];
   ref.current.onUseCard = onUseCard;
@@ -91,7 +95,20 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.dealt = saved ? saved.dealt : pieces.filter((p) => !p.boss);
     const humanTurn = () => match.player.kind === 'human' && !match.over && !d.busy && !d.paused;
 
+    // Alcance de un bando (toque en su fila del panel): las casillas a las que podría ir en su
+    // próxima jugada. Con niebla solo el propio. Se apaga al volver a tocar, al tocar el tablero o al cambiar de turno.
+    d.showReach = (color) => {
+      const humans = seats.filter((s) => s.kind === 'human').map((s) => s.color);
+      if (!color || d.reach === color || (node.modifier === 'fog' && !humans.includes(color))) {
+        d.reach = null; setReach(null); return d.view.setReach(null);
+      }
+      d.reach = color; setReach(color);
+      const keys = new Set();
+      for (const p of match.pieces) if (p.color === color) for (const m of match.legal(p)) keys.add(key(m.row, m.col));
+      d.view.setReach(keys, humans.includes(color) ? 'own' : 'rival');
+    };
     const refresh = () => {
+      if (d.reach) d.showReach(null);
       const p = match.player;
       d.view.setTurn(p.color);
       const threats = p.kind === 'human' ? match.threats() : new Set();
@@ -344,6 +361,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (d.propWait < PICKUPS_EVERY) return;
       d.propWait = 0;
       for (const { id, row, col } of dropPickups(board, match.pieces)) {
+        if (!walkable(board, row, col) || !d.view.tiles.has(key(row, col))) continue;
         const el = d.view.addProp(row, col, id), it = PICKUPS[id];
         render(PICKUP_ART[id] || html`<${Icon} name=${id} size=${24} />`, el);
         if (it.hand) {
@@ -366,10 +384,11 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       }
     };
     const take = (it, el, hand) => {
+      const from = el.getBoundingClientRect();
       d.view.takeProp(el, true, hand);
-      playSfx(hand ? 'leaf' : 'coin');
+      playSfx(hand ? 'leaf' : it.coins ? 'pop' : 'coin');
       if (hand) award('leaf_hand');
-      if (it.coins) { addCoins(it.coins); addLog(`${it.name}: +` + tp('game.coins', it.coins, '{n} moneda', '{n} monedas')); }
+      if (it.coins) { flyCoins(from, coinRef.current, Math.min(3, it.coins), () => setCoins(addCoins(it.coins))); addLog(`${it.name}: +` + tp('game.coins', it.coins, '{n} moneda', '{n} monedas')); }
       if (it.seed) { const kind = pickSeed(); addZenSeeds(kind, it.seed); addLog(t('game.seedLog', 'Semilla de {kind} para el jardín', { kind: ZEN_NAMES[kind].toLowerCase() })); }
     };
 
@@ -518,6 +537,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       startTurn();
     };
     const onTap = (hit) => {
+      if (d.reach) d.showReach(null);
       // Una hoja en la casilla tocada se quita con la mano, aunque alguna figura la tape un poco.
       const leaf = !hit.piece && d.props?.get(key(hit.row, hit.col));
       if (leaf?.hand) { d.props.delete(key(hit.row, hit.col)); return take(PICKUPS[leaf.id], leaf.el, true); }
@@ -643,6 +663,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         <button class="btn ghost sm icon-only" aria-label=${t('pause.title', 'Pausa')} title=${t('game.pauseKey', 'Pausa (Escape)')} onClick=${() => setPaused(true)}><${Icon} name="pause" /></button>
         <h1 class="title">${scenario ? mod.name : node.versus ? t('menu.versus', 'Partida local') : node.isBoss ? t('game.finalFloor', 'Piso final') : node.isMiniBoss ? t('game.miniBoss', 'Mini-jefe') : t('game.floorOf', 'Piso {n} de {total}', { n: node.floor + 1, total: run.map.floors })}</h1>
         ${tools}
+        ${!scenario && !node.versus && html`<button class="coin-chip" ref=${coinRef} title=${t('zen.shop', 'Tienda del jardín')} aria-label=${t('game.coinsShop', '{n} monedas: abrir la tienda', { n: coins })}
+          onClick=${() => onShop && leave('exit', onShop)}><${Icon} name="coin" size=${16} /><b>${coins}</b></button>`}
       </div>
       <div class="board-host" ref=${hostRef}></div>
       ${placing && html`<div class="place-bar" role="group" aria-label=${t('game.organizePhase', 'Fase Organizar')}>
@@ -678,13 +700,14 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         ${seats.map((s, i) => {
           const cur = hud?.current === i && !hud?.eliminated[s.color];
           const n = hud?.movesFor[i] || 1;
-          return html`<div class=${'seat' + (cur ? ' cur' : '') + (hud?.eliminated[s.color] ? ' out' : '')}>
+          return html`<button class=${'seat' + (cur ? ' cur' : '') + (hud?.eliminated[s.color] ? ' out' : '') + (reach === s.color ? ' reach' : '')}
+            aria-pressed=${reach === s.color} title=${t('game.reachHint', 'Ver hasta dónde llega en la próxima jugada')} onClick=${() => ref.current.showReach?.(s.color)}>
             <span class=${'token side-' + s.color}></span>
             <span class="nm">${s.name}</span>
             ${cur && n > 1 && html`<span class="pips">${Array.from({ length: n }, (_, k) => html`<i class=${k < hud.moves ? 'used' : ''}></i>`)}</span>`}
             <span class="cnt">${hud?.counts[s.color] ?? ''}</span>
             <${Icon} name=${s.kind} size=${15} />
-          </div>`;
+          </button>`;
         })}
       </section>
       <div class="chips">

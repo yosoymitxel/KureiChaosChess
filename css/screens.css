@@ -284,7 +284,9 @@
 .boss-row .hp b { width: 14px; height: 14px; border-radius: 50%; background: oklch(1 0 0 / 0.18); }
 .boss-row .hp b.on { background: var(--danger); }
 .seats { display: flex; flex-direction: column; gap: 6px; }
-.seat { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 2px solid transparent; transition: background 0.2s, border-color 0.2s; }
+.seat { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border-radius: 10px; border: 2px solid transparent; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background 0.2s, border-color 0.2s; }
+.seat:hover { background: color-mix(in oklch, var(--paper-2), transparent 40%); }
+.seat.reach { outline: 2px dashed var(--brass); outline-offset: -2px; }
 .seat .nm { flex: 1; min-width: 0; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .seat .cnt { font-size: 13px; font-weight: 700; color: var(--muted); }
 .seat.cur { border-color: var(--ink); background: var(--paper-2); --icon-cut: var(--paper-2); }
@@ -803,7 +805,15 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .zn-tool.on { color: var(--paper); }
 .zn-tool.on .zn-tool-ic { background: var(--brass); translate: 0 -3px; }
 .zn-packet:focus-visible, .zn-tool:focus-visible { outline: 3px solid var(--brass); outline-offset: 3px; }
-.zen-shop { width: 100%; }
+/* Tienda: la acción principal del panel, rellena de latón, con lo que hay y el monedero a la derecha. */
+.zen-shop { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; border: 2px solid var(--ink); border-radius: 10px; background: var(--brass); box-shadow: 0 3px 0 var(--ink); color: var(--ink); text-align: left; font: inherit; cursor: pointer; transition: translate 0.15s, box-shadow 0.15s; }
+.zen-shop:hover { translate: 0 -1px; box-shadow: 0 4px 0 var(--ink); }
+.zen-shop:active { translate: 0 2px; box-shadow: 0 1px 0 var(--ink); }
+.zen-shop-text { flex: 1; display: grid; gap: 2px; }
+.zen-shop-text strong { font-size: 17px; font-weight: 800; }
+.zen-shop-text small { font-size: 13px; color: var(--ink-2); }
+.zen-shop-coins { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px; background: var(--ink); color: var(--brass); font-weight: 800; }
+button.coin-chip { font: inherit; font-weight: 800; cursor: pointer; }
 /* Ampliar: barra con precio y confirmación; al armarse se pinta de latón. */
 .zen-expand { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border: 2px solid var(--ink); border-radius: 10px; background: var(--paper); background-image: var(--grain); font-weight: 750; font-size: 13px; color: var(--ink-2); cursor: pointer; }
 .zen-expand > .icon { width: 18px; height: 18px; flex: none; }

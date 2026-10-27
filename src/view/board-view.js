@@ -427,6 +427,11 @@ export class BoardView {
     this.selected = piece;
     for (const [p, el] of this.els) el.classList.toggle('sel', p === piece);
   }
+  // Alcance de un bando: un velo suave en cada casilla a la que llega ('own' latón, 'rival' rojo).
+  setReach(keys, tone) {
+    for (const [k, t] of this.tiles) t.classList.toggle('reach', !!keys?.has(k));
+    if (keys) this.host.dataset.reach = tone; else delete this.host.dataset.reach;
+  }
   setThreats(set) {
     for (const [p, el] of this.els) el.classList.toggle('threat', set.has(p));
   }

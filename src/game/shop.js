@@ -67,7 +67,9 @@ export function addToHand(run, ids, shop = false) {
     if (shopCount === cards.length) shopCount--;
     cards.shift();
   }
-  return { ...run, cards, shopCount };
+  // Lo comprado a mitad de un nivel sigue en la mano si el nivel se reinicia.
+  const level = shop && run.level ? { ...run.level, ...addToHand({ cards: run.level.cards, shopCount: run.level.shopCount }, ids, true) } : run.level;
+  return { ...run, cards, shopCount, ...(level && { level }) };
 }
 export function consumeCard(run, i) {
   const total = (run.cards || []).length, shopCount = Math.max(0, (run.shopCount || 0) - (i >= total - (run.shopCount || 0) ? 1 : 0));
