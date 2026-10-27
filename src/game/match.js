@@ -4,6 +4,7 @@ import { legalMoves, landing, buildOccupancy, hasAnyLegalMove, threatenedPieces,
 import { countMutations } from '../data/mutations.js';
 import { PIECE_VALUE, MINOR_TYPES } from '../data/pieces.js';
 import { RIVALS } from './difficulty.js';
+import { reserveIds } from './generate.js';
 
 // Turns per player without a capture before the game is decided on piece count.
 export const QUIET_LIMIT = 20;
@@ -301,6 +302,30 @@ function cheapestAttacker(match, mover, row, col, hits) {
 
 // Greedy bot: captures by value, centralisation, pressure on the enemy royal. The rival profile
 // (difficulty.js) dials what it sees, what it protects and how often it blunders.
+// Partida a medias, guardable en localStorage (salir al mapa o al menú y volver a entrar).
+const STATE = ['current', 'movesThisTurn', 'turn', 'eliminated', 'quietTurns', 'bonusMoves', 'turnBonus', 'cardUsed', 'doom'];
+const toJSON = (v) => JSON.stringify(v, (_, x) => (x instanceof Set ? { $set: [...x] } : x instanceof Map ? { $map: [...x] } : x));
+const fromJSON = (s) => JSON.parse(s, (_, x) => (x?.$set ? new Set(x.$set) : x?.$map ? new Map(x.$map) : x));
+export function freezeMatch(match, dealt) {
+  const state = Object.fromEntries(STATE.map((k) => [k, match[k]]));
+  if (match.ep) state.ep = { ...match.ep, pawn: match.ep.pawn.id };
+  return toJSON({ board: match.board, pieces: match.pieces, dealt, state });
+}
+// Devuelve { board, pieces, dealt, apply(match) }; las piezas repartidas que siguen en pie son las mismas del tablero.
+export function thawMatch(saved) {
+  const { board, pieces, dealt, state } = fromJSON(saved);
+  const byId = new Map(pieces.map((p) => [p.id, p]));
+  reserveIds([...pieces, ...dealt]);
+  return {
+    board, pieces,
+    dealt: dealt.map((p) => byId.get(p.id) || p),
+    apply(match) {
+      Object.assign(match, state);
+      if (state.ep) match.ep = { ...state.ep, pawn: byId.get(state.ep.pawn) };
+    },
+  };
+}
+
 export function botChooseMove(match) {
   const doomed = match.doom && ((r, c) => match.doom.some(([a, b]) => a === r && b === c));
   const { pieces, board } = match;

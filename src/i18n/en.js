@@ -135,6 +135,8 @@ export default {
     'versus.size': 'Size',
     'versus.shape': 'Shape',
     'versus.mechanic': 'Mechanic',
+    'resume.title': 'Unfinished match',
+    'resume.restart': 'Restart level',
     // Pause
     'pause.title': 'Paused',
     'pause.resume': 'Resume',

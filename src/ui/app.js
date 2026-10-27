@@ -6,7 +6,7 @@ import { MenuScreen } from './screens/menu.js';
 import { MapScreen } from './screens/map.js';
 import { SetupScreen, SettingsScreen, RUN_MECHANICS } from './screens/setup.js';
 import { GameScreen } from './screens/game.js';
-import { HowToOverlay } from './screens/overlays.js';
+import { HowToOverlay, ResumeOverlay } from './screens/overlays.js';
 import { setFullscreen } from './fullscreen.js';
 import { setSfxEnabled, setSfxVolume, startAmbient, setMusicScene, playSfx } from './sfx.js';
 import { MinisScreen } from './screens/minis.js';
@@ -16,7 +16,7 @@ import { GalleryScreen } from './screens/gallery.js';
 import { AchievementsScreen } from './screens/achievements.js';
 import { MODIFIERS } from '../data/modifiers.js';
 import { MINIGAMES } from '../data/minigame-catalog.js';
-import { loadRun, saveRun, clearRun, createRun, completeNode, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs, takeNewDemos } from '../game/run.js';
+import { loadRun, saveRun, clearRun, createRun, completeNode, enterLevel, resetLevel, dropLevel, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs, takeNewDemos } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard } from '../game/shop.js';
 import { ZEN_NAMES, addZenSeeds, pickSeed } from '../game/zen.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
@@ -52,6 +52,8 @@ export function App() {
   const [seats, setSeats] = useState(null);
   const [versus, setVersus] = useState(null); // partida local suelta: no toca la run ni sus cartas
   const [gameKey, setGameKey] = useState(0);
+  const [resume, setResume] = useState(null); // partida guardada que se retoma (run.suspended.match)
+  const [ask, setAsk] = useState(null); // nivel dejado a medias: continuar o reiniciar
   const [reward, setReward] = useState(null); // { kind, cards }
   const [reveal, setReveal] = useState(null); // mutación del Frasco extraño, que se enseña antes del mapa
   const [howTo, setHowTo] = useState(false);
@@ -148,15 +150,19 @@ export function App() {
 
   const enterNode = (n) => {
     setNode(n);
+    if (run?.suspended?.node === n.id) return setAsk(n);
+    setRun((r) => r && dropLevel(r));
     if (n.modifier === 'rest') { setReward({ kind: 'rest', cards: REST_CARDS }); return goTo('reward'); }
     if (n.modifier === 'bag') { setReward({ kind: 'bag', cards: shuffle3(BAG_CARDS) }); return goTo('reward'); }
     if (MODIFIERS[n.modifier]?.mini) return goTo('mini');
     if (!seats) return goTo('setup');
-    startGame(seats);
+    startGame(seats, n);
   };
 
-  const startGame = (s) => {
+  const startGame = (s, n = node, saved = null) => {
     setSeats(s);
+    setResume(saved);
+    if (!saved) setRun((r) => r && enterLevel(r, n));
     setGameKey((k) => k + 1);
     if (settings.fullscreen) setFullscreen(true);
     goTo('game');
@@ -291,8 +297,12 @@ export function App() {
     ${screen === 'game' && node && seats && run && html`<${GameScreen} key=${node.id + '-' + gameKey}
       node=${node} run=${run} seats=${seats} settings=${settings} setSettings=${setSettings}
       onExit=${() => goTo('map')} onMenu=${() => goTo('menu')} onAbandon=${() => { setRun(null); goTo('menu'); }}
-      onUseCard=${(i) => setRun((r) => consumeCard(r, i))}
-      onWin=${onWin} onRestart=${() => setGameKey((k) => k + 1)} onHowTo=${() => setHowTo(true)} />`}
+      onUseCard=${(i) => setRun((r) => consumeCard(r, i))} resume=${resume}
+      onSuspend=${(match) => setRun((r) => ({ ...r, suspended: { node: node.id, seats, match } }))}
+      onWin=${onWin} onRestart=${() => { setResume(null); setRun((r) => resetLevel(r)); setGameKey((k) => k + 1); }} onHowTo=${() => setHowTo(true)} />`}
+    ${ask && html`<${ResumeOverlay} onClose=${() => setAsk(null)}
+      onContinue=${() => { const s = run.suspended; setAsk(null); setRun((r) => ({ ...r, suspended: undefined })); startGame(s.seats, ask, s.match); }}
+      onRestart=${() => { const s = run.suspended; setAsk(null); setRun((r) => resetLevel(r)); startGame(s.seats, ask); }} />`}
     ${screen === 'mini' && Mini && html`<${Mini} key=${node.id + '-' + miniKey} sub=${t('mini.floorSub', 'Piso {n} · minijuego', { n: node.floor + 1 })} onBack=${() => goTo('map')} onEnd=${onMiniEnd}
       diff=${floorTier(node.floor, run.map.floors)}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />`}

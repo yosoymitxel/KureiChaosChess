@@ -26,9 +26,14 @@ export function createRun({ tutorial = false } = {}) {
 export const PREF_LIMITS = { fav: 3, ban: 1 };
 export const withPrefs = (run, prefs) => ({ ...run, prefs, map: generateMap(run.seed, prefs) });
 
+// Al entrar a un nivel se guarda la mano y los bonos: reiniciarlo, o dejarlo a medias por otro, los devuelve.
+export const enterLevel = (run, node) => ({ ...run, level: { node: node.id, cards: run.cards || [], shopCount: run.shopCount || 0, bonuses: run.bonuses || {} } });
+export const resetLevel = (run) => (run.level ? { ...run, cards: run.level.cards, shopCount: run.level.shopCount, bonuses: run.level.bonuses, suspended: undefined } : run);
+export const dropLevel = (run) => ({ ...resetLevel(run), level: undefined });
+
 export function completeNode(run, node, patch = {}) {
   return {
-    ...run, ...patch,
+    ...run, ...patch, level: undefined, suspended: undefined,
     completed: { ...run.completed, [node.id]: true },
     currentFloor: Math.min(run.map.floors - 1, node.floor + 1),
     lastNode: node.id,

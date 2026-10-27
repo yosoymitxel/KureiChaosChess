@@ -218,6 +218,8 @@ const spread = (cols, n) => {
 };
 
 let nextId = 1;
+// Tras cargar una partida guardada: las piezas nuevas no deben repetir id con las restauradas.
+export const reserveIds = (pieces) => { for (const p of pieces) nextId = Math.max(nextId, (parseInt(String(p.id).slice(1), 10) || 0) + 1); };
 export function makePiece(type, color, row, col, extra = {}) {
   const p = { id: 'p' + nextId++, type, color, row, col, royal: type === 'king', ...extra };
   if (type === 'pawn' && p.startRow == null) p.startRow = row;
