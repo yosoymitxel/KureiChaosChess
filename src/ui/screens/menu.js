@@ -54,21 +54,24 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
       });
       pieces.push(p);
     }
-    v.intro(pieces);
     // Las etiquetas viven fuera del 3D (si no, el plano del tablero las corta) y siguen a su pieza.
-    let raf;
+    // Solo mientras algo se mueve (reparto, cambio de tamaño): medir en cada fotograma del menú
+    // quieto tenía ocupado el hilo principal y trababa tabletas de pantalla grande.
+    let raf = 0, until = Infinity;
     const follow = () => {
       const box = tags.current.getBoundingClientRect();
-      for (const tag of tags.current.children) {
-        const fig = host.current.querySelector(`[data-pid="${tag.dataset.pid}"] .pc-fig`);
-        if (!fig) continue;
-        const r = fig.getBoundingClientRect();
-        tag.style.translate = `${r.left + r.width / 2 - box.left}px ${r.top + r.height * 0.28 - box.top}px`;
-      }
-      raf = requestAnimationFrame(follow);
+      const at = [...tags.current.children].map((tag) => [tag, host.current.querySelector(`[data-pid="${tag.dataset.pid}"] .pc-fig`)?.getBoundingClientRect()]);
+      for (const [tag, r] of at) if (r) tag.style.translate = `${r.left + r.width / 2 - box.left}px ${r.top + r.height * 0.28 - box.top}px`;
+      raf = performance.now() < until ? requestAnimationFrame(follow) : 0;
     };
+    let gone = false;
+    const kick = (ms) => { until = Math.max(until, performance.now() + ms); if (!raf && !gone) follow(); };
     follow();
-    return () => { cancelAnimationFrame(raf); tags.current?.replaceChildren(); v.destroy(); };
+    // 1.7 s tras el reparto: lo que queda del giro del tablero (settle, 1.6 s).
+    v.intro(pieces).finally(() => { until = 0; kick(1700); });
+    const ro = new ResizeObserver(() => kick(800)); // el tablero se reajusta con transición de 0.6 s
+    ro.observe(host.current);
+    return () => { gone = true; cancelAnimationFrame(raf); ro.disconnect(); tags.current?.replaceChildren(); v.destroy(); };
   }, []);
   // Secreto: tres toques seguidos al Titán lo despiertan.
   const poke = (el) => {
@@ -149,7 +152,7 @@ export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onS
     <div class="menu-col">
       <div class="logo" data-enter>
         <h1 aria-label="Kure'i ChaosChess"><span class="logo-main" aria-hidden="true">Kure'<span class="logo-i" ref=${crown}>ı<${Icon} name="crown" size=${40} /></span></span>
-          <span class="logo-sub" aria-hidden="true"><span class="logo-chaos">${[...'Chaos'].map((ch, i) => html`<i style=${{ '--i': i }}>${ch}</i>`)}</span>Chess</span></h1>
+          <span class="logo-sub-in" aria-hidden="true"><span class="logo-sub"><span class="logo-chaos">${[...'Chaos'].map((ch, i) => html`<i style=${{ '--i': i }}>${ch}</i>`)}</span>Chess</span></span></h1>
         <p>${t('menu.tagline', 'Ajedrez que muta en cada piso. Sube la torre, gana piezas raras y derriba al coloso del final.')}</p>
       </div>
       <nav class="menu-actions">
