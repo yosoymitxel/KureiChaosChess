@@ -1153,7 +1153,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 }
 .ah-puck.gone { opacity: 0; }
 /* Regla de los siete segundos: los tres últimos, el disco parpadea en bermellón. */
-.ah-puck.warn i { --tk: var(--accent); animation: ah-warn 0.5s steps(2, jump-none) infinite; }
+.ah-puck.warn i { --tk: var(--accent); animation: ah-warn 0.5s ease-in-out infinite; }
 @keyframes ah-warn { 50% { --tk: var(--brass); filter: brightness(1.3); } }
 .ah.lost { filter: saturate(0.35) brightness(0.85); transition: filter 0.8s var(--ease-out); }
 .ah-score b { font-size: 15px; color: var(--paper); }

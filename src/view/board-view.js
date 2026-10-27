@@ -667,7 +667,6 @@ export class BoardView {
       const vx = ((st.c - last.c) * this.sq) / dt, vy = ((st.r - last.r) * this.sq) / dt, vz = (st.z - last.z) / dt;
       last = { r: st.r, c: st.c, z: st.z, t: now };
       let k = Math.min(0.26, Math.hypot(vx, vy, vz) * 0.45);
-      if (!tilt) k = Math.round(k * 8) / 8; // en píxel, a escalones de un píxel de sprite
       fig.style.scale = `${(1 / Math.sqrt(1 + k)).toFixed(3)} ${(1 + k).toFixed(3)}`;
       if (tilt) fig.style.rotate = `${Math.max(-12, Math.min(12, vx * 26)).toFixed(1)}deg`;
     };

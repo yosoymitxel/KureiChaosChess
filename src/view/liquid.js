@@ -51,10 +51,9 @@ export function liquid(svg, { side, from: [ox, oy], to: [dx, dy], rx, ry, px, ar
 
 // En las mesas píxel el desenfoque no encaja: el charco son discos escalonados como la peana
 // (--px-disc de board.css: contorno de tinta, relleno del bando y banda de sombra abajo) que
-// menguan y crecen a saltos, sin fundirse.
+// menguan y crecen sin fundirse.
 const DISC = [[30, 0], [70, 0], [70, 8], [84, 8], [84, 18], [92, 18], [92, 32], [100, 32], [100, 68], [92, 68], [92, 82], [84, 82], [84, 92], [70, 92], [70, 100], [30, 100], [30, 92], [16, 92], [16, 82], [8, 82], [8, 68], [0, 68], [0, 32], [8, 32], [8, 18], [16, 18], [16, 8], [30, 8]];
 const disc = (cx, cy, rx, ry) => DISC.map(([x, y]) => `${cx + (x / 50 - 1) * rx},${cy + (y / 50 - 1) * ry}`).join(' ');
-const step = (v, n) => Math.round(v * n) / n;
 
 function pixelLiquid(svg, { side, from: [ox, oy], to: [dx, dy], rx, ry, dur }) {
   const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -74,7 +73,7 @@ function pixelLiquid(svg, { side, from: [ox, oy], to: [dx, dy], rx, ry, dur }) {
   };
   const s = { m: 1, u: 0 };
   const draw = () => {
-    const m = step(s.m, 4), f = 1 - m, u = step(s.u, 5);
+    const m = s.m, f = 1 - m, u = s.u;
     put(0, ox, oy + ry * 0.25 * f, rx * m * (1 + 0.5 * f), ry * m * m);
     const r = Math.min(rx, ry) * 0.4 * (1 - f) * Math.min(1, f * 4);
     put(1, ox - rx * (0.3 + 1.1 * f), oy + ry * 0.3 * f, r, r);

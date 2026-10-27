@@ -183,11 +183,9 @@ export class Moments {
     const play = (async () => {
       motion(el.querySelectorAll('.bar'), { scaleY: [0, 1] }, { duration: ts(0.35), ease: OUT });
       q('.cine-text').style.opacity = 0;
-      // En píxel el giro va a saltos, como fotogramas de sprite.
-      const pixel = document.documentElement.dataset.art === 'pixel', frames = (n, e) => (pixel ? (x) => Math.round(e(x) * n) / n : e);
       const spin = 360 * 5 + (heads ? 0 : 180);
-      motion(q('.toss'), { rotateX: [0, spin] }, { duration: ts(1.4), ease: frames(40, (x) => 1 - (1 - x) ** 2.4) });
-      await motion(q('.toss-stage'), { y: [0, -150, 0], scale: [0.7, 1.15, 1] }, { duration: ts(1.4), ease: frames(14, (x) => x) });
+      motion(q('.toss'), { rotateX: [0, spin] }, { duration: ts(1.4), ease: (x) => 1 - (1 - x) ** 2.4 });
+      await motion(q('.toss-stage'), { y: [0, -150, 0], scale: [0.7, 1.15, 1] }, { duration: ts(1.4), ease: (x) => x });
       this.dust(q('.toss-stage'));
       await motion(q('.toss-stage'), { y: [0, -14, 0] }, { duration: ts(0.25), ease: OUT });
       await motion(q('.cine-text'), { opacity: [0, 1], y: [10, 0] }, { duration: ts(0.35), ease: OUT });
