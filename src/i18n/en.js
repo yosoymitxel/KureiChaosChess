@@ -1007,5 +1007,5 @@ export default {
     knight: 'Jumps in an L towards you when you\'re close.',
   },
 
-  pickups: { coin: { name: 'Coin' }, leaf: { name: 'Maple leaf' }, seed: { name: 'Seed' } },
+  pickups: { coin: { name: 'Coin' }, leaf: { name: 'Maple leaf' }, seed: { name: 'Seed' }, butterfly: { name: 'Butterfly' } },
 };

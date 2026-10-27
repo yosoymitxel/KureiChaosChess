@@ -290,6 +290,9 @@
 .prop.coin { color: var(--brass); }
 .prop.hand { pointer-events: auto; cursor: grab; }
 .prop.leaf > svg { width: calc(var(--sq) * 0.66); height: calc(var(--sq) * 0.66); }
+/* La mariposa queda posada un poco en el aire (lo deja su vuelo de llegada) y bate despacio, como la del jardín. */
+.prop.butterfly > svg { width: calc(var(--sq) * 0.7); height: calc(var(--sq) * 0.7); overflow: visible; }
+.prop.butterfly .zn-wing { animation-duration: 1.6s; }
 [data-art="pixel"] .pond-tile { background: oklch(0.5 0.07 215); box-shadow: inset 0 0 0 3px oklch(0.36 0.06 230); }
 @media (prefers-reduced-motion: reduce) { .bd-koi { animation: none; } }
 

@@ -23,7 +23,7 @@ import { PICKUPS, PICKUPS_EVERY, dropPickups } from '../../data/pickups.js';
 import { PICKUP_ART } from '../zen-art.js';
 import { isShopCard, addCoins, loadShop } from '../../game/shop.js';
 import { flyCoins } from '../coins.js';
-import { addZenSeeds, pickSeed, ZEN_NAMES } from '../../game/zen.js';
+import { addZenSeeds, pickSeed, butterflyGift, ZEN_NAMES } from '../../game/zen.js';
 import { t, tp } from '../../i18n/index.js';
 
 const SIDE_NAME = { light: t('side.lightLower', 'marfil'), dark: t('side.darkLower', 'carmesí'), wild: t('side.wildLower', 'jade') };
@@ -357,6 +357,11 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const dropProps = () => {
       if (scenario || node.versus || match.over) return;
       d.props ||= new Map();
+      // La mariposa no espera para siempre: a los `stay` turnos tuyos se va volando.
+      for (const [k, prop] of d.props) {
+        const stay = PICKUPS[prop.id].stay;
+        if (stay && ++prop.turns > stay) { d.props.delete(k); d.view.takeProp(prop.el, false, true); }
+      }
       d.propWait = d.props.size ? 0 : (d.propWait ?? PICKUPS_EVERY) + 1;
       if (d.propWait < PICKUPS_EVERY) return;
       d.propWait = 0;
@@ -369,7 +374,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
           el.setAttribute('role', 'button'); el.setAttribute('aria-label', t('game.takeProp', '{name}: tócala para quitarla', { name: it.name }));
           el.addEventListener('take', () => { if (d.props.delete(key(row, col))) take(it, el, true); });
         }
-        d.props.set(key(row, col), { id, el, hand: it.hand });
+        d.props.set(key(row, col), { id, el, hand: it.hand, turns: 0 });
       }
     };
     const pickUp = (piece) => {
@@ -386,10 +391,12 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const take = (it, el, hand) => {
       const from = el.getBoundingClientRect();
       d.view.takeProp(el, true, hand);
-      playSfx(hand ? 'leaf' : it.coins ? 'pop' : 'coin');
-      if (hand) award('leaf_hand');
-      if (it.coins) { flyCoins(from, coinRef.current, Math.min(3, it.coins), () => setCoins(addCoins(it.coins))); addLog(`${it.name}: +` + tp('game.coins', it.coins, '{n} moneda', '{n} monedas')); }
-      if (it.seed) { const kind = pickSeed(); addZenSeeds(kind, it.seed); addLog(t('game.seedLog', 'Semilla de {kind} para el jardín', { kind: ZEN_NAMES[kind].toLowerCase() })); }
+      playSfx(it.gift ? 'flower' : hand ? 'leaf' : it.coins ? 'pop' : 'coin');
+      if (it.id === 'leaf') award('leaf_hand');
+      // La mariposa deja lo mismo que en el jardín: 2 monedas o una semilla de una especie al azar.
+      const gift = it.gift ? butterflyGift() : {}, coins = gift.coins || it.coins, seed = gift.seed || (it.seed && pickSeed());
+      if (coins) { flyCoins(from, coinRef.current, Math.min(3, coins), () => setCoins(addCoins(coins))); addLog(`${it.name}: +` + tp('game.coins', coins, '{n} moneda', '{n} monedas')); }
+      if (seed) { const kind = seed; addZenSeeds(kind, it.seed || 1); addLog(t('game.seedLog', 'Semilla de {kind} para el jardín', { kind: ZEN_NAMES[kind].toLowerCase() })); }
     };
 
     const startTurn = (newTurn = true) => {

@@ -221,7 +221,7 @@ export function rakeArt(n, objs, raw) {
 }
 
 // Coleccionables del tablero (src/data/pickups.js); la moneda usa su icono.
-export const PICKUP_ART = { leaf: mapleLeaf, seed: POUCH };
+export const PICKUP_ART = { leaf: mapleLeaf, seed: POUCH, butterfly: BUTTERFLY };
 
 // Estanque en el hueco central de un tablero: dos koi dando vueltas en sentidos contrarios.
 // Cada koi va en su propia capa HTML que gira: girar un <g> dentro del SVG no pasa al compositor y

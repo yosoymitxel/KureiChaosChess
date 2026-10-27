@@ -7,6 +7,8 @@ export const PICKUPS = localize('pickups', {
   coin: { id: 'coin', name: 'Moneda', weight: 5, coins: 2 },
   leaf: { id: 'leaf', name: 'Hoja de arce', weight: 4, coins: 1, hand: true },
   seed: { id: 'seed', name: 'Semilla', weight: 1, seed: 1 },
+  // Visita del jardín: se toca como la hoja y deja 2 monedas o una semilla; se va sola a los `stay` turnos tuyos.
+  butterfly: { id: 'butterfly', name: 'Mariposa', weight: 1, hand: true, gift: true, stay: 3 },
 });
 export const PICKUPS_PER_BOARD = [1, 3];
 // Cuando no queda ninguno, vuelven a caer tras estos turnos tuyos.

@@ -247,7 +247,8 @@ export class BoardView {
     if (reduced()) return el;
     // La hoja cae de lo alto meciéndose, como del arce del jardín; lo demás cae rebotando.
     const q = this.sq;
-    if (cls === 'leaf') animate(el, { translateZ: [q * 6, q * 3.6, q * 1.4, 0], translateX: [-q * 0.6, q * 0.5, -q * 0.3, 0], rotate: [-35, 28, -12, 0], opacity: [0, 1, 1, 1], duration: this.d(3200), ease: 'inOutSine' });
+    if (cls === 'butterfly') animate(el, { translateZ: [q * 5, q * 2.4, q * 1.2, q * 0.9], translateX: [q * 2.6, q * 1.2, q * 0.4, 0], translateY: [-q * 1.5, -q * 0.6, -q * 0.2, 0], opacity: [0, 1, 1, 1], duration: this.d(2400), ease: 'outQuad' });
+    else if (cls === 'leaf') animate(el, { translateZ: [q * 6, q * 3.6, q * 1.4, 0], translateX: [-q * 0.6, q * 0.5, -q * 0.3, 0], rotate: [-35, 28, -12, 0], opacity: [0, 1, 1, 1], duration: this.d(3200), ease: 'inOutSine' });
     else animate(el, { translateZ: [q * 1.2, 0], opacity: [0, 1], duration: this.d(520), ease: 'outBounce' });
     return el;
   }
