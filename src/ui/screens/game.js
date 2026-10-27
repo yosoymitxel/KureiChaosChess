@@ -4,7 +4,7 @@ import { Icon, PieceIcon } from '../icons.js';
 import { TurnBanner, CardFace, MiniEnd } from '../components.js';
 import { BoardView } from '../../view/board-view.js';
 import { artOf } from '../../view/piece-art.js';
-import { Match, botChooseMove } from '../../game/match.js';
+import { Match, botChooseMove, freezeMatch, thawMatch } from '../../game/match.js';
 import { rivalForFloor } from '../../game/difficulty.js';
 import { generateBoard, placePieces, eliteVariants } from '../../game/generate.js';
 import { moveCells, cellsOf, key, anchorForCell, immune, walkable } from '../../game/rules.js';
@@ -53,7 +53,7 @@ function cardEffect(card, piece, pv) {
 // `scenario` (un minijuego de src/data/scenarios.js ya armado): trae tablero, piezas, rival y objetivo
 // propios; el resto (vista, bot, avisos, demos) es el de cualquier piso.
 // `onRound(result)` (partida local): cuenta la ronda y devuelve la nota de la ficha final.
-export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools, exitLabel, onRound }) {
+export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools, exitLabel, onRound, resume, onSuspend }) {
   const hostRef = useRef(null);
   const mainRef = useRef(null);
   const ref = useRef({}); // mutable director state: view, match, busy, selected
@@ -75,17 +75,20 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
 
   useEffect(() => {
     const d = ref.current;
-    const board = scenario?.board || generateBoard(node.seed, node.floor, run.map.floors, node.modifier, node.board);
-    const pieces = scenario?.pieces || placePieces(board, { modifier: node.modifier, playerCount: seats.length, isBoss: node.isBoss, isMiniBoss: node.isMiniBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses, floor: node.floor, totalFloors: run.map.floors });
+    // `resume`: la partida que se dejó a medias al salir al mapa o al menú (freezeMatch).
+    const saved = !scenario && resume ? thawMatch(resume) : null;
+    const board = saved?.board || scenario?.board || generateBoard(node.seed, node.floor, run.map.floors, node.modifier, node.board);
+    const pieces = saved?.pieces || scenario?.pieces || placePieces(board, { modifier: node.modifier, playerCount: seats.length, isBoss: node.isBoss, isMiniBoss: node.isMiniBoss, elite: node.modifier === 'elite', seed: node.seed, mutations: run.mutations, bonuses: run.bonuses, floor: node.floor, totalFloors: run.map.floors });
     // El rival lo manda el tramo de la torre (difficulty.js); el ajuste de dificultad corre la
     // escalera y el mini-jefe sube un peldaño.
     const rival = scenario?.rival || rivalForFloor(node.floor, run.map.floors, { up: node.isMiniBoss ? 1 : 0, difficulty: run.tutorial ? 'facil' : settings.difficulty });
     const match = new Match({ board, pieces, players: seats, modifier: node.modifier, mutations: run.mutations, bonuses: run.bonuses, rival, objective: scenario?.objective, bonus: scenario?.bonus, tick: scenario?.tick });
+    saved?.apply(match);
     // Foto del bando humano al repartir: decide los logros de fin de partida.
     const human = seats.find((s) => s.kind === 'human')?.color || 'light';
     d.feats = { human, mine: new Set(pieces.filter((p) => p.color === human)), cards: 0, hadCards: d.hand.length > 0 };
     // Las piezas del reparto: el panel muestra como capturas las que ya no están en el tablero.
-    d.dealt = pieces.filter((p) => !p.boss);
+    d.dealt = saved ? saved.dealt : pieces.filter((p) => !p.boss);
     const humanTurn = () => match.player.kind === 'human' && !match.over && !d.busy && !d.paused;
 
     const refresh = () => {
@@ -576,6 +579,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
           d.moments.cinematic({ title: t('game.resign', 'Te rindes'), sub: t('game.resignSub', 'El rey se tumba sobre el tablero. La run termina aquí.'), piece: { type: king?.type || 'king', side: human }, anim: 'resign' }),
         ]);
       } else await d.view.outro(kind);
+      if (kind === 'exit' && !match.over && !scenario && !node.versus) onSuspend?.(freezeMatch(match, d.dealt));
       then();
     };
 
@@ -595,8 +599,10 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const bossSub = boss && BOSSES[boss.boss].desc + (learned ? ' ' + t('game.lentStar', 'Sus oficiales llevan la estrella: movimientos prestados.') : '');
     if (boss) addLog(t('game.bossAppears', 'Aparece {name}', { name: boss.name }) + (learned ? ' · ' + tp('game.lentOfficers', learned, '{n} oficial con movimientos prestados', '{n} oficiales con movimientos prestados') : ''));
     refresh();
+    // Al continuar una partida guardada solo se reparte el tablero: nada de presentación ni moneda.
+    if (saved) d.view.intro(pieces).then(() => { if (d.dead) return; d.busy = false; startTurn(); });
     // The floor card plays over the board while it assembles; the boss gets its own entrance after landing.
-    Promise.all([
+    else Promise.all([
       d.view.intro(pieces),
       (!boss || scenario) && d.moments.cinematic({ title: scenario ? mod.name : t('setup.floor', 'Piso {n}', { n: node.floor + 1 }), sub: scenario ? mod.goal : `${mod.name}. ${mod.desc}`, icon: mod.icon, wave: seats.flatMap((s) => ['pawn', 'knight', 'king'].map((t) => [t, s.color])) }),
     ])

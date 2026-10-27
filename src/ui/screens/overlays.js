@@ -16,6 +16,18 @@ const useEscape = (fn) => useEffect(() => {
   return () => removeEventListener('keydown', onKey, true);
 }, []);
 
+// Volver a un nivel que se dejó a medias: seguir donde quedó o empezarlo de nuevo con la mano de entonces.
+export function ResumeOverlay({ onContinue, onRestart, onClose }) {
+  useEscape(onClose);
+  return html`<div class="overlay" onClick=${closeOnBackdrop(onClose)}>
+    <div class="panel pause" role="dialog" aria-modal="true" aria-label=${t('resume.title', 'Partida a medias')}>
+      <h1>${t('resume.title', 'Partida a medias')}</h1>
+      <button class="btn primary" autofocus onClick=${onContinue}><${Icon} name="swords" size=${16} />${t('common.continue', 'Continuar')}</button>
+      <button class="btn" onClick=${onRestart}><${Icon} name="refresh" size=${16} />${t('resume.restart', 'Reiniciar nivel')}</button>
+    </div>
+  </div>`;
+}
+
 export function PauseOverlay({ onResume, onRestart, onExit, onMenu, onAbandon, onHowTo, settings, setSettings }) {
   useEscape(onResume);
   const full = useFullscreen();
