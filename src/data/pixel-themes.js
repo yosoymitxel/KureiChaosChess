@@ -48,7 +48,7 @@ export const PIXEL_THEMES = {
       "ink": "#211a1d",
       "ink-2": "#49383a",
       "accent": "#8d293c",
-      "accent-ink": "#f8e9df",
+      "accent-ink": "#4d1621",
       "brass": "#d2a84a",
       "muted": "#71615f"
     },
@@ -80,7 +80,7 @@ export const PIXEL_THEMES = {
       "ink": "#261b32",
       "ink-2": "#4e3a61",
       "accent": "#8050ad",
-      "accent-ink": "#fff4ff",
+      "accent-ink": "#462c5f",
       "brass": "#e0bd68",
       "muted": "#77648b"
     },
@@ -144,7 +144,7 @@ export const PIXEL_THEMES = {
       "ink": "#211b1b",
       "ink-2": "#4b3830",
       "accent": "#bd4d1c",
-      "accent-ink": "#fff0d2",
+      "accent-ink": "#672a0f",
       "brass": "#f2b544",
       "muted": "#74604c"
     },
@@ -175,7 +175,7 @@ export const PIXEL_THEMES = {
       "ink": "#22232a",
       "ink-2": "#484852",
       "accent": "#586b55",
-      "accent-ink": "#f1eee4",
+      "accent-ink": "#303a2e",
       "brass": "#a7a18b",
       "muted": "#777780"
     },
@@ -206,7 +206,7 @@ export const PIXEL_THEMES = {
       "ink": "#201725",
       "ink-2": "#453548",
       "accent": "#9c234d",
-      "accent-ink": "#fff0f5",
+      "accent-ink": "#55132a",
       "brass": "#d6b0ca",
       "muted": "#726174"
     },
@@ -302,7 +302,7 @@ export const PIXEL_THEMES = {
       "ink": "#202923",
       "ink-2": "#435348",
       "accent": "#a94f2e",
-      "accent-ink": "#fff0df",
+      "accent-ink": "#5c2b19",
       "brass": "#d8b56a",
       "muted": "#697668"
     },
@@ -398,7 +398,7 @@ export const PIXEL_THEMES = {
       "ink": "#213126",
       "ink-2": "#405843",
       "accent": "#8c4fba",
-      "accent-ink": "#fff1bd",
+      "accent-ink": "#4d2b66",
       "brass": "#f6d66b",
       "muted": "#647b64"
     },
@@ -461,7 +461,7 @@ export const PIXEL_THEMES = {
       "ink": "#1f1624",
       "ink-2": "#46354d",
       "accent": "#ab2d50",
-      "accent-ink": "#fff0f5",
+      "accent-ink": "#5e182c",
       "brass": "#c9a36a",
       "muted": "#726174"
     },
@@ -493,7 +493,7 @@ export const PIXEL_THEMES = {
       "ink": "#08282e",
       "ink-2": "#20515a",
       "accent": "#168f98",
-      "accent-ink": "#e9fffc",
+      "accent-ink": "#0c4e53",
       "brass": "#f08bc7",
       "muted": "#477b80"
     },
