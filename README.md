@@ -4,7 +4,7 @@
 Sube la torre, gana piezas raras y derriba al coloso del final.</p>
 
 <p align="center"><a href="https://yosoymitxel.github.io/KureiChaosChess/"><b>▶ Jugar gratis en el navegador</b></a><br/>
-<sub>Móvil o PC · sin instalar · en español</sub></p>
+<sub>Móvil o PC · sin instalar · español e inglés · con mando</sub></p>
 
 ![El menú: el título sobre una mesa donde el Titán espera frente a tus piezas](docs/img/menu-walnut.jpg)
 
@@ -57,7 +57,7 @@ quién empieza y elige:
 - **Tienda.** Compra mesas nuevas y cosas para el jardín con las monedas de las runs.
 - **23 mesas.** 17 son de pixel art y cambian el juego entero: piezas, letra, sonidos y música.
   Hay mesa de gatos, piratas, zombis, marcianitos, Halloween, reino de los hongos…
-- **Galería y 33 logros** para ver todo lo que has descubierto.
+- **Galería y 41 logros** para ver todo lo que has descubierto.
 
 <p align="center"><img src="docs/img/jardin.jpg" alt="El jardín zen con su estanque de kois" width="720" /></p>
 

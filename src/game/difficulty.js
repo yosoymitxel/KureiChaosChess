@@ -3,6 +3,7 @@
 // Generación y juego leen estas tablas; la preparación muestra al rival. Los criterios se
 // verifican en tools/ladder.mjs.
 import { MODIFIERS } from '../data/modifiers.js';
+import { localize } from '../i18n/index.js';
 
 // Tramo de la torre: fácil, normal o difícil. La misma partición que usan los minijuegos.
 export const floorTier = (floor, floors) => {
@@ -16,7 +17,7 @@ export const bandOf = (floor, floors) => BAND[floorTier(floor, floors)];
 // `capture` cuánto ve el valor de una captura; `pressure` cuánto presiona al rey enemigo;
 // `care` cuánto evita dejar piezas colgadas; `guard` cuánto cubre a su rey o jefe (no lo deja
 // a tiro ni le quita el escudo); `blunder` la chance de mover al azar.
-export const RIVALS = {
+export const RIVALS = localize('rivals', {
   aprendiz: {
     id: 'aprendiz', name: 'Aprendiz', desc: 'Juega suelto: pierde capturas y se descuida del rey.',
     noise: 25, capture: 0.65, pressure: 0.2, care: 0, guard: 0.4, blunder: 0.15,
@@ -29,17 +30,17 @@ export const RIVALS = {
     id: 'maestro', name: 'Maestro', desc: 'No cuelga piezas y castiga cualquier descuido.',
     noise: 0.5, capture: 1, pressure: 1.8, care: 1, guard: 1, blunder: 0,
   },
-};
+});
 export const RIVAL_STEPS = ['aprendiz', 'oficial', 'maestro'];
 const TIER_STEP = { facil: 'aprendiz', normal: 'oficial', dificil: 'maestro' };
 
 // Ajuste del jugador (Ajustes): corre la escalera entera un peldaño, con topes en los extremos.
 // La escalera de fábrica queda como la rúbrica "Normal": la dificultad se elige, no se sufre.
-export const DIFFICULTIES = {
+export const DIFFICULTIES = localize('difficulties', {
   facil: { id: 'facil', name: 'Fácil', shift: -1, desc: 'La escalera baja un peldaño: la torre no pasa del Oficial.' },
   normal: { id: 'normal', name: 'Normal', shift: 0, desc: 'La escalera tal cual: Aprendiz, Oficial y Maestro en los tercios de la torre.' },
   dificil: { id: 'dificil', name: 'Difícil', shift: 1, desc: 'La escalera sube un peldaño: arranca en el Oficial y el Maestro llega antes.' },
-};
+});
 
 // El rival de un piso: el tramo lo fija; `up` sube un peldaño (el piso de un mini-jefe) y el
 // ajuste de dificultad corre toda la escalera.

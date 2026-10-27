@@ -1,6 +1,7 @@
 import { mulberry32 } from '../core/rng.js';
+import { localize } from '../i18n/index.js';
 
-export const MUTATIONS = {
+export const MUTATIONS = localize('mutations', {
   fury: { id: 'fury', name: 'Furia', icon: 'boot', desc: '+1 movimiento por turno que no captura (máx. 3).', stack: true, maxStack: 3, rarity: 'rare' },
   crown: { id: 'crown', name: 'Corona doble', icon: 'crown', desc: 'Tus peones coronan siempre en la última fila.', rarity: 'common' },
   knightBishop: { id: 'knightBishop', name: 'Caballo loco', icon: 'knight', desc: 'Tus caballos también se mueven como alfiles.', rarity: 'rare' },
@@ -11,7 +12,7 @@ export const MUTATIONS = {
   cannonRange: { id: 'cannonRange', name: 'Artillería', icon: 'cannon', desc: 'Tus cañones saltan 2 piezas propias.', rarity: 'common' },
   queenKnight: { id: 'queenKnight', name: 'Reina estratega', icon: 'queenKnight', desc: 'Tu reina también salta como caballo.', rarity: 'epic' },
   bishopOrth: { id: 'bishopOrth', name: 'Alfil blindado', icon: 'bishop', desc: 'Tus alfiles también se mueven hasta 2 en línea recta.', rarity: 'common' },
-};
+});
 const KEYS = Object.keys(MUTATIONS);
 
 export const countMutations = (list) => list.reduce((c, m) => ((c[m] = (c[m] || 0) + 1), c), {});

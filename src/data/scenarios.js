@@ -9,8 +9,9 @@ import { applyMutations, EXTRA_MOVES } from './mutations.js';
 import { MODIFIERS } from './modifiers.js';
 import { MATES } from './mates.js';
 import { SIZE as MATE_SIZE, board as mateBoard, defend, isCheckmate } from '../game/mates.js';
+import { t, tp } from '../i18n/index.js';
 
-export const LEVELS = { facil: { name: 'Fácil' }, normal: { name: 'Normal' }, dificil: { name: 'Difícil' } };
+export const LEVELS = { facil: { name: t('diff.facil', 'Fácil') }, normal: { name: t('diff.normal', 'Normal') }, dificil: { name: t('diff.dificil', 'Difícil') } };
 const N = 8;
 const board = (n = N) => ({ rows: n, cols: n, holes: new Set(), terrain: new Map(), portals: new Map() });
 const rounds = (m) => Math.floor(m.turn / m.players.length);
@@ -35,7 +36,7 @@ export const SCENARIOS = {
   // El peón corre a coronar con las reglas de siempre; tus cazadores tienen que alcanzarlo.
   caceria: {
     id: 'caceria',
-    goal: 'Captura a todos los peones carmesí antes de que uno corone. Comen en diagonal: cuidado con dónde caes.',
+    goal: t('sc.caceria.goal', 'Captura a todos los peones carmesí antes de que uno corone. Comen en diagonal: cuidado con dónde caes.'),
     levels: {
       facil: { hunters: ['knight', 'bishop', 'rook', 'knight'], pawns: 2, holes: 2, rival: { noise: 6, capture: 1, pressure: 0, care: 0, advance: 2 } },
       normal: { hunters: ['knight', 'bishop', 'rook'], pawns: 3, holes: 3, rival: { noise: 2, capture: 1, pressure: 0, care: 1, advance: 3 } },
@@ -50,11 +51,11 @@ export const SCENARIOS = {
       rubble(rng, b, pieces, lv.holes, (r, c) => files.includes(c));
       return {
         board: b, pieces, rival: lv.rival,
-        objective: (m) => side(m, 'dark').some((p) => p.type !== 'pawn') ? { victory: false, note: 'Un peón llegó al fondo y coronó.' }
-          : !side(m, 'light').length ? { victory: false, note: 'Los peones se comieron a tus cazadores.' }
-          : !side(m, 'dark').length ? { victory: true, note: 'No quedó ni un fugitivo.' }
-          : rounds(m) >= 20 ? { victory: false, note: 'Los fugitivos aguantaron 20 rondas.' } : null,
-        status: (m) => `Peones: ${side(m, 'dark').length} · el más adelantado corona en ${Math.min(...side(m, 'dark').map((p) => N - 1 - p.row))} · quedan ${20 - rounds(m)} rondas`,
+        objective: (m) => side(m, 'dark').some((p) => p.type !== 'pawn') ? { victory: false, note: t('sc.caceria.lost1', 'Un peón llegó al fondo y coronó.') }
+          : !side(m, 'light').length ? { victory: false, note: t('sc.caceria.lost2', 'Los peones se comieron a tus cazadores.') }
+          : !side(m, 'dark').length ? { victory: true, note: t('sc.caceria.won', 'No quedó ni un fugitivo.') }
+          : rounds(m) >= 20 ? { victory: false, note: t('sc.caceria.lost3', 'Los fugitivos aguantaron 20 rondas.') } : null,
+        status: (m) => t('sc.caceria.status', 'Peones: {n} · el más adelantado corona en {d} · quedan {r} rondas', { n: side(m, 'dark').length, d: Math.min(...side(m, 'dark').map((p) => N - 1 - p.row)), r: 20 - rounds(m) }),
       };
     },
   },
@@ -62,7 +63,7 @@ export const SCENARIOS = {
   // Tu rey y su escolta aguantan el asedio de una escuadra sin rey.
   bodyguard: {
     id: 'bodyguard',
-    goal: 'Mantén vivo a tu rey hasta el final del asedio, o derriba a toda la escuadra carmesí. Cada bando mueve dos veces por turno y la segunda no puede capturar; a mitad del asedio, tres.',
+    goal: t('sc.bodyguard.goal', 'Mantén vivo a tu rey hasta el final del asedio, o derriba a toda la escuadra carmesí. Cada bando mueve dos veces por turno y la segunda no puede capturar; a mitad del asedio, tres.'),
     levels: {
       facil: { escorts: 3, squad: ['knight', 'knight', 'pawn', 'pawn', 'pawn', 'pawn'], rounds: 8, holes: 2, rival: 'oficial' },
       normal: { escorts: 3, squad: ['knight', 'knight', 'knight', 'pawn', 'pawn', 'pawn', 'pawn'], rounds: 10, holes: 3, rival: 'maestro' },
@@ -87,12 +88,12 @@ export const SCENARIOS = {
       rubble(rng, b, pieces, lv.holes);
       return {
         board: b, pieces, rival: lv.rival,
-        objective: (m) => m.eliminated.light ? { victory: false, note: 'La escuadra alcanzó a tu rey.' }
-          : !side(m, 'dark').length ? { victory: true, note: 'Desarmaste a toda la escuadra.' }
-          : rounds(m) >= lv.rounds ? { victory: true, note: 'Tu rey resistió el asedio.' } : null,
+        objective: (m) => m.eliminated.light ? { victory: false, note: t('sc.bodyguard.lost', 'La escuadra alcanzó a tu rey.') }
+          : !side(m, 'dark').length ? { victory: true, note: t('sc.bodyguard.won1', 'Desarmaste a toda la escuadra.') }
+          : rounds(m) >= lv.rounds ? { victory: true, note: t('sc.bodyguard.won2', 'Tu rey resistió el asedio.') } : null,
         // Todos mueven dos veces (la segunda sin capturar); pasada la mitad del asedio, tres.
         bonus: (m) => (rounds(m) >= lv.rounds / 2 ? 2 : 1),
-        status: (m) => `Aguanta ${lv.rounds - rounds(m)} rondas · ${side(m, 'dark').length} atacantes · ${rounds(m) >= lv.rounds / 2 ? 3 : 2} jugadas por turno`,
+        status: (m) => t('sc.bodyguard.status', 'Aguanta {r} rondas · {n} atacantes · {k} jugadas por turno', { r: lv.rounds - rounds(m), n: side(m, 'dark').length, k: rounds(m) >= lv.rounds / 2 ? 3 : 2 }),
       };
     },
   },
@@ -100,7 +101,7 @@ export const SCENARIOS = {
   // Un jefe de la torre contra una partida de caza; la reina es la que no puede caer.
   giantHunt: {
     id: 'giantHunt',
-    goal: 'Derriba al jefe antes de que acaben las rondas. Cada golpe le quita una vida; si cae tu reina, pierdes.',
+    goal: t('sc.giantHunt.goal', 'Derriba al jefe antes de que acaben las rondas. Cada golpe le quita una vida; si cae tu reina, pierdes.'),
     levels: {
       facil: { bosses: MINI_BOSSES, team: ['rook', 'bishop', 'knight'], rounds: 16, holes: 2, rival: 'aprendiz' },
       normal: { bosses: [...MINI_BOSSES, ...FINAL_BOSSES], team: ['rook', 'knight'], rounds: 14, holes: 3, rival: 'oficial' },
@@ -116,10 +117,10 @@ export const SCENARIOS = {
       rubble(rng, b, pieces, lv.holes, (r) => r < boss.h + 1);
       return {
         board: b, pieces, rival: lv.rival,
-        objective: (m) => m.eliminated.dark ? { victory: true, note: `${boss.name} cayó.` }
-          : m.eliminated.light ? { victory: false, note: `${boss.name} aplastó a tu reina.` }
-          : rounds(m) >= lv.rounds ? { victory: false, note: `Se acabaron las rondas: ${boss.name} sigue en pie.` } : null,
-        status: (m) => `${boss.name}: ${boss.hp}/${boss.maxHp} vidas · quedan ${lv.rounds - rounds(m)} rondas`,
+        objective: (m) => m.eliminated.dark ? { victory: true, note: t('sc.giantHunt.won', '{name} cayó.', { name: boss.name }) }
+          : m.eliminated.light ? { victory: false, note: t('sc.giantHunt.lost1', '{name} aplastó a tu reina.', { name: boss.name }) }
+          : rounds(m) >= lv.rounds ? { victory: false, note: t('sc.giantHunt.lost2', 'Se acabaron las rondas: {name} sigue en pie.', { name: boss.name }) } : null,
+        status: (m) => t('sc.giantHunt.status', '{name}: {hp}/{max} vidas · quedan {r} rondas', { name: boss.name, hp: boss.hp, max: boss.maxHp, r: lv.rounds - rounds(m) }),
       };
     },
   },
@@ -127,7 +128,7 @@ export const SCENARIOS = {
   // Solo el caballo y un campo con minas escondidas; las casillas pisadas cuentan las minas de alrededor.
   minefield: {
     id: 'minefield', single: true,
-    goal: 'Lleva el caballo a la fila de arriba. Cada casilla pisada dice cuántas minas la rodean; siempre hay un camino seguro.',
+    goal: t('sc.minefield.goal', 'Lleva el caballo a la fila de arriba. Cada casilla pisada dice cuántas minas la rodean; siempre hay un camino seguro.'),
     levels: {
       facil: { mines: 9, slack: 5, area: true },
       normal: { mines: 13, slack: 3, area: true },
@@ -145,9 +146,9 @@ export const SCENARIOS = {
       const limit = route.length - 1 + lv.slack;
       return {
         board: b, pieces: [knight], rival: 'oficial',
-        objective: (m) => !m.pieces.length ? { victory: false, note: 'El caballo pisó una mina.' }
-          : knight.row === 0 ? { victory: true, note: 'Cruzaste el campo minado.' }
-          : m.turn >= limit ? { victory: false, note: 'Se acabaron los saltos.' } : null,
+        objective: (m) => !m.pieces.length ? { victory: false, note: t('sc.minefield.lost1', 'El caballo pisó una mina.') }
+          : knight.row === 0 ? { victory: true, note: t('sc.minefield.won', 'Cruzaste el campo minado.') }
+          : m.turn >= limit ? { victory: false, note: t('sc.minefield.lost2', 'Se acabaron los saltos.') } : null,
         status: (m) => `Saltos: ${limit - m.turn} · minas: ${b.mines.size}`,
         // Lo pisado (y en Fácil y Normal lo que lo rodea sin minas) queda escrito.
         labels: (m) => {
@@ -167,7 +168,7 @@ export const SCENARIOS = {
   // Varios «reyes» carmesí: uno es el de verdad y el resto, piezas disfrazadas que se delatan al moverse.
   kingImpostor: {
     id: 'kingImpostor', hideRoyal: true,
-    goal: 'Entre los reyes carmesí solo uno es de verdad. Los demás son piezas disfrazadas: el disfraz cae si se mueven más de una casilla. Captura al rey verdadero antes de que acaben las rondas.',
+    goal: t('sc.kingImpostor.goal', 'Entre los reyes carmesí solo uno es de verdad. Los demás son piezas disfrazadas: el disfraz cae si se mueven más de una casilla. Captura al rey verdadero antes de que acaben las rondas.'),
     levels: {
       facil: { suspects: 3, army: ['rook', 'bishop', 'knight', 'pawn', 'pawn', 'pawn'], rounds: 18, rival: 'aprendiz' },
       normal: { suspects: 4, army: ['rook', 'knight', 'pawn', 'pawn', 'pawn'], rounds: 16, rival: 'oficial' },
@@ -185,10 +186,10 @@ export const SCENARIOS = {
       for (const [r, c] of cells) pieces.push(makePiece(masks.pop(), 'dark', r, c, { disguise: 'king' }));
       return {
         board: b, pieces, rival: lv.rival, hideRoyal: true,
-        objective: (m) => m.eliminated.dark ? { victory: true, note: 'Desenmascaraste al rey de verdad.' }
-          : m.eliminated.light ? { victory: false, note: 'Cayó tu rey antes de dar con el impostor.' }
-          : rounds(m) >= lv.rounds ? { victory: false, note: 'El rey verdadero se escabulló.' } : null,
-        status: (m) => `Sospechosos: ${side(m, 'dark').filter((p) => p.type === 'king' || (p.disguise && !p.unmasked)).length} · quedan ${lv.rounds - rounds(m)} rondas`,
+        objective: (m) => m.eliminated.dark ? { victory: true, note: t('sc.kingImpostor.won', 'Desenmascaraste al rey de verdad.') }
+          : m.eliminated.light ? { victory: false, note: t('sc.kingImpostor.lost1', 'Cayó tu rey antes de dar con el impostor.') }
+          : rounds(m) >= lv.rounds ? { victory: false, note: t('sc.kingImpostor.lost2', 'El rey verdadero se escabulló.') } : null,
+        status: (m) => t('sc.kingImpostor.status', 'Sospechosos: {n} · quedan {r} rondas', { n: side(m, 'dark').filter((p) => p.type === 'king' || (p.disguise && !p.unmasked)).length, r: lv.rounds - rounds(m) }),
       };
     },
   },
@@ -205,18 +206,18 @@ function crossing({ b, pieces, runner, guards, rng, rival, rounds: limit, goal, 
     board: b, pieces, rival, runner, goalAt: goal, samples: all,
     objective: (m) => {
       left.delete(key(runner.row, runner.col));
-      return m.eliminated.light ? { victory: false, note: 'Te atraparon.' }
+      return m.eliminated.light ? { victory: false, note: t('sc.caught', 'Te atraparon.') }
         : goal(runner) && !left.size ? { victory: true, note }
-        : rounds(m) >= limit ? { victory: false, note: 'Se acabaron las rondas.' } : null;
+        : rounds(m) >= limit ? { victory: false, note: t('sc.outOfRounds', 'Se acabaron las rondas.') } : null;
     },
     labels: () => new Map([...left].map((k) => [k, 'icon:flask'])),
-    status: (m) => `Quedan ${limit - rounds(m)} rondas · ${side(m, 'dark').length} guardias${all.length ? ` · muestras ${all.length - left.size}/${all.length}` : ''}`,
+    status: (m) => t('sc.crossing.status', 'Quedan {r} rondas · {n} guardias', { r: limit - rounds(m), n: side(m, 'dark').length }) + (all.length ? ' · ' + t('sc.crossing.samples', 'muestras {got}/{total}', { got: all.length - left.size, total: all.length }) : ''),
   };
 }
 Object.assign(SCENARIOS, {
   escape: {
     id: 'escape',
-    goal: 'Lleva tu caballo a la fila de arriba. Los guardias carmesí te cierran el paso y te cazan si te pones a tiro.',
+    goal: t('sc.escape.goal', 'Lleva tu caballo a la fila de arriba. Los guardias carmesí te cierran el paso y te cazan si te pones a tiro.'),
     levels: {
       facil: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight'], holes: 6, rounds: 10, rival: 'oficial' },
       normal: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop'], holes: 8, rounds: 8, rival: 'maestro' },
@@ -225,12 +226,12 @@ Object.assign(SCENARIOS, {
     setup: (lv, rng) => passable(lv, () => {
       const b = board(), runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
       rubble(rng, b, pieces, lv.holes);
-      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Escapaste del tablero.' });
+      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: t('sc.escape.won', 'Escapaste del tablero.') });
     }),
   },
   contraband: {
     id: 'contraband',
-    goal: 'Lleva el caballo a la salida marcada con ⚑. Los portales te mandan a su gemelo del mismo color; los guardias vigilan.',
+    goal: t('sc.contraband.goal', 'Lleva el caballo a la salida marcada con ⚑. Los portales te mandan a su gemelo del mismo color; los guardias vigilan.'),
     levels: {
       facil: { guards: ['pawn', 'pawn', 'knight'], holes: 6, rounds: 18, rival: 'aprendiz' },
       normal: { guards: ['pawn', 'pawn', 'pawn', 'knight', 'bishop'], holes: 8, rounds: 12, rival: 'oficial' },
@@ -245,13 +246,13 @@ Object.assign(SCENARIOS, {
       const ps = [...b.terrain.keys()];
       [[ps[0], ps[1]], [ps[2], ps[3]]].forEach(([a, z]) => { b.portals.set(a, z); b.portals.set(z, a); });
       b.holes.delete(key(...exit));
-      const game = crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === exit[0] && p.col === exit[1], note: 'El contrabando cruzó.' });
+      const game = crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === exit[0] && p.col === exit[1], note: t('sc.contraband.won', 'El contrabando cruzó.') });
       return { ...game, labels: () => new Map([[key(...exit), 'icon:flag']]) };
     }),
   },
   laboratory: {
     id: 'laboratory',
-    goal: 'Tu pieza lleva una mutación de prueba. Recoge las muestras ⚗ y llévala a la fila de arriba: cada casilla que dejas se hunde y los guardias acechan.',
+    goal: t('sc.laboratory.goal', 'Tu pieza lleva una mutación de prueba. Recoge las muestras ⚗ y llévala a la fila de arriba: cada casilla que dejas se hunde y los guardias acechan.'),
     levels: {
       facil: { muts: ['kingRook', 'towerDiag', 'bishopOrth'], samples: 1, guards: ['pawn', 'pawn', 'pawn', 'knight', 'knight'], holes: 6, rounds: 10, rival: 'oficial' },
       normal: { muts: ['knightBishop', 'towerDiag', 'bishopOrth'], samples: 2, guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'knight', 'bishop'], holes: 8, rounds: 10, rival: 'maestro' },
@@ -263,14 +264,14 @@ Object.assign(SCENARIOS, {
       applyMutations(pieces, [mut], 'light');
       b.sinking = 'light';
       rubble(rng, b, pieces, lv.holes);
-      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'El experimento salió bien.', samples: lv.samples });
+      return crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: t('sc.laboratory.won', 'El experimento salió bien.'), samples: lv.samples });
     }),
   },
   // Ruta del caballo: pisar todas las casillas marcadas; lo pisado se hunde. Las marcas salen de
   // un paseo real del caballo, así que siempre hay solución.
   knight: {
     id: 'knight', single: true,
-    goal: 'Pisa con el caballo todas las casillas marcadas ◎. Cada casilla que dejas se hunde: si te quedas sin saltos, pierdes.',
+    goal: t('sc.knight.goal', 'Pisa con el caballo todas las casillas marcadas ◎. Cada casilla que dejas se hunde: si te quedas sin saltos, pierdes.'),
     levels: {
       facil: { size: 5, length: 8, marks: 3 },
       normal: { size: 6, length: 12, marks: 6 },
@@ -296,10 +297,10 @@ Object.assign(SCENARIOS, {
           board: b, pieces: [knight], rival: 'oficial',
           objective: (m) => {
             left.delete(key(knight.row, knight.col));
-            return !left.size ? { victory: true, note: 'Ruta completa.' } : !m.canMove() ? { victory: false, note: 'El caballo se quedó sin saltos.' } : null;
+            return !left.size ? { victory: true, note: t('sc.knight.won', 'Ruta completa.') } : !m.canMove() ? { victory: false, note: t('sc.knight.lost', 'El caballo se quedó sin saltos.') } : null;
           },
           labels: () => new Map([...left].map((k) => [k, 'icon:target'])),
-          status: () => `Faltan ${left.size} casillas`,
+          status: () => tp('sc.knight.status', left.size, 'Falta {n} casilla', 'Faltan {n} casillas'),
         };
       }
     },
@@ -308,7 +309,7 @@ Object.assign(SCENARIOS, {
   // respuesta legal (game/mates.js). Variedad: problema al azar y tablero espejado.
   mates: {
     id: 'mates',
-    goal: 'Da jaque mate al rey carmesí en las jugadas indicadas. El rival defiende con su mejor respuesta.',
+    goal: t('sc.mates.goal', 'Da jaque mate al rey carmesí en las jugadas indicadas. El rival defiende con su mejor respuesta.'),
     levels: { facil: { mateIn: [1] }, normal: { mateIn: [1, 2] }, dificil: { mateIn: [2] } },
     setup(lv, rng) {
       const n = pickFrom(rng, lv.mateIn), flip = rng() < 0.5;
@@ -320,16 +321,16 @@ Object.assign(SCENARIOS, {
           const d = defend(m.pieces, Math.max(1, n - rounds(m)));
           return d && { piece: d.p, target: { row: d.m.row, col: d.m.col } };
         },
-        objective: (m) => isCheckmate(m.pieces, 'dark', b) ? { victory: true, note: '¡Jaque mate!' }
-          : m.eliminated.light ? { victory: false, note: 'Dejaste a tu rey a tiro.' }
-          : rounds(m) >= n ? { victory: false, note: `No llegó el mate en ${n}.` } : null,
-        status: (m) => `Mate en ${n} · te quedan ${n - rounds(m)} jugadas`,
+        objective: (m) => isCheckmate(m.pieces, 'dark', b) ? { victory: true, note: t('sc.mates.won', '¡Jaque mate!') }
+          : m.eliminated.light ? { victory: false, note: t('sc.mates.lost1', 'Dejaste a tu rey a tiro.') }
+          : rounds(m) >= n ? { victory: false, note: t('sc.mates.lost2', 'No llegó el mate en {n}.', { n }) } : null,
+        status: (m) => t('sc.mates.status', 'Mate en {n} · te quedan {r} jugadas', { n, r: n - rounds(m) }),
       };
     },
   },
   collapsingFloor: {
     id: 'collapsingFloor',
-    goal: 'Cruza con el caballo hasta la fila de arriba. Cada casilla que dejas se hunde y los guardias te cortan el paso.',
+    goal: t('sc.collapsingFloor.goal', 'Cruza con el caballo hasta la fila de arriba. Cada casilla que dejas se hunde y los guardias te cortan el paso.'),
     levels: {
       facil: { guards: ['pawn', 'pawn', 'pawn', 'knight'], holes: 6, rounds: 10, fall: 1, rival: 'oficial' },
       normal: { guards: ['pawn', 'pawn', 'pawn', 'pawn', 'knight', 'bishop'], holes: 9, rounds: 9, fall: 2, rival: 'maestro' },
@@ -339,7 +340,7 @@ Object.assign(SCENARIOS, {
       const b = board(), runner = makePiece('knight', 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
       b.sinking = 'light';
       rubble(rng, b, pieces, lv.holes);
-      const game = crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: 'Llegaste antes de que se acabara el suelo.' });
+      const game = crossing({ b, pieces, runner, guards: shuffle(rng, lv.guards), rng, rival: lv.rival, rounds: lv.rounds, goal: (p) => p.row === 0, note: t('sc.collapsingFloor.won', 'Llegaste antes de que se acabara el suelo.') });
       // Además, al empezar cada ronda tuya se hunden `fall` casillas por delante del caballo, una justo
       // en su camino (la fila de arriba): obliga a saltar el hueco. Nunca la que deja la meta sin salida.
       let last = -1;
@@ -428,7 +429,7 @@ const freeTiles = (b, pieces) => {
 Object.assign(SCENARIOS, {
   clock: {
     id: 'clock',
-    goal: 'Llega a la casilla del reloj antes de que se agote (el número son tus jugadas) y recoge las monedas ●. Van apareciendo piezas carmesí que te cazan; tú también puedes capturarlas.',
+    goal: t('sc.clock.goal', 'Llega a la casilla del reloj antes de que se agote (el número son tus jugadas) y recoge las monedas ●. Van apareciendo piezas carmesí que te cazan; tú también puedes capturarlas.'),
     levels: {
       facil: { coins: 4, time: 6, every: 4, foes: ['pawn', 'pawn', 'knight'], rival: 'aprendiz', piece: ['queen', 'rook'] },
       normal: { coins: 5, time: 5, every: 3, foes: ['pawn', 'knight', 'bishop'], rival: 'oficial', piece: ['rook', 'bishop', 'knight'] },
@@ -451,12 +452,12 @@ Object.assign(SCENARIOS, {
       return {
         board: b, pieces, rival: lv.rival, runner,
         objective: (m) => {
-          if (m.eliminated.light) return { victory: false, note: 'Te atraparon.' };
+          if (m.eliminated.light) return { victory: false, note: t('sc.caught', 'Te atraparon.') };
           const at = key(runner.row, runner.col);
           if (coins.delete(at)) { got++; if (got + coins.size < lv.coins) addCoin(m.pieces); }
-          if (got >= lv.coins) return { victory: true, note: 'Todas las monedas, y a tiempo.' };
+          if (got >= lv.coins) return { victory: true, note: t('sc.clock.won', 'Todas las monedas, y a tiempo.') };
           if (at === clock.k) newClock(rounds(m), m.pieces);
-          return rounds(m) >= clock.until ? { victory: false, note: 'Se paró el reloj.' } : null;
+          return rounds(m) >= clock.until ? { victory: false, note: t('sc.clock.lost', 'Se paró el reloj.') } : null;
         },
         tick: (m) => {
           const now = rounds(m);
@@ -469,7 +470,7 @@ Object.assign(SCENARIOS, {
           return { spawned: [foe] };
         },
         labels: (m) => new Map([...[...coins].map((k) => [k, 'icon:coin']), ...(clock.k ? [[clock.k, Math.max(0, clock.until - (m.players ? rounds(m) : 0))]] : [])]),
-        status: (m) => `Monedas ${got}/${lv.coins} · reloj ${Math.max(0, clock.until - rounds(m))}`,
+        status: (m) => t('sc.clock.status', 'Monedas {got}/{total} · reloj {n}', { got, total: lv.coins, n: Math.max(0, clock.until - rounds(m)) }),
       };
     },
   },
@@ -480,7 +481,8 @@ export function buildScenario(id, level = 'normal', seed = Math.floor(Math.rando
   const lv = def.levels[level] || def.levels.normal;
   const game = def.setup(lv, mulberry32(seed));
   const rival = typeof game.rival === 'string' ? RIVALS[game.rival] : { id: 'mini', name: 'Bot', desc: '', blunder: 0, ...game.rival };
-  const seats = def.single ? [{ color: 'light', kind: 'human', name: 'Tú' }] : [{ color: 'light', kind: 'human', name: 'Tú' }, { color: 'dark', kind: 'bot', name: 'Bot carmesí' }];
+  const you = { color: 'light', kind: 'human', name: t('seat.you', 'Tú') };
+  const seats = def.single ? [you] : [you, { color: 'dark', kind: 'bot', name: t('seat.bot', 'Bot {side}', { side: t('side.darkLower', 'carmesí') }) }];
   // Nombre e icono salen del registro de mecánicas: un solo sitio para cada minijuego.
   return { ...def, name: MODIFIERS[id].name, icon: MODIFIERS[id].icon, ...game, rival, seats, level };
 }

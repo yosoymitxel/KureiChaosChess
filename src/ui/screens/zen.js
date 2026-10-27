@@ -12,21 +12,22 @@ import { SEEDS, GARDEN_ITEMS, LAKE_MAX, lakeCost } from '../../data/garden.js';
 import { award } from '../../game/achievements.js';
 import { addCoins, charge, loadShop } from '../../game/shop.js';
 import { playSfx } from '../sfx.js';
+import { t, tp } from '../../i18n/index.js';
 
-const ETAPAS = { empty: 'vacía', sprout: 'con brote', bud: 'con capullo', bloom: 'lista para cortar' };
+const ETAPAS = { empty: t('zen.stage.empty', 'vacía'), sprout: t('zen.stage.sprout', 'con brote'), bud: t('zen.stage.bud', 'con capullo'), bloom: t('zen.stage.bloom', 'lista para cortar') };
 // Sembrar es la herramienta por defecto; ampliar se paga en monedas y pide confirmación.
 const TOOLS = [
-  { id: 'sow', icon: 'seed', name: 'Sembrar' },
-  { id: 'water', icon: 'drop', name: 'Regar' },
-  { id: 'dig', icon: 'spade', name: 'Cavar' },
-  { id: 'cut', icon: 'shears', name: 'Cortar' },
+  { id: 'sow', icon: 'seed', name: t('zen.sow', 'Sembrar') },
+  { id: 'water', icon: 'drop', name: t('zen.water', 'Regar') },
+  { id: 'dig', icon: 'spade', name: t('zen.dig', 'Cavar') },
+  { id: 'cut', icon: 'shears', name: t('zen.cut', 'Cortar') },
 ];
 // Lo que se lleva en la mano: sigue al puntero sobre el jardín y hace el gesto al tocar.
 const TOOL_ART = { sow: POUCH, water: CAN, dig: SHOVEL, cut: SHEARS, lantern: ITEM_ART.lantern, pot: ITEM_ART.pot };
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const later = (fn, ms = 40) => setTimeout(fn, ms); // tras el repintado de Preact
 // "el romero", "la salvia": el artículo que pide cada especie, para los avisos.
-const the = (k) => (k === 'romero' ? 'el ' : 'la ') + ZEN_NAMES[k].toLowerCase();
+const the = (k) => t('zen.the.' + k, (k === 'romero' ? 'el ' : 'la ') + ZEN_NAMES[k].toLowerCase());
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
 // Cuánto aire deja la arena alrededor de cada cosa (en casillas) y dónde está su centro.
 const ROOM = { pot: 0.3, moss: 0.34, step: 0.3, lantern: 0.22 };
@@ -181,7 +182,7 @@ export function ZenScreen({ onBack, onShop }) {
     const done = () => {
       const next = zenHarvest(z, key, Date.now()), pays = SEEDS[kind].pays;
       apply(next);
-      setGain(`+${pays} monedas por ${the(kind)}${next.gift ? ' y suelta una semilla' : ''}${next.pots[key] ? '. Rebrota' : ''}.`);
+      setGain(t('zen.paid', '+{n} monedas por {kind}', { n: pays, kind: the(kind) }) + (next.gift ? t('zen.dropsSeed', ' y suelta una semilla') : '') + (next.pots[key] ? t('zen.regrows', '. Rebrota') : '') + '.');
       flyCoins(cell?.getBoundingClientRect(), 3, pays);
       award('flower_1');
       playSfx('flower');
@@ -207,50 +208,50 @@ export function ZenScreen({ onBack, onShop }) {
   const tap = (type, key) => {
     if (GARDEN_ITEMS[tool]) {
       const next = zenPlace(z, tool, key);
-      if (next === z) return say(tool === 'lantern' ? 'El farol va en un tiesto vacío.' : 'La maceta va sobre tierra virgen o una piedra.');
+      if (next === z) return say(tool === 'lantern' ? t('zen.lanternWhere', 'El farol va en un tiesto vacío.') : t('zen.potWhere', 'La maceta va sobre tierra virgen o una piedra.'));
       apply(next); playSfx('dig');
       if (!next.items[tool]) setTool('sow');
-      return say(tool === 'lantern' ? 'Farol puesto: lo que crece a su lado abre antes.' : 'Maceta puesta: ya se puede sembrar.');
+      return say(tool === 'lantern' ? t('zen.lanternSet', 'Farol puesto: lo que crece a su lado abre antes.') : t('zen.potSet', 'Maceta puesta: ya se puede sembrar.'));
     }
     if (type === 'rock') {
-      if (tool !== 'dig') return say('Una piedra: con la pala se parte.');
+      if (tool !== 'dig') return say(t('zen.rock', 'Una piedra: con la pala se parte.'));
       const { z: next, broke } = zenBreak(z, key);
       apply(next); fxDig(key);
-      return say(broke ? 'La piedra se parte: queda tierra virgen.' : 'La piedra se agrieta: otro golpe.');
+      return say(broke ? t('zen.rockBreaks', 'La piedra se parte: queda tierra virgen.') : t('zen.rockCracks', 'La piedra se agrieta: otro golpe.'));
     }
     if (type === 'raw') {
-      if (tool !== 'dig') return say('Tierra virgen: elige Cavar para hacer un tiesto.');
+      if (tool !== 'dig') return say(t('zen.raw', 'Tierra virgen: elige Cavar para hacer un tiesto.'));
       const wait = digWait(z, now);
-      if (wait) return say(`La pala descansa: ${secs(wait)}. La de acero de la tienda no espera.`);
+      if (wait) return say(t('zen.shovelRest', 'La pala descansa: {time}. La de acero de la tienda no espera.', { time: secs(wait) }));
       apply(zenDig(z, key, now)); fxDig(key); say('Tiesto nuevo: siembra cuando quieras.');
       return;
     }
     const st = zenStage(z, key, now);
     if (tool === 'sow') {
       if (st.stage === 'empty') {
-        if (!(z.seeds[seedKind] > 0)) return say(`Sin semillas de ${ZEN_NAMES[seedKind]}: caen al ganar nodos y se venden en la tienda.`);
+        if (!(z.seeds[seedKind] > 0)) return say(t('zen.noSeeds', 'Sin semillas de {kind}: caen al ganar nodos y se venden en la tienda.', { kind: ZEN_NAMES[seedKind] }));
         apply(zenSow(z, key, seedKind, now));
         fxSow(key);
-        say(`Sembraste ${the(seedKind)}: riega para acortar la espera.`);
-      } else if (st.stage === 'bloom') say(`${cap(the(st.kind))} está en flor: córtala con las tijeras.`);
-      else say(`${cap(the(st.kind))}: flor en ${secs(st.msLeft)}${st.watered ? '' : ' · puedes regarla'}.`);
+        say(t('zen.sown', 'Sembraste {kind}: riega para acortar la espera.', { kind: the(seedKind) }));
+      } else if (st.stage === 'bloom') say(t('zen.inBloom', '{kind} está en flor: córtala con las tijeras.', { kind: cap(the(st.kind)) }));
+      else say(t('zen.flowerIn', '{kind}: flor en {time}', { kind: cap(the(st.kind)), time: secs(st.msLeft) }) + (st.watered ? '' : t('zen.canWater', ' · puedes regarla')) + '.');
     } else if (tool === 'water') {
-      if (st.stage === 'empty') say('Ahí no hay nada que regar.');
-      else if (st.stage === 'bloom') say(`${cap(the(st.kind))} ya está en flor: córtala.`);
-      else if (st.watered) say('Ya la regaste: cada planta se riega una vez.');
+      if (st.stage === 'empty') say(t('zen.nothingToWater', 'Ahí no hay nada que regar.'));
+      else if (st.stage === 'bloom') say(t('zen.alreadyBloom', '{kind} ya está en flor: córtala.', { kind: cap(the(st.kind)) }));
+      else if (st.watered) say(t('zen.alreadyWatered', 'Ya la regaste: cada planta se riega una vez.'));
       else {
         const next = z.items.can ? zenWaterAround(z, key, now) : zenWater(z, key, now);
         apply(next);
         fxWater(key);
-        say(`Regaste ${the(st.kind)}: flor en ${secs(zenStage(next, key, now).msLeft)}.`);
+        say(t('zen.watered', 'Regaste {kind}: flor en {time}.', { kind: the(st.kind), time: secs(zenStage(next, key, now).msLeft) }));
       }
     } else if (tool === 'dig') {
-      say(st.stage === 'empty' ? 'Ese tiesto ya está cavado.' : 'Ahí ya hay una planta.');
+      say(st.stage === 'empty' ? t('zen.alreadyDug', 'Ese tiesto ya está cavado.') : t('zen.alreadyPlant', 'Ahí ya hay una planta.'));
     } else if (tool === 'cut') {
       if (busyCut.current) return;
       if (st.stage === 'bloom') harvest(key, st.kind);
-      else if (st.stage === 'empty') say('Ahí no hay flor que cortar.');
-      else say(`${cap(the(st.kind))}: la flor abre en ${secs(st.msLeft)}.`);
+      else if (st.stage === 'empty') say(t('zen.nothingToCut', 'Ahí no hay flor que cortar.'));
+      else say(t('zen.opensIn', '{kind}: la flor abre en {time}.', { kind: cap(the(st.kind)), time: secs(st.msLeft) }));
     }
   };
 
@@ -332,8 +333,8 @@ export function ZenScreen({ onBack, onShop }) {
   const catchFly = () => {
     if (!fly) return;
     const gift = butterflyGift(), from = flyRef.current?.getBoundingClientRect();
-    if (gift.coins) { flyCoins(from, 2, gift.coins); setGain(`La mariposa deja ${gift.coins} monedas.`); }
-    else { apply({ ...z, seeds: { ...z.seeds, [gift.seed]: (z.seeds[gift.seed] || 0) + 1 } }); setGain(`La mariposa deja una semilla de ${ZEN_NAMES[gift.seed].toLowerCase()}.`); playSfx('flower'); }
+    if (gift.coins) { flyCoins(from, 2, gift.coins); setGain(tp('zen.flyCoins', gift.coins, 'La mariposa deja {n} moneda.', 'La mariposa deja {n} monedas.')); }
+    else { apply({ ...z, seeds: { ...z.seeds, [gift.seed]: (z.seeds[gift.seed] || 0) + 1 } }); setGain(t('zen.flySeed', 'La mariposa deja una semilla de {kind}.', { kind: ZEN_NAMES[gift.seed].toLowerCase() })); playSfx('flower'); }
     if (from && !reduced()) fxRef.current.sparkle(from.left - yardRef.current.getBoundingClientRect().left + from.width / 2, from.top - yardRef.current.getBoundingClientRect().top + from.height / 2, '#ffe2a8', 10);
     flyAway();
   };
@@ -395,21 +396,21 @@ export function ZenScreen({ onBack, onShop }) {
     }
     feedRef.current = { pellets: [...(feedRef.current?.pellets.filter((p) => !p.eaten) || []), ...pellets] };
     playSfx('splash');
-    say('Los koi vienen a comer.');
+    say(t('zen.koiFeed', 'Los koi vienen a comer.'));
   };
 
   // Ampliar: el primer toque avisa el precio, el segundo paga y suma el anillo.
   const grow = () => {
     if (z.size >= ZEN_MAX) return;
     const cost = expandCost(z.size);
-    if (coins < cost) return say(`Ampliar cuesta ${cost} monedas: te faltan ${cost - coins}.`);
-    if (!armed) { setArmed(true); setMsg(`Ampliar a ${z.size + 1}×${z.size + 1} cuesta ${cost} monedas. Toca otra vez para confirmar.`); return; }
-    if (!charge(cost)) return say('Faltan monedas.');
+    if (coins < cost) return say(t('zen.expandShort', 'Ampliar cuesta {cost} monedas: te faltan {n}.', { cost, n: cost - coins }));
+    if (!armed) { setArmed(true); setMsg(t('zen.expandConfirm', 'Ampliar a {size} cuesta {cost} monedas. Toca otra vez para confirmar.', { size: `${z.size + 1}×${z.size + 1}`, cost })); return; }
+    if (!charge(cost)) return say(t('zen.noCoins', 'Faltan monedas.'));
     setCoins(loadShop().coins);
     apply(zenExpand(z));
     playSfx('coin');
     award('zen_ring');
-    say(`El cantero crece a ${z.size + 1}×${z.size + 1}: la tierra nueva pide cava.`);
+    say(t('zen.expanded', 'El cantero crece a {size}: la tierra nueva pide cava.', { size: `${z.size + 1}×${z.size + 1}` }));
   };
 
   const total = ZEN_KINDS.reduce((n, k) => n + (z.flores[k] || 0), 0);
@@ -419,12 +420,12 @@ export function ZenScreen({ onBack, onShop }) {
     .filter((x) => x && x.msLeft != null)
     .reduce((a, x) => (a == null || x.msLeft < a.msLeft ? x : a), null);
   const status = gain || msg
-    || (z.leaves.length ? `Hay ${z.leaves.length} hoja${z.leaves.length > 1 ? 's' : ''} en la arena: tócalas para barrerlas.` : null)
-    || (soon ? `${cap(the(soon.kind))} abre en ${secs(soon.msLeft)}.` : `Flores cortadas: ${total}.`);
+    || (z.leaves.length ? tp('zen.leaves', z.leaves.length, 'Hay {n} hoja en la arena: tócala para barrerla.', 'Hay {n} hojas en la arena: tócalas para barrerlas.') : null)
+    || (soon ? t('zen.soon', '{kind} abre en {time}.', { kind: cap(the(soon.kind)), time: secs(soon.msLeft) }) : t('zen.cutTotal', 'Flores cortadas: {n}.', { n: total }));
 
   const potCell = (key) => {
     const st = zenStage(z, key, now);
-    const label = st.kind ? `${ZEN_NAMES[st.kind]}, ${ETAPAS[st.stage]}${st.stage !== 'bloom' && !st.watered ? ', pide agua' : ''}` : 'Tiesto vacío';
+    const label = st.kind ? `${ZEN_NAMES[st.kind]}, ${ETAPAS[st.stage]}${st.stage !== 'bloom' && !st.watered ? t('zen.needsWater', ', pide agua') : ''}` : t('zen.emptyPot', 'Tiesto vacío');
     const need = st.stage === 'bloom' ? 'cut' : st.kind && !st.watered ? 'water' : null;
     const d = (key.charCodeAt(1) * 7 + key.charCodeAt(3) * 3) % 10 / 3;
     const wet = st.watered && st.stage !== 'bloom';
@@ -442,30 +443,30 @@ export function ZenScreen({ onBack, onShop }) {
   const keep = (r, c, room) => objs.push({ x: c + off + 0.5, y: r + off + 0.62, r: room });
   for (let r = -off; r < z.size - off; r++) {
     for (let c = -off; c < z.size - off; c++) {
-      const key = cellKey(r, c), t = cellType(z, key);
-      if (t === 'pond') {
+      const key = cellKey(r, c), ct = cellType(z, key);
+      if (ct === 'pond') {
         if (r === la && c === la) {
-          cells.push(html`<button key="pond" class="bm-cell zen-pond" style=${{ gridRow: `span ${lakeN}`, gridColumn: `span ${lakeN}` }} aria-label="Estanque: toca el agua para dar de comer a los koi" onClick=${feed}>${pondArt(reduced())}</button>`);
+          cells.push(html`<button key="pond" class="bm-cell zen-pond" style=${{ gridRow: `span ${lakeN}`, gridColumn: `span ${lakeN}` }} aria-label=${t('zen.pondAria', 'Estanque: toca el agua para dar de comer a los koi')} onClick=${feed}>${pondArt(reduced())}</button>`);
           objs.push({ x: la + off + lakeN / 2, y: la + off + lakeN / 2 + 0.02, r: 0.39 * lakeN, sx: 1.06 });
         }
         continue;
       }
-      if (t === 'lawn') { cells.push(html`<span key=${key} class="bm-cell zn-deco" aria-hidden="true">${MOSS}</span>`); keep(r, c, ROOM.moss); continue; }
-      if (t === 'step') {
+      if (ct === 'lawn') { cells.push(html`<span key=${key} class="bm-cell zn-deco" aria-hidden="true">${MOSS}</span>`); keep(r, c, ROOM.moss); continue; }
+      if (ct === 'step') {
         const lantern = key === 'r3c1';
         cells.push(html`<span key=${key} class=${'bm-cell zn-deco' + (lantern ? ' zn-tall' : '')} aria-hidden="true">${lantern ? LANTERN : STEP}</span>`);
         keep(r, c, lantern ? ROOM.lantern : ROOM.step);
         continue;
       }
-      if (t === 'lantern') { cells.push(html`<span key=${key} class="bm-cell zn-deco zn-tall zn-lit" aria-label="Farol encendido">${LANTERN}</span>`); keep(r, c, ROOM.lantern); continue; }
-      if (t === 'pot') { cells.push(potCell(key)); keep(r, c, ROOM.pot); continue; }
-      if (t === 'rock') {
+      if (ct === 'lantern') { cells.push(html`<span key=${key} class="bm-cell zn-deco zn-tall zn-lit" aria-label=${t('zen.lanternLit', 'Farol encendido')}>${LANTERN}</span>`); keep(r, c, ROOM.lantern); continue; }
+      if (ct === 'pot') { cells.push(potCell(key)); keep(r, c, ROOM.pot); continue; }
+      if (ct === 'rock') {
         const hp = z.rocks[key];
-        cells.push(html`<button key=${key} data-k=${key} class="bm-cell zn-rockcell" aria-label="Piedra: pártela con la pala" onClick=${() => tap('rock', key)}>${stoneArt(Math.max(0, 3 - hp))}</button>`);
+        cells.push(html`<button key=${key} data-k=${key} class="bm-cell zn-rockcell" aria-label=${t('zen.rockAria', 'Piedra: pártela con la pala')} onClick=${() => tap('rock', key)}>${stoneArt(Math.max(0, 3 - hp))}</button>`);
         keep(r, c, ROOM.step);
         continue;
       }
-      cells.push(html`<button key=${key} data-k=${key} class="bm-cell zn-raw" aria-label="Tierra sin cavar" onClick=${() => tap('raw', key)}></button>`); raw.push([r + off, c + off]);
+      cells.push(html`<button key=${key} data-k=${key} class="bm-cell zn-raw" aria-label=${t('zen.rawAria', 'Tierra sin cavar')} onClick=${() => tap('raw', key)}></button>`); raw.push([r + off, c + off]);
     }
   }
 
@@ -474,45 +475,45 @@ export function ZenScreen({ onBack, onShop }) {
   const growLake = () => {
     const n = z.lake || 2, cost = lakeCost(n);
     if (n >= LAKE_MAX) return;
-    if (coins < cost) return say(`Ampliar el estanque cuesta ${cost} monedas: te faltan ${cost - coins}.`);
-    if (!lakeArmed) { setLakeArmed(true); setMsg(`El estanque pasa a ${n + 1}×${n + 1} por ${cost} monedas; lo que haya debajo vuelve a la bolsa. Toca otra vez.`); return; }
+    if (coins < cost) return say(t('zen.pondShort', 'Ampliar el estanque cuesta {cost} monedas: te faltan {n}.', { cost, n: cost - coins }));
+    if (!lakeArmed) { setLakeArmed(true); setMsg(t('zen.pondConfirm', 'El estanque pasa a {size} por {cost} monedas; lo que haya debajo vuelve a la bolsa. Toca otra vez.', { size: `${n + 1}×${n + 1}`, cost })); return; }
     setLakeArmed(false);
-    if (!charge(cost)) return say('Faltan monedas.');
+    if (!charge(cost)) return say(t('zen.noCoins', 'Faltan monedas.'));
     setCoins(loadShop().coins);
     apply(zenLake(z));
     playSfx('splash');
-    say(`El estanque crece a ${n + 1}×${n + 1}.`);
+    say(t('zen.pondGrown', 'El estanque crece a {size}.', { size: `${n + 1}×${n + 1}` }));
   };
   const owned = Object.entries(GARDEN_ITEMS).filter(([id, it]) => it.stack && z.items[id] > 0);
 
   return html`<div class="screen mini zen-screen" ref=${ref}>
-    <${Topbar} title="Jardín Zen" sub="Un rincón tranquilo entre runs" onBack=${onBack}>
-      <button class="btn ghost sm icon-only" aria-label="Cómo se cuida el jardín" title="Cómo se cuida el jardín" onClick=${() => setHelp(true)}><${Icon} name="book" size=${16} /></button>
-      <span class="coin-chip" ref=${coinRef} title="Monedas del jardín"><${Icon} name="coin" size=${16} /><b>${coins}</b></span>
+    <${Topbar} title=${t('menu.zen', 'Jardín Zen')} sub=${t('zen.sub', 'Un rincón tranquilo entre runs')} onBack=${onBack}>
+      <button class="btn ghost sm icon-only" aria-label=${t('zen.help', 'Cómo se cuida el jardín')} title=${t('zen.help', 'Cómo se cuida el jardín')} onClick=${() => setHelp(true)}><${Icon} name="book" size=${16} /></button>
+      <span class="coin-chip" ref=${coinRef} title=${t('zen.coins', 'Monedas del jardín')}><${Icon} name="coin" size=${16} /><b>${coins}</b></span>
     </${Topbar}>
     <div class="mini-body zen-body">
       <div class="zen-main">
         <div class="zen-scene">
           <div class="mini-stage">
             <div class=${'zn-yard' + (tool === 'dig' ? ' dig' : '') + (act || pour ? ' acting' : '')} ref=${yardRef} onPointerMove=${hover} onPointerLeave=${unhover}>
-              <div class="bm zn-tray" style=${{ '--n': z.size }} role="group" aria-label="Cantero del jardín">
+              <div class="bm zn-tray" style=${{ '--n': z.size }} role="group" aria-label=${t('zen.bed', 'Cantero del jardín')}>
                 ${rakeArt(z.size, objs, raw)}
                 ${cells}
                 ${z.leaves.map((l) => html`<button key=${`leaf-${l.x}-${l.y}`} class="zn-fallen" style=${{ left: (l.x / z.size) * 100 + '%', top: (l.y / z.size) * 100 + '%', '--r': l.r + 'deg' }}
-                  aria-label="Hoja caída: tócala para barrerla" onClick=${(e) => sweep(l, e.currentTarget)}>${mapleLeaf}</button>`)}
+                  aria-label=${t('zen.leafAria', 'Hoja caída: tócala para barrerla')} onClick=${(e) => sweep(l, e.currentTarget)}>${mapleLeaf}</button>`)}
               </div>
               ${BRANCH}
               ${pour && html`<span key=${pour.id} class="zn-canfx" style=${{ left: pour.x + 'px', top: pour.y + 'px' }} aria-hidden="true">${CAN}<i class="zn-stream"></i></span>`}
               ${act && html`<span key=${act.id} class=${'zn-toolfx t-' + act.tool} style=${{ left: act.x + 'px', top: act.y + 'px' }} aria-hidden="true">${TOOL_ART[act.tool]}</span>`}
               <span class=${'zn-hand t-' + tool} ref=${handRef} aria-hidden="true">${TOOL_ART[tool]}</span>
-              ${fly && html`<button key=${fly.id} ref=${flyRef} class="zn-fly" aria-label="Mariposa: tócala" onClick=${catchFly}>${BUTTERFLY}</button>`}
+              ${fly && html`<button key=${fly.id} ref=${flyRef} class="zn-fly" aria-label=${t('zen.flyAria', 'Mariposa: tócala')} onClick=${catchFly}>${BUTTERFLY}</button>`}
             </div>
           </div>
           <p class="zn-status" aria-live="polite">${status}</p>
         </div>
         <div class="zen-panel">
-          <section class="zn-sec" aria-label="Semilla para sembrar">
-            <h3>Semillas</h3>
+          <section class="zn-sec" aria-label=${t('zen.seedPick', 'Semilla para sembrar')}>
+            <h3>${t('zen.seeds', 'Semillas')}</h3>
             <div class="zn-packets">
               ${ZEN_KINDS.map((k, ki) => {
                 const n = z.seeds[k] || 0;
@@ -522,36 +523,36 @@ export function ZenScreen({ onBack, onShop }) {
               })}
             </div>
           </section>
-          <section class="zn-sec" aria-label="Herramientas">
-            <h3>Herramientas</h3>
+          <section class="zn-sec" aria-label=${t('zen.tools', 'Herramientas')}>
+            <h3>${t('zen.tools', 'Herramientas')}</h3>
             <div class="zn-tools">
               ${TOOLS.map((t) => html`<button class=${'zn-tool' + (tool === t.id ? ' on' : '')} aria-pressed=${tool === t.id} onClick=${() => pickTool(t.id)}><span class="zn-tool-ic"><${Icon} name=${t.icon} size=${22} /></span><span>${t.name}</span></button>`)}
               ${owned.map(([id, it]) => html`<button class=${'zn-tool' + (tool === id ? ' on' : '')} aria-pressed=${tool === id} onClick=${() => pickTool(id)}><span class="zn-tool-ic zn-art-ic">${ITEM_ART[id]}</span><span>${it.name} ×${z.items[id]}</span></button>`)}
             </div>
           </section>
           <button class=${'zen-expand' + (armed ? ' on' : '')} disabled=${z.size >= ZEN_MAX}
-            title=${z.size >= ZEN_MAX ? 'El cantero ya llega a 8×8' : coins < expandCost(z.size) ? `Faltan ${expandCost(z.size) - coins} monedas` : ''}
+            title=${z.size >= ZEN_MAX ? t('zen.maxTitle', 'El cantero ya llega a 8×8') : coins < expandCost(z.size) ? tp('zen.missing', expandCost(z.size) - coins, 'Falta {n} moneda', 'Faltan {n} monedas') : ''}
             onClick=${grow}>
             <${Icon} name="expand" size=${18} />
-            <span class="zen-expand-text">${z.size >= ZEN_MAX ? 'Cantero al máximo · 8×8' : armed ? `Confirmar ${z.size + 1}×${z.size + 1}` : `Ampliar a ${z.size + 1}×${z.size + 1}`}</span>
+            <span class="zen-expand-text">${z.size >= ZEN_MAX ? t('zen.max', 'Cantero al máximo · 8×8') : armed ? t('zen.confirmSize', 'Confirmar {size}', { size: `${z.size + 1}×${z.size + 1}` }) : t('zen.expandTo', 'Ampliar a {size}', { size: `${z.size + 1}×${z.size + 1}` })}</span>
             ${z.size < ZEN_MAX && html`<b class="zen-cost"><${Icon} name="coin" size=${13} />${expandCost(z.size)}</b>`}
           </button>
           ${(z.lake || 2) < LAKE_MAX && html`<button class=${'zen-expand' + (lakeArmed ? ' on' : '')} onClick=${growLake}>
             <span class="zn-art-ic">${KOI_ART}</span>
-            <span class="zen-expand-text">${lakeArmed ? 'Confirmar estanque' : `Estanque a ${(z.lake || 2) + 1}×${(z.lake || 2) + 1}`}</span>
+            <span class="zen-expand-text">${lakeArmed ? t('zen.confirmPond', 'Confirmar estanque') : t('zen.pondTo', 'Estanque a {size}', { size: `${(z.lake || 2) + 1}×${(z.lake || 2) + 1}` })}</span>
             <b class="zen-cost"><${Icon} name="coin" size=${13} />${lakeCost(z.lake || 2)}</b>
           </button>`}
-          <button class="btn sm ghost zen-shop" onClick=${onShop}><${Icon} name="coin" size=${16} />Tienda del jardín</button>
+          <button class="btn sm ghost zen-shop" onClick=${onShop}><${Icon} name="coin" size=${16} />${t('zen.shop', 'Tienda del jardín')}</button>
         </div>
       </div>
     </div>
     ${help && html`<div class="overlay" onClick=${(e) => e.target === e.currentTarget && setHelp(false)}>
-      <div class="panel mini-sheet" role="dialog" aria-modal="true" aria-label="Cómo se cuida el jardín">
-        <h2>Cómo se cuida el jardín</h2>
-        <p>Las semillas caen al ganar un nodo y se compran en la tienda. Elige un sobre y toca un tiesto para sembrar. Cada planta se riega una vez y así abre antes. Cuando la flor abre, córtala con las tijeras: cada flor paga según su especie: ${ZEN_KINDS.map((k) => `${ZEN_NAMES[k].toLowerCase()} ${SEEDS[k].pays}`).join(', ')}. La salvia rebrota una vez y la lavanda, rara, a veces suelta su semilla.</p>
-        <p>Del arce caen hojas a la arena, también mientras no estás: tócalas para barrerlas (una moneda cada una). Si una mariposa se posa en una flor, tócala y te deja un regalo. Toca el agua del estanque para dar de comer a los koi.</p>
-        <p>Con monedas el cantero crece hasta 8×8, un anillo abajo a la derecha y el siguiente arriba a la izquierda. La tierra nueva se cava (la pala descansa entre cava y cava) y a veces sale con piedras que se parten a golpes de pala. El estanque también crece, hasta 4×4. En la tienda hay pala de acero, regadera grande, faroles que aceleran lo que crece a su lado y macetas.</p>
-        <button class="btn primary" autofocus onClick=${() => setHelp(false)}>Entendido</button>
+      <div class="panel mini-sheet" role="dialog" aria-modal="true" aria-label=${t('zen.help', 'Cómo se cuida el jardín')}>
+        <h2>${t('zen.help', 'Cómo se cuida el jardín')}</h2>
+        <p>${t('zen.help1', 'Las semillas caen al ganar un nodo y se compran en la tienda. Elige un sobre y toca un tiesto para sembrar. Cada planta se riega una vez y así abre antes. Cuando la flor abre, córtala con las tijeras: cada flor paga según su especie: {pays}. La salvia rebrota una vez y la lavanda, rara, a veces suelta su semilla.', { pays: ZEN_KINDS.map((k) => `${ZEN_NAMES[k].toLowerCase()} ${SEEDS[k].pays}`).join(', ') })}</p>
+        <p>${t('zen.help2', 'Del arce caen hojas a la arena, también mientras no estás: tócalas para barrerlas (una moneda cada una). Si una mariposa se posa en una flor, tócala y te deja un regalo. Toca el agua del estanque para dar de comer a los koi.')}</p>
+        <p>${t('zen.help3', 'Con monedas el cantero crece hasta 8×8, un anillo abajo a la derecha y el siguiente arriba a la izquierda. La tierra nueva se cava (la pala descansa entre cava y cava) y a veces sale con piedras que se parten a golpes de pala. El estanque también crece, hasta 4×4. En la tienda hay pala de acero, regadera grande, faroles que aceleran lo que crece a su lado y macetas.')}</p>
+        <button class="btn primary" autofocus onClick=${() => setHelp(false)}>${t('howto.ok', 'Entendido')}</button>
       </div>
     </div>`}
   </div>`;

@@ -1,4 +1,5 @@
-export const MODIFIERS = {
+import { localize } from '../i18n/index.js';
+export const MODIFIERS = localize('modifiers', {
   none: { id: 'none', name: 'Terreno llano', desc: 'Sin modificadores.', icon: 'plain' },
   // `weights`: cuánto sale en cada tramo de la torre (temprano, medio, tardío). Sin `weights` no sale
   // sola en el mapa (llano, jefe). Agregar una mecánica o un minijuego es agregar su entrada aquí.
@@ -47,7 +48,7 @@ export const MODIFIERS = {
   blind: { id: 'blind', name: 'Damas a ciegas', desc: 'Minijuego: coloca tus damas y elige hacia dónde dispara cada una; las rivales salen al azar y todas disparan a la vez. Premio: mutación o pieza.', icon: 'target', mini: true, weights: [0, 1, 1] },
   witch: { id: 'witch', name: 'La bruja', desc: 'Minijuego: laberinto a lo Pac-Man; recoge todas las monedas con tu rey mientras las brujas te persiguen, y usa las pócimas para asustarlas. Premio: mutación o pieza.', icon: 'target', mini: true, weights: [0, 1, 1] },
   hockey: { id: 'hockey', name: 'Hockey de mesa', desc: 'Minijuego: arrastra tu torre y mete el disco en la portería del bot; gana quien llegue a cinco goles. Premio: mutación o pieza.', icon: 'hockey', mini: true, duo: { desc: 'A la vez: cada uno mueve la torre de su mitad.', opt: 'goals', label: 'Goles para ganar', choices: [[3, '3'], [5, '5'], [7, '7']] }, weights: [0.7, 1, 1] },
-};
+});
 
 // El minijefe reutiliza el modificador del jefe final: aquí se anuncia como lo que es y el mapa lo dibuja como rombo, sin duplicar datos.
 export const nodeModifier = (node) => {

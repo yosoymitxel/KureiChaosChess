@@ -4,8 +4,9 @@ import { MiniBoard } from '../mini-board.js';
 import { key } from '../../game/rules.js';
 import { DIFFS, newQueens, toggle, clashing } from '../../game/queens.js';
 import { MODIFIERS } from '../../data/modifiers.js';
+import { t } from '../../i18n/index.js';
 
-export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar', settings, setSettings, onRestart, diff }) {
+export function QueensScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newQueens(diff || settings.miniDiff?.queens));
   const [time, setTime] = useState(() => s.seconds);
   const [, redraw] = useState(0);
@@ -27,14 +28,14 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = 'Continuar', setti
     <${Topbar} title=${MODIFIERS.queens.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
-        <${MiniBoard} board=${board} pieces=${pieces} marks=${marks} disabled=${!!s.over} label=${`Tablero de ${s.n} reinas`} onTap=${tap} />
+        <${MiniBoard} board=${board} pieces=${pieces} marks=${marks} disabled=${!!s.over} label=${t('queens.board', 'Tablero de {n} reinas', { n: s.n })} onTap=${tap} />
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">
-            <span class="chip" aria-label=${`Reinas colocadas: ${s.queens.length} de ${s.n}`}><span class="dots">${Array.from({ length: s.n }, (_, i) => html`<i class=${i < s.queens.length ? '' : 'off'} />`)}</span></span>
-            <span class=${'chip' + (time <= 30 ? ' danger' : '')} aria-label=${`Quedan ${time} segundos`}><b>${time}</b> s</span>
+            <span class="chip" aria-label=${t('queens.placed', 'Reinas colocadas: {n} de {total}', { n: s.queens.length, total: s.n })}><span class="dots">${Array.from({ length: s.n }, (_, i) => html`<i class=${i < s.queens.length ? '' : 'off'} />`)}</span></span>
+            <span class=${'chip' + (time <= 30 ? ' danger' : '')} aria-label=${t('queens.time', 'Quedan {n} segundos', { n: time })}><b>${time}</b> s</span>
           </div>`}
-          ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? `${s.n} reinas conviviendo sin atacarse.` : `Se acabó el tiempo con ${s.queens.length} de ${s.n} reinas.`} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
-          <${MiniTools} mini="queens" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Completa las ${s.n} antes de que se acabe el tiempo.<//>
+          ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? t('queens.won', '{n} reinas conviviendo sin atacarse.', { n: s.n }) : t('queens.lost', 'Se acabó el tiempo con {n} de {total} reinas.', { n: s.queens.length, total: s.n })} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
+          <${MiniTools} mini="queens" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('queens.help', 'Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Completa las {n} antes de que se acabe el tiempo.', { n: s.n })}<//>
         </div>
       </div>
     </div>

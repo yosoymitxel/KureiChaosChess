@@ -10,6 +10,7 @@ import { key, cellsOf, sizeOf, portalAt } from '../game/rules.js';
 import { render, html } from '../ui/lib.js';
 import { Icon } from '../ui/icons.js';
 import { boardPond } from '../ui/zen-art.js';
+import { t } from '../i18n/index.js';
 
 export const CAMERAS = { flat: 0, tilt: 40, epic: 56 };
 const JUMPERS = new Set(['knight', 'camel', 'elephant']);
@@ -66,7 +67,7 @@ export class BoardView {
     const h = this.host;
     h.tabIndex = 0;
     h.setAttribute('role', 'application');
-    h.setAttribute('aria-label', 'Tablero. Flechas para moverte, Enter para elegir o mover.');
+    h.setAttribute('aria-label', t('board.aria', 'Tablero. Flechas para moverte, Enter para elegir o mover.'));
     const DIRS = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
     // Only keyboard focus shows the cursor; a mouse click focuses the board too but must not draw it.
     h.addEventListener('focus', () => h.matches(':focus-visible') && this.moveCursor(this.cursor || { row: this.board.rows - 1, col: Math.floor(this.board.cols / 2) }));
@@ -76,12 +77,12 @@ export class BoardView {
         e.preventDefault();
         this.moveCursor({ row: this.board.rows - 1, col: Math.floor(this.board.cols / 2) });
       } else if (DIRS[e.key]) {
-        e.preventDefault();
         let { row, col } = this.cursor;
         const [dr, dc] = DIRS[e.key];
-        // Skip over holes to the next real tile in that direction.
+        // Skip over holes to the next real tile in that direction. At the edge the key is left
+        // unhandled, so the gamepad can move focus out of the board.
         do { row += dr; col += dc; } while (row >= 0 && col >= 0 && row < this.board.rows && col < this.board.cols && !this.tiles.has(key(row, col)));
-        if (this.tiles.has(key(row, col))) this.moveCursor({ row, col });
+        if (this.tiles.has(key(row, col))) { e.preventDefault(); this.moveCursor({ row, col }); }
       } else if ((e.key === 'Enter' || e.key === ' ') && this.cursor) {
         e.preventDefault();
         this.onTap({ ...this.cursor });
@@ -803,7 +804,7 @@ export class BoardView {
       if (id === 'fortify') this.remake(p);
       const c = this.centerOf(p);
       this.fx.sparkle(c.x, c.y - this.sq * 0.6, css('--brass'), 12);
-      this.floatText(c.x, c.y - this.sq * 1.1, id === 'mount' ? '+ salto en L' : '+1 escudo');
+      this.floatText(c.x, c.y - this.sq * 1.1, id === 'mount' ? t('board.mount', '+ salto en L') : t('board.shield', '+1 escudo'));
       await animate(this.els.get(p).querySelector('.pc-fig'), { y: [0, -this.sq * 0.4, 0], duration: this.d(420), ease: 'outQuad' });
     } else if (id === 'quake') {
       await this.collapse([[res.cell.row, res.cell.col]]);

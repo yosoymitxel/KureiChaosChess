@@ -26,18 +26,19 @@ import { playDemo, mutationDemo } from './demos.js';
 import { BOSS_IDS } from '../data/bosses.js';
 import { applyTheme } from '../data/themes.js';
 import { CARDS, HAND_LIMIT, pickCardChoices } from '../game/cards.js';
+import { t, tp } from '../i18n/index.js';
 
 const REST_CARDS = [
-  { id: 'extra_mut', name: 'Meditar', desc: 'Elige una mutación de entre tres.', icon: 'scroll', kind: 'boon' },
-  { id: 'promote_one', name: 'Ascenso', desc: 'Un peón empieza el próximo nodo como reina.', icon: 'queen', kind: 'boon' },
-  { id: 'fury_now', name: 'Impulso', desc: '+1 movimiento sin captura por turno en el próximo nodo.', icon: 'boot', kind: 'boon' },
+  { id: 'extra_mut', name: t('boon.extra_mut', 'Meditar'), desc: t('boon.extra_mut.desc', 'Elige una mutación de entre tres.'), icon: 'scroll', kind: 'boon' },
+  { id: 'promote_one', name: t('boon.promote_one', 'Ascenso'), desc: t('boon.promote_one.desc', 'Un peón empieza el próximo nodo como reina.'), icon: 'queen', kind: 'boon' },
+  { id: 'fury_now', name: t('boon.fury_now', 'Impulso'), desc: t('boon.fury_now.desc', '+1 movimiento sin captura por turno en el próximo nodo.'), icon: 'boot', kind: 'boon' },
 ];
 const BAG_CARDS = [
-  { id: 'mut', name: 'Frasco extraño', desc: 'Una mutación al azar, ahora mismo.', icon: 'flask', rarity: 'rare', kind: 'boon' },
-  { id: 'deck', name: 'Mazo táctico', desc: 'Dos cartas tácticas al azar para tu mano.', icon: 'hand', rarity: 'rare', kind: 'boon' },
-  { id: 'extra_pawn', name: 'Recluta', desc: '+1 peón en tu formación en el próximo nodo.', icon: 'pawn', kind: 'boon' },
-  { id: 'fury', name: 'Furia menor', desc: '+1 movimiento sin captura por turno, permanente (máx. 3).', icon: 'boot', rarity: 'rare', kind: 'boon' },
-  { id: 'extra_rook', name: 'Torre mercenaria', desc: '+1 torre en tu última fila en el próximo nodo.', icon: 'rook', kind: 'boon' },
+  { id: 'mut', name: t('boon.mut', 'Frasco extraño'), desc: t('boon.mut.desc', 'Una mutación al azar, ahora mismo.'), icon: 'flask', rarity: 'rare', kind: 'boon' },
+  { id: 'deck', name: t('boon.deck', 'Mazo táctico'), desc: t('boon.deck.desc', 'Dos cartas tácticas al azar para tu mano.'), icon: 'hand', rarity: 'rare', kind: 'boon' },
+  { id: 'extra_pawn', name: t('boon.extra_pawn', 'Recluta'), desc: t('boon.extra_pawn.desc', '+1 peón en tu formación en el próximo nodo.'), icon: 'pawn', kind: 'boon' },
+  { id: 'fury', name: t('boon.fury', 'Furia menor'), desc: t('boon.fury.desc', '+1 movimiento sin captura por turno, permanente (máx. 3).'), icon: 'boot', rarity: 'rare', kind: 'boon' },
+  { id: 'extra_rook', name: t('boon.extra_rook', 'Torre mercenaria'), desc: t('boon.extra_rook.desc', '+1 torre en tu última fila en el próximo nodo.'), icon: 'rook', kind: 'boon' },
 ];
 const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3);
 // A won minigame pays a mutation or a piece the army already knows.
@@ -133,10 +134,11 @@ export function App() {
     const need = Math.floor(v.cfg.rounds / 2) + 1, champ = Object.keys(score).find((c) => score[c] >= need);
     const done = v.cfg.rounds <= 1 || !!champ || v.round + 1 >= v.cfg.rounds;
     setVersus((x) => ({ ...x, prev: x.score, score, ended: true, done }));
-    const head = r.tie ? 'Tablas.' : `Gana ${r.winnerName}.`;
+    if (done) award('versus_done');
+    const head = r.tie ? t('versus.tie', 'Tablas.') : t('game.winner', 'Gana {name}.', { name: r.winnerName });
     if (v.cfg.rounds <= 1) return head;
     const tally = v.seats.map((s) => `${s.name} ${score[s.color] || 0}`).join(' · ');
-    return `${head} Serie: ${tally}.${champ ? ` ¡${name(champ)} gana la serie!` : done ? ' Serie terminada.' : ''}`;
+    return `${head} ${t('versus.series', 'Serie: {tally}.', { tally })}${champ ? ' ' + t('versus.champ', '¡{name} gana la serie!', { name: name(champ) }) : done ? ' ' + t('versus.seriesOver', 'Serie terminada.') : ''}`;
   };
   const versusNext = () => {
     if (!versus?.ended || versus.done) return goTo('menu');
@@ -250,12 +252,12 @@ export function App() {
   };
 
   const REWARD_TEXT = {
-    mutation: ['Elige una mutación', 'Se aplica a tu ejército durante el resto de la run.'],
-    tactic: ['Elige una carta', `Va a tu mano y la juegas durante una partida, una por turno. Máximo ${HAND_LIMIT}: si está llena, eliges cuál sale.`],
-    swap: ['Mano llena', `Caben ${HAND_LIMIT} cartas: elige la que sale (puede ser la nueva).`],
-    rest: ['Un momento de calma', 'Elige un beneficio para el camino.'],
-    bag: ['Encuentras una bolsa', 'Llévate un objeto.'],
-    mini: ['¡Minijuego superado!', 'Elige tu premio. Ya puedes jugarlo cuando quieras desde el menú.'],
+    mutation: [t('reward.mutation', 'Elige una mutación'), t('reward.mutationSub', 'Se aplica a tu ejército durante el resto de la run.')],
+    tactic: [t('reward.tactic', 'Elige una carta'), t('reward.tacticSub', 'Va a tu mano y la juegas durante una partida, una por turno. Máximo {n}: si está llena, eliges cuál sale.', { n: HAND_LIMIT })],
+    swap: [t('reward.swap', 'Mano llena'), t('reward.swapSub', 'Caben {n} cartas: elige la que sale (puede ser la nueva).', { n: HAND_LIMIT })],
+    rest: [t('reward.rest', 'Un momento de calma'), t('reward.restSub', 'Elige un beneficio para el camino.')],
+    bag: [t('reward.bag', 'Encuentras una bolsa'), t('reward.bagSub', 'Llévate un objeto.')],
+    mini: [t('reward.mini', '¡Minijuego superado!'), t('reward.miniSub', 'Elige tu premio. Ya puedes jugarlo cuando quieras desde el menú.')],
   };
   const Mini = MINIGAMES[node?.modifier]?.Screen;
   const FreeMini = MINIGAMES[freeMini]?.Screen;
@@ -269,28 +271,28 @@ export function App() {
     ${screen === 'versus-setup' && versus && html`<${SetupScreen} versus node=${versus.node} run=${versus.run} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')}
       versusCfg=${versus.cfg} onVersusCfg=${setVersusCfg}
       onStart=${(s) => { setVersus((v) => ({ ...v, seats: s, score: {}, round: 0, ended: false, done: false, node: v.round ? versusNode(v.cfg) : v.node })); goTo(MODIFIERS[versus.cfg.game]?.duo ? 'versus-mini' : 'versus'); }} />`}
-    ${screen === 'versus-mini' && versus?.seats && html`<${MINIGAMES[versus.cfg.game].Screen} key=${'vm-' + versus.key} sub="Partida local" settings=${settings} setSettings=${setSettings}
-      diff=${versus.cfg.diff} duo=${{ goals: versus.cfg.goals, names: versus.seats.map((s) => s.name) }} endLabel="Al menú" onBack=${() => goTo('menu')} onEnd=${() => goTo('menu')}
+    ${screen === 'versus-mini' && versus?.seats && html`<${MINIGAMES[versus.cfg.game].Screen} key=${'vm-' + versus.key} sub=${t('menu.versus', 'Partida local')} settings=${settings} setSettings=${setSettings}
+      diff=${versus.cfg.diff} duo=${{ goals: versus.cfg.goals, names: versus.seats.map((s) => s.name) }} endLabel=${t('versus.toMenu', 'Al menú')} onBack=${() => goTo('menu')} onEnd=${() => { award('duo_mini'); goTo('menu'); }}
       onRestart=${() => setVersus((v) => ({ ...v, key: v.key + 1 }))} />`}
     ${screen === 'versus' && versus?.seats && html`<${GameScreen} key=${versus.node.id + '-' + versus.key}
-      node=${versus.node} run=${versus.run} seats=${versus.seats} settings=${settings} setSettings=${setSettings} exitLabel=${versus.ended && !versus.done ? 'Siguiente ronda' : 'Al menú'}
+      node=${versus.node} run=${versus.run} seats=${versus.seats} settings=${settings} setSettings=${setSettings} exitLabel=${versus.ended && !versus.done ? t('versus.next', 'Siguiente ronda') : t('versus.toMenu', 'Al menú')}
       onRound=${versusRound} onExit=${versusNext} onMenu=${() => goTo('menu')} onAbandon=${() => goTo('menu')} onWin=${versusNext}
       onUseCard=${() => {}} onRestart=${() => setVersus((v) => ({ ...v, key: v.key + 1, ended: false, done: false, score: v.ended ? v.prev : v.score }))} onHowTo=${() => setHowTo(true)} />`}
     ${screen === 'reward' && reward && html`<${CardPick} key=${reward.kind + reward.cards.map((c) => c.id).join()}
       title=${REWARD_TEXT[reward.kind][0]}
-      subtitle=${REWARD_TEXT[reward.kind][1] + (reward.coins ? ` La victoria paga ${reward.coins} monedas del jardín.` : '') + (reward.seed ? ` Cayó una semilla de ${ZEN_NAMES[reward.seed]}.` : '')}
-      cards=${reward.cards} onConfirm=${onReward} confirmLabel=${reward.kind === 'swap' ? 'Que salga esta' : undefined} />`}
+      subtitle=${REWARD_TEXT[reward.kind][1] + (reward.coins ? ' ' + tp('reward.coins', reward.coins, 'La victoria paga {n} moneda del jardín.', 'La victoria paga {n} monedas del jardín.') : '') + (reward.seed ? ' ' + t('reward.seed', 'Cayó una semilla de {kind}.', { kind: ZEN_NAMES[reward.seed] }) : '')}
+      cards=${reward.cards} onConfirm=${onReward} confirmLabel=${reward.kind === 'swap' ? t('reward.dropThis', 'Que salga esta') : undefined} />`}
     ${screen === 'game' && node && seats && run && html`<${GameScreen} key=${node.id + '-' + gameKey}
       node=${node} run=${run} seats=${seats} settings=${settings} setSettings=${setSettings}
       onExit=${() => goTo('map')} onMenu=${() => goTo('menu')} onAbandon=${() => { setRun(null); goTo('menu'); }}
       onUseCard=${(i) => setRun((r) => consumeCard(r, i))}
       onWin=${onWin} onRestart=${() => setGameKey((k) => k + 1)} onHowTo=${() => setHowTo(true)} />`}
-    ${screen === 'mini' && Mini && html`<${Mini} key=${node.id + '-' + miniKey} sub=${'Piso ' + (node.floor + 1) + ' · minijuego'} onBack=${() => goTo('map')} onEnd=${onMiniEnd}
+    ${screen === 'mini' && Mini && html`<${Mini} key=${node.id + '-' + miniKey} sub=${t('mini.floorSub', 'Piso {n} · minijuego', { n: node.floor + 1 })} onBack=${() => goTo('map')} onEnd=${onMiniEnd}
       diff=${floorTier(node.floor, run.map.floors)}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />`}
     ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
-    ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub="Partida libre" onBack=${() => goTo('minis')}
-      endLabel="Otra partida"
+    ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub=${t('mini.free', 'Partida libre')} onBack=${() => goTo('minis')}
+      endLabel=${t('mini.again', 'Otra partida')}
       onEnd=${() => setFreeKey((k) => k + 1)}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
@@ -311,7 +313,7 @@ function MutationReveal({ id, onDone }) {
   useEffect(() => {
     const m = new Moments(ref.current, { speed: loadSettings().speed || 1 });
     (async () => {
-      await m.cinematic({ title: 'Frasco extraño', sub: 'Lo bebes de un trago y algo cambia en tu ejército…', icon: 'flask', anim: 'stomp' });
+      await m.cinematic({ title: t('boon.mut', 'Frasco extraño'), sub: t('boon.mutSip', 'Lo bebes de un trago y algo cambia en tu ejército…'), icon: 'flask', anim: 'stomp' });
       await playDemo(m, mutationDemo(id));
       seeMutations([id]);
       onDone();
@@ -345,7 +347,7 @@ function AchievementToast() {
   return html`<div class="ach-toast" role="status" onClick=${() => setShow(null)}>
     <span class="ach-stamp"><${Icon} name=${show.icon} size=${20} /></span>
     <div>
-      <small>Logro desbloqueado</small>
+      <small>${t('ach.unlocked', 'Logro desbloqueado')}</small>
       <b>${show.name}</b>
     </div>
   </div>`;

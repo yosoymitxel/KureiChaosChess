@@ -5,6 +5,7 @@ import { playSfx } from './sfx.js';
 import { pieceSVG } from '../view/piece-art.js';
 import { Moments } from './moments.js';
 import { MODIFIERS } from '../data/modifiers.js';
+import { t } from '../i18n/index.js';
 
 // Muestra de una mesa sin texto: su mesa y sus dos casillas de fondo, y el rey dibujado con el
 // arte de esa mesa (píxel o vectorial) y el color de su bando claro. Tienda, ajustes y pausa.
@@ -16,9 +17,9 @@ export function ThemeLook({ t }) {
   </span>`;
 }
 
-export function Topbar({ title, sub, onBack, backLabel = 'Volver', children }) {
+export function Topbar({ title, sub, onBack, backLabel = t('common.back', 'Volver'), children }) {
   return html`<header class="topbar">
-    ${onBack && html`<button class="btn ghost sm" onClick=${onBack}><${Icon} name="back" size=${16} />${backLabel}</button>`}
+    ${onBack && html`<button class="btn ghost sm" data-back onClick=${onBack}><${Icon} name="back" size=${16} />${backLabel}</button>`}
     <div>
       <h1 class="title">${title}</h1>
       ${sub && html`<p class="sub">${sub}</p>`}
@@ -29,28 +30,31 @@ export function Topbar({ title, sub, onBack, backLabel = 'Volver', children }) {
 }
 
 // Cierre común de los minijuegos: resultado, motivo y botón en un solo bloque, en cada pantalla.
-export function MiniEnd({ win, title, note, label = 'Continuar', onEnd }) {
+export function MiniEnd({ win, title, note, label = t('common.continue', 'Continuar'), onEnd }) {
   useEffect(() => { playSfx(win ? 'mini_win' : 'mini_lose'); }, []);
   return html`<div class="overlay"><div class=${'mini-end ' + (win ? 'win' : 'lose')} role="status">
-    <p class="mini-end-title">${title ?? (win ? '¡Victoria!' : 'Derrota')}</p>
+    <p class="mini-end-title">${title ?? (win ? t('common.win', '¡Victoria!') : t('common.lose', 'Derrota'))}</p>
     ${note && html`<p class="mini-end-note">${note}</p>`}
     <button class="btn primary" onClick=${() => onEnd()}>${label}</button>
   </div></div>`;
 }
+
+// Los niveles de cada minijuego se llaman igual en todos: se traducen por id.
+const diffName = (diffs, id) => t('diff.' + id, (diffs[id] || diffs.normal).name);
 
 // Dificultad del minijuego: en partida libre se elige y cada juego recuerda su nivel; en la run
 // el piso la fija y la pieza solo lo anuncia. Cambiar de nivel arranca tablero nuevo, así lo
 // que se juega es siempre lo que se ve marcado.
 export function MiniDiff({ mini, diffs, fixed, settings, setSettings, onRestart }) {
   const value = settings.miniDiff?.[mini] || 'normal';
-  if (fixed) return html`<p class="mini-tier">Nivel del piso: <b>${(diffs[fixed] || diffs.normal).name}</b>.</p>`;
+  if (fixed) return html`<p class="mini-tier">${t('mini.floorLevel', 'Nivel del piso:')} <b>${diffName(diffs, fixed)}</b>.</p>`;
   const pick = (id) => {
     if (id === value) return;
-    setSettings((t) => ({ ...t, miniDiff: { ...t.miniDiff, [mini]: id } }));
+    setSettings((st) => ({ ...st, miniDiff: { ...st.miniDiff, [mini]: id } }));
     onRestart();
   };
-  return html`<div class="segmented sm" role="group" aria-label="Dificultad">
-    ${Object.entries(diffs).map(([id, d]) => html`<button class=${id === value ? 'on' : ''} aria-pressed=${id === value} onClick=${() => pick(id)}>${d.name}</button>`)}
+  return html`<div class="segmented sm" role="group" aria-label=${t('settings.difficulty', 'Dificultad')}>
+    ${Object.keys(diffs).map((id) => html`<button class=${id === value ? 'on' : ''} aria-pressed=${id === value} onClick=${() => pick(id)}>${diffName(diffs, id)}</button>`)}
   </div>`;
 }
 
@@ -60,11 +64,11 @@ export function MiniDiff({ mini, diffs, fixed, settings, setSettings, onRestart 
 export function MiniTools({ mini, cinematic = true, diffs, fixed, settings, setSettings, onRestart, children }) {
   const [open, setOpen] = useState(() => !settings.helpSeen?.[mini]);
   useEffect(() => {
-    if (!settings.helpSeen?.[mini]) setSettings((t) => ({ ...t, helpSeen: { ...t.helpSeen, [mini]: true } }));
+    if (!settings.helpSeen?.[mini]) setSettings((st) => ({ ...st, helpSeen: { ...st.helpSeen, [mini]: true } }));
   }, []);
   useEffect(() => {
     if (!open) return;
-    const onKey = (e) => e.key === 'Escape' && (e.stopPropagation(), setOpen(false));
+    const onKey = (e) => e.key === 'Escape' && (e.stopPropagation(), e.preventDefault(), setOpen(false));
     addEventListener('keydown', onKey, true);
     return () => removeEventListener('keydown', onKey, true);
   }, [open]);
@@ -77,8 +81,8 @@ export function MiniTools({ mini, cinematic = true, diffs, fixed, settings, setS
     document.body.appendChild(layer);
     const moments = new Moments(layer, { speed: settings.speed || 1, enabled: true });
     const sub = (modifier?.desc || '')
-      .replace(/^Minijuego(?: al revés)?:\s*/i, '')
-      .replace(/\s*Premio:.*$/i, '');
+      .replace(/^(?:Minijuego(?: al revés)?|(?:Reverse )?minigame):\s*/i, '')
+      .replace(/\s*(?:Premio|Reward):.*$/i, '');
     let disposed = false;
     const dispose = () => {
       if (disposed) return;
@@ -94,25 +98,25 @@ export function MiniTools({ mini, cinematic = true, diffs, fixed, settings, setS
     return dispose;
   }, []);
 
-  const level = (diffs[fixed || settings.miniDiff?.[mini] || 'normal'] || diffs.normal).name;
-  return html`<button class="btn ghost sm mini-tools" aria-haspopup="dialog" onClick=${() => setOpen(true)}><${Icon} name="book" size=${16} /><span class="mini-tools-label">Como se juega · ${level}</span></button>
+  const level = diffName(diffs, fixed || settings.miniDiff?.[mini] || 'normal');
+  return html`<button class="btn ghost sm mini-tools" aria-haspopup="dialog" onClick=${() => setOpen(true)}><${Icon} name="book" size=${16} /><span class="mini-tools-label">${t('common.howTo', 'Cómo se juega')} · ${level}</span></button>
     ${open && html`<div class="overlay" onClick=${(e) => e.target === e.currentTarget && setOpen(false)}>
-      <div class="panel mini-sheet" role="dialog" aria-modal="true" aria-label="Cómo se juega">
-        <h2>Cómo se juega</h2>
+      <div class="panel mini-sheet" role="dialog" aria-modal="true" aria-label=${t('common.howTo', 'Cómo se juega')}>
+        <h2>${t('common.howTo', 'Cómo se juega')}</h2>
         <p>${children}</p>
         <${MiniDiff} mini=${mini} diffs=${diffs} fixed=${fixed} settings=${settings} setSettings=${setSettings} onRestart=${onRestart} />
-        <button class="btn primary" autofocus onClick=${() => setOpen(false)}>Jugar</button>
+        <button class="btn primary" autofocus onClick=${() => setOpen(false)}>${t('mini.play', 'Jugar')}</button>
       </div>
     </div>`}`;
 }
 // Destructive actions ask for a second press instead of a browser dialog.
 // `enter`: entra animado con el resto de la pantalla (useEnter), como los botones que lo rodean.
-export function ConfirmButton({ class: cls = 'btn', onConfirm, confirmLabel = 'Pulsa otra vez para confirmar', enter, children }) {
+export function ConfirmButton({ class: cls = 'btn', onConfirm, confirmLabel = t('common.confirm', 'Pulsa otra vez para confirmar'), enter, children }) {
   const [armed, setArmed] = useState(false);
   useEffect(() => {
     if (!armed) return;
-    const t = setTimeout(() => setArmed(false), 3000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setArmed(false), 3000);
+    return () => clearTimeout(timer);
   }, [armed]);
   return html`<button class=${cls + (armed ? ' armed' : '')} data-enter=${enter ? '' : undefined} onClick=${() => (armed ? onConfirm() : setArmed(true))}>${armed ? confirmLabel : children}</button>`;
 }
@@ -124,8 +128,8 @@ export function BossCard({ boss, unlocked }) {
       ? html`<${PieceIcon} type=${'boss-' + boss.id} side="dark" size=${44} />`
       : html`<span class="rule-lock"><${Icon} name="lock" size=${22} /></span>`}
     <div>
-      <strong>${unlocked ? boss.name : 'Jefe por descubrir'}</strong>
-      <span>${unlocked ? `${boss.desc} Se mueve como: ${boss.moves.map((m) => MOVE_NAMES[m]).join(' y ')}.` : 'Derriba a este coloso para estudiarlo.'}</span>
+      <strong>${unlocked ? boss.name : t('boss.unknown', 'Jefe por descubrir')}</strong>
+      <span>${unlocked ? boss.desc + ' ' + t('boss.movesAs', 'Se mueve como: {list}.', { list: boss.moves.map((m) => MOVE_NAMES[m]).join(t('common.and', ' y ')) }) : t('boss.studyIt', 'Derriba a este coloso para estudiarlo.')}</span>
     </div>
   </div>`;
 }
@@ -156,26 +160,26 @@ function Card({ card, chosen, onPick, style }) {
   </div>`;
 }
 
-const KIND_LABEL = { tactic: 'Táctica', mutation: 'Mutación', boon: 'Objeto' };
-export const RARITY_LABEL = { common: 'común', rare: 'rara', epic: 'épica' };
+const KIND_LABEL = { tactic: t('kind.tactic', 'Táctica'), mutation: t('game.mutation', 'Mutación'), boon: t('kind.boon', 'Objeto') };
+export const RARITY_LABEL = { common: t('rarity.common', 'común'), rare: t('rarity.rare', 'rara'), epic: t('rarity.epic', 'épica') };
 
 // One card anatomy for every card in the game (rewards, hand, previews):
 // frame colour = kind, gem = rarity, title plate, art window, type line, rules box.
 export function CardFace({ card, mini = false, shop = false }) {
   const kind = card.kind || 'boon', rarity = card.rarity || 'common';
   return html`<div class=${`face kind-${kind} ${rarity}${card.preMatch ? " pre" : ""}`}>
-    ${card.preMatch && html`<span class="pre-ribbon">Al empezar</span>`}
+    ${card.preMatch && html`<span class="pre-ribbon">${t('card.atStart', 'Al empezar')}</span>`}
     <span class=${'gem ' + rarity} title=${RARITY_LABEL[rarity]}></span>
     <div class="plate">${card.name}</div>
     <div class="art"><${Icon} name=${card.icon} size=${mini ? 34 : 72} /></div>
     <div class="type">${KIND_LABEL[kind]} · ${RARITY_LABEL[rarity]}${card.stack > 1 ? ` · ×${card.stack}` : ''}</div>
     ${!mini && html`<p class="desc">${card.desc}</p>`}
-    ${shop && html`<i class="shop-mark" title="Comprada en la tienda del jardín"><${Icon} name="coin" size=${mini ? 12 : 18} /></i>`}
+    ${shop && html`<i class="shop-mark" title=${t('card.bought', 'Comprada en la tienda del jardín')}><${Icon} name="coin" size=${mini ? 12 : 18} /></i>`}
   </div>`;
 }
 
 // Deck-builder style pick: cards are dealt face down and flip over.
-export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = 'Quedármela', onBack }) {
+export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = t('card.keep', 'Quedármela'), onBack }) {
   const [chosen, setChosen] = useState(null);
   const row = useRef(null);
   useEffect(() => {

@@ -17,6 +17,10 @@
 /* Extras: the labelled pieces show the brass ring on hover and keyboard focus. */
 .diorama .pc.extra:hover .pc-base::after, .diorama .pc.extra:focus-visible .pc-base::after { border-color: var(--brass); }
 .x-tags { position: absolute; inset: 0; pointer-events: none; }
+/* Secreto del menú: el Titán se sacude cuando lo tocan. */
+.diorama .pc.poked .pc-fig { animation: poked 0.4s var(--ease-out); transform-origin: 50% 100%; }
+@keyframes poked { 25% { rotate: -6deg; scale: 1.04 0.94; } 60% { rotate: 4deg; scale: 0.97 1.05; } }
+@media (prefers-reduced-motion: reduce) { .diorama .pc.poked .pc-fig { animation: none; } }
 .x-tag {
   position: absolute; left: 0; top: 0; transform: translate(-50%, calc(-100% - 6px)); pointer-events: auto; cursor: pointer;
   padding: 5px 10px; border: 2px solid var(--ink); border-radius: 8px; background: var(--paper); background-image: var(--grain);

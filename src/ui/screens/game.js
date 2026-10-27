@@ -23,29 +23,30 @@ import { PICKUPS, dropPickups } from '../../data/pickups.js';
 import { PICKUP_ART } from '../zen-art.js';
 import { isShopCard, addCoins } from '../../game/shop.js';
 import { addZenSeeds, pickSeed, ZEN_NAMES } from '../../game/zen.js';
+import { t, tp } from '../../i18n/index.js';
 
-const SIDE_NAME = { light: 'marfil', dark: 'carmesí', wild: 'jade' };
+const SIDE_NAME = { light: t('side.lightLower', 'marfil'), dark: t('side.darkLower', 'carmesí'), wild: t('side.wildLower', 'jade') };
 
 // Nombre visible: el propio (jefes, colosos) o el de su tipo. Las piezas fortificadas no llevan name.
 const pieceName = (p) => p.name || PIECE_NAMES[p.disguise && !p.unmasked ? p.disguise : p.type] || p.type;
 // Consejos del panel: rotan por turno cuando no hay nada más urgente que decir.
 const TIPS = [
-  'Toca una pieza enemiga para ver su alcance en rojo.',
-  'Pellizca el tablero para ampliarlo y arrástralo para moverte.',
-  'Valen el enroque y la captura al paso.',
-  'Si la partida se estanca, gana quien tenga más piezas.',
-  'Toca un chip del panel para saber qué hace.',
+  t('game.tip1', 'Toca una pieza enemiga para ver su alcance en rojo.'),
+  t('game.tip2', 'Pellizca el tablero para ampliarlo y arrástralo para moverte.'),
+  t('game.tip3', 'Valen el enroque y la captura al paso.'),
+  t('game.tip4', 'Si la partida se estanca, gana quien tenga más piezas.'),
+  t('game.tip5', 'Toca un chip del panel para saber qué hace.'),
 ];
 
 // One line on what a card does to this piece, counted from the preview.
 function cardEffect(card, piece, pv) {
   const name = pieceName(piece);
   const gained = [...pv.cells].filter((k) => !pv.before.has(k)).length;
-  const reach = gained ? ` · ${gained} casilla${gained > 1 ? 's' : ''} nueva${gained > 1 ? 's' : ''} (en azul)` : '';
-  if (card.id === 'ascend') return `${name} → Reina${reach}`;
-  if (card.id === 'mount') return `${name} aprende el salto en L${reach}`;
-  if (card.id === 'colossus') return `${name} → Coloso 2×1: se mueve como rey y aguanta 3 golpes${reach}`;
-  if (card.id === 'fortify') return `${name} aguantará 2 golpes: el primero rebota`;
+  const reach = gained ? ' · ' + tp('card.reach', gained, '{n} casilla nueva (en azul)', '{n} casillas nuevas (en azul)') : '';
+  if (card.id === 'ascend') return t('card.fx.ascend', '{name} → Reina', { name }) + reach;
+  if (card.id === 'mount') return t('card.fx.mount', '{name} aprende el salto en L', { name }) + reach;
+  if (card.id === 'colossus') return t('card.fx.colossus', '{name} → Coloso 2×1: se mueve como rey y aguanta 3 golpes', { name }) + reach;
+  if (card.id === 'fortify') return t('card.fx.fortify', '{name} aguantará 2 golpes: el primero rebota', { name });
   return `${name}: ${card.desc}`;
 }
 
@@ -122,13 +123,13 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const cancelCard = () => { d.cardSel = null; d.cardPick = null; setCardSel(null); setCardTip(null); d.view.clearMarks(); d.view.select(null); };
     d.pickCard = (i) => {
       if (!humanTurn() || match.cardUsed) return;
-      if (CARDS[d.hand[i]]?.preMatch) { addLog('Organizar: se juega al empezar la partida'); return; }
+      if (CARDS[d.hand[i]]?.preMatch) { addLog(t('game.organizeLater', 'Organizar: se juega al empezar la partida')); return; }
       if (d.cardSel === i) return cancelCard();
       clearSel();
       d.cardSel = i; d.cardPick = null; setCardSel(i); setCardTip(null);
       const { card, keys, pieces } = aim();
       if (card.target === 'none') return playFromHand(null);
-      if (!keys.size) { addLog(`${card.name}: no hay objetivos válidos ahora`); return cancelCard(); }
+      if (!keys.size) { addLog(t('game.noTargets', '{card}: no hay objetivos válidos ahora', { card: card.name })); return cancelCard(); }
       d.view.showTargets(keys, pieces);
     };
     // Hover (mouse), keyboard cursor or first tap (touch) on a target: show what the card would do there.
@@ -137,7 +138,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (d.cardSel == null) { if (!touch && hit && !(hit.piece || match.pieceAt(hit.row, hit.col)) && !terrainInfo(hit.row, hit.col)) d.view.hideTip(); return; }
       const { card, targets, keys, pieces } = aim();
       const piece = hit && (hit.piece || match.pieceAt(hit.row, hit.col));
-      const again = touch ? ' Toca otra vez para jugarla.' : '';
+      const again = touch ? ' ' + t('game.tapAgain', 'Toca otra vez para jugarla.') : '';
       if (card.target === 'piece' && targets.includes(piece)) {
         const pv = previewMoves(match, card, piece);
         d.view.showPreview(keys, pieces, pv);
@@ -145,7 +146,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         setCardTip(cardEffect(card, piece, pv) + '.' + again);
       } else if (card.target === 'tile' && hit && keys.has(key(hit.row, hit.col))) {
         d.view.showPreview(keys, pieces, { footprint: [key(hit.row, hit.col)] });
-        setCardTip((card.id === 'quake' ? 'Esta casilla se hundirá para siempre.' : 'Aquí entrará un peón nuevo.') + again);
+        setCardTip((card.id === 'quake' ? t('game.quakeTip', 'Esta casilla se hundirá para siempre.') : t('game.reinforceTip', 'Aquí entrará un peón nuevo.')) + again);
       } else { d.view.showTargets(keys, pieces); d.view.select(null); setCardTip(null); }
     };
     const playFromHand = async (hit) => {
@@ -212,7 +213,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       return {
         type: p.type, side: p.color, name: pieceName(p), color: SIDE_NAME[p.color], moves: count, threat,
         boss: p.boss && BOSSES[p.boss].desc,
-        guard: guarded && (p.trait === 'last' ? 'Solo cae cuando sea la última pieza de su bando.' : `Protegida: no cae mientras viva su escolta (${(escort ? pieceName(escort) : 'pieza').toLowerCase()}).`),
+        guard: guarded && (p.trait === 'last' ? t('game.guardLast', 'Solo cae cuando sea la última pieza de su bando.') : t('game.guardEscort', 'Protegida: no cae mientras viva su escolta ({escort}).', { escort: (escort ? pieceName(escort) : t('game.piece', 'pieza')).toLowerCase() })),
         mut: [...new Set(mut)],
         cards: [...new Set(cards)],
         copied: p.moves && !p.colossus ? p.moves.map((t) => MOVE_NAMES[t] || t) : [],
@@ -225,8 +226,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     };
     const inspectPiece = (p) => {
       d.selected = null; d.view.select(null);
-      if (d.view.fogged(p)) return d.view.tileTip(p.row, p.col, 'Algo se mueve', 'La niebla no deja ver qué pieza es. Acércate para descubrirla.');
-      if (p.disguise && !p.unmasked) return d.view.tileTip(p.row, p.col, 'Sospechoso', 'Parece un rey. Si se mueve más de una casilla, el disfraz cae.');
+      if (d.view.fogged(p)) return d.view.tileTip(p.row, p.col, t('game.fogTitle', 'Algo se mueve'), t('game.fogText', 'La niebla no deja ver qué pieza es. Acércate para descubrirla.'));
+      if (p.disguise && !p.unmasked) return d.view.tileTip(p.row, p.col, t('game.suspectTitle', 'Sospechoso'), t('game.suspectText', 'Parece un rey. Si se mueve más de una casilla, el disfraz cae.'));
       setInspect(detailOf(p, show(p, true).length, true));
     };
 
@@ -242,6 +243,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         else if (lost.some((p) => p.type === 'queen')) award('queen_win');
         if (d.feats.cards === 0 && d.feats.hadCards) award('no_cards');
         if (node.modifier === 'fog') award('fog_win');
+        if (node.modifier === 'meteor') award('meteor_win');
+        if (node.modifier === 'coven') award('coven_win');
         if (node.modifier === 'elite') award('elite_slain');
         if (node.isMiniBoss) award('mini_boss_slain');
       }
@@ -260,36 +263,36 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       clearSel();
       const tag = match.player.kind === 'bot' ? '◆ ' : '';
       const nm = pieceName(piece);
-      if (res.bounced) addLog(`${tag}${nm} golpea a ${pieceName(res.victims[0].piece)} (${res.victims[0].piece.hp} ${res.victims[0].piece.hp === 1 ? "vida" : "vidas"})`);
-      else if (res.enPassant) addLog(`${tag}${nm} captura al paso`);
-      else if (res.victims.length) addLog(`${tag}${nm} captura ${res.victims.map((v) => (v.piece.boss ? v.piece.name : pieceName(v.piece).toLowerCase())).join(', ')}`);
-      else if (res.castle) addLog(`${tag}Enroque`);
-      else addLog(`${tag}${nm} mueve`);
-      if (res.zombie) addLog(`${tag}${pieceName(res.zombie)} se levanta como zombi`);
-      if (res.infected?.length) addLog(`${tag}Contagio: ${res.infected.map((p) => pieceName(p).toLowerCase()).join(', ')} cambian de bando`);
+      if (res.bounced) addLog(tag + t('log.hits', '{a} golpea a {b}', { a: nm, b: pieceName(res.victims[0].piece) }) + ' (' + tp('log.lives', res.victims[0].piece.hp, '{n} vida', '{n} vidas') + ')');
+      else if (res.enPassant) addLog(tag + t('log.enPassant', '{a} captura al paso', { a: nm }));
+      else if (res.victims.length) addLog(tag + t('log.captures', '{a} captura {list}', { a: nm, list: res.victims.map((v) => (v.piece.boss ? v.piece.name : pieceName(v.piece).toLowerCase())).join(', ') }));
+      else if (res.castle) addLog(tag + t('log.castle', 'Enroque'));
+      else addLog(tag + t('log.moves', '{a} mueve', { a: nm }));
+      if (res.zombie) addLog(tag + t('log.zombie', '{a} se levanta como zombi', { a: pieceName(res.zombie) }));
+      if (res.infected?.length) addLog(tag + t('log.infected', 'Contagio: {list} cambian de bando', { list: res.infected.map((p) => pieceName(p).toLowerCase()).join(', ') }));
       if (res.promoted) {
-        addLog(`${tag}¡Coronación!`);
+        addLog(tag + t('game.promotion', '¡Coronación!'));
         if (piece.color === d.feats.human) award('crowned');
       }
       await d.view.playMove(res);
       pickUp(piece);
       if (res.woke?.length) {
         const w = res.woke[0];
-        addLog(`${tag}¡La bruja despierta!`);
+        addLog(tag + t('game.witchWakes', '¡La bruja despierta!'));
         playSfx('stomp');
         d.view.shake(10, 420);
-        d.moments.callout({ text: '¡La bruja despierta!', sub: 'La miraste: ahora va a por ti', piece: { type: artOf(w), side: w.color }, tone: 'danger', anim: 'tremble', tier: 'major' });
+        d.moments.callout({ text: t('game.witchWakes', '¡La bruja despierta!'), sub: t('game.witchSub', 'La miraste: ahora va a por ti'), piece: { type: artOf(w), side: w.color }, tone: 'danger', anim: 'tremble', tier: 'major' });
       }
       const fallenBoss = res.victims.find((v) => v.killed && v.piece.boss)?.piece;
       if (fallenBoss) {
         playSfx('shatter');
-        await d.moments.cinematic({ title: `¡${fallenBoss.name} derribado!`, sub: 'El coloso cae y la torre es tuya.', piece: { type: artOf(fallenBoss), side: fallenBoss.color }, tone: 'brass', anim: 'down' });
+        await d.moments.cinematic({ title: t('game.bossDown', '¡{name} derribado!', { name: fallenBoss.name }), sub: t('game.bossDownSub', 'El coloso cae y la torre es tuya.'), piece: { type: artOf(fallenBoss), side: fallenBoss.color }, tone: 'brass', anim: 'down' });
       }
       const after = match.afterMove();
       if (after.collapse) {
-        addLog('¡El borde se desploma!');
+        addLog(t('game.edgeFalls', '¡El borde se desploma!'));
         playSfx('shatter');
-        d.moments.callout({ text: '¡Derrumbe!', sub: 'El borde cae al vacío', icon: 'collapse', tone: 'danger', anim: 'crumble', tier: 'major' });
+        d.moments.callout({ text: t('game.collapse', '¡Derrumbe!'), sub: t('game.collapseSub', 'El borde cae al vacío'), icon: 'collapse', tone: 'danger', anim: 'crumble', tier: 'major' });
         await d.view.collapse(after.collapse);
       }
       await showMeteor(after.meteor);
@@ -305,12 +308,12 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const showMeteor = async (m) => {
       if (!m) return;
       if (m.warn) {
-        addLog('Se acerca un meteorito: sal de la cruz marcada');
+        addLog(t('game.meteorWarnLog', 'Se acerca un meteorito: sal de la cruz marcada'));
         d.view.setDoom(m.warn);
-        d.moments.callout({ text: '¡Meteorito!', sub: 'Cae el próximo turno en la cruz roja', icon: 'meteor', tone: 'danger', anim: 'tremble', tier: 'major' });
+        d.moments.callout({ text: t('game.meteor', '¡Meteorito!'), sub: t('game.meteorSub', 'Cae el próximo turno en la cruz roja'), icon: 'meteor', tone: 'danger', anim: 'tremble', tier: 'major' });
         return;
       }
-      addLog(`Cae el meteorito${m.lost.length ? `: se lleva ${m.lost.map((p) => pieceName(p).toLowerCase()).join(', ')}` : ''}`);
+      addLog(m.lost.length ? t('game.meteorHitLog', 'Cae el meteorito: se lleva {list}', { list: m.lost.map((p) => pieceName(p).toLowerCase()).join(', ') }) : t('game.meteorFallLog', 'Cae el meteorito'));
       await d.view.meteor(m.cells, m.lost);
     };
     const showTick = async (tick) => {
@@ -328,7 +331,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         render(PICKUP_ART[id] || html`<${Icon} name=${id} size=${24} />`, el);
         if (it.hand) {
           el.classList.add('hand');
-          el.setAttribute('role', 'button'); el.setAttribute('aria-label', `${it.name}: tócala para quitarla`);
+          el.setAttribute('role', 'button'); el.setAttribute('aria-label', t('game.takeProp', '{name}: tócala para quitarla', { name: it.name }));
           el.addEventListener('take', () => { if (d.props.delete(key(row, col))) take(it, el, true); });
         }
         d.props.set(key(row, col), { id, el, hand: it.hand });
@@ -341,22 +344,23 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         if (!onIt && !sunk) continue;
         d.props.delete(k);
         const mine = onIt && piece.color === human, it = PICKUPS[prop.id];
-        if (!mine) { d.view.takeProp(prop.el, false); if (onIt) addLog(`${pieceName(piece)} rival se lleva: ${it.name.toLowerCase()}`); continue; }
+        if (!mine) { d.view.takeProp(prop.el, false); if (onIt) addLog(t('game.rivalTakes', '{piece} rival se lleva: {item}', { piece: pieceName(piece), item: it.name.toLowerCase() })); continue; }
         take(it, prop.el);
       }
     };
     const take = (it, el, hand) => {
       d.view.takeProp(el, true, hand);
       playSfx(hand ? 'leaf' : 'coin');
-      if (it.coins) { addCoins(it.coins); addLog(`${it.name}: +${it.coins} moneda${it.coins > 1 ? 's' : ''}`); }
-      if (it.seed) { const kind = pickSeed(); addZenSeeds(kind, it.seed); addLog(`Semilla de ${ZEN_NAMES[kind].toLowerCase()} para el jardín`); }
+      if (hand) award('leaf_hand');
+      if (it.coins) { addCoins(it.coins); addLog(`${it.name}: +` + tp('game.coins', it.coins, '{n} moneda', '{n} monedas')); }
+      if (it.seed) { const kind = pickSeed(); addZenSeeds(kind, it.seed); addLog(t('game.seedLog', 'Semilla de {kind} para el jardín', { kind: ZEN_NAMES[kind].toLowerCase() })); }
     };
 
     const startTurn = (newTurn = true) => {
       refresh();
       const p = match.player;
       if (!match.canMove()) {
-        addLog(`${p.name} no puede moverse`);
+        addLog(t('log.cantMove', '{name} no puede moverse', { name: p.name }));
         const a = match.afterMove({ pass: true });
         return showMeteor(a.meteor).then(() => showTick(a.tick)).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
       }
@@ -375,7 +379,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const warned = announceChecks();
       if (p.kind === 'human' && newTurn && !warned && seats.length > 1) {
         // Let queued callouts (capture, collapse, jaque) finish before "Tu turno", so nothing overlaps.
-        const text = seats.filter((s) => s.kind === 'human').length > 1 ? `Turno de ${p.name}` : 'Tu turno';
+        const text = seats.filter((s) => s.kind === 'human').length > 1 ? t('game.turnOf', 'Turno de {name}', { name: p.name }) : t('game.yourTurn', 'Tu turno');
         d.moments.whenIdle().then(() => { setBanner({ key: Date.now(), text, side: p.color }); setTimeout(() => !d.dead && dropProps(), 900); });
       }
     };
@@ -391,10 +395,10 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
           const royal = match.pieces.find((x) => x.royal && x.color === s.color);
           const mine = s.kind === 'human';
           d.moments.callout({
-            text: '¡Jaque!', piece: { type: royal.type, side: s.color }, anim: 'tremble', tier: 'major',
+            text: t('game.check', '¡Jaque!'), piece: { type: royal.type, side: s.color }, anim: 'tremble', tier: 'major',
             ...(mine
-              ? { sub: s === match.player ? 'Tu turno: protege al rey' : `${s.name}, tu rey está amenazado`, tone: 'danger' }
-              : { sub: `${royal.boss ? royal.name : 'El rey ' + SIDE_NAME[s.color]} está a tiro`, tone: 'brass' }),
+              ? { sub: s === match.player ? t('game.checkMine', 'Tu turno: protege al rey') : t('game.checkOther', '{name}, tu rey está amenazado', { name: s.name }), tone: 'danger' }
+              : { sub: royal.boss ? t('game.bossInReach', '{name} está a tiro', { name: royal.name }) : t('game.kingInReach', 'El rey {side} está a tiro', { side: SIDE_NAME[s.color] }), tone: 'brass' }),
           });
           if (mine && s === match.player) warnedMe = true;
         }
@@ -412,27 +416,27 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const art = (p) => ({ type: artOf(p), side: p.color });
       if (res.bounced) {
         const b = res.victims[0].piece;
-        return d.moments.callout({ text: '¡Golpe!', sub: `A ${b.name || PIECE_NAMES[b.type]} le ${b.hp === 1 ? 'queda 1 vida' : `quedan ${b.hp} vidas`}`, tone, piece: art(b), anim: 'hit', tier: 'major' });
+        return d.moments.callout({ text: t('game.hit', '¡Golpe!'), sub: tp('game.livesLeft', b.hp, 'A {name} le queda {n} vida', 'A {name} le quedan {n} vidas', { name: b.name || PIECE_NAMES[b.type] }), tone, piece: art(b), anim: 'hit', tier: 'major' });
       }
-      if (res.absorbed?.length) d.moments.callout({ text: '¡Aprende!', sub: `${res.piece.name} roba: ${res.absorbed.map((t) => MOVE_NAMES[t]).join(', ')}`, tone, piece: art(res.piece), anim: 'tremble' });
+      if (res.absorbed?.length) d.moments.callout({ text: t('game.learns', '¡Aprende!'), sub: t('game.steals', '{name} roba: {list}', { name: res.piece.name, list: res.absorbed.map((m) => MOVE_NAMES[m]).join(', ') }), tone, piece: art(res.piece), anim: 'tremble' });
       if (killed.some((p) => p.boss)) return;
       const royal = killed.find((p) => p.royal);
-      if (royal) return d.moments.callout({ text: royal.type === 'king' ? '¡Rey caído!' : `¡${pieceName(royal)} cae!`, sub: `Cae el bando ${SIDE_NAME[royal.color]}`, tone, piece: art(royal), anim: 'explode', tier: 'major' });
-      if (killed.length > 1) d.moments.callout({ text: res.piece.boss ? `¡Aplastados ×${killed.length}!` : `¡Captura ×${killed.length}!`, tone, piece: art(res.piece), anim: 'stomp' });
+      if (royal) return d.moments.callout({ text: royal.type === 'king' ? t('game.kingDown', '¡Rey caído!') : t('game.royalDown', '¡{name} cae!', { name: pieceName(royal) }), sub: t('game.sideFalls', 'Cae el bando {side}', { side: SIDE_NAME[royal.color] }), tone, piece: art(royal), anim: 'explode', tier: 'major' });
+      if (killed.length > 1) d.moments.callout({ text: res.piece.boss ? t('game.crushed', '¡Aplastados ×{n}!', { n: killed.length }) : t('game.multiCapture', '¡Captura ×{n}!', { n: killed.length }), tone, piece: art(res.piece), anim: 'stomp' });
       else {
         const big = killed.find((p) => p.type === 'queen' || p.type === 'rook');
-        if (big) d.moments.callout({ text: `¡${PIECE_NAMES[big.type]} caída!`, tone, piece: art(big), anim: 'fall', tier: 'major' });
+        if (big) d.moments.callout({ text: t('game.bigDown', '¡{name} caída!', { name: PIECE_NAMES[big.type] }), tone, piece: art(big), anim: 'fall', tier: 'major' });
       }
-      if (res.promoted) d.moments.callout({ text: '¡Coronación!', sub: 'El peón asciende a reina', tone: 'brass', piece: { type: 'pawn', side: res.piece.color }, pieceTo: { type: 'queen', side: res.piece.color }, anim: 'promote' });
+      if (res.promoted) d.moments.callout({ text: t('game.promotion', '¡Coronación!'), sub: t('game.promotionSub', 'El peón asciende a reina'), tone: 'brass', piece: { type: 'pawn', side: res.piece.color }, pieceTo: { type: 'queen', side: res.piece.color }, anim: 'promote' });
     };
 
     // Qué hace una casilla: etiqueta al momento junto a ella, no un rótulo en cola.
     const terrainInfo = (r, c) => {
-      const k = key(r, c), t = board.terrain?.get(k);
+      const k = key(r, c), ter = board.terrain?.get(k);
       const edge = node.modifier === 'chaos' && [[-1, 0], [1, 0], [0, -1], [0, 1]].some(([dr, dc]) => !walkable(board, r + dr, c + dc));
-      if (t === 'ice') d.view.tileTip(r, c, 'Hielo', 'La pieza que acaba aquí resbala una casilla más en su dirección.');
-      else if (t === 'portal') d.view.tileTip(r, c, 'Portal', 'La pieza que acaba aquí sale por el portal gemelo, que ahora brilla.', board.portals.get(k));
-      else if (edge) d.view.tileTip(r, c, 'Borde inestable', `Las casillas del borde se desploman cada 3 turnos; faltan ${3 - (match.turn % 3)}.`);
+      if (ter === 'ice') d.view.tileTip(r, c, t('game.ice', 'Hielo'), t('game.iceText', 'La pieza que acaba aquí resbala una casilla más en su dirección.'));
+      else if (ter === 'portal') d.view.tileTip(r, c, t('game.portal', 'Portal'), t('game.portalText', 'La pieza que acaba aquí sale por el portal gemelo, que ahora brilla.'), board.portals.get(k));
+      else if (edge) d.view.tileTip(r, c, t('game.edge', 'Borde inestable'), t('game.edgeText', 'Las casillas del borde se desploman cada 3 turnos; faltan {n}.', { n: 3 - (match.turn % 3) }));
       else return false;
       return true;
     };
@@ -471,9 +475,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (!settings.coin || scenario || seats.length < 2) return;
       const heads = Math.random() < 0.5, starter = seats[heads ? 0 : 1];
       match.current = heads ? 0 : 1;
-      addLog(`${heads ? 'Cara' : 'Cruz'}: empieza ${starter.name}`);
+      addLog(t('game.coinLog', '{side}: empieza {name}', { side: heads ? t('coin.heads', 'Cara') : t('coin.tails', 'Cruz'), name: starter.name }));
       playSfx('select');
-      return d.moments.coin({ heads, title: heads ? 'Cara' : 'Cruz', sub: starter.name === 'Tú' ? 'Empiezas tú' : `Empieza ${starter.name}` });
+      return d.moments.coin({ heads, title: heads ? t('coin.heads', 'Cara') : t('coin.tails', 'Cruz'), sub: starter.name === t('seat.you', 'Tú') ? t('coin.youStart', 'Empiezas tú') : t('setup.starts', 'Empieza {name}', { name: starter.name }) });
     };
     const beginPlacing = () => {
       if (d.hand.indexOf('organize') < 0 || !mine.size) { d.busy = false; return startTurn(); }
@@ -484,8 +488,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       award('organize');
       d.placing = { total, left: total };
       d.busy = true;
-      addLog(`Carta Organizar: hasta ${total} intercambios antes de empezar`);
-      d.moments.callout({ text: 'Organizar', sub: `Antes de empezar: intercambia hasta ${total} parejas de piezas tuyas`, icon: 'swap', tone: 'brass', tier: 'info' });
+      addLog(t('game.organizeLog', 'Carta Organizar: hasta {n} intercambios antes de empezar', { n: total }));
+      d.moments.callout({ text: CARDS.organize.name, sub: t('game.organizeSub', 'Antes de empezar: intercambia hasta {n} parejas de piezas tuyas', { n: total }), icon: 'swap', tone: 'brass', tier: 'info' });
       setPlacing({ total, left: total });
     };
     d.endPlacing = () => {
@@ -555,7 +559,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         const king = match.pieces.find((x) => x.royal && x.color === human);
         await Promise.all([
           d.view.outro('resign', human),
-          d.moments.cinematic({ title: 'Te rindes', sub: 'El rey se tumba sobre el tablero. La run termina aquí.', piece: { type: king?.type || 'king', side: human }, anim: 'resign' }),
+          d.moments.cinematic({ title: t('game.resign', 'Te rindes'), sub: t('game.resignSub', 'El rey se tumba sobre el tablero. La run termina aquí.'), piece: { type: king?.type || 'king', side: human }, anim: 'resign' }),
         ]);
       } else await d.view.outro(kind);
       then();
@@ -569,24 +573,24 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.view.setPieces(pieces);
     seePieces(pieces.filter((p) => !p.boss).map((p) => p.type));
     d.busy = true;
-    addLog(scenario ? `${mod.name} · ${board.rows}×${board.cols}` : `Piso ${node.floor + 1}/${run.map.floors} · ${board.rows}×${board.cols} · ${mod.name} · Rival ${rival.name}`);
+    addLog(scenario ? `${mod.name} · ${board.rows}×${board.cols}` : t('game.floorLog', 'Piso {n}/{total} · {size} · {mod} · Rival {rival}', { n: node.floor + 1, total: run.map.floors, size: `${board.rows}×${board.cols}`, mod: mod.name, rival: rival.name }));
     const boss = pieces.find((p) => p.boss);
     d.bossId = boss?.boss;
     const learned = pieces.filter((p) => p.color !== 'light' && p.extraMoveTypes?.length).length;
     // On a boss floor enemy officers borrow moves: the star badge marks them and the entrance says so.
-    const bossSub = boss && `${BOSSES[boss.boss].desc}${learned ? ' Sus oficiales llevan la estrella: movimientos prestados.' : ''}`;
-    if (boss) addLog(`Aparece ${boss.name}${learned ? ` · ${learned} oficial${learned > 1 ? 'es' : ''} con movimientos prestados` : ''}`);
+    const bossSub = boss && BOSSES[boss.boss].desc + (learned ? ' ' + t('game.lentStar', 'Sus oficiales llevan la estrella: movimientos prestados.') : '');
+    if (boss) addLog(t('game.bossAppears', 'Aparece {name}', { name: boss.name }) + (learned ? ' · ' + tp('game.lentOfficers', learned, '{n} oficial con movimientos prestados', '{n} oficiales con movimientos prestados') : ''));
     refresh();
     // The floor card plays over the board while it assembles; the boss gets its own entrance after landing.
     Promise.all([
       d.view.intro(pieces),
-      (!boss || scenario) && d.moments.cinematic({ title: scenario ? mod.name : `Piso ${node.floor + 1}`, sub: scenario ? mod.goal : `${mod.name}. ${mod.desc}`, icon: mod.icon, wave: seats.flatMap((s) => ['pawn', 'knight', 'king'].map((t) => [t, s.color])) }),
+      (!boss || scenario) && d.moments.cinematic({ title: scenario ? mod.name : t('setup.floor', 'Piso {n}', { n: node.floor + 1 }), sub: scenario ? mod.goal : `${mod.name}. ${mod.desc}`, icon: mod.icon, wave: seats.flatMap((s) => ['pawn', 'knight', 'king'].map((t) => [t, s.color])) }),
     ])
       .then(() => boss && d.moments.cinematic({ title: boss.name, sub: bossSub, piece: { type: artOf(boss), side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger', anim: 'stomp' }))
       .then(() => playDemos(boss))
       .then(() => tossCoin())
       .then(() => beginPlacing());
-    const onKey = (e) => e.key === 'Escape' && setPaused((v) => !v);
+    const onKey = (e) => e.key === 'Escape' && (e.preventDefault(), setPaused((v) => !v));
     addEventListener('keydown', onKey);
     return () => { d.dead = true; clearTimeout(d.timer); removeEventListener('keydown', onKey); d.view.destroy(); d.moments.destroy(); };
   }, []);
@@ -616,31 +620,31 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   return html`<div class="screen game">
     <div class="game-main" ref=${mainRef}>
       <div class="game-top">
-        <button class="btn ghost sm icon-only" aria-label="Pausa" title="Pausa (Escape)" onClick=${() => setPaused(true)}><${Icon} name="pause" /></button>
-        <h1 class="title">${scenario ? mod.name : node.versus ? 'Partida local' : node.isBoss ? 'Piso final' : node.isMiniBoss ? 'Mini-jefe' : `Piso ${node.floor + 1} de ${run.map.floors}`}</h1>
+        <button class="btn ghost sm icon-only" aria-label=${t('pause.title', 'Pausa')} title=${t('game.pauseKey', 'Pausa (Escape)')} onClick=${() => setPaused(true)}><${Icon} name="pause" /></button>
+        <h1 class="title">${scenario ? mod.name : node.versus ? t('menu.versus', 'Partida local') : node.isBoss ? t('game.finalFloor', 'Piso final') : node.isMiniBoss ? t('game.miniBoss', 'Mini-jefe') : t('game.floorOf', 'Piso {n} de {total}', { n: node.floor + 1, total: run.map.floors })}</h1>
         ${tools}
       </div>
       <div class="board-host" ref=${hostRef}></div>
-      ${placing && html`<div class="place-bar" role="group" aria-label="Fase Organizar">
+      ${placing && html`<div class="place-bar" role="group" aria-label=${t('game.organizePhase', 'Fase Organizar')}>
         <div>
-          <strong>Carta Organizar · ${placing.left} de ${placing.total} intercambios</strong>
-          <small>${placing.left > 0 ? 'Toca una pieza tuya y luego otra para cambiarlas de casilla.' : 'Ya no quedan intercambios.'} Pulsa Comenzar cuando quieras.</small>
+          <strong>${t('game.organizeLeft', 'Carta Organizar · {left} de {total} intercambios', { left: placing.left, total: placing.total })}</strong>
+          <small>${placing.left > 0 ? t('game.organizeHow', 'Toca una pieza tuya y luego otra para cambiarlas de casilla.') : t('game.organizeNone', 'Ya no quedan intercambios.')} ${t('game.organizeGo', 'Pulsa Comenzar cuando quieras.')}</small>
         </div>
-        <button class="btn primary sm" autofocus onClick=${() => ref.current.endPlacing()}>Comenzar</button>
+        <button class="btn primary sm" autofocus onClick=${() => ref.current.endPlacing()}>${t('game.begin', 'Comenzar')}</button>
       </div>`}
-      ${zoom > 1.01 && html`<button class="zoom-reset" aria-label="Quitar el zoom" title="Quitar el zoom" onClick=${() => ref.current.view?.resetZoom()}><${Icon} name="shrink" size=${18} /></button>`}
+      ${zoom > 1.01 && html`<button class="zoom-reset" aria-label=${t('game.unzoom', 'Quitar el zoom')} title=${t('game.unzoom', 'Quitar el zoom')} onClick=${() => ref.current.view?.resetZoom()}><${Icon} name="shrink" size=${18} /></button>`}
       ${banner && html`<${TurnBanner} key=${banner.key} text=${banner.text} side=${banner.side} />`}
-      ${hand.length > 0 && html`<div class=${'hand' + (hud?.canCard ? '' : ' spent')} role="group" aria-label="Mano de cartas tácticas">
+      ${hand.length > 0 && html`<div class=${'hand' + (hud?.canCard ? '' : ' spent')} role="group" aria-label=${t('game.hand', 'Mano de cartas tácticas')}>
         ${hand.map((id, i) => html`<button key=${id + i} class=${'hand-card' + (cardSel === i ? ' on' : '')} style=${{ '--rot': (i - (hand.length - 1) / 2) * 7 + 'deg', '--drop': Math.abs(i - (hand.length - 1) / 2) * 7 + 'px' }}
             disabled=${!hud?.canCard || !!placing} aria-pressed=${cardSel === i} title=${CARDS[id].desc} onClick=${() => ref.current.pickCard(i)}>
           <${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini shop=${isShopCard(run, i)} />
         </button>`)}
-        <p class=${'hand-hint' + (cardTip ? ' tip' : '')} aria-live="polite">${placing ? 'Organizar: acomoda tus piezas y pulsa Comenzar' : cardSel != null ? cardTip || CARDS[hand[cardSel]]?.aim || '' : hud?.canCard ? 'Una carta por turno' : 'Ya jugaste carta este turno'}</p>
+        <p class=${'hand-hint' + (cardTip ? ' tip' : '')} aria-live="polite">${placing ? t('game.organizeHint', 'Organizar: acomoda tus piezas y pulsa Comenzar') : cardSel != null ? cardTip || CARDS[hand[cardSel]]?.aim || '' : hud?.canCard ? t('game.oneCard', 'Una carta por turno') : t('game.cardUsed', 'Ya jugaste carta este turno')}</p>
       </div>`}
     </div>
     <aside class="hud panel">
-      ${end && scenario && html`<${MiniEnd} win=${!!end.victory} title=${end.tie ? 'Tablas' : end.victory ? '¡Victoria!' : 'Derrota'} note=${end.note || (end.tie ? 'Partida bloqueada: empate.' : end.victory ? 'Minijuego superado.' : 'No salió esta vez.')} label=${scenario.endLabel || 'Continuar'} onEnd=${() => leave('exit', () => end.victory ? onWin(ref.current.bossId) : onExit())} />`}
-      ${hud?.boss && html`<section class="boss-bar" aria-label="Jefe">
+      ${end && scenario && html`<${MiniEnd} win=${!!end.victory} title=${end.tie ? t('game.draw', 'Tablas') : end.victory ? t('common.win', '¡Victoria!') : t('common.lose', 'Derrota')} note=${end.note || (end.tie ? t('game.drawNote', 'Partida bloqueada: empate.') : end.victory ? t('game.miniCleared', 'Minijuego superado.') : t('game.notThisTime', 'No salió esta vez.'))} label=${scenario.endLabel || t('common.continue', 'Continuar')} onEnd=${() => leave('exit', () => end.victory ? onWin(ref.current.bossId) : onExit())} />`}
+      ${hud?.boss && html`<section class="boss-bar" aria-label=${t('game.boss', 'Jefe')}>
         <div class="boss-row"><strong>${hud.boss.name}</strong>
           <span class="hp">${Array.from({ length: hud.boss.maxHp }, (_, i) => html`<b class=${i < hud.boss.hp ? 'on' : ''}></b>`)}</span></div>
       </section>`}
@@ -664,34 +668,34 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         })}
       </section>
       <div class="chips">
-        ${hud?.threats > 0 && html`<button class="chip danger" aria-pressed=${chipInfo?.id === 'threats'} onClick=${() => explain('threats', `${hud.threats} en peligro`, 'Las piezas que laten en rojo pueden ser capturadas en la próxima jugada rival. Muévelas o protégelas.')}><${Icon} name="warn" size=${12} /> ${hud.threats} en peligro</button>`}
-        ${node.modifier === 'chaos' && hud && html`<button class="chip" aria-pressed=${chipInfo?.id === 'chaos'} onClick=${() => explain('chaos', `Derrumbe en ${hud.chaosIn}`, `${mod.desc} Faltan ${hud.chaosIn} turnos para el próximo; lo que esté encima cae.`)}><${Icon} name="collapse" size=${12} /> derrumbe en ${hud.chaosIn}</button>`}
-        ${muts.map(([id, n]) => html`<button class="chip mut" aria-pressed=${chipInfo?.id === id} onClick=${() => explain(id, MUTATIONS[id]?.name + (n > 1 ? ' ×' + n : ''), MUTATIONS[id]?.desc + ' Es una mutación de tu ejército: dura toda la run.')}><${Icon} name=${MUTATIONS[id]?.icon} size=${12} />${MUTATIONS[id]?.name}${n > 1 ? ' ×' + n : ''}</button>`)}
+        ${hud?.threats > 0 && html`<button class="chip danger" aria-pressed=${chipInfo?.id === 'threats'} onClick=${() => explain('threats', t('game.inDanger', '{n} en peligro', { n: hud.threats }), t('game.inDangerText', 'Las piezas que laten en rojo pueden ser capturadas en la próxima jugada rival. Muévelas o protégelas.'))}><${Icon} name="warn" size=${12} /> ${t('game.inDanger', '{n} en peligro', { n: hud.threats })}</button>`}
+        ${node.modifier === 'chaos' && hud && html`<button class="chip" aria-pressed=${chipInfo?.id === 'chaos'} onClick=${() => explain('chaos', t('game.collapseIn', 'Derrumbe en {n}', { n: hud.chaosIn }), mod.desc + ' ' + t('game.collapseInText', 'Faltan {n} turnos para el próximo; lo que esté encima cae.', { n: hud.chaosIn }))}><${Icon} name="collapse" size=${12} /> ${t('game.collapseInChip', 'derrumbe en {n}', { n: hud.chaosIn })}</button>`}
+        ${muts.map(([id, n]) => html`<button class="chip mut" aria-pressed=${chipInfo?.id === id} onClick=${() => explain(id, MUTATIONS[id]?.name + (n > 1 ? ' ×' + n : ''), MUTATIONS[id]?.desc + ' ' + t('game.mutChip', 'Es una mutación de tu ejército: dura toda la run.'))}><${Icon} name=${MUTATIONS[id]?.icon} size=${12} />${MUTATIONS[id]?.name}${n > 1 ? ' ×' + n : ''}</button>`)}
       </div>
       ${chipInfo && html`<p class="chip-info" role="status"><strong>${chipInfo.title}</strong> ${chipInfo.text}</p>`}
       ${inspect && html`<section class=${'inspector' + (inspect.threat ? ' threat' : '')}>
         <${PieceIcon} type=${inspect.type} side=${inspect.side} size=${44} />
         <div>
           <strong>${inspect.name} <small>${inspect.color}</small></strong>
-          <p>${inspect.boss || `Alcanza ${inspect.moves} casilla${inspect.moves === 1 ? '' : 's'}`}</p>
+          <p>${inspect.boss || tp('game.reach', inspect.moves, 'Alcanza {n} casilla', 'Alcanza {n} casillas')}</p>
           ${inspect.guard && html`<p class="guard-note"><${Icon} name="lock" size=${13} /> ${inspect.guard}</p>`}
-          ${inspect.mut.length > 0 && html`<div class="insp-row"><span class="insp-key">Mutación</span><span class="tags">${inspect.mut.map((id) => html`<span class="tag mut" title=${MUTATIONS[id]?.desc}><${Icon} name=${MUTATIONS[id]?.icon} size=${11} />${MUTATIONS[id]?.name}</span>`)}</span></div>
+          ${inspect.mut.length > 0 && html`<div class="insp-row"><span class="insp-key">${t('game.mutation', 'Mutación')}</span><span class="tags">${inspect.mut.map((id) => html`<span class="tag mut" title=${MUTATIONS[id]?.desc}><${Icon} name=${MUTATIONS[id]?.icon} size=${11} />${MUTATIONS[id]?.name}</span>`)}</span></div>
             ${inspect.mut.map((id) => html`<p class="insp-desc">${MUTATIONS[id]?.desc}</p>`)}`}
-          ${inspect.cards.length > 0 && html`<div class="insp-row"><span class="insp-key">Carta</span><span class="tags">${inspect.cards.map((id) => html`<span class="tag carta" title=${CARDS[id]?.desc}><${Icon} name=${CARDS[id]?.icon} size=${11} />${CARDS[id]?.name}</span>`)}</span></div>
+          ${inspect.cards.length > 0 && html`<div class="insp-row"><span class="insp-key">${t('game.card', 'Carta')}</span><span class="tags">${inspect.cards.map((id) => html`<span class="tag carta" title=${CARDS[id]?.desc}><${Icon} name=${CARDS[id]?.icon} size=${11} />${CARDS[id]?.name}</span>`)}</span></div>
             ${inspect.cards.map((id) => html`<p class="insp-desc">${CARDS[id]?.desc}</p>`)}`}
-          ${inspect.copied.length > 0 && html`<div class="insp-row"><span class="insp-key">Movimiento</span><span class="tags">${inspect.copied.map((n) => html`<span class="tag">${n}</span>`)}</span></div>`}
-          ${inspect.lent.length > 0 && html`<div class="insp-row"><span class="insp-key">Prestado por el jefe</span><span class="tags">${inspect.lent.map((n) => html`<span class="tag">${n}</span>`)}</span></div>`}
+          ${inspect.copied.length > 0 && html`<div class="insp-row"><span class="insp-key">${t('game.movement', 'Movimiento')}</span><span class="tags">${inspect.copied.map((n) => html`<span class="tag">${n}</span>`)}</span></div>`}
+          ${inspect.lent.length > 0 && html`<div class="insp-row"><span class="insp-key">${t('game.lent', 'Prestado por el jefe')}</span><span class="tags">${inspect.lent.map((n) => html`<span class="tag">${n}</span>`)}</span></div>`}
         </div>
       </section>`}
-      ${hud && Object.values(hud.captured).some((l) => l.length) && html`<section class="captures" aria-label="Piezas capturadas">
+      ${hud && Object.values(hud.captured).some((l) => l.length) && html`<section class="captures" aria-label=${t('game.captured', 'Piezas capturadas')}>
         ${seats.map((s) => hud.captured[s.color].length > 0 && html`<div class="cap-row"><span class=${'token side-' + s.color}></span>
           <span class="cap-list">${hud.captured[s.color].map((t) => html`<${PieceIcon} type=${t} side=${s.color} size=${20} />`)}</span></div>`)}
       </section>`}
-      ${hud && html`<p class="hud-tip"><${Icon} name="book" size=${13} /> ${hud.threats > 0 ? 'Tienes piezas en peligro: toca el chip rojo para ver cuáles.' : hud.canCard && hand.length ? 'Puedes jugar una carta de tu mano este turno.' : TIPS[hud.turn % TIPS.length]}</p>`}
-      ${hand.length > 0 && html`<section class="hand-list" aria-label="Qué hace cada carta de tu mano">
+      ${hud && html`<p class="hud-tip"><${Icon} name="book" size=${13} /> ${hud.threats > 0 ? t('game.dangerTip', 'Tienes piezas en peligro: toca el chip rojo para ver cuáles.') : hud.canCard && hand.length ? t('game.cardTip', 'Puedes jugar una carta de tu mano este turno.') : TIPS[hud.turn % TIPS.length]}</p>`}
+      ${hand.length > 0 && html`<section class="hand-list" aria-label=${t('game.handList', 'Qué hace cada carta de tu mano')}>
         ${hand.map((id, i) => html`<div key=${id + i} class=${'hl-row' + (cardSel === i ? ' on' : '')}><${Icon} name=${CARDS[id].icon} size=${15} /><span><b>${CARDS[id].name}</b> ${CARDS[id].desc}</span></div>`)}
       </section>`}
-      <ol class="log" aria-live="polite" aria-label="Registro de jugadas">${log.slice(-6).map((l, i) => html`<li key=${log.length - 6 + i}>${l}</li>`)}</ol>
+      <ol class="log" aria-live="polite" aria-label=${t('game.log', 'Registro de jugadas')}>${log.slice(-6).map((l, i) => html`<li key=${log.length - 6 + i}>${l}</li>`)}</ol>
     </aside>
     ${paused && !end && html`<${PauseOverlay} settings=${settings} setSettings=${setSettings}
       onResume=${() => setPaused(false)} onRestart=${onRestart && (() => leave('reset', onRestart))} onExit=${() => leave('exit', onExit)} onMenu=${() => leave('exit', onMenu)} onAbandon=${() => leave('resign', onAbandon)}
@@ -713,20 +717,20 @@ function EndOverlay({ state, isFinal, exitLabel, onContinue, onRetry, onMap, onM
     motion(card.querySelectorAll('h1, p, .end-actions .btn'), { y: [10, 0], opacity: [0, 1] }, { duration: 0.35, delay: motionStagger(0.06, { startDelay: 0.42 }), ease: OUT });
   }, []);
   const kind = state.tie ? 'tie' : state.victory ? 'win' : 'loss';
-  const title = state.tie ? 'Tablas' : state.victory ? (isFinal ? 'Run completada' : 'Victoria') : 'Derrota';
-  const msg = state.note || (state.tie ? 'Partida bloqueada: empate a piezas.'
-    : state.victory ? (isFinal ? 'Has conquistado la torre entera.' : 'El tablero es tuyo.')
-    : `Tu rey ha caído.${state.winnerName ? ' Gana ' + state.winnerName + '.' : ''}`);
+  const title = state.tie ? t('game.draw', 'Tablas') : state.victory ? (isFinal ? t('game.runDone', 'Run completada') : t('game.victory', 'Victoria')) : t('common.lose', 'Derrota');
+  const msg = state.note || (state.tie ? t('game.drawPieces', 'Partida bloqueada: empate a piezas.')
+    : state.victory ? (isFinal ? t('game.towerDone', 'Has conquistado la torre entera.') : t('game.boardYours', 'El tablero es tuyo.'))
+    : t('game.kingFell', 'Tu rey ha caído.') + (state.winnerName ? ' ' + t('game.winner', 'Gana {name}.', { name: state.winnerName }) : ''));
   return html`<div class="overlay">
     <div class=${'end-card panel ' + kind} ref=${ref}>
       <div class="stamp"><${Icon} name=${state.tie ? 'flag' : state.victory ? 'trophy' : 'skull'} size=${34} /></div>
       <h1>${title}</h1>
       <p>${msg}</p>
       <div class="end-actions">
-        ${state.victory && html`<button class="btn primary" autofocus onClick=${onContinue}>${exitLabel || (isFinal ? 'Nueva run' : 'Reclamar recompensa')}</button>`}
-        <button class="btn" onClick=${onRetry}><${Icon} name="refresh" size=${16} />Reintentar</button>
-        ${!state.victory && html`<button class="btn ghost-ink" onClick=${onMap}><${Icon} name="map" size=${16} />${exitLabel || 'Volver al mapa'}</button>`}
-        ${(!state.victory || isFinal) && !exitLabel && html`<button class="btn ghost-ink" onClick=${onMenu}><${Icon} name="home" size=${16} />Menú principal</button>`}
+        ${state.victory && html`<button class="btn primary" autofocus onClick=${onContinue}>${exitLabel || (isFinal ? t('menu.newRun', 'Nueva run') : t('game.claim', 'Reclamar recompensa'))}</button>`}
+        <button class="btn" onClick=${onRetry}><${Icon} name="refresh" size=${16} />${t('game.retry', 'Reintentar')}</button>
+        ${!state.victory && html`<button class="btn ghost-ink" onClick=${onMap}><${Icon} name="map" size=${16} />${exitLabel || t('game.backToMap', 'Volver al mapa')}</button>`}
+        ${(!state.victory || isFinal) && !exitLabel && html`<button class="btn ghost-ink" onClick=${onMenu}><${Icon} name="home" size=${16} />${t('game.mainMenu', 'Menú principal')}</button>`}
       </div>
     </div>
   </div>`;
