@@ -65,17 +65,22 @@
   background: var(--accent); border: 3px solid var(--ink); border-radius: var(--r-md); text-shadow: 0 3px 0 var(--ink); box-shadow: 0 6px 0 var(--ink); }
 .logo-chaos { display: inline-flex; margin-right: 0.06em; }
 /* Chaos no se está quieto: cada letra cabecea a su ritmo. */
-.logo-chaos i { --tilt: calc((var(--i) - 2) * 7deg * (1 - 2 * mod(var(--i), 2))); font-style: normal; display: inline-block; rotate: var(--tilt);
-  translate: 0 calc(mod(var(--i), 2) * -0.08em); animation: chaos-wob calc(1.6s + var(--i) * 0.23s) calc(var(--i) * -0.4s) ease-in-out infinite alternate; }
-@keyframes chaos-wob { to { rotate: calc(var(--tilt) * -1 + 4deg); translate: 0 calc((1 - mod(var(--i), 2)) * -0.08em); } }
+/* Un solo transform (no rotate + translate): animar dos propiedades de giro a la vez saca la
+   animación del compositor y la recalcula en cada fotograma. */
+.logo-chaos i { --tilt: calc((var(--i) - 2) * 7deg * (1 - 2 * mod(var(--i), 2))); font-style: normal; display: inline-block;
+  transform: translateY(calc(mod(var(--i), 2) * -0.08em)) rotate(var(--tilt));
+  animation: chaos-wob calc(1.6s + var(--i) * 0.23s) calc(var(--i) * -0.4s) ease-in-out infinite alternate; }
+@keyframes chaos-wob { to { transform: translateY(calc((1 - mod(var(--i), 2)) * -0.08em)) rotate(calc(var(--tilt) * -1 + 4deg)); } }
 /* Entrada: el nombre cae y rebota, la cinta llega de un golpe. */
 .logo-main { animation: logo-drop 0.7s var(--ease-out) both; }
-/* Tras llegar, la cinta se balancea como un sube y baja: el centro quieto, las puntas suben y bajan. */
-.logo-sub { transform-origin: 50% 50%; animation: logo-slap 0.5s 0.35s var(--ease-out) both, seesaw 4s 0.85s ease-in-out infinite; }
+/* Tras llegar, la cinta se balancea como un sube y baja: el centro quieto, las puntas suben y bajan.
+   La entrada va en el envoltorio: las dos en el mismo elemento dejaban el vaivén fuera del compositor. */
+.logo-sub-in { display: block; transform-origin: 50% 50%; animation: logo-slap 0.5s 0.35s var(--ease-out) both; }
+.logo-sub { transform-origin: 50% 50%; animation: seesaw 4s 0.85s ease-in-out infinite; }
 @keyframes seesaw { 25% { rotate: -2.5deg; } 75% { rotate: 2.5deg; } }
 @keyframes logo-drop { 0% { translate: 0 -0.5em; opacity: 0; } 55% { translate: 0 0.04em; opacity: 1; scale: 1.03 0.94; } 100% { translate: 0 0; } }
 @keyframes logo-slap { 0% { scale: 1.4; rotate: -8deg; opacity: 0; } 70% { scale: 0.97; rotate: 1deg; opacity: 1; } 100% { scale: 1; rotate: 0deg; } }
-@media (prefers-reduced-motion: reduce) { .logo-chaos i, .logo-i .icon, .logo-main, .logo-sub { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .logo-chaos i, .logo-i .icon, .logo-main, .logo-sub, .logo-sub-in { animation: none; } }
 .logo p { margin: 24px 0 0; font-size: 16px; line-height: 1.45; color: var(--paper-2); text-wrap: pretty; }
 .menu-actions { display: flex; flex-direction: column; gap: 12px; }
 /* Botones del menú: icono en una ficha a la izquierda y el texto alineado detrás. */

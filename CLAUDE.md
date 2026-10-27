@@ -28,7 +28,8 @@ Lanzamiento cercano: cambios acotados.
 - Calidad: detector impeccable a 0 (`impeccable detect css src index.html lab.html`).
 
 ## Reglas
-- Respuestas al dueño ultracortas (estilo caveman). Ahorrar tokens: leer por trozos, pocas capturas.
+- Respuestas al dueño ultracortas (estilo caveman), sin explicaciones: hacerlo y decir qué se hizo en ≤ 250
+  caracteres. Ahorrar tokens: leer por trozos, pocas capturas.
 - Comentarios en código solo si explican algo no obvio.
 - "¿Dónde está X?": `grep -n X docs/MAPA.md` (índice ruta:línea; regenerar con `node tools/regen-mapa.mjs`).
 - Buscar/listar en el repo con el subagente `explorador` (Haiku). Archivos > 40 KB: `grep -n` y leer tramos.
@@ -40,7 +41,7 @@ Lanzamiento cercano: cambios acotados.
 - Skills: antislop, ponytail (mínimo + autocomprobación), impeccable, taste; `gaming-references` antes de diseñar;
   `web-game-toolkit` para arte, iconos, audio y pruebas.
 - Probar en navegador a 360×800 táctil y en PC, mesa normal y `pixelada`, antes de dar algo por hecho.
-- Rama de trabajo indicada en la sesión; push frecuente. Sin PR salvo que se pida.
+- Rama de trabajo indicada en la sesión; push frecuente. Al acabar cada cambio, PR y merge a `main` siempre.
 
 ## Minijuegos
 1. Nombre e icono solo en `src/data/modifiers.js`; el resto los lee de ahí.

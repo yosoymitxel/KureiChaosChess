@@ -49,11 +49,11 @@
 [data-art="pixel"] .btn:not(.ghost):active { transform: translateY(2px); background: linear-gradient(to bottom, transparent 2px, var(--shade) 2px 6px, transparent 6px) border-box, var(--bg); }
 /* La fuente bitmap es más ancha: el nombre largo baja un punto para caber en la columna. */
 [data-art="pixel"] .logo-sub { font-size: 0.36em; rotate: none; border-radius: 0; }
-[data-art="pixel"] .logo-chaos i { rotate: none; animation-name: chaos-bob; animation-timing-function: steps(2); }
-@keyframes chaos-bob { to { translate: 0 calc((1 - mod(var(--i), 2)) * -0.08em); } }
+[data-art="pixel"] .logo-chaos i { transform: translateY(calc(mod(var(--i), 2) * -0.08em)); animation-name: chaos-bob; animation-timing-function: steps(2); }
+@keyframes chaos-bob { to { transform: translateY(calc((1 - mod(var(--i), 2)) * -0.08em)); } }
 [data-art="pixel"] .logo-i { --cx: 0.0515em; --top: 0.1em; --cs: 0.22em; }
 [data-art="pixel"] .logo-i .icon { stroke: none; animation-timing-function: steps(3); }
-[data-art="pixel"] :is(.logo-main, .logo-sub) { animation-timing-function: steps(4); }
+[data-art="pixel"] :is(.logo-main, .logo-sub, .logo-sub-in) { animation-timing-function: steps(4); }
 
 /* Tableros de los minijuegos: las mismas losas del tema que el tablero de la partida. Las
    casillas con un estado de color (meta, carril, peligro, casa) quedan lisas para que se lean. */

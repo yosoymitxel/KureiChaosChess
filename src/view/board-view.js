@@ -187,6 +187,7 @@ export class BoardView {
     for (const [r, c] of mid) {
       const w = document.createElement('div');
       w.className = 'pond-tile';
+      w.dataset.r = r; w.dataset.c = c;
       w.style.setProperty('--r', r); w.style.setProperty('--c', c);
       this.tilesEl.appendChild(w);
     }
@@ -195,6 +196,46 @@ export class BoardView {
     Object.entries({ '--r': r0, '--c': c0, '--h': r1 - r0 + 1, '--w': c1 - c0 + 1 }).forEach(([k, v]) => el.style.setProperty(k, v));
     this.tilesEl.appendChild(el);
     render(boardPond, el);
+    this.pondAt = { r0, c0, h: r1 - r0 + 1, w: c1 - c0 + 1, el };
+  }
+
+  // Tocar el agua echa comida: el koi que antes pase por ese punto de su vuelta acelera y se la come.
+  feed(tile, x, y) {
+    const { r0, c0, h, w, el } = this.pondAt, box = tile.getBoundingClientRect(), s = Math.min(h, w);
+    // A unidades del dibujo (viewBox 20×20, centrado si el estanque no es cuadrado).
+    const px = 10 + (+tile.dataset.c - c0 + (x - box.left) / box.width - w / 2) * (20 / s);
+    const py = 10 + (+tile.dataset.r - r0 + (y - box.top) / box.height - h / 2) * (20 / s);
+    playSfx('splash');
+    const c = this.fx.pointOf(tile);
+    if (!reduced()) this.fx.ring(c.x, c.y, { color: '#e6f6ff', radius: this.sq * 0.5, width: 2, life: 0.6 });
+    const food = el.querySelector('.bd-food');
+    const bits = [0, 1, 2].map(() => {
+      const b = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      b.setAttribute('cx', (px + (Math.random() - 0.5) * 1.6).toFixed(2)); b.setAttribute('cy', (py + (Math.random() - 0.5) * 1.6).toFixed(2));
+      b.setAttribute('r', '.32'); b.setAttribute('class', 'zn-pellet');
+      food.appendChild(b);
+      return b;
+    });
+    const eat = () => bits.forEach((b) => b.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }).finished.then(() => b.remove()));
+    // Vueltas de board.css (koi-swim): el pez a sale arriba (radio 5, 14 s, horario), el b abajo (radio 6.5, 19 s, antihorario).
+    const theta = (Math.atan2(py - 10, px - 10) * 180) / Math.PI, RUSH = 3;
+    const fish = [...el.querySelectorAll('.bd-koi')].map((g, i) => {
+      const anim = g.getAnimations()[0];
+      if (!anim) return null;
+      const [r, dur, start, dir] = i ? [6.5, 19000, 90, -1] : [5, 14000, -90, 1];
+      const now = start + (dir * 360 * ((anim.currentTime ?? 0) % dur)) / dur;
+      const lap = (((dir * (theta - now)) % 360) + 360) % 360;
+      let wait = (lap / 360) * dur / RUSH;
+      if (wait < 500) wait += dur / RUSH;
+      return { anim, r, wait };
+    }).filter(Boolean);
+    if (!fish.length) return void setTimeout(eat, 1500);
+    const f = fish.reduce((a, b) => (b.wait < a.wait ? b : a));
+    const rad = (theta * Math.PI) / 180, tx = 10 + f.r * Math.cos(rad), ty = 10 + f.r * Math.sin(rad);
+    bits.forEach((b) => b.animate([{ transform: 'none' }, { transform: `translate(${(tx - px).toFixed(2)}px, ${(ty - py).toFixed(2)}px)` }], { duration: 500, easing: 'ease-out', fill: 'forwards' }));
+    f.anim.koiRush = (f.anim.koiRush || 0) + 1;
+    f.anim.updatePlaybackRate(RUSH);
+    setTimeout(() => { eat(); if (!--f.anim.koiRush) f.anim.updatePlaybackRate(1); }, f.wait);
   }
 
   // Objetos tumbados sobre una casilla (los coleccionables): caen rebotando; devuelve el elemento.
@@ -451,6 +492,8 @@ export class BoardView {
       // Lo que se quita con la mano (las hojas) gana aunque una figura de delante lo tape un poco.
       const prop = document.elementsFromPoint(e.clientX, e.clientY).map((x) => x.closest?.('.prop.hand')).find(Boolean);
       if (prop) return prop.dispatchEvent(new Event('take'));
+      const water = document.elementFromPoint(e.clientX, e.clientY);
+      if (water?.classList.contains('pond-tile') && this.host.contains(water)) return this.feed(water, e.clientX, e.clientY);
       if (e.pointerType !== 'mouse') {
         touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
         if (touches.size === 2) {

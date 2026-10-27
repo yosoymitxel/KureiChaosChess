@@ -19,7 +19,7 @@ import { PauseOverlay } from './overlays.js';
 import { Moments } from '../moments.js';
 import { playSfx } from '../sfx.js';
 import { award, seePieces, seeMutations } from '../../game/achievements.js';
-import { PICKUPS, dropPickups } from '../../data/pickups.js';
+import { PICKUPS, PICKUPS_EVERY, dropPickups } from '../../data/pickups.js';
 import { PICKUP_ART } from '../zen-art.js';
 import { isShopCard, addCoins } from '../../game/shop.js';
 import { addZenSeeds, pickSeed, ZEN_NAMES } from '../../game/zen.js';
@@ -332,10 +332,14 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       await Promise.all([...spawned.map((p) => d.view.dropIn(p)), ...fallen.map((p) => d.view.kill(p, p, p)), sunk.length && d.view.collapse(sunk)]);
     };
 
-    // Coleccionables: caen una vez por piso, después del primer «Tu turno», para no frenar la entrada.
+    // Coleccionables: caen tras el primer «Tu turno» (para no frenar la entrada) y otra tanda cada
+    // PICKUPS_EVERY turnos tuyos sin ninguno en el tablero.
     const dropProps = () => {
-      if (d.props || scenario || node.versus) return;
-      d.props = new Map();
+      if (scenario || node.versus || match.over) return;
+      d.props ||= new Map();
+      d.propWait = d.props.size ? 0 : (d.propWait ?? PICKUPS_EVERY) + 1;
+      if (d.propWait < PICKUPS_EVERY) return;
+      d.propWait = 0;
       for (const { id, row, col } of dropPickups(board, match.pieces)) {
         const el = d.view.addProp(row, col, id), it = PICKUPS[id];
         render(PICKUP_ART[id] || html`<${Icon} name=${id} size=${24} />`, el);
