@@ -3,3 +3,5 @@ graphify-out/
 art/out/
 art/temas/*/out/
 dist/
+publicar.ps1
+publicar.cmd
