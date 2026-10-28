@@ -15,11 +15,13 @@ const growDir = (m, p) => [behind(p), -behind(p)].find((d) => freeTile(m, p.row 
 export const CARDS = localize('cards', {
   colossus: {
     id: 'colossus', aim: 'Elige una torre o guardia con una casilla libre detrás o delante.', name: 'Coloso', rarity: 'rare', icon: 'rook', target: 'piece',
-    desc: 'Una torre o guardia crece a 2×1 (hacia atrás si cabe): se mueve como rey, aplasta lo que pisa y aguanta 3 golpes.',
+    desc: 'Una torre o guardia crece a 2×1 (hacia atrás si cabe): conserva su movimiento y suma el del rey, aplasta lo que pisa y aguanta 3 golpes.',
     can: (m, p) => !p.royal && !p.boss && (p.type === 'rook' || p.type === 'guard') && (p.h || 1) === 1 && growDir(m, p) != null,
     apply: (m, p) => {
       if (growDir(m, p) < 0) p.row -= 1; // the anchor is the top cell of the footprint
-      Object.assign(p, { h: 2, w: 1, moves: ['king'], extraMoveTypes: [], hp: 3, maxHp: 3, name: 'Coloso', colossus: true });
+      // Suma el paso de rey a lo que ya hacía: la torre sigue siendo torre.
+      const moves = [...new Set([...(p.moves || [p.type]), 'king'])];
+      Object.assign(p, { h: 2, w: 1, moves, hp: 3, maxHp: 3, name: 'Coloso', colossus: true });
     },
   },
   ascend: {

@@ -47,7 +47,7 @@ function cardEffect(card, piece, pv) {
   const reach = gained ? ' · ' + tp('card.reach', gained, '{n} casilla nueva (en azul)', '{n} casillas nuevas (en azul)') : '';
   if (card.id === 'ascend') return t('card.fx.ascend', '{name} → Reina', { name }) + reach;
   if (card.id === 'mount') return t('card.fx.mount', '{name} aprende el salto en L', { name }) + reach;
-  if (card.id === 'colossus') return t('card.fx.colossus', '{name} → Coloso 2×1: se mueve como rey y aguanta 3 golpes', { name }) + reach;
+  if (card.id === 'colossus') return t('card.fx.colossus', '{name} → Coloso 2×1: conserva su movimiento, suma el del rey y aguanta 3 golpes', { name }) + reach;
   if (card.id === 'fortify') return t('card.fx.fortify', '{name} aguantará 2 golpes: el primero rebota', { name });
   return `${name}: ${card.desc}`;
 }
