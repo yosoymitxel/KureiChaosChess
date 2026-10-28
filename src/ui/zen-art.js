@@ -2,6 +2,7 @@
 // estanque, musgo, pisaderas, farol y la rama de arce. La flor recortada (HEAD, chipArt) la
 // comparten el jardín y la tienda.
 import { html } from './lib.js';
+import { Icon } from './icons.js';
 
 // La flor abierta de cada especie, en pequeño: para fichas y sobres de semillas.
 export const HEAD = {
@@ -201,6 +202,26 @@ export const POUCH = html`<svg viewBox="0 0 16 18" aria-hidden="true">${px('pouc
   <path class="zn-pouch-tie" d="M3.4 5.6 5 3.2M12.6 5.6 11 3.2"/>
   <circle class="zn-seed" cx="7" cy="3.4" r=".9"/><circle class="zn-seed" cx="9.4" cy="2.6" r=".8"/>
 </g></svg>`;
+// Guante de jardín: cuero y puño de tela. La versión píxel se pinta aquí desde la silueta (o cuero,
+// c puño) y el contorno de tinta sale solo alrededor, sin sprite aparte.
+const GLOVE_GRID = [
+  '................', '......oo.oo.....', '...oo.oo.oo.....', '...oo.oo.oo.oo..', '...oo.oo.oo.oo..', '...oo.oo.oo.oo..',
+  '...ooooooooooo..', '.o.ooooooooooo..', '.ooooooooooooo..', '..oooooooooooo..', '...ooooooooooo..', '...ooooooooooo..',
+  '...ccccccccccc..', '...ccccccccccc..', '...ccccccccccc..', '................',
+];
+const GLOVE_PAL = { o: '#d39a52', c: '#3f8a5a', ink: '#2b2230' };
+const gloveCell = (x, y) => GLOVE_GRID[y]?.[x] && GLOVE_GRID[y][x] !== '.';
+const glovePx = GLOVE_GRID.flatMap((row, y) => [...row].map((ch, x) => {
+  const fill = ch !== '.' ? GLOVE_PAL[ch] : [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => gloveCell(x + dx, y + dy)) ? GLOVE_PAL.ink : null;
+  return fill && html`<rect x=${x} y=${y} width="1.02" height="1.02" fill=${fill}/>`;
+}));
+export const GLOVE = html`<svg viewBox="0 0 24 24" aria-hidden="true"><g class="zn-px" transform="scale(1.5)">${glovePx}</g><g class="zn-vec">
+  <rect class="zn-glove" x="4.6" y="4.4" width="3" height="8" rx="1.5"/><rect class="zn-glove" x="8.2" y="2.4" width="3" height="10" rx="1.5"/>
+  <rect class="zn-glove" x="11.8" y="2.4" width="3" height="10" rx="1.5"/><rect class="zn-glove" x="15.4" y="5" width="3" height="8" rx="1.5"/>
+  <rect class="zn-glove" x="1.6" y="10.4" width="3" height="7" rx="1.5" transform="rotate(-35 3 17)"/>
+  <rect class="zn-glove" x="4.6" y="9" width="13.8" height="9.4" rx="2.4"/>
+  <rect class="zn-cuff" x="4.2" y="17.6" width="14.6" height="4.6" rx="1"/>
+</g></svg>`;
 
 // Arena rastrillada: líneas paralelas cortadas alrededor de cada objeto y anillos que lo rodean.
 // `objs`: { x, y, r } en unidades de casilla (centro y radio libre); `raw`: casillas sin cavar.
@@ -239,7 +260,7 @@ export const stoneArt = (cracks = 0) => html`<svg class="zn-standart zn-stone" v
 
 // Lo que se compra para el jardín (src/data/garden.js), con el mismo dibujo que en el cantero.
 export const ITEM_ART = {
-  shovel: SHOVEL, can: CAN, lantern: LANTERN,
+  shovel: SHOVEL, can: CAN, lantern: LANTERN, glove: GLOVE, mallet: html`<${Icon} name="hammer" size=${24} />`,
   pot: html`<svg viewBox="0 0 24 24" aria-hidden="true"><g class="zn-vec">${POT}</g>${px('pot', 24, 24)}</svg>`,
 };
 // Peces del estanque, para el botón de dar de comer.

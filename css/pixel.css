@@ -69,7 +69,9 @@
 [data-art="pixel"] .zn-px { display: inline; }
 [data-art="pixel"] .zn-vec { display: none; }
 [data-art="pixel"] .bm.zn-tray { background-image: url(../assets/zen/sand.png); background-size: var(--cell) var(--cell); image-rendering: pixelated; }
-[data-art="pixel"] .zn-tray .bm-cell.zn-raw { background-image: url(../assets/zen/raw.png); background-size: 100% 100%; }
+/* El sprite de tierra removida es la casilla ya cavada; la virgen queda lisa, color arena, sin cavar. */
+[data-art="pixel"] .zn-tray .bm-cell.zn-raw { background-image: none; }
+[data-art="pixel"] .zn-tray .bm-cell.zn-raw.zn-dug { background-image: url(../assets/zen/raw.png); background-size: 100% 100%; }
 [data-art="pixel"] .zn-rake { display: none; }
 [data-art="pixel"] :is(.zn-plant, .zn-standart) { filter: drop-shadow(0 2px 0 oklch(0.15 0.03 55 / 0.35)); }
 /* La moneda de cara o cruz, en escalones. */
