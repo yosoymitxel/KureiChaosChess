@@ -67,6 +67,8 @@ const P = {
   seed: html`<path d="M3 21.5c1-3.4 4.6-5.6 9-5.6s8 2.2 9 5.6z" /><path d=${bar([[12, 17], [12, 9]], 2.4)} /><path d="M11.4 11.6C11 7.6 8.4 5 3.6 5c0 4.4 3 6.8 7.8 6.6zM12.6 9.6c.2-4.3 3-7 8-7 0 4.8-3 7.2-8 7z" />${cut('M10.4 10.6L6.4 7.4M13.6 8.6l4.2-3.6', 1.4)}`,
   // Pala de jardín (Cavar): mango en D con su hueco, astil macizo y hoja ancha acabada en punta.
   spade: html`<path d="M8.2 2h7.6v1.8c0 2-1.6 3.6-3.6 3.6h-.4c-2 0-3.6-1.6-3.6-3.6z" /><rect x="10.8" y="6" width="2.4" height="6" /><path d="M6 12.2c0-.7.5-1.2 1.2-1.2h9.6c.7 0 1.2.5 1.2 1.2v3.6c0 2.7-2.6 4.8-6 6-3.4-1.2-6-3.3-6-6z" />${cut('M10.2 3.6h3.6', 1.6)}${cut('M12 14v4', 1.8)}`,
+  // Mazo de madera: cabeza ancha con un aro de corte y mango con su pomo.
+  hammer: html`<rect x="3.5" y="2.5" width="17" height="7.5" rx="1.6" /><rect x="10.8" y="9.5" width="2.4" height="10" /><rect x="9.6" y="18.6" width="4.8" height="3" rx="1" />${cut('M8 4.4v3.7', 1.6)}${cut('M16 4.4v3.7', 1.6)}`,
   shears: html`<path d="M4.6 2l3.3.5 10 13.3-2.9 2.2zM19.4 2l-3.3.5-10 13.3 2.9 2.2z" /><circle cx="7" cy="18.5" r="3.4" /><circle cx="17" cy="18.5" r="3.4" />${dot(7, 18.5, 1.5)}${dot(17, 18.5, 1.5)}`,
   flask: html`<path d="M9 2.5h6v2h-1v4.6l5.7 9.4c1 1.7-.2 3.5-2 3.5H6.3c-1.8 0-3-1.8-2-3.5L10 9.1V4.5H9z" />${cut('M7.5 15.5h9', 1.6)}${dot(10.5, 18.3, 1.1)}${dot(14, 17.8, 0.8)}`,
   // La flecha de abajo es la de arriba girada 180° sobre el centro (12,12).

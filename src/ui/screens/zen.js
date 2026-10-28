@@ -22,7 +22,7 @@ const TOOLS = [
   { id: 'water', icon: 'drop', name: t('zen.water', 'Regar') },
   { id: 'dig', icon: 'spade', name: t('zen.dig', 'Cavar') },
   { id: 'cut', icon: 'shears', name: t('zen.cut', 'Cortar') },
-  { id: 'hammer', icon: 'collapse', name: t('zen.hammer', 'Mazo') },
+  { id: 'hammer', icon: 'hammer', name: t('zen.hammer', 'Mazo') },
   { id: 'store', icon: 'bag', name: t('zen.store', 'Guardar') },
 ];
 // Lo que se lleva en la mano: sigue al puntero sobre el jardín y hace el gesto al tocar.
@@ -537,7 +537,7 @@ export function ZenScreen({ onBack, onShop }) {
               ${pour && html`<span key=${pour.id} class="zn-canfx" style=${{ left: pour.x + 'px', top: pour.y + 'px' }} aria-hidden="true">${CAN}<i class="zn-stream"></i></span>`}
               ${tip && html`<span key=${tip.id} class="tile-tip" style=${{ left: tip.x + 'px', top: tip.y + 'px' }}><b>${tip.title}</b>${tip.text}</span>`}
               ${act && html`<span key=${act.id} class=${'zn-toolfx t-' + act.tool} style=${{ left: act.x + 'px', top: act.y + 'px' }} aria-hidden="true">${TOOL_ART[act.tool]}</span>`}
-              <span class=${'zn-hand t-' + tool} ref=${handRef} aria-hidden="true">${TOOL_ART[tool]}</span>
+              <span class=${'zn-hand t-' + tool} ref=${handRef} aria-hidden="true">${TOOL_ART[tool] || html`<${Icon} name=${TOOLS.find((x) => x.id === tool)?.icon} size=${28} />`}</span>
               ${fly && html`<button key=${fly.id} ref=${flyRef} class="zn-fly" aria-label=${t('zen.flyAria', 'Mariposa: tócala')} onClick=${catchFly}>${BUTTERFLY}</button>`}
             </div>
           </div>

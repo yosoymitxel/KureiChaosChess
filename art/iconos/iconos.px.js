@@ -1,4 +1,4 @@
-// Iconos de la interfaz en pixel art: 49 siluetas de 16×16 en un solo color. El juego los pinta con
+// Iconos de la interfaz en pixel art: 50 siluetas de 16×16 en un solo color. El juego los pinta con
 // el color del texto (currentColor), así que solo cuenta la forma: los huecos (ojos, rayas, cortes)
 // son transparencia. Trazo de 2 px casi siempre, margen de 1 px y centrado por la caja del dibujo.
 // Nombres iguales a los de src/ui/icons.js.
@@ -656,6 +656,22 @@ icon("seed", `
   ##############`);
 
 // Pala de jardín (Cavar): mango en D con su hueco, astil y hoja ancha con nervio, acabada en punta.
+// Mazo: cabeza ancha con dos aros (huecos) y mango con pomo.
+icon("hammer", `
+  .############.
+  ##############
+  ###.######.###
+  ###.######.###
+  ##############
+  .############.
+  ......##......
+  ......##......
+  ......##......
+  ......##......
+  ......##......
+  .....####.....
+  .....####.....`);
+
 icon("spade", `
   ...######...
   ...##..##...
