@@ -479,7 +479,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .end-card p { margin: 0; color: var(--ink-2); }
 /* Rubber stamp: the result is "stamped" onto the score sheet. */
 .stamp { width: 80px; height: 80px; border-radius: 50%; display: grid; place-items: center; border: 3px solid currentColor; outline: 2px dashed currentColor; outline-offset: 4px; --icon-cut: var(--paper); }
-.end-card.win .stamp { color: var(--accent); }
+.end-card.win .stamp { color: var(--win); }
 .end-card.loss .stamp, .end-card.tie .stamp { color: var(--ink-2); }
 .end-actions { display: flex; flex-direction: column; gap: 10px; align-self: stretch; margin-top: 8px; }
 .btn.ghost-ink { --bg: transparent; --edge: transparent; --icon-cut: var(--paper); box-shadow: none; }
@@ -540,7 +540,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
    resultado se lea como el final de la misma mesa. */
 .mini-end { display: grid; justify-items: center; gap: 10px; max-width: 46ch; padding: 16px 26px 18px; text-align: center; border-radius: var(--r-md); border: 3px solid var(--ink); background: var(--tile-b); background-image: var(--grain); box-shadow: var(--lift), inset 0 -6px 0 var(--tile-side); animation: end-in 0.4s var(--ease-out) both; }
 .mini-end-title { margin: 0; font-size: 24px; font-weight: 850; color: var(--ink-2); }
-.mini-end.win .mini-end-title { color: var(--accent-ink); }
+.mini-end.win .mini-end-title { color: var(--win); }
 .mini-end-note { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ink); }
 @keyframes end-in { from { opacity: 0; transform: translateY(14px) scale(0.97); } }
 /* Onboarding de Yo, Zombi: el paso activo queda encendido y los hechos apagados. */
@@ -1247,8 +1247,8 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .dots i.off { background: oklch(1 0 0 / 0.14); }
 /* La última oleada es la horda: su punto es un banderín bermellón. */
 .dots i.flag { border-radius: 2px 6px 6px 2px; width: 12px; outline: 2px solid var(--accent); outline-offset: 1px; }
-/* Carriles de lanzamiento: el velo amarillo de las metas, que se lee también en las mesas píxel. */
-.bm-cell.lane { box-shadow: inset 0 0 0 2px color-mix(in oklch, var(--goal), transparent 25%), inset 0 0 0 999px color-mix(in oklch, var(--goal), transparent 62%); }
+/* Carriles de lanzamiento: el velo verde de las metas (--win), que se lee también en las mesas píxel. */
+.bm-cell.lane { box-shadow: inset 0 0 0 2px color-mix(in oklch, var(--win), transparent 25%), inset 0 0 0 999px color-mix(in oklch, var(--win), transparent 62%); }
 /* El número del carril en su esquina: es la tecla que lo lanza. */
 .bw { counter-reset: lane; }
 /* La bolera es apaisada: su escenario no reserva el alto pensado para tableros verticales. */
