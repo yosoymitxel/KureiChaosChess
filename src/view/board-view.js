@@ -404,6 +404,7 @@ export class BoardView {
   clearMarks() {
     for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger', 'target', 'gain', 'foot', 'hot', 'block', 'veil');
     for (const el of this.els.values()) el.classList.remove('eligible');
+    for (const el of this.tilesEl.querySelectorAll('.prop.reach')) el.classList.remove('reach');
     this.host.classList.remove('aiming');
   }
   // Card targeting: outline valid tiles, ring the pieces the card can be played on and fade the rest.
@@ -438,6 +439,8 @@ export class BoardView {
       t.classList.add(captures.has(k) ? 'cap' : 'mv');
       if (danger) t.classList.add('danger');
     }
+    // Un coleccionable al alcance lleva el aro verde alrededor: el punto quedaría tapado debajo.
+    for (const el of this.tilesEl.querySelectorAll('.prop')) el.classList.toggle('reach', cells.has(el.style.getPropertyValue('--r') + ',' + el.style.getPropertyValue('--c')));
   }
   select(piece) {
     if (piece && piece !== this.selected) playSfx('select');

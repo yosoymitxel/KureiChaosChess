@@ -86,6 +86,9 @@
   background: var(--legal); border: 2px solid var(--ink);
   animation: mark-in 0.22s var(--ease-out) both;
 }
+/* Una marca o un coleccionable al alcance: aro verde alrededor, como una captura, en vez del punto. */
+.tile[data-icon].mv .mark::before { content: ''; width: 84%; height: 84%; border-radius: 50%; background: none; border: calc(var(--sq) * 0.08) solid var(--legal); outline: 2px solid var(--ink); outline-offset: -2px; animation: mark-in 0.22s var(--ease-out) both; }
+.prop.reach::before { content: ''; position: absolute; inset: 8%; border-radius: 50%; border: calc(var(--sq) * 0.08) solid var(--legal); outline: 2px solid var(--ink); outline-offset: -2px; animation: mark-in 0.22s var(--ease-out) both; }
 .tile.cap .mark::before {
   content: ''; width: 84%; height: 84%; border-radius: 50%;
   border: calc(var(--sq) * 0.08) solid var(--legal);
