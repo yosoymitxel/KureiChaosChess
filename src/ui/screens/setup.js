@@ -7,6 +7,7 @@ import { rivalForFloor, DIFFICULTIES } from '../../game/difficulty.js';
 import { THEMES } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
+import { exportSave, importSave } from '../../game/backup.js';
 import { themeOwned } from '../../game/shop.js';
 import { eliteVariants, lessonText } from '../../game/generate.js';
 import { t, LANG, LANGS } from '../../i18n/index.js';
@@ -190,6 +191,41 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
         <${Toggle} on=${settings.shake} onChange=${set('shake')} label=${t('settings.shake', 'Temblor de cámara')} hint=${t('settings.shakeHint', 'Impactos y derrumbes sacuden la mesa')} />
         ${canFullscreen && html`<${Toggle} on=${settings.fullscreen} onChange=${(v) => { set('fullscreen')(v); setFullscreen(v); }} label=${t('settings.fullscreen', 'Pantalla completa')} hint=${t('settings.fullscreenHint', 'Ahora y cada vez que empiece una partida')} />`}
       </section>
+      <${Backup} />
     </div>
   </div>`;
+}
+
+// Copia de seguridad de la partida: código para copiar o descargar, y pegarlo para restaurar.
+function Backup() {
+  const [code, setCode] = useState('');
+  const [msg, setMsg] = useState('');
+  const copy = async () => {
+    const c = exportSave();
+    try { await navigator.clipboard.writeText(c); setMsg(t('backup.copied', 'Código copiado: guárdalo en una nota o un mensaje.')); }
+    catch { setCode(c); setMsg(t('backup.shown', 'Cópialo del recuadro y guárdalo.')); }
+  };
+  const download = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([exportSave()], { type: 'text/plain' }));
+    a.download = 'kurei-chaos-chess-partida.txt';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  const restore = () => {
+    if (!importSave(code)) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
+    setMsg(t('backup.done', 'Partida restaurada.'));
+    setTimeout(() => location.reload(), 600);
+  };
+  return html`<section class="panel setup-card" data-enter>
+    <h2>${t('backup.title', 'Copia de seguridad')}</h2>
+    <p class="shop-note">${t('backup.hint', 'Guarda tu progreso (run, jardín, logros, mesas) como un código. Si el navegador lo borra, pégalo aquí y vuelve.')}</p>
+    <div class="menu-row">
+      <button class="btn sm" onClick=${copy}><${Icon} name="scroll" size=${16} />${t('backup.copy', 'Copiar código')}</button>
+      <button class="btn sm" onClick=${download}><${Icon} name="bag" size=${16} />${t('backup.download', 'Descargar')}</button>
+    </div>
+    <textarea class="backup-code" rows="3" value=${code} placeholder=${t('backup.paste', 'Pega aquí tu código para restaurar')} onInput=${(e) => setCode(e.currentTarget.value)}></textarea>
+    <button class="btn sm primary" disabled=${!code.trim()} onClick=${restore}>${t('backup.restore', 'Restaurar')}</button>
+    ${msg && html`<p class="shop-note" aria-live="polite">${msg}</p>`}
+  </section>`;
 }
