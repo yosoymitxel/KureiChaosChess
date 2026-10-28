@@ -106,6 +106,8 @@ export class Fx {
     const a = (v) => Math.ceil(Math.min(1, v) * 3) / 3;
     ctx.fillStyle = p.color; ctx.strokeStyle = p.color;
     switch (p.shape) {
+      case 'mote': return sq(p.x, p.y, Math.max(1, Math.round(p.size / G)));
+      case 'fogbank': { ctx.globalAlpha *= 0.4; for (const k of [1, 0.7, 0.4]) disc(p.x, p.y, p.size * k); return; }
       case 'flash': ctx.globalAlpha = a(t); return disc(p.x, p.y, p.size * (1.2 - t * 0.6));
       case 'smoke': ctx.globalAlpha = a(t * 0.9); return disc(p.x, p.y, p.size * (1.6 - t * 0.8));
       case 'ring': {
@@ -141,25 +143,64 @@ export class Fx {
     ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(x1, y1); ctx.stroke();
   }
 
+  // Clima continuo sobre el tablero (recetas de Sprite Fusion Pixel Art VFX, MIT): lluvia, nieve,
+  // niebla y brasas. Se emite en cada cuadro mientras `weather` esté puesto; null lo apaga.
+  setWeather(kind) {
+    this.weather = matchMedia('(prefers-reduced-motion: reduce)').matches ? null : kind ? { kind, acc: 0 } : null;
+    if (this.weather?.kind === 'fog') for (let i = 0; i < 5; i++) this.spawn('fog', Math.random());
+    if (this.weather) this.kick();
+  }
+  spawn(kind, at = 0) {
+    const { w, h } = this, rnd = (a, b) => a + Math.random() * (b - a);
+    const add = (o) => this.parts.push({ g: 0, drag: 1, rot: 0, max: o.life, ...o });
+    if (kind === 'rain') {
+      const vy = rnd(620, 760), land = rnd(h * 0.15, h), life = (land + 20) / vy;
+      add({ x: rnd(0, w + h * 0.2), y: -20, vx: -vy * 0.18, vy, life, size: 1.4, color: '#c8d8ff', shape: 'spark', alpha: 0.45,
+        end: (p) => this.burst(p.x, p.y, { count: 2, color: '#c8d8ff', speed: [20, 50], life: [0.15, 0.25], size: [1, 2], angle: -Math.PI / 2, spread: 2, gravity: 300 }) });
+    } else if (kind === 'snow') {
+      const vy = rnd(28, 60);
+      add({ x: rnd(-20, w + 20), y: -6, vx: rnd(-14, 22), vy, life: (h + 12) / vy, size: rnd(1.4, 3), color: '#fff', shape: 'mote', alpha: 0.85 });
+    } else if (kind === 'fog') {
+      const vx = rnd(10, 22), life = (w + 200) / vx;
+      add({ x: -100 + at * (w + 200), y: rnd(h * 0.2, h), vx, vy: 0, life: life * (1 - at) + 0.5, size: rnd(55, 95), color: '#e4eaf0', shape: 'fogbank', alpha: 0.3 });
+    } else if (kind === 'embers') {
+      const life = rnd(2, 4);
+      add({ x: rnd(0, w), y: h + 6, vx: rnd(-18, 18), vy: rnd(-90, -40), life, size: rnd(1.4, 2.6), color: ['#ffb347', '#ff6a2b', '#ffd27a'][Math.floor(Math.random() * 3)], shape: 'mote', alpha: 1, flicker: true });
+    }
+  }
+
   kick() { if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame((t) => this.loop(t)); } }
   loop(now) {
     const dt = Math.min((now - this.last) / 1000, 0.05);
     this.last = now;
     const { ctx } = this, pixel = document.documentElement.dataset.art === 'pixel';
     ctx.clearRect(0, 0, this.w, this.h);
+    if (this.weather) {
+      const rate = { rain: 70, snow: 26, fog: 0.5, embers: 14 }[this.weather.kind] * (this.w / 360);
+      for (this.weather.acc += rate * dt; this.weather.acc >= 1; this.weather.acc--) this.spawn(this.weather.kind);
+    }
     for (let i = this.parts.length - 1; i >= 0; i--) {
       const p = this.parts[i];
       p.life -= dt;
-      if (p.life <= 0) { this.parts.splice(i, 1); continue; }
+      if (p.life <= 0) { this.parts.splice(i, 1); p.end?.(p); continue; }
       const k = Math.pow(p.drag, dt * 60);
       p.vx *= k; p.vy = p.vy * k + p.g * dt;
       p.x += p.vx * dt; p.y += p.vy * dt;
       p.rot += (p.vr || 0) * dt;
       const t = p.life / p.max;
-      ctx.globalAlpha = Math.min(1, t * 1.6);
+      ctx.globalAlpha = Math.min(1, t * 1.6) * (p.alpha ?? 1) * (p.flicker ? 0.6 + 0.4 * Math.sin(now / 90 + p.size * 9) : 1);
+      if (p.shape === 'fogbank') ctx.globalAlpha = p.alpha * Math.min(1, t * 4, (1 - t) * 4);
       if (p.shape === 'beam') { this.ray(p, pixel); continue; }
       if (pixel) { this.block(p, t); continue; }
-      if (p.shape === 'flash') {
+      if (p.shape === 'fogbank') {
+        const gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+        gr.addColorStop(0, p.color); gr.addColorStop(1, 'transparent');
+        ctx.save(); ctx.translate(p.x, p.y); ctx.scale(1.8, 1); ctx.translate(-p.x, -p.y);
+        ctx.fillStyle = gr; ctx.fillRect(p.x - p.size, p.y - p.size, p.size * 2, p.size * 2); ctx.restore();
+      } else if (p.shape === 'mote') {
+        ctx.fillStyle = p.color;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, 6.283); ctx.fill();
+      } else if (p.shape === 'flash') {
         ctx.globalAlpha = t; ctx.fillStyle = p.color;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (1.2 - t * 0.6), 0, 6.283); ctx.fill();
       } else if (p.shape === 'smoke') {
@@ -187,7 +228,7 @@ export class Fx {
       }
     }
     ctx.globalAlpha = 1;
-    this.raf = this.parts.length ? requestAnimationFrame((t) => this.loop(t)) : 0;
+    this.raf = this.parts.length || this.weather ? requestAnimationFrame((t) => this.loop(t)) : 0;
     if (!this.raf) ctx.clearRect(0, 0, this.w, this.h);
   }
 }

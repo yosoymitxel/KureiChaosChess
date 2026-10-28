@@ -105,6 +105,7 @@ export class BoardView {
   destroy() { this.ro.disconnect(); this.fx.destroy(); this.unbind?.(); this.host.innerHTML = ''; }
   d(ms) { return reduced() ? Math.min(ms, 120) : ms / this.speed; }
 
+  setWeather(kind) { this.fx.setWeather(kind); }
   setCamera(camera) { this.tilt = CAMERAS[camera] ?? 40; this.layout(); }
 
   // Pellizco: --zoom escala la escena y --px/--py la desplazan. `at` es el punto de la pantalla que
