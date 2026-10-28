@@ -318,3 +318,7 @@
 .tile.veil { box-shadow: inset 0 0 0 999px oklch(0.96 0.012 235 / 0.9); }
 .tile.veil .mark { visibility: hidden; }
 [data-art="pixel"] .tile.block { background-image: linear-gradient(135deg, oklch(1 0 0 / 0.55) 0 18%, transparent 18% 70%, oklch(0.35 0.06 240 / 0.35) 70%); }
+
+/* Estela del dash (jugadas extra): sin sombra ni base, teñida del bando, no recibe toques. */
+.pc.afterimage { pointer-events: none; filter: brightness(1.6) saturate(0.6); }
+.pc.afterimage :is(.pc-shadow, .pc-base, .pc-badge, .hp) { display: none; }

@@ -128,6 +128,7 @@ export class Match {
     }
     // El doble paso de un peón deja su casilla de paso abierta a la captura en la jugada siguiente.
     this.ep = !bounced && piece.type === 'pawn' && Math.abs(to.row - from.row) === 2 ? { row: (from.row + to.row) / 2, col: from.col, pawn: piece } : null;
+    if (this.quietOnly()) res.dash = true;
     this.movesThisTurn++;
     if (victims.length) this.quietTurns = 0;
     return res;

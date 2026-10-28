@@ -745,9 +745,10 @@ export class BoardView {
     }
     if (!reduced()) this.liquid(piece, from, to, dur);
     const stretch = fig && !reduced() ? this.stretcher(fig, st) : null;
+    const trail = res.dash && !reduced() ? this.afterimages(piece) : null;
     await animate(st, {
       r: to.row, c: to.col, z: [0, arc, 0], duration: dur,
-      ease: 'inOutSine', onUpdate: () => { this.apply(piece); stretch?.(); },
+      ease: 'inOutSine', onUpdate: () => { this.apply(piece); stretch?.(); trail?.(); },
     });
     if (fig) fig.style.scale = fig.style.rotate = '';
     const c = this.centerOf(piece);
@@ -783,6 +784,22 @@ export class BoardView {
       this.squash(res.castle.rook, 0.8);
     }
     if (promoted) await this.promote(piece);
+  }
+
+  // Dash de las jugadas extra (Paso doble, Furia): copias de la pieza que se quedan atrás y se apagan.
+  afterimages(p) {
+    const el = this.els.get(p);
+    let last = 0;
+    return () => {
+      const now = performance.now();
+      if (!el || now - last < 45) return;
+      last = now;
+      const g = el.cloneNode(true);
+      g.classList.add('afterimage');
+      g.removeAttribute('data-pid');
+      el.before(g);
+      animate(g, { opacity: [0.55, 0], duration: this.d(260), ease: 'outQuad', onComplete: () => g.remove() });
+    };
   }
 
   // Liquid base: the token melts away where it stands (flattens, splashes two drops) and
