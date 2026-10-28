@@ -1,8 +1,6 @@
 /* Reset, typography, browser surfaces and shared components. */
 *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; height: 100%; overflow: hidden; }
-/* Los títulos van con la letra de títulos (Fraunces; en las mesas píxel, la misma de todo). */
-h1, h2, .curtain span, .cine-text h2, .callout-text strong, .turn-banner span, .game-top .title { font-family: var(--font-display); }
 body {
   background: var(--table);
   background-image: var(--wood), radial-gradient(120% 90% at 50% 20%, var(--table-2), var(--table));

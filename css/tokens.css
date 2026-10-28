@@ -1,17 +1,6 @@
 /* Design tokens. Reasons for each choice live in DESIGN.md. */
-/* Letras servidas desde el juego (OFL, subconjunto latino con ñ y tildes): Fraunces para títulos,
-   con su eje de tamaño óptico, y Outfit para el texto. */
-@font-face {
-  font-family: 'Fraunces'; font-style: normal; font-weight: 100 900; font-display: swap;
-  src: url(../assets/fonts/fraunces-latin.woff2) format('woff2');
-}
-@font-face {
-  font-family: 'Outfit'; font-style: normal; font-weight: 100 900; font-display: swap;
-  src: url(../assets/fonts/outfit-latin.woff2) format('woff2');
-}
 :root {
-  --font: 'Outfit', 'Trebuchet MS', sans-serif;
-  --font-display: 'Fraunces', Georgia, serif;
+  --font: 'Bricolage Grotesque', 'Trebuchet MS', sans-serif;
 
   --ink: oklch(0.2 0.02 55);
   --ink-2: oklch(0.33 0.025 55);
