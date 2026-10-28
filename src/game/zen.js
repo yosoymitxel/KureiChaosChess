@@ -3,7 +3,7 @@
 // los anillos nuevos se suman alternando abajo a la derecha y arriba a la izquierda, como tierra
 // virgen por cavar (a veces con piedras). Las claves de casilla son absolutas: el 4×4 base va de
 // r0c0 a r3c3 y los anillos de arriba o de la izquierda tienen coordenadas negativas.
-import { SEEDS, GARDEN_ITEMS, DIG_COOLDOWN, OBSTACLE_CHANCE, ROCK_HP, LANTERN_BOOST, LAKE_MAX } from '../data/garden.js';
+import { SEEDS, GARDEN_ITEMS, SEED_BACK, DIG_COOLDOWN, OBSTACLE_CHANCE, ROCK_HP, LANTERN_BOOST, LAKE_MAX } from '../data/garden.js';
 
 const KEY = 'zugzwang.zen.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
@@ -153,12 +153,12 @@ export function zenBreak(z, key) {
   return { z: { ...z, rocks }, broke: left <= 0 };
 }
 
-// Cortar: la flor va a la cuenta. La salvia rebrota; la lavanda a veces suelta su semilla.
+// Cortar: la flor va a la cuenta. La salvia rebrota; cualquiera suelta a veces su semilla.
 export function zenHarvest(z, key, now = Date.now(), rng = Math.random) {
   const { stage, kind } = zenStage(z, key, now);
   if (stage !== 'bloom') return z;
   const pot = z.pots[key], sp = SEEDS[kind], again = (pot.regrown || 0) < (sp.regrow || 0);
-  const back = sp.seedBack && rng() < sp.seedBack;
+  const back = rng() < SEED_BACK;
   return {
     ...z,
     pots: { ...z.pots, [key]: again ? { kind, t: now, regrown: (pot.regrown || 0) + 1 } : null },

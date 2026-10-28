@@ -5,11 +5,11 @@ import { localize } from '../i18n/index.js';
 
 // `weight`: cuánto sale al caer una semilla (ganar nodos, mariposas, el tablero).
 // `bloomMin`: minutos hasta la flor. `pays`: monedas por flor cortada.
-// `regrow`: rebrota esas veces tras cortarla. `seedBack`: probabilidad de soltar su semilla al cortarla.
+// `regrow`: rebrota esas veces tras cortarla.
 export const SEEDS = localize('seeds', {
-  romero: { id: 'romero', name: 'Romero', rarity: 'Común', weight: 5, bloomMin: 6, price: 10, pays: 14, seedBack: 0.25, desc: 'Rápido: abre en 6 minutos; al cortarlo, a veces suelta su semilla.' },
-  salvia: { id: 'salvia', name: 'Salvia', rarity: 'Común', weight: 3, bloomMin: 10, price: 12, pays: 18, regrow: 1, seedBack: 0.25, desc: 'Rebrota una vez después de cortarla; a veces suelta su semilla.' },
-  lavanda: { id: 'lavanda', name: 'Lavanda', rarity: 'Rara', weight: 1, bloomMin: 16, price: 22, pays: 36, seedBack: 0.5, desc: 'Lenta y cara; al cortarla, a veces suelta su semilla.' },
+  romero: { id: 'romero', name: 'Romero', rarity: 'Común', weight: 5, bloomMin: 6, price: 10, pays: 14, desc: 'Rápido: abre en 6 minutos.' },
+  salvia: { id: 'salvia', name: 'Salvia', rarity: 'Común', weight: 3, bloomMin: 10, price: 12, pays: 18, regrow: 1, desc: 'Rebrota una vez después de cortarla.' },
+  lavanda: { id: 'lavanda', name: 'Lavanda', rarity: 'Rara', weight: 1, bloomMin: 16, price: 22, pays: 36, desc: 'Lenta y cara, pero paga el doble.' },
 });
 
 // Lo que se compra para el jardín. `stack`: se acumula y se coloca con la mano; si no, se tiene o no.
@@ -20,6 +20,8 @@ export const GARDEN_ITEMS = localize('gardenItems', {
   pot: { id: 'pot', name: 'Maceta', price: 25, stack: true, desc: 'Va en tierra cavada con la pala; después se siembra.' },
 });
 
+// Cualquier flor cortada suelta a veces su semilla.
+export const SEED_BACK = 0.3;
 export const DIG_COOLDOWN = 40_000; // la pala de siempre descansa entre cava y cava
 // Tierra nueva que sale con estorbo: piedra (mazo, varios golpes), arbusto (tijeras) o losa (mazo).
 export const OBSTACLE_CHANCE = { rock: 0.16, bush: 0.1, stone: 0.08 };
