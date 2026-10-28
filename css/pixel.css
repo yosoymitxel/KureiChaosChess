@@ -3,15 +3,17 @@
    los juegos de 8 bits), sombras duras sin desenfoque y marcos de nueve
    partes dibujados por el tema (panel.png y boton.png de art/temas/<tema>). El tablero, las
    piezas y la mesa están en board.css. */
-/* Jersey 10 (OFL), servida desde el juego: el subconjunto latino trae ñ y tildes. Se eligió por
-   legible: en Pixelify la Z parece un 2, la C una O y la "fi" una A. Tiene un solo peso y es
-   chica de ojo, así que no se inventa negrita y se agranda con font-size-adjust. */
+/* Jersey 15 (OFL), servida desde el juego: el subconjunto latino trae ñ y tildes. Se eligió por
+   legible frente a otras 12 píxel de Google Fonts: en Pixelify la Z parece un 2, la C una O y la
+   "fi" una A. Es la Jersey 10 más alta y con más aire. Tiene un solo peso, así que no se inventa
+   negrita y se ajusta con font-size-adjust. */
 @font-face {
-  font-family: 'Jersey 10'; font-style: normal; font-weight: 400; font-display: swap;
-  src: url(../assets/fonts/jersey10-latin.woff2) format('woff2');
+  font-family: 'Jersey 15'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url(../assets/fonts/jersey15-latin.woff2) format('woff2');
 }
 [data-art="pixel"] {
-  --font: 'Jersey 10', 'Trebuchet MS', sans-serif;
+  --font: 'Jersey 15', 'Trebuchet MS', sans-serif;
+  --font-display: var(--font);
   --r-sm: 0px; --r-md: 0px; --r-lg: 0px;
   --lift: 4px 4px 0 oklch(0.1 0.03 300 / 0.45);
   --grain: none; --wood: none;
@@ -54,7 +56,7 @@
 [data-art="pixel"] .logo-sub { font-size: 0.36em; rotate: none; border-radius: 0; }
 [data-art="pixel"] .logo-chaos i { transform: translateY(calc(mod(var(--i), 2) * -0.08em)); animation-name: chaos-bob; }
 @keyframes chaos-bob { to { transform: translateY(calc((1 - mod(var(--i), 2)) * -0.08em)); } }
-[data-art="pixel"] .logo-i { --cx: 0.0515em; --top: 0.1em; --cs: 0.22em; }
+[data-art="pixel"] .logo-i { --cx: 0.139em; --top: 0.095em; --cs: 0.22em; }
 [data-art="pixel"] .logo-i .icon { stroke: none; }
 
 /* Tableros de los minijuegos: las mismas losas del tema que el tablero de la partida. Las

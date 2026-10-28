@@ -42,7 +42,6 @@ let page = readFileSync(join(root, 'index.html'), 'utf8');
 const before = page;
 page = page.replace(/<script type="importmap">[\s\S]*?<\/script>/, `<script type="importmap">\n  ${JSON.stringify({ imports: VENDOR })}\n  </script>`);
 page = page.replace(/\s*<link rel="preconnect"[^>]*>/g, '');
-page = page.replace(/<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com[^>]*>/, `<style>@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 400 800; font-display: swap; src: url(vendor/fonts/bricolage-grotesque-latin.woff2) format('woff2'); }</style>`);
 page = page.replace(/\s*<!-- Dependencies come from the CDN[\s\S]*?-->/, '');
 if (page === before || /cdn\.jsdelivr|googleapis/.test(page)) throw new Error('index.html cambió: revisa los reemplazos de build-itch');
 writeFileSync(join(out, 'index.html'), page);
