@@ -13,6 +13,10 @@ import { Icon } from '../ui/icons.js';
 import { boardPond } from '../ui/zen-art.js';
 import { t } from '../i18n/index.js';
 
+// Color con que se pinta una pieza: la bruja del Aquelarre va con el tercer color de la mesa (el
+// jade de las piezas del menú), para que no se confunda con su bando; juega igual con el suyo.
+const look = (p) => (p.witch ? 'wild' : p.color);
+
 export const CAMERAS = { flat: 0, tilt: 40, epic: 56 };
 const JUMPERS = new Set(['knight', 'camel', 'elephant']);
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -289,7 +293,7 @@ export class BoardView {
   addPiece(p) {
     const el = document.createElement('div');
     const [h, w] = sizeOf(p);
-    el.className = `pc side-${p.color}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}${p.infected ? ' infected' : ''}${p.disc ? ' disc' : ''}${p.crown ? ' crown' : ''}`;
+    el.className = `pc side-${look(p)}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}${p.infected ? ' infected' : ''}${p.disc ? ' disc' : ''}${p.crown ? ' crown' : ''}`;
     el.dataset.pid = p.id;
     el.style.setProperty('--h', h); el.style.setProperty('--w', w);
     el.style.setProperty('--s', h * w > 1 ? Math.max(h, w) * 0.85 : 1); // multi-cell figures read bigger than one tile
@@ -789,14 +793,14 @@ export class BoardView {
     const rx = k * w, ry = k * h;
     base.style.opacity = 0;
     liquid(this.gooEl, {
-      side: p.color, rx, ry, px: 1 / this.sq, area: [this.board.cols, this.board.rows], dur, pixel: document.documentElement.dataset.art === 'pixel',
+      side: look(p), rx, ry, px: 1 / this.sq, area: [this.board.cols, this.board.rows], dur, pixel: document.documentElement.dataset.art === 'pixel',
       from: [from.col + w / 2, from.row + h / 2], to: [to.col + w / 2, to.row + h / 2],
     }).then(() => {
       base.style.opacity = '';
       animate(base, { scaleX: [1.16, 0.95, 1], scaleY: [0.86, 1.04, 1], duration: this.d(320), ease: 'outQuad' });
       // Al brotar en el destino, unas gotas saltan del charco.
       const c = this.centerOf(p, to.row, to.col);
-      this.fx.burst(c.x, c.y, { count: 8, color: [css('--side-' + p.color)], speed: [40, 120], size: [2, 4], life: [0.25, 0.5], gravity: 500 });
+      this.fx.burst(c.x, c.y, { count: 8, color: [css('--side-' + look(p))], speed: [40, 120], size: [2, 4], life: [0.25, 0.5], gravity: 500 });
     });
   }
 
@@ -857,7 +861,7 @@ export class BoardView {
       const el = this.remake(p), fig = el.querySelector('.pc-fig'), c = this.centerOf(p);
       this.shake(12, 450);
       this.fx.dust(c.x, c.y, 1.8);
-      this.fx.ring(c.x, c.y, { radius: this.sq * 2.2, color: css('--side-' + p.color), width: 6, life: 0.5 });
+      this.fx.ring(c.x, c.y, { radius: this.sq * 2.2, color: css('--side-' + look(p)), width: 6, life: 0.5 });
       await animate(fig, { scaleY: [0.3, 1.12, 1], scaleX: [1.3, 0.94, 1], duration: this.d(560), ease: 'outExpo' });
     } else if (id === 'ascend') {
       await this.promote(p);
@@ -924,7 +928,7 @@ export class BoardView {
     const c = this.centerOf(p);
     this.shake(10, 300);
     this.fx.burst(c.x, c.y - this.sq * 0.5, { count: 14, color: ['#fff', '#ffe2a8'], speed: [200, 420], size: [1.5, 3], life: [0.15, 0.3], shape: 'spark', drag: 0.85 });
-    this.fx.debris(c.x, c.y - this.sq * 0.3, css('--side-' + p.color), 0.6);
+    this.fx.debris(c.x, c.y - this.sq * 0.3, css('--side-' + look(p)), 0.6);
     el.classList.add('hit');
     setTimeout(() => el.classList.remove('hit'), this.d(260));
     const hp = el.querySelector('.pc-hp');
@@ -999,8 +1003,8 @@ export class BoardView {
     if (!el) return;
     const c = this.centerOf(p);
     const royal = p.royal;
-    if (royal) { this.fx.bigBoom(c.x, c.y - this.sq * 0.4, { radius: this.sq * 4, color: css('--side-' + p.color) }); this.shake(26, 800); }
-    else this.fx.debris(c.x, c.y - this.sq * 0.4, css('--side-' + p.color));
+    if (royal) { this.fx.bigBoom(c.x, c.y - this.sq * 0.4, { radius: this.sq * 4, color: css('--side-' + look(p)) }); this.shake(26, 800); }
+    else this.fx.debris(c.x, c.y - this.sq * 0.4, css('--side-' + look(p)));
     const dir = Math.sign(to.col - from.col) || (Math.random() < 0.5 ? -1 : 1);
     const stand = el.querySelector('.pc-fig');
     // Destello blanco del golpe antes de salir despedida: el impacto se lee aunque dure poco.

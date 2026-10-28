@@ -391,7 +391,9 @@ function placeOnce(board, { modifier, playerCount, isBoss, isMiniBoss, elite, se
     for (const color of [...new Set(pieces.map((p) => p.color))].filter((c) => c !== 'light')) {
       const seen = new Set(pieces.filter((p) => p.color !== color).flatMap((f) => legalMoves(f, pieces, board, ctx).map((m) => key(m.row, m.col))));
       const safe = [];
-      for (let r = 2; r < rows - 2; r++) for (let c = 0; c < cols; c++) if (valid(r, c) && !occupied(r, c) && !seen.has(key(r, c))) safe.push([r, c]);
+      // Ni a tiro ni pegada a otro bando: que se vea sola en la tierra de nadie.
+      const near = (r, c) => pieces.some((p) => p.color !== color && Math.max(Math.abs(p.row - r), Math.abs(p.col - c)) <= 1);
+      for (let r = 2; r < rows - 2; r++) for (let c = 0; c < cols; c++) if (valid(r, c) && !occupied(r, c) && !seen.has(key(r, c)) && !near(r, c)) safe.push([r, c]);
       if (safe.length) { const [r, c] = pickFrom(rng, safe); pieces.push(makePiece('queen', color, r, c, { witch: true, moves: ['rook2', 'bishop2', 'knight'] })); }
     }
   }
