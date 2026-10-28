@@ -46,21 +46,21 @@ const F = (...items) => layer("f", { x: -1, y: -1 }, ...items.flat(Infinity));
 const obj = (name, w, h, ...items) => sprite(name, { w: w - 2, h: h - 2, outline: "k" }, F(...items));
 
 // ── Maceta de bonsái ──────────────────────────────────────────────────────────────────────────
-// Esmalte canela, baja y ancha: borde trasero, la tierra, el labio con su brillo, la sombra bajo el
-// labio, el cuerpo con el reflejo del esmalte a la izquierda y dos patas.
+// Esmalte canela, baja: borde trasero, la tierra, el labio con su brillo, la sombra bajo el labio,
+// el cuerpo con el reflejo del esmalte a la izquierda y dos patas. 16 px de labio, como la vectorial.
 obj("pot", 24, 24,
   ...rows(14,
-    "3:1 4-19:2 20:1",
-    "2:2 3-20:s 21:1",
-    "1:3 2-8:4 9-19:3 20-21:2 22:1",
-    "1-19:2 20-22:1",
-    "2-21:k",
-    "3:2 4:3 5-8:4 9-17:2 18-20:1",
-    "3:2 4:3 5-17:2 18-20:1",
-    "4-19:1",
-    "6-8:1 15-17:1"),
+    "6:1 7-16:2 17:1",
+    "5:2 6-17:s 18:1",
+    "4:3 5-8:4 9-16:3 17-18:2 19:1",
+    "4-16:2 17-19:1",
+    "5-18:k",
+    "6:2 7:3 8-10:4 11-14:2 15-17:1",
+    "6:2 7:3 8-14:2 15-17:1",
+    "7-16:1",
+    "8-9:1 14-15:1"),
   // tierra: un terrón con luz y dos motas de musgo
-  row(15, "4-5:z 9:g 16:g 19-20:S"),
+  row(15, "7:z 10:g 14:g 16-17:S"),
 );
 
 // ── Plantas ───────────────────────────────────────────────────────────────────────────────────

@@ -3,7 +3,7 @@
 // los anillos nuevos se suman alternando abajo a la derecha y arriba a la izquierda, como tierra
 // virgen por cavar (a veces con piedras). Las claves de casilla son absolutas: el 4×4 base va de
 // r0c0 a r3c3 y los anillos de arriba o de la izquierda tienen coordenadas negativas.
-import { SEEDS, GARDEN_ITEMS, DIG_COOLDOWN, ROCK_CHANCE, ROCK_HP, LANTERN_BOOST, LAKE_MAX } from '../data/garden.js';
+import { SEEDS, GARDEN_ITEMS, DIG_COOLDOWN, OBSTACLE_CHANCE, ROCK_HP, LANTERN_BOOST, LAKE_MAX } from '../data/garden.js';
 
 const KEY = 'zugzwang.zen.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
@@ -33,12 +33,26 @@ export const parseKey = (k) => k.slice(1).split('c').map(Number);
 // Cada anillo extra cuesta el doble que el anterior.
 export const expandCost = (size) => 30 * 2 ** (size - ZEN_BASE);
 
-// pots: tiestos plantados o ya cavados (null); ausente en un anillo = tierra virgen.
+// pots: tiestos plantados o ya cavados (null); ausente = tierra virgen.
 // rocks: piedras sobre tierra virgen (golpes que faltan). lanterns: faroles puestos.
-// items: lo comprado (pala, regadera: true; faroles y macetas: cuántos quedan por poner).
-export const blankZen = () => ({
-  size: ZEN_BASE, off: 0, lake: 2, pots: {}, rocks: {}, lanterns: [], items: {}, seeds: seedsOf(), flores: {}, planted: 0, v: 2,
+// tiles: estorbos que se quitan: 'bush' (arbusto, con las tijeras) o 'stone' (losa, con el mazo).
+// items: lo comprado o guardado (pala, regadera: true; faroles y macetas: cuántos quedan por poner).
+export const blankZen = () => withBase({
+  size: ZEN_BASE, off: 0, lake: 2, pots: {}, rocks: {}, tiles: {}, lanterns: [], items: {}, seeds: seedsOf(), flores: {}, planted: 0, v: 3,
 });
+// Desde v3 el cantero base no es fijo: sus macetas, arbustos, losas y el farol pasan a ser cosas
+// del jardín que se quitan, se guardan y se mueven. Aquí se vuelcan una sola vez.
+function withBase(z) {
+  const pots = { ...z.pots }, tiles = { ...(z.tiles || {}) }, lanterns = [...(z.lanterns || [])];
+  for (let r = 0; r < ZEN_BASE; r++) for (let c = 0; c < ZEN_BASE; c++) {
+    const k = cellKey(r, c), cell = BASE_GRID[r][c];
+    if (inLake(z, r, c) || k in pots || k in tiles || lanterns.includes(k)) continue;
+    if (cell === 'pot') pots[k] = null;
+    else if (cell === 'lawn') tiles[k] = 'bush';
+    else if (cell === 'step') { if (k === 'r3c1') lanterns.push(k); else tiles[k] = 'stone'; }
+  }
+  return { ...z, pots, tiles, lanterns, v: 3 };
+}
 
 const seedsOf = (s) => ({ ...Object.fromEntries(ZEN_KINDS.map((k) => [k, 0])), ...(s || {}) });
 
@@ -48,14 +62,15 @@ export function loadZen() {
   if (Array.isArray(z.pots)) { // formato viejo: ocho macetas de un cantero fijo, sin semillas
     const pots = {};
     BASE_KEYS.forEach((k, i) => { if (z.pots[i]) pots[movedPot(k)] = z.pots[i]; });
-    return { ...blankZen(), pots, flores, planted };
+    return withBase({ ...blankZen(), pots: { ...blankZen().pots, ...pots }, flores, planted });
   }
   const pots = { ...(z.pots || {}) };
   // v1 tenía el estanque a la derecha: las dos macetas que ahora son agua se corren a la orilla este.
   if (!z.v) for (const k of ['r1c1', 'r2c1']) if (k in pots) { pots[movedPot(k)] = pots[k]; delete pots[k]; }
   const size = Math.min(ZEN_MAX, Math.max(ZEN_BASE, z.size || ZEN_BASE));
-  return { ...blankZen(), size, off: z.off || 0, lake: z.lake || 2, pots, rocks: z.rocks || {}, lanterns: z.lanterns || [], items: z.items || {},
+  const out = { ...blankZen(), size, off: z.off || 0, lake: z.lake || 2, pots, rocks: z.rocks || {}, tiles: z.tiles || {}, lanterns: z.lanterns || [], items: z.items || {},
     seeds: seedsOf(z.seeds), flores, planted, leaves: z.leaves || [], leafT: z.leafT, digT: z.digT };
+  return (z.v || 0) < 3 ? withBase(out) : out;
 }
 const movedPot = (k) => ({ r1c1: 'r1c3', r2c1: 'r2c3' })[k] || k;
 export const saveZen = (z) => write(KEY, z);
@@ -64,15 +79,14 @@ export const saveZen = (z) => write(KEY, z);
 // izquierda (4×4, todo el cantero base).
 export const lakeBox = (n) => (n >= 4 ? [0, 4] : [1, n + 1]); // [desde, hasta) en filas y columnas
 export const inLake = (z, r, c) => { const [a, b] = lakeBox(z.lake || 2); return r >= a && r < b && c >= a && c < b; };
-// Qué hay en una casilla base (fuera del agua): 'pot', 'lawn', 'step' o 'pond'.
-export const baseCell = (z, r, c) => (r >= 0 && r < ZEN_BASE && c >= 0 && c < ZEN_BASE ? (inLake(z, r, c) ? 'pond' : BASE_GRID[r][c] === 'pond' ? 'lawn' : BASE_GRID[r][c]) : null);
 
-// Qué ocupa una casilla: 'pond', 'lawn', 'step', 'lantern', 'pot', 'rock' o 'raw' (tierra virgen).
+// Qué ocupa una casilla: 'pond', 'lantern', 'pot', 'bush', 'stone', 'rock' o 'raw' (tierra virgen).
 export function cellType(z, key) {
-  const [r, c] = parseKey(key), base = baseCell(z, r, c);
-  if (base && base !== 'pot') return base;
+  const [r, c] = parseKey(key);
+  if (inLake(z, r, c)) return 'pond';
   if ((z.lanterns || []).includes(key)) return 'lantern';
-  if (base || z.pots[key] !== undefined) return 'pot';
+  if (z.pots[key] !== undefined) return 'pot';
+  if (z.tiles?.[key]) return z.tiles[key];
   return z.rocks?.[key] ? 'rock' : 'raw';
 }
 
@@ -128,7 +142,7 @@ export function zenDig(z, key, now = Date.now()) {
   if (z.pots[key] !== undefined || z.rocks?.[key] || digWait(z, now)) return z;
   return { ...z, pots: { ...z.pots, [key]: null }, digT: now };
 }
-// Un golpe de pala a una piedra (la de acero la parte de una vez). Devuelve el jardín y si se partió.
+// Un golpe de mazo a una piedra (con la pala de acero en la bolsa, de una vez). Devuelve el jardín y si se partió.
 export function zenBreak(z, key) {
   const hp = z.rocks?.[key];
   if (!hp) return { z, broke: false };
@@ -153,22 +167,50 @@ export function zenHarvest(z, key, now = Date.now(), rng = Math.random) {
 }
 
 // Ampliar suma un anillo: abajo a la derecha o arriba a la izquierda, al lado que tenga menos, para
-// que el cantero base quede centrado. La tierra nueva sale virgen y a veces con piedras.
+// que el cantero base quede centrado. La tierra nueva sale virgen y a veces con piedras, arbustos o losas.
 export function zenExpand(z, rng = Math.random) {
   if (z.size >= ZEN_MAX) return z;
   const off = z.off || 0, tl = z.size - ZEN_BASE - off > off;
-  const nOff = off + (tl ? 1 : 0), size = z.size + 1, rocks = { ...(z.rocks || {}) };
+  const nOff = off + (tl ? 1 : 0), size = z.size + 1, rocks = { ...(z.rocks || {}) }, tiles = { ...(z.tiles || {}) };
   const edge = tl ? -nOff : size - 1 - nOff;
-  for (let i = -nOff; i < size - nOff; i++) for (const k of [cellKey(edge, i), cellKey(i, edge)])
-    if (!(k in z.pots) && !(k in rocks) && rng() < ROCK_CHANCE) rocks[k] = ROCK_HP[0] + Math.floor(rng() * (ROCK_HP[1] - ROCK_HP[0] + 1));
-  return { ...z, size, off: nOff, rocks };
+  for (let i = -nOff; i < size - nOff; i++) for (const k of [cellKey(edge, i), cellKey(i, edge)]) {
+    if (k in z.pots || k in rocks || k in tiles) continue;
+    let x = rng();
+    const what = Object.keys(OBSTACLE_CHANCE).find((o) => (x -= OBSTACLE_CHANCE[o]) < 0);
+    if (what === 'rock') rocks[k] = ROCK_HP[0] + Math.floor(rng() * (ROCK_HP[1] - ROCK_HP[0] + 1));
+    else if (what) tiles[k] = what;
+  }
+  return { ...z, size, off: nOff, rocks, tiles };
+}
+
+// Quitar un estorbo: el arbusto con las tijeras, la losa con el mazo. Queda tierra virgen.
+export function zenClear(z, key) {
+  if (!z.tiles?.[key]) return z;
+  const tiles = { ...z.tiles }; delete tiles[key];
+  return { ...z, tiles };
+}
+
+// Guardar en la bolsa un tiesto vacío o un farol; la casilla queda como tierra virgen.
+export function zenStore(z, key) {
+  const items = { ...z.items };
+  if ((z.lanterns || []).includes(key)) {
+    items.lantern = (items.lantern || 0) + 1;
+    return { ...z, items, lanterns: z.lanterns.filter((k) => k !== key) };
+  }
+  if (z.pots[key] === null) {
+    const pots = { ...z.pots }; delete pots[key];
+    items.pot = (items.pot || 0) + 1;
+    return { ...z, items, pots };
+  }
+  return z;
 }
 
 // El estanque crece un paso; lo que había debajo vuelve: la semilla de la planta, el farol a la bolsa.
 export function zenLake(z) {
   const n = z.lake || 2;
   if (n >= LAKE_MAX) return z;
-  const next = { ...z, lake: n + 1 }, pots = { ...z.pots }, seeds = { ...z.seeds }, items = { ...z.items };
+  const next = { ...z, lake: n + 1 }, pots = { ...z.pots }, seeds = { ...z.seeds }, items = { ...z.items }, tiles = { ...(z.tiles || {}) };
+  for (const k of Object.keys(tiles)) if (inLake(next, ...parseKey(k))) delete tiles[k];
   for (const k of Object.keys(pots)) {
     const [r, c] = parseKey(k);
     if (!inLake(next, r, c)) continue;
@@ -176,15 +218,16 @@ export function zenLake(z) {
     delete pots[k];
   }
   const lanterns = (z.lanterns || []).filter((k) => { const [r, c] = parseKey(k); const wet = inLake(next, r, c); if (wet) items.lantern = (items.lantern || 0) + 1; return !wet; });
-  return { ...next, pots, seeds, items, lanterns };
+  return { ...next, pots, seeds, items, tiles, lanterns };
 }
 
-// Poner lo comprado: el farol en un tiesto vacío; la maceta en tierra virgen o sobre una piedra.
+// Poner lo comprado o guardado: el farol en tierra virgen o en un tiesto vacío; la maceta en tierra
+// virgen o sobre una piedra.
 export function zenPlace(z, item, key) {
   if (!(z.items?.[item] > 0)) return z;
   const items = { ...z.items, [item]: z.items[item] - 1 };
   const type = cellType(z, key);
-  if (item === 'lantern' && type === 'pot' && !z.pots[key]) {
+  if (item === 'lantern' && (type === 'raw' || (type === 'pot' && !z.pots[key]))) {
     const pots = { ...z.pots }; delete pots[key];
     return { ...z, items, pots, lanterns: [...(z.lanterns || []), key] };
   }

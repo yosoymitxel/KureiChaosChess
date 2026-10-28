@@ -1,5 +1,5 @@
-// Coleccionables del tablero: tras el primer «Tu turno» de un piso de la travesía caen unos pocos en
-// la tierra de nadie, y otra tanda cada PICKUPS_EVERY turnos tuyos sin ninguno en el tablero. Los recoge la primera pieza tuya que se pare encima; si llega antes una rival,
+// Coleccionables del tablero: de uno en uno a lo largo del piso (nunca al empezar), en la tierra de
+// nadie, cada PICKUPS_EVERY turnos tuyos y como mucho PICKUPS_MAX a la vez. Los recoge la primera pieza tuya que se pare encima; si llega antes una rival,
 // se lo lleva. Los de `hand` (las hojas) no los pisa nadie: se quitan con un toque, como en el jardín.
 // Agregar uno es agregar su entrada aquí y su dibujo en src/ui/zen-art.js (PICKUP_ART) o un icono con su mismo id; tools/check-registry.mjs lo comprueba.
 import { localize } from '../i18n/index.js';
@@ -10,9 +10,9 @@ export const PICKUPS = localize('pickups', {
   // Visita del jardín: se toca como la hoja y deja 2 monedas o una semilla; se va sola a los `stay` turnos tuyos.
   butterfly: { id: 'butterfly', name: 'Mariposa', weight: 1, hand: true, gift: true, stay: 3 },
 });
-export const PICKUPS_PER_BOARD = [1, 3];
-// Cuando no queda ninguno, vuelven a caer tras estos turnos tuyos.
-export const PICKUPS_EVERY = 4;
+export const PICKUPS_PER_BOARD = [1, 1];
+export const PICKUPS_EVERY = 3;
+export const PICKUPS_MAX = 2;
 
 // Casillas vacías entre las dos zonas de despliegue, sin terreno especial.
 export function dropPickups(board, pieces, rng = Math.random) {

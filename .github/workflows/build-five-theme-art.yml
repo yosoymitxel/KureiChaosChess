@@ -36,8 +36,13 @@ jobs:
             echo "Renderizando $file"
             npx --yes github:crsolver/claude-pxl build "$file"
           done
+          npx --yes github:crsolver/claude-pxl build art/zen/zen.px.js
+          npx --yes github:crsolver/claude-pxl build art/iconos/iconos.px.js
       - name: Generar recursos y registros
-        run: node tools/pixel-art.mjs
+        run: |
+          node tools/pixel-art.mjs
+          node tools/zen-pixel.mjs
+          node tools/pixel-icons.mjs
       - name: Verificar salida
         run: |
           set -euo pipefail
@@ -56,7 +61,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/pixel src/data/pixel-packs.js src/data/pixel-themes.js
+          git add assets/pixel assets/zen src/ui/pixel-icons.js src/data/pixel-packs.js src/data/pixel-themes.js
           if ! git diff --cached --quiet; then
             git commit -m "build(pixel-art): generate five theme assets"
             git push origin HEAD:${{ github.ref_name }}

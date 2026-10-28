@@ -603,11 +603,15 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .zn-groove { fill: none; stroke: oklch(0.6 0.045 72 / 0.85); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
 .zn-ridge { fill: none; stroke: oklch(1 0.01 90 / 0.85); stroke-width: 1.1px; vector-effect: non-scaling-stroke; }
 .zn-tray .bm-cell { position: relative; z-index: 1; background: transparent; }
-.bm-cell.zn-deco { cursor: default; }
+button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 .zn-standart { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.3)); }
 /* En el cantero cada objeto deja aire a los lados: macetas vecinas no se tocan. */
 .zn-tray .zn-standart { left: 9%; width: 82%; }
-.zn-tall .zn-lantern { inset: auto 0 6% 0; height: 140%; }
+/* Centrado como las macetas: mismo margen a cada lado (.zn-tray .zn-standart deja 9 %). */
+.zn-tall .zn-lantern { inset: auto auto 6% 9%; height: 140%; }
+/* Luz del farol: las nueve casillas que acelera, recortada por el borde del cantero. */
+.zn-glow { position: absolute; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse var(--grx) var(--gry) at var(--gx) var(--gy), oklch(0.93 0.14 85 / 0.75), oklch(0.93 0.14 85 / 0.3) 70%, transparent); }
 .bm-cell.zen-pond { grid-column: span 2; grid-row: span 2; width: auto; height: auto; cursor: pointer; display: grid; place-items: center; }
 /* Las plantas se mecen despacio, cada una a su ritmo (--d). */
 .zn-sway { transform-origin: 12px 15.4px; animation: sway 3.6s ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
@@ -744,6 +748,8 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 /* La mano: la herramienta elegida acompaña al ratón sobre el jardín, con su punta en el puntero. */
 .zn-hand { position: absolute; left: 0; top: 0; z-index: 6; pointer-events: none; opacity: 0; transition: opacity 0.15s; filter: drop-shadow(0 6px 4px oklch(0 0 0 / 0.3)); }
 .zn-hand.on { opacity: 1; }
+/* Las herramientas sin dibujo propio (mazo, guardar) van con su icono, en tinta para leerse sobre la arena. */
+.zn-hand > .icon { color: var(--ink); }
 .zn-yard.acting .zn-hand { opacity: 0; }
 .zn-hand svg, .zn-toolfx svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .zn-hand.t-cut { width: 50px; height: 50px; margin: -25px 0 0 -47px; }

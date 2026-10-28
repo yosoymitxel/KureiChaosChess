@@ -14,15 +14,16 @@ export const SEEDS = localize('seeds', {
 
 // Lo que se compra para el jardín. `stack`: se acumula y se coloca con la mano; si no, se tiene o no.
 export const GARDEN_ITEMS = localize('gardenItems', {
-  shovel: { id: 'shovel', name: 'Pala de acero', price: 60, desc: 'Cava sin esperar a que la pala descanse y parte piedras de un golpe.' },
+  shovel: { id: 'shovel', name: 'Pala de acero', price: 60, desc: 'Cava sin esperar a que la pala descanse, y con ella el mazo parte piedras de un golpe.' },
   can: { id: 'can', name: 'Regadera grande', price: 50, desc: 'Al regar, moja también los tiestos de al lado.' },
-  lantern: { id: 'lantern', name: 'Farol', price: 45, stack: true, desc: 'Va en un tiesto vacío: lo que crece a su lado va un 50 % más rápido.' },
+  lantern: { id: 'lantern', name: 'Farol', price: 45, stack: true, desc: 'Va en tierra virgen o en un tiesto vacío: lo que crece a su lado va un 50 % más rápido.' },
   pot: { id: 'pot', name: 'Maceta', price: 25, stack: true, desc: 'Un tiesto listo sobre tierra sin cavar o sobre una piedra.' },
 });
 
 export const DIG_COOLDOWN = 40_000; // la pala de siempre descansa entre cava y cava
-export const ROCK_CHANCE = 0.3;     // tierra nueva que sale con piedra
-export const ROCK_HP = [2, 3];      // golpes de pala para partirla
+// Tierra nueva que sale con estorbo: piedra (mazo, varios golpes), arbusto (tijeras) o losa (mazo).
+export const OBSTACLE_CHANCE = { rock: 0.16, bush: 0.1, stone: 0.08 };
+export const ROCK_HP = [2, 3];      // golpes de mazo para partirla
 export const LANTERN_BOOST = 1.5;   // crecimiento al lado de un farol
 // El estanque crece de 2×2 a 4×4, un paso abajo a la derecha y el siguiente arriba a la izquierda.
 export const LAKE_MAX = 4;
