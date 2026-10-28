@@ -890,7 +890,7 @@ src/ui/zen-art.js:250 +boardPond
 src/ui/zen-art.js:256 +stoneArt
 src/ui/zen-art.js:262 +ITEM_ART
 src/ui/zen-art.js:267 +KOI_ART
-## src/view/board-view.js (1150L)
+## src/view/board-view.js (1154L)
 src/view/board-view.js:18 look
 src/view/board-view.js:20 +CAMERAS
 src/view/board-view.js:21 JUMPERS
@@ -900,7 +900,7 @@ src/view/board-view.js:24 css
 src/view/board-view.js:26 +collapseTiles
 src/view/board-view.js:38 BADGES
 src/view/board-view.js:46 +BoardView
-## src/view/fx.js (335L)
+## src/view/fx.js (334L)
 src/view/fx.js:9 WEATHER_RATE
 src/view/fx.js:10 SF_PX
 src/view/fx.js:12 +Fx
@@ -933,7 +933,7 @@ src/view/piece-art.js:109 +pieceSVG
 src/view/piece-art.js:123 +headTop
 src/view/piece-art.js:125 +RAW_BODIES
 src/view/piece-art.js:129 +artOf
-## src/view/weather-fx.js (190L)
+## src/view/weather-fx.js (301L)
 src/view/weather-fx.js:6 G
 src/view/weather-fx.js:7 TAU
 src/view/weather-fx.js:8 rnd
@@ -951,26 +951,35 @@ src/view/weather-fx.js:68 TONES
 src/view/weather-fx.js:69 fog
 src/view/weather-fx.js:107 EMBER
 src/view/weather-fx.js:108 embers
-src/view/weather-fx.js:157 FLY
-src/view/weather-fx.js:158 fireflies
-src/view/weather-fx.js:189 +WEATHER_FX
-## css/base.css (220L)
+src/view/weather-fx.js:158 night
+src/view/weather-fx.js:166 FLY
+src/view/weather-fx.js:167 fireflies
+src/view/weather-fx.js:204 LEAF_SHAPES
+src/view/weather-fx.js:209 LEAF_PALS
+src/view/weather-fx.js:210 leafArt
+src/view/weather-fx.js:211 leafSprites
+src/view/weather-fx.js:220 leaves
+src/view/weather-fx.js:249 BUB
+src/view/weather-fx.js:250 bubbles
+src/view/weather-fx.js:300 +WEATHER_FX
+## css/base.css (222L)
 css/base.css:1 /* Reset, typography, browser surfaces and shared components.
-css/base.css:22 /* Icon() pinta las dos versiones; cada mesa muestra la suya (p
-css/base.css:30 /* Buttons are printed tokens: the solid bottom edge is the tok
-css/base.css:60 /* Teléfonos de 360 px: título en una línea al lado del Volver 
-css/base.css:69 /* Paper panels: the rulebook and score sheets of the box.
-css/base.css:84 /* Reward cards: actual playing cards of the game, so the card 
-css/base.css:95 /* Frame colour says the kind: vermilion = tactic (played in a 
-css/base.css:105 /* Cartas de antes de la partida (Organizar): marco azul pizarr
-css/base.css:114 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
-css/base.css:121 /* Rareza con canal propio, independiente del color del tipo (e
-css/base.css:126 /* Rara: el título es una banda de plata pulida. Épica: latón c
-css/base.css:137 /* Every figure on a card is paper with an ink outline, so stam
-css/base.css:148 /* Card back carries the pawn emblem: the box's identity mark.
-css/base.css:159 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
-css/base.css:199 /* Botones sin texto y cosas del jardín: el botón va en su esqu
-css/base.css:202 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
+css/base.css:4 /* Los títulos van con la letra de títulos (Fraunces; en las me
+css/base.css:24 /* Icon() pinta las dos versiones; cada mesa muestra la suya (p
+css/base.css:32 /* Buttons are printed tokens: the solid bottom edge is the tok
+css/base.css:62 /* Teléfonos de 360 px: título en una línea al lado del Volver 
+css/base.css:71 /* Paper panels: the rulebook and score sheets of the box.
+css/base.css:86 /* Reward cards: actual playing cards of the game, so the card 
+css/base.css:97 /* Frame colour says the kind: vermilion = tactic (played in a 
+css/base.css:107 /* Cartas de antes de la partida (Organizar): marco azul pizarr
+css/base.css:116 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
+css/base.css:123 /* Rareza con canal propio, independiente del color del tipo (e
+css/base.css:128 /* Rara: el título es una banda de plata pulida. Épica: latón c
+css/base.css:139 /* Every figure on a card is paper with an ink outline, so stam
+css/base.css:150 /* Card back carries the pawn emblem: the box's identity mark.
+css/base.css:161 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
+css/base.css:201 /* Botones sin texto y cosas del jardín: el botón va en su esqu
+css/base.css:204 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
 ## css/board.css (325L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
@@ -1009,22 +1018,22 @@ css/board.css:302 /* La mariposa queda posada un poco en el aire (lo deja su vue
 css/board.css:308 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
 css/board.css:316 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
 css/board.css:322 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
-## css/pixel.css (96L)
+## css/pixel.css (98L)
 css/pixel.css:1 /* Modo píxel: con un tema píxel (data-art="pixel", ver src/dat
-css/pixel.css:6 /* Jersey 10 (OFL), servida desde el juego: el subconjunto lati
-css/pixel.css:20 /* Solo elementos: con ::before y ::after el navegador calculab
-css/pixel.css:24 /* Los dibujos vectoriales (iconos, jardín, minijuegos) sin sua
-css/pixel.css:28 /* Marcos del tema: el borde es la imagen cortada en nueve (esq
-css/pixel.css:32 /* Mando: botones y leyenda con el marco del tema, como los bot
-css/pixel.css:38 /* Botón de 8 bits: el marco tiene las esquinas en escalera y t
-css/pixel.css:53 /* La fuente bitmap es más ancha: el nombre largo baja un punto
-css/pixel.css:60 /* Tableros de los minijuegos: las mismas losas del tema que el
-css/pixel.css:66 /* Jardín Zen: cada dibujo trae su sprite (zen-art.js) y aquí s
-css/pixel.css:72 /* El sprite de tierra removida es la casilla ya cavada; la vir
-css/pixel.css:77 /* La moneda de cara o cruz, en escalones.
-css/pixel.css:85 /* Sombra de la pieza y koi del estanque del tablero, sin degra
-css/pixel.css:87 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
-css/pixel.css:90 /* El ::before va fuera de :is(), que no admite pseudoelementos
+css/pixel.css:6 /* Jersey 15 (OFL), servida desde el juego: el subconjunto lati
+css/pixel.css:22 /* Solo elementos: con ::before y ::after el navegador calculab
+css/pixel.css:26 /* Los dibujos vectoriales (iconos, jardín, minijuegos) sin sua
+css/pixel.css:30 /* Marcos del tema: el borde es la imagen cortada en nueve (esq
+css/pixel.css:34 /* Mando: botones y leyenda con el marco del tema, como los bot
+css/pixel.css:40 /* Botón de 8 bits: el marco tiene las esquinas en escalera y t
+css/pixel.css:55 /* La fuente bitmap es más ancha: el nombre largo baja un punto
+css/pixel.css:62 /* Tableros de los minijuegos: las mismas losas del tema que el
+css/pixel.css:68 /* Jardín Zen: cada dibujo trae su sprite (zen-art.js) y aquí s
+css/pixel.css:74 /* El sprite de tierra removida es la casilla ya cavada; la vir
+css/pixel.css:79 /* La moneda de cara o cruz, en escalones.
+css/pixel.css:87 /* Sombra de la pieza y koi del estanque del tablero, sin degra
+css/pixel.css:89 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
+css/pixel.css:92 /* El ::before va fuera de :is(), que no admite pseudoelementos
 ## css/screens.css (1468L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
@@ -1172,5 +1181,6 @@ css/screens.css:1397 /* The animation lab must give its remaining viewport to th
 css/screens.css:1440 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
 css/screens.css:1457 /* Copia de seguridad (Ajustes): el código se pega en un recuad
 css/screens.css:1460 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
-## css/tokens.css (42L)
+## css/tokens.css (53L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.
+css/tokens.css:2 /* Letras servidas desde el juego (OFL, subconjunto latino con 

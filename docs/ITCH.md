@@ -10,7 +10,7 @@ Sale `dist/kurei-chaos-chess-itch.zip` (unos 4 MB y 172 archivos). Lleva `index.
 carga todo desde dentro del zip:
 
 - **Librerías:** se cargan desde `vendor/`, sin jsDelivr.
-- **Letra:** sale de `vendor/fonts/`, sin Google Fonts.
+- **Letra:** sale de `assets/fonts/`, sin Google Fonts.
 - **Mesas píxel:** sus PNG van incrustados en `src/data/pixel-src.js`. Así el zip queda por debajo del límite de 1000 archivos de itch.
 - **Fuera del zip:** el laboratorio y las plantillas de arte.
 
