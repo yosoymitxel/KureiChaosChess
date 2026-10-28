@@ -889,7 +889,10 @@ export class BoardView {
       animate(this.els.get(p), { opacity: [1, 0], duration: this.d(240), delay: this.d(i * 14 + 300) });
     });
     await wait(this.d(260));
-    const tiles = [...this.tiles.values()].sort((a, b) => +b.dataset.r - +a.dataset.r);
+    // Con las casillas caen también el estanque, sus koi y lo que haya encima (monedas, hojas, mariposas).
+    const extra = [...this.tilesEl.querySelectorAll('.pond-tile, .pond, .prop')];
+    extra.forEach((el) => { el.dataset.r ??= el.style.getPropertyValue('--r'); });
+    const tiles = [...this.tiles.values(), ...extra].sort((a, b) => +b.dataset.r - +a.dataset.r);
     animate(tiles, { z: -this.sq * 4, opacity: [1, 0], duration: this.d(520), ease: 'inQuad', delay: stagger(this.d(6)) });
     return wait(this.d(tiles.length * 6 + 560));
   }
