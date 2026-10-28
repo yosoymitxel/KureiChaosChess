@@ -847,7 +847,15 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 .zn-packet.off { opacity: 0.55; }
 .zn-tools { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 8px; }
 .zn-tool { display: grid; justify-items: center; gap: 6px; padding: 0; border: 0; background: none; font-weight: 750; font-size: 12.5px; color: var(--paper-2); cursor: pointer; }
-.zn-tool-ic { display: grid; place-items: center; width: 54px; height: 54px; border: 2px solid var(--ink); border-radius: 50%; background: var(--paper); background-image: var(--grain); color: var(--ink); box-shadow: 0 4px 0 color-mix(in oklch, var(--ink), transparent 40%); transition: translate 0.18s var(--ease-out); }
+.zn-tool-ic { position: relative; display: grid; place-items: center; width: 54px; height: 54px; border: 2px solid var(--ink); border-radius: 50%; background: var(--paper); background-image: var(--grain); color: var(--ink); box-shadow: 0 4px 0 color-mix(in oklch, var(--ink), transparent 40%); transition: translate 0.18s var(--ease-out); }
+/* Herramienta en descanso: un reloj gris encima del icono. El sector que queda se va comiendo en
+   sentido de las agujas y desaparece al terminar; la fracción llega en --zn-rest desde zen.js.
+   El borde se hereda, así que sale redondo en el tema normal y cuadrado en el de píxel. */
+@property --zn-rest { syntax: '<number>'; inherits: true; initial-value: 1; }
+.zn-tool-ic.zn-cool::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: conic-gradient(from 0deg, oklch(0.45 0 0 / 0.55) calc(var(--zn-rest) * 1turn), oklch(0.45 0 0 / 0) calc(var(--zn-rest) * 1turn));
+  transition: --zn-rest 1s linear; }
+@media (prefers-reduced-motion: reduce) { .zn-tool-ic.zn-cool::after { transition: none; } }
 .zn-tool:hover .zn-tool-ic { translate: 0 -2px; }
 .zn-art-ic svg { width: 58%; height: 58%; overflow: visible; }
 :is(.zn-art-ic, .zn-item) .zn-standart { position: static; }
@@ -974,12 +982,14 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .shop-main .shop-card { width: min(480px, 100%); }
 .shop-main .mini-help { margin: 0; }
 @media (min-width: 900px) {
-  .shop-main { grid-template-columns: minmax(0, 1fr) clamp(300px, 30vw, 380px); justify-items: stretch; grid-template-areas: "cards hand" "cards seeds" "cards mesas" "help help"; column-gap: clamp(24px, 3.2vw, 48px); }
+  .shop-main { grid-template-columns: minmax(0, 1fr) clamp(300px, 30vw, 380px); justify-items: stretch; grid-template-areas: "cards hand" "cards seeds" "mesas seeds" "help help"; column-gap: clamp(24px, 3.2vw, 48px); }
   .shop-main .shop-card { width: 100%; }
   .shop-pane-hand { grid-area: hand; }
   .shop-pane-cards { grid-area: cards; }
   .shop-pane-seeds { grid-area: seeds; }
   .shop-pane-mesas { grid-area: mesas; }
+  /* Las mesas ya no caben en el carril: van bajo las cartas y la rejilla usa el ancho de la columna. */
+  .shop-pane-mesas .theme-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
   .shop-main .mini-help { grid-area: help; width: 100%; max-width: none; padding-top: 14px; border-top: 1.5px dashed color-mix(in oklch, var(--paper), transparent 78%); }
 }
 /* Logros: progreso total, grupos con barra y rejilla de fichas iguales; las bloqueadas, en papel apagado. */

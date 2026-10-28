@@ -8,7 +8,7 @@ import { Icon } from '../icons.js';
 import { Fx } from '../../view/fx.js';
 import { chipArt, POT, SOIL, plantArt, pondArt, MOSS, STEP, LANTERN, BRANCH, mapleLeaf, rakeArt, orbit, KOI_ORBITS, BUTTERFLY, CAN, SHEARS, SHOVEL, POUCH, GLOVE, px, stoneArt, ITEM_ART, KOI_ART } from '../zen-art.js';
 import { ZEN_KINDS, ZEN_NAMES, ZEN_MAX, cellKey, cellType, lakeRect, expandCost, zenStage, zenSow, zenWater, zenWaterAround, zenDig, digWait, zenBreak, zenHarvest, zenExpand, zenLake, zenPlace, zenClear, zenStore, zenMove, zenMovePond, moveWait, zenLeaves, zenSweep, LEAF_COINS, BUTTERFLY_MS, butterflyGift, loadZen, saveZen } from '../../game/zen.js';
-import { SEEDS, GARDEN_ITEMS, LAKE_MAX, lakeCost } from '../../data/garden.js';
+import { SEEDS, GARDEN_ITEMS, LAKE_MAX, lakeCost, DIG_COOLDOWN, MOVE_COOLDOWN } from '../../data/garden.js';
 import { award } from '../../game/achievements.js';
 import { addCoins, charge, loadShop } from '../../game/shop.js';
 import { playSfx } from '../sfx.js';
@@ -88,6 +88,7 @@ export function ZenScreen({ onBack, onShop }) {
   useEffect(() => { fxRef.current = new Fx(yardRef.current); return () => fxRef.current.destroy(); }, []);
 
   const now = Date.now();
+  const digRest = digWait(z, now), moveRest = moveWait(z, now);
   const seedKind = ZEN_KINDS[seed];
   const apply = (next) => { if (next !== z) { saveZen(next); setZ(next); } };
   const say = (s) => { setArmed(false); setMsg(s); };
@@ -104,6 +105,9 @@ export function ZenScreen({ onBack, onShop }) {
   const [moving, setMoving] = useState(null); // con el guante: la casilla (o 'pond') que se lleva
   useEffect(() => { const el = moving && moving !== 'pond' && cellOf(moving); el?.classList.add('zn-moving'); return () => el?.classList.remove('zn-moving'); });
   const secs = (ms) => { const s = Math.ceil(ms / 1000); return s >= 60 ? `${Math.floor(s / 60)} min ${String(s % 60).padStart(2, '0')} s` : `${s} s`; };
+  // Reloj del icono: fracción del descanso que queda (1 al usarla, 0 cuando ya se puede volver a usar).
+  const cooling = (wait, total) => (wait > 0 ? { cls: ' zn-cool', style: { '--zn-rest': (wait / total).toFixed(4) } } : { cls: '', style: null });
+  const digCool = cooling(digRest, DIG_COOLDOWN), gloveCool = cooling(moveRest, MOVE_COOLDOWN);
 
   // Posiciones en la capa de efectos (la del patio) y piezas de cada maceta.
   const cellOf = (key) => yardRef.current?.querySelector(`[data-k="${key}"]`);
@@ -616,14 +620,17 @@ export function ZenScreen({ onBack, onShop }) {
           <section class="zn-sec" aria-label=${t('zen.tools', 'Herramientas')}>
             <h3>${t('zen.tools', 'Herramientas')}</h3>
             <div class="zn-tools" data-pad="l1 r1">
-              ${TOOLS.map((t) => html`<button class=${'zn-tool' + (tool === t.id ? ' on' : '')} aria-pressed=${tool === t.id} onClick=${() => pickTool(t.id)}><span class="zn-tool-ic"><${Icon} name=${t.icon} size=${22} /></span><span>${t.name}</span></button>`)}
+              ${TOOLS.map((t) => {
+                const rest = t.id === 'dig' ? digCool : { cls: '', style: null };
+                return html`<button class=${'zn-tool' + (tool === t.id ? ' on' : '')} aria-pressed=${tool === t.id} onClick=${() => pickTool(t.id)}><span class=${'zn-tool-ic' + rest.cls} style=${rest.style}><${Icon} name=${t.icon} size=${22} /></span><span>${t.name}</span></button>`;
+              })}
             </div>
           </section>
           <section class="zn-sec" aria-label=${t('zen.bag', 'Bolsa')}>
             <h3>${t('zen.bag', 'Bolsa')}</h3>
             <div class="zn-tools">
               <button class=${'zn-tool' + (tool === 'store' ? ' on' : '')} aria-pressed=${tool === 'store'} onClick=${() => pickTool('store')}><span class="zn-tool-ic"><${Icon} name=${STORE.icon} size=${22} /></span><span>${STORE.name}</span></button>
-              <button class=${'zn-tool' + (tool === 'move' ? ' on' : '')} aria-pressed=${tool === 'move'} onClick=${() => pickTool('move')}><span class="zn-tool-ic zn-art-ic">${GLOVE}</span><span>${t('zen.glove', 'Guante')}</span></button>
+              <button class=${'zn-tool' + (tool === 'move' ? ' on' : '')} aria-pressed=${tool === 'move'} onClick=${() => pickTool('move')}><span class=${'zn-tool-ic zn-art-ic' + gloveCool.cls} style=${gloveCool.style}>${GLOVE}</span><span>${t('zen.glove', 'Guante')}</span></button>
               ${owned.map(([id, it]) => html`<button class=${'zn-tool' + (tool === id ? ' on' : '')} aria-pressed=${tool === id} onClick=${() => pickTool(id)}><span class="zn-tool-ic zn-art-ic">${ITEM_ART[id]}</span><span>${it.name} ×${z.items[id]}</span></button>`)}
             </div>
           </section>
