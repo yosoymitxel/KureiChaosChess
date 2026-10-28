@@ -2,6 +2,11 @@
 // nadie, cada PICKUPS_EVERY turnos tuyos y como mucho PICKUPS_MAX a la vez. Los recoge la primera pieza tuya que se pare encima; si llega antes una rival,
 // se lo lleva. Los de `hand` (las hojas) no los pisa nadie: se quitan con un toque, como en el jardín.
 // Agregar uno es agregar su entrada aquí y su dibujo en src/ui/zen-art.js (PICKUP_ART) o un icono con su mismo id; tools/check-registry.mjs lo comprueba.
+//
+// Efecto propio: `effect({ match, piece, view, log })` corre al recogerlo (piece es tu pieza; en los de
+// `hand`, ninguna). Con eso basta para algo nuevo, p. ej. un dulce que da un paso más este turno:
+//   effect: ({ match }) => { match.turnBonus += 1; }
+// Los minijuegos de tablero ponen sus marcas de casilla con src/data/tile-marks.js.
 import { localize } from '../i18n/index.js';
 export const PICKUPS = localize('pickups', {
   coin: { id: 'coin', name: 'Moneda', weight: 5, coins: 2 },

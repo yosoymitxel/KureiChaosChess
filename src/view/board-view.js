@@ -381,6 +381,12 @@ export class BoardView {
     }
   }
 
+  // Casillas meta de un minijuego: todas teñidas igual, con o sin bandera encima.
+  setGoals(keys = []) {
+    const on = new Set(keys);
+    for (const [k, t] of this.tiles) t.classList.toggle('goal', on.has(k));
+  }
+
   setArt(p) {
     const art = this.els.get(p)?.querySelector('.pc-art');
     if (art) art.innerHTML = pieceSVG(artOf(p));

@@ -121,6 +121,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         d.view.setFog(match.pieces, viewer);
       }
       if (scenario?.labels) d.view.setLabels(scenario.labels(match));
+      if (scenario?.goals) d.view.setGoals(scenario.goals(match));
       const boss = match.pieces.find((x) => x.boss);
       setHud({
         goal: scenario?.status(match),
@@ -387,14 +388,15 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         d.props.delete(k);
         const mine = onIt && piece.color === human, it = PICKUPS[prop.id];
         if (!mine) { d.view.takeProp(prop.el, false); if (onIt) addLog(t('game.rivalTakes', '{piece} rival se lleva: {item}', { piece: pieceName(piece), item: it.name.toLowerCase() })); continue; }
-        take(it, prop.el);
+        take(it, prop.el, false, piece);
       }
     };
-    const take = (it, el, hand) => {
+    const take = (it, el, hand, piece) => {
       const from = el.getBoundingClientRect();
       d.view.takeProp(el, true, hand);
       playSfx(it.gift ? 'flower' : hand ? 'leaf' : it.coins ? 'pop' : 'coin');
       if (it.id === 'leaf') award('leaf_hand');
+      it.effect?.({ match, piece, view: d.view, log: addLog });
       // La mariposa deja lo mismo que en el jardín: 2 monedas o una semilla de una especie al azar.
       const gift = it.gift ? butterflyGift() : {}, coins = gift.coins || it.coins, seed = gift.seed || (it.seed && pickSeed());
       if (coins) { flyCoins(from, coinRef.current, Math.min(3, coins), () => setCoins(addCoins(coins))); addLog(`${it.name}: +` + tp('game.coins', coins, '{n} moneda', '{n} monedas')); }

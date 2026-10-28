@@ -1,6 +1,7 @@
 // Minijuegos de ajedrez que se juegan en el tablero de la partida (GameScreen + Match + BoardView):
 // cada uno solo dice cómo se arma la mesa, con qué rival y cuándo se gana o se pierde.
-// `setup(level, seed)` devuelve { board, pieces, rival, objective, status, labels?, hideRoyal?, single? }.
+// `setup(level, seed)` devuelve { board, pieces, rival, objective, status, labels?, goals?, hideRoyal?, single? }.
+// `goals(match)`: casillas a las que hay que llegar (se tiñen de meta).
 import { mulberry32, pickFrom } from '../core/rng.js';
 import { makePiece, placeBoss, addTerrain, generateBoard, placePieces } from '../game/generate.js';
 import { MINI_BOSSES, FINAL_BOSSES, RIVALS } from '../game/difficulty.js';
@@ -150,6 +151,7 @@ export const SCENARIOS = {
           : knight.row === 0 ? { victory: true, note: t('sc.minefield.won', 'Cruzaste el campo minado.') }
           : m.turn >= limit ? { victory: false, note: t('sc.minefield.lost2', 'Se acabaron los saltos.') } : null,
         status: (m) => `Saltos: ${limit - m.turn} · minas: ${b.mines.size}`,
+        goals: () => cellsWhere(b, (r) => r === 0),
         // Lo pisado (y en Fácil y Normal lo que lo rodea sin minas) queda escrito.
         labels: (m) => {
           if (m.pieces.length) {
@@ -195,6 +197,9 @@ export const SCENARIOS = {
   },
 };
 
+// Casillas de la meta (`goals` de un escenario): BoardView las tiñe para que se vea adónde llegar.
+const cellsWhere = (b, ok) => { const out = []; for (let r = 0; r < b.rows; r++) for (let c = 0; c < b.cols; c++) if (!b.holes.has(key(r, c)) && ok(r, c)) out.push(key(r, c)); return out; };
+
 // Cruzar el tablero (Escape, Contrabando, Laboratorio): tu pieza es la «real» que el bot persigue;
 // gana al llegar a la meta y pierde si cae o se acaban las rondas.
 // `samples` (El laboratorio): casillas que hay que pisar antes de llegar a la meta.
@@ -211,6 +216,7 @@ function crossing({ b, pieces, runner, guards, rng, rival, rounds: limit, goal, 
         : rounds(m) >= limit ? { victory: false, note: t('sc.outOfRounds', 'Se acabaron las rondas.') } : null;
     },
     labels: () => new Map([...left].map((k) => [k, 'icon:flask'])),
+    goals: () => cellsWhere(b, (r, c) => goal({ row: r, col: c })),
     status: (m) => t('sc.crossing.status', 'Quedan {r} rondas · {n} guardias', { r: limit - rounds(m), n: side(m, 'dark').length }) + (all.length ? ' · ' + t('sc.crossing.samples', 'muestras {got}/{total}', { got: all.length - left.size, total: all.length }) : ''),
   };
 }
@@ -470,6 +476,7 @@ Object.assign(SCENARIOS, {
           return { spawned: [foe] };
         },
         labels: (m) => new Map([...[...coins].map((k) => [k, 'icon:coin']), ...(clock.k ? [[clock.k, Math.max(0, clock.until - (m.players ? rounds(m) : 0))]] : [])]),
+        goals: () => (clock.k ? [clock.k] : []),
         status: (m) => t('sc.clock.status', 'Monedas {got}/{total} · reloj {n}', { got, total: lv.coins, n: Math.max(0, clock.until - rounds(m)) }),
       };
     },

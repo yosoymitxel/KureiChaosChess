@@ -32,12 +32,12 @@ src/data/mutations.js:18 +countMutations
 src/data/mutations.js:20 +pickMutationChoices
 src/data/mutations.js:31 +EXTRA_MOVES
 src/data/mutations.js:37 +applyMutations
-## src/data/pickups.js (33L)
-src/data/pickups.js:6 +PICKUPS
-src/data/pickups.js:13 +PICKUPS_PER_BOARD
-src/data/pickups.js:14 +PICKUPS_EVERY
-src/data/pickups.js:15 +PICKUPS_MAX
-src/data/pickups.js:18 +dropPickups
+## src/data/pickups.js (38L)
+src/data/pickups.js:11 +PICKUPS
+src/data/pickups.js:18 +PICKUPS_PER_BOARD
+src/data/pickups.js:19 +PICKUPS_EVERY
+src/data/pickups.js:20 +PICKUPS_MAX
+src/data/pickups.js:23 +dropPickups
 ## src/data/pieces.js (31L)
 src/data/pieces.js:6 +PIECES
 src/data/pieces.js:21 EXTRA_PATTERNS
@@ -49,24 +49,25 @@ src/data/pieces.js:28 +PIECE_RULES
 src/data/pieces.js:30 +MOVE_NAMES
 ## src/data/pixel-src.js (5L)
 src/data/pixel-src.js:4 +pixelSrc
-## src/data/scenarios.js (531L)
-src/data/scenarios.js:14 +LEVELS
-src/data/scenarios.js:15 N
-src/data/scenarios.js:16 board
-src/data/scenarios.js:17 rounds
-src/data/scenarios.js:18 side
-src/data/scenarios.js:19 shuffle
-src/data/scenarios.js:20 taken
-src/data/scenarios.js:22 spots
-src/data/scenarios.js:28 rubble
-src/data/scenarios.js:35 +SCENARIOS
-src/data/scenarios.js:201 crossing
-src/data/scenarios.js:370 routeLen
-src/data/scenarios.js:390 passable
-src/data/scenarios.js:399 knightRoute
-src/data/scenarios.js:424 freeTiles
-src/data/scenarios.js:481 WITCH_MOVES
-src/data/scenarios.js:521 +buildScenario
+## src/data/scenarios.js (538L)
+src/data/scenarios.js:15 +LEVELS
+src/data/scenarios.js:16 N
+src/data/scenarios.js:17 board
+src/data/scenarios.js:18 rounds
+src/data/scenarios.js:19 side
+src/data/scenarios.js:20 shuffle
+src/data/scenarios.js:21 taken
+src/data/scenarios.js:23 spots
+src/data/scenarios.js:29 rubble
+src/data/scenarios.js:36 +SCENARIOS
+src/data/scenarios.js:201 cellsWhere
+src/data/scenarios.js:206 crossing
+src/data/scenarios.js:376 routeLen
+src/data/scenarios.js:396 passable
+src/data/scenarios.js:405 knightRoute
+src/data/scenarios.js:430 freeTiles
+src/data/scenarios.js:488 WITCH_MOVES
+src/data/scenarios.js:528 +buildScenario
 ## src/data/sfx-samples.js (115L)
 src/data/sfx-samples.js:3 +SFX_SAMPLES
 ## src/data/themes.js (123L)
@@ -688,13 +689,13 @@ src/ui/screens/gallery.js:26 ThemeGroup
 src/ui/screens/gallery.js:41 RULE
 src/ui/screens/gallery.js:42 Locked
 src/ui/screens/gallery.js:44 +GalleryScreen
-## src/ui/screens/game.js (801L)
+## src/ui/screens/game.js (803L)
 src/ui/screens/game.js:30 SIDE_NAME
 src/ui/screens/game.js:33 pieceName
 src/ui/screens/game.js:35 TIPS
 src/ui/screens/game.js:44 cardEffect
 src/ui/screens/game.js:58 +GameScreen
-src/ui/screens/game.js:772 EndOverlay
+src/ui/screens/game.js:774 EndOverlay
 ## src/ui/screens/hockey.js (210L)
 src/ui/screens/hockey.js:13 KEYS
 src/ui/screens/hockey.js:15 TOP_KEYS
@@ -856,7 +857,7 @@ src/ui/zen-art.js:229 +boardPond
 src/ui/zen-art.js:235 +stoneArt
 src/ui/zen-art.js:241 +ITEM_ART
 src/ui/zen-art.js:246 +KOI_ART
-## src/view/board-view.js (1094L)
+## src/view/board-view.js (1100L)
 src/view/board-view.js:16 +CAMERAS
 src/view/board-view.js:17 JUMPERS
 src/view/board-view.js:18 reduced
@@ -913,7 +914,7 @@ css/base.css:148 /* Card back carries the pawn emblem: the box's identity mark.
 css/base.css:159 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
 css/base.css:199 /* Botones sin texto y cosas del jardín: el botón va en su esqu
 css/base.css:202 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
-## css/board.css (316L)
+## css/board.css (318L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
 css/board.css:36 /* Tiles
@@ -921,33 +922,34 @@ css/board.css:52 /* Front face: the board is a slab of thick card, so exposed ed
 css/board.css:61 /* El punto de jugada se superpone centrado: con una moneda o u
 css/board.css:64 /* Alcance de un bando (toque en su fila del panel): velo plano
 css/board.css:67 /* Campo minado: lo tapado va en relieve como el buscaminas; lo
-css/board.css:71 /* Marca de casilla (src/data/tile-marks.js): color y tamaño sa
-css/board.css:94 /* Card targeting: dashed brass outline on valid targets; previ
-css/board.css:102 /* Casilla que la defensa de un minijuego captura (Yo, Zombi).
-css/board.css:104 /* Terrain: ice is a pale frozen slab with cracks; portals are 
-css/board.css:106 /* Agujero en el hielo (Ventisca): agua oscura con el borde rot
-css/board.css:118 /* Pieces
-css/board.css:122 /* Zombis de los minijuegos tipo PvZ: verde podrido, distinto d
-css/board.css:124 /* Peón zombi de la Plaga: figura verde podrida, base del color
-css/board.css:127 /* Contagiada: conserva el color de su bando nuevo y lleva un h
-css/board.css:130 /* Posición de casillas: no se hereda. Las piezas (y su sombra)
-css/board.css:143 /* Token base: three stacked discs give the coin its thickness;
-css/board.css:155 /* Aiming a card: pieces it can be played on wear a dashed bras
-css/board.css:174 /* En el set píxel las piezas botan un píxel justo, cada una a 
-css/board.css:177 /* El sprite ya trae contorno y la peana su sombra: sin drop-sh
-css/board.css:180 /* Mientras caen las piezas al empezar, quietas: el bote de 32 
-css/board.css:182 /* transform y no translate: con translate el bote se recalcula
-css/board.css:184 /* En el set píxel la peana también es de píxeles: disco escalo
-css/board.css:196 /* Fog: an enemy far from your pieces is only a shape in the mi
-css/board.css:204 /* Chrome recortaba el cartel por arriba con la caja de la pean
-css/board.css:213 /* Piece badges: lock = escorted, flag = falls last, star = bor
-css/board.css:242 /* Etiqueta de casilla: ficha de papel con pico, encima de la c
-css/board.css:257 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
-css/board.css:263 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
-css/board.css:280 /* Estanque del centro abierto y coleccionables: tumbados sobre
-css/board.css:297 /* La mariposa queda posada un poco en el aire (lo deja su vuel
-css/board.css:303 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
-css/board.css:311 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
+css/board.css:71 /* Meta de un minijuego: línea de llegada dorada, igual en vect
+css/board.css:73 /* Marca de casilla (src/data/tile-marks.js): color y tamaño sa
+css/board.css:96 /* Card targeting: dashed brass outline on valid targets; previ
+css/board.css:104 /* Casilla que la defensa de un minijuego captura (Yo, Zombi).
+css/board.css:106 /* Terrain: ice is a pale frozen slab with cracks; portals are 
+css/board.css:108 /* Agujero en el hielo (Ventisca): agua oscura con el borde rot
+css/board.css:120 /* Pieces
+css/board.css:124 /* Zombis de los minijuegos tipo PvZ: verde podrido, distinto d
+css/board.css:126 /* Peón zombi de la Plaga: figura verde podrida, base del color
+css/board.css:129 /* Contagiada: conserva el color de su bando nuevo y lleva un h
+css/board.css:132 /* Posición de casillas: no se hereda. Las piezas (y su sombra)
+css/board.css:145 /* Token base: three stacked discs give the coin its thickness;
+css/board.css:157 /* Aiming a card: pieces it can be played on wear a dashed bras
+css/board.css:176 /* En el set píxel las piezas botan un píxel justo, cada una a 
+css/board.css:179 /* El sprite ya trae contorno y la peana su sombra: sin drop-sh
+css/board.css:182 /* Mientras caen las piezas al empezar, quietas: el bote de 32 
+css/board.css:184 /* transform y no translate: con translate el bote se recalcula
+css/board.css:186 /* En el set píxel la peana también es de píxeles: disco escalo
+css/board.css:198 /* Fog: an enemy far from your pieces is only a shape in the mi
+css/board.css:206 /* Chrome recortaba el cartel por arriba con la caja de la pean
+css/board.css:215 /* Piece badges: lock = escorted, flag = falls last, star = bor
+css/board.css:244 /* Etiqueta de casilla: ficha de papel con pico, encima de la c
+css/board.css:259 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
+css/board.css:265 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
+css/board.css:282 /* Estanque del centro abierto y coleccionables: tumbados sobre
+css/board.css:299 /* La mariposa queda posada un poco en el aire (lo deja su vuel
+css/board.css:305 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
+css/board.css:313 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
 ## css/pixel.css (93L)
 css/pixel.css:1 /* Modo píxel: con un tema píxel (data-art="pixel", ver src/dat
 css/pixel.css:6 /* Jersey 10 (OFL), servida desde el juego: el subconjunto lati
