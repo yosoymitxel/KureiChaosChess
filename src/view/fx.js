@@ -201,10 +201,10 @@ export class Fx {
     this.kick();
   }
   // Escudo: cúpula de celdas hexagonales que se enciende al recibir el golpe; `broken` la hace añicos.
-  shield(x, y, r, { color = '#8fd3ff', broken = false } = {}) {
+  shield(x, y, rx, ry, { color = '#8fd3ff', broken = false } = {}) {
     if (!this.vfx) return;
-    this.parts.push({ x, y, vx: 0, vy: 0, g: 0, drag: 1, life: 0.45, max: 0.45, size: r, color, shape: 'dome', rot: 0 });
-    if (broken) this.burst(x, y - r * 0.5, { count: 18, color: [color, '#fff'], speed: [80, 240], life: [0.4, 0.8], size: [2, 4], gravity: 500, shape: 'chunk' });
+    this.parts.push({ x, y, vx: 0, vy: 0, g: 0, drag: 1, life: 0.45, max: 0.45, rx, ry, size: 1, color, shape: 'dome', rot: 0 });
+    if (broken) this.burst(x, y - ry * 0.5, { count: 18, color: [color, '#fff'], speed: [80, 240], life: [0.4, 0.8], size: [2, 4], gravity: 500, shape: 'chunk' });
     this.kick();
   }
   // Fuego: llamas que lamen la pieza unos instantes (para lo que queda junto al meteorito).
@@ -223,19 +223,22 @@ export class Fx {
     this.burst(x, y, { count: 10, color: ['#b6f37a', '#7fd14a'], speed: [10, 30], life: [0.6, 1.1], size: [2, 3.5], gravity: -90, spread: 1.2, angle: -Math.PI / 2, shape: 'mote' });
   }
 
+  // Cúpula de `rx` de ancho y `ry` de alto apoyada en (x, y): cabe cualquier huella, 1×2, 2×1, 3×3…
   dome(p, t, pixel) {
-    const { ctx } = this, r = p.size * (1.05 - t * 0.05), G = 3;
+    const { ctx } = this, k = 1.05 - t * 0.05, rx = p.rx * k, ry = p.ry * k, G = 3;
     ctx.globalAlpha = t * 0.9; ctx.strokeStyle = ctx.fillStyle = p.color; ctx.lineWidth = 2;
     const hex = (cx, cy, s) => {
-      if (pixel) { for (let k = 0; k < 6; k++) { const a = (k * Math.PI) / 3; ctx.fillRect(Math.round((cx + Math.cos(a) * s) / G) * G, Math.round((cy + Math.sin(a) * s) / G) * G, G, G); } return; }
-      ctx.beginPath(); for (let k = 0; k < 6; k++) { const a = (k * Math.PI) / 3; ctx.lineTo(cx + Math.cos(a) * s, cy + Math.sin(a) * s); } ctx.closePath(); ctx.stroke();
+      if (pixel) { for (let j = 0; j < 6; j++) { const a = (j * Math.PI) / 3; ctx.fillRect(Math.round((cx + Math.cos(a) * s) / G) * G, Math.round((cy + Math.sin(a) * s) / G) * G, G, G); } return; }
+      ctx.beginPath(); for (let j = 0; j < 6; j++) { const a = (j * Math.PI) / 3; ctx.lineTo(cx + Math.cos(a) * s, cy + Math.sin(a) * s); } ctx.closePath(); ctx.stroke();
     };
-    const s = r * 0.2;
-    for (let row = 0; row < 4; row++) for (let k = -3; k <= 3; k++) {
-      const cx = p.x + k * s * 1.55 + (row % 2) * s * 0.78, cy = p.y - row * s * 1.35;
-      if (Math.hypot((cx - p.x) / r, (cy - p.y) / (r * 1.1)) < 0.95) hex(cx, cy - r * 0.15, s * 0.8);
+    const s = Math.max(6, Math.min(rx, ry) * 0.2);
+    for (let cy = p.y; cy > p.y - ry; cy -= s * 1.35) {
+      const row = Math.round((p.y - cy) / (s * 1.35));
+      for (let cx = p.x - rx + (row % 2) * s * 0.78; cx < p.x + rx; cx += s * 1.55) {
+        if (Math.hypot((cx - p.x) / rx, (cy - p.y) / ry) < 0.92) hex(cx, cy, s * 0.8);
+      }
     }
-    ctx.globalAlpha = t * 0.25; ctx.beginPath(); ctx.ellipse(p.x, p.y - r * 0.15, r, r * 1.1, 0, Math.PI, 0); ctx.fill();
+    ctx.globalAlpha = t * 0.25; ctx.beginPath(); ctx.ellipse(p.x, p.y, rx, ry, 0, Math.PI, 0); ctx.fill();
   }
 
   kick() { if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame((t) => this.loop(t)); } }

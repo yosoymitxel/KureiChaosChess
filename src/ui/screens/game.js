@@ -670,7 +670,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   }, []);
   const first = useRef(true);
   useEffect(() => { if (first.current) first.current = false; else ref.current.view?.restyle(); }, [settings.theme]);
-  useEffect(() => { ref.current.view?.setCamera(settings.camera); if (ref.current.view) { ref.current.view.shakeOn = settings.shake; ref.current.view.speed = settings.speed; } if (ref.current.moments) Object.assign(ref.current.moments, { speed: settings.speed, enabled: settings.moments }); }, [settings]);
+  useEffect(() => { ref.current.view?.setCamera(settings.camera); if (ref.current.view) { ref.current.view.shakeOn = settings.shake; ref.current.view.speed = settings.speed; ref.current.view.setVfx(settings.vfx); } if (ref.current.moments) Object.assign(ref.current.moments, { speed: settings.speed, enabled: settings.moments }); }, [settings]);
 
   const muts = Object.entries(countMutations(run.mutations || []));
   // Un toque explica el chip; el de peligro además hace latir las piezas amenazadas.

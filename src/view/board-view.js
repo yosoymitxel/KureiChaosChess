@@ -105,7 +105,9 @@ export class BoardView {
   destroy() { this.ro.disconnect(); this.fx.destroy(); this.unbind?.(); this.host.innerHTML = ''; }
   d(ms) { return reduced() ? Math.min(ms, 120) : ms / this.speed; }
 
-  setWeather(kind) { this.fx.setWeather(kind); }
+  setWeather(kind) { this.weather = kind; this.fx.setWeather(kind); }
+  // El ajuste de efectos extra se puede cambiar en pausa: aplica al momento, clima incluido.
+  setVfx(on) { if (this.fx.vfx === !!on) return; this.fx.vfx = !!on; this.fx.setWeather(this.weather); }
   setCamera(camera) { this.tilt = CAMERAS[camera] ?? 40; this.layout(); }
 
   // Pellizco: --zoom escala la escena y --px/--py la desplazan. `at` es el punto de la pantalla que
@@ -959,7 +961,12 @@ export class BoardView {
     setTimeout(() => el.classList.remove('hit'), this.d(260));
     const hp = el.querySelector('.pc-hp');
     if (hp) hp.outerHTML = this.hpHTML(p);
-    if (p.boss || p.maxHp > 1) this.fx.shield(c.x, c.y, this.sq * 0.85 * Math.max(...sizeOf(p)), { broken: p.hp <= 1 });
+    if (p.boss || p.maxHp > 1) {
+      // La cúpula toma la huella entera: ancho de sus casillas en pantalla y alto hasta la cabeza.
+      const pts = cellsOf(p).map(([r, cc]) => this.tiles.get(key(r, cc))).filter(Boolean).map((t) => this.fx.pointOf(t));
+      const xs = pts.map((q) => q.x), ys = pts.map((q) => q.y), base = Math.max(...ys) + this.sq * 0.3;
+      this.fx.shield(c.x, base, (Math.max(...xs) - Math.min(...xs)) / 2 + this.sq * 0.6, base - Math.min(...ys) + this.sq * 0.9 * Math.max(...sizeOf(p)), { broken: p.hp <= 1 });
+    }
     this.floatText(c.x, c.y - this.sq * 1.2, '−1');
   }
 
