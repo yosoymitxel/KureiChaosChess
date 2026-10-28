@@ -3,7 +3,7 @@
 // los anillos nuevos se suman alternando abajo a la derecha y arriba a la izquierda, como tierra
 // virgen por cavar (a veces con piedras). Las claves de casilla son absolutas: el 4×4 base va de
 // r0c0 a r3c3 y los anillos de arriba o de la izquierda tienen coordenadas negativas.
-import { SEEDS, GARDEN_ITEMS, SEED_BACK, DIG_COOLDOWN, OBSTACLE_CHANCE, ROCK_HP, LANTERN_BOOST, LAKE_MAX } from '../data/garden.js';
+import { SEEDS, GARDEN_ITEMS, SEED_BACK, DIG_COOLDOWN, MOVE_COOLDOWN, OBSTACLE_CHANCE, ROCK_HP, LANTERN_BOOST, LAKE_MAX } from '../data/garden.js';
 
 const KEY = 'zugzwang.zen.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
@@ -68,7 +68,7 @@ export function loadZen() {
   // v1 tenía el estanque a la derecha: las dos macetas que ahora son agua se corren a la orilla este.
   if (!z.v) for (const k of ['r1c1', 'r2c1']) if (k in pots) { pots[movedPot(k)] = pots[k]; delete pots[k]; }
   const size = Math.min(ZEN_MAX, Math.max(ZEN_BASE, z.size || ZEN_BASE));
-  const out = { ...blankZen(), size, off: z.off || 0, lake: z.lake || 2, pots, rocks: z.rocks || {}, tiles: z.tiles || {}, dug: z.dug || {}, lanterns: z.lanterns || [], items: z.items || {},
+  const out = { ...blankZen(), size, off: z.off || 0, lake: z.lake || 2, pots, rocks: z.rocks || {}, tiles: z.tiles || {}, dug: z.dug || {}, lanterns: z.lanterns || [], lakeAt: z.lakeAt, moveT: z.moveT, items: z.items || {},
     seeds: seedsOf(z.seeds), flores, planted, leaves: z.leaves || [], leafT: z.leafT, digT: z.digT };
   return (z.v || 0) < 3 ? withBase(out) : out;
 }
@@ -78,7 +78,20 @@ export const saveZen = (z) => write(KEY, z);
 // Estanque: 2×2 en el centro del cantero base; crece abajo a la derecha (3×3) y luego arriba a la
 // izquierda (4×4, todo el cantero base).
 export const lakeBox = (n) => (n >= 4 ? [0, 4] : [1, n + 1]); // [desde, hasta) en filas y columnas
-export const inLake = (z, r, c) => { const [a, b] = lakeBox(z.lake || 2); return r >= a && r < b && c >= a && c < b; };
+// Esquina de arriba a la izquierda y lado del estanque: donde lo dejó el guante (`lakeAt`) o el de serie.
+export const lakeRect = (z) => { const n = z.lake || 2, [a] = lakeBox(n), [r, c] = z.lakeAt || [a, a]; return { r, c, n }; };
+const inRect = ({ r: r0, c: c0, n }, r, c) => r >= r0 && r < r0 + n && c >= c0 && c < c0 + n;
+export const inLake = (z, r, c) => inRect(lakeRect(z), r, c);
+// Casillas dentro del cantero (con sus anillos) y libres para el agua: tierra virgen o cavada.
+const inYard = (z, r, c) => { const off = z.off || 0; return r >= -off && c >= -off && r < z.size - off && c < z.size - off; };
+const fitsWater = (z, rect) => {
+  for (let r = rect.r; r < rect.r + rect.n; r++) for (let c = rect.c; c < rect.c + rect.n; c++) {
+    if (!inYard(z, r, c)) return false;
+    const t = cellType(z, cellKey(r, c));
+    if (t !== 'pond' && t !== 'raw' && t !== 'dug') return false;
+  }
+  return true;
+};
 
 // Qué ocupa una casilla: 'pond', 'lantern', 'pot', 'bush', 'stone', 'rock', 'dug' (cavada, lista para
 // una maceta) o 'raw' (tierra virgen).
@@ -144,11 +157,11 @@ export function zenDig(z, key, now = Date.now()) {
   if (cellType(z, key) !== 'raw' || digWait(z, now)) return z;
   return { ...z, dug: { ...(z.dug || {}), [key]: true }, digT: now };
 }
-// Un golpe de mazo a una piedra (con la pala de acero en la bolsa, de una vez). Devuelve el jardín y si se partió.
+// Un golpe de mazo a una piedra (el de hierro la parte de una vez). Devuelve el jardín y si se partió.
 export function zenBreak(z, key) {
   const hp = z.rocks?.[key];
   if (!hp) return { z, broke: false };
-  const left = z.items?.shovel ? 0 : hp - 1, rocks = { ...z.rocks };
+  const left = z.items?.mallet ? 0 : hp - 1, rocks = { ...z.rocks };
   if (left > 0) rocks[key] = left; else delete rocks[key];
   return { z: { ...z, rocks }, broke: left <= 0 };
 }
@@ -207,20 +220,39 @@ export function zenStore(z, key) {
   return z;
 }
 
-// El estanque crece un paso; lo que había debajo vuelve: la semilla de la planta, el farol a la bolsa.
+// El estanque crece un paso (el de serie como siempre; uno movido, hacia abajo a la derecha), solo
+// si lo que va a cubrir es tierra libre: nada se pierde bajo el agua.
 export function zenLake(z) {
   const n = z.lake || 2;
   if (n >= LAKE_MAX) return z;
-  const next = { ...z, lake: n + 1 }, pots = { ...z.pots }, seeds = { ...z.seeds }, items = { ...z.items }, tiles = { ...(z.tiles || {}) };
-  for (const k of Object.keys(tiles)) if (inLake(next, ...parseKey(k))) delete tiles[k];
-  for (const k of Object.keys(pots)) {
-    const [r, c] = parseKey(k);
-    if (!inLake(next, r, c)) continue;
-    if (pots[k]?.kind) seeds[pots[k].kind] = (seeds[pots[k].kind] || 0) + 1;
-    delete pots[k];
+  const next = { ...z, lake: n + 1 };
+  if (!fitsWater(z, lakeRect(next))) return z;
+  return clearDug(next);
+}
+// La tierra cavada que queda bajo el agua deja de contar como cavada.
+const clearDug = (z) => ({ ...z, dug: Object.fromEntries(Object.entries(z.dug || {}).filter(([k]) => !inLake(z, ...parseKey(k)))) });
+
+// Guante: llevar una maceta (con su planta) o un farol a otra casilla. La maceta va a tierra cavada;
+// el farol, a tierra libre. Donde estaban queda tierra cavada. El guante de siempre descansa entre
+// mudanza y mudanza; el de jardinero no.
+export const moveWait = (z, now = Date.now()) => (z.items?.glove || z.moveT == null ? 0 : Math.max(0, z.moveT + MOVE_COOLDOWN - now));
+export function zenMove(z, from, to, now = Date.now()) {
+  if (from === to || moveWait(z, now)) return z;
+  const what = cellType(z, from), dest = cellType(z, to), dug = { ...(z.dug || {}), [from]: true };
+  delete dug[to];
+  if (what === 'pot' && dest === 'dug') {
+    const pots = { ...z.pots, [to]: z.pots[from] }; delete pots[from];
+    return { ...z, pots, dug, moveT: now };
   }
-  const lanterns = (z.lanterns || []).filter((k) => { const [r, c] = parseKey(k); const wet = inLake(next, r, c); if (wet) items.lantern = (items.lantern || 0) + 1; return !wet; });
-  return { ...next, pots, seeds, items, tiles, lanterns };
+  if (what === 'lantern' && (dest === 'raw' || dest === 'dug')) return { ...z, lanterns: z.lanterns.map((k) => (k === from ? to : k)), dug, moveT: now };
+  return z;
+}
+// Con los guantes de jardinero también se mueve el estanque: su esquina de arriba a la izquierda va a
+// `to` si el agua cabe entera en tierra libre (o en su propio sitio de antes).
+export function zenMovePond(z, to) {
+  if (!z.items?.glove) return z;
+  const [r, c] = parseKey(to), next = { ...z, lakeAt: [r, c] };
+  return fitsWater(z, lakeRect(next)) ? clearDug(next) : z;
 }
 
 // Poner lo comprado o guardado: el farol en tierra virgen o cavada; la maceta solo en tierra cavada.
