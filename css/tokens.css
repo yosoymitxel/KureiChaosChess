@@ -12,6 +12,7 @@
   --accent-ink: oklch(0.42 0.15 32);
   --brass: oklch(0.77 0.12 80);
   --legal: oklch(0.8 0.16 135);
+  --zone: oklch(0.98 0.02 95); /* zona tuya de colocar o lanzar (carriles de los bolos): claro, neutro */
   --win: oklch(0.6 0.15 160); /* ganar: metas, casillas de lanzamiento y títulos de victoria (esmeralda, más oscuro que --legal) */
   --gain: oklch(0.72 0.14 235); /* moves a card would add: clearly not a move you have now */
   --danger: oklch(0.52 0.2 25);
