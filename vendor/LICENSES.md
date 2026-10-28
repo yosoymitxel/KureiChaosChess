@@ -10,3 +10,4 @@ La web (`index.html`) sigue cargándolas desde jsDelivr y Google Fonts con las m
 | `anime.esm.min.js` | animejs 4.5.0 | MIT |
 | `motion.esm.js` | motion 12.43.0 (empaquetado con esbuild en un solo archivo) | MIT |
 | `fonts/bricolage-grotesque-latin.woff2` | Bricolage Grotesque (Google Fonts, subconjunto latino) | SIL OFL 1.1 |
+| `sprite-fusion/*.js` (shield, fire, snow, fog, embers, fireflies) | Sprite Fusion Pixel Art VFX (Hugo Duprez), `.ts` pasados a JS con esbuild | MIT |

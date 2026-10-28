@@ -965,7 +965,8 @@ export class BoardView {
       // La cúpula toma la huella entera: ancho de sus casillas en pantalla y alto hasta la cabeza.
       const pts = cellsOf(p).map(([r, cc]) => this.tiles.get(key(r, cc))).filter(Boolean).map((t) => this.fx.pointOf(t));
       const xs = pts.map((q) => q.x), ys = pts.map((q) => q.y), base = Math.max(...ys) + this.sq * 0.3;
-      this.fx.shield(c.x, base, (Math.max(...xs) - Math.min(...xs)) / 2 + this.sq * 0.5, base - Math.min(...ys) + this.sq * 0.75 * (p.boss ? Math.max(...sizeOf(p)) * 0.85 : 1), { broken: p.hp <= 1 });
+      const half = (Math.max(...xs) - Math.min(...xs)) / 2 + this.sq * 0.5, tall = base - Math.min(...ys) + this.sq * 0.75 * (p.boss ? Math.max(...sizeOf(p)) * 0.85 : 1);
+      this.fx.shield(c.x, base, Math.max(half * 1.15, tall * 0.7), { broken: p.hp <= 1 });
     }
     this.floatText(c.x, c.y - this.sq * 1.2, '−1');
   }
@@ -1101,7 +1102,10 @@ export class BoardView {
     // Lo que queda al lado de la cruz arde un momento.
     for (const q of this.els.keys()) {
       if (lost.includes(q) || cells.some(([r, c]) => r === q.row && c === q.col)) continue;
-      if (cells.some(([r, c]) => Math.max(Math.abs(r - q.row), Math.abs(c - q.col)) === 1)) { const c = this.centerOf(q); this.fx.fire(c.x, c.y, this.sq * 0.6); }
+      if (cells.some(([r, c]) => Math.max(Math.abs(r - q.row), Math.abs(c - q.col)) === 1)) {
+        const a = this.els.get(q).querySelector('.pc-fig').getBoundingClientRect(), h = this.host.getBoundingClientRect();
+        this.fx.fire(a.left - h.left + a.width * 0.2, a.top - h.top + a.height * 0.3, a.width * 0.6, a.height * 0.7);
+      }
     }
     await Promise.all([...lost.map((q) => this.kill(q, q, q)), this.collapse(cells)]);
   }

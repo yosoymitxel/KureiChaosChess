@@ -2,8 +2,22 @@
 // Runs its rAF loop only while particles exist. Las explosiones y los escombros suenan solos:
 // así cada minijuego que los usa tiene su golpe sin tener que acordarse.
 import { playSfx } from '../ui/sfx.js';
+import sfShield from '../../vendor/sprite-fusion/shield.js';
+import sfFire from '../../vendor/sprite-fusion/fire.js';
+import sfSnow from '../../vendor/sprite-fusion/snow.js';
+import sfFog from '../../vendor/sprite-fusion/fog.js';
+import sfEmbers from '../../vendor/sprite-fusion/embers.js';
+import sfFireflies from '../../vendor/sprite-fusion/fireflies.js';
 
-const WEATHER_RATE = { rain: 70, snow: 26, fog: 0.5, embers: 14, fireflies: 6, leaves: 4, bubbles: 6 }; // partículas por segundo cada 360 px de ancho
+const WEATHER_RATE = { rain: 70, leaves: 4, bubbles: 6 };
+// Climas que vienen de Sprite Fusion (vendor/sprite-fusion, MIT): reciben el área de la capa en px.
+const SF_WEATHER = {
+  snow: (a) => sfSnow({ area: a, drift: false, density: 0.8 }),
+  fog: (a) => sfFog({ area: { ...a, y: a.h * 0.3, h: a.h * 0.7 }, colors: ['#8a90ad', '#aab0c8', '#d4d8e6'], density: 0.6 }),
+  embers: (a) => sfEmbers({ area: a, density: 0.8 }),
+  fireflies: (a) => sfFireflies({ area: a, grass: false, density: 1.4, close: 8 }),
+};
+const SF_PX = 2; // cada píxel de los efectos de Sprite Fusion ocupa 2 px de pantalla // partículas por segundo cada 360 px de ancho
 
 export class Fx {
   constructor(host) {
@@ -13,6 +27,7 @@ export class Fx {
     host.appendChild(this.canvas);
     this.ctx = this.canvas.getContext('2d');
     this.parts = [];
+    this.sf = []; // efectos de Sprite Fusion en curso
     this.raf = 0;
     this.vfx = false; // efectos extra (Sprite Fusion): Ajustes › Efectos extra, apagado por defecto
     this.ro = new ResizeObserver(() => this.resize());
@@ -26,6 +41,7 @@ export class Fx {
     this.canvas.width = Math.round(r.width * dpr);
     this.canvas.height = Math.round(r.height * dpr);
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (this.sfWeather) this.sfWeather.fx = null; // se rehace al tamaño nuevo
   }
   destroy() { cancelAnimationFrame(this.raf); this.ro.disconnect(); this.canvas.remove(); }
 
@@ -116,11 +132,6 @@ export class Fx {
     switch (p.shape) {
       case 'bubble': { const n = Math.max(1, Math.round(p.size / G)); sq(p.x - n * G, p.y); sq(p.x + n * G, p.y); sq(p.x, p.y - n * G); sq(p.x, p.y + n * G); return; }
       case 'mote': return sq(p.x, p.y, Math.max(1, Math.round(p.size / G)));
-      case 'fogbank': {
-        // Bancos de niebla a franjas (una fila sí, otra no), más anchos que altos.
-        for (let dy = -p.size * 0.5; dy <= p.size * 0.5; dy += G * 2) { const w = snap(p.size * 1.8 * Math.sqrt(1 - (2 * dy / p.size) ** 2)); ctx.fillRect(snap(p.x) - w, snap(p.y + dy), 2 * w, G); }
-        return;
-      }
       case 'flash': ctx.globalAlpha = a(t); return disc(p.x, p.y, p.size * (1.2 - t * 0.6));
       case 'smoke': ctx.globalAlpha = a(t * 0.9); return disc(p.x, p.y, p.size * (1.6 - t * 0.8));
       case 'ring': {
@@ -159,13 +170,14 @@ export class Fx {
   // Clima continuo sobre el tablero (recetas de Sprite Fusion Pixel Art VFX, MIT): lluvia, nieve,
   // niebla y brasas. Se emite en cada cuadro mientras `weather` esté puesto; null lo apaga.
   setWeather(kind) {
-    this.weather = !this.vfx || matchMedia('(prefers-reduced-motion: reduce)').matches ? null : kind ? { kind, acc: 0 } : null;
-    if (this.weather) this.kick();
+    if (!this.vfx || matchMedia('(prefers-reduced-motion: reduce)').matches) kind = null;
+    this.weather = kind && !SF_WEATHER[kind] ? { kind, acc: 0 } : null;
+    this.sfWeather = kind && SF_WEATHER[kind] ? { kind, fx: null } : null;
+    if (kind) this.kick();
   }
   // Arranca ya lleno, en cuanto la capa tiene tamaño: cada partícula nace a mitad de su recorrido.
   prewarm(kind) {
-    if (kind === 'fog') { for (let i = 0; i < 5; i++) this.spawn('fog', Math.random()); return; }
-    const n = WEATHER_RATE[kind] * (this.w / 360) * { rain: this.h / 690, snow: this.h / 44, embers: 3, fireflies: 5, leaves: this.h / 50, bubbles: this.h / 45 }[kind];
+    const n = WEATHER_RATE[kind] * (this.w / 360) * { rain: this.h / 690, leaves: this.h / 50, bubbles: this.h / 45 }[kind];
     for (let i = 0; i < n; i++) {
       this.spawn(kind);
       const p = this.parts[this.parts.length - 1], a = Math.random() * p.life;
@@ -179,24 +191,13 @@ export class Fx {
       const vy = rnd(620, 760), land = rnd(h * 0.15, h), life = (land + 20) / vy;
       add({ x: rnd(0, w + h * 0.2), y: -20, vx: -vy * 0.18, vy, life, size: 1.4, color: '#c8d8ff', shape: 'spark', alpha: 0.45,
         end: (p) => this.burst(p.x, p.y, { count: 2, color: '#c8d8ff', speed: [20, 50], life: [0.15, 0.25], size: [1, 2], angle: -Math.PI / 2, spread: 2, gravity: 300 }) });
-    } else if (kind === 'snow') {
-      const vy = rnd(28, 60);
-      add({ x: rnd(-20, w + 20), y: -6, vx: rnd(-14, 22), vy, life: (h + 12) / vy, size: rnd(1.4, 3), color: '#fff', shape: 'mote', alpha: 0.85 });
-    } else if (kind === 'fog') {
-      const vx = rnd(10, 22), life = (w + 200) / vx;
-      add({ x: -100 + at * (w + 200), y: rnd(h * 0.2, h * 0.75), vx, vy: 0, life: life * (1 - at) + 0.5, size: rnd(55, 95), color: '#e4eaf0', shape: 'fogbank', alpha: 0.3 });
-    } else if (kind === 'fireflies') {
-      const life = rnd(3, 6);
-      add({ x: rnd(0, w), y: rnd(h * 0.15, h * 0.95), vx: rnd(-14, 14), vy: rnd(-10, 6), life, size: rnd(2.2, 3.2), color: ['#e9ff8a', '#c8f25a'][Math.floor(Math.random() * 2)], shape: 'mote', alpha: 1, flicker: true, wander: true });
     } else if (kind === 'leaves') {
       const vy = rnd(30, 55);
       add({ x: rnd(-20, w), y: -8, vx: rnd(4, 26), vy, life: (h + 16) / vy, size: rnd(5, 8), color: ['#d9822b', '#b5521f', '#e0a83a', '#8a6a2a'][Math.floor(Math.random() * 4)], shape: 'rect', alpha: 0.9, rot: rnd(0, 6.28), vr: rnd(-3, 3), wander: true });
     } else if (kind === 'bubbles') {
       const vy = -rnd(25, 50);
       add({ x: rnd(0, w), y: h + 6, vx: 0, vy, life: (h + 12) / -vy, size: rnd(2, 4.5), color: '#cfeeff', shape: 'bubble', alpha: 0.7, wander: true });
-    } else if (kind === 'embers') {
-      const life = rnd(2, 4);
-      add({ x: rnd(0, w), y: h + 6, vx: rnd(-18, 18), vy: rnd(-90, -40), life, size: rnd(1.4, 2.6), color: ['#ffb347', '#ff6a2b', '#ffd27a'][Math.floor(Math.random() * 3)], shape: 'mote', alpha: 1, flicker: true });
+
     }
   }
 
@@ -210,23 +211,18 @@ export class Fx {
     }
     this.kick();
   }
-  // Escudo: cúpula de celdas hexagonales que se enciende al recibir el golpe; `broken` la hace añicos.
-  shield(x, y, rx, ry, { color = '#8fd3ff', broken = false } = {}) {
+  // Escudo (Shield de Sprite Fusion): semiesfera de celdas hexagonales que se arma de abajo arriba,
+  // recibe el golpe con chispas y una onda, y se deshace en estrellas. (x, y) es la base; `r` el radio.
+  shield(x, y, r, { broken = false } = {}) {
     if (!this.vfx) return;
-    // Semiesfera de verdad: tan ancha como alta, la que haga falta para cubrir la figura.
-    const r = Math.max(rx * 1.15, ry * 0.7); rx = r; ry = r * 0.95;
-    // Si es la última vida, al apagarse se rompe en esquirlas.
-    const end = broken ? () => this.burst(x, y - ry * 0.5, { count: 24, color: [color, '#fff'], speed: [80, 260], life: [0.4, 0.8], size: [2, 4], gravity: 500, shape: 'chunk' }) : null;
-    this.parts.push({ x, y, vx: 0, vy: 0, g: 0, drag: 1, life: 0.9, max: 0.9, rx, ry, size: 1, color, shape: 'dome', rot: 0, end });
+    const hold = broken ? 0.75 : 1;
+    this.sf.push(sfShield({ x, y, radius: Math.max(10, Math.round(r / SF_PX)), hold, hits: [{ t: 0.45, lon: 0.5, lat: 0.6 }], seed: (Math.random() * 1e9) | 0 }));
     this.kick();
   }
-  // Fuego: llamas que lamen la pieza unos instantes (para lo que queda junto al meteorito).
-  fire(x, y, w, secs = 1.4) {
+  // Fuego (Fire de Sprite Fusion): llamas que lamen la caja de la pieza (x, y, w, h) unos instantes.
+  fire(x, y, w, h, secs = 1.4) {
     if (!this.vfx) return;
-    for (let i = 0; i < Math.round(secs * 40); i++) {
-      const life = 0.35 + Math.random() * 0.4, delay = Math.random() * secs;
-      this.parts.push({ x: x + (Math.random() - 0.5) * w, y, vx: (Math.random() - 0.5) * 20, vy: -60 - Math.random() * 80, g: -60, drag: 0.95, life: life + delay, max: life, wait: delay, size: 2 + Math.random() * 3, color: ['#fff2c2', '#ffcf6b', '#ff8a3d', '#e2552b'][i % 4], shape: 'mote', rot: 0, flicker: true });
-    }
+    this.sf.push(sfFire({ box: [x, y, w, h], duration: secs, size: Math.max(0.6, w / 40), seed: (Math.random() * 1e9) | 0 }));
     this.kick();
   }
   // Veneno: nube verde que se abre y burbujas que suben y revientan.
@@ -236,43 +232,42 @@ export class Fx {
     this.burst(x, y, { count: 10, color: ['#b6f37a', '#7fd14a'], speed: [10, 30], life: [0.6, 1.1], size: [2, 3.5], gravity: -90, spread: 1.2, angle: -Math.PI / 2, shape: 'mote' });
   }
 
-  // Cúpula como el Shield de Sprite Fusion: semiesfera de celdas hexagonales proyectadas (se encogen
-  // hacia el borde), que se arma celda a celda de abajo arriba, late con una onda desde el golpe y se apaga.
-  // `rx` de ancho y `ry` de alto apoyada en (x, y): cabe cualquier huella, 1×2, 2×1, 3×3…
-  dome(p, t, pixel) {
-    const { ctx } = this, age = 1 - t, fade = Math.min(1, t / 0.3), G = 3;
-    const n = Math.max(4, Math.min(8, Math.round(p.rx / 9))), g = 1 / n;
-    const cells = [];
-    for (let j = 0; j <= n * 1.2; j++) for (let i = -n - 1; i <= n + 1; i++) {
-      const gx = (i + (j % 2) * 0.5) * g, gy = j * g * 0.866, d = Math.hypot(gx, gy);
-      if (d > 1) continue;
-      const k = d ? Math.sin((d * Math.PI) / 2) / d : 1, z = Math.cos((d * Math.PI) / 2);
-      if (age * 3.4 < gy + Math.abs(gx) * 0.3) continue; // aún no se formó
-      const wave = Math.exp(-((1 - gy - age * 2.6) ** 2) * 18);
-      cells.push({ x: p.x + gx * k * p.rx, y: p.y - gy * k * p.ry, r: g * 0.5 * p.rx * (0.4 + 0.6 * z), z, wave });
+  // Vuelca los efectos de Sprite Fusion: cada uno pinta su buffer de color y de luz a SF_PX px por
+  // píxel; el color se pega encima y la luz se suma ('lighter'), como en su motor.
+  drawSf(dt) {
+    const w = Math.ceil(this.w / SF_PX), h = Math.ceil(this.h / SF_PX);
+    if (this.sfWeather && !this.sfWeather.fx && this.h > 40) {
+      // Arranca ya lleno: unos segundos simulados antes del primer cuadro.
+      const fx = SF_WEATHER[this.sfWeather.kind]({ x: 0, y: 0, w: this.w, h: this.h });
+      for (let i = 0; i < 120; i++) fx.update(1 / 30);
+      this.sfWeather.fx = fx;
     }
-    for (const c of cells) {
-      const rim = 1 - c.z;
-      ctx.fillStyle = p.color;
-      ctx.globalAlpha = (0.3 + rim * 0.4 + c.wave * 0.4) * fade;
-      if (pixel) {
-        // Celda de píxeles: cuadro relleno con su brillo arriba a la izquierda (el hueco entre celdas hace la malla).
-        const s = Math.max(2 * G, Math.floor((c.r * 1.5) / G) * G), x = Math.round(c.x / G) * G - s / 2, y = Math.round(c.y / G) * G - s / 2;
-        ctx.globalAlpha = Math.min(1, ctx.globalAlpha * 1.6); ctx.fillRect(x, y, s, s);
-        ctx.fillStyle = '#eaf8ff'; ctx.fillRect(x, y, G, G);
-        continue;
-      }
-      ctx.beginPath();
-      for (let k = 0; k < 6; k++) { const a = (k * Math.PI) / 3 + Math.PI / 6; ctx.lineTo(c.x + Math.cos(a) * c.r, c.y + Math.sin(a) * c.r * (p.ry / p.rx)); }
-      ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = '#eaf8ff'; ctx.lineWidth = 1.2;
-      ctx.globalAlpha = (0.55 + rim * 0.4 + c.wave * 0.5) * fade; ctx.stroke();
+    const list = this.sfWeather?.fx ? [this.sfWeather.fx, ...this.sf] : this.sf;
+    if (!list.length) return;
+    let f = this.sfFrame;
+    if (!f || f.w !== w || f.h !== h) {
+      const canvas = Object.assign(document.createElement('canvas'), { width: w, height: h });
+      f = this.sfFrame = { w, h, ox: 0, oy: 0, color: new Uint32Array(w * h), light: new Uint32Array(w * h), canvas, img: new ImageData(w, h) };
     }
-    // Borde de la esfera y base, más claros (Fresnel).
-    ctx.globalAlpha = 0.7 * fade * Math.min(1, age * 4);
-    ctx.strokeStyle = '#eaf8ff'; ctx.lineWidth = pixel ? G : 1.5;
-    ctx.beginPath(); ctx.ellipse(p.x, p.y, p.rx, p.ry, 0, Math.PI, 0); ctx.stroke();
-    ctx.beginPath(); ctx.ellipse(p.x, p.y, p.rx, p.rx * 0.18, 0, 0, 6.283); ctx.stroke();
+    f.color.fill(0); f.light.fill(0);
+    for (const fx of list) { fx.update(dt); fx.draw(f, 'back'); fx.draw(f, 'front'); }
+    this.sf = this.sf.filter((fx) => !fx.done());
+    const { ctx } = this, c2 = f.canvas.getContext('2d'), px = new Uint32Array(f.img.data.buffer);
+    ctx.save(); ctx.imageSmoothingEnabled = false; ctx.globalAlpha = 1;
+    px.set(f.color); c2.putImageData(f.img, 0, 0);
+    ctx.drawImage(f.canvas, 0, 0, w * SF_PX, h * SF_PX);
+    // La capa es transparente: sumar luz ahí la oscurecería. Cada píxel de luz pasa a su color a
+    // tope con alfa = su brillo, que es lo mismo premultiplicado.
+    for (let i = 0; i < px.length; i++) {
+      const v = f.light[i];
+      if (!v) { px[i] = 0; continue; }
+      const r = v & 255, g = (v >>> 8) & 255, b = (v >>> 16) & 255, m = Math.max(r, g, b);
+      px[i] = m ? ((m << 24) | (((b * 255) / m) << 16) | (((g * 255) / m) << 8) | ((r * 255) / m)) >>> 0 : 0;
+    }
+    c2.putImageData(f.img, 0, 0);
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.7;
+    ctx.drawImage(f.canvas, 0, 0, w * SF_PX, h * SF_PX);
+    ctx.restore();
   }
 
   kick() { if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame((t) => this.loop(t)); } }
@@ -286,6 +281,7 @@ export class Fx {
       const rate = WEATHER_RATE[this.weather.kind] * (this.w / 360);
       for (this.weather.acc += rate * dt; this.weather.acc >= 1; this.weather.acc--) this.spawn(this.weather.kind);
     }
+    this.drawSf(dt);
     for (let i = this.parts.length - 1; i >= 0; i--) {
       const p = this.parts[i];
       p.life -= dt;
@@ -298,16 +294,9 @@ export class Fx {
       p.rot += (p.vr || 0) * dt;
       const t = Math.min(1, p.life / p.max);
       ctx.globalAlpha = Math.min(1, t * 1.6) * (p.alpha ?? 1) * (p.flicker ? 0.6 + 0.4 * Math.sin(now / (p.wander ? 300 : 90) + p.size * 9) : 1) * (p.wander ? Math.min(1, (1 - t) * 5) : 1);
-      if (p.shape === 'fogbank') ctx.globalAlpha = p.alpha * Math.max(0, Math.min(1, t * 4, (1 - t) * 4, (this.h - p.y) / p.size - 0.2));
       if (p.shape === 'beam') { this.ray(p, pixel); continue; }
-      if (p.shape === 'dome') { this.dome(p, t, pixel); continue; }
-      if (pixel) { this.block(p, t); continue; }
-      if (p.shape === 'fogbank') {
-        const gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-        gr.addColorStop(0, p.color); gr.addColorStop(1, 'transparent');
-        ctx.save(); ctx.translate(p.x, p.y); ctx.scale(1.8, 1); ctx.translate(-p.x, -p.y);
-        ctx.fillStyle = gr; ctx.fillRect(p.x - p.size, p.y - p.size, p.size * 2, p.size * 2); ctx.restore();
-      } else if (p.shape === 'bubble') {
+            if (pixel) { this.block(p, t); continue; }
+      if (p.shape === 'bubble') {
         ctx.strokeStyle = p.color; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, 6.283); ctx.stroke();
         ctx.fillStyle = '#fff'; ctx.fillRect(p.x - p.size * 0.4, p.y - p.size * 0.5, 1.2, 1.2);
@@ -342,7 +331,7 @@ export class Fx {
       }
     }
     ctx.globalAlpha = 1;
-    this.raf = this.parts.length || this.weather ? requestAnimationFrame((t) => this.loop(t)) : 0;
+    this.raf = this.parts.length || this.weather || this.sfWeather || this.sf.length ? requestAnimationFrame((t) => this.loop(t)) : 0;
     if (!this.raf) ctx.clearRect(0, 0, this.w, this.h);
   }
 }
