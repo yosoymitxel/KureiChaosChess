@@ -13,6 +13,7 @@ import { playDemo, mutationDemo, bossDemo } from '../demos.js';
 import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
 import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
+import { weatherFor } from '../../data/weather.js';
 import { takeNewDemos, loadBosses } from '../../game/run.js';
 import { PIECE_NAMES, MOVE_NAMES } from '../../data/pieces.js';
 import { BOSSES } from '../../data/bosses.js';
@@ -631,8 +632,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, vfx: settings.vfx, speed: settings.speed, framed: !!scenario, pond: !scenario, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
     d.view.setBoard(board);
     d.view.setPieces(pieces);
-    // Clima: nieve con hielo, niebla con niebla, brasas en el jefe final y lluvia en uno de cada cuatro pisos.
-    if (!scenario) d.view.setWeather(node.modifier === 'ice' ? 'snow' : node.modifier === 'fog' ? 'fog' : node.isBoss ? 'embers' : node.seed % 4 === 0 ? 'rain' : null);
+    // Clima: el de la mecánica si lo tiene; si no, a veces uno al azar (src/data/weather.js).
+    if (!scenario) d.view.setWeather(weatherFor(node));
     seePieces(pieces.filter((p) => !p.boss).map((p) => p.type));
     d.busy = true;
     addLog(scenario ? `${mod.name} · ${board.rows}×${board.cols}` : t('game.floorLog', 'Piso {n}/{total} · {size} · {mod} · Rival {rival}', { n: node.floor + 1, total: run.map.floors, size: `${board.rows}×${board.cols}`, mod: mod.name, rival: rival.name }));

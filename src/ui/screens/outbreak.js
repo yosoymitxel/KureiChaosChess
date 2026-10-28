@@ -3,6 +3,7 @@
 import { html, useState, useRef, useEffect } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { DIFFS, newOutbreak, chain, dose } from '../../game/outbreak.js';
+import { TIED_WEATHER } from '../../data/weather.js';
 import { MiniBoard } from '../mini-board.js';
 import { key } from '../../game/rules.js';
 import { MODIFIERS } from '../../data/modifiers.js';
@@ -57,7 +58,7 @@ export function OutbreakScreen({ sub, onBack, onEnd, endLabel = t('common.contin
     <${Topbar} title=${MODIFIERS.outbreak.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
-        <${MiniBoard} board=${board} pieces=${pieces} marks=${[...marks]} disabled=${!!s.over || busy} label=${t('outbreak.board', 'Tablero del brote')} onTap=${tap} onView=${(v) => (view.current = v)} />
+        <${MiniBoard} weather=${TIED_WEATHER.outbreak} board=${board} pieces=${pieces} marks=${[...marks]} disabled=${!!s.over || busy} label=${t('outbreak.board', 'Tablero del brote')} onTap=${tap} onView=${(v) => (view.current = v)} />
         <div class="mini-side">
           ${!s.over && html`<p class="mini-status" aria-live="polite">${sel ? t('outbreak.preview', 'Esta dosis contagiaría {n}. Toca otra vez para usarla.', { n: [...marks.keys()].length }) : t('outbreak.status', 'Toca una pieza carmesí para ver hasta dónde llega el contagio.')}</p>`}
           ${!s.over && html`<div class="mini-stats"><span class="chip">${t('outbreak.doses', 'Dosis {n}', { n: s.doses - s.used })}</span><span class="chip">${t('outbreak.healthy', 'Sanas {n}', { n: left })}</span></div>`}

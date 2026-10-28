@@ -3,7 +3,7 @@
 // así cada minijuego que los usa tiene su golpe sin tener que acordarse.
 import { playSfx } from '../ui/sfx.js';
 
-const WEATHER_RATE = { rain: 70, snow: 26, fog: 0.5, embers: 14 }; // partículas por segundo cada 360 px de ancho
+const WEATHER_RATE = { rain: 70, snow: 26, fog: 0.5, embers: 14, fireflies: 6, leaves: 4, bubbles: 6 }; // partículas por segundo cada 360 px de ancho
 
 export class Fx {
   constructor(host) {
@@ -114,6 +114,7 @@ export class Fx {
     const a = (v) => Math.ceil(Math.min(1, v) * 3) / 3;
     ctx.fillStyle = p.color; ctx.strokeStyle = p.color;
     switch (p.shape) {
+      case 'bubble': { const n = Math.max(1, Math.round(p.size / G)); sq(p.x - n * G, p.y); sq(p.x + n * G, p.y); sq(p.x, p.y - n * G); sq(p.x, p.y + n * G); return; }
       case 'mote': return sq(p.x, p.y, Math.max(1, Math.round(p.size / G)));
       case 'fogbank': {
         // Bancos de niebla a franjas (una fila sí, otra no), más anchos que altos.
@@ -164,7 +165,7 @@ export class Fx {
   // Arranca ya lleno, en cuanto la capa tiene tamaño: cada partícula nace a mitad de su recorrido.
   prewarm(kind) {
     if (kind === 'fog') { for (let i = 0; i < 5; i++) this.spawn('fog', Math.random()); return; }
-    const n = WEATHER_RATE[kind] * (this.w / 360) * { rain: this.h / 690, snow: this.h / 44, embers: 3 }[kind];
+    const n = WEATHER_RATE[kind] * (this.w / 360) * { rain: this.h / 690, snow: this.h / 44, embers: 3, fireflies: 5, leaves: this.h / 50, bubbles: this.h / 45 }[kind];
     for (let i = 0; i < n; i++) {
       this.spawn(kind);
       const p = this.parts[this.parts.length - 1], a = Math.random() * p.life;
@@ -184,6 +185,15 @@ export class Fx {
     } else if (kind === 'fog') {
       const vx = rnd(10, 22), life = (w + 200) / vx;
       add({ x: -100 + at * (w + 200), y: rnd(h * 0.2, h * 0.75), vx, vy: 0, life: life * (1 - at) + 0.5, size: rnd(55, 95), color: '#e4eaf0', shape: 'fogbank', alpha: 0.3 });
+    } else if (kind === 'fireflies') {
+      const life = rnd(3, 6);
+      add({ x: rnd(0, w), y: rnd(h * 0.15, h * 0.95), vx: rnd(-14, 14), vy: rnd(-10, 6), life, size: rnd(2.2, 3.2), color: ['#e9ff8a', '#c8f25a'][Math.floor(Math.random() * 2)], shape: 'mote', alpha: 1, flicker: true, wander: true });
+    } else if (kind === 'leaves') {
+      const vy = rnd(30, 55);
+      add({ x: rnd(-20, w), y: -8, vx: rnd(4, 26), vy, life: (h + 16) / vy, size: rnd(5, 8), color: ['#d9822b', '#b5521f', '#e0a83a', '#8a6a2a'][Math.floor(Math.random() * 4)], shape: 'rect', alpha: 0.9, rot: rnd(0, 6.28), vr: rnd(-3, 3), wander: true });
+    } else if (kind === 'bubbles') {
+      const vy = -rnd(25, 50);
+      add({ x: rnd(0, w), y: h + 6, vx: 0, vy, life: (h + 12) / -vy, size: rnd(2, 4.5), color: '#cfeeff', shape: 'bubble', alpha: 0.7, wander: true });
     } else if (kind === 'embers') {
       const life = rnd(2, 4);
       add({ x: rnd(0, w), y: h + 6, vx: rnd(-18, 18), vy: rnd(-90, -40), life, size: rnd(1.4, 2.6), color: ['#ffb347', '#ff6a2b', '#ffd27a'][Math.floor(Math.random() * 3)], shape: 'mote', alpha: 1, flicker: true });
@@ -260,9 +270,10 @@ export class Fx {
       const k = Math.pow(p.drag, dt * 60);
       p.vx *= k; p.vy = p.vy * k + p.g * dt;
       p.x += p.vx * dt; p.y += p.vy * dt;
+      if (p.wander) p.x += Math.sin(now / 600 + p.max * 7) * 12 * dt;
       p.rot += (p.vr || 0) * dt;
       const t = Math.min(1, p.life / p.max);
-      ctx.globalAlpha = Math.min(1, t * 1.6) * (p.alpha ?? 1) * (p.flicker ? 0.6 + 0.4 * Math.sin(now / 90 + p.size * 9) : 1);
+      ctx.globalAlpha = Math.min(1, t * 1.6) * (p.alpha ?? 1) * (p.flicker ? 0.6 + 0.4 * Math.sin(now / (p.wander ? 300 : 90) + p.size * 9) : 1) * (p.wander ? Math.min(1, (1 - t) * 5) : 1);
       if (p.shape === 'fogbank') ctx.globalAlpha = p.alpha * Math.max(0, Math.min(1, t * 4, (1 - t) * 4, (this.h - p.y) / p.size - 0.2));
       if (p.shape === 'beam') { this.ray(p, pixel); continue; }
       if (p.shape === 'dome') { this.dome(p, t, pixel); continue; }
@@ -272,6 +283,10 @@ export class Fx {
         gr.addColorStop(0, p.color); gr.addColorStop(1, 'transparent');
         ctx.save(); ctx.translate(p.x, p.y); ctx.scale(1.8, 1); ctx.translate(-p.x, -p.y);
         ctx.fillStyle = gr; ctx.fillRect(p.x - p.size, p.y - p.size, p.size * 2, p.size * 2); ctx.restore();
+      } else if (p.shape === 'bubble') {
+        ctx.strokeStyle = p.color; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, 6.283); ctx.stroke();
+        ctx.fillStyle = '#fff'; ctx.fillRect(p.x - p.size * 0.4, p.y - p.size * 0.5, 1.2, 1.2);
       } else if (p.shape === 'mote') {
         ctx.fillStyle = p.color;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, 6.283); ctx.fill();

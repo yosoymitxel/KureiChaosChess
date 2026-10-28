@@ -2,6 +2,7 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { DIFFS, DIRS, newBlizzard, slide, move } from '../../game/blizzard.js';
+import { TIED_WEATHER } from '../../data/weather.js';
 import { MiniBoard } from '../mini-board.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { playSfx } from '../sfx.js';
@@ -68,7 +69,7 @@ export function BlizzardScreen({ sub, onBack, onEnd, endLabel = t('common.contin
     <div class="mini-body side-body">
       <div class="mini-main">
         <div style="display: contents" onPointerDownCapture=${onDown}>
-        <${MiniBoard} board=${board} pieces=${pieces} marks=${[...marks]} labels=${labels} disabled=${!!s.over} label=${t('blizzard.board', 'Lago helado')} onTap=${tap} />
+        <${MiniBoard} weather=${TIED_WEATHER.blizzard} board=${board} pieces=${pieces} marks=${[...marks]} labels=${labels} disabled=${!!s.over} label=${t('blizzard.board', 'Lago helado')} onTap=${tap} />
         </div>
         <div class="mini-side">
           ${!s.over && html`<p class="mini-status" aria-live="polite">${s.got.size < s.coins.length ? t('blizzard.status', 'Recoge las monedas: la torre resbala hasta chocar.') : t('blizzard.allCoins', '¡Todas! Ahora a la bandera.')}</p>`}

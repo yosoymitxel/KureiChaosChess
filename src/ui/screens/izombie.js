@@ -2,6 +2,7 @@ import { html, useState } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
+import { TIED_WEATHER } from '../../data/weather.js';
 import { MiniBoard, zombies } from '../mini-board.js';
 import { key } from '../../game/rules.js';
 import { ROWS, COLS, COST, DIFFS, newZombie, buy, canBuy, advance, danger } from '../../game/izombie.js';
@@ -33,7 +34,7 @@ export function IZombieScreen({ sub, onBack, onEnd, endLabel = t('common.continu
     <${Topbar} title=${MODIFIERS.izombie.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
-        <${MiniBoard} board=${s.board} pieces=${zombies(s.pieces)} marks=${marks} labels=${labels} strikes=${s.captures} disabled=${!!s.over} label=${t('izombie.board', 'Tablero de Yo, Zombi')}
+        <${MiniBoard} weather=${TIED_WEATHER.izombie} board=${s.board} pieces=${zombies(s.pieces)} marks=${marks} labels=${labels} strikes=${s.captures} disabled=${!!s.over} label=${t('izombie.board', 'Tablero de Yo, Zombi')}
           onTap=${(r, c) => r === 0 && (canBuy(s, pick, c) ? act(() => buy(s, pick, c)) : playSfx('invalid'))} />
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">

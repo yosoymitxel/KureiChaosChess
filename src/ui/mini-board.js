@@ -7,15 +7,16 @@ import { playSfx } from './sfx.js';
 // El tablero de la partida para minijuegos sin Match. Piezas { id, type, color, row, col }: cada cambio
 // entre dos pintadas se anima como en la partida (entra cayendo, salta, captura al aterrizar, sale derribada).
 // `strikes` [{ id, from, to }]: capturas sin moverse (la pieza en `from` embiste a la `id` y vuelve), tras los saltos.
-// `hidden` (ids): las que salen escondiéndose, no derribadas. `onView` recibe el tablero (para efectos propios).
-export function MiniBoard({ board, pieces, onTap, marks, labels, strikes, hidden, disabled, label, hostRef, onView }) {
+// `weather`: clima encima (src/data/weather.js). `hidden` (ids): las que salen escondiéndose, no derribadas. `onView` recibe el tablero (para efectos propios).
+export function MiniBoard({ board, pieces, onTap, marks, labels, strikes, hidden, disabled, label, hostRef, onView, weather }) {
   const own = useRef(null), host = hostRef || own, view = useRef(null), tap = useRef(null);
   tap.current = disabled ? null : onTap;
   useLayoutEffect(() => {
     const s = loadSettings();
     view.current = new BoardView(host.current, { camera: s.camera, shake: s.shake, vfx: s.vfx, speed: s.speed, framed: true, onTap: (hit) => tap.current?.(hit.row, hit.col) });
+    view.current.setWeather(weather);
     onView?.(view.current);
-    return () => view.current.ro.disconnect();
+    return () => { view.current.ro.disconnect(); view.current.fx.destroy(); };
   }, []);
   useLayoutEffect(() => {
     const v = view.current;
