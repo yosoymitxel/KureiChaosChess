@@ -965,8 +965,12 @@ export class BoardView {
       // La cúpula toma la huella entera: ancho de sus casillas en pantalla y alto hasta la cabeza.
       const pts = cellsOf(p).map(([r, cc]) => this.tiles.get(key(r, cc))).filter(Boolean).map((t) => this.fx.pointOf(t));
       const xs = pts.map((q) => q.x), ys = pts.map((q) => q.y), base = Math.max(...ys) + this.sq * 0.3;
-      const half = (Math.max(...xs) - Math.min(...xs)) / 2 + this.sq * 0.5, tall = base - Math.min(...ys) + this.sq * 0.75 * (p.boss ? Math.max(...sizeOf(p)) * 0.85 : 1);
-      this.fx.shield(c.x, base, Math.max(half * 1.15, tall * 0.7), { broken: p.hp <= 1 });
+      // Hasta la cabeza de la figura (y algo más), no solo la base.
+      const fig = el.querySelector('.pc-fig').getBoundingClientRect(), top = fig.top - this.host.getBoundingClientRect().top;
+      // Más alta que ancha como mucho 1,5 veces: estirarla más la convierte en rayas.
+      const tall = base - top + this.sq * 0.12, half = (Math.max(...xs) - Math.min(...xs)) / 2 + this.sq * 0.55;
+      const r = Math.max(half, fig.width * 0.62, tall / 1.5);
+      this.fx.shield(c.x, base, r, { broken: p.hp <= 1, tall: Math.max(r, tall) });
     }
     this.floatText(c.x, c.y - this.sq * 1.2, '−1');
   }

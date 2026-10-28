@@ -6,7 +6,7 @@ import sfShield from '../../vendor/sprite-fusion/shield.js';
 import sfFire from '../../vendor/sprite-fusion/fire.js';
 import { WEATHER_FX } from './weather-fx.js';
 
-const WEATHER_RATE = { rain: 70, leaves: 4, bubbles: 6 }; // los demás climas, en weather-fx.js
+const WEATHER_RATE = { rain: 70 }; // los demás climas, en weather-fx.js
 const SF_PX = 2; // cada píxel de los efectos de Sprite Fusion ocupa 2 px de pantalla // partículas por segundo cada 360 px de ancho
 
 export class Fx {
@@ -119,7 +119,6 @@ export class Fx {
     const a = (v) => Math.ceil(Math.min(1, v) * 3) / 3;
     ctx.fillStyle = p.color; ctx.strokeStyle = p.color;
     switch (p.shape) {
-      case 'bubble': { const n = Math.max(1, Math.round(p.size / G)); sq(p.x - n * G, p.y); sq(p.x + n * G, p.y); sq(p.x, p.y - n * G); sq(p.x, p.y + n * G); return; }
       case 'mote': return sq(p.x, p.y, Math.max(1, Math.round(p.size / G)));
       case 'flash': ctx.globalAlpha = a(t); return disc(p.x, p.y, p.size * (1.2 - t * 0.6));
       case 'smoke': ctx.globalAlpha = a(t * 0.9); return disc(p.x, p.y, p.size * (1.6 - t * 0.8));
@@ -165,7 +164,7 @@ export class Fx {
   }
   // Arranca ya lleno, en cuanto la capa tiene tamaño: cada partícula nace a mitad de su recorrido.
   prewarm(kind) {
-    const n = WEATHER_RATE[kind] * (this.w / 360) * { rain: this.h / 690, leaves: this.h / 50, bubbles: this.h / 45 }[kind];
+    const n = WEATHER_RATE[kind] * (this.w / 360) * { rain: this.h / 690 }[kind];
     for (let i = 0; i < n; i++) {
       this.spawn(kind);
       const p = this.parts[this.parts.length - 1], a = Math.random() * p.life;
@@ -179,12 +178,6 @@ export class Fx {
       const vy = rnd(620, 760), land = rnd(h * 0.15, h), life = (land + 20) / vy;
       add({ x: rnd(0, w + h * 0.2), y: -20, vx: -vy * 0.18, vy, life, size: 1.4, color: '#c8d8ff', shape: 'spark', alpha: 0.45,
         end: (p) => this.burst(p.x, p.y, { count: 2, color: '#c8d8ff', speed: [20, 50], life: [0.15, 0.25], size: [1, 2], angle: -Math.PI / 2, spread: 2, gravity: 300 }) });
-    } else if (kind === 'leaves') {
-      const vy = rnd(30, 55);
-      add({ x: rnd(-20, w), y: -8, vx: rnd(4, 26), vy, life: (h + 16) / vy, size: rnd(5, 8), color: ['#d9822b', '#b5521f', '#e0a83a', '#8a6a2a'][Math.floor(Math.random() * 4)], shape: 'rect', alpha: 0.9, rot: rnd(0, 6.28), vr: rnd(-3, 3), wander: true });
-    } else if (kind === 'bubbles') {
-      const vy = -rnd(25, 50);
-      add({ x: rnd(0, w), y: h + 6, vx: 0, vy, life: (h + 12) / -vy, size: rnd(2, 4.5), color: '#cfeeff', shape: 'bubble', alpha: 0.7, wander: true });
 
     }
   }
@@ -201,10 +194,12 @@ export class Fx {
   }
   // Escudo (Shield de Sprite Fusion): semiesfera de celdas hexagonales que se arma de abajo arriba,
   // recibe el golpe con chispas y una onda, y se deshace en estrellas. (x, y) es la base; `r` el radio.
-  shield(x, y, r, { broken = false } = {}) {
+  // Su cúpula es una semiesfera; `tall` la estira en vertical desde la base hasta cubrir la figura.
+  shield(x, y, r, { broken = false, tall = r } = {}) {
     if (!this.vfx) return;
     const hold = broken ? 0.75 : 1;
-    this.sf.push(sfShield({ x, y, radius: Math.max(10, Math.round(r / SF_PX)), hold, hits: [{ t: 0.45, lon: 0.5, lat: 0.6 }], seed: (Math.random() * 1e9) | 0 }));
+    const fx = sfShield({ x, y, radius: Math.max(10, Math.round(r / SF_PX)), hold, hits: [{ t: 0.45, lon: 0.5, lat: 0.6 }], seed: (Math.random() * 1e9) | 0 });
+    this.sf.push(Object.assign(fx, { sy: Math.max(1, tall / r), by: y }));
     this.kick();
   }
   // Fuego (Fire de Sprite Fusion): llamas que lamen la caja de la pieza (x, y, w, h) unos instantes.
@@ -231,11 +226,20 @@ export class Fx {
       const canvas = Object.assign(document.createElement('canvas'), { width: w, height: h });
       f = this.sfFrame = { w, h, ox: 0, oy: 0, color: new Uint32Array(w * h), light: new Uint32Array(w * h), canvas, img: new ImageData(w, h) };
     }
-    f.color.fill(0); f.light.fill(0);
-    for (const fx of list) { fx.update(dt); fx.draw(f, 'back'); fx.draw(f, 'front'); }
+    for (const fx of list) fx.update(dt);
+    // Los que van a escala 1 comparten pasada; los estirados (escudo alto) van cada uno en la suya.
+    const flat = list.filter((fx) => !(fx.sy > 1));
+    if (flat.length) this.blitSf(f, flat, 1, 0);
+    for (const fx of list) if (fx.sy > 1) this.blitSf(f, [fx], fx.sy, fx.by);
     this.sf = this.sf.filter((fx) => !fx.done());
+  }
+  blitSf(f, list, sy, by) {
+    const { w, h } = f;
+    f.color.fill(0); f.light.fill(0);
+    for (const fx of list) { fx.draw(f, 'back'); fx.draw(f, 'front'); }
     const { ctx } = this, c2 = f.canvas.getContext('2d'), px = new Uint32Array(f.img.data.buffer);
     ctx.save(); ctx.imageSmoothingEnabled = false; ctx.globalAlpha = 1;
+    if (sy !== 1) { ctx.translate(0, by); ctx.scale(1, sy); ctx.translate(0, -by); }
     px.set(f.color); c2.putImageData(f.img, 0, 0);
     ctx.drawImage(f.canvas, 0, 0, w * SF_PX, h * SF_PX);
     // La capa es transparente: sumar luz ahí la oscurecería. Cada píxel de luz pasa a su color a
@@ -287,17 +291,12 @@ export class Fx {
       const k = Math.pow(p.drag, dt * 60);
       p.vx *= k; p.vy = p.vy * k + p.g * dt;
       p.x += p.vx * dt; p.y += p.vy * dt;
-      if (p.wander) p.x += Math.sin(now / 600 + p.max * 7) * 12 * dt;
       p.rot += (p.vr || 0) * dt;
       const t = Math.min(1, p.life / p.max);
-      ctx.globalAlpha = Math.min(1, t * 1.6) * (p.alpha ?? 1) * (p.flicker ? 0.6 + 0.4 * Math.sin(now / (p.wander ? 300 : 90) + p.size * 9) : 1) * (p.wander ? Math.min(1, (1 - t) * 5) : 1);
+      ctx.globalAlpha = Math.min(1, t * 1.6) * (p.alpha ?? 1) * (p.flicker ? 0.6 + 0.4 * Math.sin(now / 90 + p.size * 9) : 1);
       if (p.shape === 'beam') { this.ray(p, pixel); continue; }
             if (pixel) { this.block(p, t); continue; }
-      if (p.shape === 'bubble') {
-        ctx.strokeStyle = p.color; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, 6.283); ctx.stroke();
-        ctx.fillStyle = '#fff'; ctx.fillRect(p.x - p.size * 0.4, p.y - p.size * 0.5, 1.2, 1.2);
-      } else if (p.shape === 'mote') {
+      if (p.shape === 'mote') {
         ctx.fillStyle = p.color;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, 6.283); ctx.fill();
       } else if (p.shape === 'flash') {

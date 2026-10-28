@@ -153,6 +153,15 @@ const embers = {
   },
 };
 
+// Noche: oscurece todo un poco y los bordes más, para que la luz de luciérnagas y niebla se lea en
+// cualquier mesa; el centro del tablero queda casi limpio.
+function night(ctx, w, h, a, tone) {
+  const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.2, w / 2, h / 2, Math.max(w, h) * 0.75);
+  g.addColorStop(0, `rgba(${tone},${a * 0.45})`); g.addColorStop(1, `rgba(${tone},${a})`);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+}
+fog.under = (ctx, T, pixel, w, h) => night(ctx, w, h, 0.4, '20,24,38');
+
 // ── Luciérnagas ───────────────────────────────────────────────────────────────────────────
 const FLY = { core: '#faffbe', glow: '#c8ff5a', dim: '#6f8f2a', body: '#2a2418', wing: '#8a96a8' };
 const fireflies = {
@@ -186,4 +195,106 @@ const fireflies = {
   },
 };
 
-export const WEATHER_FX = { snow, fog, embers, fireflies };
+fireflies.under = (ctx, T, pixel, w, h) => night(ctx, w, h, 0.55, '6,10,22');
+
+// ── Hojas que caen ───────────────────────────────────────────────────────────────────────
+// Los tres dibujos y las cuatro paletas de Falling Leaves de Sprite Fusion: L luz, B base, R nervio,
+// S sombra, D borde, T tallo. Caen en péndulo: se mecen a los lados, frenan en cada extremo, se
+// inclinan con el vaivén y a veces giran sobre sí mismas.
+const LEAF_SHAPES = [
+  ['......DDDD..', '...DDDLLLBD.', '.DDLLLRLBBBD', 'TRRRRRRRRRRD', '.DDBBBBBRSSD', '...DDDSSSSD.', '......DDDD..'],
+  ['...DDD...', '..DLLBD..', '.DLLLBBD.', 'DLLRBBBSD', 'DLBBRBSSD', '.DBBBRSD.', '..DDSSD..', '....T....'],
+  ['.....D.....', '....DLD....', '.DD.DLD.DD.', '.DLDDLDDLD.', '..DLLLBBD..', 'DDDLLRBBDDD', '.DLLBRBSSD.', '..DDBRSDD..', '....DRD....', '.....T.....'],
+];
+const LEAF_PALS = [['#ffc86a', '#f08a2a', '#b8521a', '#5e240e'], ['#ff8a66', '#d8382a', '#9a1f22', '#470f15'], ['#fff09a', '#f0c83a', '#b88a1c', '#5a3f10'], ['#c99a62', '#9a6a3b', '#6b4424', '#33200f']];
+let leafArt = null; // [forma][paleta] → lienzo con el dibujo a 1 px por celda
+function leafSprites() {
+  if (leafArt) return leafArt;
+  leafArt = LEAF_SHAPES.map((rows) => LEAF_PALS.map(([L, B, S, D]) => {
+    const pal = { L, B, S, D, R: S, T: D }, c = Object.assign(document.createElement('canvas'), { width: rows[0].length, height: rows.length }), x = c.getContext('2d');
+    rows.forEach((r, y) => [...r].forEach((ch, i) => { if (ch !== '.') { x.fillStyle = pal[ch]; x.fillRect(i, y, 1, 1); } }));
+    return c;
+  }));
+  return leafArt;
+}
+const leaves = {
+  count: (w, h) => ({ leaf: Math.max(8, w * h * 0.00012) }),
+  spawn(kind, w, h, any) {
+    const x0 = rnd(-40, w);
+    return { x0, x: x0, y: any ? rnd(-20, h) : -rnd(10, 40), vx: 0, vy: 0, fall: rnd(34, 56), amp: rnd(14, 34), w: rnd(1.8, 2.8), ph: rnd(0, TAU), flip: rnd(0, TAU), near: Math.random() < 0.35, shape: Math.floor(Math.random() * 3), pal: Math.floor(Math.random() * 4), ang: 0, seed: Math.floor(Math.random() * 1e6) };
+  },
+  tick(p, dt, T, w, h) {
+    p.ph += p.w * dt; p.x0 += 12 * dt;
+    p.x = p.x0 + Math.sin(p.ph) * p.amp;
+    p.y += p.fall * (0.45 + 0.9 * Math.abs(Math.cos(p.ph))) * dt;
+    p.ang = Math.cos(p.ph) * 0.75 + (p.near ? 0 : 0.3);
+    // De vez en cuando, en un vaivén, da la vuelta rápido (se ve de canto).
+    p.flip += ((Math.sin(Math.floor(p.ph / Math.PI) * 12.9898 + p.seed) * 43758.5453) % 1 + 1) % 1 < 0.25 ? 6 * dt : 0.4 * dt;
+    return p.y < h + 20 && p.x0 < w + 60;
+  },
+  draw(ctx, p, T, pixel) {
+    const img = leafSprites()[p.shape][p.pal], u = pixel ? G : 2, sx = 0.35 + 0.65 * Math.abs(Math.cos(p.flip));
+    ctx.imageSmoothingEnabled = false;
+    ctx.translate(pixel ? Math.round(p.x / G) * G : p.x, pixel ? Math.round(p.y / G) * G : p.y);
+    ctx.rotate(pixel ? Math.round(p.ang / (Math.PI / 8)) * (Math.PI / 8) : p.ang); ctx.scale(sx * (p.near ? 1 : 0.75), p.near ? 1 : 0.75);
+    ctx.globalAlpha = p.near ? 1 : 0.8;
+    ctx.drawImage(img, (-img.width * u) / 2, (-img.height * u) / 2, img.width * u, img.height * u);
+  },
+};
+
+// ── Burbujas ─────────────────────────────────────────────────────────────────────────────
+// Como Bubbles de Sprite Fusion: salen de unas pocas fumarolas al fondo, muchas chicas y alguna
+// tanda de grandes; suben más rápido cuanto más grandes, se mecen, crecen un poco al subir y se
+// pintan con su lado iluminado, su sombra y un brillo. Arriba revientan en un aro.
+const BUB = { hi: '#ffffff', lit: '#c6f3ff', rim: '#68bfe6', shade: '#2f7fb6', fill: '#4b9fce' };
+const bubbles = {
+  count: (w, h) => ({ bubble: w * h * 0.00022 }),
+  spawn(kind, w, h, any) {
+    // Una fumarola cada ~90 px de ancho; de vez en cuando, una grande.
+    const n = Math.max(3, Math.round(w / 90)), vent = ((Math.floor(Math.random() * n) + 0.5) / n) * w, big = Math.random() < 0.12;
+    const r = big ? rnd(1.5, 3.2) : Math.random() < 0.7 ? rnd(0.5, 1.4) : rnd(1.4, 2.6);
+    return { x0: vent + rnd(-28, 28), x: vent, y: any ? rnd(h * 0.1, h) : h + rnd(0, 20), vx: 0, vy: 0, r, ph: rnd(0, TAU), near: Math.random() < 0.35, top: rnd(h * 0.02, h * 0.25), pop: 0 };
+  },
+  tick(p, dt, T, w, h) {
+    if (p.pop) { p.pop += dt; return p.pop < 0.2; }
+    p.y -= (40 + 26 * p.r) * 0.8 * dt;
+    p.ph += dt * (4 + 2 / p.r);
+    p.x0 += noise(T * 0.4 + p.ph, 5) * 6 * dt;
+    p.x = p.x0 + Math.sin(p.ph) * (1 + p.r * 1.6) * 3;
+    p.r = Math.min(5, p.r + dt * 0.12);
+    if (p.y < p.top) p.pop = 0.001;
+    return true;
+  },
+  draw(ctx, p, T, pixel) {
+    const u = G, cell = (x, y, c) => { ctx.fillStyle = c; ctx.fillRect(x * u, y * u, u, u); };
+    const cx = p.x / u, cy = p.y / u, r = p.r;
+    if (p.pop) {
+      // Aro que se abre hacia arriba y se apaga.
+      const k = p.pop / 0.2, rr = r + 1 + k * 3;
+      ctx.globalAlpha = 1 - k;
+      for (let a = 0; a < TAU; a += 0.5 / rr) if (Math.sin(a) < 0.2) cell(Math.floor(cx + Math.cos(a) * rr), Math.floor(cy + Math.sin(a) * rr * 0.5), k < 0.5 ? BUB.hi : BUB.lit);
+      return;
+    }
+    ctx.globalAlpha = p.near ? 1 : 0.75;
+    if (r < 0.9) return cell(Math.floor(cx), Math.floor(cy), r < 0.7 ? BUB.rim : BUB.lit);
+    if (r < 1.5) {
+      const x = Math.floor(cx), y = Math.floor(cy);
+      cell(x, y, BUB.hi); cell(x + 1, y, BUB.lit); cell(x, y + 1, BUB.rim); cell(x + 1, y + 1, BUB.shade);
+      return;
+    }
+    const sq = 0.1 * Math.sin(p.ph * 2) * Math.min(1, (r - 1.5) / 2), rx = r * (1 + sq), ry = r * (1 - sq);
+    for (let y = Math.floor(cy - ry - 1); y <= Math.ceil(cy + ry + 1); y++) for (let x = Math.floor(cx - rx - 1); x <= Math.ceil(cx + rx + 1); x++) {
+      const dx = (x + 0.5 - cx) / rx, dy = (y + 0.5 - cy) / ry, d = Math.sqrt(dx * dx + dy * dy) * r;
+      if (d > r + 0.5) continue;
+      const lit = (-dx - dy) / Math.SQRT2 / Math.max(0.01, d / r);
+      if (d > r - 0.6) cell(x, y, lit > 0.45 ? BUB.lit : lit < -0.55 ? BUB.shade : BUB.rim);
+      else if (bayer(x, y) < 0.12) cell(x, y, BUB.fill);
+    }
+    const hx = Math.round(cx - rx * 0.45), hy = Math.round(cy - ry * 0.45);
+    cell(hx, hy, BUB.hi);
+    if (r >= 2.5) { cell(hx + 1, hy, BUB.lit); cell(hx, hy + 1, BUB.lit); }
+    if (r >= 2) cell(Math.round(cx + rx * 0.5), Math.round(cy + ry * 0.5), BUB.lit);
+  },
+};
+
+export const WEATHER_FX = { snow, fog, embers, fireflies, leaves, bubbles };
