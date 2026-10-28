@@ -196,10 +196,10 @@ export function CardPick({ title, subtitle, cards, onConfirm, confirmLabel = t('
           // --k: distancia a la elegida (o al centro): la elegida avanza y las demás se juntan detrás.
           const sel = cards.findIndex((x) => x.id === chosen?.id);
           const k = sel < 0 ? i - (cards.length - 1) / 2 : i - sel;
-          return html`<${Card} key=${c.id} card=${c} chosen=${chosen?.id === c.id} onPick=${setChosen} style=${{ '--k': k, zIndex: 10 - Math.round(Math.abs(k) * 2) }} />`;
+          return html`<${Card} key=${c.id} card=${c} chosen=${chosen?.id === c.id} onPick=${(x) => { if (x.id !== chosen?.id) playSfx('card'); setChosen(x); }} style=${{ '--k': k, zIndex: 10 - Math.round(Math.abs(k) * 2) }} />`;
         })}
       </div>
-      <button class="btn primary" disabled=${!chosen} onClick=${() => chosen && onConfirm(chosen)}>${confirmLabel}</button>
+      <button class="btn primary" disabled=${!chosen} onClick=${() => { if (!chosen) return; playSfx('achievement'); onConfirm(chosen); }}>${confirmLabel}</button>
     </div>
   </div>`;
 }

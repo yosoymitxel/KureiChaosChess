@@ -382,6 +382,31 @@ export function stopAmbient() {
   for (const s of a.srcs) s.stop(t + fade);
 }
 
+// Jingles de fin de partida (tools/jingles.mjs): 'win', 'lose', 'run-win', 'run-lose', con su versión
+// píxel. Suenan una vez por encima de la música, que baja mientras tanto y vuelve después. Con la
+// música apagada devuelve false y quien llama pone el efecto corto.
+export const JINGLES = ['win', 'lose', 'run-win', 'run-lose'];
+export function playJingle(name) {
+  if (!musicOn || !JINGLES.includes(name)) return false;
+  const c = ensureCtx();
+  if (!c) return false;
+  const pixel = document.documentElement.dataset.art === 'pixel';
+  track('jingles/' + (pixel ? 'pixel-' : '') + name).then((buf) => {
+    if (!buf) return;
+    const src = c.createBufferSource(), g = c.createGain(), t = c.currentTime, bus = ambient?.bus;
+    src.buffer = buf; g.gain.value = 0.8;
+    src.connect(g); g.connect(master); src.start(t);
+    if (bus) {
+      bus.gain.cancelScheduledValues(t);
+      bus.gain.setValueAtTime(bus.gain.value, t);
+      bus.gain.linearRampToValueAtTime(MUSIC_GAIN * 0.15, t + 0.25);
+      bus.gain.setValueAtTime(MUSIC_GAIN * 0.15, t + buf.duration);
+      bus.gain.linearRampToValueAtTime(MUSIC_GAIN, t + buf.duration + 2);
+    }
+  });
+  return true;
+}
+
 export function sfxState() {
   return { enabled, music: musicOn, level, ambient: !!ambient, context: ctx ? ctx.state : null, samples: Object.values(buffers).flat().length };
 }

@@ -18,7 +18,7 @@ import { PIECE_NAMES, MOVE_NAMES } from '../../data/pieces.js';
 import { BOSSES } from '../../data/bosses.js';
 import { PauseOverlay } from './overlays.js';
 import { Moments } from '../moments.js';
-import { playSfx } from '../sfx.js';
+import { playSfx, playJingle } from '../sfx.js';
 import { award, seePieces, seeMutations } from '../../game/achievements.js';
 import { PICKUPS, PICKUPS_EVERY, PICKUPS_MAX, dropPickups } from '../../data/pickups.js';
 import { PICKUP_ART } from '../zen-art.js';
@@ -256,7 +256,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const finish = async () => {
       const r = match.over;
       if (onRound) r.note = onRound(r);
-      if (!scenario) { if (r.victory) playSfx('win'); else if (!r.tie) playSfx('lose'); }
+      // Jingle de fin: el del piso, o el de la run en el piso final (ganarlo la cierra; perderlo la pierde).
+      if (!scenario && !r.tie && !playJingle((node.isBoss ? 'run-' : '') + (r.victory ? 'win' : 'lose'))) playSfx(r.victory ? 'win' : 'lose');
       const human = seats.find((s) => s.kind === 'human')?.color || 'light';
       if (r.victory && r.award) award(r.award); // logro propio de un minijuego (scenarios.js)
       if (r.victory && !scenario) {
