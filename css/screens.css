@@ -754,6 +754,8 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 .zn-hand.t-store { width: 30px; height: 30px; margin: 6px 0 0 6px; }
 .zn-yard.acting .zn-hand { opacity: 0; }
 .zn-hand svg, .zn-toolfx svg { display: block; width: 100%; height: 100%; overflow: visible; }
+/* Mazo y bolsa son iconos con versión vector y píxel: aquí solo se ve la de la mesa. */
+:root:not([data-art="pixel"]) :is(.zn-hand, .zn-toolfx) .icon-px, [data-art="pixel"] :is(.zn-hand, .zn-toolfx) .icon-vec { display: none; }
 .zn-hand.t-cut { width: 50px; height: 50px; margin: -25px 0 0 -47px; }
 .zn-hand.t-water { width: 44px; height: 33px; margin: -9px 0 0 -40px; }
 .zn-hand.t-dig { width: 18px; height: 42px; margin: -40px 0 0 -9px; }
