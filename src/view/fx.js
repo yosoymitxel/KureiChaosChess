@@ -3,6 +3,8 @@
 // así cada minijuego que los usa tiene su golpe sin tener que acordarse.
 import { playSfx } from '../ui/sfx.js';
 
+const WEATHER_RATE = { rain: 70, snow: 26, fog: 0.5, embers: 14 }; // partículas por segundo cada 360 px de ancho
+
 export class Fx {
   constructor(host) {
     this.host = host;
@@ -157,17 +159,17 @@ export class Fx {
   // niebla y brasas. Se emite en cada cuadro mientras `weather` esté puesto; null lo apaga.
   setWeather(kind) {
     this.weather = !this.vfx || matchMedia('(prefers-reduced-motion: reduce)').matches ? null : kind ? { kind, acc: 0 } : null;
-    if (this.weather?.kind === 'fog') for (let i = 0; i < 5; i++) this.spawn('fog', Math.random());
-    else if (this.weather) {
-      // Arranca ya lleno: cada partícula nace a mitad de su recorrido.
-      const n = { rain: 50, snow: 80, embers: 30 }[kind] * (this.w / 360);
-      for (let i = 0; i < n; i++) {
-        this.spawn(kind);
-        const p = this.parts[this.parts.length - 1], a = Math.random() * p.life;
-        p.x += p.vx * a; p.y += p.vy * a; p.life -= a;
-      }
-    }
     if (this.weather) this.kick();
+  }
+  // Arranca ya lleno, en cuanto la capa tiene tamaño: cada partícula nace a mitad de su recorrido.
+  prewarm(kind) {
+    if (kind === 'fog') { for (let i = 0; i < 5; i++) this.spawn('fog', Math.random()); return; }
+    const n = WEATHER_RATE[kind] * (this.w / 360) * { rain: this.h / 690, snow: this.h / 44, embers: 3 }[kind];
+    for (let i = 0; i < n; i++) {
+      this.spawn(kind);
+      const p = this.parts[this.parts.length - 1], a = Math.random() * p.life;
+      p.x += p.vx * a; p.y += p.vy * a; p.life -= a;
+    }
   }
   spawn(kind, at = 0) {
     const { w, h } = this, rnd = (a, b) => a + Math.random() * (b - a);
@@ -181,7 +183,7 @@ export class Fx {
       add({ x: rnd(-20, w + 20), y: -6, vx: rnd(-14, 22), vy, life: (h + 12) / vy, size: rnd(1.4, 3), color: '#fff', shape: 'mote', alpha: 0.85 });
     } else if (kind === 'fog') {
       const vx = rnd(10, 22), life = (w + 200) / vx;
-      add({ x: -100 + at * (w + 200), y: rnd(h * 0.2, h), vx, vy: 0, life: life * (1 - at) + 0.5, size: rnd(55, 95), color: '#e4eaf0', shape: 'fogbank', alpha: 0.3 });
+      add({ x: -100 + at * (w + 200), y: rnd(h * 0.2, h * 0.75), vx, vy: 0, life: life * (1 - at) + 0.5, size: rnd(55, 95), color: '#e4eaf0', shape: 'fogbank', alpha: 0.3 });
     } else if (kind === 'embers') {
       const life = rnd(2, 4);
       add({ x: rnd(0, w), y: h + 6, vx: rnd(-18, 18), vy: rnd(-90, -40), life, size: rnd(1.4, 2.6), color: ['#ffb347', '#ff6a2b', '#ffd27a'][Math.floor(Math.random() * 3)], shape: 'mote', alpha: 1, flicker: true });
@@ -242,8 +244,9 @@ export class Fx {
     this.last = now;
     const { ctx } = this, pixel = document.documentElement.dataset.art === 'pixel';
     ctx.clearRect(0, 0, this.w, this.h);
+    if (this.weather && !this.weather.warm && this.h > 40) { this.weather.warm = true; this.prewarm(this.weather.kind); }
     if (this.weather) {
-      const rate = { rain: 70, snow: 26, fog: 0.5, embers: 14 }[this.weather.kind] * (this.w / 360);
+      const rate = WEATHER_RATE[this.weather.kind] * (this.w / 360);
       for (this.weather.acc += rate * dt; this.weather.acc >= 1; this.weather.acc--) this.spawn(this.weather.kind);
     }
     for (let i = this.parts.length - 1; i >= 0; i--) {
@@ -257,7 +260,7 @@ export class Fx {
       p.rot += (p.vr || 0) * dt;
       const t = Math.min(1, p.life / p.max);
       ctx.globalAlpha = Math.min(1, t * 1.6) * (p.alpha ?? 1) * (p.flicker ? 0.6 + 0.4 * Math.sin(now / 90 + p.size * 9) : 1);
-      if (p.shape === 'fogbank') ctx.globalAlpha = p.alpha * Math.min(1, t * 4, (1 - t) * 4);
+      if (p.shape === 'fogbank') ctx.globalAlpha = p.alpha * Math.max(0, Math.min(1, t * 4, (1 - t) * 4, (this.h - p.y) / p.size - 0.2));
       if (p.shape === 'beam') { this.ray(p, pixel); continue; }
       if (p.shape === 'dome') { this.dome(p, t, pixel); continue; }
       if (pixel) { this.block(p, t); continue; }

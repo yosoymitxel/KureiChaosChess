@@ -55,6 +55,7 @@ export default {
     'settings.shake': 'Camera shake',
     'settings.shakeHint': 'Impacts and collapses shake the table',
     'settings.vfx': 'Extra effects (weather, auras…)',
+    'settings.vfxHint': 'Rain, snow, shields and trails over the board',
     'settings.fullscreen': 'Fullscreen',
     'settings.fullscreenHint': 'Now and every time a match starts',
     // Shared pieces of the interface
