@@ -16,8 +16,8 @@ export const SEEDS = localize('seeds', {
 export const GARDEN_ITEMS = localize('gardenItems', {
   shovel: { id: 'shovel', name: 'Pala de acero', price: 60, desc: 'Cava sin esperar a que la pala descanse, y con ella el mazo parte piedras de un golpe.' },
   can: { id: 'can', name: 'Regadera grande', price: 50, desc: 'Al regar, moja también los tiestos de al lado.' },
-  lantern: { id: 'lantern', name: 'Farol', price: 45, stack: true, desc: 'Va en tierra virgen o en un tiesto vacío: lo que crece a su lado va un 50 % más rápido.' },
-  pot: { id: 'pot', name: 'Maceta', price: 25, stack: true, desc: 'Un tiesto listo sobre tierra sin cavar o sobre una piedra.' },
+  lantern: { id: 'lantern', name: 'Farol', price: 45, stack: true, desc: 'Va en tierra libre: lo que crece a su lado va un 50 % más rápido.' },
+  pot: { id: 'pot', name: 'Maceta', price: 25, stack: true, desc: 'Va en tierra cavada con la pala; después se siembra.' },
 });
 
 export const DIG_COOLDOWN = 40_000; // la pala de siempre descansa entre cava y cava

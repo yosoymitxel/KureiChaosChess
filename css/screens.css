@@ -849,6 +849,9 @@ button.coin-chip { font: inherit; font-weight: 800; cursor: pointer; }
    parecía un trozo de jardín sin dibujar. Con la pala elegida se enciende en latón. */
 .bm-cell.zn-raw::after { content: ''; position: absolute; inset: 13%; border: 2px dashed oklch(0.35 0.04 60 / 0.28); border-radius: 7px; }
 .zn-yard.dig .bm-cell.zn-raw { cursor: pointer; }
+/* Cavada: tierra oscura removida, esperando su maceta. */
+.zn-tray .bm-cell.zn-raw.zn-dug { background-color: #6b4a30; background-image: var(--grain), radial-gradient(3px 2px at 30% 40%, #4a3220, transparent), radial-gradient(3px 2px at 65% 62%, #8a6a48, transparent); cursor: pointer; }
+.bm-cell.zn-raw.zn-dug::after { border-style: solid; border-color: oklch(0.3 0.04 55 / 0.4); }
 .zn-yard.dig .bm-cell.zn-raw::after { border-color: var(--brass); }
 /* Galería: grupos de imágenes; las bloqueadas son placeholders honestos. */
 .gal-group { width: 100%; max-width: 760px; }

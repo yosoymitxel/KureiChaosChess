@@ -323,8 +323,12 @@ export default {
     "zen.dropsSeed": " and it drops a seed",
     "zen.regrows": ". It regrows: water it again",
     "zen.bag": "Bag",
-    "zen.lanternWhere": "The lantern goes on bare ground or in an empty pot.",
-    "zen.potWhere": "The pot goes on undug soil or a rock.",
+    "zen.dugNew": "Soil dug: place a pot from the Bag.",
+    "zen.dugPot": "Soil ready: pick the pot in the Bag and tap it.",
+    "zen.dugNoPot": "Soil ready: store an empty pot or buy one to place here.",
+    "zen.dugAria": "Dug soil",
+    "zen.lanternWhere": "The lantern goes on free ground.",
+    "zen.potWhere": "The pot goes on dug soil: use the shovel first.",
     "zen.lanternSet": "Lantern placed: whatever grows beside it blooms sooner.",
     "zen.potSet": "Pot placed: you can sow now.",
     "zen.hammer": "Mallet",
@@ -344,7 +348,7 @@ export default {
     "zen.stoneBroken": "Slab broken: there is soil to dig now.",
     "zen.rockBreaks": "The rock splits: undug soil is left.",
     "zen.rockCracks": "The rock cracks: one more blow.",
-    "zen.raw": "Undug soil: pick Dig to make a pot.",
+    "zen.raw": "Bare ground: dig it with the shovel to place a pot.",
     "zen.shovelRest": "The shovel is resting: {time}. The steel one from the shop doesn't wait.",
     "zen.noSeeds": "No {kind} seeds: they drop when you win nodes and are sold in the shop.",
     "zen.sown": "You sowed {kind}: water it to shorten the wait.",
@@ -398,7 +402,7 @@ export default {
     "zen.shop": "Garden shop",
     "zen.help1": "Seeds drop when you win a node and can be bought in the shop. Pick a packet and tap a pot to sow. Each plant is watered once, which makes it bloom sooner. When the flower opens, cut it with the shears: each flower pays by kind: {pays}. Sage regrows once and lavender, the rare one, sometimes drops its seed.",
     "zen.help2": "Maple leaves fall on the sand, even while you're away: tap them to sweep them (one coin each). If a butterfly lands on a flower, tap it and it leaves you a gift. Tap the pond water to feed the koi.",
-    "zen.help3": "With coins the bed grows up to 8×8, one ring at the bottom right and the next at the top left. New soil has to be dug (the shovel rests between digs) and sometimes comes with rocks and slabs (break them with the mallet) or bushes (cut them with the shears). Store puts empty pots and lanterns in your bag so you can place them elsewhere. The pond grows too, up to 4×4. The shop has a steel shovel, a big watering can, lanterns that speed up whatever grows beside them, and pots.",
+    "zen.help3": "With coins the bed grows up to 8×8, one ring at the bottom right and the next at the top left. New soil is dug with the shovel (it rests between digs) and a pot from the Bag goes on dug soil and sometimes comes with rocks and slabs (break them with the mallet) or bushes (cut them with the shears). Store puts empty pots and lanterns in your bag so you can place them elsewhere. The pond grows too, up to 4×4. The shop has a steel shovel, a big watering can, lanterns that speed up whatever grows beside them, and pots.",
     // src/ui/app.js
     "boon.extra_mut": "Meditate",
     "boon.extra_mut.desc": "Pick one mutation out of three.",
@@ -984,8 +988,8 @@ export default {
   gardenItems: {
     shovel: { name: 'Steel shovel', desc: 'Dig without waiting for the shovel to rest; with it, the mallet splits rocks in one blow.' },
     can: { name: 'Big watering can', desc: 'Watering also soaks the pots next to it.' },
-    lantern: { name: 'Lantern', desc: 'Goes on bare ground or in an empty pot: whatever grows beside it grows 50% faster.' },
-    pot: { name: 'Pot', desc: 'A ready pot on undug soil or on a rock.' },
+    lantern: { name: 'Lantern', desc: 'Goes on free ground: whatever grows beside it grows 50% faster.' },
+    pot: { name: 'Pot', desc: 'Goes on soil dug with the shovel; then you sow.' },
   },
 
   rivals: {

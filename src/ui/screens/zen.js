@@ -244,7 +244,7 @@ export function ZenScreen({ onBack, onShop }) {
     }
     if (GARDEN_ITEMS[tool]) {
       const next = zenPlace(z, tool, key);
-      if (next === z) return say(tool === 'lantern' ? t('zen.lanternWhere', 'El farol va en tierra virgen o en un tiesto vacío.') : t('zen.potWhere', 'La maceta va sobre tierra virgen o una piedra.'));
+      if (next === z) return say(tool === 'lantern' ? t('zen.lanternWhere', 'El farol va en tierra libre.') : t('zen.potWhere', 'La maceta va en tierra cavada: usa la pala primero.'));
       apply(next); playSfx('dig');
       if (!next.items[tool]) setTool('sow');
       return say(tool === 'lantern' ? t('zen.lanternSet', 'Farol puesto: lo que crece a su lado abre antes.') : t('zen.potSet', 'Maceta puesta: ya se puede sembrar.'));
@@ -262,12 +262,13 @@ export function ZenScreen({ onBack, onShop }) {
       return say(broke ? t('zen.rockBreaks', 'La piedra se parte: queda tierra virgen.') : t('zen.rockCracks', 'La piedra se agrieta: otro golpe.'));
     }
     if (type === 'raw') {
-      if (tool !== 'dig') return say(t('zen.raw', 'Tierra virgen: elige Cavar para hacer un tiesto.'));
+      if (tool !== 'dig') return say(t('zen.raw', 'Tierra virgen: cávala con la pala para poner una maceta.'));
       const wait = digWait(z, now);
       if (wait) return say(t('zen.shovelRest', 'La pala descansa: {time}. La de acero de la tienda no espera.', { time: secs(wait) }));
-      apply(zenDig(z, key, now)); fxDig(key); say('Tiesto nuevo: siembra cuando quieras.');
+      apply(zenDig(z, key, now)); fxDig(key); say(t('zen.dugNew', 'Tierra cavada: pon una maceta desde la Bolsa.'));
       return;
     }
+    if (type === 'dug') return say(z.items.pot > 0 ? t('zen.dugPot', 'Tierra lista: elige la maceta en la Bolsa y tócala.') : t('zen.dugNoPot', 'Tierra lista: guarda una maceta vacía o compra una para ponerla aquí.'));
     const st = zenStage(z, key, now);
     if (tool === 'sow') {
       if (st.stage === 'empty') {
@@ -518,6 +519,7 @@ export function ZenScreen({ onBack, onShop }) {
         keep(r, c, ROOM.step);
         continue;
       }
+      if (ct === 'dug') { cells.push(html`<button key=${key} data-k=${key} class="bm-cell zn-raw zn-dug" aria-label=${t('zen.dugAria', 'Tierra cavada')} onClick=${() => tap('dug', key)}></button>`); raw.push([r + off, c + off]); continue; }
       cells.push(html`<button key=${key} data-k=${key} class="bm-cell zn-raw" aria-label=${t('zen.rawAria', 'Tierra sin cavar')} onClick=${() => tap('raw', key)}></button>`); raw.push([r + off, c + off]);
     }
   }
@@ -615,7 +617,7 @@ export function ZenScreen({ onBack, onShop }) {
         <h2>${t('zen.help', 'Cómo se cuida el jardín')}</h2>
         <p>${t('zen.help1', 'Las semillas caen al ganar un nodo y se compran en la tienda. Elige un sobre y toca un tiesto para sembrar. Cada planta se riega una vez y así abre antes. Cuando la flor abre, córtala con las tijeras: cada flor paga según su especie: {pays}. La salvia rebrota una vez y la lavanda, rara, a veces suelta su semilla.', { pays: ZEN_KINDS.map((k) => `${ZEN_NAMES[k].toLowerCase()} ${SEEDS[k].pays}`).join(', ') })}</p>
         <p>${t('zen.help2', 'Del arce caen hojas a la arena, también mientras no estás: tócalas para barrerlas (una moneda cada una). Si una mariposa se posa en una flor, tócala y te deja un regalo. Toca el agua del estanque para dar de comer a los koi.')}</p>
-        <p>${t('zen.help3', 'Con monedas el cantero crece hasta 8×8, un anillo abajo a la derecha y el siguiente arriba a la izquierda. La tierra nueva se cava (la pala descansa entre cava y cava) y a veces sale con piedras y losas (se parten con el mazo) o arbustos (se cortan con las tijeras). Con Guardar te llevas a la bolsa tiestos vacíos y faroles para ponerlos en otro sitio. El estanque también crece, hasta 4×4. En la tienda hay pala de acero, regadera grande, faroles que aceleran lo que crece a su lado y macetas.')}</p>
+        <p>${t('zen.help3', 'Con monedas el cantero crece hasta 8×8, un anillo abajo a la derecha y el siguiente arriba a la izquierda. La tierra nueva se cava con la pala (descansa entre cava y cava) y en la tierra cavada se pone una maceta de la Bolsa y a veces sale con piedras y losas (se parten con el mazo) o arbustos (se cortan con las tijeras). Con Guardar te llevas a la bolsa tiestos vacíos y faroles para ponerlos en otro sitio. El estanque también crece, hasta 4×4. En la tienda hay pala de acero, regadera grande, faroles que aceleran lo que crece a su lado y macetas.')}</p>
         <button class="btn primary" autofocus onClick=${() => setHelp(false)}>${t('howto.ok', 'Entendido')}</button>
       </div>
     </div>`}

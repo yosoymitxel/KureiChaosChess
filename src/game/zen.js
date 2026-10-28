@@ -68,7 +68,7 @@ export function loadZen() {
   // v1 tenía el estanque a la derecha: las dos macetas que ahora son agua se corren a la orilla este.
   if (!z.v) for (const k of ['r1c1', 'r2c1']) if (k in pots) { pots[movedPot(k)] = pots[k]; delete pots[k]; }
   const size = Math.min(ZEN_MAX, Math.max(ZEN_BASE, z.size || ZEN_BASE));
-  const out = { ...blankZen(), size, off: z.off || 0, lake: z.lake || 2, pots, rocks: z.rocks || {}, tiles: z.tiles || {}, lanterns: z.lanterns || [], items: z.items || {},
+  const out = { ...blankZen(), size, off: z.off || 0, lake: z.lake || 2, pots, rocks: z.rocks || {}, tiles: z.tiles || {}, dug: z.dug || {}, lanterns: z.lanterns || [], items: z.items || {},
     seeds: seedsOf(z.seeds), flores, planted, leaves: z.leaves || [], leafT: z.leafT, digT: z.digT };
   return (z.v || 0) < 3 ? withBase(out) : out;
 }
@@ -80,13 +80,15 @@ export const saveZen = (z) => write(KEY, z);
 export const lakeBox = (n) => (n >= 4 ? [0, 4] : [1, n + 1]); // [desde, hasta) en filas y columnas
 export const inLake = (z, r, c) => { const [a, b] = lakeBox(z.lake || 2); return r >= a && r < b && c >= a && c < b; };
 
-// Qué ocupa una casilla: 'pond', 'lantern', 'pot', 'bush', 'stone', 'rock' o 'raw' (tierra virgen).
+// Qué ocupa una casilla: 'pond', 'lantern', 'pot', 'bush', 'stone', 'rock', 'dug' (cavada, lista para
+// una maceta) o 'raw' (tierra virgen).
 export function cellType(z, key) {
   const [r, c] = parseKey(key);
   if (inLake(z, r, c)) return 'pond';
   if ((z.lanterns || []).includes(key)) return 'lantern';
   if (z.pots[key] !== undefined) return 'pot';
   if (z.tiles?.[key]) return z.tiles[key];
+  if (z.dug?.[key]) return 'dug';
   return z.rocks?.[key] ? 'rock' : 'raw';
 }
 
@@ -137,10 +139,10 @@ export function zenWaterAround(z, key, now = Date.now()) {
 // La pala de siempre descansa entre cava y cava; la de acero no.
 export const digWait = (z, now = Date.now()) => (z.items?.shovel || z.digT == null ? 0 : Math.max(0, z.digT + DIG_COOLDOWN - now));
 
-// Cavar convierte la tierra virgen de los anillos en un tiesto vacío (null).
+// Cavar prepara la tierra virgen; la maceta se pone después desde la bolsa.
 export function zenDig(z, key, now = Date.now()) {
-  if (z.pots[key] !== undefined || z.rocks?.[key] || digWait(z, now)) return z;
-  return { ...z, pots: { ...z.pots, [key]: null }, digT: now };
+  if (cellType(z, key) !== 'raw' || digWait(z, now)) return z;
+  return { ...z, dug: { ...(z.dug || {}), [key]: true }, digT: now };
 }
 // Un golpe de mazo a una piedra (con la pala de acero en la bolsa, de una vez). Devuelve el jardín y si se partió.
 export function zenBreak(z, key) {
@@ -195,12 +197,12 @@ export function zenStore(z, key) {
   const items = { ...z.items };
   if ((z.lanterns || []).includes(key)) {
     items.lantern = (items.lantern || 0) + 1;
-    return { ...z, items, lanterns: z.lanterns.filter((k) => k !== key) };
+    return { ...z, items, lanterns: z.lanterns.filter((k) => k !== key), dug: { ...(z.dug || {}), [key]: true } };
   }
   if (z.pots[key] === null) {
     const pots = { ...z.pots }; delete pots[key];
     items.pot = (items.pot || 0) + 1;
-    return { ...z, items, pots };
+    return { ...z, items, pots, dug: { ...(z.dug || {}), [key]: true } };
   }
   return z;
 }
@@ -221,20 +223,14 @@ export function zenLake(z) {
   return { ...next, pots, seeds, items, tiles, lanterns };
 }
 
-// Poner lo comprado o guardado: el farol en tierra virgen o en un tiesto vacío; la maceta en tierra
-// virgen o sobre una piedra.
+// Poner lo comprado o guardado: el farol en tierra virgen o cavada; la maceta solo en tierra cavada.
 export function zenPlace(z, item, key) {
   if (!(z.items?.[item] > 0)) return z;
   const items = { ...z.items, [item]: z.items[item] - 1 };
   const type = cellType(z, key);
-  if (item === 'lantern' && (type === 'raw' || (type === 'pot' && !z.pots[key]))) {
-    const pots = { ...z.pots }; delete pots[key];
-    return { ...z, items, pots, lanterns: [...(z.lanterns || []), key] };
-  }
-  if (item === 'pot' && (type === 'raw' || type === 'rock')) {
-    const rocks = { ...(z.rocks || {}) }; delete rocks[key];
-    return { ...z, items, rocks, pots: { ...z.pots, [key]: null } };
-  }
+  const dug = { ...(z.dug || {}) }; delete dug[key];
+  if (item === 'lantern' && (type === 'raw' || type === 'dug')) return { ...z, items, dug, lanterns: [...(z.lanterns || []), key] };
+  if (item === 'pot' && type === 'dug') return { ...z, items, dug, pots: { ...z.pots, [key]: null } };
   return z;
 }
 
