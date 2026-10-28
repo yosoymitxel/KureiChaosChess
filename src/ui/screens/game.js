@@ -23,7 +23,7 @@ import { award, seePieces, seeMutations } from '../../game/achievements.js';
 import { PICKUPS, PICKUPS_EVERY, PICKUPS_MAX, dropPickups } from '../../data/pickups.js';
 import { PICKUP_ART } from '../zen-art.js';
 import { isShopCard, addCoins, loadShop } from '../../game/shop.js';
-import { flyCoins } from '../coins.js';
+import { flyCoins, popSeed } from '../coins.js';
 import { addZenSeeds, pickSeed, butterflyGift, ZEN_NAMES } from '../../game/zen.js';
 import { t, tp } from '../../i18n/index.js';
 
@@ -401,6 +401,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       // La mariposa deja lo mismo que en el jardín: 2 monedas o una semilla de una especie al azar.
       const gift = it.gift ? butterflyGift() : {}, coins = gift.coins || it.coins, seed = gift.seed || (it.seed && pickSeed());
       if (coins) { flyCoins(from, coinRef.current, Math.min(3, coins), () => setCoins(addCoins(coins))); addLog(`${it.name}: +` + tp('game.coins', coins, '{n} moneda', '{n} monedas')); }
+      if (seed) popSeed(from, PICKUP_ART.seed);
       if (seed) { const kind = seed; addZenSeeds(kind, it.seed || 1); addLog(t('game.seedLog', 'Semilla de {kind} para el jardín', { kind: ZEN_NAMES[kind].toLowerCase() })); }
     };
 

@@ -1415,3 +1415,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 
 /* Copia de seguridad (Ajustes): el código se pega en un recuadro de texto. */
 .backup-code { width: 100%; padding: 8px 10px; border: 2px solid var(--ink); border-radius: var(--r-sm); background: var(--paper); color: var(--ink); font: 12px/1.4 ui-monospace, monospace; resize: vertical; word-break: break-all; }
+
+/* Semilla que suelta algo del tablero (popSeed): flota sobre todo, centrada en su punto. */
+.seed-pop { position: fixed; z-index: 60; width: 30px; height: 30px; translate: -50% -50%; pointer-events: none; filter: drop-shadow(0 3px 2px oklch(0 0 0 / 0.35)); }
+.seed-pop svg { width: 100%; height: 100%; display: block; }
