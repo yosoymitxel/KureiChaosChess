@@ -1,6 +1,7 @@
 // 3D tabletop renderer built from DOM + CSS transforms.
 // The board is a tilted plane (rotateX); tiles live on it, pieces are cardboard
 // "standees" counter-rotated to face the camera. anime.js drives all choreography.
+import { TILE_MARKS, MARK_SIZE } from '../data/tile-marks.js';
 import { animate, stagger } from 'animejs';
 import { pieceSVG, headTop, artOf } from './piece-art.js';
 import { Fx } from './fx.js';
@@ -360,13 +361,18 @@ export class BoardView {
   }
 
   // Rótulos sobre casillas (las pistas de Campo minado): key -> texto.
-  // Un rótulo 'icon:<nombre>' pinta ese icono (vector o píxel según la mesa) sobre la casilla, sin
+  // Un rótulo 'icon:<clave>' pinta esa marca de src/data/tile-marks.js (vector o píxel según la mesa) sobre la casilla, sin
   // cambiarle el color; el resto es texto (los números de Campo minado).
   setLabels(labels = new Map()) {
     for (const [k, t] of this.tiles) {
       const text = labels.get(k), mark = t.querySelector('.mark'), icon = typeof text === 'string' && text.startsWith('icon:') ? text.slice(5) : null;
       if (icon) {
-        if (t.dataset.icon !== icon) { delete t.dataset.n; t.dataset.icon = icon; render(html`<${Icon} name=${icon} size=${24} />`, mark); }
+        if (t.dataset.icon !== icon) {
+          const m = TILE_MARKS[icon] || { icon };
+          delete t.dataset.n; t.dataset.icon = icon;
+          t.style.setProperty('--mk', m.color || 'var(--ink)'); t.style.setProperty('--mk-size', m.size || MARK_SIZE);
+          render(html`<${Icon} name=${m.icon} size=${24} />`, mark);
+        }
         continue;
       }
       if (t.dataset.icon) { delete t.dataset.icon; render(null, mark); }
