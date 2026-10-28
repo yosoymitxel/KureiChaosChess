@@ -1,0 +1,11 @@
+{
+  "cfg": { "settings": { "vfx": true }, "node": { "modifier": "none" },
+    "pieces": ["king light 7 4", "rook light 7 2", { "type": "boss-titan", "color": "dark", "row": 1, "col": 2, "boss": "titan", "h": 2, "w": 2, "hp": 3, "maxHp": 3, "name": "Titán", "royal": true, "moves": ["king"] }] },
+  "themes": ["walnut", "pixelada"],
+  "steps": [
+    { "spy": ["shield"] },
+    { "move": "7,2>2,2" },
+    { "shot": "golpe" },
+    { "expect": { "fx": { "shield": 1 }, "eval": "bench.match.pieces.find(p => p.boss).hp === 2", "noErrors": true } }
+  ]
+}

@@ -56,7 +56,7 @@ function cardEffect(card, piece, pv) {
 // `scenario` (un minijuego de src/data/scenarios.js ya armado): trae tablero, piezas, rival y objetivo
 // propios; el resto (vista, bot, avisos, demos) es el de cualquier piso.
 // `onRound(result)` (partida local): cuenta la ronda y devuelve la nota de la ficha final.
-export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools, exitLabel, onRound, resume, onSuspend, onShop }) {
+export function GameScreen({ node, run, seats, settings, setSettings, onExit, onMenu, onAbandon, onWin, onRestart, onHowTo, onUseCard, scenario, tools, exitLabel, onRound, resume, onSuspend, onShop, onDebug }) {
   const hostRef = useRef(null);
   const mainRef = useRef(null);
   const ref = useRef({}); // mutable director state: view, match, busy, selected
@@ -632,6 +632,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, vfx: settings.vfx, speed: settings.speed, framed: !!scenario, pond: !scenario, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
     d.view.setBoard(board);
     d.view.setPieces(pieces);
+    onDebug?.(d); // tests/bench.js
     // Clima: el de la mecánica si lo tiene; si no, a veces uno al azar (src/data/weather.js).
     if (!scenario) d.view.setWeather(weatherFor(node));
     seePieces(pieces.filter((p) => !p.boss).map((p) => p.type));

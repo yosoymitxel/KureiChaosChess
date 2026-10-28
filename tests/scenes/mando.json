@@ -1,0 +1,11 @@
+{
+  "cfg": { "pieces": ["king light 7 4", "pawn light 6 4", "king dark 0 4"] },
+  "viewports": ["pc"],
+  "steps": [
+    { "pad": "b" },
+    { "shot": "pausa-con-b" },
+    { "expect": { "eval": "bench.paused === true" } },
+    { "pad": "b" },
+    { "expect": { "eval": "!bench.paused", "noErrors": true } }
+  ]
+}

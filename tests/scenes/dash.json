@@ -1,0 +1,14 @@
+{
+  "cfg": { "settings": { "vfx": true }, "run": { "cards": ["haste"] },
+    "pieces": ["king light 7 4", "rook light 7 0", "pawn light 6 3", "king dark 0 4", "pawn dark 1 0"] },
+  "viewports": ["mobile", "pc"], "themes": ["walnut", "pixelada"],
+  "steps": [
+    { "spy": ["aura"] },
+    { "card": "Paso doble|Double step" },
+    { "move": "7,0>4,0" },
+    { "expect": { "afterimages": 0 } },
+    { "move": "6,3>5,3" },
+    { "shot": "dash" },
+    { "expect": { "afterimages": 1, "noErrors": true } }
+  ]
+}

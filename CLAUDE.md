@@ -22,6 +22,9 @@ Lanzamiento cercano: cambios acotados.
 - Servidor: `npx http-server -p 8123 -s -c-1 .`
 - Comprobar: `node tools/check-registry.mjs` · `node tools/art-check.mjs` · `node tools/sfx-check.mjs` ·
   `node tools/simulate.mjs` · `node tools/scenarios-selfcheck.mjs` · `node tools/blind-selfcheck.mjs` · `node tools/blizzard-selfcheck.mjs` · `node tools/outbreak-selfcheck.mjs` · `node tools/barrier-check.mjs` · `node tools/hockey-selfcheck.mjs` · `node tools/i18n-check.mjs`
+- Partidas guionizadas: `node tools/play.mjs tests/scenes/<escena>.json [--pc] [--art pixel] [--lang en]` (posición
+  exacta, cartas, jugadas por casilla, mando simulado, idioma, capturas y comprobaciones; formato en la cabecera del
+  archivo). A mano: `tests/bench.html?cfg={…}` (`window.bench` = partida). Escenas en `tests/scenes/`.
 - itch.io: `node tools/build-itch.mjs` → `dist/kurei-chaos-chess-itch.zip` (sin CDN; guía en `docs/ITCH.md`).
 - Importar: `tools/pixel-art.mjs` (temas), `tools/vector-art.mjs` (piezas SVG), `tools/pixel-icons.mjs`
   (iconos, tras `pxl build art/iconos/iconos.px.js`), `tools/zen-pixel.mjs`, `tools/sfx-import.mjs`.

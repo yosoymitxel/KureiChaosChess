@@ -5,3 +5,4 @@ art/temas/*/out/
 dist/
 publicar.ps1
 publicar.cmd
+artifacts/

@@ -1,0 +1,4 @@
+{
+  "mini": "blizzard", "cfg": { "settings": { "vfx": true } }, "themes": ["walnut", "pixelada"], "langs": ["es", "en"],
+  "steps": [ { "wait": 2500 }, { "shot": "inicio" }, { "i18n": true }, { "expect": { "noErrors": true } } ]
+}
