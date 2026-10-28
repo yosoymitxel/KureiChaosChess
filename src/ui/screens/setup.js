@@ -144,13 +144,13 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
   return html`<div class="screen settings" ref=${ref}>
     <${Topbar} title=${t('settings.title', 'Ajustes')} onBack=${onBack} />
     <div class="setup-body">
-      <section class="panel setup-card" data-enter>
+      <section class="panel setup-card set-lang" data-enter>
         <h2>${t('settings.language', 'Idioma')}</h2>
         <div class="segmented" role="group" aria-label=${t('settings.language', 'Idioma')}>
           ${Object.entries(LANGS).map(([id, name]) => html`<button class=${LANG === id ? 'on' : ''} aria-pressed=${LANG === id} lang=${id} onClick=${() => setLang(id)}>${name}</button>`)}
         </div>
       </section>
-      <section class="panel setup-card" data-enter>
+      <section class="panel setup-card set-table" data-enter>
         <h2>${t('settings.table', 'Mesa')}</h2>
         <div class="theme-grid">
           ${Object.values(THEMES).map((th) => {
@@ -161,14 +161,14 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
           })}
         </div>
       </section>
-      <section class="panel setup-card" data-enter>
+      <section class="panel setup-card set-diff" data-enter>
         <h2>${t('settings.difficulty', 'Dificultad')}</h2>
         <div class="segmented" role="group" aria-label=${t('settings.difficultyAria', 'Dificultad del rival')}>
           ${Object.values(DIFFICULTIES).map((d) => html`<button class=${settings.difficulty === d.id ? 'on' : ''} aria-pressed=${settings.difficulty === d.id} onClick=${() => set('difficulty')(d.id)}>${d.name}</button>`)}
         </div>
         <p class="setup-note">${(DIFFICULTIES[settings.difficulty] || DIFFICULTIES.normal).desc}</p>
       </section>
-      <section class="panel setup-card" data-enter>
+      <section class="panel setup-card set-fx" data-enter>
         <h2>${t('settings.fx', 'Efectos y ambiente')}</h2>
         <${Toggle} on=${settings.sound} onChange=${set('sound')} label=${t('settings.sound', 'Sonidos')} hint=${t('settings.soundHint', 'Efectos de la mesa y de los minijuegos')} />
         <${Toggle} on=${settings.music !== false} onChange=${set('music')} label=${t('settings.music', 'Música')} hint=${t('settings.musicHint', 'Un tema por ambiente: mesa, jefe, minijuego y jardín')} />
@@ -178,18 +178,24 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
         </div>
         <p class="setup-note">${t('settings.musicNote', 'La música arranca con tu primer toque.')}</p>
       </section>
-      <section class="panel setup-card" data-enter>
-        <h2>${t('settings.camera', 'Cámara')}</h2>
-        <div class="segmented" role="group" aria-label=${t('settings.camera', 'Cámara')}>
-          ${[['flat', t('settings.camFlat', 'Cenital')], ['tilt', t('settings.camTilt', 'Mesa')], ['epic', t('settings.camEpic', 'Épica')]].map(([id, label]) => html`<button class=${settings.camera === id ? 'on' : ''} aria-pressed=${settings.camera === id} onClick=${() => set('camera')(id)}>${label}</button>`)}
+      <section class="panel setup-card set-camera" data-enter>
+        <div class="set-group">
+          <h2>${t('settings.camera', 'Cámara')}</h2>
+          <div class="segmented" role="group" aria-label=${t('settings.camera', 'Cámara')}>
+            ${[['flat', t('settings.camFlat', 'Cenital')], ['tilt', t('settings.camTilt', 'Mesa')], ['epic', t('settings.camEpic', 'Épica')]].map(([id, label]) => html`<button class=${settings.camera === id ? 'on' : ''} aria-pressed=${settings.camera === id} onClick=${() => set('camera')(id)}>${label}</button>`)}
+          </div>
         </div>
-        <h2>${t('settings.speed', 'Velocidad de animación')}</h2>
-        <div class="segmented" role="group" aria-label=${t('settings.speed', 'Velocidad de animación')}>
-          ${[[0.75, t('settings.speedSlow', 'Pausada')], [1, t('settings.speedNormal', 'Normal')], [1.6, t('settings.speedFast', 'Rápida')]].map(([v, label]) => html`<button class=${settings.speed === v ? 'on' : ''} aria-pressed=${settings.speed === v} onClick=${() => set('speed')(v)}>${label}</button>`)}
+        <div class="set-group">
+          <h2>${t('settings.speed', 'Velocidad de animación')}</h2>
+          <div class="segmented" role="group" aria-label=${t('settings.speed', 'Velocidad de animación')}>
+            ${[[0.75, t('settings.speedSlow', 'Pausada')], [1, t('settings.speedNormal', 'Normal')], [1.6, t('settings.speedFast', 'Rápida')]].map(([v, label]) => html`<button class=${settings.speed === v ? 'on' : ''} aria-pressed=${settings.speed === v} onClick=${() => set('speed')(v)}>${label}</button>`)}
+          </div>
         </div>
-        <${Toggle} on=${settings.moments} onChange=${set('moments')} label=${t('settings.moments', 'Momentos destacados')} hint=${t('settings.momentsHint', 'Rótulos y cinemáticas en jugadas clave (se saltan con un toque)')} />
-        <${Toggle} on=${settings.shake} onChange=${set('shake')} label=${t('settings.shake', 'Temblor de cámara')} hint=${t('settings.shakeHint', 'Impactos y derrumbes sacuden la mesa')} />
-        ${canFullscreen && html`<${Toggle} on=${settings.fullscreen} onChange=${(v) => { set('fullscreen')(v); setFullscreen(v); }} label=${t('settings.fullscreen', 'Pantalla completa')} hint=${t('settings.fullscreenHint', 'Ahora y cada vez que empiece una partida')} />`}
+        <div class="set-toggles">
+          <${Toggle} on=${settings.moments} onChange=${set('moments')} label=${t('settings.moments', 'Momentos destacados')} hint=${t('settings.momentsHint', 'Rótulos y cinemáticas en jugadas clave (se saltan con un toque)')} />
+          <${Toggle} on=${settings.shake} onChange=${set('shake')} label=${t('settings.shake', 'Temblor de cámara')} hint=${t('settings.shakeHint', 'Impactos y derrumbes sacuden la mesa')} />
+          ${canFullscreen && html`<${Toggle} on=${settings.fullscreen} onChange=${(v) => { set('fullscreen')(v); setFullscreen(v); }} label=${t('settings.fullscreen', 'Pantalla completa')} hint=${t('settings.fullscreenHint', 'Ahora y cada vez que empiece una partida')} />`}
+        </div>
       </section>
       <${Backup} />
     </div>
@@ -217,7 +223,7 @@ function Backup() {
     setMsg(t('backup.done', 'Partida restaurada.'));
     setTimeout(() => location.reload(), 600);
   };
-  return html`<section class="panel setup-card" data-enter>
+  return html`<section class="panel setup-card set-backup" data-enter>
     <h2>${t('backup.title', 'Copia de seguridad')}</h2>
     <p class="shop-note">${t('backup.hint', 'Guarda tu progreso (run, jardín, logros, mesas) como un código. Si el navegador lo borra, pégalo aquí y vuelve.')}</p>
     <div class="menu-row">

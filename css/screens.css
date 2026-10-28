@@ -184,6 +184,37 @@
   .setup .setup-body > * { break-inside: avoid; margin-bottom: 16px; }
   .setup .setup-body > .btn.big { display: flex; width: 100%; min-height: 76px; font-size: 22px; }
 }
+/* Ajustes en pantalla ancha: la mesa va arriba a todo el ancho para que sus 26 muestras entren en
+   pocas filas, y el resto se reparte en tres columnas. Cámara y animación cierran a lo ancho, con
+   los dos selectores al lado y los interruptores en fila. En teléfono todo sigue en una columna. */
+.settings .set-group, .settings .set-toggles { display: flex; flex-direction: column; gap: 12px; }
+@media (min-width: 800px) {
+  .settings .setup-body {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-areas:
+      'table table table'
+      'lang fx backup'
+      'diff fx backup'
+      'camera camera camera';
+    align-content: start;
+    width: min(1320px, 100%);
+    padding-top: 24px;
+  }
+  .settings .set-table { grid-area: table; }
+  .settings .set-lang { grid-area: lang; }
+  .settings .set-diff { grid-area: diff; }
+  .settings .set-fx { grid-area: fx; }
+  .settings .set-backup { grid-area: backup; }
+  .settings .set-camera { grid-area: camera; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; align-items: start; }
+  .settings .set-toggles { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 24px; }
+  .settings .theme-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+}
+@media (min-width: 980px) {
+  .settings .theme-grid { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+}
+@media (min-width: 1260px) {
+  .settings .theme-grid { grid-template-columns: repeat(13, minmax(0, 1fr)); }
+}
 .mod-card { display: flex; gap: 14px; align-items: flex-start; }
 .mod-card p { margin: 4px 0 0; font-size: 13.5px; color: var(--ink-2); }
 .rival-line { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding-top: 10px; border-top: 2px dashed color-mix(in oklch, var(--ink), transparent 85%); }
