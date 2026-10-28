@@ -23,10 +23,11 @@ const TOOLS = [
   { id: 'dig', icon: 'spade', name: t('zen.dig', 'Cavar') },
   { id: 'cut', icon: 'shears', name: t('zen.cut', 'Cortar') },
   { id: 'hammer', icon: 'hammer', name: t('zen.hammer', 'Mazo') },
-  { id: 'store', icon: 'bag', name: t('zen.store', 'Guardar') },
 ];
+// Guardar abre la bolsa: lo que se recoge del cantero y lo que se compra se pone desde ahí.
+const STORE = { id: 'store', icon: 'bag', name: t('zen.store', 'Guardar') };
 // Lo que se lleva en la mano: sigue al puntero sobre el jardín y hace el gesto al tocar.
-const TOOL_ART = { sow: POUCH, water: CAN, dig: SHOVEL, cut: SHEARS, lantern: ITEM_ART.lantern, pot: ITEM_ART.pot };
+const TOOL_ART = { sow: POUCH, water: CAN, dig: SHOVEL, cut: SHEARS, hammer: html`<${Icon} name="hammer" size=${40} />`, store: html`<${Icon} name="bag" size=${30} />`, lantern: ITEM_ART.lantern, pot: ITEM_ART.pot };
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const later = (fn, ms = 40) => setTimeout(fn, ms); // tras el repintado de Preact
 // "el romero", "la salvia": el artículo que pide cada especie, para los avisos.
@@ -166,6 +167,28 @@ export function ZenScreen({ onBack, onShop }) {
     gesture('dig', cell, 0.62, 900);
     setTimeout(() => { playSfx('dig'); dirt(cell); }, 330);
   });
+  // Cada estorbo con su herramienta: las tijeras podan el arbusto (hojas), el mazo parte la piedra
+  // (lascas grises); guardar levanta la cosa del cantero hacia la bolsa.
+  const fxClear = (key, tool, done) => later(() => {
+    const cell = cellOf(key);
+    if (!cell || reduced()) { playSfx(tool === 'cut' ? 'snip' : 'dig'); return done?.(); }
+    gesture(tool, cell, tool === 'cut' ? 0.35 : 0.45, 900);
+    setTimeout(() => {
+      playSfx(tool === 'cut' ? 'snip' : 'dig');
+      const p = at(cell, 0.6);
+      fxRef.current.burst(p.x, p.y, tool === 'cut'
+        ? { count: 16, color: ['#5a9b45', '#7fbf5a', '#3f7a35'], speed: [60, 200], life: [0.6, 1.1], size: [2, 4], gravity: 220, drag: 0.9, shape: 'chunk' }
+        : { count: 18, color: ['#9a958c', '#c9c4ba', '#6e6a63'], speed: [90, 280], life: [0.4, 0.8], size: [2.5, 5], gravity: 700, shape: 'chunk', spread: Math.PI * 0.9, angle: -Math.PI / 2 });
+      fxRef.current.dust(p.x, p.y, 0.8);
+      done?.();
+    }, tool === 'cut' ? 560 : 380);
+  });
+  const fxLift = (key, done) => {
+    const art = cellOf(key)?.querySelector('svg');
+    playSfx('pop');
+    if (!art || reduced()) return done();
+    motion(art, { y: [0, -18], scale: [1, 0.4], opacity: [1, 0] }, { duration: 0.35, ease: OUT, onComplete: done });
+  };
   const dirt = (cell) => {
     const p = at(cell, 0.7);
     fxRef.current.burst(p.x, p.y, { count: 16, color: SOIL_COLORS, speed: [80, 260], life: [0.4, 0.8], size: [2.5, 5], gravity: 700, shape: 'chunk', spread: Math.PI * 0.9, angle: -Math.PI / 2 });
@@ -187,7 +210,7 @@ export function ZenScreen({ onBack, onShop }) {
     const done = () => {
       const next = zenHarvest(z, key, Date.now()), pays = SEEDS[kind].pays;
       apply(next);
-      setGain(t('zen.paid', '+{n} monedas por {kind}', { n: pays, kind: the(kind) }) + (next.gift ? t('zen.dropsSeed', ' y suelta una semilla') : '') + (next.pots[key] ? t('zen.regrows', '. Rebrota') : '') + '.');
+      setGain(t('zen.paid', '+{n} monedas por {kind}', { n: pays, kind: the(kind) }) + (next.gift ? t('zen.dropsSeed', ' y suelta una semilla') : '') + (next.pots[key] ? t('zen.regrows', '. Rebrota: riégala otra vez') : '') + '.');
       flyCoins(cell?.getBoundingClientRect(), 3, pays);
       award('flower_1');
       playSfx('flower');
@@ -216,7 +239,7 @@ export function ZenScreen({ onBack, onShop }) {
     if (tool === 'store') {
       const next = zenStore(z, key);
       if (next === z) return say(t('zen.storeWhat', 'Con Guardar se llevan a la bolsa los tiestos vacíos y los faroles.'));
-      apply(next); playSfx('dig');
+      fxLift(key, () => apply(next));
       return say(type === 'lantern' ? t('zen.lanternStored', 'Farol a la bolsa: elígelo abajo y ponlo donde quieras.') : t('zen.potStored', 'Maceta a la bolsa: elígela abajo y ponla donde quieras.'));
     }
     if (GARDEN_ITEMS[tool]) {
@@ -229,13 +252,13 @@ export function ZenScreen({ onBack, onShop }) {
     if (type === 'lantern') return info(key, 'lantern');
     if (type === 'bush' || type === 'stone') {
       if (tool !== (type === 'bush' ? 'cut' : 'hammer')) return info(key, type);
-      apply(zenClear(z, key)); fxDig(key); playSfx(type === 'bush' ? 'snip' : 'dig');
+      fxClear(key, tool, () => apply(zenClear(z, key)));
       return say(type === 'bush' ? t('zen.bushCut', 'Arbusto cortado: queda tierra para cavar.') : t('zen.stoneBroken', 'Losa partida: queda tierra para cavar.'));
     }
     if (type === 'rock') {
       if (tool !== 'hammer') return info(key, 'rock');
       const { z: next, broke } = zenBreak(z, key);
-      apply(next); fxDig(key);
+      fxClear(key, 'hammer', () => apply(next));
       return say(broke ? t('zen.rockBreaks', 'La piedra se parte: queda tierra virgen.') : t('zen.rockCracks', 'La piedra se agrieta: otro golpe.'));
     }
     if (type === 'raw') {
@@ -537,7 +560,7 @@ export function ZenScreen({ onBack, onShop }) {
               ${pour && html`<span key=${pour.id} class="zn-canfx" style=${{ left: pour.x + 'px', top: pour.y + 'px' }} aria-hidden="true">${CAN}<i class="zn-stream"></i></span>`}
               ${tip && html`<span key=${tip.id} class="tile-tip" style=${{ left: tip.x + 'px', top: tip.y + 'px' }}><b>${tip.title}</b>${tip.text}</span>`}
               ${act && html`<span key=${act.id} class=${'zn-toolfx t-' + act.tool} style=${{ left: act.x + 'px', top: act.y + 'px' }} aria-hidden="true">${TOOL_ART[act.tool]}</span>`}
-              <span class=${'zn-hand t-' + tool} ref=${handRef} aria-hidden="true">${TOOL_ART[tool] || html`<${Icon} name=${TOOLS.find((x) => x.id === tool)?.icon} size=${28} />`}</span>
+              <span class=${'zn-hand t-' + tool} ref=${handRef} aria-hidden="true">${TOOL_ART[tool]}</span>
               ${fly && html`<button key=${fly.id} ref=${flyRef} class="zn-fly" data-pad="x" aria-label=${t('zen.flyAria', 'Mariposa: tócala')} onClick=${catchFly}>${BUTTERFLY}</button>`}
             </div>
           </div>
@@ -559,6 +582,12 @@ export function ZenScreen({ onBack, onShop }) {
             <h3>${t('zen.tools', 'Herramientas')}</h3>
             <div class="zn-tools" data-pad="l1 r1">
               ${TOOLS.map((t) => html`<button class=${'zn-tool' + (tool === t.id ? ' on' : '')} aria-pressed=${tool === t.id} onClick=${() => pickTool(t.id)}><span class="zn-tool-ic"><${Icon} name=${t.icon} size=${22} /></span><span>${t.name}</span></button>`)}
+            </div>
+          </section>
+          <section class="zn-sec" aria-label=${t('zen.bag', 'Bolsa')}>
+            <h3>${t('zen.bag', 'Bolsa')}</h3>
+            <div class="zn-tools">
+              <button class=${'zn-tool' + (tool === 'store' ? ' on' : '')} aria-pressed=${tool === 'store'} onClick=${() => pickTool('store')}><span class="zn-tool-ic"><${Icon} name=${STORE.icon} size=${22} /></span><span>${STORE.name}</span></button>
               ${owned.map(([id, it]) => html`<button class=${'zn-tool' + (tool === id ? ' on' : '')} aria-pressed=${tool === id} onClick=${() => pickTool(id)}><span class="zn-tool-ic zn-art-ic">${ITEM_ART[id]}</span><span>${it.name} ×${z.items[id]}</span></button>`)}
             </div>
           </section>
