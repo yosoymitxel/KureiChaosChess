@@ -1013,7 +1013,9 @@ export class BoardView {
     // Destello blanco del golpe antes de salir despedida: el impacto se lee aunque dure poco.
     el.classList.add('hit');
     setTimeout(() => el.classList.remove('hit'), this.d(110));
-    animate(stand, { rotate: dir * 95, x: dir * this.sq * 0.4, duration: this.d(380), ease: 'inQuad' });
+    // Una figura se vuelca; una ficha plana (Damas) no tiene hacia dónde caer: sale girando y encoge.
+    if (p.disc) animate(stand, { rotate: dir * 540, scale: [1, 0.55], x: dir * this.sq * 0.5, duration: this.d(420), ease: 'outQuad' });
+    else animate(stand, { rotate: dir * 95, x: dir * this.sq * 0.4, duration: this.d(380), ease: 'inQuad' });
     await animate(st, {
       c: st.c + dir * 0.6, z: [0, this.sq * 0.8, -this.sq * 0.2], duration: this.d(420), ease: 'outQuad',
       onUpdate: () => this.apply(p),

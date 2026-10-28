@@ -85,7 +85,8 @@
 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado y estrías de borde duro, sin contorno suave. */
 [data-art="pixel"] .c4-token { --tk: var(--pc); --tk-2: var(--pc-2); border: 0; }
 [data-art="pixel"] .c4-ghost { box-shadow: none; clip-path: polygon(25% 0, 75% 0, 75% 8%, 92% 8%, 92% 25%, 100% 25%, 100% 75%, 92% 75%, 92% 92%, 75% 92%, 75% 100%, 25% 100%, 25% 92%, 8% 92%, 8% 75%, 0 75%, 0 25%, 8% 25%, 8% 8%, 25% 8%); }
-[data-art="pixel"] :is(.bm-tok, .c4-token, .pc.disc .pc-art::before) {
+/* El ::before va fuera de :is(), que no admite pseudoelementos (si no, la ficha de Damas se quedaba vectorial). */
+[data-art="pixel"] :is(.bm-tok, .c4-token), [data-art="pixel"] .pc.disc .pc-art::before {
   outline: 0; box-shadow: none;
   background: radial-gradient(closest-side, var(--tk) 0 34%, var(--tk-2) 34% 44%, var(--tk) 44% 68%, var(--tk-2) 68% 80%, var(--ink) 80%);
   clip-path: polygon(25% 0, 75% 0, 75% 8%, 92% 8%, 92% 25%, 100% 25%, 100% 75%, 92% 75%, 92% 92%, 75% 92%, 75% 100%, 25% 100%, 25% 92%, 8% 92%, 8% 75%, 0 75%, 0 25%, 8% 25%, 8% 8%, 25% 8%);
