@@ -980,8 +980,8 @@ export default {
   },
 
   seeds: {
-    romero: { name: 'Rosemary', rarity: 'Common', desc: 'Fast: blooms in 6 minutes.' },
-    salvia: { name: 'Sage', rarity: 'Common', desc: 'Regrows once after cutting.' },
+    romero: { name: 'Rosemary', rarity: 'Common', desc: 'Fast: opens in 6 minutes; when cut, it sometimes drops its seed.' },
+    salvia: { name: 'Sage', rarity: 'Common', desc: 'Regrows once after cutting; it sometimes drops its seed.' },
     lavanda: { name: 'Lavender', rarity: 'Rare', desc: 'Slow and pricey; when cut, it sometimes drops its seed.' },
   },
 

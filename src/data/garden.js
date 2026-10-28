@@ -7,8 +7,8 @@ import { localize } from '../i18n/index.js';
 // `bloomMin`: minutos hasta la flor. `pays`: monedas por flor cortada.
 // `regrow`: rebrota esas veces tras cortarla. `seedBack`: probabilidad de soltar su semilla al cortarla.
 export const SEEDS = localize('seeds', {
-  romero: { id: 'romero', name: 'Romero', rarity: 'Común', weight: 5, bloomMin: 6, price: 10, pays: 14, desc: 'Rápido: abre en 6 minutos.' },
-  salvia: { id: 'salvia', name: 'Salvia', rarity: 'Común', weight: 3, bloomMin: 10, price: 12, pays: 18, regrow: 1, desc: 'Rebrota una vez después de cortarla.' },
+  romero: { id: 'romero', name: 'Romero', rarity: 'Común', weight: 5, bloomMin: 6, price: 10, pays: 14, seedBack: 0.25, desc: 'Rápido: abre en 6 minutos; al cortarlo, a veces suelta su semilla.' },
+  salvia: { id: 'salvia', name: 'Salvia', rarity: 'Común', weight: 3, bloomMin: 10, price: 12, pays: 18, regrow: 1, seedBack: 0.25, desc: 'Rebrota una vez después de cortarla; a veces suelta su semilla.' },
   lavanda: { id: 'lavanda', name: 'Lavanda', rarity: 'Rara', weight: 1, bloomMin: 16, price: 22, pays: 36, seedBack: 0.5, desc: 'Lenta y cara; al cortarla, a veces suelta su semilla.' },
 });
 
