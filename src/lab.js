@@ -5,8 +5,10 @@ import { Match } from './game/match.js';
 import { key, reachPreview } from './game/rules.js';
 import { Moments } from './ui/moments.js';
 import { BOSSES } from './data/bosses.js';
+import { WEATHER } from './data/weather.js';
+import { applyTheme } from './data/themes.js';
 
-let view, camera = 'tilt';
+let view, camera = 'tilt', theme = 'walnut';
 const board = () => ({ rows: 7, cols: 7, holes: new Set([key(3, 0), key(3, 6)]), protectRows: 2 });
 
 // Each scene builds a tiny position and returns an async "play" function.
@@ -74,12 +76,48 @@ const SCENES = {
   },
 };
 
+// Efectos extra (Ajustes › Efectos extra): en el lab van siempre encendidos.
+const FX = {
+  ...Object.fromEntries(Object.values(WEATHER).map((w) => [`Clima: ${w.name}`, () => ({ b: board(), pieces: [makePiece('king', 'light', 6, 3), makePiece('queen', 'light', 5, 3), makePiece('king', 'dark', 0, 3), makePiece('knight', 'dark', 1, 1)], weather: w.id })])),
+  'Escudo: golpe al jefe': SCENES['Golpe al jefe'],
+  'Escudo: se rompe': () => {
+    const b = board(), pieces = [makePiece('rook', 'light', 5, 3), makePiece('king', 'light', 6, 6)];
+    const boss = placeBoss(pieces, b, 'ram'); boss.row = 1; boss.hp = 2;
+    return { b, pieces, play: (m) => m.move(pieces[0], { row: 2, col: 3 }) };
+  },
+  'Escudo: Fortificar': () => {
+    const b = board(), pieces = [makePiece('rook', 'light', 5, 3), makePiece('bishop', 'dark', 2, 3, { hp: 2, maxHp: 2 }), makePiece('king', 'light', 6, 6), makePiece('king', 'dark', 0, 0)];
+    return { b, pieces, play: (m) => m.move(pieces[0], { row: 2, col: 3 }) };
+  },
+  'Fuego: meteorito': () => {
+    const b = board(), pieces = [makePiece('rook', 'light', 3, 2), makePiece('knight', 'dark', 2, 4), makePiece('pawn', 'light', 4, 4), makePiece('king', 'light', 6, 6), makePiece('king', 'dark', 0, 0)];
+    return { b, pieces, after: (v) => v.meteor([[3, 3], [2, 3], [4, 3], [3, 4]]) };
+  },
+  'Aura: bruja y mutación': () => {
+    const b = board(), pieces = [makePiece('queen', 'dark', 3, 3, { witch: true }), makePiece('knight', 'light', 5, 2), makePiece('king', 'light', 6, 6), makePiece('king', 'dark', 0, 0)];
+    return { b, pieces, after: (v) => { v.powerUp([pieces[0]], '#c58bff'); v.powerUp([pieces[1]], '#ffcf6b'); } };
+  },
+  'Veneno: contagio': () => {
+    const b = board(), pieces = [makePiece('knight', 'dark', 3, 3), makePiece('pawn', 'dark', 3, 4), makePiece('king', 'light', 6, 6), makePiece('king', 'dark', 0, 0)];
+    return { b, pieces, after: (v) => v.infect([pieces[0], pieces[1]]) };
+  },
+  'Dash: Paso doble': () => {
+    const b = board(), pieces = [makePiece('rook', 'light', 6, 1), makePiece('king', 'light', 6, 6), makePiece('king', 'dark', 0, 0)];
+    return { b, pieces, play: (m) => ({ ...m.move(pieces[0], { row: 1, col: 1 }), dash: true }) };
+  },
+  'Explosión: mina': () => {
+    const b = board(), pieces = [makePiece('king', 'light', 6, 6), makePiece('king', 'dark', 0, 0)];
+    return { b, pieces, after: (v) => { const t = v.tiles.get('3,3'), p = v.fx.pointOf(t); v.fx.explosion(p.x, p.y, v.sq / 50); v.shake(18, 520); } };
+  },
+};
+
 async function run(name) {
   view?.destroy();
-  const s = SCENES[name]();
-  view = new BoardView(document.getElementById('board'), { camera });
+  const s = (SCENES[name] || FX[name])();
+  view = new BoardView(document.getElementById('board'), { camera, vfx: true });
   view.setBoard(s.b);
   view.setPieces(s.pieces);
+  view.setWeather(s.weather || null);
   await view.intro(s.pieces);
   const players = [{ color: 'light', kind: 'human' }, { color: 'dark', kind: 'bot' }];
   const m = new Match({ board: s.b, pieces: s.pieces, players, modifier: s.modifier || 'none' });
@@ -87,6 +125,7 @@ async function run(name) {
   await new Promise((r) => setTimeout(r, 300));
   if (s.play) { const res = s.play(m); if (res) await view.playMove(res); }
   if (s.collapse) await view.collapse(s.collapse);
+  if (s.after) await s.after(view);
   if (s.victory) await view.victory('light');
 }
 
@@ -97,11 +136,22 @@ async function play(name) {
   return run(name);
 }
 
-const scenes = document.getElementById('scenes');
-for (const name of [...Object.keys(SCENES), ...Object.keys(MOMENTS)]) {
+let current = null;
+const play2 = (name) => { current = name; return play(name); };
+for (const [id, names] of [['scenes', [...Object.keys(SCENES), ...Object.keys(MOMENTS)]], ['fx', Object.keys(FX)]]) {
+  for (const name of names) {
+    const b = document.createElement('button');
+    b.className = 'btn sm'; b.textContent = name; b.onclick = () => play2(name);
+    document.getElementById(id).appendChild(b);
+  }
+}
+// Mesa normal o píxel: los efectos se ven distinto en cada una.
+const arts = document.getElementById('arts');
+for (const [id, label] of [['walnut', 'Normal'], ['pixelada', 'Píxel']]) {
   const b = document.createElement('button');
-  b.className = 'btn sm'; b.textContent = name; b.onclick = () => play(name);
-  scenes.appendChild(b);
+  b.textContent = label; b.className = id === theme ? 'on' : '';
+  b.onclick = () => { theme = id; applyTheme(id); [...arts.children].forEach((x) => x.classList.toggle('on', x === b)); if (current && !MOMENTS[current]) run(current); };
+  arts.appendChild(b);
 }
 const cams = document.getElementById('cams');
 for (const [id, label] of [['flat', 'Cenital'], ['tilt', 'Mesa'], ['epic', 'Épica']]) {
@@ -110,4 +160,6 @@ for (const [id, label] of [['flat', 'Cenital'], ['tilt', 'Mesa'], ['epic', 'Épi
   b.onclick = () => { camera = id; [...cams.children].forEach((x) => x.classList.toggle('on', x === b)); view?.setCamera(id); };
   cams.appendChild(b);
 }
-play(new URLSearchParams(location.search).get('scene') || 'Golpe al jefe');
+const q = new URLSearchParams(location.search);
+if (q.get('art') === 'pixel') arts.lastChild.click();
+play2(q.get('scene') || 'Golpe al jefe');

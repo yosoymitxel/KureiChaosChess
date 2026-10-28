@@ -80,11 +80,11 @@ src/data/themes.js:111 +applyTheme
 ## src/data/tile-marks.js (15L)
 src/data/tile-marks.js:7 +MARK_SIZE
 src/data/tile-marks.js:8 +TILE_MARKS
-## src/data/weather.js (30L)
+## src/data/weather.js (41L)
 src/data/weather.js:4 +WEATHER
-src/data/weather.js:15 +TIED_WEATHER
-src/data/weather.js:17 CHANCE
-src/data/weather.js:20 +weatherFor
+src/data/weather.js:17 +TIED_WEATHER
+src/data/weather.js:28 CHANCE
+src/data/weather.js:31 +weatherFor
 ## src/game/achievements.js (139L)
 src/game/achievements.js:7 KEY
 src/game/achievements.js:8 read
@@ -549,16 +549,20 @@ src/lab-catalog.js:32 difficulty
 src/lab-catalog.js:33 frame
 src/lab-catalog.js:35 fillSelect
 src/lab-catalog.js:53 updatePreview
-## src/lab.js (114L)
-src/lab.js:10 board
-src/lab.js:14 MOMENTS
-src/lab.js:29 SCENES
-src/lab.js:77 run
-src/lab.js:93 stage
-src/lab.js:94 moments
-src/lab.js:95 play
-src/lab.js:100 scenes
-src/lab.js:106 cams
+## src/lab.js (166L)
+src/lab.js:12 board
+src/lab.js:16 MOMENTS
+src/lab.js:31 SCENES
+src/lab.js:80 FX
+src/lab.js:114 run
+src/lab.js:132 stage
+src/lab.js:133 moments
+src/lab.js:134 play
+src/lab.js:139 current
+src/lab.js:140 play2
+src/lab.js:149 arts
+src/lab.js:156 cams
+src/lab.js:163 q
 ## src/main.js (7L)
 ## src/ui/app.js (380L)
 src/ui/app.js:31 REST_CARDS
@@ -723,8 +727,8 @@ src/ui/screens/hockey.js:16 css
 src/ui/screens/hockey.js:19 +HockeyScreen
 ## src/ui/screens/izombie.js (59L)
 src/ui/screens/izombie.js:13 +IZombieScreen
-## src/ui/screens/laststand.js (67L)
-src/ui/screens/laststand.js:12 +LastStandScreen
+## src/ui/screens/laststand.js (68L)
+src/ui/screens/laststand.js:13 +LastStandScreen
 ## src/ui/screens/map.js (71L)
 src/ui/screens/map.js:11 ROW
 src/ui/screens/map.js:13 +MapScreen
@@ -886,7 +890,7 @@ src/ui/zen-art.js:250 +boardPond
 src/ui/zen-art.js:256 +stoneArt
 src/ui/zen-art.js:262 +ITEM_ART
 src/ui/zen-art.js:267 +KOI_ART
-## src/view/board-view.js (1146L)
+## src/view/board-view.js (1150L)
 src/view/board-view.js:18 look
 src/view/board-view.js:20 +CAMERAS
 src/view/board-view.js:21 JUMPERS
@@ -896,9 +900,10 @@ src/view/board-view.js:24 css
 src/view/board-view.js:26 +collapseTiles
 src/view/board-view.js:38 BADGES
 src/view/board-view.js:46 +BoardView
-## src/view/fx.js (325L)
-src/view/fx.js:6 WEATHER_RATE
-src/view/fx.js:8 +Fx
+## src/view/fx.js (335L)
+src/view/fx.js:9 WEATHER_RATE
+src/view/fx.js:10 SF_PX
+src/view/fx.js:12 +Fx
 ## src/view/liquid.js (89L)
 src/view/liquid.js:6 count
 src/view/liquid.js:11 +liquid
@@ -928,6 +933,27 @@ src/view/piece-art.js:109 +pieceSVG
 src/view/piece-art.js:123 +headTop
 src/view/piece-art.js:125 +RAW_BODIES
 src/view/piece-art.js:129 +artOf
+## src/view/weather-fx.js (190L)
+src/view/weather-fx.js:6 G
+src/view/weather-fx.js:7 TAU
+src/view/weather-fx.js:8 rnd
+src/view/weather-fx.js:9 BAYER
+src/view/weather-fx.js:10 bayer
+src/view/weather-fx.js:12 noise
+src/view/weather-fx.js:14 dot
+src/view/weather-fx.js:19 glow
+src/view/weather-fx.js:28 FALL
+src/view/weather-fx.js:29 FLAKE
+src/view/weather-fx.js:30 CRYSTAL
+src/view/weather-fx.js:34 snowWind
+src/view/weather-fx.js:35 snow
+src/view/weather-fx.js:68 TONES
+src/view/weather-fx.js:69 fog
+src/view/weather-fx.js:107 EMBER
+src/view/weather-fx.js:108 embers
+src/view/weather-fx.js:157 FLY
+src/view/weather-fx.js:158 fireflies
+src/view/weather-fx.js:189 +WEATHER_FX
 ## css/base.css (220L)
 css/base.css:1 /* Reset, typography, browser surfaces and shared components.
 css/base.css:22 /* Icon() pinta las dos versiones; cada mesa muestra la suya (p
