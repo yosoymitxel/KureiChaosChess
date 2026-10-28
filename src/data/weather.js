@@ -11,8 +11,19 @@ export const WEATHER = {
   embers: { id: 'embers', name: 'Brasas', weight: 0 }, // solo jefe final y meteoritos
 };
 
-// Mecánica o minijuego → su clima de siempre.
-export const TIED_WEATHER = { ice: 'snow', blizzard: 'snow', fog: 'fog', zombie: 'fog', outbreak: 'fog', izombie: 'fog', meteor: 'embers' };
+// Mecánica o minijuego → su clima de siempre. Solo los minijuegos donde el clima cuenta algo de la
+// escena; los de pensar (mates, reinas, caballo, minas, a ciegas, damas…) van limpios para leer bien
+// el tablero, y los que no usan el tablero de la partida (hockey, bolos, conecta 4…) no lo admiten.
+export const TIED_WEATHER = {
+  ice: 'snow', fog: 'fog', zombie: 'fog', meteor: 'embers',
+  blizzard: 'snow', // el lago helado en plena ventisca
+  izombie: 'fog', outbreak: 'fog', // plaga y brote: niebla de cementerio
+  laststand: 'embers', // la defensa final, entre brasas
+  witch: 'fireflies', // las brujas duermen de noche
+  caceria: 'leaves', // cacería en el bosque
+  laboratory: 'bubbles', // probetas
+  escape: 'rain', // fuga bajo la lluvia
+};
 
 const CHANCE = 0.22; // pisos normales con clima
 

@@ -2,6 +2,7 @@ import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
+import { TIED_WEATHER } from '../../data/weather.js';
 import { MiniBoard, zombies } from '../mini-board.js';
 import { key } from '../../game/rules.js';
 import { ROWS, COLS, DIFFS, PRICES, newStand, place, canPlace, step, nextWave, building } from '../../game/laststand.js';
@@ -42,7 +43,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = t('common.conti
     <${Topbar} title=${MODIFIERS.laststand.name} sub=${sub} onBack=${onBack} />
     <div class="mini-body side-body">
       <div class="mini-main">
-        <${MiniBoard} board=${s.board} pieces=${zombies(s.pieces)} marks=${marks} strikes=${s.captures} disabled=${!building(s)} label=${t('laststand.board', 'Tablero de Última resistencia')} hostRef=${host}
+        <${MiniBoard} weather=${TIED_WEATHER.laststand} board=${s.board} pieces=${zombies(s.pieces)} marks=${marks} strikes=${s.captures} disabled=${!building(s)} label=${t('laststand.board', 'Tablero de Última resistencia')} hostRef=${host}
           onTap=${(r, c) => (canPlace(s, pick, r, c) ? act(() => place(s, pick, r, c)) : playSfx('invalid'))} />
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">
