@@ -55,8 +55,8 @@ export function Connect4Screen({ sub, onBack, onEnd, endLabel = t('common.contin
 
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === 'ArrowLeft') setCol((c) => Math.max(0, c - 1));
-      else if (e.key === 'ArrowRight') setCol((c) => Math.min(COLS - 1, c + 1));
+      if (e.key === 'ArrowLeft') { e.preventDefault(); setCol((c) => Math.max(0, c - 1)); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); setCol((c) => Math.min(COLS - 1, c + 1)); }
       else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); play(col); }
     };
     addEventListener('keydown', onKey);

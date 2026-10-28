@@ -64,6 +64,11 @@ export default {
     'common.win': 'You win!',
     'common.lose': 'You lose',
     'common.confirm': 'Press again to confirm',
+    'pad.ok': 'Choose',
+    'pad.back': 'Back',
+    'pad.collect': 'Pick up',
+    'pad.zoomOut': 'Zoom out',
+    'pad.zoomIn': 'Zoom in',
     // Minigames
     'mini.floorLevel': 'Floor level:',
     'mini.play': 'Play',

@@ -408,7 +408,10 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .callout.tone-danger .band { background: var(--danger); }
 .callout.tone-brass .band { background: var(--brass); }
 .callout-art, .callout-text { position: relative; rotate: -2deg; }
-.callout-art { display: grid; place-items: center; transform-origin: 50% 90%; }
+.callout-art { display: grid; place-items: center; transform-origin: 50% 90%; font-size: clamp(36px, 7vw, 76px); }
+/* Proporcional al título: con px fijos se veía chica en PC y enorme en móvil. */
+.callout-art .piece-icon { width: 1.1em !important; height: 1.1em !important; }
+.callout-art .icon { width: 0.75em; height: 0.75em; }
 .callout-art .swap-to { display: none; place-items: center; }
 .callout-art.flash, .cine-art.flash { filter: brightness(2.4) saturate(0.2); }
 .cine-art { transform-origin: 50% 90%; }
@@ -429,11 +432,11 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .callout-text strong { font-size: clamp(36px, 7vw, 76px); font-weight: 800; letter-spacing: -0.04em; line-height: 1; padding-block: 0.08em; }
 /* Callout tiers: major lands bigger, info reads small and light. */
 .callout.tier-major { padding: clamp(24px, 4.2vh, 42px) clamp(36px, 7.4vw, 100px); }
-.callout.tier-major .callout-text strong { font-size: clamp(44px, 8.6vw, 92px); }
+.callout.tier-major :is(.callout-text strong, .callout-art) { font-size: clamp(44px, 8.6vw, 92px); }
 .callout.tier-info { top: 35%; padding: clamp(12px, 2vh, 18px) clamp(18px, 3.6vw, 40px); }
-.callout.tier-info .callout-text strong { font-size: clamp(20px, 3.2vw, 30px); }
+.callout.tier-info :is(.callout-text strong, .callout-art) { font-size: clamp(20px, 3.2vw, 30px); }
 /* Trim the line box to cap height so big display text centres optically, not by its font metrics. */
-.callout-text strong, .cine-text h2, .turn-banner span, .end-card h1 { text-box: trim-both cap alphabetic; }
+.callout-text strong, .callout-text small, .cine-text h2, .turn-banner span, .end-card h1 { text-box: trim-both cap alphabetic; }
 .callout-text small { font-size: clamp(13px, 1.6vw, 16px); font-weight: 700; }
 .table.in-check::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, oklch(0.52 0.2 25 / 0.32)); }
 

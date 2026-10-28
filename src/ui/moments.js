@@ -154,7 +154,7 @@ export class Moments {
     const { skipped, release } = skippable(el);
 
     motion(el.querySelectorAll('.bar'), { scaleY: [0, 1] }, { duration: this.t(0.35), ease: OUT });
-    motion(q('.cine-text h2'), { clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)'] }, { duration: this.t(0.5), delay: this.t(0.12), ease: OUT });
+    motion(q('.cine-text h2'), { clipPath: ['inset(-0.3em 100% -0.3em -0.1em)', 'inset(-0.3em -0.1em -0.3em -0.1em)'] }, { duration: this.t(0.5), delay: this.t(0.12), ease: OUT });
     motion(el.querySelectorAll('.cine-text p, .cine-hp, .cine-skip'), { opacity: [0, 1], y: [10, 0] }, { duration: this.t(0.4), delay: this.t(0.3), ease: OUT });
     // La figura entra por la derecha, la izquierda o desde arriba, para que no se repita siempre igual.
     const from = [{ x: [120, 0] }, { x: [-120, 0] }, { y: [-140, 0] }][Math.floor(Math.random() * 3)];
@@ -227,7 +227,7 @@ export class Moments {
     const ts = (s) => this.t(s);
     const play = (async () => {
       motion(el.querySelectorAll('.bar'), { scaleY: [0, 1] }, { duration: ts(0.35), ease: OUT });
-      motion(q('.cine-text h2'), { clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)'] }, { duration: ts(0.5), delay: ts(0.12), ease: OUT });
+      motion(q('.cine-text h2'), { clipPath: ['inset(-0.3em 100% -0.3em -0.1em)', 'inset(-0.3em -0.1em -0.3em -0.1em)'] }, { duration: ts(0.5), delay: ts(0.12), ease: OUT });
       motion(el.querySelectorAll('.cine-text p, .cine-skip'), { opacity: [0, 1], y: [10, 0] }, { duration: ts(0.4), delay: ts(0.3), ease: OUT });
       await motion(q('.dm-board'), { scale: [0.85, 1], opacity: [0, 1] }, { duration: ts(0.35), ease: OUT });
       await motion(el.querySelectorAll('.dm-cell.base b'), { scale: [0, 1] }, { duration: ts(0.25), delay: motionStagger(ts(0.03)), ease: OUT });
@@ -288,10 +288,8 @@ export class Moments {
     const dir = ['left', 'right', 'top'][Math.floor(Math.random() * 3)];
     const band = el.querySelector('.band');
     if (dir === 'top') motion(el, { y: [-this.host.clientHeight * 0.4, 0] }, { duration: this.t(0.3), ease: OUT });
-    else {
-      band.style.transformOrigin = dir === 'left' ? '0 50%' : '100% 50%';
-      motion(band, { scaleX: [0, 1] }, { duration: this.t(0.22), ease: OUT });
-    }
+    // clip-path y no scaleX: mover transform-origin a un lado también movía el eje del giro de la banda.
+    else motion(band, { clipPath: [dir === 'left' ? 'inset(0 100% 0 0)' : 'inset(0 0 0 100%)', 'inset(0 0% 0 0%)'] }, { duration: this.t(0.22), ease: OUT });
     motion(el.querySelectorAll('strong, small'), { scale: [1.5, 1], opacity: [0, 1] }, { duration: this.t(0.3), ease: OUT });
     const art = el.querySelector('.callout-art');
     await (art ? this.animate(anim, art, piece, this.t(hold)) : sleep(this.t(hold + 0.15)));

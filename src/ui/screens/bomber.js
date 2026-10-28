@@ -120,8 +120,8 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = t('common.continue
                   onClick=${() => act({ move: [dr, dc] })}>${glyph}</button>`)}
               </div>
               <div class="bm-actions">
-                <button class="btn sm" onClick=${() => act({ bomb: true })}><${Icon} name="collapse" size=${16} />${t('bomber.bomb', 'Bomba')}</button>
-                <button class="btn sm ghost" onClick=${() => act({ wait: true })}>${t('marcianos.wait', 'Esperar')}</button>
+                <button class="btn sm" data-pad="x" onClick=${() => act({ bomb: true })}><${Icon} name="collapse" size=${16} />${t('bomber.bomb', 'Bomba')}</button>
+                <button class="btn sm ghost" data-pad="y" onClick=${() => act({ wait: true })}>${t('marcianos.wait', 'Esperar')}</button>
               </div>
             </div>`}
           <${MiniTools} mini="bomber" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('bomber.help', 'Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha da 5 turnos para salir del radio, las casillas con borde rojo estallan en la próxima jugada y algunas cajas sueltan bomba extra o más alcance. Como en el original, la puerta de salida está escondida bajo una caja: derriba a todos los enemigos y entra por ella. Enemigos de este nivel: {foes}.', { foes: kinds.map((k) => `${PIECE_NAMES[k].toLowerCase()} (${FOES[k].replace(/\.$/, '').toLowerCase()})`).join('; ') })}<//>

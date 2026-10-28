@@ -99,7 +99,7 @@ export function MiniTools({ mini, cinematic = true, diffs, fixed, settings, setS
   }, []);
 
   const level = diffName(diffs, fixed || settings.miniDiff?.[mini] || 'normal');
-  return html`<button class="btn ghost sm mini-tools" aria-haspopup="dialog" onClick=${() => setOpen(true)}><${Icon} name="book" size=${16} /><span class="mini-tools-label">${t('common.howTo', 'Cómo se juega')} · ${level}</span></button>
+  return html`<button class="btn ghost sm mini-tools" data-pad="select" aria-haspopup="dialog" onClick=${() => setOpen(true)}><${Icon} name="book" size=${16} /><span class="mini-tools-label">${t('common.howTo', 'Cómo se juega')} · ${level}</span></button>
     ${open && html`<div class="overlay" onClick=${(e) => e.target === e.currentTarget && setOpen(false)}>
       <div class="panel mini-sheet" role="dialog" aria-modal="true" aria-label=${t('common.howTo', 'Cómo se juega')}>
         <h2>${t('common.howTo', 'Cómo se juega')}</h2>
