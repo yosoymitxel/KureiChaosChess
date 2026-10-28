@@ -463,6 +463,9 @@ Object.assign(SCENARIOS, {
           if (coins.delete(at)) { got++; if (got + coins.size < lv.coins) addCoin(m.pieces); }
           if (got >= lv.coins) return { victory: true, note: t('sc.clock.won', 'Todas las monedas, y a tiempo.') };
           if (at === clock.k) newClock(rounds(m), m.pieces);
+          // Si una pieza carmesí se planta en el reloj, el reloj salta a otra casilla con el tiempo entero:
+          // un peón no puede cerrar la única meta.
+          else if (m.pieces.some((p) => p.color === 'dark' && key(p.row, p.col) === clock.k)) newClock(rounds(m), m.pieces);
           return rounds(m) >= clock.until ? { victory: false, note: t('sc.clock.lost', 'Se paró el reloj.') } : null;
         },
         tick: (m) => {
