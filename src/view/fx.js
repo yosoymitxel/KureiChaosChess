@@ -4,19 +4,9 @@
 import { playSfx } from '../ui/sfx.js';
 import sfShield from '../../vendor/sprite-fusion/shield.js';
 import sfFire from '../../vendor/sprite-fusion/fire.js';
-import sfSnow from '../../vendor/sprite-fusion/snow.js';
-import sfFog from '../../vendor/sprite-fusion/fog.js';
-import sfEmbers from '../../vendor/sprite-fusion/embers.js';
-import sfFireflies from '../../vendor/sprite-fusion/fireflies.js';
+import { WEATHER_FX } from './weather-fx.js';
 
-const WEATHER_RATE = { rain: 70, leaves: 4, bubbles: 6 };
-// Climas que vienen de Sprite Fusion (vendor/sprite-fusion, MIT): reciben el área de la capa en px.
-const SF_WEATHER = {
-  snow: (a) => sfSnow({ area: a, drift: false, density: 0.8 }),
-  fog: (a) => sfFog({ area: { ...a, y: a.h * 0.3, h: a.h * 0.7 }, colors: ['#8a90ad', '#aab0c8', '#d4d8e6'], density: 0.6 }),
-  embers: (a) => sfEmbers({ area: a, density: 0.8 }),
-  fireflies: (a) => sfFireflies({ area: a, grass: false, density: 1.4, close: 8 }),
-};
+const WEATHER_RATE = { rain: 70, leaves: 4, bubbles: 6 }; // los demás climas, en weather-fx.js
 const SF_PX = 2; // cada píxel de los efectos de Sprite Fusion ocupa 2 px de pantalla // partículas por segundo cada 360 px de ancho
 
 export class Fx {
@@ -41,7 +31,6 @@ export class Fx {
     this.canvas.width = Math.round(r.width * dpr);
     this.canvas.height = Math.round(r.height * dpr);
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    if (this.sfWeather) this.sfWeather.fx = null; // se rehace al tamaño nuevo
   }
   destroy() { cancelAnimationFrame(this.raf); this.ro.disconnect(); this.canvas.remove(); }
 
@@ -171,8 +160,7 @@ export class Fx {
   // niebla y brasas. Se emite en cada cuadro mientras `weather` esté puesto; null lo apaga.
   setWeather(kind) {
     if (!this.vfx || matchMedia('(prefers-reduced-motion: reduce)').matches) kind = null;
-    this.weather = kind && !SF_WEATHER[kind] ? { kind, acc: 0 } : null;
-    this.sfWeather = kind && SF_WEATHER[kind] ? { kind, fx: null } : null;
+    this.weather = kind ? { kind, acc: 0, W: WEATHER_FX[kind], n: {} } : null;
     if (kind) this.kick();
   }
   // Arranca ya lleno, en cuanto la capa tiene tamaño: cada partícula nace a mitad de su recorrido.
@@ -236,13 +224,7 @@ export class Fx {
   // píxel; el color se pega encima y la luz se suma ('lighter'), como en su motor.
   drawSf(dt) {
     const w = Math.ceil(this.w / SF_PX), h = Math.ceil(this.h / SF_PX);
-    if (this.sfWeather && !this.sfWeather.fx && this.h > 40) {
-      // Arranca ya lleno: unos segundos simulados antes del primer cuadro.
-      const fx = SF_WEATHER[this.sfWeather.kind]({ x: 0, y: 0, w: this.w, h: this.h });
-      for (let i = 0; i < 120; i++) fx.update(1 / 30);
-      this.sfWeather.fx = fx;
-    }
-    const list = this.sfWeather?.fx ? [this.sfWeather.fx, ...this.sf] : this.sf;
+    const list = this.sf;
     if (!list.length) return;
     let f = this.sfFrame;
     if (!f || f.w !== w || f.h !== h) {
@@ -276,8 +258,17 @@ export class Fx {
     this.last = now;
     const { ctx } = this, pixel = document.documentElement.dataset.art === 'pixel';
     ctx.clearRect(0, 0, this.w, this.h);
-    if (this.weather && !this.weather.warm && this.h > 40) { this.weather.warm = true; this.prewarm(this.weather.kind); }
-    if (this.weather) {
+    const T = now / 1000, W = this.weather?.W;
+    if (W && this.h > 40) {
+      // Cada tipo mantiene sus partículas vivas; al empezar nacen repartidas por toda la capa.
+      for (const [wk, target] of Object.entries(W.count(this.w, this.h))) {
+        for (let n = this.weather.n[wk] || 0; n < target; n++) this.parts.push({ g: 0, drag: 1, rot: 0, life: Infinity, max: 1, ...W.spawn(wk, this.w, this.h, !this.weather.warm), wk, W, owner: this.weather });
+        this.weather.n[wk] = Math.max(this.weather.n[wk] || 0, Math.ceil(target));
+      }
+      this.weather.warm = true;
+      if (W.under) { ctx.save(); W.under(ctx, T, pixel, this.w, this.h); ctx.restore(); }
+    } else if (this.weather && !this.weather.warm && this.h > 40) { this.weather.warm = true; this.prewarm(this.weather.kind); }
+    if (this.weather && !W) {
       const rate = WEATHER_RATE[this.weather.kind] * (this.w / 360);
       for (this.weather.acc += rate * dt; this.weather.acc >= 1; this.weather.acc--) this.spawn(this.weather.kind);
     }
@@ -285,8 +276,14 @@ export class Fx {
     for (let i = this.parts.length - 1; i >= 0; i--) {
       const p = this.parts[i];
       p.life -= dt;
-      if (p.life <= 0) { this.parts.splice(i, 1); p.end?.(p); continue; }
+      if (p.life <= 0) { this.parts.splice(i, 1); p.end?.(p); if (p.wk) p.owner.n[p.wk]--; continue; }
       if (p.wait > 0) { p.wait -= dt; continue; }
+      if (p.W) {
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        if (!p.W.tick(p, dt, T, this.w, this.h)) { this.parts.splice(i, 1); p.owner.n[p.wk]--; continue; }
+        ctx.save(); ctx.globalAlpha = 1; p.W.draw(ctx, p, T, pixel, this.w); ctx.restore();
+        continue;
+      }
       const k = Math.pow(p.drag, dt * 60);
       p.vx *= k; p.vy = p.vy * k + p.g * dt;
       p.x += p.vx * dt; p.y += p.vy * dt;
@@ -331,7 +328,7 @@ export class Fx {
       }
     }
     ctx.globalAlpha = 1;
-    this.raf = this.parts.length || this.weather || this.sfWeather || this.sf.length ? requestAnimationFrame((t) => this.loop(t)) : 0;
+    this.raf = this.parts.length || this.weather || this.sf.length ? requestAnimationFrame((t) => this.loop(t)) : 0;
     if (!this.raf) ctx.clearRect(0, 0, this.w, this.h);
   }
 }
