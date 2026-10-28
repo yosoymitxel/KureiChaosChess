@@ -16,6 +16,7 @@ const settings = {
   theme: chosenTheme, miniDiff,
   helpSeen: Object.fromEntries(Object.keys(MINIGAMES).map(k => [k, true])),
   shake: false, speed: 1, sound: false, moments: true,
+  vfx: !!JSON.parse(localStorage.getItem('zugzwang.settings.v2') || '{}').vfx, // tools/play.mjs lo activa
 };
 const noop = () => {};
 // El nivel no va fijo: el selector del juego cambia los ajustes y Reiniciar monta una partida nueva.
