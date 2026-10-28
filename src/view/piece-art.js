@@ -26,7 +26,7 @@ const LADDER = {
   pawn: { h: 18.5 }, rook: { h: 21.5 }, guard: { h: 26.2 }, cannon: { h: 23 }, elephant: { h: 22.5 },
   advisor: { h: 23.5 }, camel: { h: 24.5, maxW: 31, ax: 28.4 }, knight: { h: 24, ax: 25.5 }, bishop: { h: 25 },
   queen: { h: 26.5, maxW: 29 }, king: { h: 27.5, maxW: 29 },
-  'boss-titan': { h: 29, maxW: 34 }, 'boss-ram': { h: 26, maxW: 37.6, ax: 22.5 }, 'boss-hydra': { h: 28.5, maxW: 34, ax: 225 },
+  'boss-titan': { h: 29, maxW: 34 }, 'boss-ram': { h: 26, maxW: 37.6, ax: 225 }, 'boss-hydra': { h: 28.5, maxW: 34, ax: 225 },
   'boss-golem': { h: 25, maxW: 38 }, 'boss-rider': { h: 31.5, maxW: 32, ax: 23 }, 'boss-wall': { h: 23, maxW: 40 },
   'boss-devourer': { h: 26.5, maxW: 36 },
 };
