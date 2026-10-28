@@ -80,6 +80,6 @@ Diseño y desarrollo: [yosoymitxel](https://github.com/yosoymitxel).
 
 - Música: Open Lo-Fi (btahir) y Ninja Adventure (Pixel-boy), CC0.
 - Sonidos: Kenney, OpenGameArt y Ninja Adventure, CC0.
-- Letras: Fraunces y Outfit (mesa normal) y Jersey 15 (mesas píxel), SIL OFL, en `assets/fonts/`.
+- Letras: Bricolage Grotesque y Jersey 10 (SIL OFL).
 
 ¿Quieres ver cómo está hecho o añadir algo? Mira la [guía de desarrollo](docs/DESARROLLO.md).

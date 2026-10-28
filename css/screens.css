@@ -50,7 +50,7 @@
 .logo-i { position: relative; display: inline-block; background: inherit; -webkit-background-clip: text; background-clip: text; }
 /* La corona hace de punto de la ı: centrada en el palo medido de la letra (--cx) y apoyada en su
    remate (--top), con el mismo canto de tinta que las letras. Cada tanto da un saltito. */
-.logo-i { --cx: 0.136em; --top: 0.11em; --cs: 0.26em; }
+.logo-i { --cx: 0.114em; --top: 0em; --cs: 0.26em; }
 .logo-i .icon { position: absolute; left: calc(var(--cx) - var(--cs) / 2); top: var(--top); width: var(--cs); height: var(--cs); color: var(--brass);
   stroke: var(--ink); stroke-width: 1.6px; paint-order: stroke; transform-origin: 50% 90%; -webkit-text-fill-color: initial;
   animation: crown-hop 5s 1.2s var(--ease-out) infinite; }
