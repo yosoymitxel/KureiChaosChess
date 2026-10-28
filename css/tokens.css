@@ -12,6 +12,7 @@
   --accent-ink: oklch(0.42 0.15 32);
   --brass: oklch(0.77 0.12 80);
   --legal: oklch(0.8 0.16 135);
+  --goal: oklch(0.84 0.15 88); /* casillas a las que llegar o desde las que lanzar en un minijuego */
   --gain: oklch(0.72 0.14 235); /* moves a card would add: clearly not a move you have now */
   --danger: oklch(0.52 0.2 25);
   --elite: oklch(0.62 0.16 305); /* elite rules (falls last, escorted): never confused with brass selection */

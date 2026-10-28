@@ -1247,7 +1247,8 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .dots i.off { background: oklch(1 0 0 / 0.14); }
 /* La última oleada es la horda: su punto es un banderín bermellón. */
 .dots i.flag { border-radius: 2px 6px 6px 2px; width: 12px; outline: 2px solid var(--accent); outline-offset: 1px; }
-.bm-cell.lane { background-color: color-mix(in oklch, var(--tile-a), var(--side-light) 45%); }
+/* Carriles de lanzamiento: el velo amarillo de las metas, que se lee también en las mesas píxel. */
+.bm-cell.lane { box-shadow: inset 0 0 0 2px color-mix(in oklch, var(--goal), transparent 25%), inset 0 0 0 999px color-mix(in oklch, var(--goal), transparent 62%); }
 /* El número del carril en su esquina: es la tecla que lo lanza. */
 .bw { counter-reset: lane; }
 /* La bolera es apaisada: su escenario no reserva el alto pensado para tableros verticales. */
