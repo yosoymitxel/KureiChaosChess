@@ -516,7 +516,11 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const playDemos = async (boss) => {
       const human = seats.find((s) => s.kind === 'human')?.color || 'light';
       seeMutations(run.mutations || []);
-      for (const id of takeNewDemos(run)) await playDemo(d.moments, mutationDemo(id, human));
+      const fresh = takeNewDemos(run);
+      for (const id of fresh) await playDemo(d.moments, mutationDemo(id, human));
+      // Efectos extra: la bruja se carga al empezar y las piezas con mutación nueva la estrenan.
+      d.view.powerUp(match.pieces.filter((p) => p.witch), '#c58bff');
+      d.view.powerUp(match.pieces.filter((p) => Object.values(p.mutationFrom || {}).some((m) => fresh.includes(m))), '#ffcf6b');
       if (boss && !loadBosses().includes(boss.boss)) await playDemo(d.moments, bossDemo(boss.boss, boss.color));
     };
     // Cara o cruz (ajuste de la mesa): cara empieza el primer asiento; cruz, el siguiente.
@@ -624,7 +628,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.match = match;
     d.check = {};
     d.moments = new Moments(mainRef.current, { speed: settings.speed, enabled: settings.moments });
-    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, speed: settings.speed, framed: !!scenario, pond: !scenario, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
+    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, vfx: settings.vfx, speed: settings.speed, framed: !!scenario, pond: !scenario, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
     d.view.setBoard(board);
     d.view.setPieces(pieces);
     // Clima: nieve con hielo, niebla con niebla, brasas en el jefe final y lluvia en uno de cada cuatro pisos.

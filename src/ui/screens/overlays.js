@@ -44,6 +44,7 @@ export function PauseOverlay({ onResume, onRestart, onExit, onMenu, onAbandon, o
         <${Toggle} on=${settings.sound} onChange=${set('sound')} label=${t('settings.sound', 'Sonidos')} />
         <${Toggle} on=${settings.moments} onChange=${set('moments')} label=${t('settings.moments', 'Momentos destacados')} />
         <${Toggle} on=${settings.shake} onChange=${set('shake')} label=${t('settings.shake', 'Temblor de cámara')} />
+        <${Toggle} on=${settings.vfx} onChange=${set('vfx')} label=${t('settings.vfx', 'Efectos extra (clima, auras…)')} />
       </div>
       <div class="pause-grid">
         <button class="btn sm" onClick=${onHowTo}><${Icon} name="book" size=${16} />${t('pause.rules', 'Reglas')}</button>

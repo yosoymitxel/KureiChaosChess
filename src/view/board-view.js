@@ -46,7 +46,7 @@ const BADGES = {
 export class BoardView {
   // `framed`: el marco de losa de los minijuegos alrededor del mismo tablero.
   // `pond`: el hueco del centro se llena de agua con koi (solo en el tablero de la run).
-  constructor(host, { camera = 'tilt', shake = true, speed = 1, framed = false, pond = false, onTap, onDrop, canDrag, onImpact, onHover, onZoom } = {}) {
+  constructor(host, { camera = 'tilt', shake = true, vfx = false, speed = 1, framed = false, pond = false, onTap, onDrop, canDrag, onImpact, onHover, onZoom } = {}) {
     Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, onHover, onZoom, shakeOn: shake, speed, pondOn: pond });
     this.tilt = CAMERAS[camera] ?? 40;
     this.zoom = 1; this.pan = { x: 0, y: 0 };
@@ -57,7 +57,7 @@ export class BoardView {
     this.tilesEl = host.querySelector('.tiles');
     this.gooEl = host.querySelector('.goo');
     this.piecesEl = host.querySelector('.pieces');
-    this.fx = new Fx(host);
+    this.fx = new Fx(host); this.fx.vfx = vfx;
     this.tiles = new Map();
     this.els = new Map(); // piece -> element
     this.state = new Map(); // piece -> {r,c,z}
@@ -746,7 +746,7 @@ export class BoardView {
     }
     if (!reduced()) this.liquid(piece, from, to, dur);
     const stretch = fig && !reduced() ? this.stretcher(fig, st) : null;
-    const trail = res.dash && !reduced() ? this.afterimages(piece) : null;
+    const trail = res.dash && this.fx.vfx && !reduced() ? this.afterimages(piece) : null;
     await animate(st, {
       r: to.row, c: to.col, z: [0, arc, 0], duration: dur,
       ease: 'inOutSine', onUpdate: () => { this.apply(piece); stretch?.(); trail?.(); },
@@ -785,6 +785,11 @@ export class BoardView {
       this.squash(res.castle.rook, 0.8);
     }
     if (promoted) await this.promote(piece);
+  }
+
+  // Power-up: aura que sube por las piezas (bruja al empezar, piezas con mutación nueva).
+  powerUp(pieces, color) {
+    for (const p of pieces) { const c = this.centerOf(p); this.fx.aura(c.x, c.y, this.sq * Math.max(...sizeOf(p)), color); }
   }
 
   // Dash de las jugadas extra (Paso doble, Furia): copias de la pieza que se quedan atrás y se apagan.
@@ -954,6 +959,7 @@ export class BoardView {
     setTimeout(() => el.classList.remove('hit'), this.d(260));
     const hp = el.querySelector('.pc-hp');
     if (hp) hp.outerHTML = this.hpHTML(p);
+    if (p.boss || p.maxHp > 1) this.fx.shield(c.x, c.y, this.sq * 0.85 * Math.max(...sizeOf(p)), { broken: p.hp <= 1 });
     this.floatText(c.x, c.y - this.sq * 1.2, '−1');
   }
 
@@ -999,6 +1005,7 @@ export class BoardView {
     for (const p of pieces) {
       const c = this.centerOf(p);
       this.fx.burst(c.x, c.y - this.sq * 0.3, { count: 14, color: [css('--side-zombie'), 'oklch(0.82 0.12 128)'], speed: [30, 120], life: [0.4, 0.8], size: [3, 6], gravity: -80, drag: 0.9 });
+      this.fx.poison(c.x, c.y - this.sq * 0.3, this.sq);
       this.remake(p);
       this.squash(p, 0.75);
     }
@@ -1084,6 +1091,11 @@ export class BoardView {
     this.fx.ring(p.x, p.y, { radius: this.sq * 2.6, width: 6, color: '#ffcf6b' });
     this.shake(24, 700);
     playSfx('shatter');
+    // Lo que queda al lado de la cruz arde un momento.
+    for (const q of this.els.keys()) {
+      if (lost.includes(q) || cells.some(([r, c]) => r === q.row && c === q.col)) continue;
+      if (cells.some(([r, c]) => Math.max(Math.abs(r - q.row), Math.abs(c - q.col)) === 1)) { const c = this.centerOf(q); this.fx.fire(c.x, c.y, this.sq * 0.6); }
+    }
     await Promise.all([...lost.map((q) => this.kill(q, q, q)), this.collapse(cells)]);
   }
 

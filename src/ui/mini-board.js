@@ -13,7 +13,7 @@ export function MiniBoard({ board, pieces, onTap, marks, labels, strikes, hidden
   tap.current = disabled ? null : onTap;
   useLayoutEffect(() => {
     const s = loadSettings();
-    view.current = new BoardView(host.current, { camera: s.camera, shake: s.shake, speed: s.speed, framed: true, onTap: (hit) => tap.current?.(hit.row, hit.col) });
+    view.current = new BoardView(host.current, { camera: s.camera, shake: s.shake, vfx: s.vfx, speed: s.speed, framed: true, onTap: (hit) => tap.current?.(hit.row, hit.col) });
     onView?.(view.current);
     return () => view.current.ro.disconnect();
   }, []);

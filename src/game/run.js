@@ -60,7 +60,7 @@ const BOSSES_KEY = 'zugzwang.bosses.v1';
 export const loadBosses = () => read(BOSSES_KEY) || [];
 export const unlockBoss = (id) => { const u = loadBosses(); if (id && !u.includes(id)) write(BOSSES_KEY, [...u, id]); };
 
-export const DEFAULT_SETTINGS = { theme: 'walnut', camera: 'tilt', shake: true, moments: true, fullscreen: false, speed: 1, difficulty: 'normal', miniDiff: {}, sound: true, music: true, volume: 'normal', coin: false };
+export const DEFAULT_SETTINGS = { theme: 'walnut', camera: 'tilt', shake: true, vfx: false, moments: true, fullscreen: false, speed: 1, difficulty: 'normal', miniDiff: {}, sound: true, music: true, volume: 'normal', coin: false };
 // El ajuste viejo guardaba un solo nivel global; ahora es un nivel por minijuego.
 export const loadSettings = () => {
   const s = { ...DEFAULT_SETTINGS, ...(read(SETTINGS_KEY) || {}) };

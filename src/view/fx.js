@@ -12,6 +12,7 @@ export class Fx {
     this.ctx = this.canvas.getContext('2d');
     this.parts = [];
     this.raf = 0;
+    this.vfx = false; // efectos extra (Sprite Fusion): Ajustes › Efectos extra, apagado por defecto
     this.ro = new ResizeObserver(() => this.resize());
     this.ro.observe(host);
     this.resize();
@@ -70,6 +71,11 @@ export class Fx {
     this.burst(x, y, { count: Math.round(18 * scale), color: ['#fff2c2', '#ffcf6b', '#ff8a3d'], speed: [220 * scale, 520 * scale], life: [0.25, 0.5], size: [1.5, 3], shape: 'spark', drag: 0.86 });
     this.burst(x, y, { count: Math.round(14 * scale), color: ['#ff8a3d', '#e2552b', '#ffcf6b'], speed: [80, 260 * scale], life: [0.6, 1.1], size: [2, 4], gravity: 420, shape: 'chunk' });
     this.smoke(x, y, scale);
+    // Con efectos extra: tierra arrancada y una segunda onda baja, como el Explosion de Sprite Fusion.
+    if (this.vfx) {
+      this.burst(x, y, { count: Math.round(12 * scale), color: ['#6b4a2e', '#4a3220', '#8a6a48'], speed: [120, 320 * scale], life: [0.6, 1], size: [3, 6], gravity: 800, shape: 'chunk', spread: Math.PI * 0.9, angle: -Math.PI / 2 });
+      this.ring(x, y, { color: '#c9a77a', radius: 130 * scale, life: 0.6, width: 3 });
+    }
   }
   // La caída del rey: estallido grande, onda ancha y escombros. Las bombas de los minijuegos la usan
   // a su escala (`scale` 1 = una casilla de unos 40 px) para que todo estalle igual en el juego.
@@ -107,7 +113,11 @@ export class Fx {
     ctx.fillStyle = p.color; ctx.strokeStyle = p.color;
     switch (p.shape) {
       case 'mote': return sq(p.x, p.y, Math.max(1, Math.round(p.size / G)));
-      case 'fogbank': { ctx.globalAlpha *= 0.4; for (const k of [1, 0.7, 0.4]) disc(p.x, p.y, p.size * k); return; }
+      case 'fogbank': {
+        // Bancos de niebla a franjas (una fila sí, otra no), más anchos que altos.
+        for (let dy = -p.size * 0.5; dy <= p.size * 0.5; dy += G * 2) { const w = snap(p.size * 1.8 * Math.sqrt(1 - (2 * dy / p.size) ** 2)); ctx.fillRect(snap(p.x) - w, snap(p.y + dy), 2 * w, G); }
+        return;
+      }
       case 'flash': ctx.globalAlpha = a(t); return disc(p.x, p.y, p.size * (1.2 - t * 0.6));
       case 'smoke': ctx.globalAlpha = a(t * 0.9); return disc(p.x, p.y, p.size * (1.6 - t * 0.8));
       case 'ring': {
@@ -146,8 +156,17 @@ export class Fx {
   // Clima continuo sobre el tablero (recetas de Sprite Fusion Pixel Art VFX, MIT): lluvia, nieve,
   // niebla y brasas. Se emite en cada cuadro mientras `weather` esté puesto; null lo apaga.
   setWeather(kind) {
-    this.weather = matchMedia('(prefers-reduced-motion: reduce)').matches ? null : kind ? { kind, acc: 0 } : null;
+    this.weather = !this.vfx || matchMedia('(prefers-reduced-motion: reduce)').matches ? null : kind ? { kind, acc: 0 } : null;
     if (this.weather?.kind === 'fog') for (let i = 0; i < 5; i++) this.spawn('fog', Math.random());
+    else if (this.weather) {
+      // Arranca ya lleno: cada partícula nace a mitad de su recorrido.
+      const n = { rain: 50, snow: 80, embers: 30 }[kind] * (this.w / 360);
+      for (let i = 0; i < n; i++) {
+        this.spawn(kind);
+        const p = this.parts[this.parts.length - 1], a = Math.random() * p.life;
+        p.x += p.vx * a; p.y += p.vy * a; p.life -= a;
+      }
+    }
     if (this.weather) this.kick();
   }
   spawn(kind, at = 0) {
@@ -169,6 +188,54 @@ export class Fx {
     }
   }
 
+  // Power-up: chispas que trepan por el contorno de la pieza y un anillo que late en la base.
+  aura(x, y, h, color = '#ffcf6b') {
+    if (!this.vfx) return;
+    this.ring(x, y, { color, radius: h * 0.7, life: 0.6, width: 3 });
+    for (let i = 0; i < 26; i++) {
+      const a = Math.random() * 6.283, life = 0.5 + Math.random() * 0.6;
+      this.parts.push({ x: x + Math.cos(a) * h * 0.32, y: y + Math.sin(a) * h * 0.12 - Math.random() * h * 0.5, vx: 0, vy: -h * (0.9 + Math.random()), g: 0, drag: 0.97, life, max: life, size: 1.5 + Math.random() * 1.5, color: [color, '#fff'][i % 2], shape: 'mote', rot: 0, flicker: true });
+    }
+    this.kick();
+  }
+  // Escudo: cúpula de celdas hexagonales que se enciende al recibir el golpe; `broken` la hace añicos.
+  shield(x, y, r, { color = '#8fd3ff', broken = false } = {}) {
+    if (!this.vfx) return;
+    this.parts.push({ x, y, vx: 0, vy: 0, g: 0, drag: 1, life: 0.45, max: 0.45, size: r, color, shape: 'dome', rot: 0 });
+    if (broken) this.burst(x, y - r * 0.5, { count: 18, color: [color, '#fff'], speed: [80, 240], life: [0.4, 0.8], size: [2, 4], gravity: 500, shape: 'chunk' });
+    this.kick();
+  }
+  // Fuego: llamas que lamen la pieza unos instantes (para lo que queda junto al meteorito).
+  fire(x, y, w, secs = 1.4) {
+    if (!this.vfx) return;
+    for (let i = 0; i < Math.round(secs * 40); i++) {
+      const life = 0.35 + Math.random() * 0.4, delay = Math.random() * secs;
+      this.parts.push({ x: x + (Math.random() - 0.5) * w, y, vx: (Math.random() - 0.5) * 20, vy: -60 - Math.random() * 80, g: -60, drag: 0.95, life: life + delay, max: life, wait: delay, size: 2 + Math.random() * 3, color: ['#fff2c2', '#ffcf6b', '#ff8a3d', '#e2552b'][i % 4], shape: 'mote', rot: 0, flicker: true });
+    }
+    this.kick();
+  }
+  // Veneno: nube verde que se abre y burbujas que suben y revientan.
+  poison(x, y, w) {
+    if (!this.vfx) return;
+    this.burst(x, y, { count: 6, color: ['rgba(120,200,80,.35)', 'rgba(90,160,60,.3)'], speed: [10, 40], life: [0.8, 1.3], size: [w * 0.25, w * 0.4], gravity: -20, shape: 'smoke' });
+    this.burst(x, y, { count: 10, color: ['#b6f37a', '#7fd14a'], speed: [10, 30], life: [0.6, 1.1], size: [2, 3.5], gravity: -90, spread: 1.2, angle: -Math.PI / 2, shape: 'mote' });
+  }
+
+  dome(p, t, pixel) {
+    const { ctx } = this, r = p.size * (1.05 - t * 0.05), G = 3;
+    ctx.globalAlpha = t * 0.9; ctx.strokeStyle = ctx.fillStyle = p.color; ctx.lineWidth = 2;
+    const hex = (cx, cy, s) => {
+      if (pixel) { for (let k = 0; k < 6; k++) { const a = (k * Math.PI) / 3; ctx.fillRect(Math.round((cx + Math.cos(a) * s) / G) * G, Math.round((cy + Math.sin(a) * s) / G) * G, G, G); } return; }
+      ctx.beginPath(); for (let k = 0; k < 6; k++) { const a = (k * Math.PI) / 3; ctx.lineTo(cx + Math.cos(a) * s, cy + Math.sin(a) * s); } ctx.closePath(); ctx.stroke();
+    };
+    const s = r * 0.2;
+    for (let row = 0; row < 4; row++) for (let k = -3; k <= 3; k++) {
+      const cx = p.x + k * s * 1.55 + (row % 2) * s * 0.78, cy = p.y - row * s * 1.35;
+      if (Math.hypot((cx - p.x) / r, (cy - p.y) / (r * 1.1)) < 0.95) hex(cx, cy - r * 0.15, s * 0.8);
+    }
+    ctx.globalAlpha = t * 0.25; ctx.beginPath(); ctx.ellipse(p.x, p.y - r * 0.15, r, r * 1.1, 0, Math.PI, 0); ctx.fill();
+  }
+
   kick() { if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame((t) => this.loop(t)); } }
   loop(now) {
     const dt = Math.min((now - this.last) / 1000, 0.05);
@@ -183,14 +250,16 @@ export class Fx {
       const p = this.parts[i];
       p.life -= dt;
       if (p.life <= 0) { this.parts.splice(i, 1); p.end?.(p); continue; }
+      if (p.wait > 0) { p.wait -= dt; continue; }
       const k = Math.pow(p.drag, dt * 60);
       p.vx *= k; p.vy = p.vy * k + p.g * dt;
       p.x += p.vx * dt; p.y += p.vy * dt;
       p.rot += (p.vr || 0) * dt;
-      const t = p.life / p.max;
+      const t = Math.min(1, p.life / p.max);
       ctx.globalAlpha = Math.min(1, t * 1.6) * (p.alpha ?? 1) * (p.flicker ? 0.6 + 0.4 * Math.sin(now / 90 + p.size * 9) : 1);
       if (p.shape === 'fogbank') ctx.globalAlpha = p.alpha * Math.min(1, t * 4, (1 - t) * 4);
       if (p.shape === 'beam') { this.ray(p, pixel); continue; }
+      if (p.shape === 'dome') { this.dome(p, t, pixel); continue; }
       if (pixel) { this.block(p, t); continue; }
       if (p.shape === 'fogbank') {
         const gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);

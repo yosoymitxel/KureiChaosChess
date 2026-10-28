@@ -54,6 +54,7 @@ export default {
     'settings.momentsHint': 'Callouts and cutscenes on key moves (tap to skip)',
     'settings.shake': 'Camera shake',
     'settings.shakeHint': 'Impacts and collapses shake the table',
+    'settings.vfx': 'Extra effects (weather, auras…)',
     'settings.fullscreen': 'Fullscreen',
     'settings.fullscreenHint': 'Now and every time a match starts',
     // Shared pieces of the interface
