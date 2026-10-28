@@ -965,7 +965,7 @@ export class BoardView {
       // La cúpula toma la huella entera: ancho de sus casillas en pantalla y alto hasta la cabeza.
       const pts = cellsOf(p).map(([r, cc]) => this.tiles.get(key(r, cc))).filter(Boolean).map((t) => this.fx.pointOf(t));
       const xs = pts.map((q) => q.x), ys = pts.map((q) => q.y), base = Math.max(...ys) + this.sq * 0.3;
-      this.fx.shield(c.x, base, (Math.max(...xs) - Math.min(...xs)) / 2 + this.sq * 0.6, base - Math.min(...ys) + this.sq * 0.9 * Math.max(...sizeOf(p)), { broken: p.hp <= 1 });
+      this.fx.shield(c.x, base, (Math.max(...xs) - Math.min(...xs)) / 2 + this.sq * 0.5, base - Math.min(...ys) + this.sq * 0.75 * (p.boss ? Math.max(...sizeOf(p)) * 0.85 : 1), { broken: p.hp <= 1 });
     }
     this.floatText(c.x, c.y - this.sq * 1.2, '−1');
   }

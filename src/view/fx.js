@@ -213,8 +213,11 @@ export class Fx {
   // Escudo: cúpula de celdas hexagonales que se enciende al recibir el golpe; `broken` la hace añicos.
   shield(x, y, rx, ry, { color = '#8fd3ff', broken = false } = {}) {
     if (!this.vfx) return;
-    this.parts.push({ x, y, vx: 0, vy: 0, g: 0, drag: 1, life: 0.45, max: 0.45, rx, ry, size: 1, color, shape: 'dome', rot: 0 });
-    if (broken) this.burst(x, y - ry * 0.5, { count: 18, color: [color, '#fff'], speed: [80, 240], life: [0.4, 0.8], size: [2, 4], gravity: 500, shape: 'chunk' });
+    // Semiesfera de verdad: tan ancha como alta, la que haga falta para cubrir la figura.
+    const r = Math.max(rx * 1.15, ry * 0.7); rx = r; ry = r * 0.95;
+    // Si es la última vida, al apagarse se rompe en esquirlas.
+    const end = broken ? () => this.burst(x, y - ry * 0.5, { count: 24, color: [color, '#fff'], speed: [80, 260], life: [0.4, 0.8], size: [2, 4], gravity: 500, shape: 'chunk' }) : null;
+    this.parts.push({ x, y, vx: 0, vy: 0, g: 0, drag: 1, life: 0.9, max: 0.9, rx, ry, size: 1, color, shape: 'dome', rot: 0, end });
     this.kick();
   }
   // Fuego: llamas que lamen la pieza unos instantes (para lo que queda junto al meteorito).
@@ -233,22 +236,43 @@ export class Fx {
     this.burst(x, y, { count: 10, color: ['#b6f37a', '#7fd14a'], speed: [10, 30], life: [0.6, 1.1], size: [2, 3.5], gravity: -90, spread: 1.2, angle: -Math.PI / 2, shape: 'mote' });
   }
 
-  // Cúpula de `rx` de ancho y `ry` de alto apoyada en (x, y): cabe cualquier huella, 1×2, 2×1, 3×3…
+  // Cúpula como el Shield de Sprite Fusion: semiesfera de celdas hexagonales proyectadas (se encogen
+  // hacia el borde), que se arma celda a celda de abajo arriba, late con una onda desde el golpe y se apaga.
+  // `rx` de ancho y `ry` de alto apoyada en (x, y): cabe cualquier huella, 1×2, 2×1, 3×3…
   dome(p, t, pixel) {
-    const { ctx } = this, k = 1.05 - t * 0.05, rx = p.rx * k, ry = p.ry * k, G = 3;
-    ctx.globalAlpha = t * 0.9; ctx.strokeStyle = ctx.fillStyle = p.color; ctx.lineWidth = 2;
-    const hex = (cx, cy, s) => {
-      if (pixel) { for (let j = 0; j < 6; j++) { const a = (j * Math.PI) / 3; ctx.fillRect(Math.round((cx + Math.cos(a) * s) / G) * G, Math.round((cy + Math.sin(a) * s) / G) * G, G, G); } return; }
-      ctx.beginPath(); for (let j = 0; j < 6; j++) { const a = (j * Math.PI) / 3; ctx.lineTo(cx + Math.cos(a) * s, cy + Math.sin(a) * s); } ctx.closePath(); ctx.stroke();
-    };
-    const s = Math.max(6, Math.min(rx, ry) * 0.2);
-    for (let cy = p.y; cy > p.y - ry; cy -= s * 1.35) {
-      const row = Math.round((p.y - cy) / (s * 1.35));
-      for (let cx = p.x - rx + (row % 2) * s * 0.78; cx < p.x + rx; cx += s * 1.55) {
-        if (Math.hypot((cx - p.x) / rx, (cy - p.y) / ry) < 0.92) hex(cx, cy, s * 0.8);
-      }
+    const { ctx } = this, age = 1 - t, fade = Math.min(1, t / 0.3), G = 3;
+    const n = Math.max(4, Math.min(8, Math.round(p.rx / 9))), g = 1 / n;
+    const cells = [];
+    for (let j = 0; j <= n * 1.2; j++) for (let i = -n - 1; i <= n + 1; i++) {
+      const gx = (i + (j % 2) * 0.5) * g, gy = j * g * 0.866, d = Math.hypot(gx, gy);
+      if (d > 1) continue;
+      const k = d ? Math.sin((d * Math.PI) / 2) / d : 1, z = Math.cos((d * Math.PI) / 2);
+      if (age * 3.4 < gy + Math.abs(gx) * 0.3) continue; // aún no se formó
+      const wave = Math.exp(-((1 - gy - age * 2.6) ** 2) * 18);
+      cells.push({ x: p.x + gx * k * p.rx, y: p.y - gy * k * p.ry, r: g * 0.5 * p.rx * (0.4 + 0.6 * z), z, wave });
     }
-    ctx.globalAlpha = t * 0.25; ctx.beginPath(); ctx.ellipse(p.x, p.y, rx, ry, 0, Math.PI, 0); ctx.fill();
+    for (const c of cells) {
+      const rim = 1 - c.z;
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = (0.3 + rim * 0.4 + c.wave * 0.4) * fade;
+      if (pixel) {
+        // Celda de píxeles: cuadro relleno con su brillo arriba a la izquierda (el hueco entre celdas hace la malla).
+        const s = Math.max(2 * G, Math.floor((c.r * 1.5) / G) * G), x = Math.round(c.x / G) * G - s / 2, y = Math.round(c.y / G) * G - s / 2;
+        ctx.globalAlpha = Math.min(1, ctx.globalAlpha * 1.6); ctx.fillRect(x, y, s, s);
+        ctx.fillStyle = '#eaf8ff'; ctx.fillRect(x, y, G, G);
+        continue;
+      }
+      ctx.beginPath();
+      for (let k = 0; k < 6; k++) { const a = (k * Math.PI) / 3 + Math.PI / 6; ctx.lineTo(c.x + Math.cos(a) * c.r, c.y + Math.sin(a) * c.r * (p.ry / p.rx)); }
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#eaf8ff'; ctx.lineWidth = 1.2;
+      ctx.globalAlpha = (0.55 + rim * 0.4 + c.wave * 0.5) * fade; ctx.stroke();
+    }
+    // Borde de la esfera y base, más claros (Fresnel).
+    ctx.globalAlpha = 0.7 * fade * Math.min(1, age * 4);
+    ctx.strokeStyle = '#eaf8ff'; ctx.lineWidth = pixel ? G : 1.5;
+    ctx.beginPath(); ctx.ellipse(p.x, p.y, p.rx, p.ry, 0, Math.PI, 0); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(p.x, p.y, p.rx, p.rx * 0.18, 0, 0, 6.283); ctx.stroke();
   }
 
   kick() { if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame((t) => this.loop(t)); } }
