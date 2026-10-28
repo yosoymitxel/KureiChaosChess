@@ -440,7 +440,7 @@ export class BoardView {
       if (danger) t.classList.add('danger');
     }
     // Un coleccionable al alcance lleva el aro verde alrededor: el punto quedaría tapado debajo.
-    for (const el of this.tilesEl.querySelectorAll('.prop')) el.classList.toggle('reach', cells.has(el.style.getPropertyValue('--r') + ',' + el.style.getPropertyValue('--c')));
+    for (const el of this.tilesEl.querySelectorAll('.prop:not(.grab)')) el.classList.toggle('reach', cells.has(el.style.getPropertyValue('--r') + ',' + el.style.getPropertyValue('--c')));
   }
   select(piece) {
     if (piece && piece !== this.selected) playSfx('select');
@@ -515,7 +515,7 @@ export class BoardView {
     const down = (e) => {
       if (e.button > 0) return;
       // Lo que se quita con la mano (las hojas) gana aunque una figura de delante lo tape un poco.
-      const prop = document.elementsFromPoint(e.clientX, e.clientY).map((x) => x.closest?.('.prop.hand')).find(Boolean);
+      const prop = document.elementsFromPoint(e.clientX, e.clientY).map((x) => x.closest?.('.prop.grab')).find(Boolean);
       if (prop) return prop.dispatchEvent(new Event('take'));
       const water = document.elementFromPoint(e.clientX, e.clientY);
       if (water?.classList.contains('pond-tile') && this.host.contains(water)) return this.feed(water, e.clientX, e.clientY);
@@ -1007,7 +1007,7 @@ export class BoardView {
     const c = this.centerOf(p);
     const royal = p.royal;
     if (royal) { this.fx.bigBoom(c.x, c.y - this.sq * 0.4, { radius: this.sq * 4, color: css('--side-' + look(p)) }); this.shake(26, 800); }
-    else this.fx.debris(c.x, c.y - this.sq * 0.4, css('--side-' + look(p)));
+    else this.fx.debris(c.x, c.y - this.sq * 0.4, css('--side-' + look(p)), 1, false); // suena la captura (madera), no la roca
     const dir = Math.sign(to.col - from.col) || (Math.random() < 0.5 ? -1 : 1);
     const stand = el.querySelector('.pc-fig');
     // Destello blanco del golpe antes de salir despedida: el impacto se lee aunque dure poco.

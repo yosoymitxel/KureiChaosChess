@@ -297,7 +297,7 @@
 .prop > * { flex: none; }
 .prop > svg, .prop .icon { width: calc(var(--sq) * 0.52); height: calc(var(--sq) * 0.52); filter: drop-shadow(0 2px 0 oklch(0 0 0 / 0.3)); }
 .prop.coin { color: var(--brass); }
-.prop.hand { pointer-events: auto; cursor: grab; }
+.prop.grab { pointer-events: auto; cursor: grab; }
 .prop.leaf > svg { width: calc(var(--sq) * 0.66); height: calc(var(--sq) * 0.66); }
 /* La mariposa queda posada un poco en el aire (lo deja su vuelo de llegada) y bate despacio, como la del jardín. */
 .prop.butterfly > svg { width: calc(var(--sq) * 0.7); height: calc(var(--sq) * 0.7); overflow: visible; }

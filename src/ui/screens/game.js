@@ -374,7 +374,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         const el = d.view.addProp(row, col, id), it = PICKUPS[id];
         render(PICKUP_ART[id] || html`<${Icon} name=${id} size=${24} />`, el);
         if (it.hand) {
-          el.classList.add('hand');
+          el.classList.add('grab');
           el.setAttribute('role', 'button'); el.setAttribute('aria-label', t('game.takeProp', '{name}: tócala para quitarla', { name: it.name }));
           el.addEventListener('take', () => { if (d.props.delete(key(row, col))) take(it, el, true); });
         }

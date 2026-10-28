@@ -302,10 +302,16 @@ const SAMPLE_GAIN = {
 const buffers = {};
 // Por efecto, la primera toma lista; si no baja ninguna, se borra y el efecto queda sintetizado.
 const ready = {};
+// Los archivos se piden al cargar el juego, sin esperar al primer toque (el audio sí lo espera): si
+// no, el golpe del jefe al caer, que suena en los primeros segundos, llegaba tarde y se perdía.
+const fetched = typeof document !== 'undefined' && typeof fetch === 'function'
+  ? Object.fromEntries(Object.entries(SFX_SAMPLES).map(([name, urls]) => [name, urls.map((url) => fetch(url).then((r) => r.arrayBuffer()))]))
+  : {};
+for (const list of Object.values(fetched)) for (const p of list) p.catch(() => {});
 function loadSamples(c) {
   for (const [name, urls] of Object.entries(SFX_SAMPLES)) {
     buffers[name] = [];
-    ready[name] = Promise.any(urls.map((url) => fetch(url).then((r) => r.arrayBuffer()).then((b) => c.decodeAudioData(b))
+    ready[name] = Promise.any(urls.map((url, i) => (fetched[name]?.[i] || fetch(url).then((r) => r.arrayBuffer())).then((b) => c.decodeAudioData(b))
       .then((buf) => { buffers[name].push(buf); return buf; })));
     ready[name].catch(() => { delete ready[name]; });
   }
