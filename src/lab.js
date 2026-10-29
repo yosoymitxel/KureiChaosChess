@@ -7,6 +7,8 @@ import { Moments } from './ui/moments.js';
 import { BOSSES } from './data/bosses.js';
 import { WEATHER } from './data/weather.js';
 import { applyTheme } from './data/themes.js';
+import { animate } from 'animejs';
+import { clearAPKEffects, playAPKPixelTrail, playAPKShockwave, playAPKZombieAttack, playAPKTransform, playAPKDeal } from './lab/apk/effects.js';
 
 let view, camera = 'tilt', theme = 'walnut';
 const board = () => ({ rows: 7, cols: 7, holes: new Set([key(3, 0), key(3, 6)]), protectRows: 2 });
@@ -66,7 +68,7 @@ const SCENES = {
     const b = board(), pieces = [makePiece('king', 'light', 6, 3), makePiece('king', 'dark', 0, 3)];
     return { b, pieces, collapse: [[0, 0], [6, 6], [2, 6]] };
   },
-  'Plaga zombi': () => {
+  "Kure'i: Plaga zombi (efecto actual)": () => {
     const b = board(), pieces = [makePiece('knight', 'light', 5, 2), makePiece('pawn', 'dark', 3, 3), makePiece('king', 'light', 6, 6), makePiece('king', 'dark', 0, 0)];
     return { b, pieces, modifier: 'zombie', play: (m) => m.move(pieces[0], { row: 3, col: 3 }) };
   },
@@ -111,39 +113,134 @@ const FX = {
   },
 };
 
+// Prototipos visuales inspirados en patrones del APK. No importan su código: usan BoardView/Fx
+// ya presentes en el proyecto y solo se ejecutan en lab.html.
+const APK_FX = {
+  'APK · Estela pixelada (movimiento)': () => {
+    const b = board();
+    const runner = makePiece('knight', 'light', 5, 2);
+    const pieces = [runner, makePiece('pawn', 'dark', 3, 3), makePiece('king', 'light', 6, 6), makePiece('king', 'dark', 0, 0)];
+    return { b, pieces, apkPlay: async (v) => {
+      const from = { row: runner.row, col: runner.col };
+      const to = { row: 3, col: 3 };
+      await moveAPKLabPiece(v, runner, to, 280);
+      await playAPKPixelTrail(stage, v, from, to);
+    } };
+  },
+  'APK · Impacto por bloques (onda)': () => {
+    const b = board();
+    const striker = makePiece('rook', 'light', 4, 3);
+    const target = makePiece('pawn', 'dark', 2, 3);
+    const pieces = [striker, target, makePiece('king', 'light', 6, 6), makePiece('king', 'dark', 0, 0)];
+    return { b, pieces, apkPlay: async (v) => {
+      await moveAPKLabPiece(v, striker, { row: 2, col: 3 }, 220);
+      const el = v.els.get(target);
+      if (el) el.remove();
+      v.els.delete(target);
+      v.state.delete(target);
+      await playAPKShockwave(stage, v, { row: 2, col: 3 });
+    } };
+  },
+  "APK · Caza zombi (persecución y mordida)": () => {
+    const b = board();
+    const zombie = makePiece('pawn', 'dark', 5, 2, { zombie: true, infected: true });
+    const target = makePiece('pawn', 'light', 3, 3);
+    const pieces = [zombie, target, makePiece('king', 'light', 6, 6), makePiece('king', 'dark', 0, 0)];
+    return { b, pieces, apkPlay: async (v) => {
+      let guard = 0;
+      while (Math.max(Math.abs(target.row - zombie.row), Math.abs(target.col - zombie.col)) > 1 && guard++ < 4) {
+        const from = { row: zombie.row, col: zombie.col };
+        const candidates = [[zombie.row - 1, zombie.col], [zombie.row, zombie.col - 1], [zombie.row, zombie.col + 1], [zombie.row + 1, zombie.col]]
+          .filter(([r, c]) => r >= 0 && c >= 0 && r < b.rows && c < b.cols && !pieces.some(p => p !== zombie && p.row === r && p.col === c));
+        candidates.sort((a, c) => Math.max(Math.abs(target.row - a[0]), Math.abs(target.col - a[1])) - Math.max(Math.abs(target.row - c[0]), Math.abs(target.col - c[1])));
+        if (!candidates.length) break;
+        const to = { row: candidates[0][0], col: candidates[0][1] };
+        await moveAPKLabPiece(v, zombie, to, 300);
+        await playAPKPixelTrail(stage, v, from, to);
+      }
+      await playAPKZombieAttack(stage, v, { row: zombie.row, col: zombie.col }, { row: target.row, col: target.col });
+      target.color = zombie.color;
+      target.zombie = true;
+      target.infected = true;
+      v.remake(target);
+      await playAPKTransform(stage, v, { row: target.row, col: target.col });
+    } };
+  },
+};
+
+async function moveAPKLabPiece(v, piece, to, duration) {
+  const st = v.state.get(piece);
+  if (!st) return;
+  await animate(st, {
+    r: to.row, c: to.col, z: [st.z, v.sq * 0.52, 0],
+    duration, ease: 'outCubic', onUpdate: () => v.apply(piece)
+  });
+  piece.row = to.row; piece.col = to.col;
+  st.r = to.row; st.c = to.col; st.z = 0;
+  v.apply(piece);
+}
+
 async function run(name) {
+  clearAPKEffects(stage);
   view?.destroy();
-  const s = (SCENES[name] || FX[name])();
-  view = new BoardView(document.getElementById('board'), { camera, vfx: true });
+  const s = (SCENES[name] || FX[name] || APK_FX[name])();
+  stage.classList.toggle('apk-ref-mode', Boolean(s.apkPlay));
+  view = new BoardView(document.getElementById('board'), { camera, vfx: !s.apkPlay, shake: !s.apkPlay });
   view.setBoard(s.b);
   view.setPieces(s.pieces);
   view.setWeather(s.weather || null);
-  await view.intro(s.pieces);
-  const players = [{ color: 'light', kind: 'human' }, { color: 'dark', kind: 'bot' }];
-  const m = new Match({ board: s.b, pieces: s.pieces, players, modifier: s.modifier || 'none' });
-  if (s.dark) m.current = 1;
-  await new Promise((r) => setTimeout(r, 300));
-  if (s.play) { const res = s.play(m); if (res) await view.playMove(res); }
-  if (s.collapse) await view.collapse(s.collapse);
-  if (s.after) await s.after(view);
-  if (s.victory) await view.victory('light');
+  if (s.apkPlay) await playAPKDeal(view, s.pieces, stage);
+  else await view.intro(s.pieces);
+  if (s.apkPlay) {
+    await s.apkPlay(view, s);
+  } else {
+    const players = [{ color: 'light', kind: 'human' }, { color: 'dark', kind: 'bot' }];
+    const m = new Match({ board: s.b, pieces: s.pieces, players, modifier: s.modifier || 'none' });
+    if (s.dark) m.current = 1;
+    await new Promise((r) => setTimeout(r, 300));
+    if (s.play) { const res = s.play(m); if (res) await view.playMove(res); }
+    if (s.collapse) await view.collapse(s.collapse);
+    if (s.after) await s.after(view);
+    if (s.victory) await view.victory('light');
+  }
 }
 
 const stage = document.getElementById('stage');
 const moments = new Moments(stage);
 async function play(name) {
-  if (MOMENTS[name]) { if (!view) await run('Piezas'); return MOMENTS[name](moments); }
+  if (MOMENTS[name]) {
+    stage.classList.remove('apk-ref-mode');
+    if (!view) await run('Piezas');
+    return MOMENTS[name](moments);
+  }
   return run(name);
 }
 
 let current = null;
-const play2 = (name) => { current = name; return play(name); };
+const play2 = (name) => {
+  current = name;
+  // El selector del prototipo deja visible cuál escena está activa.
+  for (const button of document.querySelectorAll('#apk-scenes button')) {
+    button.setAttribute('aria-pressed', String(button.dataset.scene === name));
+  }
+  return play(name);
+};
 for (const [id, names] of [['scenes', [...Object.keys(SCENES), ...Object.keys(MOMENTS)]], ['fx', Object.keys(FX)]]) {
   for (const name of names) {
     const b = document.createElement('button');
     b.className = 'btn sm'; b.textContent = name; b.onclick = () => play2(name);
     document.getElementById(id).appendChild(b);
   }
+}
+for (const name of Object.keys(APK_FX)) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'btn sm';
+  b.textContent = name.replace(/^APK · /, '');
+  b.dataset.scene = name;
+  b.setAttribute('aria-pressed', 'false');
+  b.onclick = () => play2(name);
+  document.getElementById('apk-scenes').appendChild(b);
 }
 // Mesa normal o píxel: los efectos se ven distinto en cada una.
 const arts = document.getElementById('arts');
