@@ -21,11 +21,11 @@ export class Fx {
     this.raf = 0;
     this.vfx = false; // efectos extra (Sprite Fusion): Ajustes › Efectos extra, apagado por defecto
     this.ro = new ResizeObserver(() => this.resize());
-    this.ro.observe(host);
+    this.ro.observe(host); this.ro.observe(this.canvas);
     this.resize();
   }
   resize() {
-    const r = this.host.getBoundingClientRect();
+    const r = this.canvas.getBoundingClientRect(); // la capa puede salir del tablero (ver .fx-layer en board.css);
     const dpr = Math.min(devicePixelRatio || 1, 2);
     this.w = r.width; this.h = r.height;
     this.canvas.width = Math.round(r.width * dpr);
