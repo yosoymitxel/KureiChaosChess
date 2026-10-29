@@ -246,9 +246,13 @@
 .fx-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3;
   /* El clima no se corta en seco donde acaba el tablero (encima de las cartas): se desvanece. */
   mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 72px), transparent); }
-/* En móvil las cartas tapan el pie del tablero: la capa baja por detrás de ellas para que el clima
-   llegue hasta el borde y se apague más abajo. */
-@media (max-width: 760px) { .board-host > .fx-layer { height: calc(100% + 200px); } }
+/* En móvil la capa baja hasta cubrir también las cartas, por encima de ellas, sin corte entre
+   tablero y mano: una sola escena. */
+@media (max-width: 760px) {
+  /* El tablero recorta lo suyo (zoom), pero deja asomar la capa hacia abajo, sobre la mano. */
+  .board-host.table { overflow: visible; clip-path: inset(0 0 -260px 0); }
+  .hud { position: relative; z-index: 8; } /* el panel queda encima: el clima cubre tablero y mano */
+  .board-host > .fx-layer { z-index: 7; height: calc(100% + 260px); mask-image: linear-gradient(to bottom, transparent, #000 32px); } }
 /* Etiqueta de casilla: ficha de papel con pico, encima de la casilla (debajo si no cabe arriba). */
 .tile-tip {
   position: absolute; z-index: 7; width: max-content; max-width: 220px; translate: -50% calc(-100% - 14px); pointer-events: none;
