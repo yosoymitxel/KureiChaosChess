@@ -250,9 +250,9 @@
    tablero y mano: una sola escena. */
 @media (max-width: 760px) {
   /* El tablero recorta lo suyo (zoom), pero deja asomar la capa hacia abajo, sobre la mano. */
-  .board-host.table { overflow: visible; clip-path: inset(0 0 -260px 0); }
+  .board-host.table { overflow: visible; clip-path: inset(0 0 -149px 0); }
   .hud { position: relative; z-index: 8; } /* el panel queda encima: el clima cubre tablero y mano */
-  .board-host > .fx-layer { z-index: 7; height: calc(100% + 260px); mask-image: linear-gradient(to bottom, transparent, #000 32px); } }
+  .board-host > .fx-layer { z-index: 7; height: calc(100% + 149px); /* justo hasta el panel: alto de .hand en móvil */ mask-image: linear-gradient(to bottom, transparent, #000 32px); } }
 /* Etiqueta de casilla: ficha de papel con pico, encima de la casilla (debajo si no cabe arriba). */
 .tile-tip {
   position: absolute; z-index: 7; width: max-content; max-width: 220px; translate: -50% calc(-100% - 14px); pointer-events: none;
