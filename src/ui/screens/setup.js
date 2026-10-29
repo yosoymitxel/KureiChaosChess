@@ -219,10 +219,15 @@ function Backup() {
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
-  const restore = () => {
-    if (!importSave(code)) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
+  const restore = (c = code) => {
+    if (!importSave(c)) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
     setMsg(t('backup.done', 'Partida restaurada.'));
     setTimeout(() => location.reload(), 600);
+  };
+  const upload = async (e) => {
+    const f = e.currentTarget.files[0];
+    e.currentTarget.value = '';
+    if (f) restore(await f.text());
   };
   return html`<section class="panel setup-card set-backup" data-enter>
     <h2>${t('backup.title', 'Copia de seguridad')}</h2>
@@ -230,9 +235,10 @@ function Backup() {
     <div class="menu-row">
       <button class="btn sm" onClick=${copy}><${Icon} name="scroll" size=${16} />${t('backup.copy', 'Copiar código')}</button>
       <button class="btn sm" onClick=${download}><${Icon} name="bag" size=${16} />${t('backup.download', 'Descargar')}</button>
+      <label class="btn sm"><${Icon} name="scroll" size=${16} />${t('backup.upload', 'Subir archivo')}<input type="file" accept=".txt,text/plain" hidden onChange=${upload} /></label>
     </div>
     <textarea class="backup-code" rows="3" value=${code} placeholder=${t('backup.paste', 'Pega aquí tu código para restaurar')} onInput=${(e) => setCode(e.currentTarget.value)}></textarea>
-    <button class="btn sm primary" disabled=${!code.trim()} onClick=${restore}>${t('backup.restore', 'Restaurar')}</button>
+    <button class="btn sm primary" disabled=${!code.trim()} onClick=${() => restore()}>${t('backup.restore', 'Restaurar')}</button>
     ${msg && html`<p class="shop-note" aria-live="polite">${msg}</p>`}
   </section>`;
 }

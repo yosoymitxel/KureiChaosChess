@@ -329,6 +329,7 @@ export default {
     "backup.hint": "Save your progress (run, garden, achievements, tables) as a code. If the browser wipes it, paste it here and come back.",
     "backup.copy": "Copy code",
     "backup.download": "Download",
+    "backup.upload": "Upload file",
     "backup.paste": "Paste your code here to restore",
     "backup.restore": "Restore",
     "backup.copied": "Code copied: keep it in a note or a message.",
