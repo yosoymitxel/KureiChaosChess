@@ -1465,3 +1465,31 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 @keyframes zn-pick { to { outline-offset: -6px; } }
 .zn-glove { fill: oklch(0.74 0.11 70); stroke: var(--ink); stroke-width: .8; stroke-linejoin: round; }
 .zn-cuff { fill: oklch(0.56 0.12 150); stroke: var(--ink); stroke-width: .8; }
+
+/* Backup: evita que los botones con etiquetas largas desborden la tarjeta en móvil. */
+@media (max-width: 700px) {
+  .set-backup .menu-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+  }
+  .set-backup .menu-row > .btn {
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    padding-inline: 8px;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .set-backup .menu-row > .btn .icon {
+    flex: 0 0 auto;
+  }
+  .set-backup .backup-code {
+    box-sizing: border-box;
+    min-width: 0;
+  }
+}
