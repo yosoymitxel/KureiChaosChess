@@ -208,19 +208,21 @@ function Backup() {
   const [code, setCode] = useState('');
   const [msg, setMsg] = useState('');
   const copy = async () => {
-    const c = exportSave();
+    const c = await exportSave();
     try { await navigator.clipboard.writeText(c); setMsg(t('backup.copied', 'Código copiado: guárdalo en una nota o un mensaje.')); }
     catch { setCode(c); setMsg(t('backup.shown', 'Cópialo del recuadro y guárdalo.')); }
   };
-  const download = () => {
+  const download = async () => {
+    const blob = new Blob([await exportSave()], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([exportSave()], { type: 'text/plain' }));
+    a.href = url;
     a.download = 'kurei-chaos-chess-partida.txt';
     a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-  const restore = (c = code) => {
-    if (!importSave(c)) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
+  const restore = async (c = code) => {
+    if (!await importSave(c)) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
     setMsg(t('backup.done', 'Partida restaurada.'));
     setTimeout(() => location.reload(), 600);
   };
