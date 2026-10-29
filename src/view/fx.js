@@ -198,7 +198,7 @@ export class Fx {
   shield(x, y, r, { broken = false, tall = r } = {}) {
     if (!this.vfx) return;
     const hold = broken ? 0.75 : 1;
-    const fx = sfShield({ x, y, radius: Math.max(10, Math.round(r / SF_PX)), hold, hits: [{ t: 0.45, lon: 0.5, lat: 0.6 }], seed: (Math.random() * 1e9) | 0 });
+    const fx = sfShield({ x, y, radius: Math.max(10, Math.round(r / SF_PX)), hold, hits: [], seed: (Math.random() * 1e9) | 0 });
     this.sf.push(Object.assign(fx, { sy: Math.max(1, tall / r), by: y }));
     this.kick();
   }
