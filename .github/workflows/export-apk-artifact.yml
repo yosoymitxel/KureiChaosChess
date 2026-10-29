@@ -1,5 +1,6 @@
 name: Export APK artifact
 on:
+  workflow_dispatch:
   push:
     branches: [Apk]
     paths:
