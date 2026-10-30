@@ -128,6 +128,9 @@ export async function mountAPKPrototype(root, id, themeId='walnut') {
     const pairA=pick(portalCells),pairB=pairA&&pick(portalCells.filter(([r,c])=>r!==pairA[0]||c!==pairA[1]));
     if(pairA&&pairB){specials.set(key(...pairA),{type:'portal',row:pairA[0],col:pairA[1],to:pairB});specials.set(key(...pairB),{type:'portal',row:pairB[0],col:pairB[1],to:pairA});}
     for(let c=0;c<8;c++){white.push(makePiece('pawn','light',7,c));black.push(makePiece('pawn','dark',0,c));}
+    // Mount the control before awaiting the board deal: a fast tap during the
+    // opening animation must never reach choosePawn while rollButton is in TDZ.
+    const rollButton=button('Tirar dado (1–4)',rollRace,true);lock(rollButton,true);
     await build(b,[...white,...black],raceTap);
     const glyph={wall:'■',boost:'+2',ice:'❄',bomb:'!',star:'✦',coin:'$',portal:'↔'};
     function refresh() {
@@ -196,9 +199,8 @@ export async function mountAPKPrototype(root, id, themeId='walnut') {
       for(const [k,r] of opts){const sp=specials.get(k),advance=r.row;const bonus={boost:12,star:10,coin:3,portal:5,bomb:-20,ice:-10,wall:-99}[sp?.type]||0;const score=advance*10+bonus+Math.random()*2;if(score>bv){bv=score;best=r;}}
       if(best)await runRaceRoute(p,best);if(!state.over)await checkRaceWin(p,'dark');refresh();
     }
-    objective('Elige un peón marfil para correr. Cada tirada permite hasta cuatro pasos hacia delante o a los lados; gana quien llegue al otro extremo.');
+    goal('Elige un peón marfil para correr. Cada tirada permite hasta cuatro pasos hacia delante o a los lados; gana quien llegue al otro extremo.');
     say('Toca un peón marfil en la fila inferior para elegir corredor.');
-    const rollButton=button('Tirar dado (1–4)',rollRace,true);lock(rollButton,true);
     refresh();
   }
 
