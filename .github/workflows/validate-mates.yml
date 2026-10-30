@@ -26,6 +26,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Parse lab and APK modules
+        run: |
+          node --input-type=module --check < src/lab.js
+          node --input-type=module --check < src/lab/apk/effects.js
+          node --input-type=module --check < src/lab/apk/prototypes.js
       - name: Guard APK VFX isolation
         run: node tools/apk-vfx-check.mjs
       - name: Validate every stored position

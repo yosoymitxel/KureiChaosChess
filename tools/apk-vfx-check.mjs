@@ -38,8 +38,31 @@ check(/createElement\('canvas'\)/.test(effects) && /requestAnimationFrame/.test(
 check(effects.includes('imageSmoothingEnabled = false'), 'los VFX pixelados deben conservar píxeles duros');
 check(/export async function playAPKDeal/.test(effects) && /export function playAPKSpawnBurst/.test(effects), 'falta la entrada APK propia con llegada pixelada de piezas');
 check(lab.includes('APK · Estela pixelada (movimiento)') && lab.includes('APK · Caza zombi (persecución y mordida)'), 'lab.html debe ofrecer comparadores APK inequívocos');
+const apkEffectSamples = [
+  ['APK · Lluvia de meteoritos (aviso e impacto)', 'playAPKMeteorImpact'],
+  ['APK · Explosión de bomba (área 3×3)', 'playAPKBombBlast'],
+  ['APK · Aviso de campo de bombas', 'playAPKBombField'],
+  ['APK · Teletransporte (vórtice cian/violeta)', 'playAPKTeleport'],
+  ['APK · Golpe y daño de pieza', 'playAPKDamage'],
+  ['APK · Caída y desaparición de pieza', 'playAPKFall'],
+  ['APK · Ráfaga de partículas', 'playAPKParticleBurst'],
+  ['APK · Escudo energético', 'playAPKShield'],
+  ['APK · Rayo mágico (haz)', 'playAPKBeam'],
+  ['APK · Transformación zombi (INFECTED!)', 'playAPKTransform'],
+  ['APK · Aparición de pieza (ráfaga pixelada)', 'playAPKSpawnBurst'],
+  ['APK · Pantalla de victoria (confeti)', 'playAPKVictory'],
+  ['APK · Sacudida de impacto', 'playAPKScreenShake'],
+  ['APK · Entrada de tablero (losas y piezas pixeladas)', 'playAPKDeal'],
+  ['APK · Deslizamiento de gravedad (sin salto)', 'slideAPKLabPiece'],
+  ['APK · Escudo roto', 'playAPKShield'],
+];
+for (const [label, effect] of apkEffectSamples) {
+  check(lab.includes(label) && lab.includes(effect), `Falta la muestra de VFX APK aislada: ${label}`);
+}
+check(!labHtml.includes('apk-games') && !labHtml.includes('tests/apk-lab.html?game='), 'lab.html debe mostrar efectos individuales, no incrustar los minijuegos completos');
+check(labHtml.includes('Muestras visuales individuales') && lab.includes('skipDeal:true'), 'las muestras VFX deben explicar su propósito y evitar mezclar la entrada del tablero con el efecto probado');
 check(lab.includes("stage.classList.toggle('apk-ref-mode'"), 'el selector debe activar/desactivar el estado visual APK');
-check(lab.includes('if (s.apkPlay) await playAPKDeal(view, s.pieces, stage);') && lab.includes('vfx: !s.apkPlay'), 'las escenas APK del laboratorio deben saltarse el intro y el VFX genéricos');
+check(lab.includes('if (s.apkPlay) { if (!s.skipDeal) await playAPKDeal(view, s.pieces, stage); }') && lab.includes('vfx: !s.apkPlay'), 'las escenas APK deben poder aislar el VFX y desactivar la entrada del tablero cuando corresponda');
 check(labHtml.includes('Referencias del APK (aisladas)'), 'lab.html debe separar los apartados Kure\'i y APK');
 check(css.includes('.lab-stage.apk-ref-mode::before'), 'falta la marca visual del renderer separado en el laboratorio');
 check(page.includes('.apk-board-frame .tile.doom') && page.includes('#3dff8e'), 'la página APK debe tener estilos de efectos propios');

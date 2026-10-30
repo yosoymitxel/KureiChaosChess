@@ -8,7 +8,7 @@ import { BOSSES } from './data/bosses.js';
 import { WEATHER } from './data/weather.js';
 import { applyTheme } from './data/themes.js';
 import { animate } from 'animejs';
-import { clearAPKEffects, playAPKPixelTrail, playAPKShockwave, playAPKZombieAttack, playAPKTransform, playAPKDeal } from './lab/apk/effects.js';
+import { clearAPKEffects, playAPKPixelTrail, playAPKShockwave, playAPKZombieAttack, playAPKTransform, playAPKDeal, playAPKMeteorImpact, playAPKBombBlast, playAPKBombField, playAPKDamage, playAPKTeleport, playAPKFall, playAPKParticleBurst, playAPKShield, playAPKBeam, playAPKVictory, playAPKScreenShake, playAPKSpawnBurst } from './lab/apk/effects.js';
 
 let view, camera = 'tilt', theme = 'walnut';
 const board = () => ({ rows: 7, cols: 7, holes: new Set([key(3, 0), key(3, 6)]), protectRows: 2 });
@@ -166,6 +166,119 @@ const APK_FX = {
       await playAPKTransform(stage, v, { row: target.row, col: target.col });
     } };
   },
+  'APK · Lluvia de meteoritos (aviso e impacto)': () => {
+    const b = board();
+    const cells = [{row:2,col:3},{row:3,col:3},{row:3,col:4},{row:4,col:3}];
+    const pieces = [
+      makePiece('knight','dark',2,3), makePiece('pawn','light',3,3),
+      makePiece('rook','dark',3,4), makePiece('bishop','light',4,3),
+      makePiece('king','light',6,6), makePiece('king','dark',0,0)
+    ];
+    return { b, pieces, apkPlay: async v => playAPKMeteorImpact(stage,v,cells), skipDeal:true };
+  },
+  'APK · Explosión de bomba (área 3×3)': () => {
+    const b = board(), center = {row:3,col:3};
+    const cells = [];
+    for(let r=2;r<=4;r++) for(let c=2;c<=4;c++) cells.push({row:r,col:c});
+    const pieces = [
+      makePiece('rook','light',3,2),makePiece('pawn','dark',3,3),makePiece('knight','light',2,3),
+      makePiece('bishop','dark',4,3),makePiece('king','light',6,6),makePiece('king','dark',0,0)
+    ];
+    return { b, pieces, apkPlay: async v => playAPKBombBlast(stage,v,center,cells), skipDeal:true };
+  },
+  'APK · Aviso de campo de bombas': () => {
+    const b = board(), center = {row:3,col:3}, cells = [];
+    for(let r=2;r<=4;r++) for(let c=2;c<=4;c++) cells.push({row:r,col:c});
+    const pieces = [makePiece('knight','light',5,2),makePiece('pawn','dark',3,3),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return { b, pieces, apkPlay: async v => playAPKBombField(stage,v,cells), skipDeal:true };
+  },
+  'APK · Teletransporte (vórtice cian/violeta)': () => {
+    const b = board(), traveler = makePiece('knight','light',5,2);
+    const from = {row:traveler.row,col:traveler.col}, to = {row:2,col:4};
+    const pieces = [traveler,makePiece('pawn','dark',1,4),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return { b, pieces, apkPlay: async v => { await moveAPKLabPiece(v,traveler,to,180); await playAPKTeleport(stage,v,from,to); }, skipDeal:true };
+  },
+  'APK · Golpe y daño de pieza': () => {
+    const b = board(), target = makePiece('rook','dark',3,3);
+    const pieces = [makePiece('queen','light',3,2),target,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return { b, pieces, apkPlay: async v => { await playAPKDamage(stage,v,{row:target.row,col:target.col}); }, skipDeal:true };
+  },
+  'APK · Caída y desaparición de pieza': () => {
+    const b = board(), target = makePiece('knight','dark',3,3);
+    const pieces = [makePiece('rook','light',3,2),target,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return { b, pieces, apkPlay: async v => {
+      const cell={row:target.row,col:target.col}, st=v.state.get(target), el=v.els.get(target);
+      await Promise.all([
+        playAPKFall(stage,v,cell),
+        st ? animate(st,{z:[st.z,v.sq*0.72],duration:560,ease:'inQuad',onUpdate:()=>v.apply(target)}) : Promise.resolve(),
+        el ? animate(el,{opacity:[1,0],duration:560,ease:'inQuad'}) : Promise.resolve()
+      ]);
+      el?.remove(); v.els.delete(target); v.state.delete(target);
+    }, skipDeal:true };
+  },
+  'APK · Ráfaga de partículas': () => {
+    const b = board(), target = makePiece('queen','light',3,3);
+    const pieces = [target,makePiece('pawn','dark',2,4),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return { b, pieces, apkPlay: async v => playAPKParticleBurst(stage,v,{row:target.row,col:target.col},['#29e3ff','#c58bff','#fff2bd'],30), skipDeal:true };
+  },
+  'APK · Escudo energético': () => {
+    const b = board(), target = makePiece('king','light',3,3,{royal:true});
+    const pieces = [target,makePiece('rook','dark',3,5),makePiece('king','dark',0,0)];
+    return { b, pieces, apkPlay: async v => playAPKShield(stage,v,{row:target.row,col:target.col},false), skipDeal:true };
+  },
+  'APK · Escudo roto': () => {
+    const b = board(), target = makePiece('king','light',3,3,{royal:true});
+    const pieces = [target,makePiece('rook','dark',3,5),makePiece('king','dark',0,0)];
+    return { b, pieces, apkPlay: async v => playAPKShield(stage,v,{row:target.row,col:target.col},true), skipDeal:true };
+  },
+  'APK · Rayo mágico (haz)': () => {
+    const b = board(), caster = makePiece('bishop','light',5,1), target=makePiece('pawn','dark',2,4);
+    const pieces = [caster,target,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return { b, pieces, apkPlay: async v => playAPKBeam(stage,v,{row:caster.row,col:caster.col},{row:target.row,col:target.col},'#b06bff'), skipDeal:true };
+  },
+  'APK · Transformación zombi (INFECTED!)': () => {
+    const b = board(), target=makePiece('pawn','light',3,3);
+    const pieces = [makePiece('pawn','dark',3,2,{zombie:true,infected:true}),target,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return { b, pieces, apkPlay: async v => {
+      target.color='dark'; target.zombie=true; target.infected=true; v.remake(target);
+      await playAPKTransform(stage,v,{row:target.row,col:target.col});
+    }, skipDeal:true };
+  },
+  'APK · Aparición de pieza (ráfaga pixelada)': () => {
+    const b = board(), target=makePiece('knight','light',3,3,{zombie:true});
+    const pieces = [target,makePiece('pawn','dark',2,4),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return { b, pieces, apkPlay: async v => playAPKSpawnBurst(stage,v,[target]), skipDeal:true };
+  },
+  'APK · Pantalla de victoria (confeti)': () => {
+    const b = board(), pieces = [makePiece('queen','light',3,3),makePiece('king','light',6,3),makePiece('king','dark',0,3)];
+    return { b, pieces, apkPlay: async v => playAPKVictory(stage,v,['#ffc83d','#ffffff','#3dff8e']), skipDeal:true };
+  },
+  'APK · Sacudida de impacto': () => {
+    const b = board(), pieces = [makePiece('rook','light',3,3),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return { b, pieces, apkPlay: async v => playAPKScreenShake(stage,320,9), skipDeal:true };
+  },
+
+  'APK · Entrada de tablero (losas y piezas pixeladas)': () => {
+    const b = board();
+    const pieces = [
+      makePiece('rook','light',6,0),makePiece('knight','light',6,2),makePiece('queen','light',6,3),
+      makePiece('king','light',6,6),makePiece('bishop','dark',0,1),makePiece('king','dark',0,5)
+    ];
+    return { b, pieces, apkPlay: async v => playAPKDeal(v,pieces,stage), skipDeal:true };
+  },
+  'APK · Deslizamiento de gravedad (sin salto)': () => {
+    const b = board();
+    const movers = [
+      {piece:makePiece('rook','light',1,1),to:{row:4,col:1}},
+      {piece:makePiece('knight','dark',1,3),to:{row:3,col:3}},
+      {piece:makePiece('bishop','light',2,5),to:{row:5,col:5}}
+    ];
+    const pieces = [...movers.map(x=>x.piece),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return { b, pieces, apkPlay: async v => {
+      for (const item of movers) await slideAPKLabPiece(v,item.piece,item.to,420);
+    }, skipDeal:true };
+  },
+
 };
 
 async function moveAPKLabPiece(v, piece, to, duration) {
@@ -180,6 +293,14 @@ async function moveAPKLabPiece(v, piece, to, duration) {
   v.apply(piece);
 }
 
+
+async function slideAPKLabPiece(v, piece, to, duration=420) {
+  const st=v.state.get(piece);
+  if(!st)return;
+  await animate(st,{r:to.row,c:to.col,z:0,duration,ease:'inOutQuad',onUpdate:()=>v.apply(piece)});
+  piece.row=to.row;piece.col=to.col;st.r=to.row;st.c=to.col;st.z=0;v.apply(piece);
+}
+
 async function run(name) {
   clearAPKEffects(stage);
   view?.destroy();
@@ -189,7 +310,7 @@ async function run(name) {
   view.setBoard(s.b);
   view.setPieces(s.pieces);
   view.setWeather(s.weather || null);
-  if (s.apkPlay) await playAPKDeal(view, s.pieces, stage);
+  if (s.apkPlay) { if (!s.skipDeal) await playAPKDeal(view, s.pieces, stage); }
   else await view.intro(s.pieces);
   if (s.apkPlay) {
     await s.apkPlay(view, s);
