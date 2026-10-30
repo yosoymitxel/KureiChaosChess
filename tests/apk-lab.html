@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <base href="../">
+  <title>Kure'i Chaos Chess · APK Lab</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/board.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link rel="stylesheet" href="css/pixel.css">
+  <script type="importmap">
+  {"imports":{"preact":"https://cdn.jsdelivr.net/npm/preact@10.29.8/dist/preact.module.js","preact/hooks":"https://cdn.jsdelivr.net/npm/preact@10.29.8/hooks/dist/hooks.module.js","htm":"https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.module.js","animejs":"https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.esm.min.js","motion":"https://cdn.jsdelivr.net/npm/motion@12.43.0/+esm"}}
+  </script>
+  <style>
+    html,body { width:100%;height:100%;overflow:hidden; }
+    body { user-select:none; }
+    .apk-proto { position:fixed;inset:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left)); }
+    .apk-head { display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0; }
+    .apk-head h1 { color:var(--paper);font-size:clamp(20px,3vw,30px); }
+    .apk-eyebrow { color:var(--brass);font-size:10px;font-weight:800;letter-spacing:.08em;margin-bottom:4px; }
+    .apk-back { flex-shrink:0;color:var(--paper-2);font-size:12px;font-weight:700;text-decoration:none;padding:8px 10px;border:1px solid color-mix(in oklch,var(--paper),transparent 70%);border-radius:8px; }
+    .apk-main { min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,270px);gap:10px; }
+    .apk-board-frame { min-width:0;min-height:0;overflow:hidden;border:2px solid var(--ink);border-radius:12px;background:var(--table); }
+    #apk-board { width:100%;height:100%;min-height:0; }
+    .apk-panel { min-height:0;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:12px;color:var(--ink); }
+    .apk-kind { color:var(--accent-ink);font-size:10px;font-weight:850;letter-spacing:.07em; }
+    .apk-desc { margin:0;color:var(--ink-2);font-size:12px;line-height:1.4; }
+    .apk-objective { padding:9px;background:var(--paper-2);border:1px solid color-mix(in oklch,var(--ink),transparent 82%);border-radius:8px;font-size:12px;line-height:1.45;font-weight:650; }
+    .apk-status { min-height:46px;padding:9px;border-left:3px solid var(--accent);background:color-mix(in oklch,var(--paper),transparent 25%);font-size:12px;line-height:1.4; }
+    .apk-stats { color:var(--ink-2);font-size:11px;font-weight:800; }
+    .apk-actions { display:grid;gap:7px; }
+    .apk-actions .btn { width:100%;min-height:38px;padding:7px 9px; }
+    .apk-panel .apk-reset { margin-top:auto;align-self:stretch; }
+    .apk-note { border-top:1px solid color-mix(in oklch,var(--ink),transparent 80%);padding-top:8px;color:var(--muted);font-size:10px;line-height:1.35; }
+    .apk-board-frame { position:relative; }
+    .apk-fx-canvas { image-rendering:pixelated; }
+    .apk-proto { --apk-green:#3dff8e; --apk-forest:#17291c; }
+    .apk-eyebrow { color:var(--apk-green); }
+    .apk-kind { color:#1f7a3a; }
+    .apk-board-frame { border-color:var(--apk-green); box-shadow:0 0 0 3px var(--apk-forest), inset 0 0 0 1px #3dff8e55; }
+    .apk-status { border-left-color:var(--apk-green); }
+    .apk-board-frame .tile.doom { background-color:#a62c25; box-shadow:inset 0 0 0 2px #ffcf6b, inset 0 0 0 999px #ff2d5540; }
+    .apk-board-frame .tile.block { background-color:var(--apk-forest); box-shadow:inset 0 0 0 2px var(--apk-green); }
+    .apk-board-frame .pc.zombie .pc-base::after { border-color:var(--apk-green); border-style:dashed; }
+    .apk-board-frame .pc.apk-chicken { filter:sepia(1) saturate(2) hue-rotate(8deg); }
+    .apk-board-frame .pc.apk-floating { filter:drop-shadow(0 7px 5px #29e3ff80); }
+    .apk-board-frame .pc.apk-disco .pc-art { animation:apk-disco .45s steps(2,end) infinite alternate; }
+    .apk-board-frame .pc.apk-bighead .pc-art { transform:scale(1.28); transform-origin:center bottom; }
+    .apk-board-frame .pc.apk-upgraded { filter:drop-shadow(0 0 5px #ffc83d99); }
+    .apk-board-frame .pc.apk-hybrid-archbishop::after { content:'A'; }
+    .apk-board-frame .pc.apk-hybrid-chancellor::after { content:'C'; }
+    .apk-board-frame .pc.apk-hybrid-archbishop::after,.apk-board-frame .pc.apk-hybrid-chancellor::after { position:absolute;right:-3px;top:-4px;padding:1px 3px;background:#9b4dff;color:#fff;border:1px solid #fff;font:800 9px monospace; }
+    .apk-board-frame .pc.apk-team-1 { filter:hue-rotate(0deg); }
+    .apk-board-frame .pc.apk-team-2 { filter:hue-rotate(85deg); }
+    .apk-board-frame .pc.apk-team-3 { filter:hue-rotate(175deg); }
+    .apk-board-frame .pc.apk-team-4 { filter:hue-rotate(260deg); }
+    @keyframes apk-disco { from { filter:hue-rotate(0deg); } to { filter:hue-rotate(130deg); } }
+    @media (prefers-reduced-motion:reduce) { .apk-board-frame .pc-art svg { animation:none !important; } }
+    @media(max-width:760px) {
+      .apk-proto { gap:7px;padding:7px; }
+      .apk-head h1 { font-size:19px; }
+      .apk-eyebrow { font-size:9px; }
+      .apk-main { grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(260px,1fr) minmax(150px,34dvh);gap:7px; }
+      .apk-board-frame { min-height:260px; }
+      .apk-panel { padding:9px;gap:7px; }
+      .apk-desc { font-size:11px; }
+      .apk-objective,.apk-status { padding:7px;font-size:11px; }
+      .apk-actions { grid-template-columns:repeat(2,minmax(0,1fr));gap:6px; }
+      .apk-actions .btn { font-size:11px;min-height:34px; }
+      .apk-panel .apk-reset { margin-top:0; }
+      .apk-note { font-size:9px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="apk-app"></div>
+  <script type="module" src="src/lab/apk/prototypes.js"></script>
+</body>
+</html>

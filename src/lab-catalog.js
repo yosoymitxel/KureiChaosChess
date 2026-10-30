@@ -21,10 +21,13 @@ try {
 const { MODIFIERS } = await import('./data/modifiers.js');
 const BOARD_VARIANTS = Object.values(MODIFIERS).filter((m) => !m.mini && !['rest', 'bag'].includes(m.id))
   .map((m) => [`board:${m.id}`, `TABLERO NORMAL · ${m.id === 'boss' ? 'Jefe final' : m.name}`]);
+const APK_OPTIONS = (await import('./lab/apk/catalog.js')).APK_CATALOG
+  .map((entry) => [`apk:${entry.id}`, `APK: ${entry.family === 'modifier' ? 'Modificador · ' : entry.family === 'recipe' ? 'Receta · ' : entry.family === 'party' ? 'Fiesta · ' : ''}${entry.name}`]);
 const MINIS = [
   ...Object.entries((await import('./data/minigame-catalog.js')).MINIGAMES)
     .map(([id, game]) => [id, `Minijuego · ${game.name}`]),
   ...BOARD_VARIANTS,
+  ...APK_OPTIONS,
 ];
 
 const themeSelect = document.getElementById('theme');
@@ -51,17 +54,20 @@ themeSelect.value = THEMES.walnut ? 'walnut' : Object.keys(THEMES)[0];
 miniSelect.value = 'caceria';
 
 function updatePreview() {
-  const params = new URLSearchParams({
-    mini: miniSelect.value,
-    theme: themeSelect.value,
-    diff: difficulty.value,
-  });
-  if (miniSelect.value.startsWith('board:')) {
-    params.set('variant', miniSelect.value.slice('board:'.length));
-    params.delete('mini');
-    frame.src = `tests/visual-board.html?${params.toString()}`;
+  const selected = miniSelect.value;
+  const isApk = selected.startsWith('apk:');
+  difficulty.disabled = isApk;
+  if (isApk) difficulty.value = 'normal';
+  const params = new URLSearchParams({ theme: themeSelect.value, diff: isApk ? 'normal' : difficulty.value });
+  if (isApk) {
+    params.set('game', selected.slice(4));
+    frame.src = 'tests/apk-lab.html?' + params.toString();
+  } else if (selected.startsWith('board:')) {
+    params.set('variant', selected.slice('board:'.length));
+    frame.src = 'tests/visual-board.html?' + params.toString();
   } else {
-    frame.src = `tests/visual.html?${params.toString()}`;
+    params.set('mini', selected);
+    frame.src = 'tests/visual.html?' + params.toString();
   }
 }
 themeSelect.addEventListener('change', updatePreview);

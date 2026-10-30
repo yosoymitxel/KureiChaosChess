@@ -520,7 +520,12 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .lab-menu { width: 260px; margin: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
 .lab-menu h1 { font-size: 30px; }
 .lab-menu p { margin: 0; font-size: 13px; color: var(--ink-2); }
-:is(#scenes, #fx) { display: flex; flex-direction: column; gap: 8px; }
+:is(#scenes, #fx, #apk-scenes) { display: flex; flex-direction: column; gap: 8px; }
+.lab-menu #apk-scenes .btn[aria-pressed="true"] { --bg: var(--brass); --fg: var(--ink); --edge: var(--ink); }
+.lab-menu #apk-scenes .btn { --bg: #17291c; --fg: #cbff9b; --edge: #3dff8e; box-shadow: inset 0 0 0 1px #3dff8e; }
+.lab-menu #apk-scenes .btn[aria-pressed="true"] { --bg: #3dff8e; --fg: #102017; --edge: #efffa5; box-shadow: 0 0 0 2px #efffa5, 0 0 16px #3dff8e66; }
+.lab-apk-note { margin: 0; padding: 8px; border-left: 3px solid #3dff8e; background: #17291c; color: #cbff9b; font-size: 11px; line-height: 1.4; }
+.apk-fx-canvas { image-rendering: pixelated; }
 .lab-stage { flex: 1; display: flex; position: relative; overflow: hidden; }
 .lab-board { flex: 1; display: flex; }
 .lab-menu { overflow: auto; }
@@ -531,8 +536,8 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
   .lab-menu { width: auto; max-height: 42dvh; flex: 0 0 auto; margin: 8px; padding: 12px; gap: 8px; }
   .lab-menu h1 { font-size: 23px; }
   .lab-menu p { font-size: 12px; }
-  :is(#scenes, #fx) { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 6px; }
-  :is(#scenes, #fx) .btn { min-width: 0; padding: 7px 8px; white-space: normal; }
+  :is(#scenes, #fx, #apk-scenes) { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 6px; }
+  :is(#scenes, #fx, #apk-scenes) .btn { min-width: 0; padding: 7px 8px; white-space: normal; }
   .lab-stage { flex: 0 0 56dvh; min-height: 360px; }
   .lab-board { min-width: 0; min-height: 0; }
 }
@@ -1419,12 +1424,12 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
   .lab-menu h1 { font-size: 20px; }
   .lab-menu h2 { font-size: 14px; }
   .lab-menu p { font-size: 11px; line-height: 1.25; }
-  :is(#scenes, #fx) {
+  :is(#scenes, #fx, #apk-scenes) {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 4px;
   }
-  :is(#scenes, #fx) .btn { min-width: 0; min-height: 32px; padding: 5px 6px; font-size: 11px; line-height: 1.1; }
+  :is(#scenes, #fx, #apk-scenes) .btn { min-width: 0; min-height: 32px; padding: 5px 6px; font-size: 11px; line-height: 1.1; }
   .lab-menu > .btn { min-height: 34px; padding: 6px 8px; font-size: 12px; }
   .lab-menu .segmented { flex-wrap: wrap; }
   .lab-stage {
@@ -1493,3 +1498,17 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
     min-width: 0;
   }
 }
+
+/* Reference APK renderer: a separate green/pixel signature, distinct from the Kure'i FX lab. */
+.lab-stage.apk-ref-mode::before {
+  content: 'APK REFERENCE · RENDER SEPARADO';
+  position: absolute; z-index: 30; top: 10px; right: 10px; pointer-events: none;
+  padding: 7px 9px; border: 1px solid #3dff8e; background: #17291c; color: #cbff9b;
+  font: 800 10px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .05em;
+}
+.lab-stage.apk-ref-mode .board { outline: 2px solid #3dff8e; outline-offset: 4px; }
+.lab-stage.apk-ref-mode .tile.doom {
+  background-color: #a62c25; box-shadow: inset 0 0 0 2px #ffcf6b, inset 0 0 0 999px #ff2d5540;
+}
+.lab-stage.apk-ref-mode .tile.block { background-color: #17291c; box-shadow: inset 0 0 0 2px #3dff8e; }
+.lab-stage.apk-ref-mode .pc.zombie .pc-base::after { border-color: #3dff8e; border-style: dashed; }

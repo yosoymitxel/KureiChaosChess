@@ -1,0 +1,38 @@
+name: APK Playable QA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/lab/apk/**'
+      - 'src/game/**'
+      - 'tests/apk-lab.html'
+      - 'tools/apk-match-selfcheck.mjs'
+      - 'tools/apk-playable-smoke.mjs'
+      - '.github/workflows/apk-playable-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  playable-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install browser runtime
+        run: |
+          npm install --no-save playwright http-server
+          npx playwright install --with-deps chromium
+      - name: Check pure game rules and terminal states
+        run: node tools/apk-match-selfcheck.mjs
+      - name: Start local server
+        run: |
+          npx http-server -p 8123 -s -c-1 . > /tmp/apk-http.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8123/tests/apk-lab.html >/dev/null && break
+            sleep 1
+          done
+      - name: Play every MVP mode on desktop and touch
+        run: node tools/apk-playable-smoke.mjs

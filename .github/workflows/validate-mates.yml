@@ -1,4 +1,4 @@
-name: Validate mate puzzles
+name: Validate game rules and APK lab
 
 on:
   push:
@@ -8,6 +8,14 @@ on:
       - 'src/game/mates.js'
       - 'src/data/mates.js'
       - 'tools/mates-validate.mjs'
+      - 'tools/apk-vfx-check.mjs'
+      - 'src/lab.js'
+      - 'src/lab/apk/**'
+      - 'lab.html'
+      - 'tests/apk-lab.html'
+      - 'css/screens.css'
+      - 'references/apk/**'
+      - 'docs/APK-MINIGAMES-MAP.md'
       - '.github/workflows/validate-mates.yml'
 
 jobs:
@@ -18,5 +26,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Parse lab and APK modules
+        run: |
+          node --input-type=module --check < src/lab.js
+          node --input-type=module --check < src/lab/apk/effects.js
+          node --input-type=module --check < src/lab/apk/prototypes.js
+          node --input-type=module --check < src/lab/apk/playable-match.js
+          node --input-type=module --check < src/lab/apk/expansion.js
+      - name: Guard APK VFX isolation
+        run: node tools/apk-vfx-check.mjs
+      - name: Validate playable APK match loop
+        run: node tools/apk-match-selfcheck.mjs
       - name: Validate every stored position
         run: node tools/mates-validate.mjs
