@@ -18,10 +18,14 @@ const check = (condition, message) => { if (!condition) errors.push(message); };
 
 const importMatch = proto.match(/import\s*\{([^}]+)\}\s*from\s*['"]\.\/effects\.js['"]/);
 check(Boolean(importMatch), 'prototypes.js debe importar el renderer propio ./effects.js');
+const exports = new Set([...effects.matchAll(/export\s+(?:async\s+)?function\s+([\w$]+)/g)].map((m) => m[1]));
+const labImportMatch = lab.match(/import\s*\{([^}]+)\}\s*from\s*['"]\.\/lab\/apk\/effects\.js['"]/);
+check(Boolean(labImportMatch), 'lab.js debe importar efectos APK desde el renderer aislado');
+const labImports = labImportMatch ? labImportMatch[1].split(',').map(name => name.trim()).filter(Boolean) : [];
+for (const name of labImports) check(exports.has(name), `effects.js no exporta ${name} usado por lab.js`);
 const imports = importMatch
   ? importMatch[1].split(',').map((name) => name.trim()).filter(Boolean)
   : [];
-const exports = new Set([...effects.matchAll(/export\s+(?:async\s+)?function\s+([\w$]+)/g)].map((m) => m[1]));
 for (const name of imports) check(exports.has(name), `effects.js no exporta ${name}`);
 
 check(!/\bview\.fx\.[\w$]+\s*\(/.test(proto), 'prototypes.js no debe delegar en BoardView.Fx');
@@ -63,7 +67,7 @@ for (const [label, effect] of apkEffectSamples) {
   check(lab.includes(label) && lab.includes(effect), `Falta la muestra de VFX APK aislada: ${label}`);
 }
 check(!labHtml.includes('apk-games') && !labHtml.includes('tests/apk-lab.html?game='), 'lab.html debe mostrar efectos individuales, no incrustar los minijuegos completos');
-check(labHtml.includes('Muestras visuales individuales') && lab.includes('skipDeal:true'), 'las muestras VFX deben explicar su propósito y evitar mezclar la entrada del tablero con el efecto probado');
+check(labHtml.includes('Galería de efectos individuales hallados en el APK') && lab.includes('skipDeal:true'), 'lab.html debe anunciar la galería de efectos individuales y aislar su reproducción');
 check(lab.includes("stage.classList.toggle('apk-ref-mode'"), 'el selector debe activar/desactivar el estado visual APK');
 check(lab.includes('if (s.apkPlay) { if (!s.skipDeal) await playAPKDeal(view, s.pieces, stage); }') && lab.includes('vfx: !s.apkPlay'), 'las escenas APK deben poder aislar el VFX y desactivar la entrada del tablero cuando corresponda');
 check(labHtml.includes('Referencias del APK (aisladas)'), 'lab.html debe separar los apartados Kure\'i y APK');
@@ -102,6 +106,59 @@ check(lab.includes('APK · Ruleta del caos (anuncio y resultado)') && lab.includ
 check(effects.includes('export function playAPKHotPotatoCrown') && effects.includes('export function playAPKChaosRoulette'), 'faltan los dos efectos visuales nuevos');
 check(expansionDoc.includes('C2_EVENTS') && expansionDoc.includes('Potato.tick') && expansionDoc.includes('p4'), 'la evidencia de expansión debe documentar registros y puntos de extensión');
 check(page.includes('.apk-chicken') && page.includes('.apk-hybrid-archbishop') && page.includes('.apk-team-4'), 'faltan estilos de las escenas expandidas');
+
+
+const newSamples = [
+  ['APK · Sello de evento (mxStamp)', 'playAPKEventStamp'],
+  ['APK · Zona de ataque telegrafiada (mxZone)', 'playAPKZoneWarning'],
+  ['APK · Marcador de punto débil (MxDraw.weak)', 'playAPKWeakPointMarker'],
+  ['APK · Impacto en punto débil (mxWeak)', 'playAPKWeakPointHit'],
+  ['APK · Entrada cinematográfica de jefe (mxBossCut)', 'playAPKBossCut'],
+  ['APK · Ataque cinematográfico de jefe (mxBossCut)', 'playAPKBossCut'],
+  ['APK · Derrota cinematográfica de jefe (mxBossCut)', 'playAPKBossCut'],
+  ['APK · Proyectil balístico (mxBullet)', 'playAPKBullet'],
+  ['APK · Subtítulo del narrador (mxSay)', 'playAPKCaption'],
+  ['APK · Casilla vacía (void)', 'playAPKTilePattern'],
+  ['APK · Casilla de lava (lava)', 'playAPKTilePattern'],
+  ['APK · Casilla maldita (curse)', 'playAPKTilePattern'],
+  ['APK · Casilla infectada (infect)', 'playAPKTilePattern'],
+  ['APK · Muro temporal (wall)', 'playAPKTilePattern'],
+  ['APK · Plataforma de anclaje (plat)', 'playAPKTilePattern'],
+  ['APK · Portales enlazados (portal)', 'playAPKTilePattern'],
+  ['APK · Trampa de pinchos (trap)', 'playAPKTilePattern'],
+  ['APK · Luces de discoteca (disco)', 'playAPKDisco'],
+  ['APK · Cuenta atrás de ajedrez relámpago (speed)', 'playAPKSpeedTimer'],
+  ['APK · Captura con corte (die: capture)', 'playAPKDeathStyle'],
+  ['APK · Muerte por fuego (die: burn)', 'playAPKDeathStyle'],
+  ['APK · Desintegración infecciosa (die: infect)', 'playAPKDeathStyle'],
+  ['APK · Aplastamiento (die: crush)', 'playAPKDeathStyle'],
+  ['APK · Desvanecimiento (die: fade)', 'playAPKDeathStyle'],
+  ['APK · Destrucción de jefe (die: boss)', 'playAPKDeathStyle'],
+  ['APK · Golpe crítico con daño (dmg)', 'playAPKCriticalDamage'],
+  ['APK · Texto flotante (text)', 'playAPKFloatingText'],
+  ['APK · Revivir pieza (spawn: revive)', 'playAPKSpawnVariant'],
+  ['APK · Transformación dorada (transform: evolve)', 'playAPKTransformVariant'],
+  ['APK · Devolución de pieza (transform: devolve)', 'playAPKTransformVariant'],
+  ['APK · Salto de pieza (move: jump)', 'moveAPKLabPieceStyle'],
+  ['APK · Lanzamiento giratorio (move: hurl)', 'moveAPKLabPieceStyle'],
+  ['APK · Movimiento fantasmal (move: phase)', 'moveAPKLabPieceStyle'],
+  ['APK · Pisotón pesado (move: stomp)', 'moveAPKLabPieceStyle'],
+  ['APK · Embestida de ataque (attack)', 'lungeAPKLabPiece'],
+  ['APK · Banner de evento (banner)', 'playAPKBanner'],
+  ['APK · Rayo vertical de jefe (beam)', 'playAPKColumnBeam'],
+  ['APK · Invocación de pieza (spawn: summon)', 'playAPKSpawnVariant'],
+  ['APK · Transformación zombi (transform: zombify)', 'playAPKTransformVariant'],
+  ['APK · Explosión de pieza (die: explode)', 'playAPKDeathStyle'],
+  ['APK · Invocación zombi (spawn: zombie)', 'playAPKSpawnVariant'],
+  ['APK · Coronación (transform: promote)', 'playAPKTransformVariant'],
+  ['APK · Destello de casilla (tile)', 'playAPKTileSpark'],
+];
+for (const [label, effect] of newSamples) {
+  check(lab.includes(label) && lab.includes(effect), `Falta la muestra APK recién hallada: ${label}`);
+}
+for (const name of ['playAPKEventStamp','playAPKZoneWarning','playAPKWeakPointMarker','playAPKWeakPointHit','playAPKBullet','playAPKBossCut','playAPKCaption','playAPKTilePattern','playAPKDisco','playAPKSpeedTimer','playAPKDeathStyle','playAPKCriticalDamage','playAPKFloatingText','playAPKTransformVariant','playAPKSpawnVariant','playAPKColumnBeam','playAPKBanner','playAPKTileSpark']) {
+  check(exports.has(name), `Falta implementación VFX de referencia: ${name}`);
+}
 
 if (errors.length) {
   console.error(errors.map((message) => '✗ ' + message).join('\n'));

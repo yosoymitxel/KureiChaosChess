@@ -8,7 +8,7 @@ import { BOSSES } from './data/bosses.js';
 import { WEATHER } from './data/weather.js';
 import { applyTheme } from './data/themes.js';
 import { animate } from 'animejs';
-import { clearAPKEffects, playAPKPixelTrail, playAPKShockwave, playAPKZombieAttack, playAPKTransform, playAPKDeal, playAPKMeteorImpact, playAPKBombBlast, playAPKBombField, playAPKDamage, playAPKTeleport, playAPKFall, playAPKParticleBurst, playAPKShield, playAPKBeam, playAPKVictory, playAPKScreenShake, playAPKSpawnBurst, playAPKHotPotatoCrown, playAPKChaosRoulette } from './lab/apk/effects.js';
+import { clearAPKEffects, playAPKPixelTrail, playAPKShockwave, playAPKZombieAttack, playAPKTransform, playAPKDeal, playAPKMeteorImpact, playAPKBombBlast, playAPKBombField, playAPKDamage, playAPKTeleport, playAPKFall, playAPKParticleBurst, playAPKShield, playAPKBeam, playAPKVictory, playAPKScreenShake, playAPKSpawnBurst, playAPKHotPotatoCrown, playAPKChaosRoulette, playAPKEventStamp, playAPKZoneWarning, playAPKWeakPointMarker, playAPKWeakPointHit, playAPKBullet, playAPKBossCut, playAPKCaption, playAPKTilePattern, playAPKDisco, playAPKSpeedTimer, playAPKDeathStyle, playAPKCriticalDamage, playAPKFloatingText, playAPKTransformVariant, playAPKSpawnVariant, playAPKColumnBeam, playAPKBanner, playAPKTileSpark } from './lab/apk/effects.js';
 
 let view, camera = 'tilt', theme = 'walnut';
 const board = () => ({ rows: 7, cols: 7, holes: new Set([key(3, 0), key(3, 6)]), protectRows: 2 });
@@ -289,6 +289,193 @@ const APK_FX = {
     return { b, pieces, apkPlay:async(v)=>playAPKChaosRoulette(stage,v,'LLUVIA DE BOMBAS','EN 1 TURNO · TRES OBJETIVOS MARCADOS','#ff6a00') };
   },
 
+  'APK · Sello de evento (mxStamp)': () => {
+    const b=board(),cell={row:3,col:3};
+    const pieces=[makePiece('king','light',6,3),makePiece('king','dark',0,3)];
+    return {b,pieces,apkPlay:async v=>playAPKEventStamp(stage,v,cell,'#9b4dff'),skipDeal:true};
+  },
+  'APK · Zona de ataque telegrafiada (mxZone)': () => {
+    const b=board(),cells=[];
+    for(let c=0;c<7;c++)cells.push([3,c]);
+    for(let r=0;r<7;r++)if(r!==3)cells.push([r,3]);
+    const pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0),makePiece('rook','dark',3,0)];
+    return {b,pieces,apkPlay:async v=>playAPKZoneWarning(stage,v,cells.map(([row,col])=>({row,col})),'#ff2d55'),skipDeal:true};
+  },
+  'APK · Marcador de punto débil (MxDraw.weak)': () => {
+    const b=board(),boss=makePiece('boss-titan','dark',2,2,{boss:'titan',h:2,w:2,hp:3,maxHp:3});
+    const pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0),boss];
+    return {b,pieces,apkPlay:async v=>playAPKWeakPointMarker(stage,v,{row:2,col:2}),skipDeal:true};
+  },
+  'APK · Impacto en punto débil (mxWeak)': () => {
+    const b=board(),boss=makePiece('boss-titan','dark',2,2,{boss:'titan',h:2,w:2,hp:3,maxHp:3});
+    const pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0),boss];
+    return {b,pieces,apkPlay:async v=>playAPKWeakPointHit(stage,v,{row:2,col:2}),skipDeal:true};
+  },
+  'APK · Entrada cinematográfica de jefe (mxBossCut)': () => {
+    const b=board(),boss=makePiece('boss-titan','dark',2,2,{boss:'titan',h:2,w:2,hp:3,maxHp:3});
+    const pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0),boss];
+    return {b,pieces,apkPlay:async v=>playAPKBossCut(stage,v,boss,{title:'TITÁN',subtitle:'HA ENTRADO AL TABLERO',quote:'El suelo recuerda cada paso.',color:'#ff2d55',phase:'enter'}),skipDeal:true};
+  },
+  'APK · Ataque cinematográfico de jefe (mxBossCut)': () => {
+    const b=board(),boss=makePiece('boss-titan','dark',2,2,{boss:'titan',h:2,w:2,hp:3,maxHp:3});
+    const pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0),boss];
+    return {b,pieces,apkPlay:async v=>playAPKBossCut(stage,v,boss,{title:'TITÁN',subtitle:'¡ATAQUE EN CURSO!',quote:'No habrá segunda oportunidad.',color:'#ff6a00',phase:'attack'}),skipDeal:true};
+  },
+  'APK · Derrota cinematográfica de jefe (mxBossCut)': () => {
+    const b=board(),boss=makePiece('boss-titan','dark',2,2,{boss:'titan',h:2,w:2,hp:1,maxHp:3});
+    const pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0),boss];
+    return {b,pieces,apkPlay:async v=>playAPKBossCut(stage,v,boss,{title:'TITÁN DERROTADO',subtitle:'EL COLOSO CAE',quote:'...',color:'#ffc83d',phase:'defeat'}),skipDeal:true};
+  },
+  'APK · Proyectil balístico (mxBullet)': () => {
+    const b=board(),from={row:5,col:1},to={row:1,col:5};
+    const pieces=[makePiece('rook','light',5,1),makePiece('pawn','dark',1,5),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKBullet(stage,v,from,to,'#ffc83d'),skipDeal:true};
+  },
+  'APK · Subtítulo del narrador (mxSay)': () => {
+    const b=board(),pieces=[makePiece('queen','light',3,3),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKCaption(stage,v,'UNA JUGADA AUDAZ. O UN ERROR DE DEDO.','#ffc83d'),skipDeal:true};
+  },
+  'APK · Casilla vacía (void)': () => {
+    const b=board(),pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKTilePattern(stage,v,[{row:3,col:3}],'void'),skipDeal:true};
+  },
+  'APK · Casilla de lava (lava)': () => {
+    const b=board(),pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKTilePattern(stage,v,[{row:3,col:3}],'lava'),skipDeal:true};
+  },
+  'APK · Casilla maldita (curse)': () => {
+    const b=board(),pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKTilePattern(stage,v,[{row:3,col:3}],'curse'),skipDeal:true};
+  },
+  'APK · Casilla infectada (infect)': () => {
+    const b=board(),pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKTilePattern(stage,v,[{row:3,col:3}],'infect'),skipDeal:true};
+  },
+  'APK · Muro temporal (wall)': () => {
+    const b=board(),pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKTilePattern(stage,v,[{row:3,col:3}],'wall'),skipDeal:true};
+  },
+  'APK · Plataforma de anclaje (plat)': () => {
+    const b=board(),pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKTilePattern(stage,v,[{row:3,col:3}],'platform'),skipDeal:true};
+  },
+  'APK · Portales enlazados (portal)': () => {
+    const b=board(),pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKTilePattern(stage,v,[{row:2,col:2},{row:4,col:4}],'portal'),skipDeal:true};
+  },
+  'APK · Trampa de pinchos (trap)': () => {
+    const b=board(),pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKTilePattern(stage,v,[{row:3,col:3}],'trap'),skipDeal:true};
+  },
+  'APK · Luces de discoteca (disco)': () => {
+    const b=board(),pieces=[makePiece('queen','light',3,3),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKDisco(stage,v),skipDeal:true};
+  },
+  'APK · Cuenta atrás de ajedrez relámpago (speed)': () => {
+    const b=board(),pieces=[makePiece('rook','light',5,1),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKSpeedTimer(stage,v),skipDeal:true};
+  },
+
+  'APK · Banner de evento (banner)': () => {
+    const b=board(),pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKBanner(stage,v,'¡LA RULETA HA HABLADO!','EVENTO GLOBAL ACTIVADO','#9b4dff'),skipDeal:true};
+  },
+  'APK · Rayo vertical de jefe (beam)': () => {
+    const b=board(),pieces=[makePiece('boss-titan','dark',1,2,{boss:'titan',h:2,w:2,hp:3,maxHp:3}),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKColumnBeam(stage,v,3,0,6,'#29e3ff'),skipDeal:true};
+  },
+  'APK · Invocación de pieza (spawn: summon)': () => {
+    const b=board(),target=makePiece('pawn','light',3,3),pieces=[target,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKSpawnVariant(stage,v,{row:target.row,col:target.col},'summon'),skipDeal:true};
+  },
+  'APK · Transformación zombi (transform: zombify)': () => {
+    const b=board(),target=makePiece('pawn','dark',3,3),pieces=[target,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKTransformVariant(stage,v,{row:target.row,col:target.col},'zombify'),skipDeal:true};
+  },
+
+  'APK · Explosión de pieza (die: explode)': () => {
+    const b=board(),cell={row:3,col:3},pieces=[makePiece('pawn','dark',3,3),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKDeathStyle(stage,v,cell,'explode'),skipDeal:true};
+  },
+  'APK · Invocación zombi (spawn: zombie)': () => {
+    const b=board(),target=makePiece('pawn','dark',3,3,{zombie:true}),pieces=[target,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKSpawnVariant(stage,v,{row:target.row,col:target.col},'zombie'),skipDeal:true};
+  },
+  'APK · Coronación (transform: promote)': () => {
+    const b=board(),target=makePiece('pawn','light',3,3),pieces=[target,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKTransformVariant(stage,v,{row:target.row,col:target.col},'promote'),skipDeal:true};
+  },
+  'APK · Destello de casilla (tile)': () => {
+    const b=board(),pieces=[makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKTileSpark(stage,v,{row:3,col:3}),skipDeal:true};
+  },
+  'APK · Captura con corte (die: capture)': () => {
+    const b=board(),cell={row:3,col:3},pieces=[makePiece('rook','light',3,2),makePiece('pawn','dark',3,3),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKDeathStyle(stage,v,cell,'capture'),skipDeal:true};
+  },
+  'APK · Muerte por fuego (die: burn)': () => {
+    const b=board(),cell={row:3,col:3},pieces=[makePiece('pawn','dark',3,3),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKDeathStyle(stage,v,cell,'burn'),skipDeal:true};
+  },
+  'APK · Desintegración infecciosa (die: infect)': () => {
+    const b=board(),cell={row:3,col:3},pieces=[makePiece('pawn','dark',3,3,{zombie:true,infected:true}),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKDeathStyle(stage,v,cell,'infect'),skipDeal:true};
+  },
+  'APK · Aplastamiento (die: crush)': () => {
+    const b=board(),cell={row:3,col:3},pieces=[makePiece('pawn','dark',3,3),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKDeathStyle(stage,v,cell,'crush'),skipDeal:true};
+  },
+  'APK · Desvanecimiento (die: fade)': () => {
+    const b=board(),cell={row:3,col:3},pieces=[makePiece('knight','dark',3,3),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKDeathStyle(stage,v,cell,'fade'),skipDeal:true};
+  },
+  'APK · Destrucción de jefe (die: boss)': () => {
+    const b=board(),cell={row:3,col:3},pieces=[makePiece('boss-titan','dark',2,2,{boss:'titan',h:2,w:2,hp:1,maxHp:1}),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKDeathStyle(stage,v,cell,'boss'),skipDeal:true};
+  },
+  'APK · Golpe crítico con daño (dmg)': () => {
+    const b=board(),cell={row:3,col:3},pieces=[makePiece('rook','dark',3,3),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKCriticalDamage(stage,v,cell,3),skipDeal:true};
+  },
+  'APK · Texto flotante (text)': () => {
+    const b=board(),cell={row:3,col:3},pieces=[makePiece('queen','light',3,3),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKFloatingText(stage,v,cell,'¡JAQUE!','#ff2d55'),skipDeal:true};
+  },
+  'APK · Revivir pieza (spawn: revive)': () => {
+    const b=board(),target=makePiece('knight','light',3,3),pieces=[target,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKSpawnVariant(stage,v,{row:target.row,col:target.col},'revive'),skipDeal:true};
+  },
+  'APK · Transformación dorada (transform: evolve)': () => {
+    const b=board(),target=makePiece('pawn','light',3,3),pieces=[target,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKTransformVariant(stage,v,{row:target.row,col:target.col},'evolve'),skipDeal:true};
+  },
+  'APK · Devolución de pieza (transform: devolve)': () => {
+    const b=board(),target=makePiece('queen','dark',3,3),pieces=[target,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>playAPKTransformVariant(stage,v,{row:target.row,col:target.col},'devolve'),skipDeal:true};
+  },
+
+
+  'APK · Salto de pieza (move: jump)': () => {
+    const b=board(),runner=makePiece('knight','light',5,1),to={row:3,col:2},pieces=[runner,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>moveAPKLabPieceStyle(v,runner,to,520,'jump'),skipDeal:true};
+  },
+  'APK · Lanzamiento giratorio (move: hurl)': () => {
+    const b=board(),runner=makePiece('knight','light',5,1),to={row:2,col:4},pieces=[runner,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>moveAPKLabPieceStyle(v,runner,to,520,'hurl'),skipDeal:true};
+  },
+  'APK · Movimiento fantasmal (move: phase)': () => {
+    const b=board(),runner=makePiece('bishop','light',5,1),to={row:2,col:4},pieces=[runner,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>moveAPKLabPieceStyle(v,runner,to,520,'phase'),skipDeal:true};
+  },
+  'APK · Pisotón pesado (move: stomp)': () => {
+    const b=board(),runner=makePiece('boss-titan','dark',1,2,{boss:'titan',h:2,w:2,hp:3,maxHp:3}),to={row:3,col:2},pieces=[runner,makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>moveAPKLabPieceStyle(v,runner,to,600,'stomp'),skipDeal:true};
+  },
+  'APK · Embestida de ataque (attack)': () => {
+    const b=board(),attacker=makePiece('rook','light',5,3),cell={row:3,col:3},pieces=[attacker,makePiece('pawn','dark',3,3),makePiece('king','light',6,6),makePiece('king','dark',0,0)];
+    return {b,pieces,apkPlay:async v=>{await lungeAPKLabPiece(v,attacker,cell,260);await playAPKDamage(stage,v,cell);},skipDeal:true};
+  },
+
 };
 
 async function moveAPKLabPiece(v, piece, to, duration) {
@@ -301,6 +488,35 @@ async function moveAPKLabPiece(v, piece, to, duration) {
   piece.row = to.row; piece.col = to.col;
   st.r = to.row; st.c = to.col; st.z = 0;
   v.apply(piece);
+}
+
+
+async function moveAPKLabPieceStyle(v, piece, to, duration, style) {
+  const st = v.state.get(piece), el = v.els.get(piece);
+  if (!st || !el) return;
+  const fig = el.querySelector('.pc-fig');
+  const start = { row: piece.row, col: piece.col };
+  if (style === 'phase') el.style.opacity = '.38';
+  const height = style === 'stomp' ? v.sq * .85 : style === 'jump' || style === 'hurl' ? v.sq * .68 : v.sq * .3;
+  const jobs = [animate(st, {
+    r: to.row, c: to.col, z: [st.z, height, 0],
+    duration, ease: style === 'stomp' ? 'inOutQuad' : 'outCubic',
+    onUpdate: () => v.apply(piece)
+  })];
+  if (style === 'hurl' && fig) jobs.push(animate(fig, { rotate: [0, 720], duration, ease: 'linear' }));
+  await Promise.all(jobs);
+  piece.row = to.row; piece.col = to.col; st.r = to.row; st.c = to.col; st.z = 0; v.apply(piece);
+  el.style.opacity = '1';
+  if (style === 'stomp') await playAPKScreenShake(stage, 240, 10);
+  if (style === 'phase') await playAPKPixelTrail(stage, v, start, to);
+}
+
+async function lungeAPKLabPiece(v, piece, target, duration=240) {
+  const st=v.state.get(piece);
+  if(!st)return;
+  const from={r:piece.row,c:piece.col,z:st.z};
+  await animate(st,{r:[from.r,target.row,from.r],c:[from.c,target.col,from.c],z:[from.z,v.sq*.42,0],duration,ease:'inOutQuad',onUpdate:()=>v.apply(piece)});
+  st.r=from.r;st.c=from.c;st.z=0;v.apply(piece);
 }
 
 

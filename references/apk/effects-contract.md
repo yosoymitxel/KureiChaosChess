@@ -35,3 +35,31 @@ La escena comparativa del `lab.html` activa la etiqueta `APK REFERENCE · RENDER
 ## Entrada inicial de tablero
 
 Las referencias APK tampoco usan `BoardView.intro()`: el módulo `effects.js` organiza las losas y hace caer las piezas sin polvo genérico, sin squash ni sonido de paso del juego original. Termina con una ráfaga de pequeños bloques ligada a las piezas. En el comparador de `lab.html`, `BoardView` se instancia con `vfx:false` para las escenas APK.
+
+
+## Cobertura ampliada del payload extraído (29-10-2026)
+
+La galería `lab.html` contiene ahora 64 escenas APK individuales. Se cotejaron los puntos de entrada del payload, no solo las etiquetas de los modos:
+
+| Fuente del APK | Muestra en Kure'i |
+|---|---|
+| `MxStep.mxStamp` | Sello de evento con marco y cruz |
+| `MxStep.mxZone` | Zona de ataque con trama diagonal y pulso |
+| `MxDraw.weak` + `MxStep.mxWeak` | Marcador giratorio de punto débil y golpe dorado |
+| `MxStep.mxBossCut` | Entrada, ataque y derrota cinematográfica; reutiliza el SVG local del jefe de Kure'i como retrato |
+| `MxStep.mxBullet` | Proyectil cuadrado con estela |
+| `MxStep.mxSay` / `Caption.say` | Subtítulo de narrador |
+| `MxDraw.disco` / `Speed.draw` | Luces de discoteca y cuenta atrás |
+| `Renderer.drawTile` | Void, lava/hot, curse, infect, wall, plat, portal y trap |
+| `Anim.step: move` | Jump, hurl, phase, stomp y slide |
+| `Anim.step: attack` | Embestida corta que vuelve a la casilla de origen |
+| `Anim.step: die` | Capture, burn, infect, crush, fade, boss y fall |
+| `Anim.step: spawn/transform` | Summon, revive, zombie, zombify, evolve, promote y devolve |
+| `Anim.step: dmg/text/beam/banner` | Daño crítico, texto flotante, rayo vertical y banner |
+
+`mxHorde` se excluye de esta galería porque abre el flujo interactivo de selección de cartas/oleadas, no una animación autónoma. Sus cartas y mejoras están disponibles en el prototipo de Horde Mode.
+
+Las 60 escenas siguen siendo demostraciones de VFX. No importan el monolito APK, su renderer, sus sprites ni sus clases globales. Los retratos de jefe en las tarjetas cinematográficas usan el arte local ya existente en Kure'i; el resto de la secuencia se dibuja en la capa APK independiente.
+
+
+Se añadieron muestras independientes para `die:explode`, `spawn:zombie`, `transform:promote` y el paso transitorio `tile`. La ruleta ahora muestra el ciclo de nombres y ralentiza antes de fijar el resultado.

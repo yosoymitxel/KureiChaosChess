@@ -53,7 +53,7 @@ Modificadores de compra: `sudden`, `fog`, `randpromo`, `extrapawns`, `ice`, `hot
 - Prototipos ampliados: `src/lab/apk/expansion.js`, invocados por `src/lab/apk/prototypes.js`.
 - Renderer de efectos APK: `src/lab/apk/effects.js`.
 - Selector: `lab-preview.html` y `src/lab-catalog.js`.
-- Banco de VFX individuales: `lab.html` y `src/lab.js`.
+- Banco de VFX individuales: `lab.html` y `src/lab.js` (64 muestras independientes; inventario en `references/apk/effects-contract.md`).
 - Verificación estática: `tools/apk-vfx-check.mjs`.
 
-`lab.html` sigue siendo una galería de efectos independientes. Los prototipos de reglas se abren desde el selector APK del banco de pruebas. Ninguna nueva modalidad, receta o modificador se registra en `src/game/match.js`, `src/game/rules.js`, recompensas, persistencia o economía.
+`lab.html` sigue siendo una galería de efectos independientes: marcas, zonas, puntos débiles, jefes, proyectiles, casillas, estilos de movimiento, desapariciones y feedback de combate; incluye también explosión de muerte, invocación zombi, coronación y destello de casilla. Los prototipos de reglas se abren desde el selector APK del banco de pruebas. Ninguna nueva modalidad, receta o modificador se registra en `src/game/match.js`, `src/game/rules.js`, recompensas, persistencia o economía.
