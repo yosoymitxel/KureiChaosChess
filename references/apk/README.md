@@ -10,5 +10,8 @@ Esta carpeta contiene observaciones verificables del payload web extraído de Ch
 ## Archivos
 - [Zombie Chess](./zombie-chess.md): reglas, secuencia visual y contraste con el efecto zombi existente.
 - [Contrato de efectos](./effects-contract.md): qué significa mantener una implementación APK realmente independiente.
+- [Auditoría de expansión](./expansion-audit.md): 15 modalidades ausentes, 22 modificadores, 6 recetas, 12 eventos y 24 mejoras de Horde Mode.
+
+El catálogo y los prototipos actuales se describen en [APK-MINIGAMES-MAP](../../docs/APK-MINIGAMES-MAP.md).
 
 Cada nueva referencia debe guardar tres cosas: comportamiento observado en el APK, comportamiento actual de Kure'i y diferencia concreta reproducible en el laboratorio. No basta con duplicar el nombre de una función existente.

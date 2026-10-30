@@ -22,7 +22,7 @@ const { MODIFIERS } = await import('./data/modifiers.js');
 const BOARD_VARIANTS = Object.values(MODIFIERS).filter((m) => !m.mini && !['rest', 'bag'].includes(m.id))
   .map((m) => [`board:${m.id}`, `TABLERO NORMAL · ${m.id === 'boss' ? 'Jefe final' : m.name}`]);
 const APK_OPTIONS = (await import('./lab/apk/catalog.js')).APK_CATALOG
-  .map((entry) => [`apk:${entry.id}`, `APK: ${entry.name}`]);
+  .map((entry) => [`apk:${entry.id}`, `APK: ${entry.family === 'modifier' ? 'Modificador · ' : entry.family === 'recipe' ? 'Receta · ' : entry.family === 'party' ? 'Fiesta · ' : ''}${entry.name}`]);
 const MINIS = [
   ...Object.entries((await import('./data/minigame-catalog.js')).MINIGAMES)
     .map(([id, game]) => [id, `Minijuego · ${game.name}`]),

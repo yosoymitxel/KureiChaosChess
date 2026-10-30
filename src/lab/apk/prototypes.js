@@ -4,6 +4,7 @@ import { key } from '../../game/rules.js';
 import { THEMES, applyTheme } from '../../data/themes.js';
 import { animate } from 'animejs';
 import { APK_BY_ID } from './catalog.js';
+import { mountAPKExpansion } from './expansion.js';
 import { clearAPKEffects, playAPKPixelTrail, playAPKZombieAttack, playAPKTransform, playAPKBombBlast, playAPKMeteorImpact, playAPKDamage, playAPKTeleport, playAPKFall, playAPKParticleBurst, playAPKBombField, playAPKShield, playAPKBeam, playAPKVictory, playAPKScreenShake, playAPKShockwave, playAPKDeal } from './effects.js';
 
 const KN = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
@@ -16,6 +17,7 @@ const cloneBoard = (rows=8,cols=8,holes=[]) => ({ rows, cols, holes:new Set(hole
 
 export async function mountAPKPrototype(root, id, themeId='walnut') {
   const meta = APK_BY_ID[id] || APK_BY_ID.race;
+  if (id === 'chaos' || ['boss2','horde','randarmy','giant','potato','p4'].includes(id) || ['party','modifier','recipe'].includes(meta.family)) return mountAPKExpansion(root, id, themeId);
   applyTheme(THEMES[themeId] ? themeId : 'walnut');
   root.innerHTML = '<main class="apk-proto"><header class="apk-head"><div><div class="apk-eyebrow">PROTOTIPO AISLADO · APK · NORMAL</div><h1></h1></div><a class="apk-back" href="lab-preview.html">Volver al banco</a></header><div class="apk-main"><section class="apk-board-frame"><div id="apk-board"></div></section><aside class="apk-panel panel"><div class="apk-kind"></div><p class="apk-desc"></p><div class="apk-objective"></div><div class="apk-status" role="status" aria-live="polite"></div><div class="apk-stats"></div><div class="apk-actions"></div><button class="btn sm apk-reset" type="button">Reiniciar prototipo</button><div class="apk-note">Dificultad Normal. Sin progreso ni recompensas. Los efectos APK tienen renderer propio; no son alias de BoardView.Fx.</div></aside></div></main>';
   const $ = (s) => root.querySelector(s);

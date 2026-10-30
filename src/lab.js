@@ -8,7 +8,7 @@ import { BOSSES } from './data/bosses.js';
 import { WEATHER } from './data/weather.js';
 import { applyTheme } from './data/themes.js';
 import { animate } from 'animejs';
-import { clearAPKEffects, playAPKPixelTrail, playAPKShockwave, playAPKZombieAttack, playAPKTransform, playAPKDeal, playAPKMeteorImpact, playAPKBombBlast, playAPKBombField, playAPKDamage, playAPKTeleport, playAPKFall, playAPKParticleBurst, playAPKShield, playAPKBeam, playAPKVictory, playAPKScreenShake, playAPKSpawnBurst } from './lab/apk/effects.js';
+import { clearAPKEffects, playAPKPixelTrail, playAPKShockwave, playAPKZombieAttack, playAPKTransform, playAPKDeal, playAPKMeteorImpact, playAPKBombBlast, playAPKBombField, playAPKDamage, playAPKTeleport, playAPKFall, playAPKParticleBurst, playAPKShield, playAPKBeam, playAPKVictory, playAPKScreenShake, playAPKSpawnBurst, playAPKHotPotatoCrown, playAPKChaosRoulette } from './lab/apk/effects.js';
 
 let view, camera = 'tilt', theme = 'walnut';
 const board = () => ({ rows: 7, cols: 7, holes: new Set([key(3, 0), key(3, 6)]), protectRows: 2 });
@@ -277,6 +277,16 @@ const APK_FX = {
     return { b, pieces, apkPlay: async v => {
       for (const item of movers) await slideAPKLabPiece(v,item.piece,item.to,420);
     }, skipDeal:true };
+  },
+
+
+  'APK · Vuelo de corona (Rey Patata Caliente)': () => {
+    const b=board(),old=makePiece('king','light',5,2,{royal:true}),next=makePiece('knight','light',2,4);
+    return { b, pieces:[old,next,makePiece('king','dark',0,3)], apkPlay:async(v)=>playAPKHotPotatoCrown(stage,v,{row:old.row,col:old.col},{row:next.row,col:next.col}) };
+  },
+  'APK · Ruleta del caos (anuncio y resultado)': () => {
+    const b=board(),pieces=[makePiece('king','light',6,3),makePiece('rook','dark',2,3),makePiece('pawn','dark',1,5)];
+    return { b, pieces, apkPlay:async(v)=>playAPKChaosRoulette(stage,v,'LLUVIA DE BOMBAS','EN 1 TURNO · TRES OBJETIVOS MARCADOS','#ff6a00') };
   },
 
 };

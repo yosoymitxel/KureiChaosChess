@@ -1,46 +1,59 @@
 # Inventario e integración aislada de Chess Mayhem (APK)
 
-Fuente: el registro MODES y las estructuras MINIGAMES y ARCADE de la carga JavaScript extraída del APK. No se importa su monolito; los prototipos vuelven a implementar comportamientos usando el tablero, las piezas y los VFX de Kure'i Chaos Chess.
+Fuente primaria examinada: `assets/public/game-source.js` dentro de `kureichess-apk-extracted-source.zip`. El monolito no se copia al repositorio ni se importa en ejecución. Las recreaciones se mantienen aisladas del motor principal.
 
-## Inventario
+## Catálogo del laboratorio
 
-- **11 variantes de ajedrez**, aparte de Classic: Chaos Chess, Battle Chess, Zombie Chess, Bomb Chess, Gravity Chess, Boss Chess, Chaos Arena, Card Chess, Micro Chess, Infinite Chess y Mayhem Mode (en el registro del APK aparece como modo secreto ??? MODE).
-- **3 minijuegos de tablero**: Pawn Race, Bomb Dodge y Knight's Feast. Estos tres tienen lógica jugable independiente en el laboratorio y quedan fijados en Normal.
-- **6 juegos Arcade**: Pawn Dodge, Knight Parkour, Bishop Blaster, Rook Rampage, King Panic y Queen Mode. Son estudios interactivos de la mecánica principal; no portan el runtime arcade completo del APK.
+Se preservan las 20 entradas iniciales y se indexan las 15 modalidades que faltaban:
+- Variantes nuevas: Boss Chess 2.0, Horde Mode, Random Army, Giant Board y Rey Patata Caliente.
+- Modos de fiesta: Todos son dama, Todos son peón, Caballo, Ajedrez relámpago, Ajedrez invisible, Ajedrez borracho, Ajedrez gallina, Ajedrez balacera y Ajedrez al revés.
+- Registro separado: Ajedrez de 4 jugadores (p4).
 
-El selector de lab-preview.html muestra 20 opciones con prefijo APK:. Classic no se duplica porque es el ajedrez tradicional.
+También se registran 22 modificadores, 6 recetas, 12 eventos de Chaos 2.0 y las 24 cartas/mejoras de Horde Mode.
 
-## Solapamiento con Kure'i
+## Tabla de correspondencia y alcance
 
-La referencia de diseño del repo es docs/REFERENCE-GAMES.md; el registro real está en src/data/modifiers.js y src/data/minigame-catalog.js.
-
-| Patrón del APK | Sistema del repo | Qué se estudia aislado |
+| Entrada | Implementación de laboratorio | Límite explícito |
 |---|---|---|
-| Pawn Race | No equivalente directo | Dado, carrera, casillas de efecto y bot corredor |
-| Bomb Dodge | Bombas/derrumbes | Aviso previo, escape por ronda, cráteres y escudos |
-| Knight's Feast | Caballo, FX y rejilla | Cronómetro, gemas, combos y riesgos |
-| Zombie Chess | Plaga zombi y Contagio | Muestra aislada de persecución, estela verde por bloques, mordida y transformación pixelada; la IA completa de ronda sigue fuera del motor principal |
-| Bomb Chess | Bomberman / Campo minado | Explosión 3×3 ligada a una bomba marcada |
-| Gravity Chess | Hielo y derrumbe | Deslizamiento global y dirección de gravedad |
-| Boss Chess | Jefes multicasilla con HP | Vida, golpes y feedback; no todas las fases de IA del APK |
-| Chaos Arena | Modificadores existentes | Director de eventos aleatorios por turnos |
-| Card Chess | Cartas tácticas | Cartas de efecto fuera del sistema de cartas principal |
-| Micro Chess | Tamaños de tablero | Formato compacto; no sustituye las reglas legales |
-| Infinite Chess | Última resistencia / Yo, Zombi | Generación de oleadas y supervivencia sin rey rival |
-| Mayhem Mode | Modificadores | Combinación aleatoria de reglas |
-| 6 Arcade | Piezas y VFX | Estudios de interacción, movimiento, amenaza, oleadas y puntuación |
+| Rey Patata Caliente | Transferencia de corona por bando cada cinco rondas, anuncio previo, búsqueda de candidatos no amenazados y corona animada | No reemplaza el resolutor de jaque/mate del APK; la identidad de rey se demuestra visualmente |
+| Chaos Chess 2.0 | Bolsa de 12 eventos sin repetición, anuncio previo, destino marcado y botón para resolver el evento | No ejecuta el calendario exacto de plies de la partida original |
+| Boss Chess 2.0 | Cuatro perfiles de jefe, HP, puntos débiles y ataques anunciados por fila/columna/cruz/3×3 | Combate y daño simplificados; no incluye toda la IA ni los ataques específicos de cada jefe |
+| Horde Mode | Borrador de tres piezas, oleadas, minijefe cada cinco y selección de 1 entre 3 de las 24 mejoras | El prototipo permite eliminar enemigos tocándolos y ofrece un atajo de escaparate; no importa el motor de combate ni el reroll económico original |
+| Random Army | Sorteo ponderado con presupuesto exacto de 39 puntos, rey fijo y elección de mismo/diferente ejército | Disposición de laboratorio; no reemplaza el motor de jaque/mate |
+| Giant Board | Tablero 12×12, dos filas de peones y representación de las cuatro piezas especiales | Arzobispo/canciller usan arte local de alfil/torre con insignia. El prototipo no sustituye sus movimientos legales |
+| Party modes | Formación de los tres ejércitos uniformes y muestras interactivas de reloj, invisibilidad, desvío, gallinas, balas y captura obligatoria | Speed no ejecuta una jugada legal aleatoria automática; invisibilidad y antiajedrez son muestras de reglas, no partidas completas |
+| Four Player Chess | Geometría exacta de tablero en cruz 14×14, cuatro ejércitos orientados hacia el centro y colores de bando | No se porta la rotación de turnos, el jaque ni la eliminación completa de cuatro jugadores |
+| Modificadores | Una escena de demostración aislada por cada uno de los 22 modificadores | No se activan durante partidas, mapas ni tiendas de Kure’i |
+| Recetas | Seis combinaciones y requisitos originales, con muestra visual | Frost, Volcano y Office se documentan como requisitos de tema/tablero; las recompensas de perfil no se importan |
 
-## Diferencias visuales: Kure'i frente al APK
+## Inventario de eventos de Chaos 2.0
 
-El laboratorio separa la escena actual `Kure'i: Plaga zombi (efecto actual)` de `APK · Caza zombi (persecución y mordida)`. La primera conserva `BoardView.infect()`; la segunda usa `src/lab/apk/effects.js`, con canvas y secuencia independientes. El mismo criterio aplica a la estela de movimiento y al impacto por bloques.
+`wall`, `hole`, `giant`, `swap`, `hop`, `neutral`, `bombs`, `portals`, `duck`, `freeze`, `lava` y `promote`.
 
-La carpeta `references/apk/` conserva el mapa de evidencia y las diferencias observadas en el payload, sin importar el monolito extraído.
+El prototipo presenta una ruleta, una previsualización y una acción manual de resolución. La secuencia visual es independiente de `BoardView.Fx`.
 
-## Límites
+## Inventario de modificadores
 
-- Código nuevo del laboratorio en src/lab/apk/; página independiente en tests/apk-lab.html.
-- El selector fuerza Normal y deshabilita el control de dificultad al escoger APK:.
-- Nada se registra en el motor de partidas, las recompensas ni el catálogo principal de minijuegos.
-- Las tres entradas de family: mini son prototipos jugables. Los modos de ajedrez y los seis Arcade son demostraciones de mecánicas, no copias completas de todos sus sistemas.
-- Se reutilizan BoardView, Fx, makePiece, las piezas SVG/píxel y las utilidades de movimiento; no se modifica src/game/match.js, src/game/rules.js ni los minijuegos ya existentes.
-- Para integrar más adelante, comparar reglas y efectos antes de mover cualquier módulo a la arquitectura principal.
+Reglas diarias: `ktele`, `boom`, `php`, `enr`, `grav`, `fast`, `dk`, `abil`, `ev`, `zc`.
+
+Modificadores de compra: `sudden`, `fog`, `randpromo`, `extrapawns`, `ice`, `hotfloor`, `royalswap`, `ducks`, `lowgrav`, `bighead`, `narrator`, `disco`.
+
+## Recetas
+
+- `moon`: lowgrav + boom + bighead.
+- `iceage`: ice + fog + tema Frost.
+- `duckapoc`: ducks + randpromo.
+- `lava`: hotfloor + tablero Volcano.
+- `corporate`: narrator + fast + tablero Office.
+- `overdrive`: siete o más modificadores simultáneos.
+
+## Fronteras técnicas
+
+- Catálogo APK: `src/lab/apk/catalog.js`.
+- Prototipos ampliados: `src/lab/apk/expansion.js`, invocados por `src/lab/apk/prototypes.js`.
+- Renderer de efectos APK: `src/lab/apk/effects.js`.
+- Selector: `lab-preview.html` y `src/lab-catalog.js`.
+- Banco de VFX individuales: `lab.html` y `src/lab.js`.
+- Verificación estática: `tools/apk-vfx-check.mjs`.
+
+`lab.html` sigue siendo una galería de efectos independientes. Los prototipos de reglas se abren desde el selector APK del banco de pruebas. Ninguna nueva modalidad, receta o modificador se registra en `src/game/match.js`, `src/game/rules.js`, recompensas, persistencia o economía.

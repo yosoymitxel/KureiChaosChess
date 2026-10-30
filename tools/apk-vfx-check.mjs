@@ -10,6 +10,9 @@ const labHtml = read('lab.html');
 const page = read('tests/apk-lab.html');
 const css = read('css/screens.css');
 const refDoc = read('references/apk/effects-contract.md');
+const expansion = read('src/lab/apk/expansion.js');
+const catalog = read('src/lab/apk/catalog.js');
+const expansionDoc = read('references/apk/expansion-audit.md');
 const errors = [];
 const check = (condition, message) => { if (!condition) errors.push(message); };
 
@@ -67,6 +70,38 @@ check(labHtml.includes('Referencias del APK (aisladas)'), 'lab.html debe separar
 check(css.includes('.lab-stage.apk-ref-mode::before'), 'falta la marca visual del renderer separado en el laboratorio');
 check(page.includes('.apk-board-frame .tile.doom') && page.includes('#3dff8e'), 'la página APK debe tener estilos de efectos propios');
 check(refDoc.includes('BoardView.Fx') && refDoc.includes('Revisión de aislamiento'), 'la documentación debe registrar el contrato de aislamiento');
+
+const countEntries = (source, start, end) => {
+  const a = source.indexOf(start), b = source.indexOf(end, a);
+  if (a < 0 || b < 0) return -1;
+  return (source.slice(a, b).match(/\{\s*id\s*:/g) || []).length;
+};
+check(countEntries(catalog, 'export const APK_MISSING_MODES = [', 'export const APK_MODIFIERS = [') === 15, 'el catálogo debe incluir las 15 modalidades ausentes');
+check(countEntries(catalog, 'export const APK_MODIFIERS = [', 'export const APK_RECIPES = [') === 22, 'el catálogo debe incluir los 22 modificadores');
+check(countEntries(catalog, 'export const APK_RECIPES = [', 'export const APK_CHAOS_EVENTS = [') === 6, 'el catálogo debe incluir las seis recetas');
+check(countEntries(catalog, 'export const APK_CHAOS_EVENTS = [', 'export const APK_HORDE_UPGRADES = [') === 12, 'Chaos 2.0 debe contener los 12 eventos');
+check(countEntries(catalog, 'export const APK_HORDE_UPGRADES = [', 'export const APK_CATALOG = Object.freeze') === 24, 'Horde Mode debe indexar las 24 mejoras');
+for (const id of ['boss2','horde','randarmy','giant','potato','pqueen','ppawn','horse','speed','invis','drunk','chicken','bullet','anti','p4']) {
+  check(catalog.includes(`id:'${id}'`), `falta modalidad APK ${id}`);
+}
+for (const id of ['ktele','boom','php','enr','grav','fast','dk','abil','ev','zc','sudden','fog','randpromo','extrapawns','ice','hotfloor','royalswap','ducks','lowgrav','bighead','narrator','disco']) {
+  check(catalog.includes(`id:'${id}'`), `falta modificador APK ${id}`);
+}
+for (const id of ['moon','iceage','duckapoc','lava','corporate','overdrive']) {
+  check(catalog.includes(`id:'${id}'`), `falta receta APK ${id}`);
+}
+const expansionImport = expansion.match(/import\s*\{([^}]+)\}\s*from\s*['"]\.\/effects\.js['"]/);
+check(Boolean(expansionImport), 'expansion.js debe consumir el renderer APK propio');
+const expansionImports = expansionImport ? expansionImport[1].split(',').map(x => x.trim()).filter(Boolean) : [];
+for (const name of expansionImports) check(exports.has(name), `effects.js no exporta ${name} requerido por expansion.js`);
+check(!/\bview\.fx\.[\w$]+\s*\(/.test(expansion), 'expansion.js no debe llamar a BoardView.Fx');
+check(!/\bnew\s+Match\s*\(/.test(expansion), 'expansion.js no debe crear partidas principales');
+check(proto.includes('mountAPKExpansion(root, id, themeId)'), 'prototypes.js debe despachar las nuevas familias al módulo aislado');
+check(lab.includes('APK · Vuelo de corona (Rey Patata Caliente)') && lab.includes('playAPKHotPotatoCrown'), 'lab.js debe ofrecer el VFX de corona individual');
+check(lab.includes('APK · Ruleta del caos (anuncio y resultado)') && lab.includes('playAPKChaosRoulette'), 'lab.js debe ofrecer el VFX individual de ruleta');
+check(effects.includes('export function playAPKHotPotatoCrown') && effects.includes('export function playAPKChaosRoulette'), 'faltan los dos efectos visuales nuevos');
+check(expansionDoc.includes('C2_EVENTS') && expansionDoc.includes('Potato.tick') && expansionDoc.includes('p4'), 'la evidencia de expansión debe documentar registros y puntos de extensión');
+check(page.includes('.apk-chicken') && page.includes('.apk-hybrid-archbishop') && page.includes('.apk-team-4'), 'faltan estilos de las escenas expandidas');
 
 if (errors.length) {
   console.error(errors.map((message) => '✗ ' + message).join('\n'));

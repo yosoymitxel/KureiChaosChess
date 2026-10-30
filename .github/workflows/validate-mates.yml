@@ -31,6 +31,7 @@ jobs:
           node --input-type=module --check < src/lab.js
           node --input-type=module --check < src/lab/apk/effects.js
           node --input-type=module --check < src/lab/apk/prototypes.js
+          node --input-type=module --check < src/lab/apk/expansion.js
       - name: Guard APK VFX isolation
         run: node tools/apk-vfx-check.mjs
       - name: Validate every stored position

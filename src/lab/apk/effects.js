@@ -445,3 +445,65 @@ export function playAPKTransform(host, view, cell) {
     ctx.globalAlpha = 1;
   });
 }
+
+
+export function playAPKHotPotatoCrown(host, view, fromCell, toCell) {
+  return animateCanvas(host, view, 900, (ctx, t, w, h, locate) => {
+    const a = locate(fromCell), b = locate(toCell), progress = easeOut(t);
+    const arc = (cellProgress) => Math.sin(cellProgress * Math.PI) * (view && view.sq ? view.sq * 1.35 : 52);
+    const x = mix(a.x, b.x, progress);
+    const y = mix(a.y, b.y, progress) - arc(progress);
+    for (let i = 10; i >= 0; i--) {
+      const q = clamp(progress - i * 0.065, 0, 1);
+      square(ctx, mix(a.x, b.x, q), mix(a.y, b.y, q) - arc(q) + 8,
+        3 + (i % 3), i % 2 ? '#fff2bd' : '#ffc83d', (1 - i / 12) * (1 - t * 0.35));
+    }
+    square(ctx, x, y + 3, 21, '#ffc83d', 1);
+    square(ctx, x - 8, y - 3, 5, '#ffc83d', 1);
+    square(ctx, x + 8, y - 3, 5, '#ffc83d', 1);
+    square(ctx, x - 5, y - 9, 5, '#fff2bd', 1);
+    square(ctx, x + 5, y - 9, 5, '#fff2bd', 1);
+    square(ctx, x, y - 13, 5, '#ffc83d', 1);
+    for (let i = 0; i < 20; i++) {
+      const angle = i * 2.399963 + t * 2.4;
+      const radius = (1 - t) * (view && view.sq ? view.sq * 0.75 : 32);
+      square(ctx, b.x + Math.cos(angle) * radius, b.y + Math.sin(angle) * radius,
+        3 + (i % 3), i % 2 ? '#fff2bd' : '#ffc83d', 1 - t);
+    }
+    ctx.globalAlpha = 1;
+  });
+}
+
+export function playAPKChaosRoulette(host, view, selected, subtitle, color = '#29e3ff') {
+  return animateCanvas(host, view, 1320, (ctx, t, w, h) => {
+    const progress = easeOut(t);
+    const panelW = Math.min(w * 0.84, 390), panelH = Math.min(h * 0.34, 138);
+    const x = (w - panelW) / 2, y = (h - panelH) / 2;
+    ctx.globalAlpha = 0.96;
+    ctx.fillStyle = '#171526';
+    ctx.fillRect(x, y, panelW, panelH);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x + 1.5, y + 1.5, panelW - 3, panelH - 3);
+    for (let i = 0; i < 9; i++) {
+      const bw = panelW / 9 * 0.5;
+      const bx = x + ((i / 9) * panelW + t * panelW * 2.2) % panelW;
+      ctx.globalAlpha = (1 - progress) * 0.35;
+      ctx.fillStyle = i % 2 ? color : '#fff2bd';
+      ctx.fillRect(bx, y + 8, bw, panelH - 16);
+    }
+    ctx.globalAlpha = 1;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff2bd';
+    ctx.font = 'bold 11px monospace';
+    ctx.fillText('RULETA DEL CAOS', w / 2, y + 24);
+    ctx.fillStyle = color;
+    ctx.font = 'bold 18px monospace';
+    ctx.fillText(String(selected).toUpperCase().slice(0, 30), w / 2, y + panelH * 0.53);
+    ctx.fillStyle = '#f4ead9';
+    ctx.font = 'bold 9px monospace';
+    ctx.fillText(String(subtitle).toUpperCase().slice(0, 68), w / 2, y + panelH - 18);
+    ctx.globalAlpha = 1;
+  });
+}
