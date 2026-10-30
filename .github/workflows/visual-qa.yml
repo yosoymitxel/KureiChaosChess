@@ -1,7 +1,7 @@
 name: Visual QA
 on:
   push:
-    branches: [feature/minigame-caceria, ccr-3bb531ce-bi147p, feat/five-theme-art, fix/mobile-lab-minigames-layout, fix/giant-hunt-*]
+    branches: [main, qa/apk-gameplay-prototypes, feature/minigame-caceria, ccr-3bb531ce-bi147p, feat/five-theme-art, fix/mobile-lab-minigames-layout, fix/giant-hunt-*]
   workflow_dispatch:
 jobs:
   screenshots:
@@ -23,12 +23,15 @@ jobs:
           node tools/scenarios-selfcheck.mjs
           node tools/barrier-check.mjs
           node tools/hockey-selfcheck.mjs
+          node tools/apk-vfx-check.mjs
       - name: Start static game server
         run: |
           npx --yes http-server -p 8123 -s -c-1 . > /tmp/zug-http.log 2>&1 &
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8123/tests/visual.html >/dev/null && break; sleep 1; done
       - name: Smoke test every minigame preview on desktop and mobile
         run: node tools/catalog-smoke.mjs
+      - name: Verify playable APK prototypes by moving real pieces
+        run: node tools/apk-gameplay-check.mjs
       - name: Capture desktop/mobile and normal/pixel themes
         run: node tools/visual-check.mjs
       - uses: actions/upload-artifact@v4

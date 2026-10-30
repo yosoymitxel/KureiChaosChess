@@ -4,6 +4,7 @@ import { key, threatenedPieces } from '../../game/rules.js';
 import { THEMES, applyTheme } from '../../data/themes.js';
 import { animate } from 'animejs';
 import { APK_BY_ID, APK_CHAOS_EVENTS, APK_HORDE_UPGRADES } from './catalog.js';
+import { createAPKTurnGame } from './turn-game.js';
 import {
   clearAPKEffects, playAPKDeal, playAPKFall, playAPKDamage, playAPKTeleport,
   playAPKBombBlast, playAPKBeam, playAPKVictory, playAPKScreenShake,
@@ -21,17 +22,18 @@ export async function mountAPKExpansion(root,id,themeId='walnut') {
   const meta=APK_BY_ID[id];
   if(!meta) throw new Error('No existe la entrada APK: '+id);
   applyTheme(THEMES[themeId]?themeId:'walnut');
-  root.innerHTML='<main class="apk-proto"><header class="apk-head"><div><div class="apk-eyebrow">PROTOTIPO AISLADO · APK · NORMAL</div><h1></h1></div><a class="apk-back" href="lab-preview.html">Volver al banco</a></header><div class="apk-main"><section class="apk-board-frame"><div id="apk-board"></div></section><aside class="apk-panel panel"><div class="apk-kind"></div><p class="apk-desc"></p><div class="apk-objective"></div><div class="apk-status" role="status" aria-live="polite"></div><div class="apk-stats"></div><div class="apk-actions"></div><button class="btn sm apk-reset" type="button">Reiniciar prototipo</button><div class="apk-note">Estudio aislado del APK. No usa el motor de partidas, no guarda progreso ni entrega recompensas. Las reglas simplificadas se indican en cada escena.</div></aside></div></main>';
+  root.innerHTML='<main class="apk-proto"><header class="apk-head"><div><div class="apk-eyebrow">PROTOTIPO AISLADO · APK · NORMAL</div><h1></h1></div><a class="apk-back" href="lab-preview.html">Volver al banco</a></header><div class="apk-main"><section class="apk-board-frame"><div id="apk-board"></div></section><aside class="apk-panel panel"><div class="apk-kind"></div><p class="apk-desc"></p><div class="apk-objective"></div><div class="apk-status" role="status" aria-live="polite"></div><div class="apk-stats"></div><div class="apk-actions"></div><button class="btn sm apk-reset" type="button">Reiniciar prototipo</button><div class="apk-note">Prototipo local simplificado. Las partidas usan el movimiento legal del proyecto cuando aplica, con CPU básica; no son una importación completa del APK. Sin progreso ni recompensas.</div></aside></div></main>';
   const $=selector=>root.querySelector(selector);
   $('.apk-head h1').textContent='APK: '+meta.name;
-  $('.apk-kind').textContent=meta.family==='mode'?'VARIANTE · ESTUDIO INTERACTIVO':meta.family==='party'?'MODO DE FIESTA · ESTUDIO INTERACTIVO':meta.family==='modifier'?'MODIFICADOR · MUESTRA AISLADA':'RECETA SECRETA · COMBINACIÓN VISUAL';
+  $('.apk-kind').textContent=id==='p4'?'MODO DE CUATRO BANDOS · ESTUDIO DE GEOMETRÍA':meta.family==='mode'?'VARIANTE · PARTIDA LOCAL CONTRA CPU':meta.family==='party'?'MODO DE FIESTA · PARTIDA LOCAL':meta.family==='modifier'?'MODIFICADOR · MUESTRA AISLADA':'RECETA SECRETA · COMBINACIÓN VISUAL';
   $('.apk-desc').textContent=meta.description;
   const boardFrame=$('.apk-board-frame'),actions=$('.apk-actions');
-  let host=$('#apk-board'),view=null,board=null,pieces=[],timer=null,state={};
+  let host=$('#apk-board'),view=null,board=null,pieces=[],timer=null,state={},turnGame=null;
   const say=value=>{$('.apk-status').textContent=value;};
   const stats=value=>{$('.apk-stats').textContent=value;};
   const goal=value=>{$('.apk-objective').textContent=value;};
   function stop(){
+    if(turnGame){turnGame.destroy();turnGame=null;}
     if(timer){clearInterval(timer);timer=null;}
     if(boardFrame)clearAPKEffects(boardFrame);
     if(view)view.destroy();
@@ -41,7 +43,7 @@ export async function mountAPKExpansion(root,id,themeId='walnut') {
   function button(label,fn,primary=false){
     const el=document.createElement('button');el.type='button';el.className='btn sm'+(primary?' primary':'');el.textContent=label;
     el.addEventListener('click',async()=>{
-      if(el.disabled||state.busy||state.over)return;
+      if(el.disabled||state.busy||state.over||turnGame?.over)return;
       el.disabled=true;state.busy=true;
       try{await fn();}catch(error){console.error('[APK expansion]',error);say('Falló la muestra. Reinicia la escena; el motor principal no se modificó.');}
       finally{state.busy=false;if(!state.over)el.disabled=false;}
@@ -69,12 +71,18 @@ export async function mountAPKExpansion(root,id,themeId='walnut') {
     view.els.get(p)?.remove();view.els.delete(p);view.state.delete(p);pieces=pieces.filter(q=>q!==p);
   }
   async function build(nextBoard,nextPieces,onTap=()=>{}){
+    if(turnGame){turnGame.destroy();turnGame=null;}
     if(view)view.destroy();
     host=document.createElement('div');host.id='apk-board';boardFrame.replaceChildren(host);
     board=nextBoard;pieces=nextPieces;
     view=new BoardView(host,{camera:'flat',vfx:false,shake:false,onTap});
     view.setBoard(board);view.setPieces(pieces);
     await playAPKDeal(view,pieces,boardFrame);
+  }
+  function installMatch(options={}){
+    if(turnGame)turnGame.destroy();
+    turnGame=createAPKTurnGame({board,view,getPieces:()=>pieces,movePiece:move,removePiece:remove,say,stat:stats,label:meta.name,...options});
+    return turnGame;
   }
   function kingsAndArmy(){
     return [
@@ -84,35 +92,37 @@ export async function mountAPKExpansion(root,id,themeId='walnut') {
   }
 
   async function startPotato(){
-    const ps=kingsAndArmy(),crown={light:ps.find(p=>p.color==='light'&&p.type==='king'),dark:ps.find(p=>p.color==='dark'&&p.type==='king')};
-    crown.light.crown=true;crown.dark.crown=true;
+    const ps=kingsAndArmy();
+    const crown={light:ps.find(p=>p.color==='light'&&p.type==='king'),dark:ps.find(p=>p.color==='dark'&&p.type==='king')};
+    for(const side of ['light','dark']){crown[side].crown=true;crown[side].royal=true;}
     state={round:0,crown,pending:{light:null,dark:null},over:false};
     await build(boardOf(),ps);
     const paint=()=>labels(['light','dark'].flatMap(side=>{const now=state.crown[side],next=state.pending[side];return [now?[now.row,now.col,'♛']:null,next?[next.row,next.col,'✦']:null].filter(Boolean);}));
-    paint();
-    button('Avanzar un turno completo',async()=>{
+    turnGame=installMatch({afterMove:async({side})=>{
+      if(side!=='dark')return;
       state.round++;
-      if(state.round>0&&state.round%5===4){
-        for(const side of ['light','dark']){
-          const current=state.crown[side],own=pieces.filter(p=>p.color===side&&!p.crown&&!p.big);
-          const threatened=threatenedPieces(pieces,side,board);const safe=own.filter(p=>!threatened.has(p));
-          state.pending[side]=pick(safe.length?safe:own)||null;
+      if(state.round%5===4){
+        for(const color of ['light','dark']){
+          const current=state.crown[color],own=pieces.filter(p=>p.color===color&&!p.crown&&!p.big&&!p.royal);
+          const threatened=threatenedPieces(pieces,color,board),safe=own.filter(p=>!threatened.has(p));
+          state.pending[color]=pick(safe.length?safe:own)||null;
         }
-        doom(['light','dark'].map(side=>state.pending[side]).filter(Boolean).map(p=>[p.row,p.col]));
-        say('LA CORONA SE IMPACIENTA: el próximo turno saltará a las piezas marcadas. El APK prefiere candidatos que no estén atacados.');
-      }else if(state.round>0&&state.round%5===0){
-        for(const side of ['light','dark']){
-          let next=state.pending[side];state.pending[side]=null;
-          if(!next||!pieces.includes(next))next=pick(pieces.filter(p=>p.color===side&&!p.crown&&!p.big));
-          const old=state.crown[side];
-          if(next){if(old)old.crown=false;next.crown=true;state.crown[side]=next;await playAPKHotPotatoCrown(boardFrame,view,{row:old?.row??next.row,col:old?.col??next.col},{row:next.row,col:next.col});}
+        doom(['light','dark'].map(color=>state.pending[color]).filter(Boolean).map(p=>[p.row,p.col]));
+        say('Aviso: la corona cambiará en la siguiente ronda. Las casillas marcadas son los nuevos candidatos.');
+      }else if(state.round%5===0){
+        for(const color of ['light','dark']){
+          let next=state.pending[color];state.pending[color]=null;
+          if(!next||!pieces.includes(next))next=pick(pieces.filter(p=>p.color===color&&!p.crown&&!p.big&&!p.royal));
+          const old=state.crown[color];
+          if(next){if(old){old.crown=false;old.royal=false;view.remake(old);}next.crown=true;next.royal=true;state.crown[color]=next;view.remake(next);await playAPKHotPotatoCrown(boardFrame,view,{row:old?.row??next.row,col:old?.col??next.col},{row:next.row,col:next.col});}
         }
-        doom([]);say('¡NUEVO REY! La pieza coronada recibe las condiciones de jaque y mate, pero conserva su propio movimiento.');
-      }else{doom([]);say('La corona permanece en su dueño actual. El siguiente cambio es en la ronda '+(Math.floor(state.round/5)+1)*5+'.');}
-      paint();stats('Ronda: '+state.round+' · Coronas activas: 2 · Próximo cambio: cada 5 rondas');
-    },true);
-    goal('Cada bando tiene una corona. El portador es el rey efectivo aunque sea peón, torre o caballo. El cambio se anuncia una ronda antes.');
-    stats('Ronda 0 · Dos coronas · Primer aviso en la ronda 4');
+        doom([]);say('¡Nueva corona! Captura al portador rival para ganar; protege el tuyo.');
+      }else{doom([]);say('Las coronas siguen en juego. Cada cinco rondas cambiarán de portador.');}
+      paint();stats('Ronda: '+state.round+' · Coronas activas: 2 · El portador es el rey efectivo.');
+    }});
+    paint();
+    goal('Partida contra CPU. Cada bando tiene una corona móvil: su portador es el rey efectivo aunque sea peón, torre o caballo. Capturar la corona rival gana.');
+    stats('Ronda 0 · Dos coronas · Cambian cada cinco rondas');
   }
 
   function pickEventTarget(event){
@@ -176,10 +186,17 @@ export async function mountAPKExpansion(root,id,themeId='walnut') {
     state.events=(state.events||0)+1;say('Evento resuelto: '+event.name+'. La bolsa evita repetirlo hasta agotar las doce entradas.');stats('Eventos resueltos: '+state.events+' · Restantes en la bolsa: '+state.bag.length);
   }
   async function startChaos(){
-    state={events:0,bag:[],pending:null,over:false};await build(boardOf(),kingsAndArmy());
-    button('Girar Ruleta del Caos',spinRoulette,true);button('Resolver al siguiente turno',resolveRoulette);
-    goal('Chaos Chess 2.0 conserva los superpoderes de las piezas y añade una ruleta: cada tres turnos anuncia un evento con un turno de antelación.');
-    stats('12 eventos · Bolsa aleatoria sin repetición');
+    state={events:0,bag:[],pending:null,over:false,ply:0};
+    await build(boardOf(),kingsAndArmy());
+    turnGame=installMatch({afterMove:async()=>{
+      state.ply++;
+      if(state.pending){await resolveRoulette();}
+      else if(state.ply%4===0){await spinRoulette();}
+    }});
+    button('Girar Ruleta del Caos',spinRoulette,true);
+    button('Resolver evento anunciado',resolveRoulette);
+    goal('Partida contra CPU con movimientos legales. Cada cuatro medios-turnos se anuncia un evento de la ruleta y se resuelve en el siguiente movimiento.');
+    stats('12 eventos · Bolsa aleatoria sin repetición · Captura el rey rival');
   }
 
   async function startBoss2(){
@@ -189,29 +206,37 @@ export async function mountAPKExpansion(root,id,themeId='walnut') {
     const ps=kingsAndArmy();
     await build(boardOf(),ps);
     for(let i=0;i<2;i++){const q=randomFree((r,c)=>r>1&&r<6&&c>1&&c<6);if(q)weak.push(q);}
-    labels(weak.map(([r,c])=>[r,c,'✦']));view.setDoom(weak);
-    button('Golpear punto débil',async()=>{
-      if(!weak.length||state.hp<=0)return;
-      const attacker=pick(pieces.filter(p=>p.color==='light'&&!['king'].includes(p.type)));
-      const damage=({pawn:1,knight:2,bishop:2,rook:3,queen:3,king:2,camel:2,cannon:3})[attacker?.type]||1;
-      state.hp=Math.max(0,state.hp-damage);const point=weak.shift();await playAPKDamage(boardFrame,view,{row:point[0],col:point[1]},'gold');
-      if(!weak.length){const q=randomFree((r,c)=>r>1&&r<6&&c>1&&c<6);if(q)weak.push(q);}
-      if(state.hp===0){state.over=true;await playAPKVictory(boardFrame,view,['#ffc83d','#fff2bd','#3dff8e']);say('¡Jefe derrotado! En el APK, quien da el golpe final recibe una dama extra.');}
-      labels(weak.map(([r,c])=>[r,c,'✦']));view.setDoom(weak);stats(boss.name+': '+state.hp+'/'+boss.hp+' HP · Daño del golpe: '+damage);
-    },true);
-    button('Avanzar turno del jefe',async()=>{
-      state.turn++;
-      if(state.marked){const cells=state.marked;state.marked=null;doom([]);await playAPKScreenShake(boardFrame,220,8);for(const [r,c] of cells){const p=pieceAt(r,c);if(p)await remove(p,true);}say('Ataque del jefe resuelto: las piezas de ambos bandos dentro de la zona fueron alcanzadas.');}
-      else if(state.turn%4===0){
-        const mode=pick(['row','col','cross','box']),r=1+Math.floor(Math.random()*6),c=1+Math.floor(Math.random()*6),cells=[];
-        if(mode==='row'||mode==='cross')for(let col=0;col<8;col++)cells.push([r,col]);
-        if(mode==='col'||mode==='cross')for(let row=0;row<8;row++)if(!cells.some(([rr,cc])=>rr===row&&cc===c))cells.push([row,c]);
-        if(mode==='box')for(let y=r-1;y<=r+1;y++)for(let x=c-1;x<=c+1;x++)if(x>=0&&y>=0&&x<8&&y<8)cells.push([x,y]);
-        state.marked=cells;doom(cells);say('El jefe anuncia '+({row:'ATAQUE DE FILA',col:'MIRADA GÉLIDA',cross:'LÁSER EN CRUZ',box:'PISOTÓN 3×3'}[mode])+'. Impactará al siguiente turno.');
+    const paintWeak=()=>{labels(weak.map(([r,c])=>[r,c,'✦']));view.setDoom(weak);};
+    paintWeak();
+    turnGame=installMatch({afterMove:async({piece,side,end})=>{
+      if(side==='light'){
+        const index=weak.findIndex(([r,c])=>r===piece.row&&c===piece.col);
+        if(index>=0){
+          weak.splice(index,1);
+          const damage=({pawn:1,knight:2,bishop:2,rook:3,queen:3,king:2,camel:2,cannon:3})[piece.type]||1;
+          state.hp=Math.max(0,state.hp-damage);
+          await playAPKDamage(boardFrame,view,{row:piece.row,col:piece.col},'gold');
+          if(state.hp===0){state.over=true;await end('light','¡Victoria! Derrotaste a '+boss.name+'.');return;}
+          const q=randomFree((r,c)=>r>1&&r<6&&c>1&&c<6);if(q)weak.push(q);
+          paintWeak();say('Punto débil golpeado: -'+damage+' HP. El jefe conserva '+state.hp+' HP.');
+        }
+      }else{
+        state.turn++;
+        if(state.marked){
+          const cells=state.marked;state.marked=null;doom([]);
+          for(const [r,c] of cells){const p=pieceAt(r,c);if(p)await remove(p,true);}
+          say('Ataque del jefe resuelto. Las piezas dentro de la zona fueron alcanzadas.');
+        }else if(state.turn%2===0){
+          const mode=pick(['row','col','cross','box']),r=1+Math.floor(Math.random()*6),c=1+Math.floor(Math.random()*6),cells=[];
+          if(mode==='row'||mode==='cross')for(let col=0;col<8;col++)cells.push([r,col]);
+          if(mode==='col'||mode==='cross')for(let row=0;row<8;row++)if(!cells.some(([rr,cc])=>rr===row&&cc===c))cells.push([row,c]);
+          if(mode==='box')for(let y=r-1;y<=r+1;y++)for(let x=c-1;x<=c+1;x++)if(x>=0&&y>=0&&x<8&&y<8)cells.push([x,y]);
+          state.marked=cells;doom(cells);say('El jefe anuncia '+({row:'ataque de fila',col:'mirada gélida',cross:'láser en cruz',box:'pisotón 3×3'}[mode])+'. Evita las casillas rojas antes de su próximo turno.');
+        }
       }
-      stats(boss.name+': '+state.hp+'/'+boss.hp+' HP · Turno '+state.turn);
-    });
-    goal('Jefe aleatorio con HP. Pisa puntos débiles dorados para dañarlo; cada cuatro turnos anuncia fila, columna, cruz o área 3×3 que atacará un turno después.');
+      stats(boss.name+': '+state.hp+'/'+boss.hp+' HP · Turno del jefe '+state.turn+' · Puntos débiles dorados');
+    }});
+    goal('Partida contra CPU. Mueve piezas y pisa los puntos débiles dorados para dañar al jefe; evita las zonas rojas que anuncia periódicamente. Capturar el rey rival también termina la partida.');
     stats(boss.name+': '+boss.hp+'/'+boss.hp+' HP · Dos puntos débiles');
   }
 
@@ -238,15 +263,18 @@ export async function mountAPKExpansion(root,id,themeId='walnut') {
     return pieces;
   }
   async function startRandomArmy(){
-    let same=true;const draw=async()=>{
+    let same=true,game=null;
+    const draw=async()=>{
       const a=rollArmy(),b=same?a:rollArmy(),ps=[...placeArmy(a,'light',7,6),...placeArmy(b,'dark',0,1)];
-      await build(boardOf(),ps);const value=arr=>arr.reduce((sum,t)=>sum+({queen:9,rook:5,bishop:3,knight:3,pawn:1})[t],0);
-      stats('Claras: '+value(a)+' puntos · Carmesí: '+value(b)+' puntos · '+(same?'Mismo caos':'Cada uno el suyo'));
+      await build(boardOf(),ps,hit=>game?.tap(hit));
+      game=installMatch();
+      const value=arr=>arr.reduce((sum,t)=>sum+({queen:9,rook:5,bishop:3,knight:3,pawn:1})[t],0);
+      stats('Claras: '+value(a)+' puntos · Carmesí: '+value(b)+' puntos · '+(same?'Mismo caos':'Cada uno el suyo')+' · CPU activa');
+      goal('Partida contra CPU con ejército aleatorio de 39 puntos. Selecciona cualquier pieza clara, mueve con reglas legales y captura el rey rival. Usa los botones para volver a sortear las fuerzas.');
     };
     state={mode:'randarmy',over:false};await draw();
     button('Mismo caos: volver a sortear',async()=>{same=true;await draw();},true);
     button('Cada uno el suyo: sortear dos',async()=>{same=false;await draw();});
-    goal('La tirada reparte ejércitos de exactamente 39 puntos más el rey. El APK permite compartir la misma composición o sortear una distinta para cada bando.');
   }
 
   async function startGiant(){
@@ -254,21 +282,19 @@ export async function mountAPKExpansion(root,id,themeId='walnut') {
     for(let c=0;c<12;c++){
       for(const [color,row,pawnRow] of [['dark',0,1],['light',11,10]]){
         const type=back[c],p=makePiece(type,color,row,c,{royal:type==='king'});
-        if(c===3){p.apkHybrid='archbishop';p.type='bishop';}
-        if(c===4){p.apkHybrid='chancellor';p.type='rook';}
+        if(c===3){p.apkHybrid='archbishop';p.type='bishop';p.extraMoveTypes=['knight'];}
+        if(c===4){p.apkHybrid='chancellor';p.type='rook';p.extraMoveTypes=['knight'];}
         ps.push(p);
         ps.push(makePiece(c===0||c===11?'camel':'pawn',color,pawnRow,c));
         ps.push(makePiece('pawn',color,color==='dark'?2:9,c));
       }
     }
     state={mode:'giant',over:false};
-    await build(b,ps,hit=>{
-      const p=pieceAt(hit.row,hit.col);if(!p)return;
-      say(p.apkHybrid==='archbishop'?'Arzobispo: combinación de alfil + caballo.':p.apkHybrid==='chancellor'?'Canciller: combinación de torre + caballo.':p.type==='camel'?'Camello: salto largo 3+1.':p.type==='cannon'?'Cañón: mueve como torre y captura saltando exactamente una pieza.':'Pieza del ejército 12×12.');
-    });
+    await build(b,ps);
     for(const p of pieces)if(p.apkHybrid)view.els.get(p)?.classList.add('apk-hybrid-'+p.apkHybrid);
-    goal('Tablero 12×12 con dos filas de peones por bando. Las piezas compuestas usan arte local de alfil/torre con insignia; no se inventan sprites nuevos.');
-    stats('144 casillas · Arzobispo · Canciller · Camello · Cañón');
+    turnGame=installMatch();
+    goal('Partida 12×12 contra CPU. Las piezas usan movimientos legales; el arzobispo combina alfil + caballo y el canciller torre + caballo. Gana quien captura el rey.');
+    stats('144 casillas · Arzobispo · Canciller · Camello · Cañón · Jugador vs CPU');
   }
 
   function partyArmies(type){
@@ -280,7 +306,9 @@ export async function mountAPKExpansion(root,id,themeId='walnut') {
     const id=meta.id;
     if(['pqueen','ppawn','horse'].includes(id)){
       const type={pqueen:'queen',ppawn:'pawn',horse:'knight'}[id];await build(boardOf(),partyArmies(type));
-      goal(meta.description);stats('15 '+type+'s + 1 rey por bando · Captura el rey para ganar.');return;
+      turnGame=installMatch();
+      goal(meta.description+' · Selecciona una pieza, mueve con sus reglas y captura el rey rival. La CPU responde cada turno.');
+      stats('15 '+type+'s + 1 rey por bando · Jugador vs CPU · Captura el rey para ganar.');return;
     }
     if(id==='p4'){
       const holes=[];for(let r=0;r<3;r++)for(let c=0;c<3;c++)holes.push([r,c],[r,13-c],[13-r,c],[13-r,13-c]);
@@ -300,76 +328,87 @@ export async function mountAPKExpansion(root,id,themeId='walnut') {
     }
     if(id==='speed'){
       await build(boardOf(),kingsAndArmy());state={seconds:3,over:false};
-      stats('Tiempo restante: 3 s');
-      timer=setInterval(()=>{if(state.over)return;state.seconds--;stats('Tiempo restante: '+Math.max(0,state.seconds)+' s');if(state.seconds<=0){clearInterval(timer);timer=null;state.seconds=3;say('Tiempo agotado. El APK ejecuta una jugada legal al azar; esta escena comprueba el reloj, no reproduce el motor legal automático.');}},1000);
-      button('Reiniciar reloj',async()=>{state.seconds=3;say('Reloj reiniciado.');stats('Tiempo restante: 3 s');});
-      goal('Tienes tres segundos por turno. Al agotarse, el APK juega un movimiento legal aleatorio.');
+      turnGame=installMatch({afterMove:async({side})=>{if(side==='dark')state.seconds=3;}});
+      timer=setInterval(()=>{if(turnGame?.over){clearInterval(timer);timer=null;return;}state.seconds--;stats('Reloj del jugador: '+Math.max(0,state.seconds)+' s');if(state.seconds<=0){clearInterval(timer);timer=null;turnGame?.end('dark','Derrota: agotaste los tres segundos de tu turno.');}},1000);
+      goal('Partida contra CPU con tres segundos por turno. Mueve antes de que el reloj llegue a cero; la CPU responde automáticamente.');
+      stats('Reloj del jugador: 3 s · Captura el rey rival');
       return;
     }
     if(id==='invis'){
       const ps=kingsAndArmy();state={hidden:new Set(),over:false};
-      await build(boardOf(),ps,hit=>{const p=pieceAt(hit.row,hit.col);if(p&&state.hidden.has(p.id)){state.hidden.delete(p.id);view.els.get(p)?.style.setProperty('opacity','1');say('Pieza oculta revelada.');stats('Piezas invisibles: '+state.hidden.size);}});
-      button('Mover y ocultar caballo',async()=>{
-        const p=pieces.find(p=>p.color==='light'&&p.type==='knight');const q=KN.map(([dr,dc])=>[p.row+dr,p.col+dc]).find(([r,c])=>free(r,c,p));
-        if(!q)return;say('El caballo se mueve; después desaparece. Toca su casilla para revelarlo.');await move(p,q[0],q[1]);state.hidden.add(p.id);view.els.get(p)?.style.setProperty('opacity','.04');stats('Piezas invisibles: '+state.hidden.size);
-      },true);
-      goal('Después de moverse, cualquier pieza desaparece, incluso las propias. La pieza que captura queda visible hasta volver a moverse.');
+      await build(boardOf(),ps);
+      turnGame=installMatch({beforeSelect:async(p)=>{if(state.hidden.has(p.id)){state.hidden.delete(p.id);view.els.get(p)?.style.setProperty('opacity','1');stats('Piezas ocultas: '+state.hidden.size);}return false;},afterMove:async({piece})=>{state.hidden.add(piece.id);view.els.get(piece)?.style.setProperty('opacity','.04');stats('Piezas ocultas: '+state.hidden.size);}});
+      goal('Partida contra CPU. Después de moverse, una pieza desaparece; tócala cuando vuelva a ser tu turno para revelarla. Captura el rey rival para ganar.');
       return;
     }
     if(id==='drunk'){
       const knight=makePiece('knight','light',6,2);await build(boardOf(),[knight,...kingsAndArmy().filter(p=>p.type==='king')]);
       state={drifts:0,over:false};
-      button('Movimiento tranquilo (15 % de desvío)',async()=>{
-        const intended=[knight.row-2,knight.col+1];let dest=intended,drift=false;
-        if(Math.random()<.15){
-          const alternatives=DIR8.map(([dr,dc])=>[intended[0]+dr,intended[1]+dc]).filter(([r,c])=>free(r,c,knight));
-          if(alternatives.length){dest=pick(alternatives);drift=true;}
-        }
-        if(!free(dest[0],dest[1],knight)){say('No hay destino libre para este movimiento de prueba.');return;}
-        await move(knight,dest[0],dest[1]);if(drift)state.drifts++;say(drift?'¡Desvío! La jugada acabó una casilla al lado.':'El movimiento llegó a su destino.');stats('Desvíos: '+state.drifts);
-      },true);
-      goal('Solo los movimientos sin captura tienen 15 % de probabilidad de desviarse a una casilla vecina legal. Las capturas nunca se desvían.');
-      stats('Desvíos: 0');return;
+      turnGame=installMatch({beforeMove:async({move,side,piece})=>{
+        if(side!=='light'||move.hits?.length||Math.random()>=.15)return move;
+        const alternatives=DIR8.map(([dr,dc])=>[move.row+dr,move.col+dc]).filter(([r,c])=>free(r,c,piece));
+        if(!alternatives.length)return move;
+        const dest=pick(alternatives);state.drifts++;stats('Desvíos: '+state.drifts);say('¡Movimiento desviado! La pieza aterriza en una casilla vecina libre.');return{row:dest[0],col:dest[1]};
+      }});
+      goal('Partida contra CPU. El caballo usa sus saltos legales; el 15 % de movimientos sin captura puede desviarse a una casilla vecina libre. Captura el rey para ganar.');
+      stats('Desvíos: 0 · Jugador vs CPU');return;
     }
     if(id==='chicken'){
       await build(boardOf(),kingsAndArmy());state={hens:[],over:false};
-      button('Simular captura: crear gallina',async()=>{
-        const victim=pieces.find(p=>p.color==='dark'&&p.type==='pawn');if(!victim)return;
-        const at={row:victim.row,col:victim.col};await remove(victim,false);
-        const q=randomFree((r,c)=>dist({row:r,col:c},at)<=1);if(!q)return;
-        const hen=makePiece('pawn','dark',q[0],q[1],{neutral:true,chicken:true});add(hen);state.hens.push(hen);view.els.get(hen)?.classList.add('apk-chicken');labels([[q[0],q[1],'🐔']]);
-        say('La pieza capturada reapareció como gallina neutral; no se puede capturar.');stats('Gallinas: '+state.hens.length);
-      },true);
-      button('Deambular gallinas',async()=>{for(const h of state.hens){const q=pick(DIR8.map(([dr,dc])=>[h.row+dr,h.col+dc]).filter(([r,c])=>free(r,c,h)));if(q)await move(h,q[0],q[1],120);}});
-      goal('Las piezas capturadas se transforman en gallinas neutrales que deambulan y bloquean casillas.');
-      stats('Gallinas: 0');return;
+      turnGame=installMatch({onCapture:async({victim})=>{
+        if(victim.neutral){say('La gallina es neutral y no puede capturarse.');return false;}
+        const at={row:victim.row,col:victim.col},q=randomFree((r,c)=>dist({row:r,col:c},at)<=1);
+        if(q){const hen=makePiece('pawn',victim.color,q[0],q[1],{neutral:true,chicken:true});add(hen);state.hens.push(hen);view.els.get(hen)?.classList.add('apk-chicken');labels([[q[0],q[1],'🐔']]);}
+        return true;
+      },afterMove:async()=>{for(const hen of state.hens){if(!pieces.includes(hen))continue;const q=pick(DIR8.map(([dr,dc])=>[hen.row+dr,hen.col+dc]).filter(([r,c])=>free(r,c,hen)));if(q)await move(hen,q[0],q[1],100);}}});
+      goal('Partida contra CPU. Al capturar una pieza, reaparece cerca como gallina neutral: bloquea casillas y no puede capturarse. Gana quien capture el rey.');
+      stats('Gallinas: 0 · Jugador vs CPU');return;
     }
     if(id==='bullet'){
       const shooter=makePiece('rook','light',5,1),target=makePiece('pawn','dark',5,5);
       await build(boardOf(),[shooter,target,makePiece('king','light',7,4,{royal:true}),makePiece('king','dark',0,4,{royal:true})]);
-      button('Mover y disparar',async()=>{
-        await move(shooter,5,2);await playAPKBeam(boardFrame,view,{row:5,col:2},{row:5,col:5},'#fff36b');await remove(target,false);
-        say('El proyectil destruyó la primera pieza en su camino. El APK también puede destruir reyes o piezas del mismo bando.');stats('Impactos: 1');
-      },true);
-      goal('Después de moverse, la pieza dispara en la dirección del movimiento. La bala destruye la primera pieza que encuentra.');
-      stats('Impactos: 0');return;
+      state={impacts:0};
+      turnGame=installMatch({afterMove:async({piece,from,move})=>{
+        const dr=Math.sign(move.row-from.row),dc=Math.sign(move.col-from.col);if(!dr&&!dc)return;
+        let r=piece.row+dr,c=piece.col+dc,victim=null;
+        while(r>=0&&c>=0&&r<board.rows&&c<board.cols){victim=pieceAt(r,c);if(victim)break;r+=dr;c+=dc;}
+        if(victim){await playAPKBeam(boardFrame,view,{row:piece.row,col:piece.col},{row:victim.row,col:victim.col},'#fff36b');await remove(victim,false);state.impacts++;stats('Impactos: '+state.impacts);}
+      }});
+      goal('Partida contra CPU. Después de cada movimiento, la pieza dispara en la dirección recorrida y destruye la primera pieza de la línea, incluso si es propia.');
+      stats('Impactos: 0 · Captura el rey rival');return;
     }
     if(id==='anti'){
-      const own=makePiece('pawn','light',4,3),enemy=makePiece('pawn','dark',3,4);
-      await build(boardOf(),[own,enemy,makePiece('king','light',7,4,{royal:true}),makePiece('king','dark',0,4,{royal:true})]);
-      button('Resolver captura obligatoria',async()=>{await remove(enemy,false);await move(own,3,4);say('Había captura disponible: es obligatoria. El rey es una pieza común, sin jaque.');stats('Piezas claras restantes: '+pieces.filter(p=>p.color==='light').length);},true);
-      goal('Antiajedrez: capturar es obligatorio, el rey no tiene privilegios ni jaque. Gana quien se queda sin piezas.');
-      stats('Captura disponible: sí');return;
+      const own=makePiece('pawn','light',4,3),enemy=makePiece('pawn','dark',3,4),lightKing=makePiece('king','light',7,4),darkKing=makePiece('king','dark',0,4);
+      lightKing.royal=false;darkKing.royal=false;
+      await build(boardOf(),[own,enemy,lightKing,darkKing]);
+      turnGame=installMatch({mandatoryCaptures:true,winOnRoyalCapture:false,loseOnRoyalCapture:false,elimination:true,winOnNoMoves:true});
+      goal('Antiajedrez contra CPU. Si existe una captura, debes hacerla; el rey es una pieza común, no hay jaque. Gana quien elimina todas las piezas rivales.');
+      stats('Captura inicial obligatoria · Jugador vs CPU');return;
     }
   }
 
   async function startHorde(){
     const king=makePiece('king','light',7,4,{royal:true});
     state={mode:'horde',draft:[],wave:0,kills:0,crowns:0,upgrades:{},over:false};
-    await build(boardOf(),[king],async hit=>{const p=pieceAt(hit.row,hit.col);if(!p||p.color!=='dark')return;if(p.boss){p.hp=Math.max(0,p.hp-1);await playAPKDamage(boardFrame,view,{row:p.row,col:p.col},'gold');if(p.hp===0)await remove(p,true);}else await remove(p,true);state.kills++;state.crowns++;say('Baja registrada. Coronas de Horda: '+state.crowns);stats('Oleada: '+state.wave+' · Enemigos restantes: '+pieces.filter(q=>q.color==='dark').length+' · Coronas: '+state.crowns);await clearWave();});
-    goal('Elige tres piezas además del rey. Limpia oleadas que entran por arriba; cada quinta incluye un minijefe. Entre oleadas eliges una de las 24 mejoras.');
-    stats('Rey + 3 piezas · Meta: 30 oleadas');
+    await build(boardOf(),[king]);
+    goal('Elige tres piezas además del rey. Juega con movimientos legales contra la CPU, limpia cinco oleadas y elige una mejora entre oleadas. Si capturan tu rey, pierdes.');
+    stats('Rey + 3 piezas · Objetivo: 5 oleadas');
     const draft=['knight','bishop','rook','pawn','camel','cannon'];
+    const startCombat=()=>installMatch({
+      winOnRoyalCapture:false,loseOnRoyalCapture:true,winOnNoMoves:false,
+      onCapture:async({victim})=>{
+        if(victim.boss){
+          victim.hp=Math.max(0,(victim.hp||victim.maxHp||5)-1);
+          await playAPKDamage(boardFrame,view,{row:victim.row,col:victim.col},'gold');
+          if(victim.hp>0){view.remake(victim);return false;}
+        }
+        return true;
+      },
+      afterMove:async({side,end})=>{
+        if(side==='light'&&!pieces.some(p=>p.color==='dark'))await clearWave(end);
+        if(side==='dark'&&!pieces.some(p=>p.color==='light'&&p.royal))state.over=true;
+      }
+    });
     actions.replaceChildren();
     for(const type of draft)button('Elegir '+type,async()=>{
       if(state.draft.length>=3||state.draft.includes(type))return;
@@ -377,44 +416,52 @@ export async function mountAPKExpansion(root,id,themeId='walnut') {
       add(makePiece(type,'light',q[0],q[1]));state.draft.push(type);
       say('Selección: '+state.draft.join(', ')+' ('+state.draft.length+'/3).');
       stats('Piezas elegidas: '+state.draft.length+'/3');
-      if(state.draft.length===3){actions.replaceChildren();button('Invocar oleada 1',spawnWave,true);}
+      if(state.draft.length===3){
+        startCombat();actions.replaceChildren();button('Invocar oleada 1',spawnWave,true);
+      }
     });
     function spawnWave(){
-      if(state.over)return;
-      state.wave++;const n=Math.min(12,3+Math.floor(state.wave*.8));
-      const types=state.wave<3?['pawn','pawn','pawn','pawn']:state.wave<5?['pawn','pawn','knight','bishop']:['pawn','knight','bishop','rook','queen'];
-      if(state.wave%5===0){const q=randomFree((r,c)=>r<=1);if(q)add(makePiece('queen','dark',q[0],q[1],{boss:'titan',h:1,w:1,hp:8+state.wave,maxHp:8+state.wave}));}
+      if(state.over||turnGame?.over)return;
+      state.wave++;
+      if(state.wave>5)return;
+      const n=Math.min(8,2+state.wave);
+      const types=state.wave<3?['pawn','pawn','knight']:['pawn','knight','bishop','rook'];
+      if(state.wave%3===0){
+        const q=randomFree((r,c)=>r<=1);
+        if(q)add(makePiece('queen','dark',q[0],q[1],{boss:'titan',hp:5+state.wave,maxHp:5+state.wave}));
+      }
       for(let i=0;i<n;i++){const q=randomFree((r,c)=>r<=2);if(q)add(makePiece(pick(types),'dark',q[0],q[1]));}
       actions.replaceChildren();
-      say('¡OLEADA '+state.wave+'! '+n+' enemigos'+(state.wave%5===0?' · MINIBOSS':'')+'. Toca un enemigo para eliminarlo en este prototipo.');stats('Oleada: '+state.wave+' · Enemigos: '+pieces.filter(p=>p.color==='dark').length+' · Coronas: '+state.crowns);
+      say('Oleada '+state.wave+': mueve y captura con tus reglas. La CPU también mueve sus piezas; las reinas de jefe requieren varios golpes.');
+      stats('Oleada: '+state.wave+'/5 · Enemigos: '+pieces.filter(p=>p.color==='dark').length+' · Coronas: '+state.crowns);
     }
-    async function clearWave(){
+    async function clearWave(end){
       if(pieces.some(p=>p.color==='dark'))return;
-      if(state.wave>=30){state.over=true;actions.replaceChildren();await playAPKVictory(boardFrame,view,['#ffc83d','#fff2bd','#3dff8e']);say('¡Treinta oleadas superadas!');return;}
+      state.crowns++;
+      if(state.wave>=5){
+        actions.replaceChildren();await end('light','¡Victoria! Superaste las cinco oleadas de Horde Mode.');return;
+      }
       actions.replaceChildren();
-      const pool=APK_HORDE_UPGRADES.filter(up=>!up.once||!state.upgrades[up.id]);
-      const offers=[];
-      while(pool.length&&offers.length<3){const total=pool.reduce((sum,up)=>sum+up.weight,0);let roll=Math.random()*total,index=0;for(;index<pool.length-1;index++){roll-=pool[index].weight;if(roll<=0)break;}offers.push(pool.splice(index,1)[0]);}
-      say('OLEADA SUPERADA · Elige 1 de 3 mejoras. El catálogo original contiene 24.');
-      const showOffers=()=>{for(const up of offers)button(up.name,async()=>{
+      const pool=APK_HORDE_UPGRADES.filter(up=>!up.once||!state.upgrades[up.id]),offers=[];
+      while(pool.length&&offers.length<3){
+        const total=pool.reduce((sum,up)=>sum+up.weight,0);
+        let roll=Math.random()*total,index=0;
+        for(;index<pool.length-1;index++){roll-=pool[index].weight;if(roll<=0)break;}
+        offers.push(pool.splice(index,1)[0]);
+      }
+      say('Oleada superada. Elige una mejora para reforzar tu ejército.');
+      for(const up of offers)button(up.name,async()=>{
         state.upgrades[up.id]=true;
-        if(up.piece){const count=up.count||1;for(let i=0;i<count;i++){const q=randomFree((r,c)=>r>=5);if(q)add(makePiece(up.piece,'light',q[0],q[1],{apkHybrid:up.hybrid||null}));}}
-        else{for(const p of pieces.filter(p=>p.color==='light'))view.els.get(p)?.classList.add(up.id==='lowgrav'?'apk-floating':up.id==='bighead'?'apk-bighead':'apk-upgraded');}
-        actions.replaceChildren();button('Invocar siguiente oleada',spawnWave,true);
-        say('Mejora: '+up.name+'. '+up.description);stats('Mejoras elegidas: '+Object.keys(state.upgrades).length+' · Oleada '+state.wave);
-      });};
-      const showReroll=()=>button('Cambiar cartas (1 corona)',async()=>{
-        if(state.crowns<1){say('No tienes Coronas de Horda suficientes.');return;}
-        state.crowns--;actions.replaceChildren();
-        const deck=APK_HORDE_UPGRADES.filter(up=>!up.once||!state.upgrades[up.id]);
-        offers.splice(0,offers.length);
-        while(deck.length&&offers.length<3){const total=deck.reduce((sum,up)=>sum+up.weight,0);let roll=Math.random()*total,index=0;for(;index<deck.length-1;index++){roll-=deck[index].weight;if(roll<=0)break;}offers.push(deck.splice(index,1)[0]);}
-        showOffers();showReroll();stats('Coronas restantes: '+state.crowns+' · Cartas nuevas');
+        if(up.piece){
+          for(let i=0;i<(up.count||1);i++){const q=randomFree((r,c)=>r>=5);if(q)add(makePiece(up.piece,'light',q[0],q[1],{apkHybrid:up.hybrid||null}));}
+        }else{
+          for(const p of pieces.filter(p=>p.color==='light'))view.els.get(p)?.classList.add(up.id==='lowgrav'?'apk-floating':up.id==='bighead'?'apk-bighead':'apk-upgraded');
+        }
+        actions.replaceChildren();button('Invocar oleada '+(state.wave+1),spawnWave,true);
+        say('Mejora: '+up.name+'. '+up.description);stats('Mejoras: '+Object.keys(state.upgrades).length+' · Próxima oleada '+(state.wave+1)+'/5');
       });
-      showOffers();showReroll();
       stats('Oleada '+state.wave+' limpia · Elige una mejora · Coronas: '+state.crowns);
     }
-    goal('El prototipo visual permite recorrer borrador, oleadas, minijefes cada cinco turnos y selección ponderada de mejoras. Toca las piezas enemigas para eliminarlas; no suplanta el combate ni las jugadas legales del APK.');
   }
 
   async function startModifier(){

@@ -45,6 +45,18 @@ No se deben contar todos los elementos como modos independientes. Chaos 2.0 ampl
 
 Los prototipos recrean muestras comprobables, no el runtime completo del APK. Las limitaciones concretas se documentan en `docs/APK-MINIGAMES-MAP.md`.
 
+## Jugabilidad del corte de laboratorio
+
+Los modos de dos bandos y los Arcade tienen ahora un flujo interactivo: selección de piezas/casillas, movimientos legales o controles específicos del minijuego, respuesta de CPU donde corresponde, estado y condiciones explícitas de victoria/derrota. `src/lab/apk/turn-game.js` centraliza el turno local y consulta `src/game/rules.js`; no modifica `src/game/match.js` ni la partida normal.
+
+- Jugables contra CPU: `chaos`, `battle`, `zombie`, `bomb`, `gravity`, `boss`, `arena`, `cards`, `micro`, `infinite`, `mayhem`, `boss2`, `randarmy`, `giant`, `potato`, `pqueen`, `ppawn`, `horse`, `speed`, `invis`, `drunk`, `chicken`, `bullet` y `anti`.
+- Arcade con objetivos: `pdodge`, `parkour`, `blaster`, `rampage`, `panic` y `queen`.
+- Supervivencia `horde`: borrador de tres piezas, cinco oleadas, CPU y selección de mejoras.
+- Minijuegos `race`, `dodge` y `feast`: mantienen sus bucles propios y objetivos.
+- `p4` sigue siendo una prueba de geometría y colocación de cuatro ejércitos; no se etiqueta como partida jugable porque todavía no tiene rotación de turnos ni condición de victoria de cuatro bandos.
+
+La CPU es deliberadamente básica y prioriza capturas; el corte no implementa jaque/mate completo, el motor económico ni la IA original del APK. Modificadores y recetas continúan siendo muestras aisladas, no se anuncian como partidas.
+
 
 ## Auditoría de efectos visuales
 

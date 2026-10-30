@@ -1,10 +1,11 @@
 import { BoardView } from '../../view/board-view.js';
 import { makePiece } from '../../game/generate.js';
-import { key } from '../../game/rules.js';
+import { key, legalMoves } from '../../game/rules.js';
 import { THEMES, applyTheme } from '../../data/themes.js';
 import { animate } from 'animejs';
 import { APK_BY_ID } from './catalog.js';
 import { mountAPKExpansion } from './expansion.js';
+import { createAPKTurnGame } from './turn-game.js';
 import { clearAPKEffects, playAPKPixelTrail, playAPKZombieAttack, playAPKTransform, playAPKBombBlast, playAPKMeteorImpact, playAPKDamage, playAPKTeleport, playAPKFall, playAPKParticleBurst, playAPKBombField, playAPKShield, playAPKBeam, playAPKVictory, playAPKScreenShake, playAPKShockwave, playAPKDeal } from './effects.js';
 
 const KN = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
@@ -22,12 +23,12 @@ export async function mountAPKPrototype(root, id, themeId='walnut') {
   root.innerHTML = '<main class="apk-proto"><header class="apk-head"><div><div class="apk-eyebrow">PROTOTIPO AISLADO · APK · NORMAL</div><h1></h1></div><a class="apk-back" href="lab-preview.html">Volver al banco</a></header><div class="apk-main"><section class="apk-board-frame"><div id="apk-board"></div></section><aside class="apk-panel panel"><div class="apk-kind"></div><p class="apk-desc"></p><div class="apk-objective"></div><div class="apk-status" role="status" aria-live="polite"></div><div class="apk-stats"></div><div class="apk-actions"></div><button class="btn sm apk-reset" type="button">Reiniciar prototipo</button><div class="apk-note">Dificultad Normal. Sin progreso ni recompensas. Los efectos APK tienen renderer propio; no son alias de BoardView.Fx.</div></aside></div></main>';
   const $ = (s) => root.querySelector(s);
   $('.apk-head h1').textContent = 'APK: ' + meta.name;
-  $('.apk-kind').textContent = meta.family === 'mini' ? 'MINIJUEGO JUGABLE · DIFICULTAD NORMAL' : meta.family === 'mode' ? 'VARIANTE DE AJEDREZ · MUESTRA DE MECÁNICA' : 'ARCADE · ESTUDIO INTERACTIVO';
+  $('.apk-kind').textContent = meta.family === 'mini' ? 'MINIJUEGO JUGABLE · DIFICULTAD NORMAL' : meta.family === 'mode' ? 'VARIANTE · PARTIDA LOCAL CONTRA CPU' : 'ARCADE · JUEGO POR OBJETIVOS';
   $('.apk-desc').textContent = meta.description;
   const boardFrame = $('.apk-board-frame'), actionsEl = $('.apk-actions');
   let boardHost = $('#apk-board');
   const statusEl = $('.apk-status'), statsEl = $('.apk-stats'), objectiveEl = $('.apk-objective');
-  let view=null, board=null, pieces=[], tapHandler=()=>{}, timer=null, state={};
+  let view=null, board=null, pieces=[], tapHandler=()=>{}, timer=null, state={}, turnGame=null;
 
   const say = (text) => { statusEl.textContent=text; };
   const stat = (text) => { statsEl.textContent=text; };
@@ -35,7 +36,7 @@ export async function mountAPKPrototype(root, id, themeId='walnut') {
   function button(label,fn,primary=false) {
     const b=document.createElement('button'); b.type='button'; b.className='btn sm'+(primary?' primary':''); b.textContent=label;
     b.addEventListener('click',async()=>{
-      if(b.disabled||state.busy||state.over)return;
+      if(b.disabled||state.busy||state.over||turnGame?.over)return;
       b.disabled=true; state.busy=true;
       try { await fn(); }
       catch(e) { console.error('[APK lab]',e); say('Falló esta acción. Reinicia la escena; el motor principal no se ha modificado.'); }
@@ -45,6 +46,8 @@ export async function mountAPKPrototype(root, id, themeId='walnut') {
   }
   function lock(b,on) { if(on){b.dataset.lock='true';b.disabled=true;} else {delete b.dataset.lock;b.disabled=false;} }
   function stopScene() {
+    if(turnGame) turnGame.destroy();
+    turnGame=null;
     if(timer) clearInterval(timer);
     timer=null;
     if(boardFrame) clearAPKEffects(boardFrame);
@@ -249,9 +252,10 @@ export async function mountAPKPrototype(root, id, themeId='walnut') {
       view.setDoom([]);
       if(!currentPiece('king','light')){state.over=true;say('El rey marfil fue alcanzado. Reinicia para volver a jugar.');stat('Rondas sobrevividas: '+(state.round-1));return;}
       if(!pieces.some(p=>p.type==='king'&&p.color==='dark')){state.over=true;say('¡Último rey en pie! Ganaste la supervivencia.');await playAPKVictory(boardFrame,view,['#ffc83d','#fff','#29e3ff']);return;}
+      if(state.round>=12){state.over=true;say('¡Victoria! Sobreviviste las doce rondas de bombardeo.');stat('Rondas superadas: 12 · Rivales en pie: '+pieces.filter(p=>p.type==='king'&&p.color==='dark').length);await playAPKVictory(boardFrame,view,['#ffc83d','#fff','#29e3ff']);return;}
       startRound();
     }
-    goal('Las casillas rojas explotan al resolver la ronda. Mueve una casilla por ronda; los escudos bloquean un impacto y los cráteres permanecen un tiempo.');
+    goal('Sobrevive 12 rondas. Las casillas rojas explotan al resolver cada ronda; mueve una casilla, usa escudos y evita los cráteres. Si tu rey cae, pierdes.');
     button('Quedarse en la casilla',async()=>{const me=currentPiece('king','light');if(me)await resolveRound([me.row,me.col]);},true);
     startRound();
   }
@@ -280,8 +284,9 @@ export async function mountAPKPrototype(root, id, themeId='walnut') {
       if(state.spikes.has(k)){state.spikes.delete(k);state.time=Math.max(0,state.time-5);state.combo=0;await playAPKDamage(boardFrame,view,{row:r,col:c},'red');await playAPKScreenShake(boardFrame,180,6);say('¡Pincho! Pierdes cinco segundos y se corta el combo.');}
       const idx=state.gems.findIndex(g=>g.row===r&&g.col===c);
       if(idx>=0){const g=state.gems.splice(idx,1)[0];state.combo=state.moves-state.lastGem<=2?state.combo+1:1;state.lastGem=state.moves;const points=(g.gold?3:1)*Math.min(5,state.combo);state.score+=points;if(g.gold)state.time+=3;await playAPKParticleBurst(boardFrame,view,{row:r,col:c},g.gold?['#ffc83d','#fff2bd','#ff9f1c']:['#29e3ff','#d3f9ff','#ffffff'],g.gold?22:14);say(g.gold?'¡Gema dorada! +3 segundos.':'Gema recogida: busca otra para mantener el combo.');spawnGem();}
-      stat('Puntos: '+state.score+' · Tiempo: '+state.time.toFixed(1)+' s · Combo ×'+Math.max(1,Math.min(5,state.combo)));
+      stat('Puntos: '+state.score+' / 20 · Tiempo: '+state.time.toFixed(1)+' s · Combo ×'+Math.max(1,Math.min(5,state.combo)));
       refreshFeast();
+      if(state.score>=20){state.over=true;if(timer){clearInterval(timer);timer=null;}start.disabled=true;say('¡Victoria! Reuniste 20 puntos antes de que terminara el reloj.');await playAPKVictory(boardFrame,view,['#ffc83d','#fff2bd','#29e3ff']);}
     }
     for(let i=0;i<3;i++)spawnGem();
     const start=button('Iniciar reloj',async()=>{if(state.started)return;state.started=true;say('¡A por las gemas!');},true);
@@ -292,9 +297,9 @@ export async function mountAPKPrototype(root, id, themeId='walnut') {
       for(const [k,v] of [...state.spikes]){if(v<=.1)state.spikes.delete(k);else state.spikes.set(k,v-.1);}
       stat('Puntos: '+state.score+' · Tiempo: '+state.time.toFixed(1)+' s · Combo ×'+Math.max(1,Math.min(5,state.combo)));
       refreshFeast();
-      if(state.time<=0){state.over=true;clearInterval(timer);timer=null;start.disabled=true;say('Tiempo agotado. Puntuación final: '+state.score+'. Reinicia para otra ronda.');}
+      if(state.time<=0){state.over=true;clearInterval(timer);timer=null;start.disabled=true;say('Derrota: se agotó el tiempo con '+state.score+' / 20 puntos. Reinicia para otra ronda.');}
     },100);
-    goal('Solo saltos en L. Recoge gemas, encadena las recogidas y evita los pinchos. Las gemas doradas dan tres segundos extra.');
+    goal('Consigue 20 puntos antes de que se agoten los 45 segundos. Salta en L, recoge gemas, encadena combos y evita los pinchos; las gemas doradas dan tiempo extra.');
     say('Pulsa Iniciar reloj o haz el primer salto.');
     stat('Puntos: 0 · Tiempo: 45 s');refreshFeast();
   }
@@ -443,15 +448,71 @@ export async function mountAPKPrototype(root, id, themeId='walnut') {
   async function startMode(id) {
     const {board:b,pieces:ps}=setModePieces(id);
     state={mode:id,over:false,gravity:0,wave:0};
-    if(id==='micro')tapHandler=async(hit)=>{const k=currentPiece('king','light');if(k&&hit&&dist(k,{row:hit.row,col:hit.col})===1&&free(hit.row,hit.col,k))await movePiece(k,hit.row,hit.col,false,180);};
-    await build(b,ps,tapHandler);
+    if(id==='boss'){const titan=ps.find(p=>p.boss);if(titan)titan.moves=['king'];}
+    let game=null;
+    await build(b,ps,hit=>game?.tap(hit));
     const target=pieces.find(p=>p.color==='dark'&&p.type==='pawn');
     if(id==='bomb'&&target)labels([[target.row,target.col,'!']]);
     if(id==='infinite')labels([[0,1,'H'],[0,6,'H']]);
-    goal(meta.description);
-    stat(id==='micro'?'Tablero 5×5 · demo de formato compacto':id==='boss'?'Titán 2×2 · 6 HP · ejército marfil':'Muestra de mecánica · dificultad Normal');
-    const labelsById={chaos:'Probar poder de una pieza',battle:'Resolver duelo',zombie:'Caza zombi: avanzar y morder',bomb:'Detonar bomba 3×3',gravity:'Aplicar gravedad',boss:'Golpear al jefe',arena:'Siguiente evento global',cards:'Jugar carta: congelar',micro:'Mostrar alcance del rey',infinite:'Invocar oleada',mayhem:'Combinar reglas al azar'};
-    button(labelsById[id]||'Probar mecánica',()=>runModeAction(id),true);
+    if(id!=='infinite'){
+      game=createAPKTurnGame({
+        board:b,view,getPieces:()=>pieces,movePiece,removePiece:p=>removePieceAPK(p,true),
+        say,stat,label:meta.name,winOnRoyalCapture:id!=='anti',loseOnRoyalCapture:id!=='anti',
+        elimination:id==='anti',mandatoryCaptures:id==='anti',winOnNoMoves:id!=='infinite',
+        onCapture:async({attacker,victim})=>{
+          if(id==='battle'&&(victim.maxHp>1||victim.boss)){
+            victim.hp=Math.max(0,(victim.hp??victim.maxHp??3)-1);
+            await playAPKDamage(boardFrame,view,{row:victim.row,col:victim.col},'gold');
+            if(victim.hp>0){view.remake(victim);return false;}
+          }
+          if(id==='boss'&&victim.boss){
+            victim.hp=Math.max(0,(victim.hp??6)-1);
+            await playAPKDamage(boardFrame,view,{row:victim.row,col:victim.col},'red');
+            if(victim.hp>0){view.remake(victim);return false;}
+          }
+          if(id==='bomb'&&victim.bomb){
+            const at={row:victim.row,col:victim.col};
+            await playAPKBombBlast(boardFrame,view,at,nearbyCells(at.row,at.col).map(([row,col])=>({row,col})));
+            for(const other of pieces.slice())if(other!==victim&&dist(other,at)<=1)await removePieceAPK(other,false);
+          }
+          return true;
+        },
+        afterMove:async({piece,move,hits,side,end})=>{
+          if(id==='zombie'&&hits.length){
+            const victim=hits[0],q=randomFree((r,c)=>dist({row:r,col:c},{row:move.row,col:move.col})<=1);
+            if(q){const infected=makePiece('pawn',victim.color,q[0],q[1],{zombie:true,infected:true});addPiece(infected);await playAPKTransform(boardFrame,view,{row:q[0],col:q[1]});}
+          }
+          if(id==='gravity')await runGravity();
+          if(id==='infinite'&&!pieces.some(p=>p.color==='dark')){
+            state.wave++;
+            if(state.wave>=8){await end('light','¡Victoria! Sobreviviste a ocho oleadas.');return;}
+            for(let i=0;i<2;i++){const q=randomFree((r,c)=>r<2);if(q)addPiece(makePiece('pawn','dark',q[0],q[1]));}
+            say('Oleada '+state.wave+' superada. Nuevos enemigos en camino.');
+            stat('Oleadas: '+state.wave+' / 8 · Enemigos: '+pieces.filter(p=>p.color==='dark').length);
+          }
+        }
+      });
+      turnGame=game;
+    }else{
+      game=createAPKTurnGame({
+        board:b,view,getPieces:()=>pieces,movePiece,removePiece:p=>removePieceAPK(p,true),
+        say,stat,label:meta.name,winOnRoyalCapture:false,loseOnRoyalCapture:true,winOnNoMoves:false,
+        afterMove:async({end})=>{
+          if(!pieces.some(p=>p.color==='dark')){
+            state.wave++;
+            if(state.wave>=8){await end('light','¡Victoria! Sobreviviste a ocho oleadas.');return;}
+            for(let i=0;i<2;i++){const q=randomFree((r,c)=>r<2);if(q)addPiece(makePiece('pawn','dark',q[0],q[1]));}
+            say('Oleada '+state.wave+' superada. Nuevos enemigos en camino.');
+            stat('Oleadas: '+state.wave+' / 8 · Enemigos: '+pieces.filter(p=>p.color==='dark').length);
+          }
+        }
+      });
+      turnGame=game;
+    }
+    goal(id==='infinite'?'Sobrevive a ocho oleadas: mueve tus piezas, captura enemigos y evita que capturen tu rey.':'Selecciona una pieza marfil para ver movimientos legales. El rival responde; capturar el rey rival gana y perder tu rey termina la partida.');
+    stat(id==='micro'?'Tablero 5×5 · mueve y captura con reglas reales':id==='boss'?'Titán 2×2 · 6 HP · turno rival activo':'Jugador vs CPU · movimientos legales');
+    const labelsById={chaos:'Probar poder de una pieza',battle:'Resolver duelo',zombie:'Caza zombi: avanzar y morder',bomb:'Detonar bomba 3×3',gravity:'Aplicar gravedad',boss:'Golpear al jefe',arena:'Siguiente evento global',cards:'Jugar carta: congelar',micro:'Mostrar alcance del rey',mayhem:'Combinar reglas al azar'};
+    if(id!=='infinite')button(labelsById[id]||'Probar mecánica',()=>runModeAction(id),true);
     if(id==='cards'){button('Carta: teletransportar',()=>runCard('teleport'));button('Carta: revivir',()=>runCard('revive'));}
   }
 
@@ -461,21 +522,35 @@ export async function mountAPKPrototype(root, id, themeId='walnut') {
     await build(cloneBoard(),[king,...hazards],async hit=>{
       if(state.over||!hit||dist(king,{row:hit.row,col:hit.col})!==1||!free(hit.row,hit.col,king))return;
       await movePiece(king,hit.row,hit.col);state.score++;
-      if(hazards.some(p=>p.row===king.row&&p.col===king.col)){state.over=true;say('Una pieza te alcanzó. Reinicia para volver a intentarlo.');}
-      else {if(hazards.some(p=>dist(p,king)===1))state.score+=5;stat('Puntos: '+state.score+' · Lluvias: '+state.step);say('Buen esquive. Evita las piezas que caen en la siguiente lluvia.');}
+      stat('Puntos: '+state.score+' · Lluvias: '+state.step+' / 10');say('Buen esquive. Pulsa Siguiente lluvia cuando quieras resolver el peligro.');
+      const safe=DIR8.map(([dr,dc])=>[king.row+dr,king.col+dc]).filter(([r,c])=>free(r,c,king));
+      view.showMoves(new Set(safe.map(([r,c])=>key(r,c))),new Set());
     });
-    goal('Mueve el rey una casilla para apartarte de las piezas que caen. Los casi-accidentes suman puntos.');
+    view.showMoves(new Set(DIR8.map(([dr,dc])=>[king.row+dr,king.col+dc]).filter(([r,c])=>free(r,c,king)).map(([r,c])=>key(r,c))),new Set());
+    goal('Sobrevive a diez lluvias. Mueve el rey una casilla para apartarte de las piezas que caen; los casi-accidentes suman puntos. Si una pieza te alcanza, pierdes.');
     button('Siguiente lluvia',async()=>{
       state.step++;
-      for(const p of hazards){if(!pieces.includes(p))continue;const nr=p.row+1;if(nr>=8){const q=randomFree((r,c)=>r===0);if(q)await movePiece(p,q[0],q[1],false,120);}else await movePiece(p,nr,p.col,false,160);
-        if(p.row===king.row&&p.col===king.col){state.over=true;await playAPKScreenShake(boardFrame,350,12);await playAPKDamage(boardFrame,view,{row:king.row,col:king.col});await removePiece(king);say('Impacto. El rey no sobrevivió; reinicia la demo.');return;}}
+      for(const p of hazards){if(!pieces.includes(p))continue;const nr=p.row+1;
+        if(nr===king.row&&p.col===king.col){state.over=true;await playAPKScreenShake(boardFrame,350,12);await playAPKDamage(boardFrame,view,{row:king.row,col:king.col});await removePiece(king);say('Derrota: una pieza alcanzó al rey durante la lluvia.');return;}
+        if(nr>=8){const q=randomFree((r,c)=>r===0&&c!==p.col);if(q)await movePiece(p,q[0],q[1],false,120);}
+        else if(free(nr,p.col,p))await movePiece(p,nr,p.col,false,160);
+        else {const q=pick(DIR8.map(([dr,dc])=>[p.row+dr,p.col+dc]).filter(([r,c])=>free(r,c,p)));if(q)await movePiece(p,q[0],q[1],false,110);}
+      }
+      if(state.step>=10){state.over=true;await playAPKVictory(boardFrame,view,['#ffc83d','#fff','#3dff8e']);say('¡Victoria! Sobreviviste diez lluvias de piezas.');stat('Puntos: '+state.score+' · Lluvias superadas: 10');return;}
       const q=randomFree((r,c)=>r===0);if(q){const p=makePiece(pick(['pawn','knight','bishop','rook']),'dark',q[0],q[1]);hazards.push(p);addPiece(p);}
-      stat('Puntos: '+state.score+' · Lluvias: '+state.step);say('¡Nueva lluvia! Esquiva una casilla vecina.');
+      stat('Puntos: '+state.score+' · Lluvias: '+state.step+' / 10');say('¡Nueva lluvia! Esquiva una casilla vecina.');
+      const safe=DIR8.map(([dr,dc])=>[king.row+dr,king.col+dc]).filter(([r,c])=>free(r,c,king));view.showMoves(new Set(safe.map(([r,c])=>key(r,c))),new Set());
     },true);
     stat('Puntos: 0 · Lluvias: 0');
   }
   async function startParkour() {
     const knight=makePiece('knight','light',7,3);
+    function refreshParkour(){
+      const cells=KN.map(([dr,dc])=>[knight.row+dr,knight.col+dc]).filter(([r,c])=>r>=0&&c>=0&&r<8&&c<8&&r<state.lava&&!state.spikes.has(key(r,c))&&free(r,c,knight));
+      view.showMoves(new Set(cells.map(([r,c])=>key(r,c))),new Set());
+      view.setDoom([...state.spikes].map(k=>k.split(',').map(Number)));
+      labels([...state.coinsAt].map(k=>[+k.split(',')[0],+k.split(',')[1],'$']));
+    }
     state={knight,lava:8,coins:0,jumps:0,over:false,spikes:new Set([key(6,5),key(4,4),key(2,2)]),coinsAt:new Set([key(5,1),key(3,6),key(1,3)])};
     await build(cloneBoard(),[knight],async hit=>{
       if(state.over||!hit||!KN.some(([dr,dc])=>knight.row+dr===hit.row&&knight.col+dc===hit.col))return;
@@ -483,92 +558,177 @@ export async function mountAPKPrototype(root, id, themeId='walnut') {
       await movePiece(knight,hit.row,hit.col);state.jumps++;if(state.coinsAt.has(k)){state.coinsAt.delete(k);state.coins++;await playAPKParticleBurst(boardFrame,view,{row:knight.row,col:knight.col},['#ffc83d','#fff2bd','#ff9f1c'],14);}
       state.lava=Math.max(0,state.lava-.2);labels([...state.coinsAt].map(k=>[+k.split(',')[0],+k.split(',')[1],'$']));view.setDoom([...state.spikes].map(k=>k.split(',').map(Number)));
       stat('Saltos: '+state.jumps+' · Monedas: '+state.coins+' · Lava: '+state.lava.toFixed(1));
-      if(knight.row===0){state.over=true;await playAPKVictory(boardFrame,view,['#ffc83d','#fff','#29e3ff']);say('¡Llegaste arriba!');}
-      else if(knight.row>=state.lava){state.over=true;say('La lava te alcanzó.');}
+      if(knight.row===0){state.over=true;await playAPKVictory(boardFrame,view,['#ffc83d','#fff','#29e3ff']);say('¡Victoria! Llegaste a la cima antes de que la lava te alcanzara.');}
+      else if(knight.row>=state.lava){state.over=true;say('Derrota: la lava te alcanzó.');}
+      else refreshParkour();
     });
     goal('Solo saltos de caballo. Llega arriba, recoge monedas y evita los pinchos y la lava que sube.');
-    labels([[5,1,'$'],[3,6,'$'],[1,3,'$'],[6,5,'!'],[4,4,'!'],[2,2,'!']]);view.setDoom([...state.spikes].map(k=>k.split(',').map(Number)));stat('Saltos: 0 · Monedas: 0 · Lava: 8');
+    labels([[5,1,'$'],[3,6,'$'],[1,3,'$'],[6,5,'!'],[4,4,'!'],[2,2,'!']]);view.setDoom([...state.spikes].map(k=>k.split(',').map(Number)));stat('Saltos: 0 · Monedas: 0 · Lava: 8');refreshParkour();
   }
   async function startBlaster() {
-    const bishop=makePiece('bishop','light',6,1),enemies=[makePiece('pawn','dark',4,3),makePiece('knight','dark',2,5),makePiece('pawn','dark',5,5)];
-    state={bishop,enemies,score:0,wave:1,over:false};
-    await build(cloneBoard(),[bishop,...enemies],async hit=>{
-      if(!hit||state.over||(hit.piece&&hit.piece!==bishop))return;
-      if(Math.abs(hit.row-bishop.row)===Math.abs(hit.col-bishop.col)&&free(hit.row,hit.col,bishop))await movePiece(bishop,hit.row,hit.col);
-    });
-    goal('Sobrevive por oleadas: el alfil dispara en diagonal al enemigo alineado más cercano.');
+    const b=cloneBoard(),bishop=makePiece('bishop','light',6,1);
+    state={bishop,enemies:[],score:0,wave:1,lives:3,targetWaves:5,over:false};
+    function refresh(){const moves=legalMoves(bishop,pieces,b);view.showMoves(new Set(moves.map(m=>key(m.row,m.col))),new Set(moves.filter(m=>m.hits?.length).map(m=>key(m.row,m.col))));stat('Oleada: '+state.wave+'/5 · Bajas: '+state.score+' · Vidas: '+state.lives);}
+    function spawnWave(){
+      state.enemies=[];
+      for(let i=0;i<3;i++){const q=randomFree((r,c)=>r<4);if(q){const p=makePiece(pick(['pawn','knight','rook']),'dark',q[0],q[1]);addPiece(p);state.enemies.push(p);}}
+      say('Oleada '+state.wave+': mueve el alfil en diagonal o lanza el hechizo a un rival alineado.');
+      refresh();
+    }
+    async function resolveWave(){
+      state.enemies=state.enemies.filter(p=>pieces.includes(p));
+      if(state.enemies.length)return;
+      if(state.wave>=state.targetWaves){state.over=true;view.clearMarks();say('¡Victoria! Superaste las cinco oleadas del alfil.');await playAPKVictory(boardFrame,view,['#b06bff','#fff','#29e3ff']);return;}
+      state.wave++;spawnWave();
+    }
+    async function enemyTurn(){
+      for(const enemy of state.enemies.slice()){
+        if(state.over||!pieces.includes(enemy))continue;
+        const candidates=DIR8.map(([dr,dc])=>[enemy.row+dr,enemy.col+dc]).filter(([r,c])=>r>=0&&c>=0&&r<8&&c<8&&free(r,c,enemy));
+        candidates.sort((a,b)=>dist({row:a[0],col:a[1]},bishop)-dist({row:b[0],col:b[1]},bishop));
+        if(candidates.length)await movePiece(enemy,candidates[0][0],candidates[0][1],false,100);
+        if(dist(enemy,bishop)<=1){state.lives--;await removePieceAPK(enemy,false);state.enemies=state.enemies.filter(p=>p!==enemy);await playAPKDamage(boardFrame,view,{row:bishop.row,col:bishop.col},'red');if(state.lives<=0){state.over=true;view.clearMarks();say('Derrota: los enemigos alcanzaron al alfil.');stat('Oleada: '+state.wave+'/5 · Bajas: '+state.score+' · Vidas: 0');return;}}
+      }
+      await resolveWave();
+    }
+    async function bishopTap(hit){
+      if(state.over||!hit)return;
+      if(hit.row===bishop.row&&hit.col===bishop.col){refresh();say('Elige una casilla resaltada para mover el alfil.');return;}
+      const option=legalMoves(bishop,pieces,b).find(m=>m.row===hit.row&&m.col===hit.col);
+      if(!option){say('El alfil solo puede desplazarse por diagonales despejadas.');return;}
+      for(const victim of option.hits||[]){await removePieceAPK(victim,false);state.enemies=state.enemies.filter(p=>p!==victim);state.score++;}
+      await movePiece(bishop,option.row,option.col,false,150);
+      await enemyTurn();if(!state.over)refresh();
+    }
+    await build(b,[bishop],bishopTap);
+    goal('Gana al limpiar cinco oleadas. Mueve el alfil por diagonales legales o dispara al enemigo más cercano en una diagonal libre. Tienes tres vidas.');
     button('Lanzar hechizo',async()=>{
-      const enemy=state.enemies.filter(p=>pieces.includes(p)&&Math.abs(p.row-bishop.row)===Math.abs(p.col-bishop.col)).sort((a,b)=>dist(a,bishop)-dist(b,bishop))[0];
-      if(!enemy){say('No hay enemigo en diagonal. Mueve el alfil antes de lanzar.');return;}
-      await playAPKBeam(boardFrame,view,{row:bishop.row,col:bishop.col},{row:enemy.row,col:enemy.col},'#b06bff');await removePiece(enemy);state.enemies=state.enemies.filter(p=>p!==enemy);state.score++;
-      if(!state.enemies.length){state.wave++;for(let i=0;i<3;i++){const q=randomFree((r,c)=>r<4);if(q){const p=makePiece(pick(['pawn','knight','rook']),'dark',q[0],q[1]);addPiece(p);state.enemies.push(p);}}}
-      stat('Oleada: '+state.wave+' · Bajas: '+state.score);say('Hechizo lanzado. Prepara la siguiente oleada.');
+      const targets=state.enemies.filter(p=>pieces.includes(p)).map(enemy=>({enemy,move:legalMoves(bishop,pieces,b).find(m=>(m.hits||[]).includes(enemy))})).filter(x=>x.move);
+      targets.sort((a,b)=>dist(a.enemy,bishop)-dist(b.enemy,bishop));
+      const target=targets[0]?.enemy;
+      if(!target){say('No hay enemigo visible en una diagonal libre. Mueve el alfil.');return;}
+      await playAPKBeam(boardFrame,view,{row:bishop.row,col:bishop.col},{row:target.row,col:target.col},'#b06bff');
+      await removePieceAPK(target,false);state.enemies=state.enemies.filter(p=>p!==target);state.score++;
+      await resolveWave();if(!state.over)await enemyTurn();if(!state.over)refresh();
     },true);
-    stat('Oleada: 1 · Bajas: 0');
+    spawnWave();
   }
+
   async function startRampage() {
     const rook=makePiece('rook','light',4,0),enemies=[[4,2],[4,5],[2,0],[2,4],[6,4]].map(([r,c])=>makePiece('pawn','dark',r,c));
-    const b=cloneBoard(8,8,[]);state={rook,score:0,combo:0,steel:new Set([key(4,7),key(1,4)])};
+    function refreshRampage(){
+      const cells=[],captures=new Set();
+      for(const [dr,dc] of DIR8.filter(([dr,dc])=>(dr===0)!==(dc===0))){
+        for(let r=rook.row+dr,c=rook.col+dc;r>=0&&c>=0&&r<8&&c<8;r+=dr,c+=dc){
+          const k=key(r,c);if(state.steel.has(k))break;cells.push(k);if(pieceAt(r,c)?.color==='dark')captures.add(k);
+        }
+      }
+      view.showMoves(new Set(cells),captures);for(const k of state.steel)view.tiles.get(k)?.classList.add('block');
+    }
+    const b=cloneBoard(8,8,[]);state={rook,score:0,combo:0,movesLeft:10,over:false,steel:new Set([key(4,7),key(1,4)])};
     await build(b,[rook,...enemies],async hit=>{
-      if(!hit)return;const r=hit.row,c=hit.col;if(!(r===rook.row||c===rook.col))return;
+      if(state.over||!hit)return;
+      const r=hit.row,c=hit.col;if(!(r===rook.row||c===rook.col))return;
       const dr=Math.sign(r-rook.row),dc=Math.sign(c-rook.col);if(dr&&dc)return;
       let rr=rook.row+dr,cc=rook.col+dc,victims=[],safety=0;
       while((rr!==r||cc!==c)&&safety++<12){if(state.steel.has(key(rr,cc)))return;const p=pieceAt(rr,cc);if(p&&p!==rook)victims.push(p);rr+=dr;cc+=dc;}
       if(state.steel.has(key(r,c)))return;
       const dest=pieceAt(r,c);if(dest&&!victims.includes(dest))victims.push(dest);
-      for(const p of victims)await removePiece(p);
-      await movePiece(rook,r,c,false,160);state.score+=victims.length;state.combo=victims.length?state.combo+1:0;
+      for(const p of victims)await removePieceAPK(p,false);
+      await movePiece(rook,r,c,false,160);state.score+=victims.length;state.combo=victims.length?state.combo+1:0;state.movesLeft--;
       if(victims.length)await playAPKBombBlast(boardFrame,view,{row:rook.row,col:rook.col},nearbyCells(rook.row,rook.col).map(([row,col])=>({row,col})));
-      stat('Bajas: '+state.score+' · Combo: '+state.combo);say(victims.length?'¡Carga con combo!':'La torre avanzó. Busca una línea con objetivos.');
+      const remaining=pieces.filter(p=>p.color==='dark').length;
+      stat('Bajas: '+state.score+'/5 · Cargas restantes: '+state.movesLeft+' · Combo: '+state.combo);
+      if(!remaining){state.over=true;await playAPKVictory(boardFrame,view,['#ffc83d','#fff','#3dff8e']);say('¡Victoria! La torre despejó el tablero.');}
+      else if(state.movesLeft<=0){state.over=true;say('Derrota: agotaste las diez cargas antes de eliminar todas las piezas.');}
+      else {say(victims.length?'¡Carga con combo!':'La torre avanzó. Busca una línea con objetivos.');refreshRampage();}
     });
     labels([[4,7,'▣'],[1,4,'▣']]);for(const k of state.steel)view.tiles.get(k)?.classList.add('block');
-    goal('La torre carga por fila o columna y aplasta las piezas que atraviesa. El acero bloquea la carga.');
-    stat('Bajas: 0 · Combo: 0');
+    goal('Elimina las cinco piezas en diez cargas o menos. La torre avanza por filas y columnas, aplasta las piezas que atraviesa y el acero bloquea el recorrido.');
+    stat('Bajas: 0/5 · Cargas restantes: 10 · Combo: 0');refreshRampage();
   }
+
   async function startPanic() {
-    const king=makePiece('king','light',4,4,{royal:true});state={king,round:0,score:0,over:false,warn:new Set()};
-    await build(cloneBoard(),[king],async hit=>{if(state.over||!hit||dist(king,{row:hit.row,col:hit.col})!==1||!free(hit.row,hit.col,king))return;await movePiece(king,hit.row,hit.col);say('Movido. Ahora resuelve el ataque anunciado.');});
+    const king=makePiece('king','light',4,4,{royal:true});state={king,round:0,score:0,target:10,over:false,warn:new Set()};
+    await build(cloneBoard(),[king],async hit=>{
+      if(state.over||!hit||dist(king,{row:hit.row,col:hit.col})!==1||!free(hit.row,hit.col,king))return;
+      await movePiece(king,hit.row,hit.col);
+      refreshPanic();say('Rey reubicado. Pulsa Resolver ataque para comprobar si saliste de la zona roja.');
+    });
+    function refreshPanic(){
+      const cells=DIR8.map(([dr,dc])=>[king.row+dr,king.col+dc]).filter(([r,c])=>r>=0&&c>=0&&r<8&&c<8&&free(r,c,king));
+      view.showMoves(new Set(cells.map(([r,c])=>key(r,c))),new Set());view.setDoom([...state.warn].map(k=>k.split(',').map(Number)));
+    }
     function newThreat(){
       state.round++;state.warn=new Set();const type=pick(['rook','bishop','knight','queen']);
       if(type==='rook'){for(let i=0;i<8;i++){state.warn.add(key(king.row,i));state.warn.add(key(i,king.col));}}
       else if(type==='knight'){for(const [dr,dc] of KN){const r=king.row+dr,c=king.col+dc;if(r>=0&&c>=0&&r<8&&c<8)state.warn.add(key(r,c));}}
       else {for(let i=0;i<8;i++)for(const [r,c] of [[king.row+i,king.col+i],[king.row-i,king.col-i],[king.row+i,king.col-i],[king.row-i,king.col+i]])if(r>=0&&c>=0&&r<8&&c<8)state.warn.add(key(r,c));if(type==='queen'){for(let i=0;i<8;i++){state.warn.add(key(king.row,i));state.warn.add(key(i,king.col));}}}
-      view.setDoom([...state.warn].map(k=>k.split(',').map(Number)));say('Amenaza de '+type+'. Rojo indica peligro: mueve el rey antes de resolver.');stat('Amenazas esquivadas: '+state.score+' · Ronda: '+state.round);
+      refreshPanic();
+      say('Amenaza de '+type+'. Rojo indica peligro: mueve el rey y resuelve el ataque antes de que aparezca otra amenaza.');
+      stat('Amenazas esquivadas: '+state.score+'/'+state.target+' · Ronda: '+state.round);
     }
-    button('Nueva amenaza',async()=>newThreat(),true);
-    button('Resolver ataque',async()=>{if(state.warn.has(key(king.row,king.col))){state.over=true;await playAPKDamage(boardFrame,view,{row:king.row,col:king.col});await removePiece(king);say('El rey fue alcanzado. Reinicia para sobrevivir más.');return;}state.score++;await playAPKScreenShake(boardFrame,160,4);newThreat();});
-    goal('Mueve el rey una casilla para escapar de la línea de ataque anunciada.');
+    button('Resolver ataque',async()=>{
+      if(state.over)return;
+      if(state.warn.has(key(king.row,king.col))){state.over=true;await playAPKDamage(boardFrame,view,{row:king.row,col:king.col});await playAPKScreenShake(boardFrame,220,8);say('Derrota: el ataque alcanzó al rey. Reinicia para intentarlo otra vez.');return;}
+      state.score++;await playAPKScreenShake(boardFrame,120,3);
+      if(state.score>=state.target){state.over=true;view.setDoom([]);say('¡Victoria! Esquivaste diez ataques consecutivos.');await playAPKVictory(boardFrame,view,['#ffc83d','#fff','#29e3ff']);return;}
+      newThreat();
+    },true);
+    goal('Esquiva diez ataques consecutivos. Mueve el rey una casilla fuera de la zona roja y pulsa Resolver ataque. Resolver sin moverte también vale si estás a salvo.');
     newThreat();
   }
+
   async function startQueen() {
     const queen=makePiece('queen','light',8,3),b=cloneBoard(10,8,[]);
     const enemies=[[0,1],[0,4],[0,6],[3,0],[3,7]].map(([r,c])=>makePiece('pawn','dark',r,c));
     state={queen,lives:3,kills:0,wave:0,over:false};
+    function refreshQueen(){
+      const cells=[],captures=new Set();
+      for(const [dr,dc] of DIR8){
+        for(let r=queen.row+dr,c=queen.col+dc;r>=0&&c>=0&&r<b.rows&&c<b.cols;r+=dr,c+=dc){
+          const k=key(r,c);cells.push(k);if(pieceAt(r,c)?.color==='dark')captures.add(k);
+        }
+      }
+      view.showMoves(new Set(cells),captures);
+    }
     await build(b,[queen,...enemies],async hit=>{
-      if(state.over||!hit)return;const r=hit.row,c=hit.col,dr=Math.sign(r-queen.row),dc=Math.sign(c-queen.col);
+      if(state.over||!hit)return;
+      const r=hit.row,c=hit.col,dr=Math.sign(r-queen.row),dc=Math.sign(c-queen.col);
       if((r!==queen.row&&c!==queen.col&&Math.abs(r-queen.row)!==Math.abs(c-queen.col))||(!dr&&!dc))return;
       const victims=[];let rr=queen.row+dr,cc=queen.col+dc,safety=0;
       while((rr!==r||cc!==c)&&safety++<12){const p=pieceAt(rr,cc);if(p&&p!==queen)victims.push(p);rr+=dr;cc+=dc;}
       const dest=pieceAt(r,c);if(dest&&dest!==queen&&!victims.includes(dest))victims.push(dest);
       for(const p of victims){await removePiece(p);state.kills++;}
-      if(!free(r,c,queen)&&!dest)return;await movePiece(queen,r,c,false,130);
+      if(!free(r,c,queen)&&!dest)return;
+      await movePiece(queen,r,c,false,130);
       await playAPKShockwave(boardFrame,view,{row:queen.row,col:queen.col});
-      stat('Bajas: '+state.kills+' · Vidas: '+state.lives+' · Oleada: '+state.wave);say('Carga de reina: busca otra línea de peones.');
+      refreshQueen();
+      stat('Bajas: '+state.kills+' · Vidas: '+state.lives+' · Oleada: '+state.wave+'/10');
+      say(victims.length?'¡Carga! La dama atravesó '+victims.length+' pieza(s).':'La dama avanzó. Busca una línea para cargar.');
     });
     button('Avanzar horda',async()=>{
+      if(state.over)return;
       state.wave++;
       for(const p of pieces.filter(p=>p.color==='dark').slice()){
         const dr=Math.sign(queen.row-p.row),dc=Math.sign(queen.col-p.col);
         const opts=[[p.row+dr,p.col+dc],[p.row+dr,p.col],[p.row,p.col+dc]].filter(([r,c])=>r>=0&&c>=0&&r<10&&c<8&&free(r,c,p));
         const q=pick(opts);if(q)await movePiece(p,q[0],q[1],false,100);
-        if(dist(p,queen)<=1){await removePiece(p);state.lives--;await playAPKScreenShake(boardFrame,180,6);if(state.lives<=0){state.over=true;say('La horda agotó las vidas de la reina.');return;}}
+        if(dist(p,queen)<=1){
+          await removePiece(p);state.lives--;await playAPKScreenShake(boardFrame,180,6);
+          if(state.lives<=0){state.over=true;say('Derrota: la horda agotó las tres vidas de la reina.');stat('Bajas: '+state.kills+' · Vidas: 0 · Oleada: '+state.wave+'/10');return;}
+        }
       }
+      if(state.wave>=10){state.over=true;await playAPKVictory(boardFrame,view,['#ffc83d','#fff','#3dff8e']);say('¡Victoria! Sobreviviste diez oleadas de la horda.');stat('Bajas: '+state.kills+' · Oleadas: 10 · Vidas: '+state.lives);return;}
       for(let i=0;i<2;i++){const q=randomFree((r,c)=>r<2);if(q)addPiece(makePiece('pawn','dark',q[0],q[1]));}
-      stat('Bajas: '+state.kills+' · Vidas: '+state.lives+' · Oleada: '+state.wave);
+      stat('Bajas: '+state.kills+' · Vidas: '+state.lives+' · Oleada: '+state.wave+'/10');
+      refreshQueen();
     },true);
-    goal('La dama carga por líneas y diagonales. Elimina peones y sobrevive a la horda que avanza.');
-    labels([[0,1,'P'],[0,4,'P'],[0,6,'P'],[3,0,'P'],[3,7,'P']]);stat('Bajas: 0 · Vidas: 3 · Oleada: 0');
+    goal('Sobrevive diez oleadas. Mueve la dama por líneas o diagonales para eliminar peones; pulsa Avanzar horda para resolver el contraataque. Tienes tres vidas.');
+    labels([[0,1,'P'],[0,4,'P'],[0,6,'P'],[3,0,'P'],[3,7,'P']]);
+    stat('Bajas: 0 · Vidas: 3 · Oleada: 0/10');refreshQueen();
   }
+
   async function startArcade(id) {
     if(id==='pdodge')return startPawnDodge();
     if(id==='parkour')return startParkour();
