@@ -71,8 +71,9 @@ async function playArcade(page, id) {
 
 async function playDodge(page) {
   await page.goto(`${base}/tests/apk-lab.html?game=dodge&theme=walnut`, {waitUntil:'domcontentloaded',timeout:45000});
-  await page.locator('#apk-board .tile.mv').first().waitFor({timeout:15000});
-  await page.locator('#apk-board .tile.mv').first().click({force:true});
+  const safeMoves = page.locator('#apk-board .tile.mv:not(.doom):not(.block)');
+  await safeMoves.first().waitFor({timeout:15000});
+  await safeMoves.first().click({force:true});
   await page.waitForFunction(() => /Ronda 2/.test(document.querySelector('.apk-status')?.textContent || ''), {timeout:10000});
 }
 
