@@ -1,0 +1,86 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:6d687ce8-3a3b-4b10-8a2d-9a4e980136c1",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-31T00:00:00.000Z",
+    "component": {
+      "type": "application",
+      "name": "KureiChaosChess",
+      "version": "0.0.0"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "preact",
+      "version": "10.29.8",
+      "purl": "pkg:npm/preact@10.29.8",
+      "bom-ref": "pkg:npm/preact@10.29.8",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "htm",
+      "version": "3.1.1",
+      "purl": "pkg:npm/htm@3.1.1",
+      "bom-ref": "pkg:npm/htm@3.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "animejs",
+      "version": "4.5.0",
+      "purl": "pkg:npm/animejs@4.5.0",
+      "bom-ref": "pkg:npm/animejs@4.5.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "motion",
+      "version": "12.43.0",
+      "purl": "pkg:npm/motion@12.43.0",
+      "bom-ref": "pkg:npm/motion@12.43.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:npm/preact@10.29.8"
+    },
+    {
+      "ref": "pkg:npm/htm@3.1.1"
+    },
+    {
+      "ref": "pkg:npm/animejs@4.5.0"
+    },
+    {
+      "ref": "pkg:npm/motion@12.43.0"
+    }
+  ]
+}

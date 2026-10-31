@@ -43,24 +43,29 @@
   }
   </script>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" />
+  <style>
+    @font-face {
+      font-family: 'Bricolage Grotesque';
+      font-style: normal;
+      font-weight: 400 800;
+      font-display: swap;
+      src: url('vendor/fonts/bricolage-grotesque-latin.woff2') format('woff2');
+    }
+  </style>
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/board.css" />
   <link rel="stylesheet" href="css/screens.css" />
   <link rel="stylesheet" href="css/pixel.css" />
-  <!-- Dependencies come from the CDN through an import map: no bundler, no build step.
-       Pin exact versions; bump them deliberately. -->
+  <!-- Local, versioned dependencies: no runtime CDN requests. Update the SBOM and vendor license inventory together. -->
   <script type="importmap">
   {
     "imports": {
-      "preact": "https://cdn.jsdelivr.net/npm/preact@10.29.8/dist/preact.module.js",
-      "preact/hooks": "https://cdn.jsdelivr.net/npm/preact@10.29.8/hooks/dist/hooks.module.js",
-      "htm": "https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.module.js",
-      "animejs": "https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.esm.min.js",
-      "motion": "https://cdn.jsdelivr.net/npm/motion@12.43.0/+esm"
+      "preact": "./vendor/preact.module.js",
+      "preact/hooks": "./vendor/preact-hooks.module.js",
+      "htm": "./vendor/htm.module.js",
+      "animejs": "./vendor/anime.esm.min.js",
+      "motion": "./vendor/motion.esm.js"
     }
   }
   </script>

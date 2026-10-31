@@ -1,0 +1,32 @@
+name: Security - Static configuration checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check local dependencies and SBOM
+        run: node tools/security-static-check.mjs
+
+      - name: Test local backup import validation
+        run: node tools/backup-security-selfcheck.mjs
+
+      - name: Build and verify the itch.io ZIP
+        run: |
+          node tools/build-itch.mjs
+          node tools/itch-package-selfcheck.mjs

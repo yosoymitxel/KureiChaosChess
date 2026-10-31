@@ -17,6 +17,8 @@
     "mates-validate": "node tools/mates-validate.mjs",
     "collapsing-floor": "node tools/collapsing-floor-selfcheck.mjs",
     "king-impostor": "node tools/king-impostor-selfcheck.mjs",
-    "pixel-art": "node tools/pixel-art.mjs"
+    "pixel-art": "node tools/pixel-art.mjs",
+    "backup-security": "node tools/backup-security-selfcheck.mjs",
+    "itch-package": "node tools/build-itch.mjs && node tools/itch-package-selfcheck.mjs"
   }
 }

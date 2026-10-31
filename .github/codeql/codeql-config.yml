@@ -1,0 +1,7 @@
+name: KureiChaosChess CodeQL configuration
+
+# These files are a domain-specific pixel-art DSL stored with a .px.js suffix.
+# They are not JavaScript source and are not executed by the browser/runtime.
+# Keep the exclusion narrow: all actual application JavaScript remains analyzed.
+paths-ignore:
+  - '**/*.px.js'
