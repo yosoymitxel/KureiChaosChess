@@ -5,10 +5,17 @@ on:
     branches: [main]
     paths:
       - 'src/lab/apk/**'
+      - 'src/lab/proto/**'
       - 'src/game/**'
+      - 'src/lab-catalog.js'
+      - 'css/proto-diamond.css'
       - 'tests/apk-lab.html'
+      - 'tests/proto-diamond.html'
+      - 'tests/proto-diamond.js'
       - 'tools/apk-match-selfcheck.mjs'
       - 'tools/apk-playable-smoke.mjs'
+      - 'tools/proto-diamond-selfcheck.mjs'
+      - 'tools/proto-diamond-playwright.mjs'
       - '.github/workflows/apk-playable-qa.yml'
   workflow_dispatch:
 
@@ -27,6 +34,8 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Check pure game rules and terminal states
         run: node tools/apk-match-selfcheck.mjs
+      - name: Check Proto Diamond rules, difficulty and outcomes
+        run: node tools/proto-diamond-selfcheck.mjs
       - name: Start local server
         run: |
           npx http-server -p 8123 -s -c-1 . > /tmp/apk-http.log 2>&1 &
@@ -36,3 +45,5 @@ jobs:
           done
       - name: Play every MVP mode on desktop and touch
         run: node tools/apk-playable-smoke.mjs
+      - name: Play Proto Diamond on desktop and touch
+        run: node tools/proto-diamond-playwright.mjs

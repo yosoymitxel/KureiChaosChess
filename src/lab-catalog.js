@@ -23,9 +23,13 @@ const BOARD_VARIANTS = Object.values(MODIFIERS).filter((m) => !m.mini && !['rest
   .map((m) => [`board:${m.id}`, `TABLERO NORMAL · ${m.id === 'boss' ? 'Jefe final' : m.name}`]);
 const APK_OPTIONS = (await import('./lab/apk/catalog.js')).APK_CATALOG
   .map((entry) => [`apk:${entry.id}`, `APK: ${entry.family === 'modifier' ? 'Modificador · ' : entry.family === 'recipe' ? 'Receta · ' : entry.family === 'party' ? 'Fiesta · ' : ''}${entry.name}`]);
+const PROTO_OPTIONS = [
+  ['proto:diamond', 'PROTO · Rombo Real'],
+];
 const MINIS = [
   ...Object.entries((await import('./data/minigame-catalog.js')).MINIGAMES)
     .map(([id, game]) => [id, `Minijuego · ${game.name}`]),
+  ...PROTO_OPTIONS,
   ...BOARD_VARIANTS,
   ...APK_OPTIONS,
 ];
@@ -56,10 +60,14 @@ miniSelect.value = 'caceria';
 function updatePreview() {
   const selected = miniSelect.value;
   const isApk = selected.startsWith('apk:');
+  const isProto = selected.startsWith('proto:');
   difficulty.disabled = isApk;
   if (isApk) difficulty.value = 'normal';
   const params = new URLSearchParams({ theme: themeSelect.value, diff: isApk ? 'normal' : difficulty.value });
-  if (isApk) {
+  if (isProto) {
+    params.set('proto', selected.slice(6));
+    frame.src = 'tests/proto-diamond.html?' + params.toString();
+  } else if (isApk) {
     params.set('game', selected.slice(4));
     frame.src = 'tests/apk-lab.html?' + params.toString();
   } else if (selected.startsWith('board:')) {
