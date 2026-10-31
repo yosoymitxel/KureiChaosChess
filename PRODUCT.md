@@ -25,12 +25,6 @@ todo se puede hacer con un dedo, con ratón o con teclado, y la run se guarda so
 
 ## Verdad del producto
 
-- El modo local sigue guardando en `localStorage`. La versión web estática incorpora cuenta por correo, tres ranuras de guardado cloud y sincronización por revisión mediante llamadas directas a Supabase. Funciona en GitHub Pages y Netlify sin backend propio; el juego incrustado en itch.io permanece en modo local.
+- No hay cuentas, servidores, tienda ni datos de terceros. Todo se guarda en `localStorage`.
 - Los números que se muestran (piezas, vidas, turnos) salen del estado real de la partida.
 - No hay testimonios, estadísticas inventadas ni enlaces a páginas que no existan.
-
-## Cuenta y sincronización
-
-En cualquier página estática abierta directamente, **Ajustes → Cuenta y guardado en la nube** permite registrarse/iniciar sesión por OTP, comparar el dispositivo con tres ranuras remotas, subir, descargar y resolver conflictos. El navegador se conecta directamente a Supabase. La sincronización automática se activa al elegir un snapshot y se pausa ante cambios concurrentes. No se mezclan avances.
-
-La fase de cuenta no incorpora todavía multijugador online. Matchmaking, salas e invitaciones todavía no están implementados; se pueden abordar con Supabase Realtime y funciones SQL/RPC, sin añadir un servidor propio.

@@ -200,85 +200,47 @@ export async function exportSave() {
   return MAGIC_V1 + toBase64(bytes);
 }
 
-// Decodifica y valida sin escribir en localStorage; permite comparar antes de restaurar.
-export async function inspectSave(code) {
-  try {
-    if (typeof code !== 'string') return null;
-    const text = code.trim();
-    if (!text || text.length > MAX_BACKUP_CODE_CHARS) return null;
-    let json, format;
-    if (text.startsWith(MAGIC_V2)) {
-      json = await inflate(fromBase64(text.slice(MAGIC_V2.length), MAX_COMPRESSED_BYTES));
-      format = 2;
-    } else if (text.startsWith(MAGIC_V1)) {
-      json = decoder.decode(fromBase64(text.slice(MAGIC_V1.length), MAX_BACKUP_BYTES));
-      format = 1;
-    } else return null;
-    if (encoder.encode(json).byteLength > MAX_BACKUP_BYTES) return null;
-    const raw = JSON.parse(json), keys = validateSnapshot(raw);
-    if (!keys) return null;
-    const snapshot = {};
-    for (const key of keys) snapshot[key] = JSON.parse(raw[key]);
-    return { format, keys, snapshot };
-  } catch { return null; }
-}
-
-// Writes a validated structured snapshot. Cloud restores use this same allowlist and rollback path.
-async function restoreValidatedSnapshot(data, { replace = false } = {}) {
-  const keys = validateSnapshot(data);
-  if (!keys) return 0;
-  const touched = replace ? Object.keys(KEY_LIMITS) : keys;
-  const previous = new Map(touched.map((key) => [key, localStorage.getItem(key)]));
-  try {
-    for (const key of touched) {
-      if (Object.prototype.hasOwnProperty.call(data, key)) localStorage.setItem(key, data[key]);
-      else localStorage.removeItem(key);
-    }
-  } catch {
-    for (const key of touched) {
-      try {
-        const oldValue = previous.get(key);
-        if (oldValue === null) localStorage.removeItem(key);
-        else localStorage.setItem(key, oldValue);
-      } catch {
-        // Best-effort rollback; localStorage has no multi-key transaction.
-      }
-    }
-    return 0;
-  }
-  if (typeof window !== 'undefined') window.dispatchEvent(new Event('zugzwang:save-changed'));
-  return keys.length;
-}
-
-export async function restoreSnapshot(snapshot, options = {}) {
-  try {
-    if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) return 0;
-    const data = {};
-    for (const [key, value] of Object.entries(snapshot)) {
-      if (typeof value === 'string') return 0;
-      data[key] = JSON.stringify(value);
-    }
-    return await restoreValidatedSnapshot(data, options);
-  } catch {
-    return 0;
-  }
-}
-
 // Returns the number of restored keys, or 0 without changing storage when validation fails.
-export async function importSave(code, options = {}) {
+export async function importSave(code) {
   try {
     if (typeof code !== 'string') return 0;
     const text = code.trim();
     if (!text || text.length > MAX_BACKUP_CODE_CHARS) return 0;
+
     let json;
     if (text.startsWith(MAGIC_V2)) {
-      json = await inflate(fromBase64(text.slice(MAGIC_V2.length), MAX_COMPRESSED_BYTES));
+      const bytes = fromBase64(text.slice(MAGIC_V2.length), MAX_COMPRESSED_BYTES);
+      json = await inflate(bytes);
     } else if (text.startsWith(MAGIC_V1)) {
-      json = decoder.decode(fromBase64(text.slice(MAGIC_V1.length), MAX_BACKUP_BYTES));
-    } else return 0;
+      const bytes = fromBase64(text.slice(MAGIC_V1.length), MAX_BACKUP_BYTES);
+      json = decoder.decode(bytes);
+    } else {
+      return 0;
+    }
+
     if (encoder.encode(json).byteLength > MAX_BACKUP_BYTES) return 0;
     const data = JSON.parse(json);
-    return await restoreValidatedSnapshot(data, options);
+    const keys = validateSnapshot(data);
+    if (!keys) return 0;
+
+    // localStorage has no multi-key transaction. Roll back touched keys if a write fails.
+    const previous = new Map(keys.map((key) => [key, localStorage.getItem(key)]));
+    try {
+      for (const key of keys) localStorage.setItem(key, data[key]);
+    } catch {
+      for (const key of keys) {
+        try {
+          const oldValue = previous.get(key);
+          if (oldValue === null) localStorage.removeItem(key);
+          else localStorage.setItem(key, oldValue);
+        } catch {
+          // Best-effort rollback; return failure rather than claiming a restore.
+        }
+      }
+      return 0;
+    }
+
+    return keys.length;
   } catch {
     return 0;
   }

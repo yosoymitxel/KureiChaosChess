@@ -14,8 +14,6 @@ import { ZenScreen } from './screens/zen.js';
 import { ShopScreen } from './screens/shop.js';
 import { GalleryScreen } from './screens/gallery.js';
 import { AchievementsScreen } from './screens/achievements.js';
-import { AccountScreen } from './screens/account.js';
-import { startCloudSync } from '../game/cloud-sync.js';
 import { MODIFIERS } from '../data/modifiers.js';
 import { MINIGAMES } from '../data/minigame-catalog.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, enterLevel, resetLevel, dropLevel, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs, takeNewDemos } from '../game/run.js';
@@ -67,9 +65,6 @@ export function App() {
   const [settings, setSettings] = useState(loadSettings);
   const curtain = useRef(null);
   const busy = useRef(false);
-
-  // Las escrituras normales del juego disparan guardado cloud si el jugador activó una ranura.
-  useEffect(() => startCloudSync(), []);
 
   const setRun = useCallback((next) => setRunState((prev) => {
     const v = typeof next === 'function' ? next(prev) : next;
@@ -284,8 +279,7 @@ export function App() {
 
   return html`
     ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} onVersus=${() => newVersus()} settings=${settings} setSettings=${setSettings} />`}
-    ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} onAccount=${() => goTo('account')} />`}
-    ${screen === 'account' && html`<${AccountScreen} onBack=${() => goTo('settings')} />`}
+    ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} onShop=${openShop('map')} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} settings=${settings} setSettings=${setSettings} defaultCount=${seats?.length} onHowTo=${() => setHowTo(true)} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame}
       onPrefs=${run && !run.tutorial && !Object.keys(run.completed).length ?(prefs) => { const r = withPrefs(run, prefs); setRun(r); setNode(r.map.nodes[0]); } : null} />`}
@@ -333,7 +327,6 @@ export function App() {
     ${howTo && html`<${HowToOverlay} onClose=${() => setHowTo(false)} />`}
     ${reveal && html`<${MutationReveal} id=${reveal} onDone=${() => { takeNewDemos(run); setReveal(null); goTo('map'); }} />`}
     <div class="curtain" ref=${curtain}><span>Kure'iChaosChess</span></div>
-    <${CloudSyncNotice} onOpen=${() => goTo('account')} />
     <${AchievementToast} />
   `;
 }
@@ -353,23 +346,6 @@ function MutationReveal({ id, onDone }) {
     return () => m.destroy();
   }, []);
   return html`<div class="overlay" ref=${ref}></div>`;
-}
-
-
-// A save changed on another device: stop automatic writes and send the player to account conflict resolution.
-function CloudSyncNotice({ onOpen }) {
-  const [conflict, setConflict] = useState(null);
-  useEffect(() => {
-    const handler = (event) => setConflict(event.detail || {});
-    window.addEventListener('zugzwang:cloud-conflict', handler);
-    return () => window.removeEventListener('zugzwang:cloud-conflict', handler);
-  }, []);
-  if (!conflict) return null;
-  return html`<div class="cloud-sync-notice" role="alert">
-    <span>El avance local y la nube cambiaron por separado. La sincronización está pausada.</span>
-    <button class="btn sm primary" onClick=${onOpen}>Resolver conflicto</button>
-    <button class="btn sm ghost" aria-label="Cerrar aviso" onClick=${() => setConflict(null)}>×</button>
-  </div>`;
 }
 
 // Aviso de logro: se encola y sale uno por vez, sin interrumpir la mesa.

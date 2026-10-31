@@ -7,7 +7,7 @@ import { SEEDS, GARDEN_ITEMS, SEED_BACK, DIG_COOLDOWN, MOVE_COOLDOWN, OBSTACLE_C
 
 const KEY = 'zugzwang.zen.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
-const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); if (typeof window !== 'undefined') window.dispatchEvent(new Event('zugzwang:save-changed')); } catch {} };
+const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
 export const ZEN_KINDS = Object.keys(SEEDS);
 export const ZEN_NAMES = Object.fromEntries(ZEN_KINDS.map((k) => [k, SEEDS[k].name]));

@@ -48,19 +48,10 @@ for (const tag of html.matchAll(/<link\b[^>]*>/gi)) {
   }
 }
 
-const externalScripts = [];
-const allowedSupabaseCdn = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';
 for (const tag of html.matchAll(/<script\b[^>]*>/gi)) {
   const src = attribute(tag[0], 'src');
-  if (!src) continue;
-  if (/^https:\/\//i.test(src)) {
-    assert.equal(src, allowedSupabaseCdn, 'Only the pinned Supabase browser SDK may load externally');
-    externalScripts.push(src);
-  } else {
-    assertLocalResource(src, '/', 'Script');
-  }
+  if (src) assertLocalResource(src, '/', 'Script');
 }
-assert.deepEqual(externalScripts, [allowedSupabaseCdn], 'The pinned Supabase SDK must be loaded exactly once');
 
 for (const style of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)) {
   for (const url of style[1].matchAll(/url\(\s*(['"]?)(.*?)\1\s*\)/gi)) {
@@ -86,8 +77,7 @@ const expectedPackages = new Set([
   'pkg:npm/preact@10.29.8',
   'pkg:npm/htm@3.1.1',
   'pkg:npm/animejs@4.5.0',
-  'pkg:npm/motion@12.43.0',
-  'pkg:npm/%40supabase/supabase-js@2.118.0'
+  'pkg:npm/motion@12.43.0'
 ]);
 const actualPackages = new Set((sbom.components || []).map((component) => component.purl));
 assert.deepEqual(actualPackages, expectedPackages, 'SBOM direct package inventory differs from reviewed runtime dependencies');

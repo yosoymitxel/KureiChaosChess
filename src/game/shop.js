@@ -5,7 +5,7 @@ import { THEMES } from '../data/themes.js';
 
 const KEY = 'zugzwang.shop.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
-const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); if (typeof window !== 'undefined') window.dispatchEvent(new Event('zugzwang:save-changed')); } catch {} };
+const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
 export const CARD_PRICE = { common: 40, rare: 70 };
 // Lo que paga ganar una partida en la travesía; los nodos duros pagan más.

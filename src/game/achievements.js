@@ -6,7 +6,7 @@ import { localize, t } from '../i18n/index.js';
 
 const KEY = 'zugzwang.achievements.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
-const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); if (typeof window !== 'undefined') window.dispatchEvent(new Event('zugzwang:save-changed')); } catch {} };
+const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
 // Los grupos se muestran en este orden en la pantalla de Logros.
 export const ACHIEVEMENT_GROUPS = ['Partida', 'Travesía', 'Minijuegos', 'Jardín Zen', 'Tienda', 'Largo plazo', 'Secretos'];

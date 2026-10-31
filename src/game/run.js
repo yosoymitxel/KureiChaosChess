@@ -8,7 +8,7 @@ const RUN_KEY = 'zugzwang.run.v2';
 const SETTINGS_KEY = 'zugzwang.settings.v2';
 
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
-const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); if (typeof window !== 'undefined') window.dispatchEvent(new Event('zugzwang:save-changed')); } catch {} };
+const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
 export const loadRun = () => read(RUN_KEY);
 export const saveRun = (run) => write(RUN_KEY, run);
