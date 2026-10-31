@@ -1,7 +1,7 @@
 # Arquitectura
 
 Sin bundler: `index.html` carga módulos ES nativos y un *import map* resuelve las dependencias
-desde jsDelivr. Para desarrollar basta un servidor estático.
+desde `vendor/`. Las librerías y la fuente se sirven desde el mismo origen; para desarrollar basta un servidor estático.
 
 ```
 index.html            import map + fuentes + hojas de estilo

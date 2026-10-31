@@ -7,7 +7,7 @@ import { rivalForFloor, DIFFICULTIES } from '../../game/difficulty.js';
 import { THEMES } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
-import { exportSave, importSave } from '../../game/backup.js';
+import { exportSave, importSave, MAX_BACKUP_CODE_CHARS } from '../../game/backup.js';
 import { themeOwned } from '../../game/shop.js';
 import { eliteVariants, lessonText } from '../../game/generate.js';
 import { t, LANG, LANGS } from '../../i18n/index.js';
@@ -203,34 +203,56 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
   </div>`;
 }
 
-// Copia de seguridad de la partida: código para copiar o descargar, y pegarlo para restaurar.
+// Copia de seguridad local: conserva KCC1/KCC2 y rechaza archivos fuera de límite.
 function Backup() {
   const [code, setCode] = useState('');
   const [msg, setMsg] = useState('');
+  const tooLarge = () => setMsg(t('backup.tooLarge', 'La copia supera el tamaño máximo permitido.'));
+
   const copy = async () => {
-    const c = await exportSave();
-    try { await navigator.clipboard.writeText(c); setMsg(t('backup.copied', 'Código copiado: guárdalo en una nota o un mensaje.')); }
-    catch { setCode(c); setMsg(t('backup.shown', 'Cópialo del recuadro y guárdalo.')); }
+    try {
+      const backup = await exportSave();
+      try {
+        await navigator.clipboard.writeText(backup);
+        setMsg(t('backup.copied', 'Código copiado: guárdalo en una nota o un mensaje.'));
+      } catch {
+        setCode(backup);
+        setMsg(t('backup.shown', 'Cópialo del recuadro y guárdalo.'));
+      }
+    } catch {
+      tooLarge();
+    }
   };
+
   const download = async () => {
-    const blob = new Blob([await exportSave()], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'kurei-chaos-chess-partida.txt';
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    try {
+      const blob = new Blob([await exportSave()], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'kurei-chaos-chess-partida.txt';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      tooLarge();
+    }
   };
-  const restore = async (c = code) => {
-    if (!await importSave(c)) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
+
+  const restore = async (value = code) => {
+    if (typeof value !== 'string' || value.length > MAX_BACKUP_CODE_CHARS) return tooLarge();
+    if (!await importSave(value)) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
     setMsg(t('backup.done', 'Partida restaurada.'));
     setTimeout(() => location.reload(), 600);
   };
+
   const upload = async (e) => {
-    const f = e.currentTarget.files[0];
+    const file = e.currentTarget.files[0];
     e.currentTarget.value = '';
-    if (f) restore(await f.text());
+    if (!file) return;
+    if (file.size > MAX_BACKUP_CODE_CHARS) return tooLarge();
+    restore(await file.text());
   };
+
   return html`<section class="panel setup-card set-backup" data-enter>
     <h2>${t('backup.title', 'Copia de seguridad')}</h2>
     <p class="shop-note">${t('backup.hint', 'Guarda tu progreso (run, jardín, logros, mesas) como un código. Si el navegador lo borra, pégalo aquí y vuelve.')}</p>

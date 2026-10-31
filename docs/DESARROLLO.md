@@ -12,8 +12,8 @@ npx http-server -p 8123 -s -c-1 .
 python3 -m http.server 8123
 ```
 
-y abre http://localhost:8123. Preact, htm, anime.js y Motion se cargan desde jsDelivr con un
-import map, así que la primera vez hace falta conexión.
+y abre http://localhost:8123. Preact, htm, anime.js, Motion y Bricolage Grotesque se sirven desde
+copias locales versionadas en vendor/; el núcleo del juego no necesita cargar librerías desde un CDN.
 
 ## Paquete para itch.io
 
