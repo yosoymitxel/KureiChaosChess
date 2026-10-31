@@ -1,0 +1,40 @@
+name: Proto Diamond QA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/lab/proto/**'
+      - 'src/lab-catalog.js'
+      - 'css/proto-diamond.css'
+      - 'tests/proto-diamond.html'
+      - 'tests/proto-diamond.js'
+      - 'tools/proto-diamond-selfcheck.mjs'
+      - 'tools/proto-diamond-playwright.mjs'
+      - '.github/workflows/proto-diamond-qa.yml'
+  workflow_dispatch:
+
+jobs:
+  proto-diamond:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install browser runtime
+        run: |
+          npm install --no-save playwright http-server
+          npx playwright install --with-deps chromium
+      - name: Check diamond geometry, rules, difficulty and outcomes
+        run: node tools/proto-diamond-selfcheck.mjs
+      - name: Start local server
+        run: |
+          npx http-server -p 8123 -s -c-1 . > /tmp/proto-diamond-http.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8123/tests/proto-diamond.html >/dev/null && break
+            sleep 1
+          done
+      - name: Play Proto Diamond on desktop and touch
+        run: node tools/proto-diamond-playwright.mjs

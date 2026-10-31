@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <base href="../">
+  <meta name="theme-color" content="#2a2118">
+  <title>PROTO · Rombo Real · Lab</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/board.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link rel="stylesheet" href="css/pixel.css">
+  <link rel="stylesheet" href="css/proto-diamond.css">
+  <script type="importmap">
+  {"imports":{"preact":"https://cdn.jsdelivr.net/npm/preact@10.29.8/dist/preact.module.js","preact/hooks":"https://cdn.jsdelivr.net/npm/preact@10.29.8/hooks/dist/hooks.module.js","htm":"https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.module.js","animejs":"https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.esm.min.js","motion":"https://cdn.jsdelivr.net/npm/motion@12.43.0/+esm"}}
+  </script>
+</head>
+<body>
+  <main class="proto-diamond-page">
+    <header class="proto-diamond-head">
+      <div>
+        <p class="proto-eyebrow">PROTO · SOLO LABORATORIO</p>
+        <h1>Rombo Real</h1>
+        <p>El rey empieza en un vértice. Cruza el tablero y derriba al rey del extremo opuesto.</p>
+      </div>
+      <a class="proto-back" href="../lab-preview.html">Volver al banco</a>
+    </header>
+
+    <section class="proto-diamond-layout">
+      <div class="proto-diamond-board-card">
+        <div class="proto-board-meta">
+          <span>ROMBO 13 × 13</span>
+          <span>85 casillas · 4 piezas por bando</span>
+        </div>
+        <div class="proto-diamond-board-host" id="proto-board"></div>
+        <div class="proto-board-legend" aria-label="Bandos">
+          <span><i class="proto-light-dot"></i> Marfil · Tú</span>
+          <span><i class="proto-dark-dot"></i> Carmesí · Rival</span>
+        </div>
+      </div>
+
+      <aside class="proto-diamond-panel">
+        <div class="proto-status-block">
+          <span class="proto-panel-label">PARTIDA</span>
+          <strong class="proto-status" id="proto-status" role="status" aria-live="polite" data-phase="human">Tu turno · elige una pieza</strong>
+          <p id="proto-hint">Toca una pieza marfil para ver sus movimientos legales.</p>
+        </div>
+        <div class="proto-stat-grid">
+          <div><span>Ronda</span><strong id="proto-round">1</strong></div>
+          <div><span>Marfil</span><strong id="proto-light-count">4</strong></div>
+          <div><span>Carmesí</span><strong id="proto-dark-count">4</strong></div>
+        </div>
+        <label class="proto-difficulty-label" for="proto-difficulty">Dificultad del rival</label>
+        <select id="proto-difficulty">
+          <option value="facil">Fácil · Aprendiz</option>
+          <option value="normal" selected>Normal · Oficial</option>
+          <option value="dificil">Difícil · Maestro</option>
+        </select>
+        <button class="proto-primary-button" type="button" id="proto-restart">Reiniciar rombo</button>
+        <div class="proto-rules">
+          <strong>Cómo se juega</strong>
+          <ol>
+            <li>Tu rey empieza en la punta izquierda; el rival, en la derecha.</li>
+            <li>Las piezas usan exactamente los movimientos del ajedrez principal.</li>
+            <li>Ganas al capturar el rey carmesí. Si cae el tuyo, pierdes.</li>
+          </ol>
+        </div>
+        <p class="proto-isolation">Prueba aislada: no modifica partidas, progreso, economía ni desbloqueos.</p>
+      </aside>
+    </section>
+  </main>
+  <script type="module" src="tests/proto-diamond.js"></script>
+</body>
+</html>
