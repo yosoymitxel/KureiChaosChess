@@ -26,6 +26,18 @@ jobs:
       - name: Test local backup import validation
         run: node tools/backup-security-selfcheck.mjs
 
+      - name: Test save comparison summaries
+        run: node tools/save-preview-selfcheck.mjs
+
+      - name: Test cloud account and conflict rules
+        run: node tools/cloud-account-selfcheck.mjs
+
+      - name: Check ES module syntax
+        run: |
+          for file in src/game/cloud-api.js src/game/cloud-sync.js src/ui/screens/account.js src/ui/screens/setup.js src/ui/app.js src/game/backup.js src/game/save-preview.js; do
+            node --input-type=module --check < "$file"
+          done
+
       - name: Build and verify the itch.io ZIP
         run: |
           node tools/build-itch.mjs

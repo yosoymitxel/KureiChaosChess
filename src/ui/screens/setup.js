@@ -135,7 +135,7 @@ export function SetupScreen({ node, defaultCount, onBack, onStart, run, settings
   </div>`;
 }
 
-export function SettingsScreen({ settings, setSettings, onBack }) {
+export function SettingsScreen({ settings, setSettings, onBack, onAccount }) {
   const ref = useRef(null);
   useEnter(ref);
   const set = (k) => (v) => setSettings((s) => ({ ...s, [k]: v }));
@@ -144,6 +144,10 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
   return html`<div class="screen settings" ref=${ref}>
     <${Topbar} title=${t('settings.title', 'Ajustes')} onBack=${onBack} />
     <div class="setup-body">
+      ${window.self === window.top && html`<section class="panel setup-card account-entry" data-enter>
+        <div><h2>Cuenta de jugador</h2><p class="shop-note">Registrate o iniciá sesión para guardar y recuperar tus partidas desde otros dispositivos.</p></div>
+        <button class="btn primary" onClick=${onAccount}>Cuenta y guardado en la nube</button>
+      </section>`}
       <section class="panel setup-card set-lang" data-enter>
         <h2>${t('settings.language', 'Idioma')}</h2>
         <div class="segmented" role="group" aria-label=${t('settings.language', 'Idioma')}>

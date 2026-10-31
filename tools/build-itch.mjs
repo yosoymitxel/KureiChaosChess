@@ -41,10 +41,13 @@ const VENDOR = {
 let page = readFileSync(join(root, 'index.html'), 'utf8');
 const before = page;
 page = page.replace(/<script type="importmap">[\s\S]*?<\/script>/, `<script type="importmap">\n  ${JSON.stringify({ imports: VENDOR })}\n  </script>`);
+// Itch.io iframe stays local: remove the cloud SDK from its offline package.
+page = page.replace(/\s*<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@2\.118\.0"><\/script>/, '');
 page = page.replace(/\s*<link rel="preconnect"[^>]*>/g, '');
 page = page.replace(/<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com[^>]*>/, `<style>@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 400 800; font-display: swap; src: url(vendor/fonts/bricolage-grotesque-latin.woff2) format('woff2'); }</style>`);
 page = page.replace(/\s*<!-- Dependencies come from the CDN[\s\S]*?-->/, '');
 if (page === before || /cdn\.jsdelivr|googleapis/.test(page)) throw new Error('index.html cambió: revisa los reemplazos de build-itch');
+if (page.includes('@supabase/supabase-js')) throw new Error('El paquete itch.io no debe cargar Supabase ni activar cuentas cloud.');
 writeFileSync(join(out, 'index.html'), page);
 
 const count = (d) => readdirSync(d).reduce((n, f) => n + (statSync(join(d, f)).isDirectory() ? count(join(d, f)) : 1), 0);

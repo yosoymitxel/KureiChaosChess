@@ -19,6 +19,8 @@
     "king-impostor": "node tools/king-impostor-selfcheck.mjs",
     "pixel-art": "node tools/pixel-art.mjs",
     "backup-security": "node tools/backup-security-selfcheck.mjs",
-    "itch-package": "node tools/build-itch.mjs && node tools/itch-package-selfcheck.mjs"
+    "itch-package": "node tools/build-itch.mjs && node tools/itch-package-selfcheck.mjs",
+    "save-preview": "node tools/save-preview-selfcheck.mjs",
+    "cloud-account": "node tools/cloud-account-selfcheck.mjs"
   }
 }

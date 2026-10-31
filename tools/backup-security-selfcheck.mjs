@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { MAX_BACKUP_CODE_CHARS, exportSave, importSave } from '../src/game/backup.js';
+import { MAX_BACKUP_CODE_CHARS, exportSave, importSave, restoreSnapshot } from '../src/game/backup.js';
 
 class MemoryStorage {
   values = new Map();
@@ -115,4 +115,17 @@ resetStorage();
 assert.equal(await importSave(cleanExport), 1, 'Export must include only the reviewed allowlist');
 assert.equal(localStorage.getItem('zugzwang.unlisted.v1'), null);
 
-console.log('Backup security checks passed: KCC1/KCC2 compatibility, allowlist, validation, decompression limits and rollback.');
+resetStorage({
+  [keySettings]: JSON.stringify({ theme: 'before' }),
+  [keyShop]: JSON.stringify({ coins: 5, pending: [], themes: [] }),
+});
+const cloudSnapshot = {
+  [keySettings]: { theme: 'cloud', sound: true },
+  [keyShop]: { coins: 42, pending: [], themes: ['pixel'] },
+};
+assert.equal(await restoreSnapshot(cloudSnapshot, { replace: true }), 2, 'Cloud snapshots must restore through the same allowlist');
+assert.equal(localStorage.getItem(keySettings), JSON.stringify(cloudSnapshot[keySettings]));
+assert.equal(localStorage.getItem(keyShop), JSON.stringify(cloudSnapshot[keyShop]));
+assert.equal(localStorage.getItem(keyMinis), null, 'Replacing a cloud snapshot must remove local keys absent from that snapshot');
+
+console.log('Backup security checks passed: KCC1/KCC2 compatibility, cloud snapshot restore, allowlist, validation, decompression limits and rollback.');
