@@ -93,7 +93,7 @@ assert.ok(codeqlConfig.includes('paths-ignore:') && codeqlConfig.includes("- '**
 assert.ok(codeqlConfig.includes('not JavaScript source'), 'CodeQL exclusion must document why the pixel DSL is ignored');
 
 const licenses = read('vendor/LICENSES.md');
-for (const version of ['preact 10.29.8', 'htm 3.1.1', 'animejs 4.5.0', 'motion 12.43.0', '@supabase/supabase-js 2.118.0']) {
+for (const version of ['preact 10.29.8', 'htm 3.1.1', 'animejs 4.5.0', 'motion 12.43.0', '`@supabase/supabase-js` 2.118.0']) {
   assert.ok(licenses.includes(version), 'Vendor license inventory is missing ' + version);
 }
 
