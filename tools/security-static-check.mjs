@@ -83,7 +83,7 @@ const expectedPackages = new Set([
   'pkg:npm/htm@3.1.1',
   'pkg:npm/animejs@4.5.0',
   'pkg:npm/motion@12.43.0',
-  'pkg:npm/@supabase/supabase-js@2.118.0'
+  'pkg:npm/%40supabase/supabase-js@2.118.0'
 ]);
 const actualPackages = new Set((sbom.components || []).map((component) => component.purl));
 assert.deepEqual(actualPackages, expectedPackages, 'SBOM direct package inventory differs from reviewed runtime dependencies');
