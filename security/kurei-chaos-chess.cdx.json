@@ -67,26 +67,6 @@
           }
         }
       ]
-    },
-    {
-      "type": "library",
-      "name": "@supabase/supabase-js",
-      "version": "2.118.0",
-      "purl": "pkg:npm/%40supabase/supabase-js@2.118.0",
-      "bom-ref": "pkg:npm/%40supabase/supabase-js@2.118.0",
-      "licenses": [
-        {
-          "license": {
-            "id": "MIT"
-          }
-        }
-      ],
-      "externalReferences": [
-        {
-          "type": "website",
-          "url": "https://supabase.com/docs/reference/javascript/introduction"
-        }
-      ]
     }
   ],
   "dependencies": [
@@ -101,9 +81,6 @@
     },
     {
       "ref": "pkg:npm/motion@12.43.0"
-    },
-    {
-      "ref": "pkg:npm/%40supabase/supabase-js@2.118.0"
     }
   ]
 }

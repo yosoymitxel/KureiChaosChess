@@ -60,7 +60,6 @@ quién empieza y elige:
 - **26 mesas.** 17 son de pixel art y cambian el juego entero: piezas, letra, sonidos y música.
   Hay mesa de gatos, piratas, zombis, marcianitos, Halloween, reino de los hongos…
 - **Galería y 68 logros** para ver todo lo que has descubierto.
-- **Cuenta opcional.** Sincroniza run, jardín, monedas, mesas y logros entre GitHub Pages e itch.io. Sin cuenta, el juego sigue guardando localmente.
 
 <p align="center"><img src="docs/img/jardin.jpg" alt="El jardín zen con su estanque de kois" width="720" /></p>
 

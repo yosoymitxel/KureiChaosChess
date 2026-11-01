@@ -4,5 +4,3 @@ import { startGamepad } from './ui/gamepad.js';
 
 render(html`<${App} />`, document.getElementById('root'));
 startGamepad();
-
-import('./cloud/cloud-save.js').then(({ startCloudSync }) => startCloudSync()).catch(() => {});

@@ -21,16 +21,11 @@ const expected = {
   'preact/hooks': './vendor/preact-hooks.module.js',
   htm: './vendor/htm.module.js',
   animejs: './vendor/anime.esm.min.js',
-  motion: './vendor/motion.esm.js',
-  '@supabase/supabase-js': 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm'
+  motion: './vendor/motion.esm.js'
 };
 assert.deepEqual(imports, expected, 'itch.io package must use the reviewed local import map');
 
 for (const [name, path] of Object.entries(imports)) {
-  if (name === '@supabase/supabase-js') {
-    assert.equal(path, 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm', 'Supabase SDK must use the reviewed, pinned CDN resource');
-    continue;
-  }
   const resolved = new URL(path, 'https://kcc-itch.invalid/');
   assert.equal(resolved.origin, 'https://kcc-itch.invalid', name + ' must not load from a remote origin');
   const file = join(packageRoot, decodeURIComponent(resolved.pathname.replace(/^\/+/, '')));

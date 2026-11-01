@@ -25,6 +25,6 @@ todo se puede hacer con un dedo, con ratón o con teclado, y la run se guarda so
 
 ## Verdad del producto
 
-- No requiere servidor propio ni compilación. La partida funciona localmente en `localStorage`; las cuentas opcionales y la sincronización entre alojamientos usan Supabase.
+- No hay cuentas, servidores, tienda ni datos de terceros. Todo se guarda en `localStorage`.
 - Los números que se muestran (piezas, vidas, turnos) salen del estado real de la partida.
 - No hay testimonios, estadísticas inventadas ni enlaces a páginas que no existan.

@@ -1,7 +1,6 @@
 import { html, useState, useRef } from '../lib.js';
 import { Icon } from '../icons.js';
 import { Topbar, useEnter, Toggle, ThemeLook } from '../components.js';
-import { CloudAccount } from './cloud-account.js';
 import { nodeModifier, MODIFIERS } from '../../data/modifiers.js';
 import { PREF_LIMITS, saveSettings } from '../../game/run.js';
 import { rivalForFloor, DIFFICULTIES } from '../../game/difficulty.js';
@@ -199,7 +198,6 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
           ${canFullscreen && html`<${Toggle} on=${settings.fullscreen} onChange=${(v) => { set('fullscreen')(v); setFullscreen(v); }} label=${t('settings.fullscreen', 'Pantalla completa')} hint=${t('settings.fullscreenHint', 'Ahora y cada vez que empiece una partida')} />`}
         </div>
       </section>
-      <${CloudAccount} />
       <${Backup} />
     </div>
   </div>`;

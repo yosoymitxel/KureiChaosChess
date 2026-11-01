@@ -9,8 +9,7 @@ node tools/build-itch.mjs
 Sale `dist/kurei-chaos-chess-itch.zip` (unos 4 MB y 172 archivos). Lleva `index.html` en la raíz y
 carga todo desde dentro del zip:
 
-- **Librerías del juego:** Preact, htm, Motion y anime.js se cargan desde `vendor/`.
-- **Supabase:** `@supabase/supabase-js` se carga desde jsDelivr (versión fijada); requiere internet para cuentas y sincronización.
+- **Librerías:** se cargan desde `vendor/`, sin jsDelivr.
 - **Letra:** sale de `vendor/fonts/`, sin Google Fonts.
 - **Mesas píxel:** sus PNG van incrustados en `src/data/pixel-src.js`. Así el zip queda por debajo del límite de 1000 archivos de itch.
 - **Fuera del zip:** el laboratorio y las plantillas de arte.
@@ -42,7 +41,7 @@ carga todo desde dentro del zip:
 | Enable scrollbars | No |
 | SharedArrayBuffer support | No hace falta |
 
-Sin iniciar sesión, el juego guarda la partida en `localStorage`; en itch funciona igual dentro del iframe. Con una cuenta opcional, los guardados se sincronizan mediante Supabase. El almacenamiento local sigue disponible sin conexión.
+El juego guarda la partida en `localStorage`; en itch funciona igual dentro del iframe.
 
 ## 3. Página
 
