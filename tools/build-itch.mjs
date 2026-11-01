@@ -37,6 +37,7 @@ const VENDOR = {
   htm: './vendor/htm.module.js',
   animejs: './vendor/anime.esm.min.js',
   motion: './vendor/motion.esm.js',
+  '@supabase/supabase-js': 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm',
 };
 let page = readFileSync(join(root, 'index.html'), 'utf8');
 const before = page;
@@ -44,7 +45,7 @@ page = page.replace(/<script type="importmap">[\s\S]*?<\/script>/, `<script type
 page = page.replace(/\s*<link rel="preconnect"[^>]*>/g, '');
 page = page.replace(/<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com[^>]*>/, `<style>@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 400 800; font-display: swap; src: url(vendor/fonts/bricolage-grotesque-latin.woff2) format('woff2'); }</style>`);
 page = page.replace(/\s*<!-- Dependencies come from the CDN[\s\S]*?-->/, '');
-if (page === before || /cdn\.jsdelivr|googleapis/.test(page)) throw new Error('index.html cambió: revisa los reemplazos de build-itch');
+if (page === before || /googleapis/.test(page) || !page.includes('@supabase/supabase-js@2.118.0/+esm')) throw new Error('index.html cambió: revisa los reemplazos de build-itch');
 writeFileSync(join(out, 'index.html'), page);
 
 const count = (d) => readdirSync(d).reduce((n, f) => n + (statSync(join(d, f)).isDirectory() ? count(join(d, f)) : 1), 0);

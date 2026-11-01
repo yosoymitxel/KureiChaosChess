@@ -173,13 +173,51 @@ function validateSnapshot(data) {
   return keys;
 }
 
-function saveData() {
+export const SAVE_KEYS = Object.freeze(Object.keys(KEY_LIMITS));
+
+export function readSaveSnapshot() {
   const data = {};
-  for (const key of Object.keys(KEY_LIMITS)) {
+  for (const key of SAVE_KEYS) {
     const value = localStorage.getItem(key);
     if (value !== null) data[key] = value;
   }
-  return JSON.stringify(data);
+  const serialized = JSON.stringify(data);
+  if (encoder.encode(serialized).byteLength > MAX_BACKUP_BYTES) throw new Error('Backup is too large');
+  if (Object.keys(data).length && !validateSnapshot(data)) throw new Error('Local save is invalid');
+  return data;
+}
+
+export function isValidSaveSnapshot(data) {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
+  return Object.keys(data).length === 0 || !!validateSnapshot(data);
+}
+
+export function restoreSaveSnapshot(data) {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return -1;
+  const keys = Object.keys(data).length ? validateSnapshot(data) : [];
+  if (!keys) return -1;
+  if (!keys.length) return 0;
+
+  const previous = new Map(keys.map((key) => [key, localStorage.getItem(key)]));
+  try {
+    for (const key of keys) localStorage.setItem(key, data[key]);
+  } catch {
+    for (const key of keys) {
+      try {
+        const oldValue = previous.get(key);
+        if (oldValue === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, oldValue);
+      } catch {
+        // Best-effort rollback; never report a successful restore after a partial write.
+      }
+    }
+    return -1;
+  }
+  return keys.length;
+}
+
+function saveData() {
+  return JSON.stringify(readSaveSnapshot());
 }
 
 export async function exportSave() {
@@ -220,27 +258,8 @@ export async function importSave(code) {
 
     if (encoder.encode(json).byteLength > MAX_BACKUP_BYTES) return 0;
     const data = JSON.parse(json);
-    const keys = validateSnapshot(data);
-    if (!keys) return 0;
-
-    // localStorage has no multi-key transaction. Roll back touched keys if a write fails.
-    const previous = new Map(keys.map((key) => [key, localStorage.getItem(key)]));
-    try {
-      for (const key of keys) localStorage.setItem(key, data[key]);
-    } catch {
-      for (const key of keys) {
-        try {
-          const oldValue = previous.get(key);
-          if (oldValue === null) localStorage.removeItem(key);
-          else localStorage.setItem(key, oldValue);
-        } catch {
-          // Best-effort rollback; return failure rather than claiming a restore.
-        }
-      }
-      return 0;
-    }
-
-    return keys.length;
+    const restored = restoreSaveSnapshot(data);
+    return restored > 0 ? restored : 0;
   } catch {
     return 0;
   }

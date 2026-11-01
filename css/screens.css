@@ -193,7 +193,7 @@
     display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-template-areas:
       'table table table'
-      'lang fx backup'
+      'lang fx cloud'
       'diff fx backup'
       'camera camera camera';
     align-content: start;
@@ -205,6 +205,7 @@
   .settings .set-diff { grid-area: diff; }
   .settings .set-fx { grid-area: fx; }
   .settings .set-backup { grid-area: backup; }
+  .settings .set-cloud { grid-area: cloud; }
   .settings .set-camera { grid-area: camera; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; align-items: start; }
   .settings .set-toggles { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 24px; }
   .settings .theme-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
@@ -1512,3 +1513,26 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 }
 .lab-stage.apk-ref-mode .tile.block { background-color: #17291c; box-shadow: inset 0 0 0 2px #3dff8e; }
 .lab-stage.apk-ref-mode .pc.zombie .pc-base::after { border-color: #3dff8e; border-style: dashed; }
+
+
+/* Supabase account: optional and isolated from local-only play. */
+.cloud-fields { display: grid; gap: 10px; }
+.cloud-field { display: grid; gap: 5px; color: var(--ink); font-size: 13px; font-weight: 750; }
+.cloud-field input {
+  width: 100%; min-width: 0; min-height: 44px; padding: 9px 11px;
+  border: 2px solid var(--ink); border-radius: var(--r-sm);
+  background: var(--paper); color: var(--ink); font: inherit;
+  user-select: text; touch-action: auto;
+}
+.cloud-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.cloud-actions .btn { flex: 1 1 130px; min-width: 0; white-space: normal; }
+.cloud-account-email { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.cloud-message, .cloud-warning, .cloud-note, .cloud-conflict p { margin: 0; font-size: 12px; line-height: 1.45; }
+.cloud-message { color: var(--ink-2); }
+.cloud-message[data-state="error"], .cloud-warning { color: var(--danger); }
+.cloud-conflict { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--accent); border-radius: 10px; background: color-mix(in srgb, var(--accent) 7%, var(--paper)); }
+.cloud-note { color: var(--paper-3); }
+@media (max-width: 700px) {
+  .cloud-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cloud-actions .btn { width: 100%; padding-inline: 8px; }
+}
