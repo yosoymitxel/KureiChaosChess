@@ -201,6 +201,36 @@ export async function exportSave() {
 }
 
 // Returns the number of restored keys, or 0 without changing storage when validation fails.
+// Lee un código KCC sin tocar nada: el progreso que trae, o null si no es válido.
+export async function decodeSave(code) {
+  try {
+    if (typeof code !== 'string') return null;
+    const text = code.trim();
+    if (!text || text.length > MAX_BACKUP_CODE_CHARS) return null;
+    let json;
+    if (text.startsWith(MAGIC_V2)) json = await inflate(fromBase64(text.slice(MAGIC_V2.length), MAX_COMPRESSED_BYTES));
+    else if (text.startsWith(MAGIC_V1)) json = decoder.decode(fromBase64(text.slice(MAGIC_V1.length), MAX_BACKUP_BYTES));
+    else return null;
+    const data = JSON.parse(json);
+    return validateSnapshot(data) ? data : null;
+  } catch { return null; }
+}
+export const localSaveData = () => JSON.parse(saveData());
+
+// Resumen para comparar dos progresos de un vistazo (aparato, nube, ranura).
+export function summarizeSave(data) {
+  const get = (k) => { try { return JSON.parse(data?.[k] || 'null'); } catch { return null; } };
+  const run = get('zugzwang.run.v2'), shop = get('zugzwang.shop.v1'), ach = get('zugzwang.achievements.v1');
+  return { floor: run ? (run.currentFloor ?? 0) + 1 : 0, floors: run?.map?.floors || 0, mutations: run?.mutations?.length || 0,
+    coins: shop?.coins || 0, achievements: Array.isArray(ach) ? ach.length : 0 };
+}
+// ¿Mismo progreso? Se comparan todas las claves salvo los ajustes, que son de cada aparato.
+export function sameProgress(a, b) {
+  const keys = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
+  keys.delete('zugzwang.settings.v2');
+  return [...keys].every((k) => (a || {})[k] === (b || {})[k]);
+}
+
 export async function importSave(code) {
   try {
     if (typeof code !== 'string') return 0;

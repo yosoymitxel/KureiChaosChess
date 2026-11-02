@@ -66,6 +66,14 @@ export async function cloudUpload() {
   return updated_at;
 }
 
+// Lo que hay en la nube sin aplicarlo: { code, at } o null.
+export async function cloudPeek() {
+  const s = await session();
+  if (!s) throw new Error('auth');
+  const rows = await call(`/rest/v1/game_saves?select=save_data,updated_at&user_id=eq.${s.id}`, { token: s.token });
+  return rows[0]?.save_data?.code ? { code: rows[0].save_data.code, at: rows[0].updated_at } : null;
+}
+
 // Devuelve cuántas claves restauró (0 = nada en la nube o copia inválida).
 export async function cloudDownload() {
   const s = await session();

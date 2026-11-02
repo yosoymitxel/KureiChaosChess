@@ -8,8 +8,8 @@ import { rivalForFloor, DIFFICULTIES } from '../../game/difficulty.js';
 import { THEMES, vfxOn } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
-import { exportSave, importSave, MAX_BACKUP_CODE_CHARS } from '../../game/backup.js';
-import { cloudUser, signIn, signUp, signOut, cloudInfo, cloudUpload, cloudDownload } from '../../game/cloud.js';
+import { exportSave, importSave, MAX_BACKUP_CODE_CHARS, decodeSave, localSaveData, summarizeSave, sameProgress } from '../../game/backup.js';
+import { cloudUser, signIn, signUp, signOut, cloudUpload, cloudDownload, cloudPeek } from '../../game/cloud.js';
 import { themeOwned } from '../../game/shop.js';
 import { eliteVariants, lessonText } from '../../game/generate.js';
 import { t, LANG, LANGS } from '../../i18n/index.js';
@@ -250,8 +250,13 @@ function Backup() {
     }
   };
 
-  const restore = async (value = code) => {
+  const [pending, setPending] = useState(null); // código que trae otro progreso: antes de aplicarlo se compara
+  const restore = async (value = code, sure = false) => {
     if (typeof value !== 'string' || value.length > MAX_BACKUP_CODE_CHARS) return tooLarge();
+    const data = await decodeSave(value);
+    if (!data) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
+    if (!sure && !sameProgress(localSaveData(), data)) return setPending({ value, here: summarizeSave(localSaveData()), there: summarizeSave(data) });
+    setPending(null);
     if (!await importSave(value)) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
     setMsg(t('backup.done', 'Partida restaurada.'));
     setTimeout(() => location.reload(), 600);
@@ -275,8 +280,23 @@ function Backup() {
     </div>
     <textarea class="backup-code" rows="3" value=${code} placeholder=${t('backup.paste', 'Pega aquí tu código para restaurar')} onInput=${(e) => setCode(e.currentTarget.value)}></textarea>
     <button class="btn sm primary" disabled=${!code.trim()} onClick=${() => restore()}>${t('backup.restore', 'Restaurar')}</button>
+    ${pending && html`<${ProgressChoice} here=${pending.here} there=${pending.there} thereTitle=${t('backup.codeSide', 'El código')} onKeepHere=${() => setPending(null)} onKeepThere=${() => restore(pending.value, true)} />`}
     ${msg && html`<p class="shop-note" aria-live="polite">${msg}</p>`}
   </section>`;
+}
+
+// Dos progresos distintos (este aparato y la nube, o un código de copia): se elige cuál se queda, con un resumen de cada uno.
+function ProgressChoice({ here, there, thereTitle, onKeepHere, onKeepThere }) {
+  return html`<div class="cloud-clash" role="alertdialog" aria-label=${t('cloud.clash', 'Dos progresos distintos')}>
+    <h3>${t('cloud.clash', 'Dos progresos distintos')}</h3>
+    <p class="shop-note">${t('cloud.clashHint', 'No tienen el mismo progreso. Elige cuál se queda: el otro se sobrescribe.')}</p>
+    <div class="clash-cols">
+      ${[[here, t('cloud.here', 'Este aparato'), onKeepHere], [there, thereTitle, onKeepThere]].map(([s, title, keep]) => html`<div class="clash-col"><strong>${title}</strong>
+        <span>${s.floor ? t('cloud.sumRun', 'Run: piso {n} de {total} · {m} mutaciones', { n: s.floor, total: s.floors, m: s.mutations }) : t('cloud.sumNoRun', 'Sin run en curso')}</span>
+        <span>${t('cloud.sumMeta', '{c} monedas · {a} logros', { c: s.coins, a: s.achievements })}</span>
+        <${ConfirmButton} class="btn sm primary" onConfirm=${keep} confirmLabel=${t('cloud.sure', '¿Seguro? El otro se pierde')}>${t('cloud.keep', 'Quedarme con este')}<//></div>`)}
+    </div>
+  </div>`;
 }
 
 // Ranuras: tres partidas en este navegador (src/game/slots.js). Cambiar guarda la actual y recarga con la otra.
@@ -315,7 +335,16 @@ function Cloud() {
     : t('cloud.offline', 'No hay conexión con la nube. Prueba más tarde.'));
   };
   const run = (fn) => async () => { setBusy(true); setMsg(''); try { await fn(); } catch (e) { fail(e); } setBusy(false); };
-  useEffect(() => { if (user) run(async () => setWhen(await cloudInfo()))(); }, [user]);
+  // Si el progreso de este aparato y el de la nube no coinciden, se pregunta cuál se queda (nada se pisa solo).
+  const [clash, setClash] = useState(null);
+  const check = async () => {
+    const peek = await cloudPeek();
+    setWhen(peek?.at || null);
+    const remote = peek && await decodeSave(peek.code);
+    setClash(remote && !sameProgress(localSaveData(), remote) ? { here: summarizeSave(localSaveData()), there: summarizeSave(remote), at: peek.at } : null);
+    return !!(remote && !sameProgress(localSaveData(), remote));
+  };
+  useEffect(() => { if (user) run(check)(); }, [user]);
 
   const enter = (mode) => run(async () => {
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setMsg(t('cloud.badEmail', 'Escribe un correo válido.'));
@@ -324,8 +353,15 @@ function Cloud() {
     if (r === 'confirm') return setMsg(t('cloud.confirm', 'Cuenta creada: confirma el enlace que te llegó al correo y luego entra.'));
     setPass(''); setUser(cloudUser());
   });
-  const up = run(async () => { setWhen(await cloudUpload()); setMsg(t('cloud.uploaded', 'Partida guardada en la nube.')); });
+  const keepHere = run(async () => { setWhen(await cloudUpload()); setClash(null); setMsg(t('cloud.uploaded', 'Partida guardada en la nube.')); });
+  const keepThere = run(async () => {
+    if (!await cloudDownload()) return setMsg(t('cloud.empty', 'No hay ninguna partida en la nube todavía.'));
+    setMsg(t('backup.done', 'Partida restaurada.'));
+    setTimeout(() => location.reload(), 600);
+  });
+  const up = run(async () => { if (await check()) return; setWhen(await cloudUpload()); setMsg(t('cloud.uploaded', 'Partida guardada en la nube.')); });
   const down = run(async () => {
+    if (await check()) return;
     if (!await cloudDownload()) return setMsg(t('cloud.empty', 'No hay ninguna partida en la nube todavía.'));
     setMsg(t('backup.done', 'Partida restaurada.'));
     setTimeout(() => location.reload(), 600);
@@ -350,6 +386,7 @@ function Cloud() {
           <button class="btn sm" type="button" disabled=${busy} onClick=${enter('up')}>${t('cloud.signup', 'Crear cuenta')}</button>
         </div>
       </form>`}
+    ${clash && html`<${ProgressChoice} here=${clash.here} there=${clash.there} thereTitle=${t('cloud.there', 'La nube · {date}', { date: date(clash.at) })} onKeepHere=${keepHere} onKeepThere=${keepThere} />`}
     ${msg && html`<p class="shop-note" aria-live="polite">${msg}</p>`}
   </section>`;
 }

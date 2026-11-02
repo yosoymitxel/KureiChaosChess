@@ -1489,6 +1489,9 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 :is(.backup-code, .cloud-field) { width: 100%; padding: 8px 10px; border: 2px solid var(--ink); border-radius: var(--r-sm); background: var(--paper); color: var(--ink); font: 12px/1.4 ui-monospace, monospace; resize: vertical; word-break: break-all; }
 .cloud-field { font: inherit; resize: none; }
 .cloud { display: grid; gap: 8px; }
+.cloud-clash { display: grid; gap: 8px; padding: 10px; border: 2px solid var(--rar-rare); border-radius: var(--r-md); }
+.clash-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.clash-col { display: grid; gap: 4px; align-content: start; font-size: 13px; }
 .slot-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .slot { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 2px solid color-mix(in oklch, var(--ink), transparent 70%); border-radius: var(--r-md); }
 .slot.on { border-color: var(--ink); background: color-mix(in oklch, var(--paper-2), transparent 30%); }
