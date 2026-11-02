@@ -8,6 +8,7 @@ import { W, H, COLS, ROWS, PUCK_MAX, PLAYER_MAX, HOLD_T, DIFFS, newHockey, step,
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t } from '../../i18n/index.js';
 import { award } from '../../game/achievements.js';
+import { tableKit, toTable as tableAt } from '../table-kit.js';
 
 // Flechas o WASD empujan tu torre; el puntero (dedo o ratón) la lleva directa.
 const KEYS = { arrowleft: [-1, 0], a: [-1, 0], arrowright: [1, 0], d: [1, 0], arrowup: [0, -1], w: [0, -1], arrowdown: [0, 1], s: [0, 1] };
@@ -27,10 +28,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = t('common.continue
   const drag = useRef(new Map()); // dedo -> torre que lleva
   const keys = useRef(new Set());
 
-  const toTable = (e) => {
-    const r = rect.current || (rect.current = tableRef.current.getBoundingClientRect());
-    return [((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H];
-  };
+  const toTable = (e) => tableAt(e, tableRef.current, rect, W, H);
   const down = (e) => {
     if (s.over) return;
     e.preventDefault();
@@ -51,24 +49,9 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = t('common.continue
   useEffect(() => {
     const table = tableRef.current, wrap = wrapRef.current;
     const fx = new Fx(table);
-    const still = reduced();
+    const kit = tableKit(table, wrap, settings, W, () => (rect.current = null));
+    const { still, place, at, shake, banner, squash } = kit;
     const color = { me: css('--side-light'), bot: css('--side-dark'), brass: css('--brass'), accent: css('--accent') };
-    let k = table.clientWidth / W; // px por unidad de mesa
-    const ro = new ResizeObserver(() => { k = table.clientWidth / W; rect.current = null; });
-    ro.observe(table);
-    const place = (el, o) => { el.style.transform = `translate3d(${o.x * k}px, ${o.y * k}px, 0) translate(-50%, -50%)`; };
-    const at = (e) => ({ x: e.x * k, y: e.y * k });
-    const shake = (a) => settings.shake && !still && motion(wrap, { x: [0, -a, a * 0.8, -a * 0.5, a * 0.3, 0], y: [0, a * 0.4, -a * 0.6, a * 0.3, 0] }, { duration: 0.3, ease: 'easeOut' });
-    const banner = (text) => {
-      const b = document.createElement('div');
-      b.className = 'mini-banner';
-      b.textContent = text;
-      table.appendChild(b);
-      if (still) return setTimeout(() => b.remove(), 1200);
-      motion(b, { scale: [1.4, 1], opacity: [0, 1] }, { duration: 0.3, ease: [0.16, 1, 0.3, 1] });
-      motion(b, { opacity: [1, 0] }, { duration: 0.3, delay: 0.9, onComplete: () => b.remove() });
-    };
-    const squash = (el, a = 0.86) => !still && motion(el.firstElementChild, { scaleX: [1, 1 / a, 1], scaleY: [1, a, 1] }, { duration: 0.22, ease: [0.16, 1, 0.3, 1] });
     let order = '', warned = false;
 
     const juice = () => {
@@ -88,7 +71,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = t('common.continue
           playSfx(mine ? 'coin' : 'stomp');
           if (!still) {
             fx.burst(p.x, p.y, { count: 34, color: [mine ? color.me : color.bot, color.brass, '#fff'], speed: [140, 420], size: [3, 6], life: [0.5, 1], gravity: 260, shape: 'chunk', spread: Math.PI, angle: mine ? Math.PI / 2 : -Math.PI / 2, drag: 0.94 });
-            fx.ring(p.x, p.y, { radius: k * 26, color: mine ? color.brass : color.accent, width: 4, life: 0.45 });
+            fx.ring(p.x, p.y, { radius: kit.k() * 26, color: mine ? color.brass : color.accent, width: 4, life: 0.45 });
           }
           shake(10);
           puckRef.current.classList.add('gone');
@@ -160,7 +143,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = t('common.continue
     addEventListener('blur', blur);
     return () => {
       cancelAnimationFrame(raf);
-      ro.disconnect();
+      kit.destroy();
       fx.destroy();
       removeEventListener('keydown', onKey);
       removeEventListener('keyup', onKey);

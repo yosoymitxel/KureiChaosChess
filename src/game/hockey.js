@@ -1,5 +1,7 @@
 // Hockey de mesa: el disco y dos torres sobre un tablero de 6×10. Física pura, sin DOM.
 // Unidades de mesa: 16 por casilla. Tu torre abajo (light), la del bot arriba (dark).
+import { substeps, collide, walls as rails } from './physics.js';
+
 export const CELL = 16, COLS = 6, ROWS = 10;
 export const W = COLS * CELL, H = ROWS * CELL;
 export const PUCK_R = 4.6, MALLET_R = 7.6;
@@ -12,7 +14,6 @@ const WALL_E = 0.88, MALLET_E = 0.9;
 const SERVE_PAUSE = 0.9; // respiro tras un gol antes de soltar el disco
 const STALL_T = 4; // disco quieto en la raya: se vuelve a sacar
 export const HOLD_T = 7; // regla de mesa: nadie retiene el disco en su mitad más de 7 s
-const DT = 1 / 240; // subpaso fijo: ningún choque se salta a tope de velocidad
 
 // you: tope de tu torre; por debajo del disco, para que pegar el dedo al disco no gane solo.
 // react: cada cuánto replantea (s); speed: tope de su torre; err: error de puntería y de lectura (u);
@@ -118,21 +119,15 @@ export function think(s, side = 'bot') {
 }
 
 function bounceMallet(s, m) {
-  const p = s.puck, dx = p.x - m.x, dy = p.y - m.y, d = Math.hypot(dx, dy), min = PUCK_R + MALLET_R;
-  if (d >= min) return;
-  const nx = d ? dx / d : 0, ny = d ? dy / d : (m.side === 'me' ? -1 : 1);
-  p.x = m.x + nx * min;
-  p.y = m.y + ny * min;
-  const rel = (p.vx - m.vx) * nx + (p.vy - m.vy) * ny;
-  if (rel >= 0) return;
   // La torre no cede (masa infinita): el disco rebota y se lleva su velocidad.
-  p.vx -= (1 + MALLET_E) * rel * nx;
-  p.vy -= (1 + MALLET_E) * rel * ny;
+  const p = s.puck, power = collide(p, m.x, m.y, PUCK_R + MALLET_R, MALLET_E, m.vx, m.vy, m.side === 'me' ? -1 : 1);
+  if (!power) return;
+  const d = Math.hypot(p.x - m.x, p.y - m.y), nx = (p.x - m.x) / d, ny = (p.y - m.y) / d;
   capSpeed(p);
   s.shots += 1;
   const hit = Math.hypot(p.vx, p.vy);
   if (!s.hitCool || s.hitCool[m.side] <= 0) {
-    s.events.push({ kind: 'hit', side: m.side, speed: hit, power: -rel, x: m.x + nx * MALLET_R, y: m.y + ny * MALLET_R });
+    s.events.push({ kind: 'hit', side: m.side, speed: hit, power, x: m.x + nx * MALLET_R, y: m.y + ny * MALLET_R });
     s.hitCool = { ...s.hitCool, [m.side]: 0.08 };
   }
 }
@@ -145,20 +140,12 @@ function capSpeed(p) {
 // Bandas, postes y bocas. Devuelve 'me' o 'bot' si alguien marcó.
 function walls(s) {
   const p = s.puck, r = PUCK_R;
-  const inMouth = p.x > GOAL[0] && p.x < GOAL[1];
-  if (p.x < r) { p.x = r; if (p.vx < 0) { wall(s, Math.abs(p.vx)); p.vx = -p.vx * WALL_E; } }
-  if (p.x > W - r) { p.x = W - r; if (p.vx > 0) { wall(s, Math.abs(p.vx)); p.vx = -p.vx * WALL_E; } }
-  if (!inMouth) {
-    if (p.y < r) { p.y = r; if (p.vy < 0) { wall(s, Math.abs(p.vy)); p.vy = -p.vy * WALL_E; } }
-    if (p.y > H - r) { p.y = H - r; if (p.vy > 0) { wall(s, Math.abs(p.vy)); p.vy = -p.vy * WALL_E; } }
-  }
+  rails(p, r, W, H, WALL_E, (v) => wall(s, v), (b) => b.x > GOAL[0] && b.x < GOAL[1]);
   // Los postes son puntos: el disco que roza la esquina de la boca rebota en ella.
   for (const [qx, qy] of [[GOAL[0], 0], [GOAL[1], 0], [GOAL[0], H], [GOAL[1], H]]) {
-    const dx = p.x - qx, dy = p.y - qy, d = Math.hypot(dx, dy);
-    if (d >= r || d === 0) continue;
-    const nx = dx / d, ny = dy / d, rel = p.vx * nx + p.vy * ny;
-    p.x = qx + nx * r; p.y = qy + ny * r;
-    if (rel < 0) { wall(s, -rel); p.vx -= (1 + WALL_E) * rel * nx; p.vy -= (1 + WALL_E) * rel * ny; }
+    if (p.x === qx && p.y === qy) continue;
+    const hit = collide(p, qx, qy, r, WALL_E);
+    if (hit) wall(s, hit);
   }
   if (p.y < -r) return 'me';
   if (p.y > H + r) return 'bot';
@@ -170,9 +157,7 @@ function wall(s, speed) { if (speed > 25) s.events.push({ kind: 'wall', speed, x
 // piensa la máquina (en el juego solo 'bot'; en las pruebas, los dos).
 export function step(s, dt, bots = ['bot']) {
   s.events = [];
-  if (s.over) return s;
-  dt = Math.min(dt, 1 / 20);
-  for (let t = 0; t < dt - 1e-9 && !s.over; t += DT) sub(s, Math.min(DT, dt - t), bots);
+  if (!s.over) substeps(dt, (h) => sub(s, h, bots), () => !s.over);
   return s;
 }
 

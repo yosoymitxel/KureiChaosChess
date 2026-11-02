@@ -65,6 +65,12 @@ Zugzwang (`tools/`, `src/`) es la implementación de referencia cuando haga falt
   registro en el mapa de pantallas y en los datos. Juegos por turnos: bot + self-check con 30 partidas.
 - Tiempo real (hockey, bolos): subpasos fijos (1/240 s) con dt recortado, solo `transform` por
   fotograma, pointer events con `setPointerCapture` y `touch-action: none`.
+- **Física de mesa compartida desde el segundo juego**: `physics.js` (choque círculo contra cuerpo que
+  no cede, bandas con bocas, subpasos) y un kit de pantalla (escala unidades→px, colocar, sacudida,
+  aplastar, cartel). Un juego nuevo de física (golf, billar, pinball…) solo escribe sus reglas y su juice propio.
+  Al refactorizar, comparar la salida del selfcheck antes y después: tiene que ser idéntica.
+- Validar mesas al azar con el propio simulador: un bot codicioso con búsqueda (barrido grueso + fino) fija
+  el par, y se descarta el tablero si algún golpe solo sale rozando un peligro (probar el peor caso con error).
 - Táctil: arrastrar debe funcionar igual que el ratón (vista previa bajo el dedo, se suelta y se
   aplica). `onPointerEnter` no existe en el dedo; mide la casilla con `elementFromPoint`.
 - Animaciones con Motion: escriben `transform` en línea y **recuerdan el último fotograma**. Centra

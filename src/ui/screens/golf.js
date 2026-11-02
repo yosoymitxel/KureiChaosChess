@@ -8,6 +8,7 @@ import { W, H, COLS, ROWS, HOLES, SHOT_MAX, PULL_MAX, DIFFS, newGolf, shoot, ste
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t } from '../../i18n/index.js';
 import { award } from '../../game/achievements.js';
+import { tableKit, toTable as tableAt } from '../table-kit.js';
 
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 // Nombre del resultado de un hoyo según los golpes sobre el par.
@@ -26,10 +27,7 @@ export function GolfScreen({ sub, onBack, onEnd, endLabel = t('common.continue',
   const aim = useRef({ on: false, ang: -Math.PI / 2, pow: 0.5, from: null });
   const rect = useRef(null);
 
-  const toTable = (e) => {
-    const r = rect.current || (rect.current = tableRef.current.getBoundingClientRect());
-    return [((e.clientX - r.left) / r.width) * W, ((e.clientY - r.top) / r.height) * H];
-  };
+  const toTable = (e) => tableAt(e, tableRef.current, rect, W, H);
   const pull = (at) => {
     const a = aim.current, dx = a.from[0] - at[0], dy = a.from[1] - at[1], d = Math.hypot(dx, dy);
     if (d > 2) a.ang = Math.atan2(dy, dx);
@@ -54,24 +52,9 @@ export function GolfScreen({ sub, onBack, onEnd, endLabel = t('common.continue',
   useEffect(() => {
     const table = tableRef.current, wrap = wrapRef.current;
     const fx = new Fx(table);
-    const still = reduced();
+    const kit = tableKit(table, wrap, settings, W, () => (rect.current = null));
+    const { still, place, at, shake, squash, banner } = kit;
     const color = { brass: css('--brass'), accent: css('--accent'), paper: css('--paper'), sand: css('--tile-b') };
-    let k = table.clientWidth / W;
-    const ro = new ResizeObserver(() => { k = table.clientWidth / W; rect.current = null; });
-    ro.observe(table);
-    const place = (el, o) => { if (el) el.style.transform = `translate3d(${o.x * k}px, ${o.y * k}px, 0) translate(-50%, -50%)`; };
-    const at = (e) => ({ x: e.x * k, y: e.y * k });
-    const shake = (a) => settings.shake && !still && motion(wrap, { x: [0, -a, a * 0.8, -a * 0.5, 0], y: [0, a * 0.4, -a * 0.6, 0] }, { duration: 0.28, ease: 'easeOut' });
-    const squash = (el, a = 0.8) => el && !still && motion(el.firstElementChild, { scaleX: [1, 1 / a, 1], scaleY: [1, a, 1] }, { duration: 0.2, ease: [0.16, 1, 0.3, 1] });
-    const banner = (text) => {
-      const b = document.createElement('div');
-      b.className = 'mini-banner';
-      b.textContent = text;
-      table.appendChild(b);
-      if (still) return setTimeout(() => b.remove(), 1200);
-      motion(b, { scale: [1.4, 1], opacity: [0, 1] }, { duration: 0.3, ease: [0.16, 1, 0.3, 1] });
-      motion(b, { opacity: [1, 0] }, { duration: 0.3, delay: 0.9, onComplete: () => b.remove() });
-    };
     const pieceEl = (e) => table.querySelector(`.ah-pc[data-at="${e.px},${e.py}"]`) || moverRef.current;
 
     const juice = () => {
@@ -99,13 +82,13 @@ export function GolfScreen({ sub, onBack, onEnd, endLabel = t('common.continue',
           banner(t('golf.lip', '¡Por poco!'));
         } else if (e.kind === 'fall') {
           playSfx('splash');
-          if (!still) fx.ring(p.x, p.y, { radius: k * 10, color: color.accent, width: 3, life: 0.4 });
+          if (!still) fx.ring(p.x, p.y, { radius: kit.k() * 10, color: color.accent, width: 3, life: 0.4 });
           banner(t('golf.fall', 'Al hueco: vuelve donde estaba'));
         } else if (e.kind === 'sink') {
           playSfx(e.strokes <= e.par ? 'coin' : 'pop');
           if (!still) {
             fx.burst(p.x, p.y, { count: 28, color: [color.brass, color.paper, color.accent], speed: [120, 340], size: [2.5, 5], life: [0.5, 0.9], gravity: 240, shape: 'chunk', spread: Math.PI, angle: -Math.PI / 2, drag: 0.94 });
-            fx.ring(p.x, p.y, { radius: k * 20, color: color.brass, width: 4, life: 0.45 });
+            fx.ring(p.x, p.y, { radius: kit.k() * 20, color: color.brass, width: 4, life: 0.45 });
             motion(ballRef.current.firstElementChild, { scale: [1, 0.3] }, { duration: 0.25 });
           }
           shake(e.strokes === 1 ? 8 : 4);
@@ -128,7 +111,7 @@ export function GolfScreen({ sub, onBack, onEnd, endLabel = t('common.continue',
       const el = aimRef.current, a = aim.current, show = !s.moving && !s.wait && !s.over && (a.on || a.keys);
       el.style.opacity = show ? 1 : 0;
       if (!show) return;
-      const len = (8 + a.pow * 46) * k;
+      const k = kit.k(), len = (8 + a.pow * 46) * k;
       el.style.width = len + 'px';
       el.style.transform = `translate3d(${s.ball.x * k}px, ${s.ball.y * k}px, 0) rotate(${a.ang}rad)`;
       el.style.setProperty('--pow', a.pow);
@@ -170,7 +153,7 @@ export function GolfScreen({ sub, onBack, onEnd, endLabel = t('common.continue',
     addEventListener('scroll', scrolled, true);
     return () => {
       cancelAnimationFrame(raf);
-      ro.disconnect();
+      kit.destroy();
       fx.destroy();
       removeEventListener('keydown', onKey);
       removeEventListener('scroll', scrolled, true);

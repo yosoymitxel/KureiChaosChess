@@ -1,6 +1,8 @@
 // Golf de mesa: una bola sobre el tablero de 6×10 con arena, hielo, huecos y piezas de obstáculo.
 // Física pura, sin DOM; mismas unidades que el hockey (16 por casilla). Tres hoyos al azar, cada
 // uno validado con el mismo simulador: un golfista codicioso lo emboca en su par.
+import { DT, substeps, collide, walls as rails } from './physics.js';
+
 export const CELL = 16, COLS = 6, ROWS = 10;
 export const W = COLS * CELL, H = ROWS * CELL;
 export const BALL_R = 3.2, CUP_R = 5, PIECE_R = 6.4;
@@ -11,7 +13,6 @@ const ROLL = { g: 70, s: 320, i: 12 }; // frenado (u/s²) por suelo: césped, ar
 const CUP_V = 100; // más rápido que esto, la bola salta el hoyo
 const PULL = 280; // el borde del hoyo atrae la bola lenta
 const WALL_E = 0.72, PIECE_E = 0.8;
-const DT = 1 / 240;
 
 // walls: filas cerradas por piezas o huecos con una abertura de `gap` casillas;
 // pieces/sand/ice/void: casillas de cada cosa; mover: torre que patrulla una fila;
@@ -37,27 +38,10 @@ export function moverAt(m, t) {
 }
 
 function bounce(b, px, py, mvx, ev) {
-  const dx = b.x - px, dy = b.y - py, d = Math.hypot(dx, dy), min = BALL_R + PIECE_R;
-  if (d >= min) return false;
-  const nx = d ? dx / d : 0, ny = d ? dy / d : -1;
-  b.x = px + nx * min;
-  b.y = py + ny * min;
-  const rel = (b.vx - mvx) * nx + b.vy * ny;
-  if (rel < 0) {
-    b.vx -= (1 + PIECE_E) * rel * nx;
-    b.vy -= (1 + PIECE_E) * rel * ny;
-    ev?.push({ kind: 'bump', x: px + nx * PIECE_R, y: py + ny * PIECE_R, power: -rel, px, py });
-  }
-  return true;
-}
-
-function walls(b, ev) {
-  const r = BALL_R;
-  const hit = (v) => { if (Math.abs(v) > 25) ev?.push({ kind: 'wall', speed: Math.abs(v), x: b.x, y: b.y }); };
-  if (b.x < r) { b.x = r; if (b.vx < 0) { hit(b.vx); b.vx = -b.vx * WALL_E; } }
-  if (b.x > W - r) { b.x = W - r; if (b.vx > 0) { hit(b.vx); b.vx = -b.vx * WALL_E; } }
-  if (b.y < r) { b.y = r; if (b.vy < 0) { hit(b.vy); b.vy = -b.vy * WALL_E; } }
-  if (b.y > H - r) { b.y = H - r; if (b.vy > 0) { hit(b.vy); b.vy = -b.vy * WALL_E; } }
+  const power = collide(b, px, py, BALL_R + PIECE_R, PIECE_E, mvx);
+  if (!power) return;
+  const d = Math.hypot(b.x - px, b.y - py);
+  ev?.push({ kind: 'bump', x: px + ((b.x - px) / d) * PIECE_R, y: py + ((b.y - py) / d) * PIECE_R, power, px, py });
 }
 
 // Un subpaso de la bola. Devuelve 'sink', 'fall', 'rest' (se acaba de parar) o null.
@@ -69,7 +53,7 @@ function roll(c, b, t, dt, ev) {
     b.vx *= ns / sp0; b.vy *= ns / sp0;
     b.x += b.vx * dt; b.y += b.vy * dt;
   }
-  walls(b, ev);
+  rails(b, BALL_R, W, H, WALL_E, (v) => v > 25 && ev?.push({ kind: 'wall', speed: v, x: b.x, y: b.y }));
   for (const p of c.pieces) bounce(b, p.x, p.y, 0, ev);
   if (c.mover) { const m = moverAt(c.mover, t); bounce(b, m.x, m.y, m.vx, ev); }
   const sp = Math.hypot(b.vx, b.vy);
@@ -242,9 +226,7 @@ export function shoot(s, ang, pow) {
 export function step(s, dt) {
   s.events = s.next || [];
   s.next = null;
-  if (s.over) return s;
-  dt = Math.min(dt, 1 / 20);
-  for (let t = 0; t < dt - 1e-9 && !s.over; t += DT) sub(s, Math.min(DT, dt - t));
+  if (!s.over) substeps(dt, (h) => sub(s, h), () => !s.over);
   return s;
 }
 
