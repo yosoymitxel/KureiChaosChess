@@ -1275,11 +1275,12 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
    tablero (src/view/board-view.js CAMERAS). Con `rotate` y no `transform`: las sacudidas de Motion
    escriben transform y no la pisan. Las figuras se estiran en vertical para seguir viéndose de pie. */
 :root { --cam: 0deg; }
-:root[data-camera="tilt"] { --cam: 40deg; }
-:root[data-camera="epic"] { --cam: 56deg; }
-/* Fuera la bolera (carril visto de lado) y Conecta 4 (tablero de pie); los de MiniBoard ya usan BoardView. */
-:has(> :is(.bm, .br, .fu)), .ah-wrap { perspective: 2000px; }
-:is(.bm:not(.bw), .br, .fu, .ah, .cr) { rotate: x var(--cam); transform-origin: 50% 60%; }
+:root[data-camera="tilt"] { --cam: 14deg; }
+:root[data-camera="epic"] { --cam: 24deg; }
+/* Mucho menos que el tablero (40°/56°): una pizca de mesa sin deformar rejillas que hay que leer. Fuera la
+   bolera (carril de lado), 2048, el jardín y Conecta 4 (de pie); los de MiniBoard ya usan BoardView. */
+:has(> :is(.bm, .br)), .ah-wrap { perspective: 2000px; }
+:is(.bm:not(.bw, .zn-tray), .br, .ah, .cr) { rotate: x var(--cam); transform-origin: 50% 60%; }
 .tk-corner { position: absolute; width: 0; height: 0; pointer-events: none; }
 .tk-tl { left: 0; top: 0; } .tk-tr { right: 0; top: 0; } .tk-br { right: 0; bottom: 0; } .tk-bl { left: 0; bottom: 0; }
 .bm-pc svg { transform-origin: 50% 100%; scale: 1 calc(1 / cos(var(--cam))); }
