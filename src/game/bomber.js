@@ -10,19 +10,21 @@ const DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 // Los enemigos, como en el original, se distinguen por cómo se mueven:
 //  peón   (Ballom) vaga despacio, sigue recto y gira al chocar; nunca caza.
 //  alfil  vaga y, cerca de ti, se acerca en diagonal.
-//  cañón  vaga y, si te tiene en línea a tiro, suelta una bomba y huye de ella.
+//  cañón  te busca abriéndose paso: si una caja le corta el camino, la vuela; si te tiene en línea
+//         a tiro, te suelta una bomba. Siempre se aparta de su propia cruz.
 //  caballo salta en L hacia ti cuando estás cerca (solo en Difícil).
 export const FOES = localize('bomberFoes', {
   pawn: 'Vaga despacio y sigue recto hasta chocar.',
   bishop: 'Cerca de ti se acerca en diagonal.',
-  cannon: 'Si te tiene en línea, suelta una bomba y huye.',
+  cannon: 'Te busca volando las cajas del camino y, si te tiene en línea, te suelta una bomba.',
   knight: 'Salta en L hacia ti cuando estás cerca.',
 });
 // La dificultad crece a lo ancho y en quién sale; la arena es apaisada como la del original.
 export const DIFFS = {
-  facil: { name: 'Fácil', rows: 9, cols: 11, sight: 3, crates: 0.3, roster: ['pawn', 'pawn', 'bishop'], tick: 0.6 },
-  normal: { name: 'Normal', rows: 11, cols: 13, sight: 4, crates: 0.38, roster: ['pawn', 'pawn', 'bishop', 'cannon'], tick: 0.5 },
-  dificil: { name: 'Difícil', rows: 11, cols: 15, sight: 5, crates: 0.45, roster: ['pawn', 'bishop', 'cannon', 'knight', 'pawn'], tick: 0.42 },
+// hunt: si los cazadores (alfil, caballo) te buscan por el laberinto aunque estés lejos.
+  facil: { name: 'Fácil', rows: 9, cols: 11, sight: 3, crates: 0.3, roster: ['pawn', 'pawn', 'bishop'], tick: 0.6, cool: 10 },
+  normal: { name: 'Normal', rows: 11, cols: 13, sight: 4, crates: 0.38, roster: ['pawn', 'pawn', 'bishop', 'cannon'], tick: 0.5, cool: 8 },
+  dificil: { name: 'Difícil', rows: 11, cols: 15, sight: 5, crates: 0.45, roster: ['pawn', 'bishop', 'cannon', 'knight', 'cannon'], tick: 0.42, cool: 6, hunt: true },
 };
 
 const dist = (a, b) => Math.abs(a.r - b.r) + Math.abs(a.c - b.c);
@@ -111,6 +113,23 @@ function huntStep(s, e, p, clear) {
   return [Math.floor(cur / W), cur % W];
 }
 
+// Primer paso hacia la casilla más cercana fuera de `fire` (a `max` pasos como mucho); null si no hay.
+function refuge(s, e, fire, walk, max) {
+  const seen = new Map([[e.r * 99 + e.c, null]]), q = [[e.r, e.c, 0]];
+  for (let i = 0; i < q.length; i++) {
+    const [r, c, d] = q[i];
+    if (d && !fire.has(r * 99 + c)) { let k = r * 99 + c; while (seen.get(k) !== e.r * 99 + e.c) k = seen.get(k); return [Math.floor(k / 99), k % 99]; }
+    if (d >= max) continue;
+    for (const [dr, dc] of DIRS) {
+      const nr = r + dr, nc = c + dc, k = nr * 99 + nc;
+      if (seen.has(k) || !walk(nr, nc)) continue;
+      seen.set(k, r * 99 + c);
+      q.push([nr, nc, d + 1]);
+    }
+  }
+  return null;
+}
+
 // El paseo del original: sigue en su dirección y, al chocar, gira al azar.
 function wander(e, clear, rng) {
   const ahead = [e.r + e.dir[0], e.c + e.dir[1]];
@@ -146,22 +165,40 @@ function moveFoe(s, e, p, clear, danger, rng) {
   if (e.type === 'pawn') { e.slow = !e.slow; return e.slow ? null : wander(e, clear, rng); }
   if (e.type === 'cannon') {
     if (e.cool > 0) e.cool--;
-    if (!e.cool && inSight(s, e, p) && !s.bombs.some((b) => b.r === e.r && b.c === e.c)) {
+    const drop = () => {
       s.bombs.push({ r: e.r, c: e.c, t: FUSE - 1, range: 2, foe: true });
-      e.cool = 7;
+      e.cool = s.diff.cool;
       for (const { r, c } of blastOf(s, s.bombs[s.bombs.length - 1])) danger.add(r * 99 + c);
-    }
-    // Si está en una cruz que va a estallar, sale de ella antes que nada.
-    if (danger.has(e.r * 99 + e.c)) {
-      const out = DIRS.map(([dr, dc]) => [e.r + dr, e.c + dc]).filter(([r, c]) => clear(r, c));
-      return out.find(([r, c]) => !danger.has(r * 99 + c)) || out[0] || null;
-    }
-    return wander(e, clear, rng);
+    };
+    // El cañón sabe dónde caerá cada bomba, la suya también, aunque le quede mecha.
+    const fire = new Set(s.bombs.flatMap((b) => blastOf(s, b)).map(({ r, c }) => r * 99 + c));
+    const walk = (r, c) => free(s, r, c) && !s.enemies.some((o) => o !== e && o.r === r && o.c === c);
+    const onBomb = s.bombs.some((b) => b.r === e.r && b.c === e.c);
+    // Pone bomba solo si, con ella puesta, tiene una casilla a salvo a tres pasos o menos (la mecha le da cuatro).
+    const tryDrop = () => {
+      if (e.cool || onBomb) return null;
+      const mine = { r: e.r, c: e.c, t: FUSE - 1, range: 2, foe: true }, cells = new Set([...fire, ...blastOf(s, mine).map(({ r, c }) => r * 99 + c)]);
+      const way = refuge(s, e, cells, walk, 3);
+      if (!way) return null;
+      s.bombs.push(mine);
+      e.cool = s.diff.cool;
+      for (const k of cells) danger.add(k);
+      return way;
+    };
+    if (inSight(s, e, p)) { const way = tryDrop(); if (way) return way; }
+    // En una cruz que va a estallar: al refugio más cercano antes que nada.
+    if (fire.has(e.r * 99 + e.c)) return refuge(s, e, fire, walk, 6) || null;
+    // Camino hacia ti contando las cajas como atravesables: si la siguiente es caja, la vuela.
+    const safe = (r, c) => walk(r, c) && !fire.has(r * 99 + c);
+    const next = huntStep(s, e, p, (r, c) => safe(r, c) || s.cells[r]?.[c] === 'crate');
+    if (next && s.cells[next[0]][next[1]] === 'crate') return tryDrop() || wander(e, safe, rng); // sin refugio, se recoloca
+    e.slow = !e.slow; // a medio paso: te alcanza, pero no te arrolla
+    return e.slow ? null : next || wander(e, safe, rng);
   }
   // Los cazadores descansan uno de cada tres turnos: a tu misma velocidad no habría escapatoria.
   e.beat = ((e.beat || 0) + 1) % 3;
   if (!e.beat) return null;
-  if (!near || dist(e, p) > s.diff.sight) return wander(e, clear, rng);
+  if (!near || dist(e, p) > s.diff.sight) return (s.diff.hunt && huntStep(s, e, p, clear)) || wander(e, clear, rng);
   if (e.type === 'bishop') return leap(e, p, DIAG, clear, rng) || wander(e, clear, rng);
   if (e.type === 'knight') return leap(e, p, L_JUMP, clear, rng) || huntStep(s, e, p, clear) || wander(e, clear, rng);
   return wander(e, clear, rng);

@@ -1252,7 +1252,7 @@ export default {
   bomberFoes: {
     pawn: 'Wanders slowly and goes straight until it hits something.',
     bishop: 'When it\'s near you, it closes in diagonally.',
-    cannon: 'If it has you in line, it drops a bomb and runs.',
+    cannon: 'Hunts you by blowing up the crates in its way and, if it has you in line, drops a bomb on you.',
     knight: 'Jumps in an L towards you when you\'re close.',
   },
 
