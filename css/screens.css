@@ -520,7 +520,9 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .lab-menu { width: 260px; margin: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
 .lab-menu h1 { font-size: 30px; }
 .lab-menu p { margin: 0; font-size: 13px; color: var(--ink-2); }
-:is(#scenes, #fx, #apk-scenes) { display: flex; flex-direction: column; gap: 8px; }
+:is(#scenes, #fx, #apk-scenes, #compare) { display: flex; flex-direction: column; gap: 8px; }
+.lab-pair { display: grid; gap: 4px; padding-bottom: 8px; border-bottom: 1px solid var(--line, #0002); }
+.lab-pair .segmented button[aria-pressed="true"] { background: var(--brass); color: var(--ink); }
 .lab-menu #apk-scenes .btn[aria-pressed="true"] { --bg: var(--brass); --fg: var(--ink); --edge: var(--ink); }
 .lab-menu #apk-scenes .btn { --bg: #17291c; --fg: #cbff9b; --edge: #3dff8e; box-shadow: inset 0 0 0 1px #3dff8e; }
 .lab-menu #apk-scenes .btn[aria-pressed="true"] { --bg: #3dff8e; --fg: #102017; --edge: #efffa5; box-shadow: 0 0 0 2px #efffa5, 0 0 16px #3dff8e66; }
