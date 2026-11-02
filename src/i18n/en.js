@@ -715,7 +715,7 @@ export default {
     // src/ui/screens/izombie.js
     "izombie.help": "Like I, Zombie from Plants vs. Zombies: you attack. The ivory defense doesn't move, but after each advance it captures whatever stops on its squares (tinted red). Buy pieces on the top row; when you press Advance each one takes its deepest chess step. Get a piece to each trophy on the last row: the one that arrives takes it and leaves the board. Capturing an ivory pawn pays 2 coins; any other piece, 1. You lose if you run out of pieces and coins for a pawn.",
     // src/ui/screens/laststand.js
-    "laststand.help": "Buy pieces by tapping the bottom three rows and start the assault. Crimson attacks in {waves} waves; the last one is a great horde. Between waves you earn {bonus} coins and can reinforce with what you have: hold the line.",
+    "laststand.help": "Buy pieces by tapping the bottom three rows and start the assault. Crimson attacks in {waves} waves; the last one is a great horde. Between waves you earn {bonus} coins and can reinforce with what you have. An attacker that can't advance eats the piece blocking it: hold the line.",
     // src/ui/screens/marcianos.js
     "marcianos.help": "Move with the arrows or A/D, shoot with space and wait with S. Each piece comes down its own way: the pawn straight, the knight switching columns, the bishop diagonally and the elephant sometimes two at a time. From the second wave on they fire projectiles: get out of their column. After three waves the great horde arrives; if a crimson piece reaches your row, you lose a life.",
     // src/ui/screens/outbreak.js

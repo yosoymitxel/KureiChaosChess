@@ -6,11 +6,12 @@ import { ROWS, COLS, COST, advance, at } from './izombie.js';
 export { ROWS, COLS, at };
 // Presupuesto y cantidad de oleadas por nivel: Normal es el reto de siempre.
 export const DIFFS = {
-  facil: { name: 'Fácil', budget: 18, waves: 2, bonus: 4 },
-  normal: { name: 'Normal', budget: 15, waves: 3, bonus: 3 },
-  dificil: { name: 'Difícil', budget: 11, waves: 4, bonus: 2 },
+  facil: { name: 'Fácil', budget: 22, waves: 2, bonus: 5 },
+  normal: { name: 'Normal', budget: 18, waves: 3, bonus: 4 },
+  dificil: { name: 'Difícil', budget: 14, waves: 4, bonus: 3 },
 };
-export const PRICES = { pawn: 1, knight: 3, bishop: 3, rook: 5 };
+// Sin pieza dominante (simulado con colocaciones al azar): a 1 el muro de peones ganaba el 96 %.
+export const PRICES = { pawn: 2, knight: 4, bishop: 4, rook: 5 };
 const WAVE = [['pawn', 'pawn', 'knight'], ['pawn', 'pawn', 'bishop', 'knight'], ['pawn', 'rook', 'knight', 'bishop', 'pawn'], ['pawn', 'rook', 'knight', 'bishop', 'pawn', 'rook']];
 
 export const newStand = (key = 'normal') => {
@@ -55,8 +56,18 @@ export function step(s) {
     return;
   }
   const caught = advance(s, 1);
-  if (s.over === 'win') s.over = 'lose';
-  else if (!s.moved && !caught.length) s.pieces = s.pieces.filter((p) => p.color === 'light');
+  if (s.over === 'win') { s.over = 'lose'; return; }
+  // Como los zombis de PvZ: el atacante que no puede avanzar se come lo que le tapa el paso.
+  // Antes se esfumaba, y un muro de peones ganaba solo.
+  let ate = false;
+  if (!s.moved) for (const p of s.pieces.filter((x) => x.color === 'dark')) {
+    const prey = at(s, p.row + 1, p.col);
+    if (prey?.color !== 'light') continue;
+    s.captures.push({ id: prey.id, from: { row: p.row, col: p.col }, to: { row: prey.row, col: prey.col } });
+    s.pieces = s.pieces.filter((x) => x !== prey);
+    ate = true;
+  }
+  if (!s.moved && !ate && !caught.length) s.pieces = s.pieces.filter((p) => p.color === 'light');
   else if (!s.pieces.some((p) => p.color === 'light')) s.over = 'lose';
 }
 

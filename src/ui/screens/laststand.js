@@ -59,7 +59,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = t('common.conti
                 disabled=${cost > s.budget} title=${PIECE_NAMES[ty]} onClick=${() => setPick(ty)}><${PieceIcon} type=${ty} side="light" size=${22} />${cost}</button>`)}
             </div>
             <button class="btn primary" data-pad="x" disabled=${!s.pieces.length} onClick=${launch}>${s.phase === 'setup' ? t('laststand.start', 'Empezar el asalto') : last ? t('laststand.bringHorde', '¡Que venga la horda!') : t('laststand.next', 'Siguiente oleada')}</button>`}
-          <${MiniTools} mini="laststand" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('laststand.help', 'Compra piezas tocando las tres filas de abajo y empieza el asalto. El carmesí ataca en {waves} oleadas; la última es una gran horda. Entre oleadas cobras {bonus} monedas y puedes reforzar con lo que tengas: aguanta sin ceder la línea.', { waves: s.diff.waves, bonus: s.diff.bonus })}<//>
+          <${MiniTools} mini="laststand" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('laststand.help', 'Compra piezas tocando las tres filas de abajo y empieza el asalto. El carmesí ataca en {waves} oleadas; la última es una gran horda. Entre oleadas cobras {bonus} monedas y puedes reforzar con lo que tengas. Si un atacante no puede avanzar, se come la pieza que le tapa el paso: aguanta sin ceder la línea.', { waves: s.diff.waves, bonus: s.diff.bonus })}<//>
         </div>
       </div>
     </div>

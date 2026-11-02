@@ -21,7 +21,7 @@ Lanzamiento cercano: cambios acotados.
 ## Comandos
 - Servidor: `npx http-server -p 8123 -s -c-1 .`
 - Comprobar: `node tools/check-registry.mjs` · `node tools/art-check.mjs` · `node tools/sfx-check.mjs` ·
-  `node tools/simulate.mjs` · `node tools/scenarios-selfcheck.mjs` · `node tools/blind-selfcheck.mjs` · `node tools/blizzard-selfcheck.mjs` · `node tools/outbreak-selfcheck.mjs` · `node tools/turn-minis-selfcheck.mjs` · `node tools/mechanics-selfcheck.mjs` · `node tools/barrier-check.mjs` · `node tools/hockey-selfcheck.mjs` · `node tools/i18n-check.mjs`
+  `node tools/simulate.mjs` · `node tools/scenarios-selfcheck.mjs` · `node tools/blind-selfcheck.mjs` · `node tools/blizzard-selfcheck.mjs` · `node tools/outbreak-selfcheck.mjs` · `node tools/turn-minis-selfcheck.mjs` · `node tools/mechanics-selfcheck.mjs` · `node tools/barrier-check.mjs` · `node tools/hockey-selfcheck.mjs` · `node tools/laststand-selfcheck.mjs` · `node tools/i18n-check.mjs`
 - Partidas guionizadas: `node tools/play.mjs tests/scenes/<escena>.json [--pc] [--art pixel] [--lang en]` (posición
   exacta, cartas, jugadas por casilla, mando simulado, idioma, capturas y comprobaciones; formato en la cabecera del
   archivo). A mano: `tests/bench.html?cfg={…}` (`window.bench` = partida). Escenas en `tests/scenes/`.
