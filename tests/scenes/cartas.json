@@ -1,0 +1,1 @@
+{ "cfg": { "node": { "modifier": "none" }, "run": { "cards": ["colossus", "fortify", "disco", "summon", "haste"] } }, "viewports": ["mobile"], "themes": ["walnut", "vocaloid-miku", "pixelada"], "steps": [ { "wait": 1200 }, { "shot": "mano" } ] }

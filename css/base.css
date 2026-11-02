@@ -104,16 +104,15 @@ h2 { font-size: 17px; font-weight: 750; }
   cursor: pointer;
 }
 .card .face, .card .back { position: absolute; inset: 0; border-radius: 14px; backface-visibility: hidden; border: 2px solid var(--ink); overflow: hidden; }
-/* Frame colour says the kind: vermilion = tactic (played in a match), brass = mutation (permanent), ink = item. */
-.face.kind-tactic { --frame: var(--accent); --window: var(--accent-ink); --frame-text: var(--paper); }
-.face.kind-mutation { --frame: oklch(0.62 0.15 150); --window: oklch(0.38 0.09 150); --frame-text: var(--paper); }
-.face.kind-boon { --frame: var(--ink-2); --window: var(--ink); --frame-text: var(--paper); }
+/* El marco dice el tipo con un color fijo en todas las mesas (tokens --k-*): azul táctica, verde mutación, ámbar objeto, lila guiño. */
+.face.kind-tactic { --frame: var(--k-tactic); --window: color-mix(in oklch, var(--k-tactic), black 45%); --frame-text: var(--paper); }
+.face.kind-mutation { --frame: var(--k-mutation); --window: color-mix(in oklch, var(--k-mutation), black 45%); --frame-text: var(--paper); }
+.face.kind-boon { --frame: var(--k-boon); --window: color-mix(in oklch, var(--k-boon), black 50%); --frame-text: var(--ink); }
 .card .face {
   display: flex; flex-direction: column; padding: 9px; gap: 7px;
   background: var(--frame); background-image: var(--grain); color: var(--ink);
   box-shadow: var(--lift);
 }
-.hand-card .face.kind-tactic, .card .face.kind-tactic { --frame: var(--accent); }
 /* Cartas de antes de la partida (Organizar): marco azul pizarra y cinta, para que no se lean como tácticas. */
 .hand-card .face.pre, .card .face.pre { --frame: oklch(0.46 0.07 235); --window: oklch(0.32 0.05 235); --frame-text: var(--paper); }
 .pre-ribbon {
@@ -125,19 +124,30 @@ h2 { font-size: 17px; font-weight: 750; }
 .card .plate { padding: 7px 26px 7px 10px; border-radius: 8px; background: var(--paper); border: 2px solid var(--ink); font-size: 17px; font-weight: 800; line-height: 1.05; }
 /* Gema de rareza: común hueca, rara roja, épica de latón. La usan cartas, manos y listas. */
 .gem { display: inline-block; width: 12px; height: 12px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 2.5px; background: var(--paper-3); vertical-align: -1px; }
-.gem.rare { background: var(--accent); }
-.gem.epic { background: var(--brass); box-shadow: inset 0 0 0 2px var(--paper); }
+.gem.rare { background: var(--rar-rare); }
+.gem.epic { background: var(--rar-epic); box-shadow: inset 0 0 0 2px var(--paper); }
 /* Cartas lilas: gratis, aparte de la mano normal. */
-.hand-card .face.lilac, .card .face.lilac { --frame: oklch(0.6 0.13 310); --window: oklch(0.36 0.08 310); --frame-text: var(--paper); }
+.hand-card .face.lilac, .card .face.lilac { --frame: var(--k-lilac); --window: color-mix(in oklch, var(--k-lilac), black 45%); --frame-text: var(--paper); }
+/* Rareza que se ve sin buscar la gema: un brillo cruza la carta (rara, de vez en cuando; épica y lila, más a menudo y con color). */
+:is(.card, .hand-card) .face:is(.rare, .epic, .lilac)::after {
+  content: ''; position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  background: linear-gradient(115deg, transparent 35%, oklch(1 0 0 / 0.38) 48%, transparent 60%) no-repeat;
+  background-size: 250% 100%; animation: holo 4.5s ease-in-out infinite;
+}
+:is(.card, .hand-card) .face.epic::after { background-image: linear-gradient(115deg, transparent 30%, color-mix(in oklch, var(--brass) 55%, transparent) 45%, oklch(1 0 0 / 0.5) 50%, transparent 62%); animation-duration: 2.8s; }
+:is(.card, .hand-card) .face.lilac::after { background-image: linear-gradient(115deg, transparent 30%, oklch(0.9 0.08 310 / 0.5) 47%, oklch(1 0 0 / 0.45) 50%, transparent 62%); animation-duration: 3.4s; }
+@keyframes holo { 0%, 55% { background-position: 120% 0; } 100% { background-position: -20% 0; } }
+[data-art="pixel"] :is(.card, .hand-card) .face:is(.rare, .epic, .lilac)::after { animation-timing-function: steps(8); }
+@media (prefers-reduced-motion: reduce) { :is(.card, .hand-card) .face:is(.rare, .epic, .lilac)::after { animation: none; opacity: 0; } }
 .gem.lilac, .card .gem.lilac, .hand-card .gem.lilac { background: oklch(0.72 0.14 310); box-shadow: inset 0 0 0 2px var(--paper); }
 .card .gem { position: absolute; top: 15px; right: 15px; width: 16px; height: 16px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 3px; background: var(--paper-3); }
-.card .gem.rare { background: var(--accent); }
-.card .gem.epic { background: var(--brass); box-shadow: inset 0 0 0 3px var(--paper); }
+.card .gem.rare { background: var(--rar-rare); }
+.card .gem.epic { background: var(--rar-epic); box-shadow: inset 0 0 0 3px var(--paper); }
 /* Rareza con canal propio, independiente del color del tipo (el relleno del marco): el canto.
    Común con canto simple de tinta, rara con canto doble de tinta, épica con canto doble de latón y cartela de latón. */
 .card .face.rare, .hand-card .face.rare { border: 6px double var(--ink); }
-.card .face.epic, .hand-card .face.epic { border: 6px double var(--brass); }
-.card .face.epic .plate, .hand-card .face.epic .plate { background: var(--brass); color: var(--ink); }
+.card .face.epic, .hand-card .face.epic { border: 6px double var(--rar-epic); }
+.card .face.epic .plate, .hand-card .face.epic .plate { background: var(--rar-epic); color: var(--ink); }
 /* Rara: el título es una banda de plata pulida. Épica: latón con remates en las cuatro esquinas. */
 .card .face.rare .plate, .hand-card .face.rare .plate { background: linear-gradient(105deg, oklch(0.96 0.005 250) 0 30%, oklch(0.82 0.01 250) 48%, oklch(0.95 0.005 250) 62%, oklch(0.86 0.01 250)); }
 .card .face.epic::before, .hand-card .face.epic::before {

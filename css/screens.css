@@ -160,12 +160,12 @@
 /* Mini-jefe: el rombo de latón. La ficha gira 45° y escala 0.7071 para ocupar el mismo hueco que el círculo; el ícono contragira y la base (3,3)/(7,7) compensa el giro para seguir cayendo recta. El jefe final conserva el rojo y el trono. */
 .node.mboss:not(.done) .coin { rotate: 45deg; scale: 0.7071; border-width: 3.5px; background: var(--brass); color: var(--ink); --icon-cut: var(--brass); box-shadow: 3px 3px 0 color-mix(in oklch, var(--brass), black 25%), 7px 7px 0 var(--ink), var(--lift); }
 .node.mboss:not(.done) .coin svg { rotate: -45deg; scale: 1.4142; }
-.node.mod-elite:not(.done) .coin { background: var(--ink); color: var(--brass); --icon-cut: var(--ink); }
+.node.mod-elite:not(.done) .coin { background: var(--ink); color: var(--k-mutation); --icon-cut: var(--ink); outline: 3px solid var(--k-mutation); outline-offset: 1px; }
 /* El troquel dice qué es el nodo: cuadrada y verde = minijuego (otro juego, otra caja);
    latón = descanso (la hoguera); cuero = bolsa. Las partidas siguen redondas en papel. */
 .node.k-mini:not(.done) .coin { border-radius: 10px; background: var(--side-wild); color: var(--ink); --icon-cut: var(--side-wild); box-shadow: 0 3px 0 color-mix(in oklch, var(--side-wild), black 30%), 0 6px 0 var(--ink), var(--lift); }
-.node.k-rest:not(.done) .coin { background: var(--brass); --icon-cut: var(--brass); box-shadow: 0 3px 0 color-mix(in oklch, var(--brass), black 25%), 0 6px 0 var(--ink), var(--lift); }
-.node.k-bag:not(.done) .coin { background: var(--paper-3); --icon-cut: var(--paper-3); box-shadow: 0 3px 0 color-mix(in oklch, var(--paper-3), black 25%), 0 6px 0 var(--ink), var(--lift); }
+/* Bolsa y descanso dan objetos: el mismo ámbar que el marco de esas cartas. La élite da mutación: aro verde. */
+.node:is(.k-rest, .k-bag):not(.done) .coin { background: var(--k-boon); color: var(--ink); --icon-cut: var(--k-boon); box-shadow: 0 3px 0 color-mix(in oklch, var(--k-boon), black 25%), 0 6px 0 var(--ink), var(--lift); }
 .node:disabled:not(.done) { opacity: 0.5; }
 .node.done .coin { background: var(--ink); color: var(--paper); --icon-cut: var(--ink); box-shadow: 0 2px 0 var(--ink); translate: 0 4px; }
 .node.open { cursor: pointer; }
@@ -396,8 +396,8 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 /* Rareza visible en la mano: la gema de la carta grande, en pequeño, en la esquina izquierda del
    arte. Ahí la ve el abanico (la derecha la tapa la vecina) y el nombre no pierde ancho. */
 .hand-card .gem { position: absolute; left: 8px; bottom: 8px; width: 20px; height: 20px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 2.5px; background: var(--paper-3); }
-.hand-card .gem.rare { background: var(--accent); }
-.hand-card .gem.epic { background: var(--brass); box-shadow: inset 0 0 0 2px var(--paper); }
+.hand-card .gem.rare { background: var(--rar-rare); }
+.hand-card .gem.epic { background: var(--rar-epic); box-shadow: inset 0 0 0 2px var(--paper); }
 .hand-card:focus-visible { transform: translateY(-22px) rotate(0deg) scale(1.12); z-index: 2; }
 @media (hover: hover) and (pointer: fine) { .hand-card:hover:not(:disabled) { transform: translateY(-22px) rotate(0deg) scale(1.12); z-index: 2; } }
 .hand-card.on { transform: translateY(-34px) rotate(0deg) scale(1.18); z-index: 3; }
