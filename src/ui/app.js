@@ -4,7 +4,7 @@ import { CardPick } from './components.js';
 import { Icon } from './icons.js';
 import { MenuScreen } from './screens/menu.js';
 import { MapScreen } from './screens/map.js';
-import { SetupScreen, SettingsScreen, RUN_MECHANICS } from './screens/setup.js';
+import { SetupScreen, SettingsScreen } from './screens/setup.js';
 import { GameScreen } from './screens/game.js';
 import { HowToOverlay, ResumeOverlay } from './screens/overlays.js';
 import { setFullscreen } from './fullscreen.js';
@@ -14,7 +14,7 @@ import { ZenScreen } from './screens/zen.js';
 import { ShopScreen } from './screens/shop.js';
 import { GalleryScreen } from './screens/gallery.js';
 import { AchievementsScreen } from './screens/achievements.js';
-import { MODIFIERS } from '../data/modifiers.js';
+import { MODIFIERS, DUO_MECHANICS } from '../data/modifiers.js';
 import { MINIGAMES } from '../data/minigame-catalog.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, enterLevel, resetLevel, dropLevel, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs, takeNewDemos } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard } from '../game/shop.js';
@@ -121,7 +121,7 @@ export function App() {
     const r = createRun({ tutorial }); setRun(r); setNode(r.map.nodes[0]); setSeats(null); goTo('setup'); };
   // Partida local: la mesa (mecánica, tamaño, forma) se elige o sale al azar; una serie a 3 o 5
   // rondas sube de piso en cada una, como una run corta, y gana quien llegue antes a la mitad.
-  const VERSUS_MODS = ['none', ...RUN_MECHANICS.filter((id) => id !== 'elite')];
+  const VERSUS_MODS = ['none', ...DUO_MECHANICS];
   const versusNode = (cfg, round = 0) => {
     const seed = Math.floor(Math.random() * 1e6);
     const modifier = cfg.mod === 'random' ? VERSUS_MODS[seed % VERSUS_MODS.length] : cfg.mod;

@@ -78,3 +78,12 @@ export const nodeModifier = (node) => {
   const mod = MODIFIERS[node.modifier];
   return node.isMiniBoss ? { ...mod, name: 'Mini-jefe', desc: 'Un coloso menor con dos oficiales de movimientos prestados. Recompensa: mutación.' } : mod;
 };
+
+// Mecánicas del tablero en un solo sitio: las usan la run (favoritas y vetadas), la partida local y, más
+// adelante, la online. Las de reglas propias viven en src/game/mechanics.js.
+export const BOARD_MECHANICS = ['ice', 'portal', 'fog', 'chaos', 'zombie', 'contagion', 'coven', 'meteor', 'rush', 'promote', 'elite',
+  'powers', 'hp', 'gravity', 'events', 'potato', 'invis', 'drunk', 'chicken', 'bullet', 'anti', 'randarmy', 'giant', 'pqueen', 'ppawn', 'horse'];
+// Las más vistosas, en grande en los selectores; el resto en «Ver todo».
+export const FEATURED_MECHANICS = ['meteor', 'zombie', 'coven', 'portal', 'powers', 'potato', 'chicken', 'bullet'];
+// A dos: todas menos Élite (es un piso de la torre, con premio de mutación).
+export const DUO_MECHANICS = BOARD_MECHANICS.filter((id) => id !== 'elite');

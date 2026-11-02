@@ -2,7 +2,7 @@ import { html, useState, useRef, useEffect } from '../lib.js';
 import { Icon } from '../icons.js';
 import { Topbar, useEnter, Toggle, ThemeLook, ConfirmButton } from '../components.js';
 import { loadSlots, storeActive, switchSlot, clearSlot } from '../../game/slots.js';
-import { nodeModifier, MODIFIERS } from '../../data/modifiers.js';
+import { nodeModifier, MODIFIERS, BOARD_MECHANICS, FEATURED_MECHANICS, DUO_MECHANICS } from '../../data/modifiers.js';
 import { PREF_LIMITS, saveSettings } from '../../game/run.js';
 import { rivalForFloor, DIFFICULTIES } from '../../game/difficulty.js';
 import { THEMES, vfxOn } from '../../data/themes.js';
@@ -20,13 +20,23 @@ const SIDES = [
   { color: 'wild', label: t('side.wild', 'Jade') },
 ];
 
-// Selector de mecánicas de la run (los gambitos de Gambonanza): cada toque pasa normal → favorita → vetada.
-export const RUN_MECHANICS = ['ice', 'portal', 'fog', 'chaos', 'zombie', 'contagion', 'coven', 'meteor', 'rush', 'promote', 'elite'];
-// Las más vistosas, en grande; el resto (con las de reglas propias, src/game/mechanics.js) en «Ver todo».
-const FEATURED = ['meteor', 'zombie', 'coven', 'portal', 'powers', 'potato', 'chicken', 'bullet'];
-const MORE_MECHANICS = ['powers', 'hp', 'gravity', 'events', 'potato', 'invis', 'drunk', 'chicken', 'bullet', 'anti', 'randarmy', 'giant', 'pqueen', 'ppawn', 'horse'];
-function PrefsCard({ prefs, onPrefs }) {
+// Selector de mecánicas común (run y partida local): las vistosas en grande y el resto en «Ver todo».
+// `cls(id)` da la clase del botón ('fav', 'ban'…), `small(id)` la etiqueta de estado y `extra` botones previos.
+function MechPicker({ ids, cls, small, onPick, extra = [] }) {
   const [open, setOpen] = useState(false);
+  const info = (id) => extra.find((e) => e.id === id) || MODIFIERS[id];
+  const btn = (id, size, withSmall) => { const m = info(id), s = small?.(id);
+    return html`<button class=${'pref ' + (cls(id) || '')} aria-pressed=${!!cls(id)} aria-label=${s ? `${m.name}: ${s}` : m.name} title=${m.desc} onClick=${() => onPick(id)}>
+      <${Icon} name=${m.icon} size=${size} /><span>${m.name}</span>${withSmall && s && html`<small>${s}</small>`}</button>`; };
+  const big = [...extra.map((e) => e.id), ...FEATURED_MECHANICS.filter((id) => ids.includes(id))];
+  const rest = ids.filter((id) => !big.includes(id));
+  return html`<div class="pref-grid">${[...big, ...(open ? [] : rest.filter((id) => cls(id)))].map((id) => btn(id, 20, true))}</div>
+    <button class="btn sm pref-more" aria-expanded=${open} onClick=${() => setOpen(!open)}>${open ? t('prefs.less', 'Ver menos') : t('prefs.all', 'Ver todo')}</button>
+    ${open && html`<div class="pref-grid mini">${rest.map((id) => btn(id, 18, false))}</div>`}`;
+}
+
+// Mecánicas de la run (los gambitos de Gambonanza): cada toque pasa normal → favorita → vetada.
+function PrefsCard({ prefs, onPrefs }) {
   const state = (id) => (prefs.fav.includes(id) ? 'fav' : prefs.ban.includes(id) ? 'ban' : '');
   const cycle = (id) => {
     const fav = prefs.fav.filter((x) => x !== id), ban = prefs.ban.filter((x) => x !== id);
@@ -39,15 +49,7 @@ function PrefsCard({ prefs, onPrefs }) {
   return html`<section class="panel setup-card prefs" data-enter>
     <h2>${t('prefs.title', 'Mecánicas de esta run')}</h2>
     <p class="setup-note">${t('prefs.note', 'Toca una mecánica: favorita (sale mucho más, hasta {fav}), vetada (no sale, {ban}) o normal. El mapa se vuelve a sortear.', { fav: PREF_LIMITS.fav, ban: PREF_LIMITS.ban })}</p>
-    <div class="pref-grid">
-      ${[...FEATURED, ...(open ? [] : [...RUN_MECHANICS, ...MORE_MECHANICS].filter((id) => !FEATURED.includes(id) && state(id)))].map((id) => html`<button class=${'pref ' + state(id)} aria-label=${`${MODIFIERS[id].name}: ${label[state(id)]}`} title=${MODIFIERS[id].desc} onClick=${() => cycle(id)}>
-        <${Icon} name=${MODIFIERS[id].icon} size=${20} /><span>${MODIFIERS[id].name}</span><small>${label[state(id)]}</small></button>`)}
-    </div>
-    <button class="btn sm pref-more" aria-expanded=${open} onClick=${() => setOpen(!open)}>${open ? t('prefs.less', 'Ver menos') : t('prefs.all', 'Ver todo')}</button>
-    ${open && html`<div class="pref-grid mini">
-      ${[...RUN_MECHANICS, ...MORE_MECHANICS].filter((id) => !FEATURED.includes(id)).map((id) => html`<button class=${'pref ' + state(id)} aria-label=${`${MODIFIERS[id].name}: ${label[state(id)]}`} title=${MODIFIERS[id].desc} onClick=${() => cycle(id)}>
-        <${Icon} name=${MODIFIERS[id].icon} size=${18} /><span>${MODIFIERS[id].name}</span></button>`)}
-    </div>`}
+    <${MechPicker} ids=${BOARD_MECHANICS} cls=${state} small=${(id) => label[state(id)]} onPick=${cycle} />
   </section>`;
 }
 
@@ -58,7 +60,6 @@ const VERSUS_SHAPES = [['random', t('versus.holes', 'Con huecos')], ['classic', 
 function VersusCard({ cfg, onCfg }) {
   const set = (k, v) => onCfg({ ...cfg, [k]: v });
   const seg = (k, list) => html`<div class="segmented sm" role="group">${list.map(([v, label]) => html`<button class=${cfg[k] === v ? 'on' : ''} aria-pressed=${cfg[k] === v} onClick=${() => set(k, v)}>${label}</button>`)}</div>`;
-  const mods = ['random', 'none', ...RUN_MECHANICS.filter((id) => id !== 'elite')];
   // Dos pestañas: el ajedrez de la run y la lista de minijuegos que ya se juegan a dos (`duo` en modifiers.js).
   const minis = Object.values(MODIFIERS).filter((m) => m.duo), duo = MODIFIERS[cfg.game]?.duo;
   const tabs = html`<div class="segmented" data-pad="l1 r1" role="tablist" aria-label=${t('versus.what', 'Qué jugar')}>
@@ -83,10 +84,8 @@ function VersusCard({ cfg, onCfg }) {
     <h2>${t('versus.shape', 'Forma')}</h2>
     ${seg('shape', VERSUS_SHAPES)}
     <h2>${t('versus.mechanic', 'Mecánica')}</h2>
-    <div class="pref-grid">
-      ${mods.map((id) => { const m = id === 'random' ? { name: t('versus.random', 'Al azar'), icon: 'refresh', desc: t('versus.randomDesc', 'Una distinta en cada ronda.') } : MODIFIERS[id];
-        return html`<button class=${'pref' + (cfg.mod === id ? ' fav' : '')} aria-pressed=${cfg.mod === id} title=${m.desc} onClick=${() => set('mod', id)}><${Icon} name=${m.icon} size=${20} /><span>${m.name}</span></button>`; })}
-    </div>
+    <${MechPicker} ids=${DUO_MECHANICS} cls=${(id) => (cfg.mod === id ? 'fav' : '')} onPick=${(id) => set('mod', id)}
+      extra=${[{ id: 'random', name: t('versus.random', 'Al azar'), icon: 'refresh', desc: t('versus.randomDesc', 'Una distinta en cada ronda.') }, { ...MODIFIERS.none, id: 'none' }]} />
   </section>`;
 }
 

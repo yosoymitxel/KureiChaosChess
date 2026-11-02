@@ -26,9 +26,12 @@ src/data/mates.js:1 +MATES
 ## src/data/minigame-catalog.js (36L)
 src/data/minigame-catalog.js:25 SCREENS
 src/data/minigame-catalog.js:35 +MINIGAMES
-## src/data/modifiers.js (81L)
+## src/data/modifiers.js (90L)
 src/data/modifiers.js:2 +MODIFIERS
 src/data/modifiers.js:77 +nodeModifier
+src/data/modifiers.js:84 +BOARD_MECHANICS
+src/data/modifiers.js:87 +FEATURED_MECHANICS
+src/data/modifiers.js:89 +DUO_MECHANICS
 ## src/data/mutations.js (53L)
 src/data/mutations.js:4 +MUTATIONS
 src/data/mutations.js:16 KEYS
@@ -1059,21 +1062,19 @@ src/ui/screens/scenario.js:32 +MatesScreen
 src/ui/screens/scenario.js:33 +ClockScreen
 src/ui/screens/scenario.js:34 +WitchScreen
 src/ui/screens/scenario.js:35 +BombsScreen
-## src/ui/screens/setup.js (357L)
+## src/ui/screens/setup.js (356L)
 src/ui/screens/setup.js:17 SIDES
-src/ui/screens/setup.js:24 +RUN_MECHANICS
-src/ui/screens/setup.js:26 FEATURED
-src/ui/screens/setup.js:27 MORE_MECHANICS
-src/ui/screens/setup.js:28 PrefsCard
-src/ui/screens/setup.js:55 VERSUS_ROUNDS
-src/ui/screens/setup.js:56 VERSUS_SIZES
-src/ui/screens/setup.js:57 VERSUS_SHAPES
-src/ui/screens/setup.js:58 VersusCard
-src/ui/screens/setup.js:95 +SetupScreen
-src/ui/screens/setup.js:149 +SettingsScreen
-src/ui/screens/setup.js:220 Backup
-src/ui/screens/setup.js:284 Slots
-src/ui/screens/setup.js:305 Cloud
+src/ui/screens/setup.js:25 MechPicker
+src/ui/screens/setup.js:39 PrefsCard
+src/ui/screens/setup.js:57 VERSUS_ROUNDS
+src/ui/screens/setup.js:58 VERSUS_SIZES
+src/ui/screens/setup.js:59 VERSUS_SHAPES
+src/ui/screens/setup.js:60 VersusCard
+src/ui/screens/setup.js:94 +SetupScreen
+src/ui/screens/setup.js:148 +SettingsScreen
+src/ui/screens/setup.js:219 Backup
+src/ui/screens/setup.js:283 Slots
+src/ui/screens/setup.js:304 Cloud
 ## src/ui/screens/shop.js (143L)
 src/ui/screens/shop.js:15 CARD_LIST
 src/ui/screens/shop.js:17 +ShopScreen
