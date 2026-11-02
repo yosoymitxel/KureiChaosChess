@@ -1058,9 +1058,10 @@ export class BoardView {
     const [row, col] = (best || '0,0').split(',').map(Number);
     return { row, col };
   }
-  floatText(x, y, text) {
+  // Texto flotante único del juego (daño, cartas, jaque…): `color` del cartel en la versión APK.
+  floatText(x, y, text, color = '#ffc83d') {
     // Texto flotante: el del APK (cartel pixelado sobre la casilla); sin efectos, el de siempre.
-    if (this.fx.vfx && !reduced()) return playAPKFloatingText(this.host, this, this.nearCell(x, y), String(text), '#ffc83d');
+    if (this.fx.vfx && !reduced()) return playAPKFloatingText(this.host, this, this.nearCell(x, y), String(text), color);
     const n = document.createElement('div');
     n.className = 'float-text';
     n.textContent = text;

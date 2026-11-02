@@ -514,6 +514,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
               ? { sub: s === match.player ? (king ? t('game.checkMine', 'Tu turno: protege al rey') : t('game.dangerMine', 'Tu turno: protege a tu {a}', { a: what })) : king ? t('game.checkOther', '{name}, tu rey está amenazado', { name: s.name }) : t('game.dangerOther', '{name}, tu {a} está amenazado', { name: s.name, a: what }), tone: 'danger' }
               : { sub: royal.boss ? t('game.bossInReach', '{name} está a tiro', { name: royal.name }) : king ? t('game.kingInReach', 'El rey {side} está a tiro', { side: SIDE_NAME[s.color] }) : t('game.pieceInReach', '{a} {side} está a tiro', { a: pieceName(royal), side: SIDE_NAME[s.color] }), tone: 'brass' }),
           });
+          // Además del rótulo, el cartel flotante sobre la pieza amenazada (rojo si es tuya).
+          const c = d.view.centerOf(royal);
+          d.view.floatText(c.x, c.y - d.view.sq * 0.9, king ? t('game.check', '¡Jaque!') : t('game.danger', '¡En peligro!'), mine ? '#ff2d55' : '#ffc83d');
           if (mine && s === match.player) warnedMe = true;
         }
         d.check[s.color] = now;
