@@ -1,0 +1,1 @@
+{ "cfg": { "node": { "modifier": "none" } }, "viewports": ["mobile"], "steps": [ { "wait": 1500 }, { "shot": "tablero" } ] }

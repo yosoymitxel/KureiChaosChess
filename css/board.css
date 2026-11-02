@@ -295,7 +295,9 @@
 [data-art="pixel"] .tile.edge::after { background: linear-gradient(var(--tile-side) 55%, color-mix(in oklch, var(--tile-side), black 35%) 55%); }
 [data-art="pixel"] body::before {
   content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; image-rendering: pixelated;
-  background: radial-gradient(120% 90% at 50% 20%, transparent 30%, color-mix(in oklch, color-mix(in oklch, var(--table), black 40%) 75%, transparent)), var(--px-table) 0 0 / 128px 128px;
+  /* El dibujo del fondo va apagado (velo del color de la mesa): en temas cargados (Miku, pandas) competía con el tablero. */
+  background: radial-gradient(120% 90% at 50% 20%, transparent 30%, color-mix(in oklch, color-mix(in oklch, var(--table), black 40%) 75%, transparent)),
+    linear-gradient(color-mix(in oklch, var(--table) 62%, transparent) 0 0), var(--px-table) 0 0 / 128px 128px;
 }
 
 /* Estanque del centro abierto y coleccionables: tumbados sobre el plano del tablero. */
