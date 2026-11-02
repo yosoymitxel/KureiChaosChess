@@ -31,11 +31,11 @@ export function chain(s, seed, sick = new Set(s.pieces.filter((p) => p.sick))) {
   return waves;
 }
 
-// Menos dosis con las que se contagian todas (prueba combinaciones de 1 a 3).
-export function fewest(s) {
-  const all = s.pieces.length, healthy = s.pieces;
-  const spread = (seeds) => { const sick = new Set(); for (const x of seeds) if (!sick.has(x)) for (const w of chain(s, x, sick)) for (const p of w) sick.add(p); return sick.size; };
-  for (let k = 1; k <= 3; k++) {
+// Menos dosis con las que se contagian todas desde como está el tablero (prueba de 1 a `max`).
+export function fewest(s, max = 3) {
+  const all = s.pieces.length, healthy = s.pieces.filter((p) => !p.sick), ill = s.pieces.filter((p) => p.sick);
+  const spread = (seeds) => { const sick = new Set(ill); for (const x of seeds) if (!sick.has(x)) for (const w of chain(s, x, sick)) for (const p of w) sick.add(p); return sick.size; };
+  for (let k = 1; k <= Math.min(max, healthy.length); k++) {
     const pick = (start, chosen) => {
       if (chosen.length === k) return spread(chosen) === all;
       for (let i = start; i < healthy.length; i++) if (pick(i + 1, [...chosen, healthy[i]])) return true;
@@ -71,6 +71,7 @@ export function dose(s, p) {
   for (const w of waves) for (const x of w) x.sick = true;
   s.used += 1;
   if (s.pieces.every((x) => x.sick)) s.over = 'win';
-  else if (s.used >= s.doses) s.over = 'lose';
+  // Sin dosis, o con las que quedan ya no hay cadena que contagie a todas: se acaba aquí, no a ciegas.
+  else if (s.used >= s.doses || fewest(s, s.doses - s.used) === Infinity) { s.over = 'lose'; s.stuck = s.used < s.doses; }
   return waves;
 }

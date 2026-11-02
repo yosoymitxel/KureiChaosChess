@@ -758,6 +758,7 @@ export default {
     "hockey.stuckServe": "Puck stuck: {name} serves",
     "hockey.stuckBot": "Puck stuck: the bot serves",
     "hockey.stuckYou": "Puck stuck: you serve",
+    "outbreak.stuck": "With the doses you have left, no chain can reach the {n} healthy ones.",
     "golf.albatross": "Albatross!",
     "golf.eagle": "Eagle!",
     "golf.birdie": "Birdie!",

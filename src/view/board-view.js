@@ -192,7 +192,7 @@ export class BoardView {
     t.style.setProperty('--r', r); t.style.setProperty('--c', c);
     t.style.setProperty('--grain', ((r * 7 + c * 13) % 5) / 5);
     const terrain = board.terrain?.get(key(r, c));
-    if (terrain) t.classList.add(terrain);
+    if (terrain) t.classList.add(board.holes.has(key(r, c)) && terrain === 'ice' ? 'icehole' : terrain);
     // Portal pairs share a colour so the player can tell which tile leads where.
     if (terrain === 'portal') t.classList.add(portalAt(board, r, c)?.pair || '');
     t.innerHTML = '<i class="mark"></i>';
@@ -201,12 +201,15 @@ export class BoardView {
   // Una casilla nueva o cambiada (cartas Puente y Escarcha) sin rehacer el tablero: se conservan monedas, avisos y estanque.
   refreshTile(r, c) {
     const k = key(r, c), old = this.tiles.get(k);
-    if (this.board.holes.has(k)) { old?.remove(); this.tiles.delete(k); return; }
+    if (this.board.holes.has(k) && !this.iceHole(k)) { old?.remove(); this.tiles.delete(k); return; }
     const t = this.tileEl(this.board, r, c);
     if (old) old.replaceWith(t); else this.tilesEl.appendChild(t);
     this.tiles.set(k, t);
     this.refreshEdges();
   }
+
+  // Casilla hundida que era hielo: se queda como agujero en el hielo (el de la Ventisca) en vez de vacío.
+  iceHole(k) { return this.board.terrain?.get(k) === 'ice'; }
 
   setBoard(board) {
     this.board = board;
@@ -216,7 +219,7 @@ export class BoardView {
     const { rows, cols, holes } = board;
     const frag = document.createDocumentFragment();
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-      if (holes.has(key(r, c))) continue;
+      if (holes.has(key(r, c)) && !this.iceHole(key(r, c))) continue;
       const t = this.tileEl(board, r, c);
       frag.appendChild(t);
       this.tiles.set(key(r, c), t);

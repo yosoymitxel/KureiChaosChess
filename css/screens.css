@@ -1093,8 +1093,11 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .du-type { padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 800; color: var(--paper); background: var(--ink-2); }
 .t-linea { --tc: oklch(0.5 0.13 250); } .t-salto { --tc: oklch(0.55 0.13 145); } .t-diagonal { --tc: oklch(0.55 0.16 30); } .t-paso { --tc: oklch(0.5 0.03 70); }
 .du-type[class*="t-"] { background: var(--tc); }
-.du-hp { height: 10px; margin: 6px 0 4px; border-radius: 999px; background: var(--paper-3); border: 2px solid var(--ink); overflow: hidden; }
-.du-hp i { display: block; height: 100%; background: var(--gain); transition: width 0.45s var(--ease-out); }
+.du-hp { position: relative; height: 12px; margin: 6px 0 4px; border-radius: 999px; background: var(--paper-3); border: 2px solid var(--ink); overflow: hidden; }
+/* La barra baja de golpe y deja detrás, un instante, el trozo perdido en claro (como en los juegos de lucha). */
+.du-hp i, .du-hp b { position: absolute; left: 0; top: 0; bottom: 0; display: block; }
+.du-hp i { background: var(--gain); transition: width 0.2s var(--ease-out), background-color 0.3s; }
+.du-hp b { background: color-mix(in oklch, var(--danger), var(--paper) 45%); transition: width 0.55s var(--ease-out) 0.45s; }
 .du-hp i.mid { background: var(--brass); } .du-hp i.low { background: var(--danger); }
 .du-row { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--ink-2); }
 .du-tag { padding: 0 6px; border-radius: 6px; background: var(--paper-2); outline: 1.5px solid var(--ink-2); }

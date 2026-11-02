@@ -1,12 +1,13 @@
 // Duelo: arena de combate por turnos. Tu pieza abajo a la izquierda, la rival arriba a la derecha,
 // cada una con su barra de vida; los ataques embisten, el golpe destella y el daño salta en número.
-import { html, useState, useRef, motion } from '../lib.js';
+import { html, useState, useRef, useEffect, motion } from '../lib.js';
 import { playSfx } from '../sfx.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { DIFFS, MOVES, FIGHTERS, TYPE_NAME, newDuel, turn, active, effect } from '../../game/duel.js';
 import { reduced } from '../hop.js';
+import { Fx } from '../../view/fx.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t, tp } from '../../i18n/index.js';
 
@@ -17,7 +18,7 @@ function Plate({ u, team, foe }) {
   return html`<div class=${'du-plate' + (foe ? ' foe' : '')}>
     <div class="du-name"><b>${PIECE_NAMES[u.type]}</b><span class=${'du-type t-' + FIGHTERS[u.type].type}>${TYPE_NAME[FIGHTERS[u.type].type]}</span></div>
     <div class="du-hp" role="meter" aria-label=${t('duel.hp', 'Vida {n} de {max}', { n: u.hp, max: u.max })} aria-valuenow=${u.hp} aria-valuemin="0" aria-valuemax=${u.max}>
-      <i class=${u.hp / u.max < 0.3 ? 'low' : u.hp / u.max < 0.6 ? 'mid' : ''} style=${{ width: (100 * u.hp) / u.max + '%' }}></i>
+      <b style=${{ width: (100 * u.hp) / u.max + '%' }}></b><i class=${u.hp / u.max < 0.3 ? 'low' : u.hp / u.max < 0.6 ? 'mid' : ''} style=${{ width: (100 * u.hp) / u.max + '%' }}></i>
     </div>
     <div class="du-row"><span class="du-num">${u.hp}/${u.max}</span>${u.guard && html`<span class="du-tag">${t('duel.guard', 'Guardia')}</span>`}${u.boost && html`<span class="du-tag">${t('duel.charged', 'Cargado')}</span>`}
       <span class="du-bench">${team.map((t) => html`<i class=${t.hp > 0 ? '' : 'out'}></i>`)}</span></div>
@@ -43,6 +44,24 @@ export function DuelScreen({ sub, onBack, onEnd, endLabel = t('common.continue',
     motion(t, { y: [0, -46], opacity: [1, 1, 0], scale: [0.9, 1.15, 1] }, { duration: 0.8, ease: 'easeOut', onComplete: () => t.remove() });
   };
 
+  // Cada tipo de ataque se mueve a su manera, como su pieza: el paso empuja corto, el salto describe un
+  // arco, la diagonal cruza en diagonal y la línea toma impulso y carga recto. El impacto, del color del tipo.
+  const LUNGE = {
+    paso: (d) => ({ x: [0, 18 * d, 0], y: [0, -12 * d, 0], dur: 0.28 }),
+    salto: (d) => ({ x: [0, 22 * d, 48 * d, 0], y: [0, -64, -26 * d, 0], dur: 0.46 }),
+    diagonal: (d) => ({ x: [0, 46 * d, 0], y: [0, -46 * d, 0], dur: 0.3 }),
+    linea: (d) => ({ x: [0, -12 * d, 74 * d, 0], y: [0, 6 * d, -22 * d, 0], dur: 0.4 }),
+  };
+  const typeColor = (type) => { const p = document.createElement('i'); p.className = 't-' + type; arena.current.appendChild(p); const c = getComputedStyle(p).getPropertyValue('--tc').trim(); p.remove(); return c || '#fff'; };
+  const fx = useRef(null);
+  useEffect(() => () => fx.current?.destroy(), []);
+  const impact = (el, type, crit) => {
+    if (!el || !arena.current) return;
+    const f = (fx.current ||= new Fx(arena.current)), at = f.pointOf(el, 0.45), c = typeColor(type);
+    f.burst(at.x, at.y, { count: crit ? 26 : 14, color: [c, '#fff'], speed: [80, crit ? 340 : 220], size: [2, crit ? 5 : 3.5], life: [0.2, 0.5], shape: type === 'linea' ? 'spark' : 'chunk', drag: 0.88 });
+    if (crit) { f.ring(at.x, at.y, { color: c, radius: 70, width: 4 }); motion(arena.current, { x: [0, -8, 7, -4, 0], y: [0, 4, -5, 2, 0] }, { duration: 0.32 }); }
+  };
+
   // Cuenta y anima cada evento del turno en orden: embestida, destello, número y frase.
   const show = async (ev) => {
     const still = reduced();
@@ -59,7 +78,7 @@ export function DuelScreen({ sub, onBack, onEnd, endLabel = t('common.continue',
     const dir = ev.by === 'light' ? 1 : -1;
     setLine(`${who} usa ${m.name}.`);
     playSfx(m.power ? 'whoosh' : 'select');
-    if (m.power && a && !still) await motion(a, { x: [0, 26 * dir, 0], y: [0, -18 * dir, 0] }, { duration: 0.32, ease: 'easeInOut' });
+    if (m.power && a && !still) { const l = LUNGE[m.type]?.(dir) || LUNGE.paso(dir); await motion(a, { x: l.x, y: l.y }, { duration: l.dur, ease: 'easeInOut' }); }
     else if (a && !still) await motion(a, { scale: [1, 1.12, 1] }, { duration: 0.3, ease: OUT });
     redraw();
     const target = ev.by === 'light' ? 'dark' : 'light';
@@ -67,7 +86,7 @@ export function DuelScreen({ sub, onBack, onEnd, endLabel = t('common.continue',
     if (ev.heal) { playSfx('flower'); float(ev.by, '+' + ev.heal, 'heal'); await wait(450); return; }
     if (!m.power) { playSfx(m.guard ? 'hit' : 'promote'); float(ev.by, m.guard ? t('duel.guard', 'Guardia') : t('duel.charged', 'Cargado'), 'buff'); await wait(450); return; }
     playSfx(ev.eff > 1 ? 'capture' : ev.guarded ? 'hit' : 'land');
-    if (d && !still) { d.classList.add('flash'); motion(d, { x: [0, 10 * dir, -6 * dir, 0] }, { duration: 0.3 }); setTimeout(() => d.classList.remove('flash'), 140); }
+    if (d && !still) { d.classList.add('flash'); motion(d, { x: [0, 10 * dir, -6 * dir, 0] }, { duration: 0.3 }); setTimeout(() => d.classList.remove('flash'), 140); impact(d, m.type, ev.eff > 1); }
     float(target, '−' + ev.dmg, ev.eff > 1 ? 'crit' : 'dmg');
     if (ev.recoil) float(ev.by, '−' + ev.recoil, 'dmg');
     setLine(ev.eff > 1 ? t('duel.super', '¡Es muy eficaz!') : ev.eff < 1 ? t('duel.weak', 'No es muy eficaz…') : ev.guarded ? t('duel.guarded', 'La guardia amortigua el golpe.') : t('duel.hits', '{who} acierta.', { who }));
