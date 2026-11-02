@@ -1,0 +1,59 @@
+{
+ "cfg": {
+  "settings": {
+   "fx": true,
+   "moments": true
+  },
+  "node": {
+   "modifier": "none"
+  },
+  "pieces": [
+   "king light 7 4",
+   "rook light 7 0",
+   {
+    "type": "boss-wall",
+    "color": "dark",
+    "row": 1,
+    "col": 2,
+    "boss": "wall",
+    "h": 1,
+    "w": 2,
+    "hp": 3,
+    "maxHp": 3,
+    "name": "Muralla",
+    "royal": true,
+    "moves": [
+     "rook2",
+     "advisor"
+    ]
+   }
+  ]
+ },
+ "viewports": [
+  "mobile"
+ ],
+ "themes": [
+  "walnut",
+  "pixelada"
+ ],
+ "steps": [
+  {
+   "eval": "window.__co=[];const m=document.querySelector('.screen');new MutationObserver(()=>{const t=document.body.innerText;if(/Jaque|peligro|a tiro/.test(t))window.__co.push(t.match(/(¡Jaque!|¡En peligro!|[^\\n]*a tiro)/)[0])}).observe(document.body,{subtree:true,childList:true,characterData:true});1"
+  },
+  {
+   "tap": "7,0"
+  },
+  {
+   "tap": "7,2"
+  },
+  {
+   "wait": 3000
+  },
+  {
+   "expect": {
+    "noErrors": true,
+    "eval": "window.__co.some(x => x === '¡Jaque!')"
+   }
+  }
+ ]
+}

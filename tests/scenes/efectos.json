@@ -1,11 +1,60 @@
 {
-  "cfg": { "settings": { "fx": true }, "node": { "modifier": "none" },
-    "pieces": ["king light 7 4", "rook light 7 0", "pawn dark 2 0", "king dark 0 4", "knight dark 3 3"] },
-  "viewports": ["mobile"], "themes": ["walnut", "pixelada"],
-  "steps": [
-    { "tap": "7,0" }, { "tap": "2,0" }, { "wait": 380 }, { "shot": "captura" },
-    { "wait": 2500 },
-    { "eval": "bench.view.floatText(150, 250, '¡Jaque!'); bench.view.blast([[4,4],[4,5],[5,4]]); 1" }, { "wait": 250 }, { "shot": "texto-bomba" },
-    { "expect": { "noErrors": true } }
+ "cfg": {
+  "settings": {
+   "fx": true
+  },
+  "node": {
+   "modifier": "none"
+  },
+  "pieces": [
+   "king light 7 4",
+   "rook light 7 0",
+   "pawn dark 2 0",
+   "king dark 0 4",
+   "knight dark 3 3"
   ]
+ },
+ "viewports": [
+  "mobile"
+ ],
+ "themes": [
+  "walnut",
+  "pixelada"
+ ],
+ "steps": [
+  {
+   "tap": "7,0"
+  },
+  {
+   "tap": "2,0"
+  },
+  {
+   "wait": 380
+  },
+  {
+   "shot": "captura"
+  },
+  {
+   "wait": 2500
+  },
+  {
+   "eval": "bench.view.floatText(150, 250, '¡Jaque!'); bench.view.blast([[4,4],[4,5],[5,4]]); 1"
+  },
+  {
+   "wait": 250
+  },
+  {
+   "shot": "texto-bomba"
+  },
+  {
+   "expect": {
+    "eval": "document.querySelectorAll('.apk-fx-canvas').length === 1 && !!document.querySelector('.fx-layer')"
+   }
+  },
+  {
+   "expect": {
+    "noErrors": true
+   }
+  }
+ ]
 }

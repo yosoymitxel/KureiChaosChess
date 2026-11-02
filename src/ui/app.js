@@ -80,7 +80,7 @@ export function App() {
   useEffect(() => { saveSettings(settings); }, [settings]);
   // Jardín Zen: se abre al terminar o dejar atrás el tutorial (también para partidas de antes de esta regla).
   const zenOpen = loadAchievements().includes('zen_open');
-  useEffect(() => { if (!zenOpen && settings.tutorialSeen && !run?.tutorial) award('zen_open'); }, [run?.tutorial]);
+  useEffect(() => { if (!zenOpen && (settings.tutorialSeen || loadAchievements().length) && !run?.tutorial) award('zen_open'); }, [run?.tutorial]);
   useEffect(() => { setSfxEnabled(settings.sound); setSfxVolume(settings.volume); }, [settings.sound, settings.volume]);
   useEffect(() => { setMusicEnabled(settings.music !== false); }, [settings.music]);
   // El navegador no deja sonar sin un gesto: el fondo arranca con el primer toque. El listener
@@ -104,7 +104,7 @@ export function App() {
     if ((run.mutations || []).length >= 5) award('mut_5');
     if ((run.mutations || []).some((id) => MUTATIONS[id]?.rarity === 'epic')) award('mut_epic');
     if ((run.minisWon || 0) >= 3) award('minis_3');
-    if ((run.cards || []).length >= HAND_LIMIT) award('full_hand');
+    if ((run.cards || []).filter((id) => !CARDS[id]?.lilac).length >= HAND_LIMIT) award('full_hand');
   }, [run]);
 
   // Curtain wipe between screens.

@@ -1,0 +1,5 @@
+{ "cfg": { "settings": { "fx": true }, "node": { "modifier": "none" }, "run": { "cards": ["frost", "haste"] },
+  "pieces": ["king light 7 4", "rook light 7 0", "king dark 0 4"] },
+  "viewports": ["pc"], "themes": ["walnut", "pixelada"],
+  "steps": [ { "eval": "window.__tiles = bench.view.tiles.size; 1" }, { "card": "Escarcha" }, { "tap": "4,4" }, { "wait": 900 },
+    { "expect": { "noErrors": true, "eval": "bench.view.tiles.get('4,4').classList.contains('ice') && bench.view.tiles.size === window.__tiles" } } ] }

@@ -10,7 +10,7 @@ import { ZEN_KINDS, ZEN_NAMES, addZenSeeds, addZenItem, loadZen } from '../../ga
 import { SEEDS, GARDEN_ITEMS } from '../../data/garden.js';
 import { chipArt, ITEM_ART } from '../zen-art.js';
 import { playSfx } from '../sfx.js';
-import { t, tp } from '../../i18n/index.js';
+import { t } from '../../i18n/index.js';
 
 const CARD_LIST = Object.values(CARDS);
 

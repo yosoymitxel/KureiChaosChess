@@ -186,6 +186,29 @@ export class BoardView {
   }
 
 
+  tileEl(board, r, c) {
+    const t = document.createElement('div');
+    t.className = 'tile ' + ((r + c) % 2 ? 'b' : 'a');
+    t.dataset.r = r; t.dataset.c = c;
+    t.style.setProperty('--r', r); t.style.setProperty('--c', c);
+    t.style.setProperty('--grain', ((r * 7 + c * 13) % 5) / 5);
+    const terrain = board.terrain?.get(key(r, c));
+    if (terrain) t.classList.add(terrain);
+    // Portal pairs share a colour so the player can tell which tile leads where.
+    if (terrain === 'portal') t.classList.add(portalAt(board, r, c)?.pair || '');
+    t.innerHTML = '<i class="mark"></i>';
+    return t;
+  }
+  // Una casilla nueva o cambiada (cartas Puente y Escarcha) sin rehacer el tablero: se conservan monedas, avisos y estanque.
+  refreshTile(r, c) {
+    const k = key(r, c), old = this.tiles.get(k);
+    if (this.board.holes.has(k)) { old?.remove(); this.tiles.delete(k); return; }
+    const t = this.tileEl(this.board, r, c);
+    if (old) old.replaceWith(t); else this.tilesEl.appendChild(t);
+    this.tiles.set(k, t);
+    this.refreshEdges();
+  }
+
   setBoard(board) {
     this.board = board;
     this.tilesEl.parentElement.classList.toggle('covered', !!board.mines);
@@ -195,16 +218,7 @@ export class BoardView {
     const frag = document.createDocumentFragment();
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
       if (holes.has(key(r, c))) continue;
-      const t = document.createElement('div');
-      t.className = 'tile ' + ((r + c) % 2 ? 'b' : 'a');
-      t.dataset.r = r; t.dataset.c = c;
-      t.style.setProperty('--r', r); t.style.setProperty('--c', c);
-      t.style.setProperty('--grain', ((r * 7 + c * 13) % 5) / 5);
-      const terrain = board.terrain?.get(key(r, c));
-      if (terrain) t.classList.add(terrain);
-      // Portal pairs share a colour so the player can tell which tile leads where.
-      if (terrain === 'portal') t.classList.add(portalAt(board, r, c)?.pair || '');
-      t.innerHTML = '<i class="mark"></i>';
+      const t = this.tileEl(board, r, c);
       frag.appendChild(t);
       this.tiles.set(key(r, c), t);
     }
@@ -948,7 +962,7 @@ export class BoardView {
     } else if (id === 'reinforce' || id === 'summon') {
       await this.dropIn(res.spawned);
     } else if (id === 'bridge' || id === 'frost') {
-      this.setBoard(this.board);
+      this.refreshTile(res.cell.row, res.cell.col);
       const c = this.centerOf(res.cell);
       this.fx.sparkle(c.x, c.y, id === 'frost' ? '#bfe6ff' : css('--brass'), 14);
       playSfx(id === 'frost' ? 'whoosh' : 'land');

@@ -1,0 +1,101 @@
+{
+ "cfg": {
+  "settings": {
+   "fx": true
+  },
+  "node": {
+   "modifier": "none"
+  }
+ },
+ "viewports": [
+  "mobile"
+ ],
+ "themes": [
+  "walnut",
+  "pixelada"
+ ],
+ "steps": [
+  {
+   "eval": "bench.view.setWeather('rain'); 1"
+  },
+  {
+   "wait": 300
+  },
+  {
+   "expect": {
+    "eval": "document.querySelector('.screen').dataset.weather === 'rain' && getComputedStyle(document.querySelector('.screen'), '::before').backgroundImage.includes('svg')"
+   }
+  },
+  {
+   "eval": "bench.view.setWeather('snow'); 1"
+  },
+  {
+   "wait": 300
+  },
+  {
+   "expect": {
+    "eval": "document.querySelector('.screen').dataset.weather === 'snow' && getComputedStyle(document.querySelector('.screen'), '::before').backgroundImage.includes('svg')"
+   }
+  },
+  {
+   "eval": "bench.view.setWeather('fog'); 1"
+  },
+  {
+   "wait": 300
+  },
+  {
+   "expect": {
+    "eval": "document.querySelector('.screen').dataset.weather === 'fog' && getComputedStyle(document.querySelector('.screen'), '::before').backgroundImage.includes('svg')"
+   }
+  },
+  {
+   "eval": "bench.view.setWeather('leaves'); 1"
+  },
+  {
+   "wait": 300
+  },
+  {
+   "expect": {
+    "eval": "document.querySelector('.screen').dataset.weather === 'leaves' && getComputedStyle(document.querySelector('.screen'), '::before').backgroundImage.includes('svg')"
+   }
+  },
+  {
+   "eval": "bench.view.setWeather('fireflies'); 1"
+  },
+  {
+   "wait": 300
+  },
+  {
+   "expect": {
+    "eval": "document.querySelector('.screen').dataset.weather === 'fireflies' && getComputedStyle(document.querySelector('.screen'), '::before').backgroundImage.includes('svg')"
+   }
+  },
+  {
+   "eval": "bench.view.setWeather('bubbles'); 1"
+  },
+  {
+   "wait": 300
+  },
+  {
+   "expect": {
+    "eval": "document.querySelector('.screen').dataset.weather === 'bubbles' && getComputedStyle(document.querySelector('.screen'), '::before').backgroundImage.includes('svg')"
+   }
+  },
+  {
+   "eval": "bench.view.setWeather('embers'); 1"
+  },
+  {
+   "wait": 300
+  },
+  {
+   "expect": {
+    "eval": "document.querySelector('.screen').dataset.weather === 'embers' && getComputedStyle(document.querySelector('.screen'), '::before').backgroundImage.includes('svg')"
+   }
+  },
+  {
+   "expect": {
+    "noErrors": true
+   }
+  }
+ ]
+}

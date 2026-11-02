@@ -43,6 +43,9 @@ export class Match {
   legal(piece) {
     if (piece.witch) return []; // nadie la manda: se mueve sola (witchStep)
     let all = [...legalMoves(piece, this.pieces, this.board), ...this.special(piece), ...(this.rule?.moves?.(this, piece) || [])];
+    // Si una carta ya llevaba al rey a la casilla del enroque, gana el enroque (se marca en azul).
+    const castles = all.filter((m) => m.castle);
+    if (castles.length) all = all.filter((m) => m.castle || m.hits.length || !castles.some((c) => c.row === m.row && c.col === m.col));
     if (this.rule?.filter) all = this.rule.filter(this, piece, all);
     return piece.color === this.player.color && this.quietOnly() ? all.filter((m) => !m.hits.length) : all;
   }
@@ -65,10 +68,7 @@ export class Match {
         for (let c = piece.col + s; c !== rook.col; c += s) if (!open(piece.row, c)) clear = false;
         // El rey no enroca a través de una casilla atacada.
         if (!clear || [1, 2].some((k) => this.attacked(piece, piece.row, piece.col + k * s))) continue;
-        // Si una carta ya llevaba al rey a esa casilla, gana el enroque (se marca en azul).
-        const to = piece.col + 2 * s;
-        for (let i = out.length - 1; i >= 0; i--) if (out[i].row === piece.row && out[i].col === to && !out[i].hits.length) out.splice(i, 1);
-        out.push({ row: piece.row, col: to, hits: [], castle: { rook, col: piece.col + s } });
+        out.push({ row: piece.row, col: piece.col + 2 * s, hits: [], castle: { rook, col: piece.col + s } });
       }
     }
     return out;

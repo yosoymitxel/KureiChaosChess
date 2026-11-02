@@ -1,0 +1,43 @@
+{
+ "cfg": {
+  "node": {
+   "modifier": "chicken"
+  },
+  "pieces": [
+   "king light 7 4",
+   "rook light 7 0",
+   "pawn dark 2 0",
+   "king dark 0 4"
+  ]
+ },
+ "viewports": [
+  "mobile"
+ ],
+ "themes": [
+  "walnut",
+  "pixelada"
+ ],
+ "steps": [
+  {
+   "wait": 1500
+  },
+  {
+   "tap": "7,0"
+  },
+  {
+   "tap": "2,0"
+  },
+  {
+   "wait": 1500
+  },
+  {
+   "shot": "gallina"
+  },
+  {
+   "expect": {
+    "noErrors": true,
+    "eval": "!!document.querySelector('.pc.chicken .hen')"
+   }
+  }
+ ]
+}

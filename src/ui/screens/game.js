@@ -11,7 +11,7 @@ import { generateBoard, placePieces, eliteVariants } from '../../game/generate.j
 import { moveCells, cellsOf, key, anchorForCell, immune, walkable, reachPreview } from '../../game/rules.js';
 import { playDemo, mutationDemo, bossDemo, pieceDemo } from '../demos.js';
 import { CARDS, CARD_IDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
-import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
+import { nodeModifier } from '../../data/modifiers.js';
 import { MUTATIONS, countMutations, EXTRA_MOVES } from '../../data/mutations.js';
 import { weatherFor, TIED_WEATHER, WEATHER } from '../../data/weather.js';
 import { playAPKTransformVariant, playAPKDisco, playAPKPixelTrail, playAPKParticleBurst, playAPKTileSpark } from '../../lab/apk/effects.js';
@@ -184,7 +184,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         setCardTip(cardEffect(card, piece, pv) + '.' + again);
       } else if (card.target === 'tile' && hit && keys.has(key(hit.row, hit.col))) {
         d.view.showPreview(keys, pieces, { footprint: [key(hit.row, hit.col)] });
-        setCardTip((card.id === 'quake' ? t('game.quakeTip', 'Esta casilla se hundirá para siempre.') : t('game.reinforceTip', 'Aquí entrará un peón nuevo.')) + again);
+        setCardTip(({ quake: t('game.quakeTip', 'Esta casilla se hundirá para siempre.'), reinforce: t('game.reinforceTip', 'Aquí entrará un peón nuevo.') }[card.id] || card.desc) + again);
       } else { d.view.showTargets(keys, pieces); d.view.select(null); setCardTip(null); }
     };
     const playFromHand = async (hit) => {

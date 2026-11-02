@@ -1197,7 +1197,7 @@ src/ui/zen-art.js:250 +boardPond
 src/ui/zen-art.js:256 +stoneArt
 src/ui/zen-art.js:262 +ITEM_ART
 src/ui/zen-art.js:267 +KOI_ART
-## src/view/board-view.js (1235L)
+## src/view/board-view.js (1249L)
 src/view/board-view.js:16 pixelArt
 src/view/board-view.js:18 WITCH
 src/view/board-view.js:30 HEN

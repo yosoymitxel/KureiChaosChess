@@ -1,0 +1,25 @@
+{
+ "cfg": {
+  "node": {
+   "modifier": "coven"
+  }
+ },
+ "viewports": [
+  "mobile"
+ ],
+ "themes": [
+  "walnut",
+  "pixelada"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "expect": {
+    "noErrors": true,
+    "eval": "!!document.querySelector('.witch-art')"
+   }
+  }
+ ]
+}
