@@ -347,7 +347,16 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       }
       // Partículas del APK (solo con efectos activados): estela del movimiento y estallido al capturar.
       const apk = d.view.fx.vfx && !matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (apk && res.from && res.to) playAPKPixelTrail(d.view.host, d.view, res.from, res.to);
+      if (apk && res.from && res.to) {
+        // Estela tenue y del color del bando que mueve (no siempre verde).
+        // El lienzo no entiende variables ni color-mix: se resuelven a rgb con un elemento de prueba.
+        const side = '--side-' + (res.piece.witch ? 'wild' : res.piece.color), probe = document.createElement('i');
+        d.view.host.appendChild(probe);
+        const rgb = (mix) => { probe.style.color = `color-mix(in oklch, var(${side}), ${mix})`; return getComputedStyle(probe).color; };
+        const colors = [rgb('white 45%'), rgb('white 0%'), rgb('black 40%')];
+        probe.remove();
+        playAPKPixelTrail(d.view.host, d.view, res.from, res.to, { colors, alpha: 0.45 });
+      }
       await d.view.playMove(res);
       if (apk && res.victims?.length) playAPKParticleBurst(d.view.host, d.view, res.to, ['#ffc83d', '#ff2d55', '#ffffff'], 28);
       await showMech(res.mech);

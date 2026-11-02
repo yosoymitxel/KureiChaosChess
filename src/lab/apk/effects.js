@@ -155,18 +155,23 @@ export function playAPKSpawnBurst(host, view, pieces) {
   });
 }
 
-export function playAPKPixelTrail(host, view, fromCell, toCell) {
+// `opts`: colors [claro, medio, oscuro] (por defecto el verde del APK) y alpha. El tamaño sigue a la
+// perspectiva: cada cuadro mide según la casilla por la que pasa (lejos, más chico; cerca, más grande).
+export function playAPKPixelTrail(host, view, fromCell, toCell, opts = {}) {
+  const [c1, c2, c3] = opts.colors || ['#efffa5', '#3dff8e', '#1f7a3a'];
+  const tileSize = (cell) => view?.tiles?.get(cell.row + ',' + cell.col)?.getBoundingClientRect().width || view?.sq || 48;
+  const sa = tileSize(fromCell) / 48, sb = tileSize(toCell) / 48, A = opts.alpha ?? 1;
   return animateCanvas(host, view, 680, (ctx, t, w, h, locate) => {
     const a = locate(fromCell), b = locate(toCell), front = easeOut(t);
     for (let i = 10; i >= 0; i--) {
-      const p = clamp(front - i * 0.075, 0, 1);
+      const p = clamp(front - i * 0.075, 0, 1), k = mix(sa, sb, p);
       const x = mix(a.x, b.x, p), y = mix(a.y, b.y, p);
-      const alpha = (1 - i / 12) * (1 - t * 0.4);
-      square(ctx, x, y, 7 + (i % 3) * 2, i % 3 === 0 ? '#efffa5' : '#3dff8e', alpha);
-      square(ctx, x - 5, y + 4, 4, '#1f7a3a', alpha * 0.85);
-      if (i % 2 === 0) square(ctx, x + 6, y - 4, 4, '#a9d68e', alpha * 0.75);
+      const alpha = A * (1 - i / 12) * (1 - t * 0.4);
+      square(ctx, x, y, (7 + (i % 3) * 2) * k, i % 3 === 0 ? c1 : c2, alpha);
+      square(ctx, x - 5 * k, y + 4 * k, 4 * k, c3, alpha * 0.85);
+      if (i % 2 === 0) square(ctx, x + 6 * k, y - 4 * k, 4 * k, c1, alpha * 0.75);
     }
-    square(ctx, b.x, b.y, 9 + Math.sin(t * Math.PI) * 4, '#ffffff', 1 - t * 0.45);
+    square(ctx, b.x, b.y, (9 + Math.sin(t * Math.PI) * 4) * sb, '#ffffff', A * (1 - t * 0.45));
     ctx.globalAlpha = 1;
   });
 }
