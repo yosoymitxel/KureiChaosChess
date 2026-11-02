@@ -21,7 +21,8 @@ const SIDES = [
 
 // Selector de mecánicas de la run (los gambitos de Gambonanza): cada toque pasa normal → favorita → vetada.
 export const RUN_MECHANICS = ['ice', 'portal', 'fog', 'chaos', 'zombie', 'contagion', 'coven', 'meteor', 'rush', 'promote', 'elite'];
-// Las de reglas propias (src/game/mechanics.js) van plegadas: se despliegan con «Ver más».
+// Las más vistosas, en grande; el resto (con las de reglas propias, src/game/mechanics.js) en «Ver todo».
+const FEATURED = ['meteor', 'zombie', 'coven', 'portal', 'powers', 'potato', 'chicken', 'bullet'];
 const MORE_MECHANICS = ['powers', 'hp', 'gravity', 'events', 'potato', 'invis', 'drunk', 'chicken', 'bullet', 'anti', 'randarmy', 'giant', 'pqueen', 'ppawn', 'horse'];
 function PrefsCard({ prefs, onPrefs }) {
   const [open, setOpen] = useState(false);
@@ -38,10 +39,14 @@ function PrefsCard({ prefs, onPrefs }) {
     <h2>${t('prefs.title', 'Mecánicas de esta run')}</h2>
     <p class="setup-note">${t('prefs.note', 'Toca una mecánica: favorita (sale mucho más, hasta {fav}), vetada (no sale, {ban}) o normal. El mapa se vuelve a sortear.', { fav: PREF_LIMITS.fav, ban: PREF_LIMITS.ban })}</p>
     <div class="pref-grid">
-      ${[...RUN_MECHANICS, ...MORE_MECHANICS.filter((id) => open || state(id))].map((id) => html`<button class=${'pref ' + state(id)} aria-label=${`${MODIFIERS[id].name}: ${label[state(id)]}`} title=${MODIFIERS[id].desc} onClick=${() => cycle(id)}>
-        <${Icon} name=${MODIFIERS[id].icon} size=${18} /><span>${MODIFIERS[id].name}</span></button>`)}
+      ${[...FEATURED, ...(open ? [] : [...RUN_MECHANICS, ...MORE_MECHANICS].filter((id) => !FEATURED.includes(id) && state(id)))].map((id) => html`<button class=${'pref ' + state(id)} aria-label=${`${MODIFIERS[id].name}: ${label[state(id)]}`} title=${MODIFIERS[id].desc} onClick=${() => cycle(id)}>
+        <${Icon} name=${MODIFIERS[id].icon} size=${20} /><span>${MODIFIERS[id].name}</span><small>${label[state(id)]}</small></button>`)}
     </div>
-    <button class="btn sm pref-more" aria-expanded=${open} onClick=${() => setOpen(!open)}>${open ? t('prefs.less', 'Ver menos') : t('prefs.more', 'Ver {n} más', { n: MORE_MECHANICS.filter((id) => !state(id)).length })}</button>
+    <button class="btn sm pref-more" aria-expanded=${open} onClick=${() => setOpen(!open)}>${open ? t('prefs.less', 'Ver menos') : t('prefs.all', 'Ver todo')}</button>
+    ${open && html`<div class="pref-grid mini">
+      ${[...RUN_MECHANICS, ...MORE_MECHANICS].filter((id) => !FEATURED.includes(id)).map((id) => html`<button class=${'pref ' + state(id)} aria-label=${`${MODIFIERS[id].name}: ${label[state(id)]}`} title=${MODIFIERS[id].desc} onClick=${() => cycle(id)}>
+        <${Icon} name=${MODIFIERS[id].icon} size=${18} /><span>${MODIFIERS[id].name}</span></button>`)}
+    </div>`}
   </section>`;
 }
 

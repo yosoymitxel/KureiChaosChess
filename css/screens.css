@@ -1371,10 +1371,13 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .bm-pc.hit svg { filter: brightness(2.4) saturate(0.25); }
 .bm.lost { filter: saturate(0.35) brightness(0.85); transition: filter 0.8s var(--ease-out); }
 /* Selector de mecánicas de la run: favorita en latón, vetada tachada en rojo. */
-/* Fichas de una línea (icono y nombre): el estado lo dicen el color y el tachado, y el nombre accesible. */
-.pref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 6px; }
-.pref { display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 8px; border-radius: 10px; border: 2px solid var(--ink); background: var(--paper-2); color: var(--ink); font: inherit; font-size: 13px; font-weight: 750; line-height: 1.15; text-align: left; cursor: pointer; }
-.pref .icon { flex: none; }
+.pref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.pref { display: grid; justify-items: center; gap: 2px; min-height: 76px; padding: 8px 6px; border-radius: 10px; border: 2px solid var(--ink); background: var(--paper-2); color: var(--ink); font: inherit; font-weight: 750; cursor: pointer; }
+.pref small { font-size: 12px; font-weight: 650; color: var(--ink-2); }
+/* «Ver todo»: fichas de una línea; el estado lo dicen el color y el tachado, y el nombre accesible. */
+.pref-grid.mini { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 6px; }
+.pref-grid.mini .pref { display: flex; align-items: center; justify-items: start; gap: 6px; min-height: 40px; padding: 6px 8px; font-size: 13px; line-height: 1.15; text-align: left; }
+.pref-grid.mini .icon { flex: none; }
 .pref-more { justify-self: start; }
 .pref.fav { background: var(--brass); }
 .pref.ban { background: var(--paper-3); color: var(--danger); text-decoration: line-through; border-style: dashed; }

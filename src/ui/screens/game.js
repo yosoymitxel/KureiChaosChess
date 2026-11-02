@@ -12,7 +12,7 @@ import { moveCells, cellsOf, key, anchorForCell, immune, walkable, reachPreview 
 import { playDemo, mutationDemo, bossDemo, pieceDemo } from '../demos.js';
 import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
 import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
-import { MUTATIONS, countMutations } from '../../data/mutations.js';
+import { MUTATIONS, countMutations, EXTRA_MOVES } from '../../data/mutations.js';
 import { weatherFor, TIED_WEATHER } from '../../data/weather.js';
 import { vfxOn } from '../../data/themes.js';
 import { playMech } from '../board-fx.js';
@@ -226,6 +226,16 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     };
     // Detalle de una pieza para el panel: separa lo que añadieron las mutaciones, las cartas o un
     // jefe de lo básico del tipo, que era lo que quedaba confuso al caer dos mejoras en la misma.
+    // Demo de cómo se mueve (toque en el icono), según de dónde le viene: jefe, mutación, carta o la pieza sola.
+    const demoOf = (p, mut, cards) => {
+      if (p.boss) return bossDemo(p.boss, p.color);
+      const moving = mut.find((id) => EXTRA_MOVES[id]);
+      if (moving) return mutationDemo(moving, p.color);
+      const card = cards.map((id) => CARDS[id]).find(Boolean);
+      const reach = reachPreview({ type: p.type, moves: p.moves, extra: p.extraMoveTypes || [] });
+      if (card) return { title: card.name, sub: card.desc, piece: { type: p.type, side: p.color }, ...reach };
+      return { ...pieceDemo(p.type, p.color), ...reach };
+    };
     const detailOf = (p, count, threat) => {
       const guarded = immune(p, match.pieces);
       const escort = p.escort && match.pieces.find((o) => o.id === p.escort);
@@ -245,7 +255,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       return {
         type: p.type, side: p.color, name: pieceName(p), color: SIDE_NAME[p.color], moves: count, threat,
         // Demo de cómo se mueve (toque en el icono): el jefe con la suya; el resto con sus patrones de verdad.
-        demo: p.boss ? bossDemo(p.boss, p.color) : { ...pieceDemo(p.type, p.color), title: pieceName(p), ...reachPreview({ type: p.type, moves: p.moves, extra: p.extraMoveTypes || [] }) },
+        demo: demoOf(p, mut, cards),
         boss: p.boss && BOSSES[p.boss].desc,
         guard: guarded && (p.trait === 'last' ? t('game.guardLast', 'Solo cae cuando sea la última pieza de su bando.') : t('game.guardEscort', 'Protegida: no cae mientras viva su escolta ({escort}).', { escort: (escort ? pieceName(escort) : t('game.piece', 'pieza')).toLowerCase() })),
         mut: [...new Set(mut)],

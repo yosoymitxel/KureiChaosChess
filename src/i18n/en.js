@@ -122,7 +122,7 @@ export default {
     'prefs.title': 'Mechanics in this run',
     'prefs.note': 'Tap a mechanic: favorite (shows up much more, up to {fav}), banned (never shows up, {ban}) or normal. The map is redrawn.',
     'prefs.fav': 'favorite',
-    'prefs.more': 'Show {n} more',
+    'prefs.all': 'Show all',
     'prefs.less': 'Show less',
     'game.howMoves': 'See how it moves',
     'prefs.ban': 'banned',
