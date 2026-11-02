@@ -14,6 +14,18 @@ import { boardPond } from '../ui/zen-art.js';
 import { playAPKBombBlast, playAPKVictory, playAPKTeleport, playAPKTransformVariant, playAPKDeathStyle, playAPKSpawnVariant, playAPKFloatingText } from '../lab/apk/effects.js';
 
 const pixelArt = () => document.documentElement.dataset.art === 'pixel';
+// Bruja (Aquelarre, minijuego y carta): sombrero picudo, cara verde y capa; vector y píxel como la gallina.
+const WITCH = `<svg class="hen witch-art" viewBox="0 0 24 24" aria-hidden="true"><g class="hen-vec">
+<path d="M6 22c0-5 2-9 6-9s6 4 6 9z" fill="#3b2457" stroke="#1b1226" stroke-width="1.1" stroke-linejoin="round"/>
+<circle cx="12" cy="11" r="3.6" fill="#8fcf6a" stroke="#1b1226" stroke-width="1"/>
+<circle cx="10.8" cy="10.6" r=".55" fill="#1b1226"/><circle cx="13.2" cy="10.6" r=".55" fill="#1b1226"/><path d="M12 11.4l1.4 1.2-1.4.2" fill="#6fae4c" stroke="#1b1226" stroke-width=".5"/>
+<path d="M5.5 8.6h13l-2.4-1.2L13 1.5l-2 4.6-2.6 1.3z" fill="#5a2f86" stroke="#1b1226" stroke-width="1" stroke-linejoin="round"/>
+<path d="M10.3 6.4h4.6" stroke="#f0b93c" stroke-width="1.1"/><path d="M19 13l1.5 9" stroke="#8a5a2b" stroke-width="1.2" stroke-linecap="round"/></g>
+<g class="hen-px" shape-rendering="crispEdges"><rect x="12" y="1" width="2" height="2" fill="#5a2f86"/><rect x="11" y="3" width="3" height="2" fill="#5a2f86"/>
+<rect x="10" y="5" width="5" height="1" fill="#f0b93c"/><rect x="9" y="6" width="7" height="1" fill="#5a2f86"/><rect x="5" y="7" width="14" height="2" fill="#5a2f86"/>
+<rect x="9" y="9" width="6" height="4" fill="#8fcf6a"/><rect x="10" y="10" width="1" height="1" fill="#1b1226"/><rect x="13" y="10" width="1" height="1" fill="#1b1226"/><rect x="12" y="11" width="2" height="2" fill="#6fae4c"/>
+<rect x="8" y="13" width="8" height="2" fill="#3b2457"/><rect x="7" y="15" width="10" height="4" fill="#3b2457"/><rect x="6" y="19" width="12" height="3" fill="#3b2457"/>
+<rect x="19" y="13" width="1" height="9" fill="#8a5a2b"/></g></svg>`;
 // Gallina del Gallinero: dos dibujos (vector y píxel), CSS elige según la mesa.
 const HEN = `<svg class="hen" viewBox="0 0 24 24" aria-hidden="true"><g class="hen-vec">
 <path d="M5 13c0-4 3-6 7-6 2 0 3-2 5-2 2 0 3 2 2 4l2 1-2 1c0 5-4 8-8 8s-6-2-6-6z" fill="#f6f1e6" stroke="#2a2018" stroke-width="1.2" stroke-linejoin="round"/>
@@ -323,14 +335,14 @@ export class BoardView {
   addPiece(p) {
     const el = document.createElement('div');
     const [h, w] = sizeOf(p);
-    el.className = `pc side-${look(p)}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}${p.infected ? ' infected' : ''}${p.disc ? ' disc' : ''}${p.crown ? ' crown' : ''}${p.chicken ? ' chicken' : ''}`;
+    el.className = `pc side-${look(p)}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}${p.infected ? ' infected' : ''}${p.disc ? ' disc' : ''}${p.crown ? ' crown' : ''}${p.chicken ? ' chicken' : ''}${p.witch ? ' witch-pc' : ''}`;
     el.dataset.pid = p.id;
     el.style.setProperty('--h', h); el.style.setProperty('--w', w);
     el.style.setProperty('--s', h * w > 1 ? Math.max(h, w) * 0.85 : 1); // multi-cell figures read bigger than one tile
     el.style.setProperty('--head', headTop(artOf(p)).toFixed(3));
     el.style.setProperty('--bd', `-${(Math.random() * 3.4).toFixed(2)}s`); // cada pieza respira a su ritmo
     el.innerHTML = `<div class="pc-shadow"></div><div class="pc-base"><i></i><i></i><i></i></div>
-      <div class="pc-stand"><div class="pc-fig"><div class="pc-art">${p.chicken ? HEN : pieceSVG(artOf(p))}</div>${p.boss || p.maxHp > 1 ? this.hpHTML(p) : ''}<span class="pc-badge"></span></div></div>`;
+      <div class="pc-stand"><div class="pc-fig"><div class="pc-art">${p.chicken ? HEN : p.witch ? WITCH : pieceSVG(artOf(p))}</div>${p.boss || p.maxHp > 1 ? this.hpHTML(p) : ''}<span class="pc-badge"></span></div></div>`;
     this.piecesEl.appendChild(el);
     this.els.set(p, el);
     const st = { r: p.row, c: p.col, z: 0 };
@@ -423,7 +435,7 @@ export class BoardView {
 
   setArt(p) {
     const art = this.els.get(p)?.querySelector('.pc-art');
-    if (art) art.innerHTML = pieceSVG(artOf(p));
+    if (art) art.innerHTML = p.chicken ? HEN : p.witch ? WITCH : pieceSVG(artOf(p));
   }
   // Cambio de mesa a mitad de partida (pausa): las piezas pasan al arte de la nueva mesa.
   restyle() {
