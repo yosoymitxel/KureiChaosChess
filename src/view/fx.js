@@ -27,6 +27,8 @@ export class Fx {
   resize() {
     const r = this.canvas.getBoundingClientRect(); // la capa puede salir del tablero (ver .fx-layer en board.css);
     const dpr = Math.min(devicePixelRatio || 1, 2);
+    // Al cambiar de tamaño, el clima vuelve a repartirse en el área nueva.
+    if (this.weather && (Math.abs(r.width - this.w) > 2 || Math.abs(r.height - this.h) > 2)) { this.parts = this.parts.filter((p) => !p.wk); this.weather.n = {}; this.weather.warm = false; }
     this.w = r.width; this.h = r.height;
     this.canvas.width = Math.round(r.width * dpr);
     this.canvas.height = Math.round(r.height * dpr);
@@ -261,7 +263,8 @@ export class Fx {
     const dt = Math.min((now - this.last) / 1000, 0.05);
     this.last = now;
     const { ctx } = this, pixel = document.documentElement.dataset.art === 'pixel';
-    ctx.clearRect(0, 0, this.w, this.h);
+    // Borra el lienzo entero (no solo w×h): si el tamaño cambió a mitad, no quedan estelas pegadas.
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); ctx.restore();
     const T = now / 1000, W = this.weather?.W;
     if (W && this.h > 40) {
       // Cada tipo mantiene sus partículas vivas; al empezar nacen repartidas por toda la capa.
@@ -328,6 +331,6 @@ export class Fx {
     }
     ctx.globalAlpha = 1;
     this.raf = this.parts.length || this.weather || this.sf.length ? requestAnimationFrame((t) => this.loop(t)) : 0;
-    if (!this.raf) ctx.clearRect(0, 0, this.w, this.h);
+    if (!this.raf) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); ctx.restore(); }
   }
 }
