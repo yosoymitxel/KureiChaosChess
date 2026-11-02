@@ -144,6 +144,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         counts: Object.fromEntries(seats.map((s) => [s.color, match.pieces.filter((x) => x.color === s.color).length])),
         canCard: p.kind === 'human' && !match.cardUsed && !match.over,
         myTurn: p.kind === 'human' && !match.over,
+        grav: match.mech?.dir || 0,
         color: p.color,
         captured: Object.fromEntries(seats.map((s) => [s.color, d.dealt.filter((x) => x.color === s.color && !match.pieces.includes(x)).map((x) => x.type)])),
         turn: match.turn,
@@ -835,6 +836,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       </section>
       <div class="chips">
         ${hud?.threats > 0 && html`<button class="chip danger" data-pad="y" aria-pressed=${chipInfo?.id === 'threats'} onClick=${() => explain('threats', t('game.inDanger', '{n} en peligro', { n: hud.threats }), t('game.inDangerText', 'Las piezas que laten en rojo pueden ser capturadas en la próxima jugada rival. Muévelas o protégelas.'))}><${Icon} name="warn" size=${12} /> ${t('game.inDanger', '{n} en peligro', { n: hud.threats })}</button>`}
+        ${node.modifier === 'gravity' && hud && html`<button class="chip" aria-pressed=${chipInfo?.id === 'gravity'} onClick=${() => explain('gravity', t('game.gravityChip', 'gravedad {dir}', { dir: hud.grav ? '→' : '←' }), mod.desc + ' ' + t('game.gravityText', 'Cambia de lado en {n} rondas.', { n: 6 - (Math.floor(hud.turn / seats.length) % 6) }))}><${Icon} name="drop" size=${12} /> ${t('game.gravityChip', 'gravedad {dir}', { dir: hud.grav ? '→' : '←' })}</button>`}
         ${node.modifier === 'chaos' && hud && html`<button class="chip" aria-pressed=${chipInfo?.id === 'chaos'} onClick=${() => explain('chaos', t('game.collapseIn', 'Derrumbe en {n}', { n: hud.chaosIn }), mod.desc + ' ' + t('game.collapseInText', 'Faltan {n} turnos para el próximo; lo que esté encima cae.', { n: hud.chaosIn }))}><${Icon} name="collapse" size=${12} /> ${t('game.collapseInChip', 'derrumbe en {n}', { n: hud.chaosIn })}</button>`}
         ${muts.map(([id, n]) => html`<button class="chip mut" aria-pressed=${chipInfo?.id === id} onClick=${() => explain(id, MUTATIONS[id]?.name + (n > 1 ? ' ×' + n : ''), MUTATIONS[id]?.desc + ' ' + t('game.mutChip', 'Es una mutación de tu ejército: dura toda la run.'))}><${Icon} name=${MUTATIONS[id]?.icon} size=${12} />${MUTATIONS[id]?.name}${n > 1 ? ' ×' + n : ''}</button>`)}
       </div>

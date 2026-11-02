@@ -49,6 +49,7 @@ export const ACHIEVEMENTS = localize('achievements', [
   { id: 'all_minis', group: 'Minijuegos', name: 'Todos los juegos', desc: 'Desbloquea todos los minijuegos.', icon: 'connect4' },
   { id: 'all_tables', group: 'Tienda', name: 'Coleccionista', desc: 'Consigue todas las mesas de la tienda.', icon: 'coin' },
   { id: 'rich_500', group: 'Tienda', name: 'Tesoro', desc: 'Ten 500 monedas a la vez.', icon: 'coin' },
+  { id: 'zen_open', group: 'Jardín Zen', name: 'Puerta del jardín', desc: 'Termina o deja atrás el tutorial: se abre el Jardín Zen.', icon: 'rest' },
   { id: 'flower_1', group: 'Jardín Zen', name: 'Primera flor', desc: 'Cosecha tu primera flor en el Jardín Zen.', icon: 'rest' },
   { id: 'flower_3', group: 'Jardín Zen', name: 'Jardín en flor', desc: 'Cosecha tres flores en el Jardín Zen.', icon: 'rest' },
   { id: 'zen_ring', group: 'Jardín Zen', name: 'Cantero nuevo', desc: 'Amplía el jardín con un anillo nuevo.', icon: 'expand' },

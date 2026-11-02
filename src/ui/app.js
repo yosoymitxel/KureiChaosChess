@@ -78,6 +78,9 @@ export function App() {
   // y necesita data-art (y las variables) ya puestos para pintar las piezas a píxel.
   applyTheme(settings.theme);
   useEffect(() => { saveSettings(settings); }, [settings]);
+  // Jardín Zen: se abre al terminar o dejar atrás el tutorial (también para partidas de antes de esta regla).
+  const zenOpen = loadAchievements().includes('zen_open');
+  useEffect(() => { if (!zenOpen && settings.tutorialSeen && !run?.tutorial) award('zen_open'); }, [run?.tutorial]);
   useEffect(() => { setSfxEnabled(settings.sound); setSfxVolume(settings.volume); }, [settings.sound, settings.volume]);
   useEffect(() => { setMusicEnabled(settings.music !== false); }, [settings.music]);
   // El navegador no deja sonar sin un gesto: el fondo arranca con el primer toque. El listener
@@ -221,7 +224,7 @@ export function App() {
       if (run.map.floors >= 12) award('long_run');
       if (!(run.mutations || []).length) award('pure_boss');
       if (settings.difficulty === 'dificil' && !run.tutorial) award('hard_run');
-      if (run.tutorial) award('tutorial_done');
+      if (run.tutorial) { award('tutorial_done'); award('zen_open'); }
       clearRun(); setRunState(null); return toMenu ? goTo('menu') : newRun();
     }
     if (node.isMiniBoss) { const next = completeNode(run, node); setRun(next); return mutationReward(next, coins, seed); }
@@ -295,7 +298,7 @@ export function App() {
   const FreeMini = MINIGAMES[freeMini]?.Screen;
 
   return html`
-    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${() => goTo('zen')} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} onVersus=${() => newVersus()} settings=${settings} setSettings=${setSettings} />`}
+    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${zenOpen ? () => goTo('zen') : null} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} onVersus=${() => newVersus()} settings=${settings} setSettings=${setSettings} />`}
     ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} onShop=${openShop('map')} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} settings=${settings} setSettings=${setSettings} defaultCount=${seats?.length} onHowTo=${() => setHowTo(true)} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame}

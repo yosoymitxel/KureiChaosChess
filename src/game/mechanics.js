@@ -106,6 +106,9 @@ export const MECHANICS = {
         out.moved.push({ piece: p, from: { row: p.row, col: p.col }, to: { row: r, col: c }, how: 'slide' });
         p.row = r; p.col = c;
       }
+      // Un cartel sobre la primera pieza que resbala: que se entienda por qué se mueven solas.
+      const first = out.moved[0];
+      if (first) out.fx.push({ float: [first.to.row, first.to.col, t('mech.gravityPull', 'Gravedad {dir}', { dir: st.dir ? '→' : '←' })] });
       return has(out) || out.callout ? out : null;
     },
   },

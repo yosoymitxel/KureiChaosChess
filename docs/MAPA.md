@@ -93,28 +93,28 @@ src/data/weather.js:4 +WEATHER
 src/data/weather.js:17 +TIED_WEATHER
 src/data/weather.js:30 CHANCE
 src/data/weather.js:33 +weatherFor
-## src/game/achievements.js (143L)
+## src/game/achievements.js (144L)
 src/game/achievements.js:7 KEY
 src/game/achievements.js:8 read
 src/game/achievements.js:9 write
 src/game/achievements.js:12 +ACHIEVEMENT_GROUPS
 src/game/achievements.js:16 +achievementGroups
 src/game/achievements.js:23 +ACHIEVEMENTS
-src/game/achievements.js:99 +shown
-src/game/achievements.js:102 STATS_KEY
-src/game/achievements.js:103 +loadStats
-src/game/achievements.js:104 +bump
-src/game/achievements.js:106 +collect
-src/game/achievements.js:108 +loadAchievements
-src/game/achievements.js:109 +saveAchievements
-src/game/achievements.js:113 +award
-src/game/achievements.js:126 SEEN_KEY
-src/game/achievements.js:127 +loadSeen
-src/game/achievements.js:128 +seePieces
-src/game/achievements.js:136 MUT_KEY
-src/game/achievements.js:137 +loadMutSeen
-src/game/achievements.js:138 +seeMutations
-## src/game/backup.js (272L)
+src/game/achievements.js:100 +shown
+src/game/achievements.js:103 STATS_KEY
+src/game/achievements.js:104 +loadStats
+src/game/achievements.js:105 +bump
+src/game/achievements.js:107 +collect
+src/game/achievements.js:109 +loadAchievements
+src/game/achievements.js:110 +saveAchievements
+src/game/achievements.js:114 +award
+src/game/achievements.js:127 SEEN_KEY
+src/game/achievements.js:128 +loadSeen
+src/game/achievements.js:129 +seePieces
+src/game/achievements.js:137 MUT_KEY
+src/game/achievements.js:138 +loadMutSeen
+src/game/achievements.js:139 +seeMutations
+## src/game/backup.js (302L)
 src/game/backup.js:2 MAGIC_V1
 src/game/backup.js:3 MAGIC_V2
 src/game/backup.js:4 MAX_BACKUP_BYTES
@@ -132,10 +132,14 @@ src/game/backup.js:99 inspectJson
 src/game/backup.js:144 validateSnapshot
 src/game/backup.js:176 saveData
 src/game/backup.js:185 +exportSave
-src/game/backup.js:204 +importSave
-src/game/backup.js:250 SLOT_KEYS
-src/game/backup.js:252 +slotSnapshot
-src/game/backup.js:259 +slotRestore
+src/game/backup.js:205 +decodeSave
+src/game/backup.js:218 +localSaveData
+src/game/backup.js:221 +summarizeSave
+src/game/backup.js:228 +sameProgress
+src/game/backup.js:234 +importSave
+src/game/backup.js:280 SLOT_KEYS
+src/game/backup.js:282 +slotSnapshot
+src/game/backup.js:289 +slotRestore
 ## src/game/barrier.js (111L)
 src/game/barrier.js:2 +N
 src/game/barrier.js:4 +DIFFS
@@ -246,7 +250,7 @@ src/game/checkers.js:70 clone
 src/game/checkers.js:74 score
 src/game/checkers.js:76 search
 src/game/checkers.js:91 +botMove
-## src/game/cloud.js (87L)
+## src/game/cloud.js (95L)
 src/game/cloud.js:6 URL_
 src/game/cloud.js:7 KEY
 src/game/cloud.js:8 SESSION
@@ -262,7 +266,8 @@ src/game/cloud.js:43 +signUp
 src/game/cloud.js:47 +signOut
 src/game/cloud.js:54 +cloudInfo
 src/game/cloud.js:61 +cloudUpload
-src/game/cloud.js:70 +cloudDownload
+src/game/cloud.js:70 +cloudPeek
+src/game/cloud.js:78 +cloudDownload
 ## src/game/connect4.js (109L)
 src/game/connect4.js:2 +ROWS
 src/game/connect4.js:4 +emptyGrid
@@ -471,7 +476,7 @@ src/game/mates.js:60 +captureMove
 src/game/mates.js:67 +mateKeys
 src/game/mates.js:83 +solve
 src/game/mates.js:87 +defend
-## src/game/mechanics.js (347L)
+## src/game/mechanics.js (350L)
 src/game/mechanics.js:16 ev
 src/game/mechanics.js:17 free
 src/game/mechanics.js:18 small
@@ -482,9 +487,9 @@ src/game/mechanics.js:29 has
 src/game/mechanics.js:30 retype
 src/game/mechanics.js:31 chicks
 src/game/mechanics.js:33 +MECHANICS
-src/game/mechanics.js:327 safeHeir
-src/game/mechanics.js:333 shot
-src/game/mechanics.js:346 +mechOf
+src/game/mechanics.js:330 safeHeir
+src/game/mechanics.js:336 shot
+src/game/mechanics.js:349 +mechOf
 ## src/game/outbreak.js (77L)
 src/game/outbreak.js:7 TYPES
 src/game/outbreak.js:8 +DIFFS
@@ -706,7 +711,7 @@ src/game/zen.js:311 +addZenSeeds
 src/game/zen.js:318 +pickSeed
 src/game/zen.js:326 +koiHungry
 src/game/zen.js:327 +feedKoi
-## src/i18n/en.js (1206L)
+## src/i18n/en.js (1224L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -766,7 +771,7 @@ src/lab/apk/catalog.js:79 +APK_CHAOS_EVENTS
 src/lab/apk/catalog.js:94 +APK_HORDE_UPGRADES
 src/lab/apk/catalog.js:121 +APK_CATALOG
 src/lab/apk/catalog.js:127 +APK_BY_ID
-## src/lab/apk/effects.js (975L)
+## src/lab/apk/effects.js (981L)
 src/lab/apk/effects.js:4 surfaces
 src/lab/apk/effects.js:5 running
 src/lab/apk/effects.js:6 bossOverlays
@@ -781,41 +786,41 @@ src/lab/apk/effects.js:53 animateCanvas
 src/lab/apk/effects.js:84 square
 src/lab/apk/effects.js:93 +playAPKDeal
 src/lab/apk/effects.js:140 +playAPKSpawnBurst
-src/lab/apk/effects.js:158 +playAPKPixelTrail
-src/lab/apk/effects.js:174 +playAPKShockwave
-src/lab/apk/effects.js:196 +playAPKBombBlast
-src/lab/apk/effects.js:216 +playAPKMeteorImpact
-src/lab/apk/effects.js:240 +playAPKDamage
-src/lab/apk/effects.js:254 +playAPKTeleport
-src/lab/apk/effects.js:270 +playAPKFall
-src/lab/apk/effects.js:282 +playAPKParticleBurst
-src/lab/apk/effects.js:296 +playAPKBombField
-src/lab/apk/effects.js:317 +playAPKShield
-src/lab/apk/effects.js:341 +playAPKBeam
-src/lab/apk/effects.js:361 +playAPKVictory
-src/lab/apk/effects.js:375 +playAPKScreenShake
-src/lab/apk/effects.js:390 +playAPKZombieAttack
-src/lab/apk/effects.js:408 +playAPKTransform
-src/lab/apk/effects.js:444 +playAPKHotPotatoCrown
-src/lab/apk/effects.js:471 +playAPKChaosRoulette
-src/lab/apk/effects.js:509 +playAPKEventStamp
-src/lab/apk/effects.js:537 +playAPKZoneWarning
-src/lab/apk/effects.js:568 +playAPKWeakPointMarker
-src/lab/apk/effects.js:591 +playAPKWeakPointHit
-src/lab/apk/effects.js:607 +playAPKBullet
-src/lab/apk/effects.js:630 +playAPKBossCut
-src/lab/apk/effects.js:710 +playAPKCaption
-src/lab/apk/effects.js:729 +playAPKTilePattern
-src/lab/apk/effects.js:786 +playAPKDisco
-src/lab/apk/effects.js:802 +playAPKSpeedTimer
-src/lab/apk/effects.js:817 +playAPKDeathStyle
-src/lab/apk/effects.js:860 +playAPKCriticalDamage
-src/lab/apk/effects.js:878 +playAPKFloatingText
-src/lab/apk/effects.js:892 +playAPKTransformVariant
-src/lab/apk/effects.js:921 +playAPKSpawnVariant
-src/lab/apk/effects.js:935 +playAPKColumnBeam
-src/lab/apk/effects.js:946 +playAPKBanner
-src/lab/apk/effects.js:963 +playAPKTileSpark
+src/lab/apk/effects.js:160 +playAPKPixelTrail
+src/lab/apk/effects.js:179 +playAPKShockwave
+src/lab/apk/effects.js:201 +playAPKBombBlast
+src/lab/apk/effects.js:221 +playAPKMeteorImpact
+src/lab/apk/effects.js:245 +playAPKDamage
+src/lab/apk/effects.js:259 +playAPKTeleport
+src/lab/apk/effects.js:275 +playAPKFall
+src/lab/apk/effects.js:287 +playAPKParticleBurst
+src/lab/apk/effects.js:301 +playAPKBombField
+src/lab/apk/effects.js:322 +playAPKShield
+src/lab/apk/effects.js:346 +playAPKBeam
+src/lab/apk/effects.js:366 +playAPKVictory
+src/lab/apk/effects.js:380 +playAPKScreenShake
+src/lab/apk/effects.js:395 +playAPKZombieAttack
+src/lab/apk/effects.js:413 +playAPKTransform
+src/lab/apk/effects.js:449 +playAPKHotPotatoCrown
+src/lab/apk/effects.js:476 +playAPKChaosRoulette
+src/lab/apk/effects.js:514 +playAPKEventStamp
+src/lab/apk/effects.js:542 +playAPKZoneWarning
+src/lab/apk/effects.js:573 +playAPKWeakPointMarker
+src/lab/apk/effects.js:596 +playAPKWeakPointHit
+src/lab/apk/effects.js:612 +playAPKBullet
+src/lab/apk/effects.js:635 +playAPKBossCut
+src/lab/apk/effects.js:715 +playAPKCaption
+src/lab/apk/effects.js:734 +playAPKTilePattern
+src/lab/apk/effects.js:791 +playAPKDisco
+src/lab/apk/effects.js:807 +playAPKSpeedTimer
+src/lab/apk/effects.js:822 +playAPKDeathStyle
+src/lab/apk/effects.js:865 +playAPKCriticalDamage
+src/lab/apk/effects.js:883 +playAPKFloatingText
+src/lab/apk/effects.js:898 +playAPKTransformVariant
+src/lab/apk/effects.js:927 +playAPKSpawnVariant
+src/lab/apk/effects.js:941 +playAPKColumnBeam
+src/lab/apk/effects.js:952 +playAPKBanner
+src/lab/apk/effects.js:969 +playAPKTileSpark
 ## src/lab/apk/expansion.js (736L)
 src/lab/apk/expansion.js:14 KN
 src/lab/apk/expansion.js:15 DIR8
@@ -847,15 +852,15 @@ src/lab/proto/diamond-game.js:14 +createDiamondBoard
 src/lab/proto/diamond-game.js:27 +createDiamondPieces
 src/lab/proto/diamond-game.js:40 +createDiamondMatch
 ## src/main.js (7L)
-## src/ui/app.js (397L)
+## src/ui/app.js (400L)
 src/ui/app.js:33 REST_CARDS
 src/ui/app.js:38 BAG_CARDS
 src/ui/app.js:45 shuffle3
 src/ui/app.js:47 MINI_PRIZES
 src/ui/app.js:48 ONE_SHOT
 src/ui/app.js:50 +App
-src/ui/app.js:353 MutationReveal
-src/ui/app.js:369 AchievementToast
+src/ui/app.js:356 MutationReveal
+src/ui/app.js:372 AchievementToast
 ## src/ui/board-fx.js (47L)
 src/ui/board-fx.js:6 wait
 src/ui/board-fx.js:10 +playFx
@@ -1000,13 +1005,13 @@ src/ui/screens/gallery.js:26 ThemeGroup
 src/ui/screens/gallery.js:41 RULE
 src/ui/screens/gallery.js:42 Locked
 src/ui/screens/gallery.js:44 +GalleryScreen
-## src/ui/screens/game.js (888L)
+## src/ui/screens/game.js (906L)
 src/ui/screens/game.js:34 SIDE_NAME
 src/ui/screens/game.js:37 pieceName
 src/ui/screens/game.js:39 TIPS
 src/ui/screens/game.js:48 cardEffect
 src/ui/screens/game.js:62 +GameScreen
-src/ui/screens/game.js:859 EndOverlay
+src/ui/screens/game.js:877 EndOverlay
 ## src/ui/screens/hockey.js (210L)
 src/ui/screens/hockey.js:13 KEYS
 src/ui/screens/hockey.js:15 TOP_KEYS
@@ -1062,7 +1067,7 @@ src/ui/screens/scenario.js:32 +MatesScreen
 src/ui/screens/scenario.js:33 +ClockScreen
 src/ui/screens/scenario.js:34 +WitchScreen
 src/ui/screens/scenario.js:35 +BombsScreen
-## src/ui/screens/setup.js (356L)
+## src/ui/screens/setup.js (399L)
 src/ui/screens/setup.js:17 SIDES
 src/ui/screens/setup.js:25 MechPicker
 src/ui/screens/setup.js:39 PrefsCard
@@ -1073,8 +1078,9 @@ src/ui/screens/setup.js:60 VersusCard
 src/ui/screens/setup.js:94 +SetupScreen
 src/ui/screens/setup.js:148 +SettingsScreen
 src/ui/screens/setup.js:219 Backup
-src/ui/screens/setup.js:283 Slots
-src/ui/screens/setup.js:304 Cloud
+src/ui/screens/setup.js:291 ProgressChoice
+src/ui/screens/setup.js:309 Slots
+src/ui/screens/setup.js:330 Cloud
 ## src/ui/screens/shop.js (143L)
 src/ui/screens/shop.js:15 CARD_LIST
 src/ui/screens/shop.js:17 +ShopScreen
@@ -1191,18 +1197,20 @@ src/ui/zen-art.js:250 +boardPond
 src/ui/zen-art.js:256 +stoneArt
 src/ui/zen-art.js:262 +ITEM_ART
 src/ui/zen-art.js:267 +KOI_ART
-## src/view/board-view.js (1212L)
+## src/view/board-view.js (1235L)
 src/view/board-view.js:16 pixelArt
-src/view/board-view.js:21 look
-src/view/board-view.js:23 +CAMERAS
-src/view/board-view.js:24 JUMPERS
-src/view/board-view.js:25 reduced
-src/view/board-view.js:26 wait
-src/view/board-view.js:27 css
-src/view/board-view.js:29 +collapseTiles
-src/view/board-view.js:41 BADGES
-src/view/board-view.js:49 +BoardView
-## src/view/fx.js (334L)
+src/view/board-view.js:18 WITCH
+src/view/board-view.js:30 HEN
+src/view/board-view.js:43 look
+src/view/board-view.js:45 +CAMERAS
+src/view/board-view.js:46 JUMPERS
+src/view/board-view.js:47 reduced
+src/view/board-view.js:48 wait
+src/view/board-view.js:49 css
+src/view/board-view.js:51 +collapseTiles
+src/view/board-view.js:63 BADGES
+src/view/board-view.js:71 +BoardView
+## src/view/fx.js (337L)
 src/view/fx.js:9 WEATHER_RATE
 src/view/fx.js:10 SF_PX
 src/view/fx.js:12 +Fx
@@ -1264,26 +1272,28 @@ src/view/weather-fx.js:220 leaves
 src/view/weather-fx.js:249 BUB
 src/view/weather-fx.js:250 bubbles
 src/view/weather-fx.js:300 +WEATHER_FX
-## css/base.css (245L)
+## css/base.css (263L)
 css/base.css:1 /* Reset, typography, browser surfaces and shared components.
 css/base.css:22 /* Icon() pinta las dos versiones; cada mesa muestra la suya (p
 css/base.css:27 /* Clima: textura encima del fondo de la mesa (no lo reemplaza)
-css/base.css:42 /* Buttons are printed tokens: the solid bottom edge is the tok
-css/base.css:72 /* Teléfonos de 360 px: título en una línea al lado del Volver 
-css/base.css:81 /* Paper panels: the rulebook and score sheets of the box.
-css/base.css:96 /* Reward cards: actual playing cards of the game, so the card 
-css/base.css:117 /* Cartas de antes de la partida (Organizar): marco azul pizarr
-css/base.css:126 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
-css/base.css:130 /* Cartas lilas: gratis, aparte de la mano normal.
-css/base.css:132 /* Rareza que se ve sin buscar la gema: un brillo cruza la cart
-css/base.css:146 /* Rareza con canal propio, independiente del color del tipo (e
-css/base.css:151 /* Rara: el título es una banda de plata pulida. Épica: latón c
-css/base.css:162 /* Every figure on a card is paper with an ink outline, so stam
-css/base.css:173 /* Card back carries the pawn emblem: the box's identity mark.
-css/base.css:184 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
-css/base.css:224 /* Botones sin texto y cosas del jardín: el botón va en su esqu
-css/base.css:227 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
-## css/board.css (367L)
+css/base.css:31 /* Dos capas del mismo motivo: cerca (grande, recorre más) y le
+css/base.css:32 /* Clima: motivos pequeños por TODO el fondo (gotas, copos, jir
+css/base.css:60 /* Buttons are printed tokens: the solid bottom edge is the tok
+css/base.css:90 /* Teléfonos de 360 px: título en una línea al lado del Volver 
+css/base.css:99 /* Paper panels: the rulebook and score sheets of the box.
+css/base.css:114 /* Reward cards: actual playing cards of the game, so the card 
+css/base.css:135 /* Cartas de antes de la partida (Organizar): marco azul pizarr
+css/base.css:144 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
+css/base.css:148 /* Cartas lilas: gratis, aparte de la mano normal.
+css/base.css:150 /* Rareza que se ve sin buscar la gema: un brillo cruza la cart
+css/base.css:164 /* Rareza con canal propio, independiente del color del tipo (e
+css/base.css:169 /* Rara: el título es una banda de plata pulida. Épica: latón c
+css/base.css:180 /* Every figure on a card is paper with an ink outline, so stam
+css/base.css:191 /* Card back carries the pawn emblem: the box's identity mark.
+css/base.css:202 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
+css/base.css:242 /* Botones sin texto y cosas del jardín: el botón va en su esqu
+css/base.css:245 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
+## css/board.css (375L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
 css/board.css:36 /* Tiles
@@ -1326,6 +1336,7 @@ css/board.css:335 /* Meteorito: la cruz avisada late en rojo; la roca cae encend
 css/board.css:348 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
 css/board.css:354 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
 css/board.css:358 /* Carta lila Disco: las casillas cambian de luz.
+css/board.css:368 /* Gallina del Gallinero: dibujo propio (no un peón), sin base 
 ## css/pixel.css (96L)
 css/pixel.css:1 /* Modo píxel: con un tema píxel (data-art="pixel", ver src/dat
 css/pixel.css:6 /* Jersey 10 (OFL), servida desde el juego: el subconjunto lati
@@ -1343,7 +1354,7 @@ css/pixel.css:85 /* Sombra de la pieza y koi del estanque del tablero, sin degra
 css/pixel.css:87 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
 css/pixel.css:90 /* El ::before va fuera de :is(), que no admite pseudoelementos
 ## css/proto-diamond.css (83L)
-## css/screens.css (1549L)
+## css/screens.css (1536L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
 css/screens.css:12 /* Menu: asymmetric, the diorama is the focal point and the tit
@@ -1492,8 +1503,8 @@ css/screens.css:1396 /* Mobile-first repair: keep the game surface visible inste
 css/screens.css:1428 /* The animation lab must give its remaining viewport to the li
 css/screens.css:1471 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
 css/screens.css:1488 /* Copia de seguridad (Ajustes): el código se pega en un recuad
-css/screens.css:1499 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
-css/screens.css:1508 /* Backup: evita que los botones con etiquetas largas desborden
-css/screens.css:1536 /* Reference APK renderer: a separate green/pixel signature, di
+css/screens.css:1501 /* Botones de Perfil y Copia: tres por fila, icono arriba, sin 
+css/screens.css:1512 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
+css/screens.css:1523 /* Reference APK renderer: a separate green/pixel signature, di
 ## css/tokens.css (51L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.
