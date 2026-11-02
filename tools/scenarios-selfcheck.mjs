@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { SCENARIOS, buildScenario } from '../src/data/scenarios.js';
 import { Match, botChooseMove } from '../src/game/match.js';
 import { RIVALS } from '../src/game/difficulty.js';
-import { key, canHit, ctxOf } from '../src/game/rules.js';
+import { key, canHit, ctxOf, legalMoves } from '../src/game/rules.js';
+const botMoves = (m, p) => legalMoves(p, m.pieces, m.board);
 
 const matchOf = (sc) => new Match({ board: sc.board, pieces: sc.pieces, players: sc.seats, modifier: sc.modifier || 'none', mutations: [], bonuses: {},
   rival: sc.rival, rivals: { dark: sc.rival, light: RIVALS.maestro }, objective: sc.objective, bonus: sc.bonus, tick: sc.tick });
@@ -101,4 +102,24 @@ for (const level of ['facil', 'normal', 'dificil']) {
   console.log(`witch ${level}: buscador de monedas gana ${wins}/40`);
 }
 
-console.log('Escenarios OK: mesas variables, final con veredicto, coronación, minas, disfraces y brujas pasables');
+// Lluvia de bombas: un rey que solo esquiva (sale de lo marcado) siempre aguanta; uno que no mira cae.
+for (const level of ['facil', 'normal', 'dificil']) {
+  let wins = 0, blind = 0;
+  for (let seed = 1; seed <= 40; seed++) for (const careful of [true, false]) {
+    const sc = buildScenario('bombs', level, seed), m = matchOf(sc);
+    for (let i = 0; i < 100 && !m.over; i++) {
+      const doom = new Set(sc.doom().map(([r, c]) => key(r, c)));
+      const king = m.pieces[0], all = botMoves(m, king).filter((t) => !careful || !doom.has(key(t.row, t.col)));
+      const t = all[(seed + i) % all.length];
+      assert.ok(t, `bombs/${level}/${seed}: the king always has a safe square`);
+      m.move(king, t);
+      m.afterMove();
+    }
+    if (m.over?.victory) careful ? wins++ : blind++;
+  }
+  assert.equal(wins, 40, `bombs/${level}: a careful king survives ${wins}/40`);
+  assert.ok(blind < 40, `bombs/${level}: bombs threaten a careless king`);
+  console.log(`bombs ${level}: rey atento gana ${wins}/40 · despistado ${blind}/40`);
+}
+
+console.log('Escenarios OK: mesas variables, final con veredicto, coronación, minas, disfraces, brujas y bombas pasables');

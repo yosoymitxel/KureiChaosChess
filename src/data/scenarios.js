@@ -528,6 +528,60 @@ Object.assign(SCENARIOS, {
   },
 });
 
+// Lluvia de bombas: solo tu rey. Cada jugada se marcan zonas (fila, columna, cruz, diagonales o 3×3)
+// apuntadas a él y estallan a la siguiente: hay que salir siempre de lo marcado. Siempre queda salida.
+const BOMB_SHAPES = {
+  row: (r, c) => [...Array(N).keys()].map((x) => [r, x]),
+  col: (r, c) => [...Array(N).keys()].map((x) => [x, c]),
+  cross: (r, c) => [[r, c], [r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]],
+  diag: (r, c) => [[r, c], ...[1, 2].flatMap((d) => [[r - d, c - d], [r - d, c + d], [r + d, c - d], [r + d, c + d]])],
+  square: (r, c) => [-1, 0, 1].flatMap((dr) => [-1, 0, 1].map((dc) => [r + dr, c + dc])),
+};
+Object.assign(SCENARIOS, {
+  bombs: {
+    id: 'bombs', single: true,
+    goal: t('sc.bombs.goal', 'Aguanta con tu rey: cada jugada se marcan en rojo las casillas donde caerán bombas, y estallan en la siguiente. Sal de la zona marcada hasta que acaben las rondas.'),
+    levels: {
+      facil: { rounds: 10, zones: 1, shapes: ['cross', 'row', 'col'], rubble: 2 },
+      normal: { rounds: 12, zones: 2, shapes: ['cross', 'row', 'col', 'diag', 'square'], rubble: 3 },
+      dificil: { rounds: 14, zones: 3, shapes: ['cross', 'row', 'col', 'diag', 'square'], rubble: 5 },
+    },
+    setup(lv, rng) {
+      const b = board(), king = makePiece('king', 'light', 3 + Math.floor(rng() * 2), 3 + Math.floor(rng() * 2), { royal: true }), pieces = [king];
+      rubble(rng, b, pieces, lv.rubble, (r, c) => Math.max(Math.abs(r - king.row), Math.abs(c - king.col)) <= 1);
+      const inside = ([r, c]) => r >= 0 && c >= 0 && r < N && c < N && !b.holes.has(key(r, c));
+      // Zonas apuntadas al rey; se descartan las que lo dejarían sin ninguna casilla segura a un paso.
+      const aim = (all, n = lv.zones) => {
+        for (let tries = 0; tries < 40; tries++) {
+          const cells = new Map();
+          for (let i = 0; i < n; i++) {
+            const r = king.row + Math.floor(rng() * 3) - 1, c = king.col + Math.floor(rng() * 3) - 1;
+            for (const cell of BOMB_SHAPES[pickFrom(rng, lv.shapes)](r, c).filter(inside)) cells.set(key(...cell), cell);
+          }
+          if (legalMoves(king, all, b).some((mv) => !cells.has(key(mv.row, mv.col)))) return [...cells.values()];
+        }
+        return n > 1 ? aim(all, n - 1) : [];
+      };
+      let pending = aim(pieces), last = 0;
+      return {
+        board: b, pieces, rival: 'oficial',
+        doom: () => pending,
+        objective: (m) => !m.pieces.includes(king) ? { victory: false, note: t('sc.bombs.lost', 'Una bomba alcanzó a tu rey.') }
+          : m.turn >= lv.rounds ? { victory: true, note: t('sc.bombs.won', 'Sobreviviste a la lluvia de bombas.') } : null,
+        tick: (m) => {
+          if (m.turn === last) return null;
+          last = m.turn;
+          const blast = pending, hit = blast.some(([r, c]) => king.row === r && king.col === c);
+          if (hit) m.pieces.splice(m.pieces.indexOf(king), 1);
+          pending = hit || m.turn >= lv.rounds ? [] : aim(m.pieces);
+          return { blast, warn: pending, fallen: hit ? [king] : [] };
+        },
+        status: (m) => t('sc.bombs.status', 'Rondas {n}/{total}', { n: Math.min(m.turn, lv.rounds), total: lv.rounds }),
+      };
+    },
+  },
+});
+
 export function buildScenario(id, level = 'normal', seed = Math.floor(Math.random() * 1e9)) {
   const def = SCENARIOS[id];
   const lv = def.levels[level] || def.levels.normal;

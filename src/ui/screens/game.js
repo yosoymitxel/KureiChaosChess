@@ -124,6 +124,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       }
       if (scenario?.labels) d.view.setLabels(scenario.labels(match));
       if (scenario?.goals) d.view.setGoals(scenario.goals(match));
+      if (scenario?.doom && !match.turn) d.view.setDoom(scenario.doom());
       const boss = match.pieces.find((x) => x.boss);
       setHud({
         goal: scenario?.status(match),
@@ -354,7 +355,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     };
     const showTick = async (tick) => {
       if (!tick) return;
-      const { spawned = [], sunk = [], fallen = [] } = tick;
+      const { spawned = [], sunk = [], fallen = [], blast, warn } = tick;
+      if (blast) { d.view.setDoom(); await d.view.blast(blast); }
+      if (warn) d.view.setDoom(warn);
       await Promise.all([...spawned.map((p) => d.view.dropIn(p)), ...fallen.map((p) => d.view.kill(p, p, p)), sunk.length && d.view.collapse(sunk)]);
     };
 

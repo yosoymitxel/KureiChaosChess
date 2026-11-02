@@ -1,0 +1,5 @@
+{
+  "mini": "bombs", "themes": ["walnut", "pixelada"], "langs": ["es", "en"],
+  "steps": [ { "wait": 2500 }, { "shot": "inicio" }, { "i18n": true },
+    { "expect": { "eval": "document.querySelectorAll('.tile.doom').length > 0", "noErrors": true } } ]
+}

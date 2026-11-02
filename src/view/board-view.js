@@ -1085,6 +1085,13 @@ export class BoardView {
       if (this.fx.vfx) t.append(Object.assign(document.createElement('i'), { className: 'doom-fx' }));
     }
   }
+  // Bombas (Lluvia de bombas): estallan a la vez en las casillas dadas.
+  async blast(cells) {
+    if (!cells.length) return;
+    cells.forEach(([r, c], i) => { const t = this.tiles.get(key(r, c)); if (t) { const p = this.fx.pointOf(t); this.fx.explosion(p.x, p.y, this.sq / 60, i === 0); } });
+    this.shake(10 + Math.min(cells.length, 12), 380);
+    await new Promise((r) => setTimeout(r, this.d(260)));
+  }
   // Cae del cielo en diagonal con su estela, revienta en el centro de la cruz y la hunde con lo de encima.
   async meteor(cells, lost = []) {
     const t = this.tiles.get(key(...cells[0]));
