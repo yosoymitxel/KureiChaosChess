@@ -10,6 +10,11 @@ const SESSION = 'kurei.cloud.session';
 const BACK = 'https://yosoymitxel.github.io/KureiChaosChess/';
 
 const load = () => { try { return JSON.parse(localStorage.getItem(SESSION)); } catch { return null; } };
+// Fecha de la última copia de la nube que este aparato subió o aplicó: si la nube sigue en esa fecha,
+// el guardado automático puede subir sin pisar lo de otro aparato.
+const SYNCED = 'kurei.cloud.synced';
+const synced = () => { try { return localStorage.getItem(SYNCED) || null; } catch { return null; } };
+export const cloudMarkSynced = (at) => { try { at ? localStorage.setItem(SYNCED, at) : localStorage.removeItem(SYNCED); } catch {} return at; };
 const keep = (s) => { try { s ? localStorage.setItem(SESSION, JSON.stringify(s)) : localStorage.removeItem(SESSION); } catch {} return s; };
 
 async function call(path, { method = 'GET', body, token, prefer } = {}) {
@@ -47,6 +52,7 @@ export async function signUp(email, password) {
 export async function signOut() {
   const s = load();
   keep(null);
+  cloudMarkSynced(null);
   if (s) call('/auth/v1/logout', { method: 'POST', token: s.token }).catch(() => {});
 }
 
@@ -58,12 +64,35 @@ export async function cloudInfo() {
   return rows[0]?.updated_at || null;
 }
 
-export async function cloudUpload() {
+let lastCode = null;
+export async function cloudUpload(code) {
   const s = await session();
   if (!s) throw new Error('auth');
   const updated_at = new Date().toISOString();
-  await call('/rest/v1/game_saves?on_conflict=user_id', { method: 'POST', token: s.token, prefer: 'resolution=merge-duplicates,return=minimal', body: { user_id: s.id, save_data: { code: await exportSave() }, updated_at } });
-  return updated_at;
+  code ||= await exportSave();
+  await call('/rest/v1/game_saves?on_conflict=user_id', { method: 'POST', token: s.token, prefer: 'resolution=merge-duplicates,return=minimal', body: { user_id: s.id, save_data: { code }, updated_at } });
+  lastCode = code;
+  return cloudMarkSynced(updated_at);
+}
+
+// Guardado automático con sesión abierta: sube si el progreso cambió y nadie más subió desde la
+// última sincronía; si otro aparato subió, no pisa nada (Perfil muestra cuál quedarse).
+let timer;
+export function cloudAutoSave(delay = 3000) {
+  if (!load()) return;
+  clearTimeout(timer);
+  timer = setTimeout(async () => {
+    try {
+      const code = await exportSave();
+      if (code === lastCode) return;
+      const s = await session();
+      if (!s) return;
+      const rows = await call(`/rest/v1/game_saves?select=updated_at&user_id=eq.${s.id}`, { token: s.token });
+      const at = rows[0]?.updated_at || null, mine = synced();
+      if (at ? !mine || Date.parse(at) !== Date.parse(mine) : mine) return;
+      await cloudUpload(code);
+    } catch {}
+  }, delay);
 }
 
 // Lo que hay en la nube sin aplicarlo: { code, at } o null.
@@ -78,9 +107,10 @@ export async function cloudPeek() {
 export async function cloudDownload() {
   const s = await session();
   if (!s) throw new Error('auth');
-  const rows = await call(`/rest/v1/game_saves?select=save_data&user_id=eq.${s.id}`, { token: s.token });
-  const code = rows[0]?.save_data?.code;
-  return code ? importSave(code) : 0;
+  const rows = await call(`/rest/v1/game_saves?select=save_data,updated_at&user_id=eq.${s.id}`, { token: s.token });
+  const code = rows[0]?.save_data?.code, n = code ? await importSave(code) : 0;
+  if (n) cloudMarkSynced(rows[0].updated_at);
+  return n;
 }
 
 // Vuelta desde el enlace del correo: la sesión llega en el hash; se guarda y se limpia la URL.

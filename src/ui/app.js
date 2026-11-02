@@ -29,6 +29,7 @@ import { BOSS_IDS } from '../data/bosses.js';
 import { applyTheme } from '../data/themes.js';
 import { CARDS, HAND_LIMIT, STARTER_CARDS, handFull, pickCardChoices } from '../game/cards.js';
 import { t, tp } from '../i18n/index.js';
+import { cloudAutoSave } from '../game/cloud.js';
 
 const REST_CARDS = [
   { id: 'extra_mut', name: t('boon.extra_mut', 'Meditar'), desc: t('boon.extra_mut.desc', 'Elige una mutación de entre tres.'), icon: 'scroll', kind: 'rest' },
@@ -78,6 +79,9 @@ export function App() {
   // y necesita data-art (y las variables) ya puestos para pintar las piezas a píxel.
   applyTheme(settings.theme);
   useEffect(() => { saveSettings(settings); }, [settings]);
+  // Con cuenta, la nube se pone al día sola al cambiar de pantalla y al dejar la pestaña.
+  useEffect(() => { cloudAutoSave(); }, [screen]);
+  useEffect(() => { const hide = () => document.hidden && cloudAutoSave(0); document.addEventListener('visibilitychange', hide); return () => document.removeEventListener('visibilitychange', hide); }, []);
   // Jardín Zen: se abre al terminar o dejar atrás el tutorial (también para partidas de antes de esta regla).
   const zenOpen = loadAchievements().includes('zen_open');
   useEffect(() => { if (!zenOpen && (settings.tutorialSeen || loadAchievements().length) && !run?.tutorial) award('zen_open'); }, [run?.tutorial]);

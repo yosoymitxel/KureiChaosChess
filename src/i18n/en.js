@@ -441,6 +441,7 @@ export default {
     "cloud.signup": "Create account",
     "cloud.out": "Sign out",
     "cloud.as": "Signed in as {email}.",
+    "cloud.auto": "It saves itself as you play.",
     "cloud.when": "Last save: {date}.",
     "cloud.none": "You haven't uploaded one yet.",
     "cloud.upload": "Save to cloud",
