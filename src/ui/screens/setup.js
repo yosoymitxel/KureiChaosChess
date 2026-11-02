@@ -251,11 +251,13 @@ function Backup() {
   };
 
   const [pending, setPending] = useState(null); // código que trae otro progreso: antes de aplicarlo se compara
+  useEffect(() => { if (pending) document.querySelector('.set-backup .cloud-clash')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, [pending]);
   const restore = async (value = code, sure = false) => {
     if (typeof value !== 'string' || value.length > MAX_BACKUP_CODE_CHARS) return tooLarge();
     const data = await decodeSave(value);
     if (!data) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
-    if (!sure && !sameProgress(localSaveData(), data)) return setPending({ value, here: summarizeSave(localSaveData()), there: summarizeSave(data) });
+    if (!sure && sameProgress(localSaveData(), data)) return setMsg(t('backup.same', 'Ese código tiene el mismo progreso que ya tienes: no hay nada que cambiar.'));
+    if (!sure) return setPending({ value, here: summarizeSave(localSaveData()), there: summarizeSave(data) });
     setPending(null);
     if (!await importSave(value)) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
     setMsg(t('backup.done', 'Partida restaurada.'));
@@ -273,7 +275,7 @@ function Backup() {
   return html`<section class="panel setup-card set-backup" data-enter>
     <h2>${t('backup.title', 'Copia de seguridad')}</h2>
     <p class="shop-note">${t('backup.hint', 'Guarda tu progreso (run, jardín, logros, mesas) como un código. Si el navegador lo borra, pégalo aquí y vuelve.')}</p>
-    <div class="menu-row">
+    <div class="menu-row set-actions">
       <button class="btn sm" onClick=${copy}><${Icon} name="scroll" size=${16} />${t('backup.copy', 'Copiar código')}</button>
       <button class="btn sm" onClick=${download}><${Icon} name="bag" size=${16} />${t('backup.download', 'Descargar')}</button>
       <label class="btn sm"><${Icon} name="scroll" size=${16} />${t('backup.upload', 'Subir archivo')}<input type="file" accept=".txt,text/plain" hidden onChange=${upload} /></label>
@@ -292,9 +294,13 @@ function ProgressChoice({ here, there, thereTitle, onKeepHere, onKeepThere }) {
     <p class="shop-note">${t('cloud.clashHint', 'No tienen el mismo progreso. Elige cuál se queda: el otro se sobrescribe.')}</p>
     <div class="clash-cols">
       ${[[here, t('cloud.here', 'Este aparato'), onKeepHere], [there, thereTitle, onKeepThere]].map(([s, title, keep]) => html`<div class="clash-col"><strong>${title}</strong>
-        <span>${s.floor ? t('cloud.sumRun', 'Run: piso {n} de {total} · {m} mutaciones', { n: s.floor, total: s.floors, m: s.mutations }) : t('cloud.sumNoRun', 'Sin run en curso')}</span>
-        <span>${t('cloud.sumMeta', '{c} monedas · {a} logros', { c: s.coins, a: s.achievements })}</span>
-        <${ConfirmButton} class="btn sm primary" onConfirm=${keep} confirmLabel=${t('cloud.sure', '¿Seguro? El otro se pierde')}>${t('cloud.keep', 'Quedarme con este')}<//></div>`)}
+        <dl class="clash-stats">
+          <dt>${t('cloud.sumFloor', 'Run')}</dt><dd>${s.floor ? t('cloud.sumFloorN', '{n}/{total}', { n: s.floor, total: s.floors }) : '—'}</dd>
+          <dt>${t('game.mutation', 'Mutación')}</dt><dd>${s.mutations}</dd>
+          <dt>${t('cloud.sumCoins', 'Monedas')}</dt><dd>${s.coins}</dd>
+          <dt>${t('cloud.sumAch', 'Logros')}</dt><dd>${s.achievements}</dd>
+        </dl>
+        <${ConfirmButton} class="btn sm" onConfirm=${keep} confirmLabel=${t('cloud.sure', '¿Seguro?')}>${t('cloud.keep', 'Usar este')}<//></div>`)}
     </div>
   </div>`;
 }
@@ -372,7 +378,7 @@ function Cloud() {
     <h2>${t('cloud.profile', 'Perfil')}</h2>
     ${user ? html`
       <p class="shop-note">${t('cloud.as', 'Conectado como {email}.', { email: user })} ${when ? t('cloud.when', 'Última copia: {date}.', { date: date(when) }) : when === null ? t('cloud.none', 'Aún no has subido ninguna.') : ''}</p>
-      <div class="menu-row">
+      <div class="menu-row set-actions">
         <button class="btn sm primary" disabled=${busy} onClick=${up}><${Icon} name="scroll" size=${16} />${t('cloud.upload', 'Guardar en la nube')}</button>
         <button class="btn sm" disabled=${busy || !when} onClick=${down}><${Icon} name="bag" size=${16} />${t('cloud.download', 'Traer de la nube')}</button>
         <button class="btn sm" disabled=${busy} onClick=${() => { signOut(); setUser(null); setWhen(undefined); }}>${t('cloud.out', 'Salir')}</button>
@@ -381,7 +387,7 @@ function Cloud() {
       <form class="cloud-form" novalidate onSubmit=${(e) => { e.preventDefault(); enter('in')(); }}>
         <input class="cloud-field" type="email" autocomplete="email" required placeholder=${t('cloud.email', 'Correo')} value=${email} onInput=${(e) => setEmail(e.currentTarget.value)} />
         <input class="cloud-field" type="password" autocomplete="current-password" required minlength="8" placeholder=${t('cloud.pass', 'Contraseña')} value=${pass} onInput=${(e) => setPass(e.currentTarget.value)} />
-        <div class="menu-row">
+        <div class="menu-row set-actions">
           <button class="btn sm primary" type="submit" disabled=${busy}>${t('cloud.in', 'Entrar')}</button>
           <button class="btn sm" type="button" disabled=${busy} onClick=${enter('up')}>${t('cloud.signup', 'Crear cuenta')}</button>
         </div>
