@@ -187,7 +187,7 @@ export default {
     "card.reach.other": "{n} new squares (in blue)",
     "card.fx.ascend": "{name} → Queen",
     "card.fx.mount": "{name} learns the L jump",
-    "card.fx.colossus": "{name} → 2×1 Colossus: keeps its move, adds the king's and takes 3 hits",
+    "card.fx.colossus": "{name} → 2×1 Colossus: keeps its move, adds the king's and takes 2 hits",
     "card.fx.fortify": "{name} will take 2 hits: the first one bounces off",
     "game.organizeLater": "Organize: it plays at the start of the match",
     "game.noTargets": "{card}: no valid targets right now",
@@ -956,7 +956,7 @@ export default {
   },
 
   cards: {
-    colossus: { name: 'Colossus', aim: 'Pick a rook or guard with a free square behind or in front.', desc: 'A rook or guard grows to 2×1 (backwards if it fits): it keeps its move and adds the king\'s, crushes what it steps on and takes 3 hits.' },
+    colossus: { name: 'Colossus', aim: 'Pick a rook or guard with a free square behind or in front.', desc: 'A rook or guard grows to 2×1 (backwards if it fits): it keeps its move and adds the king\'s, crushes what it steps on and takes 2 hits.' },
     ascend: { name: 'Ascend', aim: 'Pick a pawn, guard or advisor in the last 3 rows.', desc: 'Promotes right now a pawn (queen), guard or advisor 3 rows or fewer from the end.' },
     mount: { name: 'Mount', aim: 'Pick a piece that isn\'t a king, queen or knight.', desc: 'A piece (not king or queen) learns to jump in an L for this match.' },
     fortify: { name: 'Fortify', aim: 'Pick a piece without a shield.', desc: 'A piece takes one more hit: the attacker bounces back the first time.' },

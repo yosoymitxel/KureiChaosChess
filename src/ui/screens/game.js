@@ -14,7 +14,7 @@ import { CARDS, CARD_IDS, cardTargets, previewMoves, playCard } from '../../game
 import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
 import { MUTATIONS, countMutations, EXTRA_MOVES } from '../../data/mutations.js';
 import { weatherFor, TIED_WEATHER, WEATHER } from '../../data/weather.js';
-import { playAPKTransformVariant, playAPKDisco } from '../../lab/apk/effects.js';
+import { playAPKTransformVariant, playAPKDisco, playAPKPixelTrail, playAPKParticleBurst, playAPKTileSpark } from '../../lab/apk/effects.js';
 import { vfxOn } from '../../data/themes.js';
 import { playMech } from '../board-fx.js';
 import { takeNewDemos, loadBosses } from '../../game/run.js';
@@ -51,7 +51,7 @@ function cardEffect(card, piece, pv) {
   const reach = gained ? ' · ' + tp('card.reach', gained, '{n} casilla nueva (en azul)', '{n} casillas nuevas (en azul)') : '';
   if (card.id === 'ascend') return (piece.type === 'pawn' ? t('card.fx.ascend', '{name} → Reina', { name }) : t('card.fx.crown', '{name} coronado', { name })) + reach;
   if (card.id === 'mount') return t('card.fx.mount', '{name} aprende el salto en L', { name }) + reach;
-  if (card.id === 'colossus') return t('card.fx.colossus', '{name} → Coloso 2×1: conserva su movimiento, suma el del rey y aguanta 3 golpes', { name }) + reach;
+  if (card.id === 'colossus') return t('card.fx.colossus', '{name} → Coloso 2×1: conserva su movimiento, suma el del rey y aguanta 2 golpes', { name }) + reach;
   if (card.id === 'fortify') return t('card.fx.fortify', '{name} aguantará 2 golpes: el primero rebota', { name });
   return `${name}: ${card.desc}`;
 }
@@ -342,7 +342,11 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         if (piece.color === d.feats.human && piece.type === 'queen') award('crowned');
         else if (piece.color === d.feats.human) award('crown_minor');
       }
+      // Partículas del APK (solo con efectos activados): estela del movimiento y estallido al capturar.
+      const apk = d.view.fx.vfx && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (apk && res.from && res.to) playAPKPixelTrail(d.view.host, d.view, res.from, res.to);
       await d.view.playMove(res);
+      if (apk && res.victims?.length) playAPKParticleBurst(d.view.host, d.view, res.to, ['#ffc83d', '#ff2d55', '#ffffff'], 28);
       await showMech(res.mech);
       pickUp(piece);
       if (res.woke?.length) {
@@ -718,7 +722,13 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       .then(() => beginPlacing());
     const onKey = (e) => e.key === 'Escape' && (e.preventDefault(), setPaused((v) => !v));
     addEventListener('keydown', onKey);
-    return () => { d.dead = true; clearTimeout(d.timer); removeEventListener('keydown', onKey); d.view.destroy(); d.moments.destroy(); };
+    // Destellos sueltos en casillas al azar mientras nadie mueve: el tablero no se queda quieto.
+    const sparks = setInterval(() => {
+      if (d.busy || !d.view.fx.vfx || document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const tiles = [...d.view.tiles.keys()], k = tiles[Math.floor(Math.random() * tiles.length)];
+      if (k) { const [row, col] = k.split(',').map(Number); playAPKTileSpark(d.view.host, d.view, { row, col }); }
+    }, 3200);
+    return () => { clearInterval(sparks); d.dead = true; clearTimeout(d.timer); removeEventListener('keydown', onKey); d.view.destroy(); d.moments.destroy(); };
   }, []);
 
   useEffect(() => { ref.current.paused = paused; }, [paused]);
