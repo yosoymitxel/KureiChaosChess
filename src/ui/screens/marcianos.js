@@ -3,7 +3,7 @@ import { playSfx } from '../sfx.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
-import { WAVES, DIFFS, newMarcianos, step } from '../../game/marcianos.js';
+import { WAVES, DIFFS, newMarcianos, act as play, tick as worldTick } from '../../game/marcianos.js';
 import { hopPiece } from '../hop.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { Fx } from '../../view/fx.js';
@@ -11,9 +11,8 @@ import { t, tp } from '../../i18n/index.js';
 
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-// Flechas o A/D mueven el cañón; espacio dispara y S o flecha abajo esperan.
+// Flechas o A/D mueven el cañón y espacio dispara; la oleada avanza sola con el reloj.
 const KEYS = { arrowleft: -1, a: -1, arrowright: 1, d: 1 };
-const WAIT = new Set(['s', 'arrowdown']);
 
 export function MarcianosScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
   const [s, setS] = useState(() => newMarcianos(Math.random, diff || settings.miniDiff?.marcianos));
@@ -25,10 +24,11 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = t('common.conti
   useEffect(() => () => fx.current?.destroy(), []);
 
   const snap = () => ({ player: s.player.col, enemies: s.enemies.map((e) => ({ id: e.id, row: e.row, col: e.col })) });
+  // `a` es una jugada; sin ella, un tic del reloj del mundo.
   const act = (a) => {
     const before = snap(), lives = s.lives;
-    if (!step(s, a)) return;
-    if (a.shoot) {
+    if (!(a ? play(s, a) : worldTick(s))) return;
+    if (a?.shoot) {
       playSfx('laser');
       // El rayo sube del cañón hasta lo que derriba en su columna, o hasta donde llega el proyectil.
       const zap = s.zaps.find((z) => z.col === before.player && z.row < s.playerRow);
@@ -67,11 +67,21 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = t('common.conti
       const k = e.key.toLowerCase();
       if (KEYS[k]) { e.preventDefault(); act({ move: KEYS[k] }); }
       else if (k === ' ') { e.preventDefault(); act({ shoot: true }); }
-      else if (WAIT.has(k)) { e.preventDefault(); act({ wait: true }); }
     };
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
   });
+  // Reloj del mundo: se para con la ayuda o una cinemática encima.
+  useEffect(() => {
+    let acc = 0, last = performance.now();
+    const id = setInterval(() => {
+      const now = performance.now(), dt = Math.min(now - last, 200);
+      last = now;
+      if (s.over || document.querySelector('.overlay, .moment')) return;
+      if ((acc += dt) >= s.diff.tick * 1000) { acc = 0; act(); }
+    }, 50);
+    return () => clearInterval(id);
+  }, []);
 
   // Después de repintar, las fichas que se movieron saltan con su charco (criterio del tablero).
   useLayoutEffect(() => {
@@ -126,11 +136,10 @@ export function MarcianosScreen({ sub, onBack, onEnd, endLabel = t('common.conti
                 <button class="btn sm" aria-label=${t('marcianos.right', 'Derecha')} onClick=${() => act({ move: 1 })}>→</button>
               </div>
               <div class="bm-actions">
-                <button class="btn sm" data-pad="y" onClick=${() => act({ wait: true })}>${t('marcianos.wait', 'Esperar')}</button>
                 <button class="btn sm primary" data-pad="x" onClick=${() => act({ shoot: true })}><${Icon} name="cannon" size=${16} />${t('marcianos.shoot', 'Disparar')}</button>
               </div>
             </div>`}
-          <${MiniTools} mini="marcianos" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('marcianos.help', 'Mueve con las flechas o A/D, dispara con espacio y espera con S. Cada pieza baja a su manera: el peón recto, el caballo cambiando de columna, el alfil en diagonal y el elefante a veces de dos en dos. Desde la segunda oleada disparan proyectiles: apártate de su columna. Tras tres oleadas llega la gran horda; si un carmesí pisa tu fila, pierdes una vida.')}<//>
+          <${MiniTools} mini="marcianos" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('marcianos.help', 'Mueve el cañón con las flechas o A/D y dispara con espacio: la oleada baja sola, a su ritmo. Cada pieza baja a su manera: el peón recto, el caballo cambiando de columna, el alfil en diagonal y el elefante a veces de dos en dos. Desde la segunda oleada disparan proyectiles: apártate de su columna. Tras tres oleadas llega la gran horda; si un carmesí pisa tu fila, pierdes una vida.')}<//>
         </div>
       </div>
     </div>

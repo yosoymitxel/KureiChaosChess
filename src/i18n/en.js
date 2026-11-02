@@ -732,7 +732,7 @@ export default {
     // src/ui/screens/blizzard.js
     "blizzard.help": "The rook slides across the ice in a straight line until it hits a block or the edge; if it crosses a hole, it sinks. Swipe or tap where you want it to go (or use the arrows): the marked squares are where you stop. Coins are collected by passing over them and, with all of them, you leave by the flag. The blizzard only lets you see the blocks near the rook. Moves are limited.",
     // src/ui/screens/bomber.js
-    "bomber.help": "Move with the arrows, WASD or the controller; space or the button drops a bomb. The fuse gives you 5 turns to get out of range, squares with a red border blow up on the next move, and some crates drop an extra bomb or more range. Like the original, the exit door is hidden under a crate: take down every enemy and go through it. Enemies on this level: {foes}.",
+    "bomber.help": "Move with the arrows, WASD or the gamepad; space or the button drops a bomb. Everything runs in real time: the fuse burns on its own, red-bordered squares are about to blow and some crates drop an extra bomb or more range. As in the original, the exit door is hidden under a crate: take out every enemy and go through it. Enemies on this level: {foes}.",
     // src/ui/screens/bowling.js
     "bowling.help": "Crimson pieces cross from right to left. The belt brings you discs: tap a square before the red line (or press the lane number) to throw the first one. On impact, the disc bounces diagonally and can chain hits. The explosive one, in vermilion, clears a 3×3. The pawn falls on the first hit; the knight takes 2 and jumps the first disc, the bishop takes 2, the rook 3 and the queen 4, and they hurry up after the first hit.",
     // src/ui/screens/checkers.js
@@ -783,7 +783,7 @@ export default {
     // src/ui/screens/laststand.js
     "laststand.help": "Buy pieces by tapping the bottom three rows and start the assault. Crimson attacks in {waves} waves; the last one is a great horde. Between waves you earn {bonus} coins and can reinforce with what you have. An attacker that can't advance eats the piece blocking it: hold the line.",
     // src/ui/screens/marcianos.js
-    "marcianos.help": "Move with the arrows or A/D, shoot with space and wait with S. Each piece comes down its own way: the pawn straight, the knight switching columns, the bishop diagonally and the elephant sometimes two at a time. From the second wave on they fire projectiles: get out of their column. After three waves the great horde arrives; if a crimson piece reaches your row, you lose a life.",
+    "marcianos.help": "Move the cannon with the arrows or A/D and shoot with space: the wave comes down on its own, at its own pace. Each piece comes down its own way: the pawn straight, the knight switching columns, the bishop diagonally and the elephant sometimes two at a time. From the second wave on they fire projectiles: get out of their column. After three waves the great horde arrives; if a crimson piece reaches your row, you lose a life.",
     // src/ui/screens/outbreak.js
     "outbreak.help": "You have a few doses. The piece you infect infects in turn every piece it attacks according to how it moves (the rook in a straight line, the knight in an L, the bishop diagonally; an infected pawn attacks diagonally upwards), and the chain goes on. One tap shows whom it infects first; another tap on the same piece spends the dose. Infect them all.",
     // src/ui/screens/queens.js
@@ -849,7 +849,6 @@ export default {
     "marcianos.lost": "The crimson pieces reached your row.",
     "marcianos.left2": "Left",
     "marcianos.right": "Right",
-    "marcianos.wait": "Wait",
     "marcianos.shoot": "Shoot",
     // src/ui/screens/bowling.js
     "bowling.alley": "Bowling alley",

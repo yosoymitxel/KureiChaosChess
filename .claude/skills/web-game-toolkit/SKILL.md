@@ -77,6 +77,11 @@ Zugzwang (`tools/`, `src/`) es la implementación de referencia cuando haga falt
   Prefijar las clases de utilidad (`tk-…`): una `.br` de esquina heredó los estilos del tablero de Barrera.
 - En píxel (`border-radius: 0` global) una mesa redonda es un `clip-path` de círculo escalonado y su
   borde, `drop-shadow` en el contenedor (el clip recorta el borde y los filtros propios).
+- **De por turnos a tiempo real sin reescribir**: partir el `step` en `act` (la jugada, al momento) y
+  `tick` (el mundo), y que la pantalla llame a `tick` con un reloj (`DIFFS.tick` s) que se para con hojas o
+  cinemáticas encima. `step = act + tick` se queda para las pruebas en Node.
+- **Reloj por turno** (`TurnClock`): barra que se vacía; al acabarse, el turno se pierde. Da presión a los
+  minis de esquivar, que sin reloj se resuelven pensando sin prisa.
 - Validar mesas al azar con el propio simulador: un bot codicioso con búsqueda (barrido grueso + fino) fija
   el par, y se descarta el tablero si algún golpe solo sale rozando un peligro (probar el peor caso con error).
 - Táctil: arrastrar debe funcionar igual que el ratón (vista previa bajo el dedo, se suelta y se

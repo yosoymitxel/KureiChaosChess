@@ -1,4 +1,5 @@
-// Matamarcianos: oleadas retro, disparo y vidas. Reglas puras, sin DOM.
+// Matamarcianos: oleadas retro, disparo y vidas. Reglas puras, sin DOM. En tiempo real: `tick` avanza
+// el mundo cada DIFFS.tick segundos (la pantalla lo llama con su reloj) y `act` mueve o dispara al momento.
 // El tablero crece con el nivel: más columnas y filas de las que bajar, más espacio para esquivar.
 const SHOT_STEP = 100; // el disparo atraviesa todo el tablero de una
 const MAX_SHOTS = 3; // disparos en vuelo a la vez
@@ -18,9 +19,9 @@ const FIRE = [0, 0.25, 0.35, 0.45];
 
 // Vidas, pausa entre descensos y tamaño del tablero (por nivel): Normal es el juego de siempre.
 export const DIFFS = {
-  facil: { name: 'Fácil', lives: 4, every: [6, 5, 4, 4], cols: 7, rows: 7 },
-  normal: { name: 'Normal', lives: 3, every: [5, 4, 4, 4], cols: 8, rows: 8 },
-  dificil: { name: 'Difícil', lives: 2, every: [4, 4, 3, 4], cols: 9, rows: 9 },
+  facil: { name: 'Fácil', lives: 4, every: [6, 5, 4, 4], cols: 7, rows: 7, tick: 0.55 },
+  normal: { name: 'Normal', lives: 3, every: [5, 4, 4, 4], cols: 8, rows: 8, tick: 0.45 },
+  dificil: { name: 'Difícil', lives: 2, every: [4, 4, 3, 4], cols: 9, rows: 9, tick: 0.4 },
 };
 
 export function newMarcianos(rng = Math.random, key = 'normal') {
@@ -69,7 +70,9 @@ function descend(s, rng) {
     else if (e.type === 'elephant' && rng() < 0.35) rows = 2;
     if (col < 0 || col >= s.cols || taken(e.row + rows, col, e)) col = e.col;
     if (taken(e.row + rows, col, e)) rows = 1;
-    e.row += Math.min(rows, floor - e.row);
+    rows = Math.min(rows, floor - e.row);
+    if (taken(e.row + rows, col, e)) continue; // nunca dos en la misma casilla: si está ocupada, espera
+    e.row += rows;
     e.col = col;
     const b = s.shots.find((x) => x.row === e.row && x.col === e.col);
     if (b) { e.pop = true; s.zaps.push({ row: e.row, col: e.col }); s.shots = s.shots.filter((x) => x !== b); continue; }
@@ -97,28 +100,50 @@ function fall(s) {
   });
 }
 
-// action: { move: -1|1 }, { shoot: true } o { wait: true }. Devuelve false si la jugada no es válida.
-export function step(s, action, rng = Math.random) {
+// Jugada del jugador, al momento: { move: -1|1 } o { shoot: true } (un disparo por tic de reloj).
+export function act(s, action, rng = Math.random) {
   if (s.over) return false;
   if (action.move) {
     const col = s.player.col + action.move;
     if (col < 0 || col >= s.cols) return false;
     s.player.col = col;
-  } else if (action.shoot) {
-    if (s.shots.length >= MAX_SHOTS) return false;
-  } else if (!action.wait) return false;
+    return true;
+  }
+  if (!action.shoot || s.shotAt === s.tick) return false;
+  s.shotAt = s.tick;
+  s.zaps = [];
+  s.events = [];
+  s.shots = s.shots.flatMap((b) => climb(s, b)).concat(climb(s, { row: s.playerRow - 1, col: s.player.col }));
+  s.enemies = s.enemies.filter((e) => !e.pop);
+  settle(s, rng);
+  return true;
+}
+
+// Un tic del mundo: proyectiles, descenso de la oleada cuando toca y fin de la partida.
+export function tick(s, rng = Math.random) {
+  if (s.over) return false;
   s.zaps = [];
   s.events = [];
   s.tick += 1;
-  if (action.shoot) s.shots.push({ row: s.playerRow - 1, col: s.player.col });
   s.shots = s.shots.flatMap((b) => climb(s, b));
   s.enemies = s.enemies.filter((e) => !e.pop);
   fall(s);
   if (s.tick % s.diff.every[Math.min(s.wave, s.diff.every.length - 1)] === 0) descend(s, rng);
+  settle(s, rng);
+  return true;
+}
+
+function settle(s, rng) {
   if (s.lives <= 0) s.over = 'lose';
   else if (!s.enemies.length) {
     if (s.wave + 1 >= WAVES.length) s.over = 'win';
     else { s.wave += 1; spawnWave(s, rng); }
   }
+}
+
+// Por turnos (pruebas): la jugada y un tic. { wait: true } solo deja pasar el tic.
+export function step(s, action, rng = Math.random) {
+  if (s.over || (!action.wait && !act(s, action, rng))) return false;
+  if (!s.over) tick(s, rng);
   return true;
 }

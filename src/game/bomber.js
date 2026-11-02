@@ -1,5 +1,6 @@
-// Bomberman por turnos, fiel al de NES: arena apaisada con pilares, cajas, enemigos con su manera
-// de moverse y la puerta de salida escondida bajo una caja. Cada acción del jugador avanza un tic.
+// Bomberman fiel al de NES: arena apaisada con pilares, cajas, enemigos con su manera de moverse y la
+// puerta de salida escondida bajo una caja. En tiempo real: `tick` avanza mechas y enemigos cada
+// DIFFS.tick segundos (lo llama el reloj de la pantalla) y `act` mueve o pone bomba al momento.
 import { localize } from '../i18n/index.js';
 const FUSE = 5, MAX_RANGE = 3; // la mecha corre en el mismo turno: cuatro jugadas antes de estallar
 const L_JUMP = [[-2, -1], [-2, 1], [2, -1], [2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2]];
@@ -19,9 +20,9 @@ export const FOES = localize('bomberFoes', {
 });
 // La dificultad crece a lo ancho y en quién sale; la arena es apaisada como la del original.
 export const DIFFS = {
-  facil: { name: 'Fácil', rows: 9, cols: 11, sight: 3, crates: 0.3, roster: ['pawn', 'pawn', 'bishop'] },
-  normal: { name: 'Normal', rows: 11, cols: 13, sight: 4, crates: 0.38, roster: ['pawn', 'pawn', 'bishop', 'cannon'] },
-  dificil: { name: 'Difícil', rows: 11, cols: 15, sight: 5, crates: 0.45, roster: ['pawn', 'bishop', 'cannon', 'knight', 'pawn'] },
+  facil: { name: 'Fácil', rows: 9, cols: 11, sight: 3, crates: 0.3, roster: ['pawn', 'pawn', 'bishop'], tick: 0.6 },
+  normal: { name: 'Normal', rows: 11, cols: 13, sight: 4, crates: 0.38, roster: ['pawn', 'pawn', 'bishop', 'cannon'], tick: 0.5 },
+  dificil: { name: 'Difícil', rows: 11, cols: 15, sight: 5, crates: 0.45, roster: ['pawn', 'bishop', 'cannon', 'knight', 'pawn'], tick: 0.42 },
 };
 
 const dist = (a, b) => Math.abs(a.r - b.r) + Math.abs(a.c - b.c);
@@ -166,8 +167,8 @@ function moveFoe(s, e, p, clear, danger, rng) {
   return wander(e, clear, rng);
 }
 
-// action: { move: [dr, dc] } | { bomb: true } | { wait: true }. Devuelve false si no es válida.
-export function step(s, action, rng = Math.random) {
+// Jugada al momento: { move: [dr, dc] } | { bomb: true }. Devuelve false si no es válida.
+export function act(s, action) {
   if (s.over) return false;
   const p = s.player;
   if (action.move) {
@@ -184,7 +185,15 @@ export function step(s, action, rng = Math.random) {
     const mine = s.bombs.filter((b) => !b.foe).length;
     if (s.bombs.some((b) => b.r === p.r && b.c === p.c) || mine >= s.maxBombs) return false;
     s.bombs.push({ r: p.r, c: p.c, t: FUSE, range: s.range });
-  } else if (!action.wait) return false;
+  } else return false;
+  judge(s);
+  return true;
+}
+
+// Un tic del mundo: mechas, explosiones y un paso de cada enemigo.
+export function tick(s, rng = Math.random) {
+  if (s.over) return false;
+  const p = s.player;
   s.t++;
   s.blast = [];
   for (const b of s.bombs) b.t--;
@@ -198,8 +207,20 @@ export function step(s, action, rng = Math.random) {
     const pick = moveFoe(s, e, p, clear, danger, rng);
     if (pick) [e.r, e.c] = pick;
   }
-  if (hit(p.r, p.c) || s.enemies.some((e) => e.r === p.r && e.c === p.c)) s.over = 'lose';
+  judge(s);
+  return true;
+}
+
+function judge(s) {
+  const p = s.player;
+  if (s.blast.some(([a, b]) => a === p.r && b === p.c) || s.enemies.some((e) => e.r === p.r && e.c === p.c)) s.over = 'lose';
   // Como en el NES: con la arena limpia, la puerta abierta te saca del nivel.
   else if (!s.enemies.length && doorOpen(s) && p.r === s.door.r && p.c === s.door.c) s.over = 'win';
+}
+
+// Por turnos (pruebas): la jugada y un tic. { wait: true } solo deja pasar el tic.
+export function step(s, action, rng = Math.random) {
+  if (s.over || (!action.wait && !act(s, action))) return false;
+  if (!s.over) tick(s, rng);
   return true;
 }

@@ -3,13 +3,13 @@ import { Fx } from '../../view/fx.js';
 import { Topbar, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
-import { newBomber, step, blastOf, doorOpen, DIFFS, FOES } from '../../game/bomber.js';
+import { newBomber, act as play, tick as worldTick, blastOf, doorOpen, DIFFS, FOES } from '../../game/bomber.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { hopPiece, reduced } from '../hop.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t, tp } from '../../i18n/index.js';
 
-// Arrows and WASD both move; space or B drops a bomb, Enter waits.
+// Flechas o WASD mueven y espacio o B pone bomba; mechas y enemigos avanzan solos con el reloj.
 const KEYS = { arrowup: [-1, 0], w: [-1, 0], arrowdown: [1, 0], s: [1, 0], arrowleft: [0, -1], a: [0, -1], arrowright: [0, 1], d: [0, 1] };
 const PAD = [[-1, 0, 'up', t('dir.up', 'Arriba'), '↑'], [0, -1, 'left', t('marcianos.left2', 'Izquierda'), '←'], [0, 1, 'right', t('marcianos.right', 'Derecha'), '→'], [1, 0, 'down', t('dir.down', 'Abajo'), '↓']];
 
@@ -21,9 +21,10 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = t('common.continue
   const booms = useRef(null), fxRef = useRef(null);
 
   const snap = () => ({ player: { row: s.player.r, col: s.player.c }, enemies: s.enemies.map((e) => ({ id: e.id, row: e.r, col: e.c })) });
+  // `a` es una jugada; sin ella, un tic del reloj del mundo.
   const act = (a) => {
     const before = snap(), bombsBefore = s.bombs.slice();
-    if (!step(s, a)) return;
+    if (!(a ? play(s, a) : worldTick(s))) return;
     // Las bombas que ya no están estallaron este tic: el efecto nace en su casilla.
     booms.current = bombsBefore.filter((b) => !s.bombs.includes(b)).map((b) => ({ r: b.r, c: b.c }));
     const after = snap(), moved = [];
@@ -46,11 +47,21 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = t('common.continue
       const k = e.key.toLowerCase();
       if (KEYS[k]) { e.preventDefault(); act({ move: KEYS[k] }); }
       else if (k === ' ' || k === 'b') { e.preventDefault(); act({ bomb: true }); }
-      else if (e.key === 'Enter') act({ wait: true });
     };
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
   });
+  // Reloj del mundo: se para con la ayuda o una cinemática encima.
+  useEffect(() => {
+    let acc = 0, last = performance.now();
+    const id = setInterval(() => {
+      const now = performance.now(), dt = Math.min(now - last, 200);
+      last = now;
+      if (s.over || document.querySelector('.overlay, .moment')) return;
+      if ((acc += dt) >= s.diff.tick * 1000) { acc = 0; act(); }
+    }, 50);
+    return () => clearInterval(id);
+  }, []);
 
   // Después de repintar, las fichas que se movieron saltan con su charco (criterio del tablero).
   useEffect(() => {
@@ -82,8 +93,8 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = t('common.continue
   });
 
   const at = (list, r, c) => list.find((x) => (x.r ?? x[0]) === r && (x.c ?? x[1]) === c);
-  // Casillas que estallan en la próxima jugada: la bomba con la mecha a 1 muestra a dónde llega.
-  const danger = new Set(s.bombs.filter((b) => b.t <= 1).flatMap((b) => blastOf(s, b)).map((x) => x.r * s.cols + x.c));
+  // Casillas que estallan enseguida: la bomba con la mecha a 2 o menos muestra a dónde llega.
+  const danger = new Set(s.bombs.filter((b) => b.t <= 2).flatMap((b) => blastOf(s, b)).map((x) => x.r * s.cols + x.c));
   const left = s.enemies.length, open = doorOpen(s);
   const mine = s.bombs.filter((b) => !b.foe).length;
   const status = left
@@ -121,10 +132,9 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = t('common.continue
               </div>
               <div class="bm-actions">
                 <button class="btn sm" data-pad="x" onClick=${() => act({ bomb: true })}><${Icon} name="collapse" size=${16} />${t('bomber.bomb', 'Bomba')}</button>
-                <button class="btn sm ghost" data-pad="y" onClick=${() => act({ wait: true })}>${t('marcianos.wait', 'Esperar')}</button>
               </div>
             </div>`}
-          <${MiniTools} mini="bomber" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('bomber.help', 'Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. La mecha da 5 turnos para salir del radio, las casillas con borde rojo estallan en la próxima jugada y algunas cajas sueltan bomba extra o más alcance. Como en el original, la puerta de salida está escondida bajo una caja: derriba a todos los enemigos y entra por ella. Enemigos de este nivel: {foes}.', { foes: kinds.map((k) => `${PIECE_NAMES[k].toLowerCase()} (${FOES[k].replace(/\.$/, '').toLowerCase()})`).join('; ') })}<//>
+          <${MiniTools} mini="bomber" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('bomber.help', 'Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. Todo corre en tiempo real: la mecha se consume sola, las casillas con borde rojo están a punto de estallar y algunas cajas sueltan bomba extra o más alcance. Como en el original, la puerta de salida está escondida bajo una caja: derriba a todos los enemigos y entra por ella. Enemigos de este nivel: {foes}.', { foes: kinds.map((k) => `${PIECE_NAMES[k].toLowerCase()} (${FOES[k].replace(/\.$/, '').toLowerCase()})`).join('; ') })}<//>
         </div>
       </div>
     </div>
