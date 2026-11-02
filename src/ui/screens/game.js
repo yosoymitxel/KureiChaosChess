@@ -507,7 +507,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
           const royal = match.pieces.find((x) => x.royal && x.color === s.color);
           const mine = s.kind === 'human';
           // En minis la pieza que no debe caer puede no ser un rey (un caballo, una dama…): se nombra la que es.
-          const king = royal.type === 'king', what = pieceName(royal).toLowerCase();
+          const king = royal.type === 'king' || royal.boss, what = pieceName(royal).toLowerCase();
           d.moments.callout({
             text: king ? t('game.check', '¡Jaque!') : t('game.danger', '¡En peligro!'), piece: { type: royal.type, side: s.color }, anim: 'tremble', tier: 'major',
             ...(mine
