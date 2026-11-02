@@ -104,6 +104,8 @@ Zugzwang (`tools/`, `src/`) es la implementación de referencia cuando haga falt
 - **Delegado a GitHub Actions** (`.github/workflows/itch.yml`, a mano o con etiqueta `v*`): deja
   `itch-zip` e `itch-media` como artefactos. Claude lo lanza con `actions_run_trigger`, lee el resultado
   con `actions_list`/`get_job_logs` y no gasta su máquina ni contexto generando medios.
+  Bajar el artefacto (`download_workflow_run_artifact`) da una URL de `*.blob.core.windows.net`: en la
+  nube de Claude Code ese dominio tiene que estar en *Allowed domains* del entorno.
 
 ### Coherencia visual
 - **Tokens semánticos de color** en un solo archivo (`css/tokens.css`): un color por significado
