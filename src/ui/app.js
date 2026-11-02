@@ -27,7 +27,7 @@ import { Moments } from './moments.js';
 import { playDemo, mutationDemo } from './demos.js';
 import { BOSS_IDS } from '../data/bosses.js';
 import { applyTheme } from '../data/themes.js';
-import { CARDS, HAND_LIMIT, pickCardChoices } from '../game/cards.js';
+import { CARDS, HAND_LIMIT, handFull, pickCardChoices } from '../game/cards.js';
 import { t, tp } from '../i18n/index.js';
 
 const REST_CARDS = [
@@ -244,8 +244,8 @@ export function App() {
 
   const onReward = (card) => {
     if (reward.kind === 'mutation') { setRun((r) => ({ ...r, mutations: [...r.mutations, card.id] })); return goTo('map'); }
-    if (reward.kind === 'tactic' && (run.cards || []).length >= HAND_LIMIT) {
-      const cards = [...run.cards, card.id].map((id, slot) => ({ ...CARDS[id], kind: 'tactic', id: `${id}#${slot}`, slot }));
+    if (reward.kind === 'tactic' && handFull(run.cards, card.id)) {
+      const cards = [...run.cards, card.id].map((id, slot) => ({ ...CARDS[id], kind: 'tactic', id: `${id}#${slot}`, slot })).filter((c) => !!c.lilac === !!CARDS[card.id].lilac);
       return setReward({ kind: 'swap', incoming: card.id, cards });
     }
     if (reward.kind === 'tactic') { setRun((r) => addToHand(r, [card.id])); return goTo('map'); }

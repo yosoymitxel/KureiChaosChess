@@ -1,5 +1,5 @@
 // Tienda del jardín: monedas que pagan las flores del Jardín Zen y lo que se compra con ellas.
-import { HAND_LIMIT } from './cards.js';
+import { HAND_LIMIT, LILAC_LIMIT, CARDS } from './cards.js';
 import { award } from './achievements.js';
 import { THEMES } from '../data/themes.js';
 
@@ -7,7 +7,7 @@ const KEY = 'zugzwang.shop.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
 const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
-export const CARD_PRICE = { common: 40, rare: 70 };
+export const CARD_PRICE = { common: 40, rare: 70, lilac: 30 };
 // Lo que paga ganar una partida en la travesía; los nodos duros pagan más.
 export const COINS_PER_NODE = { normal: 15, elite: 25, miniBoss: 40, boss: 80 };
 // Las mesas de pago salen de su `price` en src/data/themes.js.
@@ -63,9 +63,14 @@ export function addToHand(run, ids, shop = false) {
   if (shop) cards.push(...ids);
   else cards.splice(cards.length - (run.shopCount || 0), 0, ...ids);
   let shopCount = (run.shopCount || 0) + (shop ? ids.length : 0);
-  while (cards.length > HAND_LIMIT) {
-    if (shopCount === cards.length) shopCount--;
-    cards.shift();
+  // Cada cupo (normales y lilas) expulsa a su carta más antigua.
+  for (const lil of [false, true]) {
+    const mine = (id) => !!CARDS[id]?.lilac === lil;
+    while (cards.filter(mine).length > (lil ? LILAC_LIMIT : HAND_LIMIT)) {
+      const i = cards.findIndex(mine);
+      if (i >= cards.length - shopCount) shopCount--;
+      cards.splice(i, 1);
+    }
   }
   // Lo comprado a mitad de un nivel sigue en la mano si el nivel se reinicia.
   const level = shop && run.level ? { ...run.level, ...addToHand({ cards: run.level.cards, shopCount: run.level.shopCount }, ids, true) } : run.level;

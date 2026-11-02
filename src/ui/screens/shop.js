@@ -2,7 +2,7 @@
 import { html, useRef, useState } from '../lib.js';
 import { Topbar, useEnter, CardFace, CardPick, RARITY_LABEL, ThemeLook } from '../components.js';
 import { Icon } from '../icons.js';
-import { CARDS, HAND_LIMIT } from '../../game/cards.js';
+import { CARDS, HAND_LIMIT, handFull } from '../../game/cards.js';
 import { THEMES } from '../../data/themes.js';
 import { award } from '../../game/achievements.js';
 import { CARD_PRICE, COINS_PER_NODE, PENDING_LIMIT, THEME_SHOP, addPending, addToHand, consumeCard, charge, grantTheme, isShopCard, loadShop, themeOwned } from '../../game/shop.js';
@@ -25,7 +25,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
   const [swap, setSwap] = useState(null); // carta por comprar con la mano llena: antes se elige cuál sale
   // `drop`: la carta de la mano que sale para hacerle sitio.
   const buyCard = (card, drop) => {
-    if (run && drop == null && (run.cards || []).length >= HAND_LIMIT) return setSwap(card);
+    if (run && drop == null && handFull(run.cards, card.id)) return setSwap(card);
     if (!charge(CARD_PRICE[card.rarity || 'common'])) return;
     award('buy_card');
     if (run) setRun((r) => addToHand(drop == null ? r : consumeCard(r, drop), [card.id], true));
@@ -34,7 +34,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
     refresh();
   };
   if (swap) {
-    const cards = (run.cards || []).map((id, slot) => ({ ...CARDS[id], kind: 'tactic', id: `${id}#${slot}`, slot }));
+    const cards = (run.cards || []).map((id, slot) => ({ ...CARDS[id], kind: 'tactic', id: `${id}#${slot}`, slot })).filter((c) => !!c.lilac === !!swap.lilac);
     return html`<${CardPick} title=${t('reward.swap', 'Mano llena')} subtitle=${t('shop.swapSub', 'Para comprar {card} sale una de tu mano.', { card: swap.name })}
       cards=${cards} onBack=${() => setSwap(null)} confirmLabel=${t('reward.dropThis', 'Que salga esta')} onConfirm=${(c) => { setSwap(null); buyCard(swap, c.slot); }} />`;
   }

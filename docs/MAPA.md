@@ -209,19 +209,22 @@ src/game/bowling.js:33 +newBowling
 src/game/bowling.js:41 +canLaunch
 src/game/bowling.js:43 +launch
 src/game/bowling.js:49 +tick
-## src/game/cards.js (127L)
-src/game/cards.js:9 behind
-src/game/cards.js:10 occupiedBy
-src/game/cards.js:11 freeTile
-src/game/cards.js:13 growDir
-src/game/cards.js:15 +CARDS
-src/game/cards.js:74 +CARD_IDS
-src/game/cards.js:75 +HAND_LIMIT
-src/game/cards.js:76 +STARTER_CARDS
-src/game/cards.js:78 +pickCardChoices
-src/game/cards.js:87 +cardTargets
-src/game/cards.js:99 +previewMoves
-src/game/cards.js:111 +playCard
+## src/game/cards.js (196L)
+src/game/cards.js:10 behind
+src/game/cards.js:11 occupiedBy
+src/game/cards.js:12 freeTile
+src/game/cards.js:14 guardBeside
+src/game/cards.js:15 growDir
+src/game/cards.js:17 +CARDS
+src/game/cards.js:137 +CARD_IDS
+src/game/cards.js:138 +HAND_LIMIT
+src/game/cards.js:139 +LILAC_LIMIT
+src/game/cards.js:141 +handFull
+src/game/cards.js:145 +STARTER_CARDS
+src/game/cards.js:147 +pickCardChoices
+src/game/cards.js:156 +cardTargets
+src/game/cards.js:168 +previewMoves
+src/game/cards.js:180 +playCard
 ## src/game/checkers.js (101L)
 src/game/checkers.js:4 +DIFFS
 src/game/checkers.js:9 DIAG
@@ -237,22 +240,23 @@ src/game/checkers.js:67 clone
 src/game/checkers.js:71 score
 src/game/checkers.js:73 search
 src/game/checkers.js:88 +botMove
-## src/game/cloud.js (75L)
+## src/game/cloud.js (87L)
 src/game/cloud.js:6 URL_
 src/game/cloud.js:7 KEY
 src/game/cloud.js:8 SESSION
-src/game/cloud.js:10 load
-src/game/cloud.js:11 keep
-src/game/cloud.js:13 call
-src/game/cloud.js:23 toSession
-src/game/cloud.js:25 +cloudUser
-src/game/cloud.js:28 session
-src/game/cloud.js:37 +signIn
-src/game/cloud.js:41 +signUp
-src/game/cloud.js:45 +signOut
-src/game/cloud.js:52 +cloudInfo
-src/game/cloud.js:59 +cloudUpload
-src/game/cloud.js:68 +cloudDownload
+src/game/cloud.js:10 BACK
+src/game/cloud.js:12 load
+src/game/cloud.js:13 keep
+src/game/cloud.js:15 call
+src/game/cloud.js:25 toSession
+src/game/cloud.js:27 +cloudUser
+src/game/cloud.js:30 session
+src/game/cloud.js:39 +signIn
+src/game/cloud.js:43 +signUp
+src/game/cloud.js:47 +signOut
+src/game/cloud.js:54 +cloudInfo
+src/game/cloud.js:61 +cloudUpload
+src/game/cloud.js:70 +cloudDownload
 ## src/game/connect4.js (109L)
 src/game/connect4.js:2 +ROWS
 src/game/connect4.js:4 +emptyGrid
@@ -268,6 +272,9 @@ src/game/connect4.js:55 weight
 src/game/connect4.js:57 evaluate
 src/game/connect4.js:70 search
 src/game/connect4.js:91 +botColumn
+## src/game/crown.js (10L)
+src/game/crown.js:3 +crownable
+src/game/crown.js:5 +crown
 ## src/game/difficulty.js (124L)
 src/game/difficulty.js:9 +floorTier
 src/game/difficulty.js:13 BAND
@@ -428,17 +435,17 @@ src/game/marcianos.js:53 climb
 src/game/marcianos.js:62 descend
 src/game/marcianos.js:88 fall
 src/game/marcianos.js:101 +step
-## src/game/match.js (429L)
-src/game/match.js:11 +QUIET_LIMIT
-src/game/match.js:12 +METEOR_EVERY
-src/game/match.js:14 +Match
-src/game/match.js:333 cheapestAttacker
-src/game/match.js:347 STATE
-src/game/match.js:348 toJSON
-src/game/match.js:349 fromJSON
-src/game/match.js:350 +freezeMatch
-src/game/match.js:356 +thawMatch
-src/game/match.js:370 +botChooseMove
+## src/game/match.js (435L)
+src/game/match.js:12 +QUIET_LIMIT
+src/game/match.js:13 +METEOR_EVERY
+src/game/match.js:15 +Match
+src/game/match.js:339 cheapestAttacker
+src/game/match.js:353 STATE
+src/game/match.js:354 toJSON
+src/game/match.js:355 fromJSON
+src/game/match.js:356 +freezeMatch
+src/game/match.js:362 +thawMatch
+src/game/match.js:376 +botChooseMove
 ## src/game/mates.js (95L)
 src/game/mates.js:7 +SIZE
 src/game/mates.js:8 +board
@@ -542,7 +549,7 @@ src/game/rampage.js:82 +start
 src/game/rampage.js:83 +pieces
 src/game/rampage.js:84 +marks
 src/game/rampage.js:85 +status
-## src/game/rules.js (231L)
+## src/game/rules.js (236L)
 src/game/rules.js:6 +key
 src/game/rules.js:8 +linkPortalPair
 src/game/rules.js:16 +portalAt
@@ -558,16 +565,16 @@ src/game/rules.js:65 free
 src/game/rules.js:74 pathClear
 src/game/rules.js:84 forward
 src/game/rules.js:86 canMoveAs
-src/game/rules.js:138 +moveTypesOf
-src/game/rules.js:143 canMove
-src/game/rules.js:148 +pieceCanMove
-src/game/rules.js:154 +canHit
-src/game/rules.js:163 +legalMoves
-src/game/rules.js:172 +hasAnyLegalMove
-src/game/rules.js:178 +threatenedPieces
-src/game/rules.js:190 +moveCells
-src/game/rules.js:198 +anchorForCell
-src/game/rules.js:214 +reachPreview
+src/game/rules.js:143 +moveTypesOf
+src/game/rules.js:148 canMove
+src/game/rules.js:153 +pieceCanMove
+src/game/rules.js:159 +canHit
+src/game/rules.js:168 +legalMoves
+src/game/rules.js:177 +hasAnyLegalMove
+src/game/rules.js:183 +threatenedPieces
+src/game/rules.js:195 +moveCells
+src/game/rules.js:203 +anchorForCell
+src/game/rules.js:219 +reachPreview
 ## src/game/run.js (81L)
 src/game/run.js:7 RUN_KEY
 src/game/run.js:8 SETTINGS_KEY
@@ -595,7 +602,7 @@ src/game/run.js:65 +loadSettings
 src/game/run.js:69 +saveSettings
 src/game/run.js:73 DEMO_KEY
 src/game/run.js:74 +takeNewDemos
-## src/game/shop.js (79L)
+## src/game/shop.js (84L)
 src/game/shop.js:6 KEY
 src/game/shop.js:7 read
 src/game/shop.js:8 write
@@ -612,8 +619,8 @@ src/game/shop.js:37 +grantTheme
 src/game/shop.js:46 +addPending
 src/game/shop.js:52 +takePending
 src/game/shop.js:61 +addToHand
-src/game/shop.js:74 +consumeCard
-src/game/shop.js:78 +isShopCard
+src/game/shop.js:79 +consumeCard
+src/game/shop.js:83 +isShopCard
 ## src/game/turn-kit.js (22L)
 src/game/turn-kit.js:6 +grid
 src/game/turn-kit.js:7 +inside
@@ -684,7 +691,7 @@ src/game/zen.js:311 +addZenSeeds
 src/game/zen.js:318 +pickSeed
 src/game/zen.js:326 +koiHungry
 src/game/zen.js:327 +feedKoi
-## src/i18n/en.js (1171L)
+## src/i18n/en.js (1187L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -978,13 +985,13 @@ src/ui/screens/gallery.js:26 ThemeGroup
 src/ui/screens/gallery.js:41 RULE
 src/ui/screens/gallery.js:42 Locked
 src/ui/screens/gallery.js:44 +GalleryScreen
-## src/ui/screens/game.js (857L)
-src/ui/screens/game.js:33 SIDE_NAME
-src/ui/screens/game.js:36 pieceName
-src/ui/screens/game.js:38 TIPS
-src/ui/screens/game.js:47 cardEffect
-src/ui/screens/game.js:61 +GameScreen
-src/ui/screens/game.js:828 EndOverlay
+## src/ui/screens/game.js (868L)
+src/ui/screens/game.js:34 SIDE_NAME
+src/ui/screens/game.js:37 pieceName
+src/ui/screens/game.js:39 TIPS
+src/ui/screens/game.js:48 cardEffect
+src/ui/screens/game.js:62 +GameScreen
+src/ui/screens/game.js:839 EndOverlay
 ## src/ui/screens/hockey.js (210L)
 src/ui/screens/hockey.js:13 KEYS
 src/ui/screens/hockey.js:15 TOP_KEYS
@@ -1002,7 +1009,7 @@ src/ui/screens/marcianos.js:12 css
 src/ui/screens/marcianos.js:15 KEYS
 src/ui/screens/marcianos.js:16 WAIT
 src/ui/screens/marcianos.js:18 +MarcianosScreen
-## src/ui/screens/menu.js (180L)
+## src/ui/screens/menu.js (179L)
 src/ui/screens/menu.js:14 Diorama
 src/ui/screens/menu.js:102 fitCrown
 src/ui/screens/menu.js:134 +MenuScreen
@@ -1170,7 +1177,7 @@ src/ui/zen-art.js:250 +boardPond
 src/ui/zen-art.js:256 +stoneArt
 src/ui/zen-art.js:262 +ITEM_ART
 src/ui/zen-art.js:267 +KOI_ART
-## src/view/board-view.js (1176L)
+## src/view/board-view.js (1189L)
 src/view/board-view.js:18 look
 src/view/board-view.js:20 +CAMERAS
 src/view/board-view.js:21 JUMPERS
@@ -1242,24 +1249,26 @@ src/view/weather-fx.js:220 leaves
 src/view/weather-fx.js:249 BUB
 src/view/weather-fx.js:250 bubbles
 src/view/weather-fx.js:300 +WEATHER_FX
-## css/base.css (220L)
+## css/base.css (235L)
 css/base.css:1 /* Reset, typography, browser surfaces and shared components.
 css/base.css:22 /* Icon() pinta las dos versiones; cada mesa muestra la suya (p
-css/base.css:30 /* Buttons are printed tokens: the solid bottom edge is the tok
-css/base.css:60 /* Teléfonos de 360 px: título en una línea al lado del Volver 
-css/base.css:69 /* Paper panels: the rulebook and score sheets of the box.
-css/base.css:84 /* Reward cards: actual playing cards of the game, so the card 
-css/base.css:95 /* Frame colour says the kind: vermilion = tactic (played in a 
-css/base.css:105 /* Cartas de antes de la partida (Organizar): marco azul pizarr
-css/base.css:114 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
-css/base.css:121 /* Rareza con canal propio, independiente del color del tipo (e
-css/base.css:126 /* Rara: el título es una banda de plata pulida. Épica: latón c
-css/base.css:137 /* Every figure on a card is paper with an ink outline, so stam
-css/base.css:148 /* Card back carries the pawn emblem: the box's identity mark.
-css/base.css:159 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
-css/base.css:199 /* Botones sin texto y cosas del jardín: el botón va en su esqu
-css/base.css:202 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
-## css/board.css (354L)
+css/base.css:27 /* Clima: textura encima del fondo de la mesa (no lo reemplaza)
+css/base.css:42 /* Buttons are printed tokens: the solid bottom edge is the tok
+css/base.css:72 /* Teléfonos de 360 px: título en una línea al lado del Volver 
+css/base.css:81 /* Paper panels: the rulebook and score sheets of the box.
+css/base.css:96 /* Reward cards: actual playing cards of the game, so the card 
+css/base.css:107 /* Frame colour says the kind: vermilion = tactic (played in a 
+css/base.css:117 /* Cartas de antes de la partida (Organizar): marco azul pizarr
+css/base.css:126 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
+css/base.css:130 /* Cartas lilas: gratis, aparte de la mano normal.
+css/base.css:136 /* Rareza con canal propio, independiente del color del tipo (e
+css/base.css:141 /* Rara: el título es una banda de plata pulida. Épica: latón c
+css/base.css:152 /* Every figure on a card is paper with an ink outline, so stam
+css/base.css:163 /* Card back carries the pawn emblem: the box's identity mark.
+css/base.css:174 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
+css/base.css:214 /* Botones sin texto y cosas del jardín: el botón va en su esqu
+css/base.css:217 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
+## css/board.css (367L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
 css/board.css:36 /* Tiles
@@ -1270,37 +1279,38 @@ css/board.css:67 /* Campo minado: lo tapado va en relieve como el buscaminas; lo
 css/board.css:71 /* Meta de un minijuego: el mismo velo sutil que el alcance de 
 css/board.css:73 /* Marca de casilla (src/data/tile-marks.js): color y tamaño sa
 css/board.css:89 /* Una marca o un coleccionable al alcance: aro verde alrededor
-css/board.css:99 /* Card targeting: dashed brass outline on valid targets; previ
-css/board.css:107 /* Casilla que la defensa de un minijuego captura (Yo, Zombi).
-css/board.css:109 /* Terrain: ice is a pale frozen slab with cracks; portals are 
-css/board.css:111 /* Agujero en el hielo (Ventisca): agua oscura con el borde rot
-css/board.css:123 /* Pieces
-css/board.css:127 /* Zombis de los minijuegos tipo PvZ: verde podrido, distinto d
-css/board.css:129 /* Peón zombi de la Plaga: figura verde podrida, base del color
-css/board.css:132 /* Contagiada: conserva el color de su bando nuevo y lleva un h
-css/board.css:135 /* Posición de casillas: no se hereda. Las piezas (y su sombra)
-css/board.css:148 /* Token base: three stacked discs give the coin its thickness;
-css/board.css:160 /* Aiming a card: pieces it can be played on wear a dashed bras
-css/board.css:179 /* En el set píxel las piezas botan un píxel justo, cada una a 
-css/board.css:182 /* El sprite ya trae contorno y la peana su sombra: sin drop-sh
-css/board.css:185 /* Mientras caen las piezas al empezar, quietas: el bote de 32 
-css/board.css:187 /* transform y no translate: con translate el bote se recalcula
-css/board.css:189 /* En el set píxel la peana también es de píxeles: disco escalo
-css/board.css:201 /* Fog: an enemy far from your pieces is only a shape in the mi
-css/board.css:203 /* Ajedrez invisible: la rival que movió no se ve; la tuya, en 
-css/board.css:206 /* Corona caliente: la pieza coronada lleva la corona encima.
-css/board.css:215 /* Chrome recortaba el cartel por arriba con la caja de la pean
-css/board.css:224 /* Piece badges: lock = escorted, flag = falls last, star = bor
-css/board.css:255 /* En móvil la capa baja hasta cubrir también las cartas, por e
-css/board.css:262 /* Etiqueta de casilla: ficha de papel con pico, encima de la c
-css/board.css:277 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
-css/board.css:283 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
-css/board.css:300 /* Estanque del centro abierto y coleccionables: tumbados sobre
-css/board.css:307 /* Koi con hambre: burbujas que suben despacio en el centro del
-css/board.css:326 /* La mariposa queda posada un poco en el aire (lo deja su vuel
-css/board.css:332 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
-css/board.css:345 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
-css/board.css:351 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
+css/board.css:100 /* Card targeting: dashed brass outline on valid targets; previ
+css/board.css:108 /* Casilla que la defensa de un minijuego captura (Yo, Zombi).
+css/board.css:110 /* Terrain: ice is a pale frozen slab with cracks; portals are 
+css/board.css:112 /* Agujero en el hielo (Ventisca): agua oscura con el borde rot
+css/board.css:124 /* Pieces
+css/board.css:128 /* Zombis de los minijuegos tipo PvZ: verde podrido, distinto d
+css/board.css:130 /* Peón zombi de la Plaga: figura verde podrida, base del color
+css/board.css:133 /* Contagiada: conserva el color de su bando nuevo y lleva un h
+css/board.css:136 /* Posición de casillas: no se hereda. Las piezas (y su sombra)
+css/board.css:149 /* Token base: three stacked discs give the coin its thickness;
+css/board.css:161 /* Aiming a card: pieces it can be played on wear a dashed bras
+css/board.css:180 /* En el set píxel las piezas botan un píxel justo, cada una a 
+css/board.css:183 /* El sprite ya trae contorno y la peana su sombra: sin drop-sh
+css/board.css:186 /* Mientras caen las piezas al empezar, quietas: el bote de 32 
+css/board.css:188 /* transform y no translate: con translate el bote se recalcula
+css/board.css:190 /* En el set píxel la peana también es de píxeles: disco escalo
+css/board.css:202 /* Fog: an enemy far from your pieces is only a shape in the mi
+css/board.css:204 /* Ajedrez invisible: la rival que movió no se ve; la tuya, en 
+css/board.css:207 /* Corona caliente: la pieza coronada lleva la corona encima.
+css/board.css:216 /* Chrome recortaba el cartel por arriba con la caja de la pean
+css/board.css:225 /* Piece badges: lock = escorted, flag = falls last, star = bor
+css/board.css:256 /* En móvil la capa baja hasta cubrir también las cartas, por e
+css/board.css:263 /* Etiqueta de casilla: ficha de papel con pico, encima de la c
+css/board.css:278 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
+css/board.css:284 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
+css/board.css:301 /* Estanque del centro abierto y coleccionables: tumbados sobre
+css/board.css:308 /* Koi con hambre: burbujas que suben despacio en el centro del
+css/board.css:327 /* La mariposa queda posada un poco en el aire (lo deja su vuel
+css/board.css:333 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
+css/board.css:346 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
+css/board.css:352 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
+css/board.css:356 /* Cartas lilas visuales: Disco (casillas que cambian de luz) y
 ## css/pixel.css (96L)
 css/pixel.css:1 /* Modo píxel: con un tema píxel (data-art="pixel", ver src/dat
 css/pixel.css:6 /* Jersey 10 (OFL), servida desde el juego: el subconjunto lati

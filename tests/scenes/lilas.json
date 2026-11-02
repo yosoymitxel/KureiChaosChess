@@ -1,0 +1,68 @@
+{
+  "cfg": {
+    "settings": {
+      "fx": true,
+      "camera": "flat"
+    },
+    "node": {
+      "modifier": "none",
+      "isBoss": true
+    },
+    "run": {
+      "cards": [
+        "haste",
+        "disco",
+        "bighead",
+        "fuse",
+        "ascend"
+      ]
+    },
+    "pieces": [
+      "king light 7 4",
+      "rook light 7 0",
+      "guard light 6 0",
+      "guard light 2 3",
+      "king dark 0 4",
+      "pawn dark 1 7"
+    ]
+  },
+  "themes": [
+    "walnut",
+    "pixelada"
+  ],
+  "steps": [
+    {
+      "card": "Ascenso"
+    },
+    {
+      "tap": "2,3"
+    },
+    {
+      "tap": "2,3"
+    },
+    {
+      "wait": 1500
+    },
+    {
+      "card": "Disco"
+    },
+    {
+      "card": "Cabezones"
+    },
+    {
+      "wait": 1200
+    },
+    {
+      "shot": "lilas"
+    },
+    {
+      "expect": {
+        "noErrors": true,
+        "eval": "bench.match.pieces.find(p => p.row === 2 && p.col === 3).crowned && !!document.querySelector('.fx-disco.fx-bighead') && !!document.querySelector('.screen[data-weather]')"
+      }
+    }
+  ],
+  "viewports": [
+    "pc"
+  ]
+}

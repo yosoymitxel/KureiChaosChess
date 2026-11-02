@@ -3,7 +3,7 @@ import { localize } from '../i18n/index.js';
 
 export const MUTATIONS = localize('mutations', {
   fury: { id: 'fury', name: 'Furia', icon: 'boot', desc: '+1 movimiento por turno que no captura (máx. 3).', stack: true, maxStack: 3, rarity: 'rare' },
-  crown: { id: 'crown', name: 'Corona doble', icon: 'crown', desc: 'Tus peones coronan siempre en la última fila.', rarity: 'common' },
+  crown: { id: 'crown', name: 'Corona doble', icon: 'crown', desc: 'Tus peones, guardias y consejeros coronan desde 3 filas antes del final.', rarity: 'common' },
   knightBishop: { id: 'knightBishop', name: 'Caballo loco', icon: 'knight', desc: 'Tus caballos también se mueven como alfiles.', rarity: 'rare' },
   towerDiag: { id: 'towerDiag', name: 'Torre diagonal', icon: 'rook', desc: 'Tus torres también se mueven hasta 2 en diagonal.', rarity: 'common' },
   pawnBack: { id: 'pawnBack', name: 'Retroceso', icon: 'pawn', desc: 'Tus peones pueden retroceder 1.', rarity: 'common' },
@@ -39,7 +39,7 @@ export function applyMutations(pieces, list, color) {
   const c = countMutations(list);
   for (const p of pieces) {
     if (p.color !== color) continue;
-    if (p.type === 'pawn' && c.crown) p.canCrown = true;
+    if (['pawn', 'guard', 'advisor'].includes(p.type) && c.crown) p.canCrown = true;
     if (p.type === 'cannon' && c.cannonRange) p.cannonHops = 1;
     for (const [mut, [type, extra]] of Object.entries(EXTRA_MOVES)) {
       if (c[mut] && p.type === type) {

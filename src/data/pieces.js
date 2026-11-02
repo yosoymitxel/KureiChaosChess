@@ -4,14 +4,14 @@
 // El orden es el de las ayudas y la galería: primero las del ajedrez de siempre.
 import { localize } from '../i18n/index.js';
 export const PIECES = localize('pieces', {
-  pawn: { name: 'Peón', move: 'peón', value: 10, rule: 'Avanza 1 (o 2 desde su fila inicial). Captura en diagonal hacia delante.' },
+  pawn: { name: 'Peón', move: 'peón', value: 10, rule: 'Avanza 1 (o 2 desde su fila inicial). Captura en diagonal hacia delante. En la última fila corona a reina.' },
   rook: { name: 'Torre', move: 'torre', value: 50, rule: 'Se desliza en cruz hasta chocar.' },
   knight: { name: 'Caballo', move: 'caballo', value: 30, rule: 'Salta en L (2 y 1). Ignora lo que haya en medio.' },
   bishop: { name: 'Alfil', move: 'alfil', value: 30, rule: 'Se desliza en diagonal.' },
   queen: { name: 'Reina', move: 'reina', value: 90, rule: 'Torre + alfil.' },
   king: { name: 'Rey', move: 'rey', value: 1000, rule: '1 paso en cualquier dirección. Si cae, su bando queda eliminado.' },
-  guard: { name: 'Guardia', move: 'guardia', value: 18, rule: 'Como el rey menos la casilla de justo detrás: 1 paso a cualquier lado (atrás solo en diagonal), o 2 en diagonal hacia delante si el paso está libre.' },
-  advisor: { name: 'Consejero', move: 'consejero', value: 18, rule: '1 paso en diagonal.' },
+  guard: { name: 'Guardia', move: 'guardia', value: 18, rule: 'Como el rey menos la casilla de justo detrás: 1 paso a cualquier lado (atrás solo en diagonal), o 2 en diagonal hacia delante si el paso está libre. Coronado, atrás hace lo mismo que delante.' },
+  advisor: { name: 'Consejero', move: 'consejero', value: 18, rule: '1 paso en diagonal. Coronado, suma hasta 2 pasos en cruz.' },
   elephant: { name: 'Elefante', move: 'elefante', value: 22, rule: 'Salta 2 en diagonal.' },
   camel: { name: 'Camello', move: 'camello', value: 30, rule: 'Salta en L larga (3 y 1).' },
   cannon: { name: 'Cañón', move: 'cañón', value: 40, rule: 'Se mueve como torre, pero no captura deslizándose: mata saltando 1 pieza por medio. También salta 1 pieza propia y cae en el hueco justo detrás, así no queda encerrado.' },

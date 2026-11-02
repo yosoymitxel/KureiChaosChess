@@ -248,6 +248,12 @@ export default {
     "game.multiCapture": "Capture ×{n}!",
     "game.bigDown": "{name} down!",
     "game.promotionSub": "The pawn rises to queen",
+    "game.promotionMore": "{a} gains movement",
+    "card.fx.crown": "{name} promoted",
+    "rarity.lilac": "lilac",
+    "board.wings": "+2 diagonal",
+    "board.retreat": "+ step back",
+    "board.fuse": "+ guard, +1 shield",
     "game.ice": "Ice",
     "game.iceText": "A piece that ends here slides one more square in its direction.",
     "game.portal": "Portal",
@@ -911,14 +917,14 @@ export default {
   },
 
   pieces: {
-    pawn: { name: 'Pawn', move: 'pawn', rule: 'Moves 1 (or 2 from its starting row). Captures diagonally forward.' },
+    pawn: { name: 'Pawn', move: 'pawn', rule: 'Moves 1 (or 2 from its starting row). Captures diagonally forward. Promotes to queen on the last row.' },
     rook: { name: 'Rook', move: 'rook', rule: 'Slides orthogonally until it hits something.' },
     knight: { name: 'Knight', move: 'knight', rule: 'Jumps in an L (2 and 1). Ignores anything in between.' },
     bishop: { name: 'Bishop', move: 'bishop', rule: 'Slides diagonally.' },
     queen: { name: 'Queen', move: 'queen', rule: 'Rook + bishop.' },
     king: { name: 'King', move: 'king', rule: '1 step in any direction. If it falls, its side is out.' },
-    guard: { name: 'Guard', move: 'guard', rule: 'Like the king except the square right behind: 1 step any way (backwards only diagonally), or 2 diagonally forward if the way is clear.' },
-    advisor: { name: 'Advisor', move: 'advisor', rule: '1 step diagonally.' },
+    guard: { name: 'Guard', move: 'guard', rule: 'Like the king except the square right behind: 1 step any way (backwards only diagonally), or 2 diagonally forward if the way is clear. Promoted, it moves backwards as it does forwards.' },
+    advisor: { name: 'Advisor', move: 'advisor', rule: '1 step diagonally. Promoted, it adds up to 2 steps orthogonally.' },
     elephant: { name: 'Elephant', move: 'elephant', rule: 'Jumps 2 diagonally.' },
     camel: { name: 'Camel', move: 'camel', rule: 'Jumps in a long L (3 and 1).' },
     cannon: { name: 'Cannon', move: 'cannon', rule: 'Moves like a rook but doesn\'t capture by sliding: it kills by jumping over 1 piece. It can also jump 1 friendly piece and land in the gap right behind, so it never gets boxed in.' },
@@ -937,7 +943,7 @@ export default {
 
   mutations: {
     fury: { name: 'Fury', desc: '+1 move per turn that doesn\'t capture (max. 3).' },
-    crown: { name: 'Double crown', desc: 'Your pawns always promote on the last row.' },
+    crown: { name: 'Double crown', desc: 'Your pawns, guards and advisors promote from 3 rows before the end.' },
     knightBishop: { name: 'Crazy knight', desc: 'Your knights also move like bishops.' },
     towerDiag: { name: 'Diagonal rook', desc: 'Your rooks also move up to 2 diagonally.' },
     pawnBack: { name: 'Step back', desc: 'Your pawns can step back 1.' },
@@ -950,12 +956,21 @@ export default {
 
   cards: {
     colossus: { name: 'Colossus', aim: 'Pick a rook or guard with a free square behind or in front.', desc: 'A rook or guard grows to 2×1 (backwards if it fits): it keeps its move and adds the king\'s, crushes what it steps on and takes 3 hits.' },
-    ascend: { name: 'Ascend', aim: 'Pick a pawn already in enemy territory.', desc: 'A pawn that has crossed into enemy territory becomes a queen.' },
+    ascend: { name: 'Ascend', aim: 'Pick a pawn, guard or advisor in the last 3 rows.', desc: 'Promotes right now a pawn (queen), guard or advisor 3 rows or fewer from the end.' },
     mount: { name: 'Mount', aim: 'Pick a piece that isn\'t a king, queen or knight.', desc: 'A piece (not king or queen) learns to jump in an L for this match.' },
     fortify: { name: 'Fortify', aim: 'Pick a piece without a shield.', desc: 'A piece takes one more hit: the attacker bounces back the first time.' },
     quake: { name: 'Earthquake', aim: 'Pick an empty square to sink.', desc: 'An empty square sinks for good. Cut routes or trap the rival.' },
     reinforce: { name: 'Reinforcements', aim: 'Pick an empty square in your last two rows.', desc: 'A new pawn enters an empty square in your last two rows.' },
     haste: { name: 'Double step', desc: 'This turn you make one more move, but it can\'t capture.' },
+    wings: { name: 'Wings', aim: 'Pick a piece that isn\'t a king, queen or bishop.', desc: 'A piece (not king, queen or bishop) adds up to 2 diagonal steps for this match.' },
+    retreat: { name: 'Retreat', aim: 'Pick a pawn.', desc: 'A pawn learns to step back 1 square (without capturing) for this match.' },
+    bridge: { name: 'Bridge', aim: 'Pick a hole in the board.', desc: 'A hole becomes floor again: it opens a path that was cut.' },
+    frost: { name: 'Frost', aim: 'Pick an empty square.', desc: 'An empty square freezes: whatever enters slides until it hits something.' },
+    disco: { name: 'Disco', desc: 'Coloured lights over the board for the rest of the match. Free.' },
+    bighead: { name: 'Big heads', desc: 'Every piece gets a huge head for the rest of the match. Free.' },
+    skies: { name: 'Change of weather', desc: 'Swaps the table\'s weather for a random one. Free.' },
+    summon: { name: 'Allied witch', aim: 'Pick an empty square in the middle.', desc: 'A sleeping witch on your side: if an enemy piece aims at her, she wakes up and hunts it.' },
+    fuse: { name: 'Escort', aim: 'Pick a rook with one of your guards beside it.', desc: 'The guard next to a rook joins it: the rook adds its move and takes one more hit.' },
     organize: { name: 'Organize', desc: 'Plays itself at the start of the next match: swaps 2 to 8 pairs of your pieces (more on bigger boards).' },
   },
 
@@ -967,7 +982,7 @@ export default {
 
   modifiers: {
     none: { name: 'Flat ground', desc: 'No modifiers.' },
-    promote: { name: 'Promotion', desc: 'Pawns that reach the end become queens.' },
+    promote: { name: 'Promotion', desc: 'Pawns, guards and advisors promote from 3 rows before the end.' },
     chaos: { name: 'Unstable ground', desc: 'Every 3 turns, edge squares collapse.' },
     rush: { name: 'Rush', desc: 'Each player moves twice per turn.' },
     fog: { name: 'Thick fog', desc: 'The board goes dark far from your pieces.' },

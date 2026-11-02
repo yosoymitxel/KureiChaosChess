@@ -13,7 +13,8 @@ import { playDemo, mutationDemo, bossDemo, pieceDemo } from '../demos.js';
 import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
 import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
 import { MUTATIONS, countMutations, EXTRA_MOVES } from '../../data/mutations.js';
-import { weatherFor, TIED_WEATHER } from '../../data/weather.js';
+import { weatherFor, TIED_WEATHER, WEATHER } from '../../data/weather.js';
+import { playAPKTransformVariant, playAPKDisco } from '../../lab/apk/effects.js';
 import { vfxOn } from '../../data/themes.js';
 import { playMech } from '../board-fx.js';
 import { takeNewDemos, loadBosses } from '../../game/run.js';
@@ -48,7 +49,7 @@ function cardEffect(card, piece, pv) {
   const name = pieceName(piece);
   const gained = [...pv.cells].filter((k) => !pv.before.has(k)).length;
   const reach = gained ? ' · ' + tp('card.reach', gained, '{n} casilla nueva (en azul)', '{n} casillas nuevas (en azul)') : '';
-  if (card.id === 'ascend') return t('card.fx.ascend', '{name} → Reina', { name }) + reach;
+  if (card.id === 'ascend') return (piece.type === 'pawn' ? t('card.fx.ascend', '{name} → Reina', { name }) : t('card.fx.crown', '{name} coronado', { name })) + reach;
   if (card.id === 'mount') return t('card.fx.mount', '{name} aprende el salto en L', { name }) + reach;
   if (card.id === 'colossus') return t('card.fx.colossus', '{name} → Coloso 2×1: conserva su movimiento, suma el del rey y aguanta 3 golpes', { name }) + reach;
   if (card.id === 'fortify') return t('card.fx.fortify', '{name} aguantará 2 golpes: el primero rebota', { name });
@@ -140,6 +141,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         chaosIn: 3 - (match.turn % 3), boss: boss && { name: boss.name, hp: boss.hp, maxHp: boss.maxHp, id: boss.boss },
         counts: Object.fromEntries(seats.map((s) => [s.color, match.pieces.filter((x) => x.color === s.color).length])),
         canCard: p.kind === 'human' && !match.cardUsed && !match.over,
+        myTurn: p.kind === 'human' && !match.over,
         captured: Object.fromEntries(seats.map((s) => [s.color, d.dealt.filter((x) => x.color === s.color && !match.pieces.includes(x)).map((x) => x.type)])),
         turn: match.turn,
       });
@@ -154,7 +156,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     };
     const cancelCard = () => { d.cardSel = null; d.cardPick = null; setCardSel(null); setCardTip(null); d.view.clearMarks(); d.view.select(null); };
     d.pickCard = (i) => {
-      if (!humanTurn() || match.cardUsed) return;
+      if (!humanTurn() || (match.cardUsed && !CARDS[d.hand[i]]?.lilac)) return;
       if (CARDS[d.hand[i]]?.preMatch) { addLog(t('game.organizeLater', 'Organizar: se juega al empezar la partida')); return; }
       if (d.cardSel === i) return cancelCard();
       clearSel();
@@ -195,6 +197,11 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       addLog(`Carta: ${card.name}`);
       d.moments.callout({ text: `¡${card.name}!`, sub: card.desc, tone: 'brass', icon: card.icon, anim: 'stomp', tier: 'info' });
       await d.view.applyCard(res);
+      // Destellos del APK: la pieza que recibe la carta y la pista de baile.
+      if (res.piece && match.pieces.includes(res.piece)) playAPKTransformVariant(d.view.host, d.view, res.piece, card.id === 'ascend' ? 'promote' : 'evolve');
+      if (res.visual === 'disco') playAPKDisco(d.view.host, d.view);
+      if (res.visual === 'weather') { const pool = Object.keys(WEATHER).filter((k) => k !== d.view.weather); d.view.setWeather(pool[Math.floor(Math.random() * pool.length)]); }
+      else if (res.visual) d.view.host.classList.add('fx-' + res.visual);
       d.busy = false;
       refresh();
       if (!match.canMove()) startTurn(false);
@@ -511,7 +518,11 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         const big = killed.find((p) => p.type === 'queen' || p.type === 'rook');
         if (big) d.moments.callout({ text: t('game.bigDown', '¡{name} caída!', { name: PIECE_NAMES[big.type] }), tone, piece: art(big), anim: 'fall', tier: 'major' });
       }
-      if (res.promoted) d.moments.callout({ text: t('game.promotion', '¡Coronación!'), sub: t('game.promotionSub', 'El peón asciende a reina'), tone: 'brass', piece: { type: 'pawn', side: res.piece.color }, pieceTo: { type: 'queen', side: res.piece.color }, anim: 'promote' });
+      if (res.promoted) {
+        const q = res.piece.type === 'queen';
+        playAPKTransformVariant(d.view.host, d.view, res.piece, 'promote');
+        d.moments.callout({ text: t('game.promotion', '¡Coronación!'), sub: q ? t('game.promotionSub', 'El peón asciende a reina') : t('game.promotionMore', '{a} gana movimiento', { a: pieceName(res.piece) }), tone: 'brass', piece: { type: q ? 'pawn' : res.piece.type, side: res.piece.color }, pieceTo: { type: res.piece.type, side: res.piece.color }, anim: 'promote' });
+      }
     };
 
     // Qué hace una casilla: etiqueta al momento junto a ella, no un rótulo en cola.
@@ -754,7 +765,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       ${banner && html`<${TurnBanner} key=${banner.key} text=${banner.text} side=${banner.side} />`}
       ${hand.length > 0 && html`<div class=${'hand' + (hud?.canCard ? '' : ' spent')} data-pad="l1 r1" role="group" aria-label=${t('game.hand', 'Mano de cartas tácticas')}>
         ${hand.map((id, i) => html`<button key=${id + i} class=${'hand-card' + (cardSel === i ? ' on' : '')} style=${{ '--rot': (i - (hand.length - 1) / 2) * 7 + 'deg', '--drop': Math.abs(i - (hand.length - 1) / 2) * 7 + 'px' }}
-            disabled=${!hud?.canCard || !!placing} aria-pressed=${cardSel === i} title=${CARDS[id].desc} onClick=${() => ref.current.pickCard(i)}>
+            disabled=${!(CARDS[id].lilac ? hud?.myTurn : hud?.canCard) || !!placing} aria-pressed=${cardSel === i} title=${CARDS[id].desc} onClick=${() => ref.current.pickCard(i)}>
           <${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini shop=${isShopCard(run, i)} />
         </button>`)}
         <p class=${'hand-hint' + (cardTip ? ' tip' : '')} aria-live="polite">${placing ? t('game.organizeHint', 'Organizar: acomoda tus piezas y pulsa Comenzar') : cardSel != null ? cardTip || CARDS[hand[cardSel]]?.aim || '' : hud?.canCard ? t('game.oneCard', 'Una carta por turno') : t('game.cardUsed', 'Ya jugaste carta este turno')}</p>

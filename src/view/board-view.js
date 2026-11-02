@@ -105,7 +105,12 @@ export class BoardView {
   destroy() { this.ro.disconnect(); this.fx.destroy(); this.unbind?.(); this.host.innerHTML = ''; }
   d(ms) { return reduced() ? Math.min(ms, 120) : ms / this.speed; }
 
-  setWeather(kind) { this.weather = kind; this.fx.setWeather(kind); }
+  setWeather(kind) {
+    this.weather = kind; this.fx.setWeather(kind);
+    // La pantalla lleva el clima para la capa de textura sobre su fondo (css/base.css).
+    const scr = this.host.closest('.screen');
+    if (scr) kind ? (scr.dataset.weather = kind) : delete scr.dataset.weather;
+  }
   // El ajuste de efectos extra se puede cambiar en pausa: aplica al momento, clima incluido.
   setVfx(on) { if (this.fx.vfx === !!on) return; this.fx.vfx = !!on; this.fx.setWeather(this.weather); }
   setCamera(camera) { this.tilt = CAMERAS[camera] ?? 40; this.layout(); }
@@ -903,16 +908,23 @@ export class BoardView {
       await animate(fig, { scaleY: [0.3, 1.12, 1], scaleX: [1.3, 0.94, 1], duration: this.d(560), ease: 'outExpo' });
     } else if (id === 'ascend') {
       await this.promote(p);
-    } else if (id === 'mount' || id === 'fortify') {
-      if (id === 'fortify') this.remake(p);
+    } else if (['mount', 'fortify', 'wings', 'retreat', 'fuse'].includes(id)) {
+      if (id === 'fuse' && res.removed) await this.vanish(res.removed);
+      if (id === 'fortify' || id === 'fuse') this.remake(p);
       const c = this.centerOf(p);
       this.fx.sparkle(c.x, c.y - this.sq * 0.6, css('--brass'), 12);
-      this.floatText(c.x, c.y - this.sq * 1.1, id === 'mount' ? t('board.mount', '+ salto en L') : t('board.shield', '+1 escudo'));
+      const label = { mount: t('board.mount', '+ salto en L'), fortify: t('board.shield', '+1 escudo'), wings: t('board.wings', '+2 en diagonal'), retreat: t('board.retreat', '+ paso atrás'), fuse: t('board.fuse', '+ guardia, +1 escudo') }[id];
+      this.floatText(c.x, c.y - this.sq * 1.1, label);
       await animate(this.els.get(p).querySelector('.pc-fig'), { y: [0, -this.sq * 0.4, 0], duration: this.d(420), ease: 'outQuad' });
     } else if (id === 'quake') {
       await this.collapse([[res.cell.row, res.cell.col]]);
-    } else if (id === 'reinforce') {
+    } else if (id === 'reinforce' || id === 'summon') {
       await this.dropIn(res.spawned);
+    } else if (id === 'bridge' || id === 'frost') {
+      this.setBoard(this.board);
+      const c = this.centerOf(res.cell);
+      this.fx.sparkle(c.x, c.y, id === 'frost' ? '#bfe6ff' : css('--brass'), 14);
+      playSfx(id === 'frost' ? 'whoosh' : 'land');
     }
   }
 

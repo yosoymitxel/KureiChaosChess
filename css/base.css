@@ -24,6 +24,18 @@ button { font: inherit; color: inherit; }
 [data-art="pixel"] .icon-px { display: inline; }
 
 .screen { position: absolute; inset: 0; display: flex; flex-direction: column; min-height: 0; }
+/* Clima: textura encima del fondo de la mesa (no lo reemplaza) y debajo de la interfaz. */
+.screen[data-weather] { isolation: isolate; }
+.screen[data-weather]::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; animation: wx-in 1.2s ease-out both; }
+@keyframes wx-in { from { opacity: 0; } }
+.screen[data-weather="rain"]::before { background: repeating-linear-gradient(105deg, oklch(0.8 0.05 250 / 0.07) 0 1px, transparent 1px 14px), linear-gradient(oklch(0.35 0.05 250 / 0.22), oklch(0.3 0.04 250 / 0.12)); }
+.screen[data-weather="snow"]::before { background: radial-gradient(circle at 20% 30%, oklch(1 0 0 / 0.16) 0 1.5px, transparent 2px) 0 0 / 46px 46px, radial-gradient(circle at 70% 60%, oklch(1 0 0 / 0.12) 0 1px, transparent 1.5px) 0 0 / 31px 31px, linear-gradient(oklch(0.92 0.02 240 / 0.14), oklch(0.85 0.03 240 / 0.2)); }
+.screen[data-weather="fog"]::before { background: radial-gradient(ellipse 80% 40% at 30% 70%, oklch(0.9 0.01 250 / 0.22), transparent 70%), radial-gradient(ellipse 70% 35% at 75% 30%, oklch(0.9 0.01 250 / 0.18), transparent 70%), oklch(0.8 0.01 250 / 0.1); }
+.screen[data-weather="leaves"]::before { background: radial-gradient(ellipse at 50% 120%, oklch(0.6 0.12 60 / 0.22), transparent 60%), oklch(0.7 0.08 70 / 0.08); }
+.screen[data-weather="fireflies"]::before { background: radial-gradient(ellipse at 50% 40%, transparent 30%, oklch(0.2 0.06 270 / 0.35)), oklch(0.25 0.05 270 / 0.12); }
+.screen[data-weather="bubbles"]::before { background: radial-gradient(circle at 30% 40%, transparent 0 5px, oklch(0.85 0.06 200 / 0.12) 5.5px 6.5px, transparent 7px) 0 0 / 70px 90px, linear-gradient(oklch(0.55 0.08 210 / 0.08), oklch(0.45 0.09 220 / 0.2)); }
+.screen[data-weather="embers"]::before { background: radial-gradient(ellipse 90% 45% at 50% 105%, oklch(0.55 0.2 35 / 0.38), transparent 70%), radial-gradient(ellipse at 50% 40%, transparent 40%, oklch(0.18 0.06 30 / 0.4)), oklch(0.4 0.12 30 / 0.1); }
+@media (prefers-reduced-motion: reduce) { .screen[data-weather]::before { animation: none; } }
 h1, h2, h3 { margin: 0; line-height: 1.05; letter-spacing: -0.02em; text-wrap: balance; }
 h2 { font-size: 17px; font-weight: 750; }
 
@@ -94,7 +106,7 @@ h2 { font-size: 17px; font-weight: 750; }
 .card .face, .card .back { position: absolute; inset: 0; border-radius: 14px; backface-visibility: hidden; border: 2px solid var(--ink); overflow: hidden; }
 /* Frame colour says the kind: vermilion = tactic (played in a match), brass = mutation (permanent), ink = item. */
 .face.kind-tactic { --frame: var(--accent); --window: var(--accent-ink); --frame-text: var(--paper); }
-.face.kind-mutation { --frame: var(--brass); --window: oklch(0.5 0.09 70); --frame-text: var(--ink); }
+.face.kind-mutation { --frame: oklch(0.62 0.15 150); --window: oklch(0.38 0.09 150); --frame-text: var(--paper); }
 .face.kind-boon { --frame: var(--ink-2); --window: var(--ink); --frame-text: var(--paper); }
 .card .face {
   display: flex; flex-direction: column; padding: 9px; gap: 7px;
@@ -115,6 +127,9 @@ h2 { font-size: 17px; font-weight: 750; }
 .gem { display: inline-block; width: 12px; height: 12px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 2.5px; background: var(--paper-3); vertical-align: -1px; }
 .gem.rare { background: var(--accent); }
 .gem.epic { background: var(--brass); box-shadow: inset 0 0 0 2px var(--paper); }
+/* Cartas lilas: gratis, aparte de la mano normal. */
+.hand-card .face.lilac, .card .face.lilac { --frame: oklch(0.6 0.13 310); --window: oklch(0.36 0.08 310); --frame-text: var(--paper); }
+.gem.lilac, .card .gem.lilac, .hand-card .gem.lilac { background: oklch(0.72 0.14 310); box-shadow: inset 0 0 0 2px var(--paper); }
 .card .gem { position: absolute; top: 15px; right: 15px; width: 16px; height: 16px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 3px; background: var(--paper-3); }
 .card .gem.rare { background: var(--accent); }
 .card .gem.epic { background: var(--brass); box-shadow: inset 0 0 0 3px var(--paper); }

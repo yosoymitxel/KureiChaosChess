@@ -104,6 +104,11 @@ function canMoveAs(piece, type, tr, tc, ctx) {
       if (adr <= 1 && adc <= 1) return !(dc === 0 && dr === -forward(piece));
       return adr === 2 && adc === 2 && dr === 2 * forward(piece) && pathClear(piece, tr, tc, ctx);
     }
+    case 'guardBack': {
+      // Guardia coronado: atrás lo mismo que delante.
+      if (dc === 0 && dr === -forward(piece)) return true;
+      return adr === 2 && adc === 2 && dr === -2 * forward(piece) && pathClear(piece, tr, tc, ctx);
+    }
     case 'advisor': return adr === 1 && adc === 1;
     case 'elephant': return adr === 2 && adc === 2;
     case 'camel': return (adr === 3 && adc === 1) || (adr === 1 && adc === 3);

@@ -1,5 +1,6 @@
 // Match state: turns, moves, captures, boss HP, collapse, end of game.
 // Mutates its own state and returns plain "result" objects that the view animates.
+import { crownable, crown } from './crown.js';
 import { legalMoves, landing, buildOccupancy, hasAnyLegalMove, threatenedPieces, key, cellsOf, walkable, portalAt, canHit, ctxOf } from './rules.js';
 import { countMutations } from '../data/mutations.js';
 import { PIECE_VALUE, MINOR_TYPES } from '../data/pieces.js';
@@ -132,9 +133,11 @@ export class Match {
       this.terrainAfterMove(piece, from, res);
       if (this.pieces.includes(piece)) this.rule?.after?.(this, piece, from, res);
     }
-    if (!bounced && piece.type === 'pawn' && (this.modifier === 'promote' || piece.canCrown)) {
-      const last = piece.color === 'light' ? 0 : this.board.rows - 1;
-      if (piece.row === last) { piece.type = 'queen'; res.promoted = true; }
+    if (!bounced && this.pieces.includes(piece) && crownable(piece)) {
+      // Por defecto se corona en la última fila; con Coronación (mecánica o mutación), desde la antepenúltima.
+      const zone = this.modifier === 'promote' || piece.canCrown ? 3 : 1;
+      const depth = piece.color === 'light' ? piece.row : this.board.rows - 1 - piece.row;
+      if (depth < zone) { crown(piece); res.promoted = true; }
     }
     // El doble paso de un peón deja su casilla de paso abierta a la captura en la jugada siguiente.
     this.ep = !bounced && piece.type === 'pawn' && Math.abs(to.row - from.row) === 2 ? { row: (from.row + to.row) / 2, col: from.col, pawn: piece } : null;

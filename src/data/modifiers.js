@@ -3,7 +3,7 @@ export const MODIFIERS = localize('modifiers', {
   none: { id: 'none', name: 'Terreno llano', desc: 'Sin modificadores.', icon: 'plain' },
   // `weights`: cuánto sale en cada tramo de la torre (temprano, medio, tardío). Sin `weights` no sale
   // sola en el mapa (llano, jefe). Agregar una mecánica o un minijuego es agregar su entrada aquí.
-  promote: { id: 'promote', name: 'Coronación', desc: 'Los peones que llegan al final se vuelven reinas.', icon: 'crown', weights: [3, 2, 1] },
+  promote: { id: 'promote', name: 'Coronación', desc: 'Peones, guardias y consejeros coronan desde 3 filas antes del final.', icon: 'crown', weights: [3, 2, 1] },
   chaos: { id: 'chaos', name: 'Terreno inestable', desc: 'Cada 3 turnos se desploman casillas del borde.', icon: 'collapse', weights: [0, 1, 2] },
   rush: { id: 'rush', name: 'Prisa', desc: 'Cada jugador mueve dos veces por turno.', icon: 'rush', weights: [1, 2, 2] },
   fog: { id: 'fog', name: 'Niebla densa', desc: 'El tablero se oscurece lejos de tus piezas.', icon: 'fog', weights: [0, 1, 2] },

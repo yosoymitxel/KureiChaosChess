@@ -4,12 +4,14 @@
 import { mulberry32 } from '../core/rng.js';
 import { cellsOf, key, walkable, legalMoves, moveCells } from './rules.js';
 import { makePiece } from './generate.js';
+import { crownable, crown } from './crown.js';
 import { localize } from '../i18n/index.js';
 
 const behind = (p) => (p.color === 'light' ? 1 : -1);
 const occupiedBy = (m, r, c) => m.pieces.find((p) => cellsOf(p).some(([a, b]) => a === r && b === c));
 const freeTile = (m, r, c) => walkable(m.board, r, c) && !occupiedBy(m, r, c);
 // A colossus grows backwards when there is room, otherwise forwards; undefined if neither tile is free.
+const guardBeside = (m, p) => m.pieces.find((g) => g.type === 'guard' && g.color === p.color && !g.royal && Math.abs(g.row - p.row) + Math.abs(g.col - p.col) === 1);
 const growDir = (m, p) => [behind(p), -behind(p)].find((d) => freeTile(m, p.row + d, p.col));
 
 export const CARDS = localize('cards', {
@@ -25,11 +27,11 @@ export const CARDS = localize('cards', {
     },
   },
   ascend: {
-    id: 'ascend', aim: 'Elige un peón que ya esté en campo rival.', name: 'Ascenso', rarity: 'common', icon: 'queen', target: 'piece',
-    desc: 'Un peón que ya cruzó a campo rival se convierte en reina.',
-    // Only past the middle: a queen on turn one shortened matches by a sixth (tools/balance.mjs).
-    can: (m, p) => p.type === 'pawn' && (p.color === 'light' ? p.row < m.board.rows / 2 : p.row >= m.board.rows / 2),
-    apply: (m, p) => { p.type = 'queen'; p.ascended = true; },
+    id: 'ascend', aim: 'Elige un peón, guardia o consejero en las 3 últimas filas.', name: 'Ascenso', rarity: 'common', icon: 'queen', target: 'piece',
+    desc: 'Corona ya a un peón (reina), guardia o consejero que esté a 3 filas o menos del final.',
+    // Antes valía desde medio tablero; ahora pide llegar cerca del final, como la coronación.
+    can: (m, p) => crownable(p) && (p.color === 'light' ? p.row : m.board.rows - 1 - p.row) < 3,
+    apply: (m, p) => { crown(p); p.ascended = true; },
   },
   mount: {
     id: 'mount', aim: 'Elige una pieza que no sea rey, reina ni caballo.', name: 'Montura', rarity: 'common', icon: 'knight', target: 'piece',
@@ -65,19 +67,86 @@ export const CARDS = localize('cards', {
     desc: 'Este turno haces un movimiento más, pero ese no puede capturar.',
     apply: (m) => { m.turnBonus = (m.turnBonus || 0) + 1; },
   },
+  wings: {
+    id: 'wings', aim: 'Elige una pieza que no sea rey, reina ni alfil.', name: 'Alas', rarity: 'common', icon: 'bishop', target: 'piece',
+    desc: 'Una pieza (no rey, reina ni alfil) suma hasta 2 pasos en diagonal esta partida.',
+    can: (m, p) => !p.royal && !p.boss && !['bishop', 'queen'].includes(p.type) && !(p.extraMoveTypes || []).includes('bishop2') && !p.moves,
+    apply: (m, p) => { p.extraMoveTypes = [...(p.extraMoveTypes || []), 'bishop2']; },
+  },
+  retreat: {
+    id: 'retreat', aim: 'Elige un peón.', name: 'Retirada', rarity: 'common', icon: 'pawn', target: 'piece',
+    desc: 'Un peón aprende a retroceder 1 casilla (sin capturar) esta partida.',
+    can: (m, p) => p.type === 'pawn' && !(p.extraMoveTypes || []).includes('pawnBack'),
+    apply: (m, p) => { p.extraMoveTypes = [...(p.extraMoveTypes || []), 'pawnBack']; },
+  },
+  bridge: {
+    id: 'bridge', aim: 'Elige un hueco del tablero.', name: 'Puente', rarity: 'common', icon: 'plain', target: 'tile',
+    desc: 'Un hueco vuelve a ser suelo: abre un paso que estaba cortado.',
+    can: (m, r, c) => m.board.holes.has(key(r, c)),
+    apply: (m, r, c) => { m.board.holes.delete(key(r, c)); },
+  },
+  frost: {
+    id: 'frost', aim: 'Elige una casilla vacía.', name: 'Escarcha', rarity: 'common', icon: 'ice', target: 'tile',
+    desc: 'Una casilla vacía se congela: lo que entra resbala hasta chocar.',
+    can: (m, r, c) => freeTile(m, r, c) && !m.board.terrain?.get(key(r, c)),
+    apply: (m, r, c) => { (m.board.terrain ||= new Map()).set(key(r, c), 'ice'); },
+  },
+  // Lilas: guiños sin coste. No ocupan sitio en la mano (hasta 3 aparte) ni gastan la carta del turno.
   organize: {
-    id: 'organize', name: 'Organizar', rarity: 'common', icon: 'swap', target: 'none', preMatch: true,
+    id: 'organize', name: 'Organizar', rarity: 'lilac', lilac: true, icon: 'swap', target: 'none', preMatch: true,
     desc: 'Se juega sola al empezar la próxima partida: intercambia de casilla de 2 a 8 parejas de tus piezas (más cuanto más grande el tablero).',
     apply: () => {},
+  },
+  disco: {
+    id: 'disco', name: 'Disco', rarity: 'lilac', lilac: true, icon: 'checkers', target: 'none',
+    desc: 'Luces de colores sobre el tablero el resto de la partida. Gratis.',
+    apply: () => ({ visual: 'disco' }),
+  },
+  bighead: {
+    id: 'bighead', name: 'Cabezones', rarity: 'lilac', lilac: true, icon: 'human', target: 'none',
+    desc: 'Todas las piezas con la cabeza enorme el resto de la partida. Gratis.',
+    apply: () => ({ visual: 'bighead' }),
+  },
+  skies: {
+    id: 'skies', name: 'Cambio de clima', rarity: 'lilac', lilac: true, icon: 'drop', target: 'none',
+    desc: 'Cambia el clima de la mesa por otro al azar. Gratis.',
+    apply: () => ({ visual: 'weather' }),
+  },
+  summon: {
+    id: 'summon', aim: 'Elige una casilla vacía del centro.', name: 'Bruja aliada', rarity: 'lilac', lilac: true, icon: 'hunt', target: 'tile',
+    desc: 'Una bruja dormida de tu bando: si una pieza rival la apunta, despierta y la caza.',
+    can: (m, r, c) => r >= 2 && r < m.board.rows - 2 && freeTile(m, r, c) && !m.pieces.some((p) => p.witch && p.color === m.player.color),
+    apply: (m, r, c) => {
+      // Aliada más lenta que la rival (solo paso de rey): gratis no puede ser decisiva.
+      const p = makePiece('queen', m.player.color, r, c, { witch: true, moves: ['king'] }); m.pieces.push(p); return p;
+    },
+  },
+  fuse: {
+    id: 'fuse', aim: 'Elige una torre con un guardia tuyo al lado.', name: 'Escolta', rarity: 'lilac', lilac: true, icon: 'rook', target: 'piece',
+    desc: 'El guardia pegado a una torre se une a ella: la torre suma su movimiento y aguanta un golpe más.',
+    can: (m, p) => p.type === 'rook' && !p.boss && (p.h || 1) === 1 && !!guardBeside(m, p),
+    apply: (m, p) => {
+      const g = guardBeside(m, p);
+      m.pieces.splice(m.pieces.indexOf(g), 1);
+      p.extraMoveTypes = [...(p.extraMoveTypes || []), 'guard'];
+      p.hp = (p.hp ?? 1) + 1; p.maxHp = (p.maxHp ?? 1) + 1;
+      return g;
+    },
   },
 });
 export const CARD_IDS = Object.keys(CARDS);
 export const HAND_LIMIT = 5;
+export const LILAC_LIMIT = 3;
+// Las lilas llevan su propio cupo: ¿cabe `id` en la mano?
+export const handFull = (cards, id) => {
+  const lil = !!CARDS[id]?.lilac;
+  return (cards || []).filter((c) => !!CARDS[c]?.lilac === lil).length >= (lil ? LILAC_LIMIT : HAND_LIMIT);
+};
 export const STARTER_CARDS = ['ascend', 'fortify', 'haste'];
 
 export function pickCardChoices(seed, n = 3) {
   const rng = mulberry32(seed);
-  const pool = CARD_IDS.flatMap((id) => (CARDS[id].rarity === 'rare' ? [id] : [id, id]));
+  const pool = CARD_IDS.flatMap((id) => (CARDS[id].rarity === 'common' ? [id, id] : [id]));
   const out = [];
   while (out.length < n) { const id = pool[Math.floor(rng() * pool.length)]; if (!out.includes(id)) out.push(id); }
   return out;
@@ -98,7 +167,7 @@ export function cardTargets(m, card) {
 // What the piece could do after the card: legal-move cells of a hypothetical copy.
 export function previewMoves(m, card, piece) {
   const copy = { ...piece, extraMoveTypes: [...(piece.extraMoveTypes || [])], moves: piece.moves && [...piece.moves] };
-  card.apply({ ...m, pieces: m.pieces }, copy);
+  card.apply({ ...m, pieces: [...m.pieces] }, copy);
   const pieces = m.pieces.map((p) => (p === piece ? copy : p));
   return {
     cells: moveCells(copy, legalMoves(copy, pieces, m.board)),
@@ -110,17 +179,17 @@ export function previewMoves(m, card, piece) {
 // Plays a card for the current player. Returns a result for the view, or null if not allowed.
 export function playCard(m, id, target) {
   const card = CARDS[id];
-  if (!card || card.preMatch || m.cardUsed || m.over) return null;
+  if (!card || card.preMatch || (m.cardUsed && !card.lilac) || m.over) return null;
   const res = { card };
   if (card.target === 'piece') {
     if (!target?.piece || target.piece.color !== m.player.color || !card.can(m, target.piece)) return null;
-    card.apply(m, target.piece);
+    res.removed = card.apply(m, target.piece) || null;
     res.piece = target.piece;
   } else if (card.target === 'tile') {
     if (!target || !card.can(m, target.row, target.col)) return null;
     res.cell = { row: target.row, col: target.col };
     res.spawned = card.apply(m, target.row, target.col);
-  } else card.apply(m);
-  m.cardUsed = true;
+  } else Object.assign(res, card.apply(m));
+  if (!card.lilac) m.cardUsed = true;
   return res;
 }
