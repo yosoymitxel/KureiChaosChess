@@ -11,4 +11,12 @@ export const TILE_MARKS = {
   trophy: { icon: 'trophy', color: 'var(--brass)', role: 'goal' },
   target: { icon: 'target', color: 'var(--accent)', role: 'goal' },
   flag: { icon: 'flag', color: 'var(--ink)', role: 'goal' },
+  gem: { icon: 'drop', color: 'oklch(0.62 0.13 200)', role: 'collect' },
+  goldgem: { icon: 'crown', color: 'var(--brass)', role: 'collect' },
+  star: { icon: 'shield', color: 'oklch(0.7 0.14 85)', role: 'collect' },
+  rush: { icon: 'rush', color: 'oklch(0.66 0.16 55)', role: 'collect' },
+  ice: { icon: 'ice', color: 'oklch(0.7 0.09 230)', role: 'collect' },
+  portal: { icon: 'portal', color: 'oklch(0.55 0.16 300)', role: 'collect' },
+  bomb: { icon: 'bomb', color: 'var(--danger)', role: 'collect' },
+  spike: { icon: 'skull', color: 'var(--danger)', role: 'collect' },
 };

@@ -20,12 +20,12 @@ src/data/garden.js:34 +LAKE_MAX
 src/data/garden.js:35 +lakeCost
 ## src/data/mates.js (2L)
 src/data/mates.js:1 +MATES
-## src/data/minigame-catalog.js (34L)
-src/data/minigame-catalog.js:24 SCREENS
-src/data/minigame-catalog.js:33 +MINIGAMES
-## src/data/modifiers.js (58L)
+## src/data/minigame-catalog.js (36L)
+src/data/minigame-catalog.js:25 SCREENS
+src/data/minigame-catalog.js:35 +MINIGAMES
+## src/data/modifiers.js (66L)
 src/data/modifiers.js:2 +MODIFIERS
-src/data/modifiers.js:54 +nodeModifier
+src/data/modifiers.js:62 +nodeModifier
 ## src/data/mutations.js (53L)
 src/data/mutations.js:4 +MUTATIONS
 src/data/mutations.js:16 KEYS
@@ -50,7 +50,7 @@ src/data/pieces.js:28 +PIECE_RULES
 src/data/pieces.js:30 +MOVE_NAMES
 ## src/data/pixel-src.js (5L)
 src/data/pixel-src.js:4 +pixelSrc
-## src/data/scenarios.js (541L)
+## src/data/scenarios.js (595L)
 src/data/scenarios.js:15 +LEVELS
 src/data/scenarios.js:16 N
 src/data/scenarios.js:17 board
@@ -68,23 +68,25 @@ src/data/scenarios.js:396 passable
 src/data/scenarios.js:405 knightRoute
 src/data/scenarios.js:430 freeTiles
 src/data/scenarios.js:491 WITCH_MOVES
-src/data/scenarios.js:531 +buildScenario
+src/data/scenarios.js:533 BOMB_SHAPES
+src/data/scenarios.js:585 +buildScenario
 ## src/data/sfx-samples.js (115L)
 src/data/sfx-samples.js:3 +SFX_SAMPLES
-## src/data/themes.js (123L)
+## src/data/themes.js (126L)
 src/data/themes.js:9 +THEMES
 src/data/themes.js:98 PX_IMAGES
 src/data/themes.js:99 pixelImages
-src/data/themes.js:110 applied
-src/data/themes.js:111 +applyTheme
-## src/data/tile-marks.js (15L)
+src/data/themes.js:111 +vfxOn
+src/data/themes.js:113 applied
+src/data/themes.js:114 +applyTheme
+## src/data/tile-marks.js (23L)
 src/data/tile-marks.js:7 +MARK_SIZE
 src/data/tile-marks.js:8 +TILE_MARKS
-## src/data/weather.js (41L)
+## src/data/weather.js (43L)
 src/data/weather.js:4 +WEATHER
 src/data/weather.js:17 +TIED_WEATHER
-src/data/weather.js:28 CHANCE
-src/data/weather.js:31 +weatherFor
+src/data/weather.js:30 CHANCE
+src/data/weather.js:33 +weatherFor
 ## src/game/achievements.js (139L)
 src/game/achievements.js:7 KEY
 src/game/achievements.js:8 read
@@ -106,11 +108,25 @@ src/game/achievements.js:124 +seePieces
 src/game/achievements.js:132 MUT_KEY
 src/game/achievements.js:133 +loadMutSeen
 src/game/achievements.js:134 +seeMutations
-## src/game/backup.js (28L)
-src/game/backup.js:4 PREFIX
-src/game/backup.js:5 MAGIC
-src/game/backup.js:7 +exportSave
-src/game/backup.js:17 +importSave
+## src/game/backup.js (248L)
+src/game/backup.js:2 MAGIC_V1
+src/game/backup.js:3 MAGIC_V2
+src/game/backup.js:4 MAX_BACKUP_BYTES
+src/game/backup.js:5 MAX_COMPRESSED_BYTES
+src/game/backup.js:6 +MAX_BACKUP_CODE_CHARS
+src/game/backup.js:8 KEY_LIMITS
+src/game/backup.js:22 ROOT_TYPES
+src/game/backup.js:36 encoder
+src/game/backup.js:37 decoder
+src/game/backup.js:39 toBase64
+src/game/backup.js:47 fromBase64
+src/game/backup.js:64 readStreamLimited
+src/game/backup.js:93 inflate
+src/game/backup.js:99 inspectJson
+src/game/backup.js:144 validateSnapshot
+src/game/backup.js:176 saveData
+src/game/backup.js:185 +exportSave
+src/game/backup.js:204 +importSave
 ## src/game/barrier.js (109L)
 src/game/barrier.js:2 +N
 src/game/barrier.js:4 +DIFFS
@@ -124,6 +140,20 @@ src/game/barrier.js:46 +distance
 src/game/barrier.js:62 +canWall
 src/game/barrier.js:72 +act
 src/game/barrier.js:90 +botAction
+## src/game/blaster.js (87L)
+src/game/blaster.js:8 +DIFFS
+src/game/blaster.js:13 TYPES
+src/game/blaster.js:15 +create
+src/game/blaster.js:21 spawn
+src/game/blaster.js:27 +targets
+src/game/blaster.js:38 +tap
+src/game/blaster.js:50 nextWave
+src/game/blaster.js:57 +enemy
+src/game/blaster.js:70 reach
+src/game/blaster.js:71 +auto
+src/game/blaster.js:84 +pieces
+src/game/blaster.js:85 +marks
+src/game/blaster.js:86 +status
 ## src/game/blind.js (79L)
 src/game/blind.js:7 +DIRS
 src/game/blind.js:9 +DIFFS
@@ -204,6 +234,22 @@ src/game/checkers.js:67 clone
 src/game/checkers.js:71 score
 src/game/checkers.js:73 search
 src/game/checkers.js:88 +botMove
+## src/game/cloud.js (75L)
+src/game/cloud.js:6 URL_
+src/game/cloud.js:7 KEY
+src/game/cloud.js:8 SESSION
+src/game/cloud.js:10 load
+src/game/cloud.js:11 keep
+src/game/cloud.js:13 call
+src/game/cloud.js:23 toSession
+src/game/cloud.js:25 +cloudUser
+src/game/cloud.js:28 session
+src/game/cloud.js:37 +signIn
+src/game/cloud.js:41 +signUp
+src/game/cloud.js:45 +signOut
+src/game/cloud.js:52 +cloudInfo
+src/game/cloud.js:59 +cloudUpload
+src/game/cloud.js:68 +cloudDownload
 ## src/game/connect4.js (109L)
 src/game/connect4.js:2 +ROWS
 src/game/connect4.js:4 +emptyGrid
@@ -255,6 +301,16 @@ src/game/duel.js:54 +effect
 src/game/duel.js:57 strike
 src/game/duel.js:76 foeChoice
 src/game/duel.js:86 +turn
+## src/game/feast.js (59L)
+src/game/feast.js:6 +DIFFS
+src/game/feast.js:12 +create
+src/game/feast.js:20 drop
+src/game/feast.js:25 +tap
+src/game/feast.js:49 +auto
+src/game/feast.js:55 +pieces
+src/game/feast.js:56 +marks
+src/game/feast.js:57 +labels
+src/game/feast.js:58 +status
 ## src/game/fusion.js (70L)
 src/game/fusion.js:4 +LADDER
 src/game/fusion.js:6 +DIFFS
@@ -323,6 +379,18 @@ src/game/hockey.js:145 walls
 src/game/hockey.js:166 wall
 src/game/hockey.js:170 +step
 src/game/hockey.js:178 sub
+## src/game/horde.js (69L)
+src/game/horde.js:6 +DIFFS
+src/game/horde.js:12 +create
+src/game/horde.js:19 row
+src/game/horde.js:22 won
+src/game/horde.js:23 hit
+src/game/horde.js:29 +tap
+src/game/horde.js:42 +enemy
+src/game/horde.js:60 +auto
+src/game/horde.js:66 +pieces
+src/game/horde.js:67 +marks
+src/game/horde.js:68 +status
 ## src/game/izombie.js (96L)
 src/game/izombie.js:6 +ROWS
 src/game/izombie.js:9 +DIFFS
@@ -394,12 +462,69 @@ src/game/outbreak.js:15 +chain
 src/game/outbreak.js:35 +fewest
 src/game/outbreak.js:49 +newOutbreak
 src/game/outbreak.js:68 +dose
+## src/game/parkour.js (77L)
+src/game/parkour.js:6 +DIFFS
+src/game/parkour.js:13 lava
+src/game/parkour.js:14 ok
+src/game/parkour.js:17 climbable
+src/game/parkour.js:31 +create
+src/game/parkour.js:43 nextRow
+src/game/parkour.js:44 warn
+src/game/parkour.js:46 +tap
+src/game/parkour.js:66 +auto
+src/game/parkour.js:72 +start
+src/game/parkour.js:73 +pieces
+src/game/parkour.js:74 +marks
+src/game/parkour.js:75 +labels
+src/game/parkour.js:76 +status
+## src/game/pdodge.js (81L)
+src/game/pdodge.js:7 +DIFFS
+src/game/pdodge.js:13 +create
+src/game/pdodge.js:22 +next
+src/game/pdodge.js:29 danger
+src/game/pdodge.js:30 options
+src/game/pdodge.js:34 spawn
+src/game/pdodge.js:48 +tap
+src/game/pdodge.js:56 +enemy
+src/game/pdodge.js:75 +start
+src/game/pdodge.js:76 +auto
+src/game/pdodge.js:77 +pieces
+src/game/pdodge.js:78 +marks
+src/game/pdodge.js:79 +labels
+src/game/pdodge.js:80 +status
 ## src/game/queens.js (27L)
 src/game/queens.js:3 +DIFFS
 src/game/queens.js:9 attacks
 src/game/queens.js:11 +newQueens
 src/game/queens.js:16 +clashing
 src/game/queens.js:18 +toggle
+## src/game/race.js (75L)
+src/game/race.js:7 +DIFFS
+src/game/race.js:12 GOOD
+src/game/race.js:13 MARK
+src/game/race.js:15 +create
+src/game/race.js:27 advance
+src/game/race.js:46 turn
+src/game/race.js:52 +tap
+src/game/race.js:59 +enemy
+src/game/race.js:69 +auto
+src/game/race.js:71 +pieces
+src/game/race.js:72 +marks
+src/game/race.js:73 +labels
+src/game/race.js:74 +status
+## src/game/rampage.js (86L)
+src/game/rampage.js:7 +DIFFS
+src/game/rampage.js:12 DIRS
+src/game/rampage.js:14 +create
+src/game/rampage.js:23 +charges
+src/game/rampage.js:34 +tap
+src/game/rampage.js:46 done
+src/game/rampage.js:50 +enemy
+src/game/rampage.js:74 +auto
+src/game/rampage.js:82 +start
+src/game/rampage.js:83 +pieces
+src/game/rampage.js:84 +marks
+src/game/rampage.js:85 +status
 ## src/game/rules.js (230L)
 src/game/rules.js:6 +key
 src/game/rules.js:8 +linkPortalPair
@@ -472,6 +597,17 @@ src/game/shop.js:52 +takePending
 src/game/shop.js:61 +addToHand
 src/game/shop.js:74 +consumeCard
 src/game/shop.js:78 +isShopCard
+## src/game/turn-kit.js (22L)
+src/game/turn-kit.js:6 +grid
+src/game/turn-kit.js:7 +inside
+src/game/turn-kit.js:8 +shuffle
+src/game/turn-kit.js:9 +pick
+src/game/turn-kit.js:10 +cheb
+src/game/turn-kit.js:11 +at
+src/game/turn-kit.js:13 +freeCells
+src/game/turn-kit.js:19 +movesOf
+src/game/turn-kit.js:20 n
+src/game/turn-kit.js:21 +piece
 ## src/game/zen.js (312L)
 src/game/zen.js:8 KEY
 src/game/zen.js:9 read
@@ -527,7 +663,7 @@ src/game/zen.js:294 +BUTTERFLY_MS
 src/game/zen.js:295 +butterflyGift
 src/game/zen.js:300 +addZenSeeds
 src/game/zen.js:307 +pickSeed
-## src/i18n/en.js (1059L)
+## src/i18n/en.js (1130L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -538,31 +674,135 @@ src/i18n/index.js:23 +t
 src/i18n/index.js:29 plural
 src/i18n/index.js:30 +tp
 src/i18n/index.js:36 +localize
-## src/lab-catalog.js (71L)
+## src/lab-catalog.js (85L)
 src/lab-catalog.js:2 FALLBACK_THEMES
 src/lab-catalog.js:10 THEMES
 src/lab-catalog.js:22 BOARD_VARIANTS
-src/lab-catalog.js:24 MINIS
-src/lab-catalog.js:30 themeSelect
-src/lab-catalog.js:31 miniSelect
-src/lab-catalog.js:32 difficulty
-src/lab-catalog.js:33 frame
-src/lab-catalog.js:35 fillSelect
-src/lab-catalog.js:53 updatePreview
-## src/lab.js (166L)
-src/lab.js:12 board
-src/lab.js:16 MOMENTS
-src/lab.js:31 SCENES
-src/lab.js:80 FX
-src/lab.js:114 run
-src/lab.js:132 stage
-src/lab.js:133 moments
-src/lab.js:134 play
-src/lab.js:139 current
-src/lab.js:140 play2
-src/lab.js:149 arts
-src/lab.js:156 cams
-src/lab.js:163 q
+src/lab-catalog.js:24 APK_OPTIONS
+src/lab-catalog.js:26 PROTO_OPTIONS
+src/lab-catalog.js:29 MINIS
+src/lab-catalog.js:37 themeSelect
+src/lab-catalog.js:38 miniSelect
+src/lab-catalog.js:39 difficulty
+src/lab-catalog.js:40 frame
+src/lab-catalog.js:42 fillSelect
+src/lab-catalog.js:60 updatePreview
+## src/lab.js (689L)
+src/lab.js:14 board
+src/lab.js:18 MOMENTS
+src/lab.js:33 SCENES
+src/lab.js:82 FX
+src/lab.js:118 APK_FX
+src/lab.js:482 kings
+src/lab.js:483 at
+src/lab.js:484 CROSS
+src/lab.js:485 KUREI
+src/lab.js:506 COMPARE
+src/lab.js:534 moveAPKLabPiece
+src/lab.js:547 moveAPKLabPieceStyle
+src/lab.js:567 lungeAPKLabPiece
+src/lab.js:576 slideAPKLabPiece
+src/lab.js:583 run
+src/lab.js:608 stage
+src/lab.js:609 moments
+src/lab.js:610 play
+src/lab.js:619 current
+src/lab.js:620 play2
+src/lab.js:645 KEEP
+src/lab.js:646 keep
+src/lab.js:647 pairs
+src/lab.js:672 arts
+src/lab.js:679 cams
+src/lab.js:686 q
+## src/lab/apk/catalog.js (129L)
+src/lab/apk/catalog.js:3 APK_BASE_CATALOG
+src/lab/apk/catalog.js:27 +APK_MISSING_MODES
+src/lab/apk/catalog.js:45 +APK_MODIFIERS
+src/lab/apk/catalog.js:70 +APK_RECIPES
+src/lab/apk/catalog.js:79 +APK_CHAOS_EVENTS
+src/lab/apk/catalog.js:94 +APK_HORDE_UPGRADES
+src/lab/apk/catalog.js:121 +APK_CATALOG
+src/lab/apk/catalog.js:127 +APK_BY_ID
+## src/lab/apk/effects.js (985L)
+src/lab/apk/effects.js:4 surfaces
+src/lab/apk/effects.js:5 running
+src/lab/apk/effects.js:6 bossOverlays
+src/lab/apk/effects.js:7 clamp
+src/lab/apk/effects.js:8 easeOut
+src/lab/apk/effects.js:9 mix
+src/lab/apk/effects.js:11 surfaceFor
+src/lab/apk/effects.js:25 cancel
+src/lab/apk/effects.js:30 +clearAPKEffects
+src/lab/apk/effects.js:43 pointOf
+src/lab/apk/effects.js:51 animateCanvas
+src/lab/apk/effects.js:94 square
+src/lab/apk/effects.js:103 +playAPKDeal
+src/lab/apk/effects.js:150 +playAPKSpawnBurst
+src/lab/apk/effects.js:168 +playAPKPixelTrail
+src/lab/apk/effects.js:184 +playAPKShockwave
+src/lab/apk/effects.js:206 +playAPKBombBlast
+src/lab/apk/effects.js:226 +playAPKMeteorImpact
+src/lab/apk/effects.js:250 +playAPKDamage
+src/lab/apk/effects.js:264 +playAPKTeleport
+src/lab/apk/effects.js:280 +playAPKFall
+src/lab/apk/effects.js:292 +playAPKParticleBurst
+src/lab/apk/effects.js:306 +playAPKBombField
+src/lab/apk/effects.js:327 +playAPKShield
+src/lab/apk/effects.js:351 +playAPKBeam
+src/lab/apk/effects.js:371 +playAPKVictory
+src/lab/apk/effects.js:385 +playAPKScreenShake
+src/lab/apk/effects.js:400 +playAPKZombieAttack
+src/lab/apk/effects.js:418 +playAPKTransform
+src/lab/apk/effects.js:454 +playAPKHotPotatoCrown
+src/lab/apk/effects.js:481 +playAPKChaosRoulette
+src/lab/apk/effects.js:519 +playAPKEventStamp
+src/lab/apk/effects.js:547 +playAPKZoneWarning
+src/lab/apk/effects.js:578 +playAPKWeakPointMarker
+src/lab/apk/effects.js:601 +playAPKWeakPointHit
+src/lab/apk/effects.js:617 +playAPKBullet
+src/lab/apk/effects.js:640 +playAPKBossCut
+src/lab/apk/effects.js:720 +playAPKCaption
+src/lab/apk/effects.js:739 +playAPKTilePattern
+src/lab/apk/effects.js:796 +playAPKDisco
+src/lab/apk/effects.js:812 +playAPKSpeedTimer
+src/lab/apk/effects.js:827 +playAPKDeathStyle
+src/lab/apk/effects.js:870 +playAPKCriticalDamage
+src/lab/apk/effects.js:888 +playAPKFloatingText
+src/lab/apk/effects.js:902 +playAPKTransformVariant
+src/lab/apk/effects.js:931 +playAPKSpawnVariant
+src/lab/apk/effects.js:945 +playAPKColumnBeam
+src/lab/apk/effects.js:956 +playAPKBanner
+src/lab/apk/effects.js:973 +playAPKTileSpark
+## src/lab/apk/expansion.js (736L)
+src/lab/apk/expansion.js:14 KN
+src/lab/apk/expansion.js:15 DIR8
+src/lab/apk/expansion.js:16 pick
+src/lab/apk/expansion.js:17 shuffle
+src/lab/apk/expansion.js:18 dist
+src/lab/apk/expansion.js:19 boardOf
+src/lab/apk/expansion.js:21 +mountAPKExpansion
+## src/lab/apk/playable-match.js (229L)
+src/lab/apk/playable-match.js:6 wait
+src/lab/apk/playable-match.js:8 +createAPKPlayableMatch
+## src/lab/apk/prototypes.js (877L)
+src/lab/apk/prototypes.js:11 KN
+src/lab/apk/prototypes.js:12 DIR8
+src/lab/apk/prototypes.js:13 wait
+src/lab/apk/prototypes.js:14 pick
+src/lab/apk/prototypes.js:15 randInt
+src/lab/apk/prototypes.js:16 dist
+src/lab/apk/prototypes.js:17 cloneBoard
+src/lab/apk/prototypes.js:19 +mountAPKPrototype
+src/lab/apk/prototypes.js:874 params
+src/lab/apk/prototypes.js:875 root
+## src/lab/proto/diamond-game.js (52L)
+src/lab/proto/diamond-game.js:5 +DIAMOND_RADIUS
+src/lab/proto/diamond-game.js:6 +DIAMOND_SIZE
+src/lab/proto/diamond-game.js:7 +DIAMOND_TILE_COUNT
+src/lab/proto/diamond-game.js:8 +DIAMOND_DIFFICULTIES
+src/lab/proto/diamond-game.js:14 +createDiamondBoard
+src/lab/proto/diamond-game.js:27 +createDiamondPieces
+src/lab/proto/diamond-game.js:40 +createDiamondMatch
 ## src/main.js (7L)
 ## src/ui/app.js (380L)
 src/ui/app.js:31 REST_CARDS
@@ -654,10 +894,10 @@ src/ui/icons.js:97 +Icon
 src/ui/icons.js:105 +PieceIcon
 ## src/ui/lib.js (8L)
 src/ui/lib.js:4 +html
-## src/ui/mini-board.js (75L)
-src/ui/mini-board.js:11 +MiniBoard
-src/ui/mini-board.js:32 sync
-src/ui/mini-board.js:74 +zombies
+## src/ui/mini-board.js (76L)
+src/ui/mini-board.js:12 +MiniBoard
+src/ui/mini-board.js:33 sync
+src/ui/mini-board.js:75 +zombies
 ## src/ui/moments.js (306L)
 src/ui/moments.js:12 OUT
 src/ui/moments.js:13 IN
@@ -713,13 +953,13 @@ src/ui/screens/gallery.js:26 ThemeGroup
 src/ui/screens/gallery.js:41 RULE
 src/ui/screens/gallery.js:42 Locked
 src/ui/screens/gallery.js:44 +GalleryScreen
-## src/ui/screens/game.js (813L)
-src/ui/screens/game.js:31 SIDE_NAME
-src/ui/screens/game.js:34 pieceName
-src/ui/screens/game.js:36 TIPS
-src/ui/screens/game.js:45 cardEffect
-src/ui/screens/game.js:59 +GameScreen
-src/ui/screens/game.js:784 EndOverlay
+## src/ui/screens/game.js (817L)
+src/ui/screens/game.js:32 SIDE_NAME
+src/ui/screens/game.js:35 pieceName
+src/ui/screens/game.js:37 TIPS
+src/ui/screens/game.js:46 cardEffect
+src/ui/screens/game.js:60 +GameScreen
+src/ui/screens/game.js:788 EndOverlay
 ## src/ui/screens/hockey.js (210L)
 src/ui/screens/hockey.js:13 KEYS
 src/ui/screens/hockey.js:15 TOP_KEYS
@@ -756,7 +996,7 @@ src/ui/screens/overlays.js:31 +PauseOverlay
 src/ui/screens/overlays.js:62 +HowToOverlay
 ## src/ui/screens/queens.js (51L)
 src/ui/screens/queens.js:11 +QueensScreen
-## src/ui/screens/scenario.js (35L)
+## src/ui/screens/scenario.js (36L)
 src/ui/screens/scenario.js:9 RUN
 src/ui/screens/scenario.js:10 noop
 src/ui/screens/scenario.js:13 ScenarioScreen
@@ -774,20 +1014,34 @@ src/ui/screens/scenario.js:31 +KnightScreen
 src/ui/screens/scenario.js:32 +MatesScreen
 src/ui/screens/scenario.js:33 +ClockScreen
 src/ui/screens/scenario.js:34 +WitchScreen
-## src/ui/screens/setup.js (239L)
-src/ui/screens/setup.js:15 SIDES
-src/ui/screens/setup.js:22 +RUN_MECHANICS
-src/ui/screens/setup.js:23 PrefsCard
-src/ui/screens/setup.js:44 VERSUS_ROUNDS
-src/ui/screens/setup.js:45 VERSUS_SIZES
-src/ui/screens/setup.js:46 VERSUS_SHAPES
-src/ui/screens/setup.js:47 VersusCard
-src/ui/screens/setup.js:84 +SetupScreen
-src/ui/screens/setup.js:138 +SettingsScreen
-src/ui/screens/setup.js:207 Backup
+src/ui/screens/scenario.js:35 +BombsScreen
+## src/ui/screens/setup.js (322L)
+src/ui/screens/setup.js:16 SIDES
+src/ui/screens/setup.js:23 +RUN_MECHANICS
+src/ui/screens/setup.js:24 PrefsCard
+src/ui/screens/setup.js:45 VERSUS_ROUNDS
+src/ui/screens/setup.js:46 VERSUS_SIZES
+src/ui/screens/setup.js:47 VERSUS_SHAPES
+src/ui/screens/setup.js:48 VersusCard
+src/ui/screens/setup.js:85 +SetupScreen
+src/ui/screens/setup.js:139 +SettingsScreen
+src/ui/screens/setup.js:208 Backup
+src/ui/screens/setup.js:273 Cloud
 ## src/ui/screens/shop.js (143L)
 src/ui/screens/shop.js:15 CARD_LIST
 src/ui/screens/shop.js:17 +ShopScreen
+## src/ui/screens/turn-mini.js (77L)
+src/ui/screens/turn-mini.js:12 wait
+src/ui/screens/turn-mini.js:16 +playFx
+src/ui/screens/turn-mini.js:38 +TurnMini
+## src/ui/screens/turn-minis.js (20L)
+src/ui/screens/turn-minis.js:13 +RaceScreen
+src/ui/screens/turn-minis.js:14 +RampageScreen
+src/ui/screens/turn-minis.js:15 +FeastScreen
+src/ui/screens/turn-minis.js:16 +PdodgeScreen
+src/ui/screens/turn-minis.js:17 +ParkourScreen
+src/ui/screens/turn-minis.js:18 +BlasterScreen
+src/ui/screens/turn-minis.js:19 +HordeScreen
 ## src/ui/screens/zen.js (667L)
 src/ui/screens/zen.js:18 ETAPAS
 src/ui/screens/zen.js:20 TOOLS
@@ -890,7 +1144,7 @@ src/ui/zen-art.js:250 +boardPond
 src/ui/zen-art.js:256 +stoneArt
 src/ui/zen-art.js:262 +ITEM_ART
 src/ui/zen-art.js:267 +KOI_ART
-## src/view/board-view.js (1150L)
+## src/view/board-view.js (1167L)
 src/view/board-view.js:18 look
 src/view/board-view.js:20 +CAMERAS
 src/view/board-view.js:21 JUMPERS
@@ -900,7 +1154,7 @@ src/view/board-view.js:24 css
 src/view/board-view.js:26 +collapseTiles
 src/view/board-view.js:38 BADGES
 src/view/board-view.js:46 +BoardView
-## src/view/fx.js (335L)
+## src/view/fx.js (334L)
 src/view/fx.js:9 WEATHER_RATE
 src/view/fx.js:10 SF_PX
 src/view/fx.js:12 +Fx
@@ -933,7 +1187,7 @@ src/view/piece-art.js:109 +pieceSVG
 src/view/piece-art.js:123 +headTop
 src/view/piece-art.js:125 +RAW_BODIES
 src/view/piece-art.js:129 +artOf
-## src/view/weather-fx.js (190L)
+## src/view/weather-fx.js (301L)
 src/view/weather-fx.js:6 G
 src/view/weather-fx.js:7 TAU
 src/view/weather-fx.js:8 rnd
@@ -951,9 +1205,17 @@ src/view/weather-fx.js:68 TONES
 src/view/weather-fx.js:69 fog
 src/view/weather-fx.js:107 EMBER
 src/view/weather-fx.js:108 embers
-src/view/weather-fx.js:157 FLY
-src/view/weather-fx.js:158 fireflies
-src/view/weather-fx.js:189 +WEATHER_FX
+src/view/weather-fx.js:158 night
+src/view/weather-fx.js:166 FLY
+src/view/weather-fx.js:167 fireflies
+src/view/weather-fx.js:204 LEAF_SHAPES
+src/view/weather-fx.js:209 LEAF_PALS
+src/view/weather-fx.js:210 leafArt
+src/view/weather-fx.js:211 leafSprites
+src/view/weather-fx.js:220 leaves
+src/view/weather-fx.js:249 BUB
+src/view/weather-fx.js:250 bubbles
+src/view/weather-fx.js:300 +WEATHER_FX
 ## css/base.css (220L)
 css/base.css:1 /* Reset, typography, browser surfaces and shared components.
 css/base.css:22 /* Icon() pinta las dos versiones; cada mesa muestra la suya (p
@@ -971,7 +1233,7 @@ css/base.css:148 /* Card back carries the pawn emblem: the box's identity mark.
 css/base.css:159 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
 css/base.css:199 /* Botones sin texto y cosas del jardín: el botón va en su esqu
 css/base.css:202 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
-## css/board.css (325L)
+## css/board.css (339L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
 css/board.css:36 /* Tiles
@@ -1001,14 +1263,15 @@ css/board.css:189 /* En el set píxel la peana también es de píxeles: disco es
 css/board.css:201 /* Fog: an enemy far from your pieces is only a shape in the mi
 css/board.css:209 /* Chrome recortaba el cartel por arriba con la caja de la pean
 css/board.css:218 /* Piece badges: lock = escorted, flag = falls last, star = bor
-css/board.css:247 /* Etiqueta de casilla: ficha de papel con pico, encima de la c
-css/board.css:262 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
-css/board.css:268 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
-css/board.css:285 /* Estanque del centro abierto y coleccionables: tumbados sobre
-css/board.css:302 /* La mariposa queda posada un poco en el aire (lo deja su vuel
-css/board.css:308 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
-css/board.css:316 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
-css/board.css:322 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
+css/board.css:249 /* En móvil la capa baja hasta cubrir también las cartas, por e
+css/board.css:256 /* Etiqueta de casilla: ficha de papel con pico, encima de la c
+css/board.css:271 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
+css/board.css:277 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
+css/board.css:294 /* Estanque del centro abierto y coleccionables: tumbados sobre
+css/board.css:311 /* La mariposa queda posada un poco en el aire (lo deja su vuel
+css/board.css:317 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
+css/board.css:330 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
+css/board.css:336 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
 ## css/pixel.css (96L)
 css/pixel.css:1 /* Modo píxel: con un tema píxel (data-art="pixel", ver src/dat
 css/pixel.css:6 /* Jersey 10 (OFL), servida desde el juego: el subconjunto lati
@@ -1025,7 +1288,8 @@ css/pixel.css:77 /* La moneda de cara o cruz, en escalones.
 css/pixel.css:85 /* Sombra de la pieza y koi del estanque del tablero, sin degra
 css/pixel.css:87 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
 css/pixel.css:90 /* El ::before va fuera de :is(), que no admite pseudoelementos
-## css/screens.css (1468L)
+## css/proto-diamond.css (83L)
+## css/screens.css (1520L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
 css/screens.css:12 /* Menu: asymmetric, the diorama is the focal point and the tit
@@ -1070,107 +1334,109 @@ css/screens.css:486 /* Overlays
 css/screens.css:492 /* Pausa: solo las mesas que tienes, en una tira que se desliza
 css/screens.css:511 /* Rubber stamp: the result is "stamped" onto the score sheet.
 css/screens.css:518 /* Animation lab (lab.html)
-css/screens.css:528 /* El laboratorio también sirve en móvil: el menú pasa arriba y
-css/screens.css:540 /* Minigames (src/ui/screens/connect4.js …): same table, same t
-css/screens.css:542 /* El tablero mide su hueco real (cqw/cqh), como el tablero gra
-css/screens.css:546 /* En la run el nivel lo fija el piso: se anuncia como dato, si
-css/screens.css:548 /* Ayuda y nivel en un solo botón: las reglas y el selector viv
-css/screens.css:555 /* Minijuegos con tablero vertical: en pantalla ancha el tabler
-css/screens.css:562 /* El texto de turno cambia de largo: reservar dos líneas evita
-css/screens.css:570 /* Cierre de minijuego: misma superficie que los tableros (gran
-css/screens.css:577 /* Onboarding de Yo, Zombi: el paso activo queda encendido y lo
-css/screens.css:594 /* The hole: a dark well cut into the board, so tokens read as 
-css/screens.css:601 /* La ficha fantasma asoma en la casilla donde caería tu próxim
-css/screens.css:605 /* La ficha cuadrada del minijuego, versión lista: misma forma 
-css/screens.css:607 /* Jardín Zen: un karesansui sobre la mesa. Marco de madera, ar
-css/screens.css:615 /* El cantero arranca en 4×4 y crece hasta 8×8: la pantalla man
-css/screens.css:639 /* En el cantero cada objeto deja aire a los lados: macetas vec
-css/screens.css:641 /* Centrado como las macetas: mismo margen a cada lado (.zn-tra
-css/screens.css:643 /* Luz del farol: las nueve casillas que acelera, recortada por
-css/screens.css:647 /* Las plantas se mecen despacio, cada una a su ritmo (--d).
-css/screens.css:650 /* Burbuja de necesidad, como en PvZ: gota si falta riego, tije
-css/screens.css:663 /* Maceta con planta: anclada a su base, sombra de contacto en 
-css/screens.css:671 /* Esmalte de la maceta y color de la flor por especie; la vací
-css/screens.css:695 /* Estanque: orilla de musgo, agua con hondura, koi, nenúfares,
-css/screens.css:715 /* Musgo, pisadera y farol.
-css/screens.css:726 /* Piedras de la tierra nueva: canto rodado con la cara al sol 
-css/screens.css:734 /* La rama de arce asoma por la esquina y suelta, muy de vez en
-css/screens.css:743 /* Hojas caídas sobre la arena: se tocan para barrerlas.
-css/screens.css:748 /* Asa de las animaciones de la planta: escala desde donde nace
-css/screens.css:750 /* Tierra húmeda tras regar, hasta que la flor abre.
-css/screens.css:752 /* La regadera aparece sobre la maceta, se inclina, riega y se 
-css/screens.css:764 /* El chorro sale del pico mientras la regadera está inclinada;
-css/screens.css:769 /* Herramientas: dibujo común.
-css/screens.css:779 /* La mano: la herramienta elegida acompaña al ratón sobre el j
-css/screens.css:782 /* Mazo y bolsa van con su icono, en tinta para leerse sobre la
-css/screens.css:788 /* Mazo y bolsa son iconos con versión vector y píxel: aquí sol
-css/screens.css:795 /* El gesto al tocar: las tijeras bajan al tallo y cortan dos v
-css/screens.css:804 /* El mazo se alza y cae de golpe sobre la piedra.
-css/screens.css:814 /* Mariposa: vuela hasta la flor, bate las alas y se posa.
-css/screens.css:824 /* Alimento de los koi: bolitas que flotan hasta que se las com
-css/screens.css:826 /* Estado del jardín: una línea tranquila bajo el cantero.
-css/screens.css:828 /* Panel: sobres de semillas, herramientas con mango redondo, a
-css/screens.css:839 /* El sobre va cerrado arriba con la costura en zigzag de los s
-css/screens.css:851 /* Herramienta en descanso: un reloj gris encima del icono. El 
-css/screens.css:865 /* Tienda: la acción principal del panel, rellena de latón, con
-css/screens.css:874 /* Ampliar: barra con precio y confirmación; al armarse se pint
-css/screens.css:886 /* Tierra virgen de los anillos: se cava para hacer un tiesto; 
-css/screens.css:887 /* Tierra virgen de los anillos: arena sin rastrillar, más oscu
-css/screens.css:889 /* La tierra sin cavar se marca siempre con su recuadro puntead
-css/screens.css:893 /* Cavada: tierra oscura removida, esperando su maceta.
-css/screens.css:897 /* Galería: grupos de imágenes; las bloqueadas son placeholders
-css/screens.css:900 /* Celdas del mismo ancho: el nombre, corto o largo, no descuad
-css/screens.css:911 /* Logros en la Galería: los mismos grupos que la pantalla de L
-css/screens.css:914 /* Un jefe derrotado es un botón: su ficha de siempre, que al t
-css/screens.css:926 /* Tienda del jardín: monedero, estantería y la marca de lo com
-css/screens.css:929 /* Jardín Zen en pantalla ancha: el cantero ocupa la izquierda 
-css/screens.css:935 /* En el teléfono la escena y el panel se apilan con su alto na
-css/screens.css:949 /* Semillas en la tienda: la flor recortada sobre el verde del 
-css/screens.css:964 /* Fila de tienda en teléfono: el nombre y la descripción ocupa
-css/screens.css:977 /* Tienda en pantalla ancha: el catálogo de cartas a la izquier
-css/screens.css:995 /* Logros: progreso total, grupos con barra y rejilla de fichas
-css/screens.css:1014 /* El logro que se tocó en la Galería destella al llegar.
-css/screens.css:1020 /* Aviso de logro: la ficha sube desde el borde inferior y se v
-css/screens.css:1043 /* La bomba del cañón enemigo lleva su color y un aro carmesí, 
-css/screens.css:1045 /* Puerta de salida, como la del NES: un portón de piedra que s
-css/screens.css:1051 /* Duelo: arena de papel con dos peanas en diagonal, como los c
-css/screens.css:1087 /* Fusión: bandeja de madera con huecos; cada ficha es una losa
-css/screens.css:1125 /* Tablero del Bomberman con cuerpo: la losa del cantero, celda
-css/screens.css:1133 /* El marco de losa: el mismo para el tablero de minijuego (Boa
-css/screens.css:1152 /* La figura va SOBRE su peana: sin z-index la peana la tapaba 
-css/screens.css:1165 /* En la fila del fondo la figura se contiene para que la cabez
-css/screens.css:1180 /* Matamarcianos: la bola en vuelo, las vidas y el mando de dos
-css/screens.css:1185 /* Tu fila, marcada: pisarla cuesta una vida.
-css/screens.css:1192 /* Hockey de mesa: un tablero de 6×10 hace de mesa, la banda es
-css/screens.css:1204 /* Rayas de la mesa: la central, el círculo de saque y el área 
-css/screens.css:1213 /* Lo que se mueve: origen arriba a la izquierda y el script po
-css/screens.css:1217 /* La peana es la huella que choca; la torre se alza sobre ella
-css/screens.css:1228 /* Regla de los siete segundos: los tres últimos, el disco parp
-css/screens.css:1236 /* La mesa es alta: en el teléfono el escenario le da más alto 
-css/screens.css:1239 /* Píxel: losas del tema en las casillas y lo redondo, octógono
-css/screens.css:1255 /* Peón levantado mientras se arrastra, y la casilla a la que i
-css/screens.css:1259 /* La valla cae en su sitio con un golpe seco.
-css/screens.css:1272 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
-css/screens.css:1276 /* En pantallas bajas el tablero vale más que el chrome: menos 
-css/screens.css:1278 /* En el teléfono la compra se aprieta a una fila de ficha y pr
-css/screens.css:1284 /* Estado de los minis sobre la losa: ficha de monedas y contad
-css/screens.css:1287 /* Contadores en fila: un punto por unidad; apagado queda lo ga
-css/screens.css:1291 /* La última oleada es la horda: su punto es un banderín bermel
-css/screens.css:1293 /* Carriles de lanzamiento: velo claro (--zone), distinto del v
-css/screens.css:1295 /* El número del carril en su esquina: es la tecla que lo lanza
-css/screens.css:1297 /* La bolera es apaisada: su escenario no reserva el alto pensa
-css/screens.css:1301 /* La línea roja del original: hasta ahí se lanza.
-css/screens.css:1303 /* La ficha que rueda va como elemento para que Motion la pueda
-css/screens.css:1304 /* La ficha es una pieza de damas vista en perspectiva: disco c
-css/screens.css:1314 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
-css/screens.css:1332 /* Avance de la oleada con el banderín de la horda al 70 %.
-css/screens.css:1339 /* La cinta: las fichas que vienen, la primera se lanza al toca
-css/screens.css:1351 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
-css/screens.css:1356 /* Selector de mecánicas de la run: favorita en latón, vetada t
-css/screens.css:1365 /* Mobile-first repair: keep the game surface visible instead o
-css/screens.css:1397 /* The animation lab must give its remaining viewport to the li
-css/screens.css:1440 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
-css/screens.css:1457 /* Copia de seguridad (Ajustes): el código se pega en un recuad
-css/screens.css:1460 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
+css/screens.css:535 /* El laboratorio también sirve en móvil: el menú pasa arriba y
+css/screens.css:547 /* Minigames (src/ui/screens/connect4.js …): same table, same t
+css/screens.css:549 /* El tablero mide su hueco real (cqw/cqh), como el tablero gra
+css/screens.css:553 /* En la run el nivel lo fija el piso: se anuncia como dato, si
+css/screens.css:555 /* Ayuda y nivel en un solo botón: las reglas y el selector viv
+css/screens.css:562 /* Minijuegos con tablero vertical: en pantalla ancha el tabler
+css/screens.css:569 /* El texto de turno cambia de largo: reservar dos líneas evita
+css/screens.css:577 /* Cierre de minijuego: misma superficie que los tableros (gran
+css/screens.css:584 /* Onboarding de Yo, Zombi: el paso activo queda encendido y lo
+css/screens.css:601 /* The hole: a dark well cut into the board, so tokens read as 
+css/screens.css:608 /* La ficha fantasma asoma en la casilla donde caería tu próxim
+css/screens.css:612 /* La ficha cuadrada del minijuego, versión lista: misma forma 
+css/screens.css:614 /* Jardín Zen: un karesansui sobre la mesa. Marco de madera, ar
+css/screens.css:622 /* El cantero arranca en 4×4 y crece hasta 8×8: la pantalla man
+css/screens.css:646 /* En el cantero cada objeto deja aire a los lados: macetas vec
+css/screens.css:648 /* Centrado como las macetas: mismo margen a cada lado (.zn-tra
+css/screens.css:650 /* Luz del farol: las nueve casillas que acelera, recortada por
+css/screens.css:654 /* Las plantas se mecen despacio, cada una a su ritmo (--d).
+css/screens.css:657 /* Burbuja de necesidad, como en PvZ: gota si falta riego, tije
+css/screens.css:670 /* Maceta con planta: anclada a su base, sombra de contacto en 
+css/screens.css:678 /* Esmalte de la maceta y color de la flor por especie; la vací
+css/screens.css:702 /* Estanque: orilla de musgo, agua con hondura, koi, nenúfares,
+css/screens.css:722 /* Musgo, pisadera y farol.
+css/screens.css:733 /* Piedras de la tierra nueva: canto rodado con la cara al sol 
+css/screens.css:741 /* La rama de arce asoma por la esquina y suelta, muy de vez en
+css/screens.css:750 /* Hojas caídas sobre la arena: se tocan para barrerlas.
+css/screens.css:755 /* Asa de las animaciones de la planta: escala desde donde nace
+css/screens.css:757 /* Tierra húmeda tras regar, hasta que la flor abre.
+css/screens.css:759 /* La regadera aparece sobre la maceta, se inclina, riega y se 
+css/screens.css:771 /* El chorro sale del pico mientras la regadera está inclinada;
+css/screens.css:776 /* Herramientas: dibujo común.
+css/screens.css:786 /* La mano: la herramienta elegida acompaña al ratón sobre el j
+css/screens.css:789 /* Mazo y bolsa van con su icono, en tinta para leerse sobre la
+css/screens.css:795 /* Mazo y bolsa son iconos con versión vector y píxel: aquí sol
+css/screens.css:802 /* El gesto al tocar: las tijeras bajan al tallo y cortan dos v
+css/screens.css:811 /* El mazo se alza y cae de golpe sobre la piedra.
+css/screens.css:821 /* Mariposa: vuela hasta la flor, bate las alas y se posa.
+css/screens.css:831 /* Alimento de los koi: bolitas que flotan hasta que se las com
+css/screens.css:833 /* Estado del jardín: una línea tranquila bajo el cantero.
+css/screens.css:835 /* Panel: sobres de semillas, herramientas con mango redondo, a
+css/screens.css:846 /* El sobre va cerrado arriba con la costura en zigzag de los s
+css/screens.css:858 /* Herramienta en descanso: un reloj gris encima del icono. El 
+css/screens.css:872 /* Tienda: la acción principal del panel, rellena de latón, con
+css/screens.css:881 /* Ampliar: barra con precio y confirmación; al armarse se pint
+css/screens.css:893 /* Tierra virgen de los anillos: se cava para hacer un tiesto; 
+css/screens.css:894 /* Tierra virgen de los anillos: arena sin rastrillar, más oscu
+css/screens.css:896 /* La tierra sin cavar se marca siempre con su recuadro puntead
+css/screens.css:900 /* Cavada: tierra oscura removida, esperando su maceta.
+css/screens.css:904 /* Galería: grupos de imágenes; las bloqueadas son placeholders
+css/screens.css:907 /* Celdas del mismo ancho: el nombre, corto o largo, no descuad
+css/screens.css:918 /* Logros en la Galería: los mismos grupos que la pantalla de L
+css/screens.css:921 /* Un jefe derrotado es un botón: su ficha de siempre, que al t
+css/screens.css:933 /* Tienda del jardín: monedero, estantería y la marca de lo com
+css/screens.css:936 /* Jardín Zen en pantalla ancha: el cantero ocupa la izquierda 
+css/screens.css:942 /* En el teléfono la escena y el panel se apilan con su alto na
+css/screens.css:956 /* Semillas en la tienda: la flor recortada sobre el verde del 
+css/screens.css:971 /* Fila de tienda en teléfono: el nombre y la descripción ocupa
+css/screens.css:984 /* Tienda en pantalla ancha: el catálogo de cartas a la izquier
+css/screens.css:1002 /* Logros: progreso total, grupos con barra y rejilla de fichas
+css/screens.css:1021 /* El logro que se tocó en la Galería destella al llegar.
+css/screens.css:1027 /* Aviso de logro: la ficha sube desde el borde inferior y se v
+css/screens.css:1050 /* La bomba del cañón enemigo lleva su color y un aro carmesí, 
+css/screens.css:1052 /* Puerta de salida, como la del NES: un portón de piedra que s
+css/screens.css:1058 /* Duelo: arena de papel con dos peanas en diagonal, como los c
+css/screens.css:1094 /* Fusión: bandeja de madera con huecos; cada ficha es una losa
+css/screens.css:1132 /* Tablero del Bomberman con cuerpo: la losa del cantero, celda
+css/screens.css:1140 /* El marco de losa: el mismo para el tablero de minijuego (Boa
+css/screens.css:1159 /* La figura va SOBRE su peana: sin z-index la peana la tapaba 
+css/screens.css:1172 /* En la fila del fondo la figura se contiene para que la cabez
+css/screens.css:1187 /* Matamarcianos: la bola en vuelo, las vidas y el mando de dos
+css/screens.css:1192 /* Tu fila, marcada: pisarla cuesta una vida.
+css/screens.css:1199 /* Hockey de mesa: un tablero de 6×10 hace de mesa, la banda es
+css/screens.css:1211 /* Rayas de la mesa: la central, el círculo de saque y el área 
+css/screens.css:1220 /* Lo que se mueve: origen arriba a la izquierda y el script po
+css/screens.css:1224 /* La peana es la huella que choca; la torre se alza sobre ella
+css/screens.css:1235 /* Regla de los siete segundos: los tres últimos, el disco parp
+css/screens.css:1243 /* La mesa es alta: en el teléfono el escenario le da más alto 
+css/screens.css:1246 /* Píxel: losas del tema en las casillas y lo redondo, octógono
+css/screens.css:1262 /* Peón levantado mientras se arrastra, y la casilla a la que i
+css/screens.css:1266 /* La valla cae en su sitio con un golpe seco.
+css/screens.css:1279 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
+css/screens.css:1283 /* En pantallas bajas el tablero vale más que el chrome: menos 
+css/screens.css:1285 /* En el teléfono la compra se aprieta a una fila de ficha y pr
+css/screens.css:1291 /* Estado de los minis sobre la losa: ficha de monedas y contad
+css/screens.css:1294 /* Contadores en fila: un punto por unidad; apagado queda lo ga
+css/screens.css:1298 /* La última oleada es la horda: su punto es un banderín bermel
+css/screens.css:1300 /* Carriles de lanzamiento: velo claro (--zone), distinto del v
+css/screens.css:1302 /* El número del carril en su esquina: es la tecla que lo lanza
+css/screens.css:1304 /* La bolera es apaisada: su escenario no reserva el alto pensa
+css/screens.css:1308 /* La línea roja del original: hasta ahí se lanza.
+css/screens.css:1310 /* La ficha que rueda va como elemento para que Motion la pueda
+css/screens.css:1311 /* La ficha es una pieza de damas vista en perspectiva: disco c
+css/screens.css:1321 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
+css/screens.css:1339 /* Avance de la oleada con el banderín de la horda al 70 %.
+css/screens.css:1346 /* La cinta: las fichas que vienen, la primera se lanza al toca
+css/screens.css:1358 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
+css/screens.css:1363 /* Selector de mecánicas de la run: favorita en latón, vetada t
+css/screens.css:1372 /* Mobile-first repair: keep the game surface visible instead o
+css/screens.css:1404 /* The animation lab must give its remaining viewport to the li
+css/screens.css:1447 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
+css/screens.css:1464 /* Copia de seguridad (Ajustes): el código se pega en un recuad
+css/screens.css:1470 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
+css/screens.css:1479 /* Backup: evita que los botones con etiquetas largas desborden
+css/screens.css:1507 /* Reference APK renderer: a separate green/pixel signature, di
 ## css/tokens.css (42L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.

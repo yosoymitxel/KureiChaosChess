@@ -17,6 +17,7 @@ import { HockeyScreen } from '../ui/screens/hockey.js';
 import { BlindScreen } from '../ui/screens/blind.js';
 import { BlizzardScreen } from '../ui/screens/blizzard.js';
 import { OutbreakScreen } from '../ui/screens/outbreak.js';
+import { RaceScreen, RampageScreen, FeastScreen, PdodgeScreen, ParkourScreen, BlasterScreen, HordeScreen } from '../ui/screens/turn-minis.js';
 
 import { MODIFIERS } from './modifiers.js';
 
@@ -29,5 +30,6 @@ const SCREENS = {
   laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen,
   marcianos: MarcianosScreen, checkers: CheckersScreen, fusion: FusionScreen, duel: DuelScreen, hockey: HockeyScreen,
   blizzard: BlizzardScreen, outbreak: OutbreakScreen, clock: ClockScreen, blind: BlindScreen, witch: WitchScreen, bombs: BombsScreen,
+  race: RaceScreen, rampage: RampageScreen, feast: FeastScreen, pdodge: PdodgeScreen, parkour: ParkourScreen, blaster: BlasterScreen, horde: HordeScreen,
 };
 export const MINIGAMES = Object.fromEntries(Object.entries(SCREENS).map(([id, Screen]) => [id, { name: MODIFIERS[id].name, Screen }]));

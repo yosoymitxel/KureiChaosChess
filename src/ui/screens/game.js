@@ -357,7 +357,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (!tick) return;
       const { spawned = [], sunk = [], fallen = [], blast, warn } = tick;
       if (blast) { d.view.setDoom(); await d.view.blast(blast); }
-      if (warn) d.view.setDoom(warn);
+      if (warn) d.view.setDoom(warn, false);
       await Promise.all([...spawned.map((p) => d.view.dropIn(p)), ...fallen.map((p) => d.view.kill(p, p, p)), sunk.length && d.view.collapse(sunk)]);
     };
 

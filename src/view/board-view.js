@@ -1074,8 +1074,8 @@ export class BoardView {
   }
 
   // Meteorito avisado: las casillas de la cruz laten en rojo hasta que cae.
-  setDoom(cells = []) {
-    if (cells.length) playSfx('alarm');
+  setDoom(cells = [], sound = true) {
+    if (cells.length && sound) playSfx('alarm');
     for (const t of this.tiles.values()) { t.classList.remove('doom'); t.querySelector('.doom-fx')?.remove(); }
     for (const [r, c] of cells) {
       const t = this.tiles.get(key(r, c));

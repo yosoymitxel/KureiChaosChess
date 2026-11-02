@@ -23,6 +23,8 @@ export const TIED_WEATHER = {
   caceria: 'leaves', // cacería en el bosque
   laboratory: 'bubbles', // probetas
   escape: 'rain', // fuga bajo la lluvia
+  parkour: 'embers', // la lava sube
+  feast: 'fireflies', horde: 'fog',
 };
 
 const CHANCE = 0.22; // pisos normales con clima
