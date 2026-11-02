@@ -1486,7 +1486,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 /* Copia de seguridad (Ajustes): el código se pega en un recuadro de texto. */
 :is(.backup-code, .cloud-field) { width: 100%; padding: 8px 10px; border: 2px solid var(--ink); border-radius: var(--r-sm); background: var(--paper); color: var(--ink); font: 12px/1.4 ui-monospace, monospace; resize: vertical; word-break: break-all; }
 .cloud-field { font: inherit; resize: none; }
-.cloud { display: grid; gap: 8px; margin-top: 6px; padding-top: 10px; border-top: 2px dashed color-mix(in oklch, var(--ink), transparent 70%); }
+.cloud { display: grid; gap: 8px; }
 .cloud-form { display: grid; gap: 8px; }
 
 /* Semilla que suelta algo del tablero (popSeed): flota sobre todo, centrada en su punto. */

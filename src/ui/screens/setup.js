@@ -154,6 +154,7 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
   return html`<div class="screen settings" ref=${ref}>
     <${Topbar} title=${t('settings.title', 'Ajustes')} onBack=${onBack} />
     <div class="setup-body">
+      <${Cloud} />
       <section class="panel setup-card set-lang" data-enter>
         <h2>${t('settings.language', 'Idioma')}</h2>
         <div class="segmented" role="group" aria-label=${t('settings.language', 'Idioma')}>
@@ -274,7 +275,6 @@ function Backup() {
     <textarea class="backup-code" rows="3" value=${code} placeholder=${t('backup.paste', 'Pega aquí tu código para restaurar')} onInput=${(e) => setCode(e.currentTarget.value)}></textarea>
     <button class="btn sm primary" disabled=${!code.trim()} onClick=${() => restore()}>${t('backup.restore', 'Restaurar')}</button>
     ${msg && html`<p class="shop-note" aria-live="polite">${msg}</p>`}
-    <${Cloud} />
   </section>`;
 }
 
@@ -309,8 +309,9 @@ function Cloud() {
     setTimeout(() => location.reload(), 600);
   });
 
-  return html`<div class="cloud">
-    <h3>${t('cloud.title', 'Partida en la nube')}</h3>
+  // Perfil: arriba del todo en Ajustes; la copia local (código y archivo) queda al final, aparte.
+  return html`<section class="panel setup-card set-profile cloud" data-enter>
+    <h2>${t('cloud.profile', 'Perfil')}</h2>
     ${user ? html`
       <p class="shop-note">${t('cloud.as', 'Conectado como {email}.', { email: user })} ${when ? t('cloud.when', 'Última copia: {date}.', { date: date(when) }) : when === null ? t('cloud.none', 'Aún no has subido ninguna.') : ''}</p>
       <div class="menu-row">
@@ -328,5 +329,5 @@ function Cloud() {
         </div>
       </form>`}
     ${msg && html`<p class="shop-note" aria-live="polite">${msg}</p>`}
-  </div>`;
+  </section>`;
 }

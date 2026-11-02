@@ -692,7 +692,7 @@ src/game/zen.js:311 +addZenSeeds
 src/game/zen.js:318 +pickSeed
 src/game/zen.js:326 +koiHungry
 src/game/zen.js:327 +feedKoi
-## src/i18n/en.js (1191L)
+## src/i18n/en.js (1192L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -842,10 +842,10 @@ src/ui/app.js:48 ONE_SHOT
 src/ui/app.js:50 +App
 src/ui/app.js:352 MutationReveal
 src/ui/app.js:368 AchievementToast
-## src/ui/board-fx.js (43L)
-src/ui/board-fx.js:5 wait
-src/ui/board-fx.js:9 +playFx
-src/ui/board-fx.js:32 +playMech
+## src/ui/board-fx.js (47L)
+src/ui/board-fx.js:6 wait
+src/ui/board-fx.js:10 +playFx
+src/ui/board-fx.js:36 +playMech
 ## src/ui/coins.js (44L)
 src/ui/coins.js:6 reduced
 src/ui/coins.js:8 +flyCoins
@@ -986,13 +986,13 @@ src/ui/screens/gallery.js:26 ThemeGroup
 src/ui/screens/gallery.js:41 RULE
 src/ui/screens/gallery.js:42 Locked
 src/ui/screens/gallery.js:44 +GalleryScreen
-## src/ui/screens/game.js (873L)
+## src/ui/screens/game.js (883L)
 src/ui/screens/game.js:34 SIDE_NAME
 src/ui/screens/game.js:37 pieceName
 src/ui/screens/game.js:39 TIPS
 src/ui/screens/game.js:48 cardEffect
 src/ui/screens/game.js:62 +GameScreen
-src/ui/screens/game.js:844 EndOverlay
+src/ui/screens/game.js:854 EndOverlay
 ## src/ui/screens/hockey.js (210L)
 src/ui/screens/hockey.js:13 KEYS
 src/ui/screens/hockey.js:15 TOP_KEYS
@@ -1048,7 +1048,7 @@ src/ui/screens/scenario.js:32 +MatesScreen
 src/ui/screens/scenario.js:33 +ClockScreen
 src/ui/screens/scenario.js:34 +WitchScreen
 src/ui/screens/scenario.js:35 +BombsScreen
-## src/ui/screens/setup.js (333L)
+## src/ui/screens/setup.js (334L)
 src/ui/screens/setup.js:16 SIDES
 src/ui/screens/setup.js:23 +RUN_MECHANICS
 src/ui/screens/setup.js:25 FEATURED
@@ -1060,7 +1060,7 @@ src/ui/screens/setup.js:56 VERSUS_SHAPES
 src/ui/screens/setup.js:57 VersusCard
 src/ui/screens/setup.js:94 +SetupScreen
 src/ui/screens/setup.js:148 +SettingsScreen
-src/ui/screens/setup.js:217 Backup
+src/ui/screens/setup.js:218 Backup
 src/ui/screens/setup.js:282 Cloud
 ## src/ui/screens/shop.js (143L)
 src/ui/screens/shop.js:15 CARD_LIST
@@ -1178,16 +1178,17 @@ src/ui/zen-art.js:250 +boardPond
 src/ui/zen-art.js:256 +stoneArt
 src/ui/zen-art.js:262 +ITEM_ART
 src/ui/zen-art.js:267 +KOI_ART
-## src/view/board-view.js (1189L)
-src/view/board-view.js:18 look
-src/view/board-view.js:20 +CAMERAS
-src/view/board-view.js:21 JUMPERS
-src/view/board-view.js:22 reduced
-src/view/board-view.js:23 wait
-src/view/board-view.js:24 css
-src/view/board-view.js:26 +collapseTiles
-src/view/board-view.js:38 BADGES
-src/view/board-view.js:46 +BoardView
+## src/view/board-view.js (1212L)
+src/view/board-view.js:16 pixelArt
+src/view/board-view.js:21 look
+src/view/board-view.js:23 +CAMERAS
+src/view/board-view.js:24 JUMPERS
+src/view/board-view.js:25 reduced
+src/view/board-view.js:26 wait
+src/view/board-view.js:27 css
+src/view/board-view.js:29 +collapseTiles
+src/view/board-view.js:41 BADGES
+src/view/board-view.js:49 +BoardView
 ## src/view/fx.js (334L)
 src/view/fx.js:9 WEATHER_RATE
 src/view/fx.js:10 SF_PX
@@ -1250,7 +1251,7 @@ src/view/weather-fx.js:220 leaves
 src/view/weather-fx.js:249 BUB
 src/view/weather-fx.js:250 bubbles
 src/view/weather-fx.js:300 +WEATHER_FX
-## css/base.css (235L)
+## css/base.css (245L)
 css/base.css:1 /* Reset, typography, browser surfaces and shared components.
 css/base.css:22 /* Icon() pinta las dos versiones; cada mesa muestra la suya (p
 css/base.css:27 /* Clima: textura encima del fondo de la mesa (no lo reemplaza)
@@ -1258,17 +1259,17 @@ css/base.css:42 /* Buttons are printed tokens: the solid bottom edge is the tok
 css/base.css:72 /* Teléfonos de 360 px: título en una línea al lado del Volver 
 css/base.css:81 /* Paper panels: the rulebook and score sheets of the box.
 css/base.css:96 /* Reward cards: actual playing cards of the game, so the card 
-css/base.css:107 /* Frame colour says the kind: vermilion = tactic (played in a 
-css/base.css:117 /* Cartas de antes de la partida (Organizar): marco azul pizarr
-css/base.css:126 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
-css/base.css:130 /* Cartas lilas: gratis, aparte de la mano normal.
-css/base.css:136 /* Rareza con canal propio, independiente del color del tipo (e
-css/base.css:141 /* Rara: el título es una banda de plata pulida. Épica: latón c
-css/base.css:152 /* Every figure on a card is paper with an ink outline, so stam
-css/base.css:163 /* Card back carries the pawn emblem: the box's identity mark.
-css/base.css:174 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
-css/base.css:214 /* Botones sin texto y cosas del jardín: el botón va en su esqu
-css/base.css:217 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
+css/base.css:116 /* Cartas de antes de la partida (Organizar): marco azul pizarr
+css/base.css:125 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
+css/base.css:129 /* Cartas lilas: gratis, aparte de la mano normal.
+css/base.css:131 /* Rareza que se ve sin buscar la gema: un brillo cruza la cart
+css/base.css:146 /* Rareza con canal propio, independiente del color del tipo (e
+css/base.css:151 /* Rara: el título es una banda de plata pulida. Épica: latón c
+css/base.css:162 /* Every figure on a card is paper with an ink outline, so stam
+css/base.css:173 /* Card back carries the pawn emblem: the box's identity mark.
+css/base.css:184 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
+css/base.css:224 /* Botones sin texto y cosas del jardín: el botón va en su esqu
+css/base.css:227 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
 ## css/board.css (367L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
@@ -1350,6 +1351,7 @@ css/screens.css:122 /* Móvil bajo: sin la frase, el tablero de la portada conse
 css/screens.css:128 /* Map: the run is a printed track on a game sheet.
 css/screens.css:160 /* Mini-jefe: el rombo de latón. La ficha gira 45° y escala 0.7
 css/screens.css:164 /* El troquel dice qué es el nodo: cuadrada y verde = minijuego
+css/screens.css:167 /* Bolsa y descanso dan objetos: el mismo ámbar que el marco de
 css/screens.css:177 /* Setup and settings
 css/screens.css:181 /* Partida local, pestaña Minijuegos: lista de los que se juega
 css/screens.css:186 /* Pantalla ancha (PC, tableta): las tarjetas se reparten en do
@@ -1480,5 +1482,5 @@ css/screens.css:1486 /* Copia de seguridad (Ajustes): el código se pega en un r
 css/screens.css:1492 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
 css/screens.css:1501 /* Backup: evita que los botones con etiquetas largas desborden
 css/screens.css:1529 /* Reference APK renderer: a separate green/pixel signature, di
-## css/tokens.css (42L)
+## css/tokens.css (50L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.

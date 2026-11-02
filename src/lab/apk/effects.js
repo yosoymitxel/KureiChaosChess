@@ -907,7 +907,7 @@ export function playAPKTransformVariant(host, view, cell, how = 'evolve') {
     promote: ['#ffc83d', '#fff', '#9b4dff']
   };
   const colors = palettes[how] || palettes.evolve;
-  const word = how === 'zombify' ? 'INFECTED!' : how === 'devolve' ? 'DEVOLVED' : how === 'promote' ? 'PROMOTED!' : 'EVOLVED!';
+  const word = how === 'zombify' ? '¡ZOMBI!' : how === 'devolve' ? 'DEVOLVED' : how === 'promote' ? 'PROMOTED!' : 'EVOLVED!';
   return animateCanvas(host, view, 820, (ctx, t, w, h, locate) => {
     const p = locate(cell), progress = easeOut(t), maxR = (view?.sq || 54) * 1.25;
     for (let ring = 0; ring < 3; ring++) {

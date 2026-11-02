@@ -11,6 +11,9 @@ import { key, cellsOf, sizeOf, portalAt } from '../game/rules.js';
 import { render, html } from '../ui/lib.js';
 import { Icon } from '../ui/icons.js';
 import { boardPond } from '../ui/zen-art.js';
+import { playAPKBombBlast, playAPKVictory, playAPKTeleport, playAPKTransformVariant, playAPKDeathStyle, playAPKSpawnVariant, playAPKFloatingText } from '../lab/apk/effects.js';
+
+const pixelArt = () => document.documentElement.dataset.art === 'pixel';
 import { t } from '../i18n/index.js';
 
 // Color con que se pinta una pieza: la bruja del Aquelarre va con el tercer color de la mesa (el
@@ -862,6 +865,8 @@ export class BoardView {
     const fig = this.els.get(p)?.querySelector('.pc-fig'), st = this.state.get(p);
     const a = this.centerOf(p, from.row, from.col);
     this.fx.ring(a.x, a.y, { radius: this.sq * 0.9, color: css('--brass'), width: 4 });
+    // Teletransporte: el giro de Kure'i con el rastro del APK.
+    this.apk(playAPKTeleport, from, to);
     playSfx('warp');
     await animate(fig, { scale: [1, 0], rotate: [0, 180], duration: this.d(260), ease: 'inQuad' });
     Object.assign(st, { r: to.row, c: to.col }); this.apply(p);
@@ -1023,7 +1028,17 @@ export class BoardView {
     this.host.querySelectorAll('.tile.twin').forEach((t) => t.classList.remove('twin'));
   }
 
+  // Efectos del APK elegidos en el laboratorio (comparativa APK ↔ Kure'i): solo con efectos activados.
+  apk(fn, ...args) { if (this.fx.vfx && !reduced()) fn(this.host, this, ...args); }
+  nearCell(x, y) {
+    let best = null, d = Infinity;
+    for (const [k, t] of this.tiles) { const p = this.fx.pointOf(t), dd = (p.x - x) ** 2 + (p.y - y) ** 2; if (dd < d) { d = dd; best = k; } }
+    const [row, col] = (best || '0,0').split(',').map(Number);
+    return { row, col };
+  }
   floatText(x, y, text) {
+    // Texto flotante: el del APK (cartel pixelado sobre la casilla); sin efectos, el de siempre.
+    if (this.fx.vfx && !reduced()) return playAPKFloatingText(this.host, this, this.nearCell(x, y), String(text), '#ffc83d');
     const n = document.createElement('div');
     n.className = 'float-text';
     n.textContent = text;
@@ -1038,8 +1053,9 @@ export class BoardView {
     playSfx('zombie');
     for (const p of pieces) {
       const c = this.centerOf(p);
-      this.fx.burst(c.x, c.y - this.sq * 0.3, { count: 14, color: [css('--side-zombie'), 'oklch(0.82 0.12 128)'], speed: [30, 120], life: [0.4, 0.8], size: [3, 6], gravity: -80, drag: 0.9 });
-      this.fx.poison(c.x, c.y - this.sq * 0.3, this.sq);
+      // Zombi y contagio: los del APK (vuelco verde y desintegración); sin efectos, la nube de siempre.
+      if (this.fx.vfx && !reduced()) { this.apk(playAPKTransformVariant, p, 'zombify'); this.apk(playAPKDeathStyle, p, 'infect'); }
+      else this.fx.poison(c.x, c.y - this.sq * 0.3, this.sq);
       this.remake(p);
       this.squash(p, 0.75);
     }
@@ -1053,6 +1069,9 @@ export class BoardView {
     el.style.opacity = 0;
     this.fx.burst(c.x, c.y, { count: 18, color: [css('--side-zombie'), 'oklch(0.82 0.12 128)'], speed: [40, 140], life: [0.5, 0.9], size: [3, 6], gravity: -90, drag: 0.9 });
     this.fx.dust(c.x, c.y, 1.2);
+    // Invocación zombi: las dos, la de siempre más el estallido y el cartel del APK.
+    this.apk(playAPKSpawnVariant, p, 'zombie');
+    setTimeout(() => this.apk(playAPKTransformVariant, p, 'zombify'), this.d(420));
     playSfx('zombie');
     animate(el, { opacity: [0, 1], duration: this.d(160) });
     await animate(st, { z: 0, duration: this.d(420), ease: 'outBack', onUpdate: () => this.apply(p) });
@@ -1111,6 +1130,8 @@ export class BoardView {
   async blast(cells) {
     if (!cells.length) return;
     cells.forEach(([r, c], i) => { const t = this.tiles.get(key(r, c)); if (t) { const p = this.fx.pointOf(t); this.fx.explosion(p.x, p.y, this.sq / 60, i === 0); } });
+    // Bomba: la explosión de Kure'i y, en el suelo, el área del APK.
+    this.apk(playAPKBombBlast, { row: cells[0][0], col: cells[0][1] }, cells.map(([row, col]) => ({ row, col })));
     this.shake(10 + Math.min(cells.length, 12), 380);
     await new Promise((r) => setTimeout(r, this.d(260)));
   }
@@ -1166,7 +1187,9 @@ export class BoardView {
 
   async victory(winnerColor) {
     const losers = [...this.els.keys()].filter((p) => p.color !== winnerColor);
-    this.fx.confetti([css('--side-light'), css('--accent'), '#ffcf6b', css('--side-wild')]);
+    // Victoria: en píxel el confeti del APK; en vector, el de Kure'i.
+    if (pixelArt() && this.fx.vfx) this.apk(playAPKVictory, [css('--side-light'), '#ffc83d', '#3dff8e']);
+    else this.fx.confetti([css('--side-light'), css('--accent'), '#ffcf6b', css('--side-wild')]);
     losers.forEach((p, i) => {
       const st = this.state.get(p), el = this.els.get(p);
       animate(st, { z: this.sq * 5, duration: this.d(900), delay: this.d(i * 40), ease: 'inExpo', onUpdate: () => this.apply(p) });
