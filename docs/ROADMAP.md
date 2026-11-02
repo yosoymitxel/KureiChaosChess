@@ -18,6 +18,7 @@ Se actualiza al cerrar cada bloque. La revisión completa del 19/10 añade los b
 - [x] Zoom: hace falta desplazar con dos dedos y ampliar desde el punto del pellizco.
 - [x] Info de terreno al pasar o mantener pulsado, sin cola.
 - [ ] Menú: con una mesa de pago no comprada, el diorama se pinta a píxel antes de volver a la de serie.
+- [ ] PIN (02/11): revisar el cañón y las cartas en relación a la última casilla (fila del fondo). Pendiente de que el dueño lo detalle.
 
 ## 1. Claridad de la partida
 

@@ -100,8 +100,8 @@ function canMoveAs(piece, type, tr, tc, ctx) {
     }
     case 'pawnBack': return dc === 0 && dr === -forward(piece) && !hit;
     case 'guard': {
-      // Rey que nunca retrocede (ni recto ni en diagonal); hacia delante en diagonal llega a 2 si el paso intermedio está libre.
-      if (adr <= 1 && adc <= 1) return dr !== -forward(piece);
+      // Rey sin la casilla de justo detrás (atrás en diagonal sí, 1 paso); hacia delante en diagonal llega a 2 si el paso intermedio está libre.
+      if (adr <= 1 && adc <= 1) return !(dc === 0 && dr === -forward(piece));
       return adr === 2 && adc === 2 && dr === 2 * forward(piece) && pathClear(piece, tr, tc, ctx);
     }
     case 'advisor': return adr === 1 && adc === 1;

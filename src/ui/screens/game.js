@@ -27,7 +27,7 @@ import { PICKUPS, PICKUPS_EVERY, PICKUPS_MAX, dropPickups } from '../../data/pic
 import { PICKUP_ART } from '../zen-art.js';
 import { isShopCard, addCoins, loadShop } from '../../game/shop.js';
 import { flyCoins, popSeed } from '../coins.js';
-import { addZenSeeds, pickSeed, butterflyGift, ZEN_NAMES } from '../../game/zen.js';
+import { addZenSeeds, pickSeed, butterflyGift, ZEN_NAMES, loadZen, saveZen, koiHungry, feedKoi } from '../../game/zen.js';
 import { t, tp } from '../../i18n/index.js';
 
 const SIDE_NAME = { light: t('side.lightLower', 'marfil'), dark: t('side.darkLower', 'carmesí'), wild: t('side.wildLower', 'jade') };
@@ -355,6 +355,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       await showMeteor(after.meteor);
       await showTick(after.tick);
       await showMech(after.mech);
+      await showMech(witchMech(after.witch));
       d.busy = false;
       if (match.over) return finish(), true;
       startTurn(after.ended);
@@ -375,6 +376,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       await d.view.meteor(m.cells, m.lost);
     };
     // Mecánicas de piso (src/game/mechanics.js): rótulo, registro y su animación.
+    const witchMech = (w) => w && { ...w, log: w.kills.length ? t('game.witchKills', 'La bruja caza: {list}', { list: w.kills.map((p) => pieceName(p).toLowerCase()).join(', ') }) : t('game.witchMoves', 'La bruja va tras su presa') };
     const showMech = async (m) => {
       if (!m) return;
       if (m.log) addLog(m.log);
@@ -444,7 +446,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (!match.canMove()) {
         addLog(t('log.cantMove', '{name} no puede moverse', { name: p.name }));
         const a = match.afterMove({ pass: true });
-        return showMeteor(a.meteor).then(() => showTick(a.tick)).then(() => showMech(a.mech)).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
+        return showMeteor(a.meteor).then(() => showTick(a.tick)).then(() => showMech(a.mech)).then(() => showMech(witchMech(a.witch))).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
       }
       if (p.kind === 'bot') {
         // The bot waits for the labels on screen: its move used to land under a collapse or a capture.
@@ -663,6 +665,16 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.moments = new Moments(mainRef.current, { speed: settings.speed, enabled: settings.moments });
     d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, vfx: vfxOn(settings), speed: settings.speed, framed: !!scenario, pond: !scenario, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
     d.view.setBoard(board);
+    // Los koi del estanque son los del jardín: si tienen hambre, darles de comer deja monedas.
+    d.view.setHungry(koiHungry(loadZen()));
+    d.view.onFeed = (tile) => {
+      const fed = feedKoi(loadZen());
+      if (!fed.coins) return;
+      saveZen(fed.z); d.view.setHungry(false);
+      const from = tile.getBoundingClientRect();
+      setTimeout(() => flyCoins(from, coinRef.current, 2, () => setCoins(addCoins(fed.coins))), 600);
+      addLog(t('game.koiFed', 'Los koi tenían hambre: +{n} monedas', { n: fed.coins }));
+    };
     d.view.setPieces(pieces);
     onDebug?.(d); // tests/bench.js
     // Clima: el de la mecánica si lo tiene; si no, a veces uno al azar (src/data/weather.js).

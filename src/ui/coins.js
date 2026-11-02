@@ -20,10 +20,20 @@ export function flyCoins(from, purse, n, land) {
   }
 }
 
-// La semilla que deja algo del tablero: la bolsita sube desde ahí, da un brinco y se desvanece
-// (va al jardín, que no está en pantalla).
-export function popSeed(from, art) {
+// La semilla que deja algo: la bolsita sube desde ahí, da un brinco y se desvanece (va al jardín, que no
+// está en pantalla) o, si se da `to` (el sobre del jardín), vuela hasta él.
+export function popSeed(from, art, to) {
   if (!from || reduced()) return;
+  if (to) {
+    const el = document.createElement('span');
+    el.className = 'seed-pop';
+    el.style.left = from.left + from.width / 2 + 'px'; el.style.top = from.top + from.height * 0.3 + 'px';
+    document.body.appendChild(el);
+    render(art, el);
+    const dx = to.left + to.width / 2 - (from.left + from.width / 2), dy = to.top + to.height / 2 - (from.top + from.height * 0.3);
+    motion(el, { x: [0, dx * 0.2, dx], y: [0, -60, dy], scale: [0.4, 1.3, 0.7] }, { duration: 1, ease: 'easeInOut', onComplete: () => { el.remove(); playSfx('pop'); } });
+    return;
+  }
   const el = document.createElement('span');
   el.className = 'seed-pop';
   el.style.left = from.left + from.width / 2 + 'px'; el.style.top = from.top + from.height * 0.3 + 'px';

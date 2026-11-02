@@ -304,6 +304,15 @@
 .pond-tile { width: var(--sq); height: var(--sq); background: radial-gradient(circle at 40% 35%, oklch(0.58 0.07 205), oklch(0.42 0.065 225)); box-shadow: inset 0 calc(var(--sq) * 0.08) calc(var(--sq) * 0.2) oklch(0.25 0.05 235 / 0.6); }
 .pond { width: calc(var(--w) * var(--sq)); height: calc(var(--h) * var(--sq)); transform: translateZ(1px); }
 .bd-pond { position: relative; width: 100%; height: 100%; overflow: hidden; }
+/* Koi con hambre: burbujas que suben despacio en el centro del agua (jardín y tablero). */
+.koi-hungry { display: none; position: absolute; left: 50%; top: 52%; width: 0; height: 0; z-index: 2; pointer-events: none; }
+.hungry > .koi-hungry { display: block; }
+.koi-hungry i { position: absolute; left: -3px; width: 6px; height: 6px; border-radius: 50%; border: 1.5px solid oklch(0.95 0.03 220 / 0.9); opacity: 0; animation: koi-bubble 2.6s ease-out infinite; }
+.koi-hungry i:nth-child(2) { left: 7px; animation-delay: 0.9s; }
+.koi-hungry i:nth-child(3) { left: -12px; animation-delay: 1.7s; }
+[data-art="pixel"] .koi-hungry i { border-radius: 0; }
+@keyframes koi-bubble { 0% { opacity: 0; transform: translateY(0) scale(0.5); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-16px) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .koi-hungry i { animation: none; opacity: 0.8; } }
 .bd-pond svg, .bd-koi { position: absolute; inset: 0; width: 100%; height: 100%; }
 .bd-koi { animation: koi-swim 14s linear infinite; }
 .bd-koi-b { animation-duration: 19s; animation-direction: reverse; }

@@ -19,6 +19,8 @@ import { MINIGAMES } from '../data/minigame-catalog.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, enterLevel, resetLevel, dropLevel, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs, takeNewDemos } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard } from '../game/shop.js';
 import { ZEN_NAMES, addZenSeeds, pickSeed } from '../game/zen.js';
+import { popSeed } from './coins.js';
+import { PICKUP_ART } from './zen-art.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
 import { award, bump, collect, loadAchievements, seeMutations } from '../game/achievements.js';
 import { Moments } from './moments.js';
@@ -179,13 +181,17 @@ export function App() {
     }
   }, [screen, gameKey]);
 
+  // Cayó una semilla: la bolsita salta en la pantalla de premio (va al jardín).
+  const seedPop = () => setTimeout(() => popSeed({ left: innerWidth / 2 - 20, top: innerHeight * 0.32, width: 40, height: 40 }, PICKUP_ART.seed), 700);
   const mutationReward = (r, coins = 0, seed = null) => {
+    if (seed) seedPop();
     const choices = pickMutationChoices(Date.now(), r.mutations);
     if (!choices.length) return goTo('map');
     setReward({ kind: 'mutation', coins, seed, cards: choices.map((id) => ({ ...MUTATIONS[id], kind: 'mutation', stack: r.mutations.filter((x) => x === id).length + 1 })) });
     goTo('reward');
   };
   const cardReward = (coins = 0, seed = null) => {
+    if (seed) seedPop();
     setReward({ kind: 'tactic', coins, seed, cards: pickCardChoices(Date.now()).map((id) => ({ ...CARDS[id], kind: 'tactic' })) });
     goTo('reward');
   };
@@ -232,6 +238,7 @@ export function App() {
     addCoins(coins);
     addZenSeeds(seed, 1);
     setReward({ kind: 'mini', coins, seed, cards: MINI_PRIZES });
+    seedPop();
     goTo('reward');
   };
 

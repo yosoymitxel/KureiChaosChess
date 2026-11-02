@@ -83,19 +83,23 @@
 @media (prefers-reduced-motion: reduce) { .logo-chaos i, .logo-i .icon, .logo-main, .logo-sub, .logo-sub-in { animation: none; } }
 .logo p { margin: 24px 0 0; font-size: 16px; line-height: 1.45; color: var(--paper-2); text-wrap: pretty; }
 .menu-actions { display: flex; flex-direction: column; gap: 12px; }
+/* La run a la izquierda; minijuegos y partida local a la derecha, mitad y mitad. */
+.menu-halves { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.menu-half { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.menu-half > .btn { min-width: 0; width: 100%; }
 /* Botones del menú: icono en una ficha a la izquierda y el texto alineado detrás. */
-.menu-actions > .btn { justify-content: flex-start; min-height: 56px; padding: 8px 18px 8px 8px; gap: 14px; font-size: 16px; }
-.menu-actions > .btn > .icon { box-sizing: content-box; padding: 8px; border-radius: calc(var(--r-md) - 4px); background: var(--fg); color: var(--bg); --icon-cut: var(--fg); }
-.menu-actions > .btn::after { content: ''; margin-left: auto; width: 8px; height: 8px; border: solid currentColor; border-width: 2.5px 2.5px 0 0; rotate: 45deg; opacity: 0.55; transition: translate 0.2s var(--ease-out), opacity 0.2s; }
-.menu-actions > .btn > .icon { transition: rotate 0.25s var(--ease-out), scale 0.25s var(--ease-out); }
+.menu-half > .btn { justify-content: flex-start; min-height: 56px; padding: 8px 18px 8px 8px; gap: 14px; font-size: 16px; }
+.menu-half > .btn > .icon { box-sizing: content-box; padding: 8px; border-radius: calc(var(--r-md) - 4px); background: var(--fg); color: var(--bg); --icon-cut: var(--fg); }
+.menu-half > .btn::after { content: ''; margin-left: auto; width: 8px; height: 8px; border: solid currentColor; border-width: 2.5px 2.5px 0 0; rotate: 45deg; opacity: 0.55; transition: translate 0.2s var(--ease-out), opacity 0.2s; }
+.menu-half > .btn > .icon { transition: rotate 0.25s var(--ease-out), scale 0.25s var(--ease-out); }
 @media (hover: hover) and (pointer: fine) {
-  .menu-actions > .btn:hover::after { translate: 4px 0; opacity: 1; }
-  .menu-actions > .btn:hover > .icon { rotate: -8deg; scale: 1.08; }
+  .menu-half > .btn:hover::after { translate: 4px 0; opacity: 1; }
+  .menu-half > .btn:hover > .icon { rotate: -8deg; scale: 1.08; }
 }
 /* El botón principal invita: la flecha empuja hacia delante cada poco. */
-.menu-actions > .btn.primary::after { animation: nudge 2.4s 1.5s ease-in-out infinite; }
+.menu-half > .btn.primary::after { animation: nudge 2.4s 1.5s ease-in-out infinite; }
 @keyframes nudge { 0%, 70%, 100% { translate: 0 0; } 80% { translate: 5px 0; } 90% { translate: 1px 0; } }
-@media (prefers-reduced-motion: reduce) { .menu-actions > .btn.primary::after { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .menu-half > .btn.primary::after { animation: none; } }
 .menu-row { display: flex; gap: 12px; }
 .menu-row .btn { flex: 1; }
 .menu-row .btn.icon-only { flex: none; width: 48px; }
@@ -112,7 +116,8 @@
   .logo { text-align: center; }
   .logo h1 { font-size: 72px; justify-items: center; }
   .logo p { margin-top: 12px; font-size: 14px; }
-  .menu-actions > .btn { min-height: 52px; }
+  .menu-half > .btn { min-height: 52px; padding: 6px 8px 6px 6px; gap: 10px; font-size: 15px; line-height: 1.15; text-align: left; }
+  .menu-half > .btn::after { display: none; }
 }
 /* Móvil bajo: sin la frase, el tablero de la portada conserva sitio. */
 @media (max-width: 760px) and (max-height: 700px) {
@@ -656,11 +661,11 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 /* En el cantero cada objeto deja aire a los lados: macetas vecinas no se tocan. */
 .zn-tray .zn-standart { left: 9%; width: 82%; }
 /* Centrado como las macetas: mismo margen a cada lado (.zn-tray .zn-standart deja 9 %). */
-.zn-tall .zn-lantern { inset: auto auto 6% 9%; height: 140%; }
+.zn-tall .zn-lantern { inset: auto auto 6% 9%; height: 118%; }
 /* Luz del farol: las nueve casillas que acelera, recortada por el borde del cantero. */
 .zn-glow { position: absolute; z-index: 0; pointer-events: none;
   background: radial-gradient(ellipse var(--grx) var(--gry) at var(--gx) var(--gy), oklch(0.93 0.14 85 / 0.75), oklch(0.93 0.14 85 / 0.3) 70%, transparent); }
-.bm-cell.zen-pond { grid-column: span 2; grid-row: span 2; width: auto; height: auto; cursor: pointer; display: grid; place-items: center; }
+.bm-cell.zen-pond { grid-column: span 2; grid-row: span 2; width: auto; height: auto; cursor: pointer; position: relative; display: grid; place-items: center; }
 /* Las plantas se mecen despacio, cada una a su ritmo (--d). */
 .zn-sway { transform-origin: 12px 15.4px; animation: sway 3.6s ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
 @keyframes sway { from { rotate: -3deg; } to { rotate: 3deg; } }
@@ -841,7 +846,7 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 /* Alimento de los koi: bolitas que flotan hasta que se las comen. */
 .zn-pellet { fill: oklch(0.7 0.1 70); stroke: var(--ink); stroke-width: .2; }
 /* Estado del jardín: una línea tranquila bajo el cantero. */
-.zn-status { margin: clamp(22px, 4.5vh, 40px) 0 0; min-height: 1.4em; font-size: 15px; font-weight: 650; color: var(--paper-2); text-align: center; text-wrap: balance; }
+.zn-status { margin: clamp(22px, 4.5vh, 40px) 0 0; min-height: 2.8em; /* dos líneas reservadas: el panel no salta */ font-size: 15px; font-weight: 650; color: var(--paper-2); text-align: center; text-wrap: balance; }
 /* Panel: sobres de semillas, herramientas con mango redondo, ampliar y tienda. */
 .zen-panel { display: grid; gap: 18px; align-content: start; }
 .zn-sec h3 { margin: 0 0 10px; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper-3); }
@@ -952,8 +957,10 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 /* En el teléfono la escena y el panel se apilan con su alto natural y la página baja con el dedo. */
 @media (max-width: 899px) {
   .zen-main { flex: none; }
-  .zen-scene .mini-stage { flex: none; height: min(52dvh, 430px); }
-  .zn-status { margin-top: 14px; }
+  .zen-scene .mini-stage { flex: none; height: min(58dvh, 460px); }
+  /* En el teléfono sobra ancho: menos margen reservado en alto para que el cantero no se encoja. */
+  .bm.zn-tray { --cell: max(18px, min(calc((100cqw - 76px) / var(--n)), calc((100cqh - 110px) / var(--n)), 110px)); }
+  .zn-status { margin-top: 6px; }
   .zn-packet { padding: 13px 4px 8px; }
 }
 @media (min-width: 900px) {
@@ -1483,7 +1490,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .cloud-form { display: grid; gap: 8px; }
 
 /* Semilla que suelta algo del tablero (popSeed): flota sobre todo, centrada en su punto. */
-.seed-pop { position: fixed; z-index: 60; width: 30px; height: 30px; translate: -50% -50%; pointer-events: none; filter: drop-shadow(0 3px 2px oklch(0 0 0 / 0.35)); }
+.seed-pop { position: fixed; z-index: 60; width: 40px; height: 40px; translate: -50% -50%; pointer-events: none; filter: drop-shadow(0 3px 2px oklch(0 0 0 / 0.35)); }
 .seed-pop svg { width: 100%; height: 100%; display: block; }
 .zn-hand.t-move { width: 30px; height: 30px; margin: -15px 0 0 -15px; }
 .zn-tray .zn-moving { outline: 2px dashed var(--brass); outline-offset: -3px; animation: zn-pick 0.9s ease-in-out infinite alternate; }

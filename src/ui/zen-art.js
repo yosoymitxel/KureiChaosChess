@@ -171,10 +171,10 @@ export const BRANCH = html`<svg class="zn-branch" viewBox="0 0 60 40" aria-hidde
 
 // Mariposa: cuerpo, antenas y dos pares de alas que baten por CSS.
 export const BUTTERFLY = html`<svg viewBox="-6 -6 12 12" aria-hidden="true">
-  <g class="zn-wing zn-wing-l"><path d="M-.4-.6C-2.6-4.6-5.6-4-5.2-1.4-4.9.4-2.4.6-.4.2Z"/><path d="M-.4.4C-2.8 1-4 3.4-2.6 4.4-1.4 5-.4 3-.2 1Z"/></g>
-  <g class="zn-wing zn-wing-r"><path d="M.4-.6C2.6-4.6 5.6-4 5.2-1.4 4.9.4 2.4.6.4.2Z"/><path d="M.4.4C2.8 1 4 3.4 2.6 4.4 1.4 5 .4 3 .2 1Z"/></g>
-  <path class="zn-fly-body" d="M0-2.2C.5-2.2.6 2.8 0 3.4-.6 2.8-.5-2.2 0-2.2Z"/>
-  <path class="zn-antenna" d="M-.2-2.1C-.8-3.4-1.4-4-2-4.2M.2-2.1C.8-3.4 1.4-4 2-4.2"/>
+  <g class="zn-wing zn-wing-l"><g class="zn-vec"><path d="M-.4-.6C-2.6-4.6-5.6-4-5.2-1.4-4.9.4-2.4.6-.4.2Z"/><path d="M-.4.4C-2.8 1-4 3.4-2.6 4.4-1.4 5-.4 3-.2 1Z"/></g>${px('butterfly-wing', 6, 9, -6, -4.5)}</g>
+  <g class="zn-wing zn-wing-r"><g class="zn-vec"><path d="M.4-.6C2.6-4.6 5.6-4 5.2-1.4 4.9.4 2.4.6.4.2Z"/><path d="M.4.4C2.8 1 4 3.4 2.6 4.4 1.4 5 .4 3 .2 1Z"/></g><g transform="scale(-1 1)">${px('butterfly-wing', 6, 9, -6, -4.5)}</g></g>
+  <g class="zn-vec"><path class="zn-fly-body" d="M0-2.2C.5-2.2.6 2.8 0 3.4-.6 2.8-.5-2.2 0-2.2Z"/>
+  <path class="zn-antenna" d="M-.2-2.1C-.8-3.4-1.4-4-2-4.2M.2-2.1C.8-3.4 1.4-4 2-4.2"/></g>
 </svg>`;
 
 // Regadera de latón para el gesto de regar: cuerpo, asa y pico con su roseta.

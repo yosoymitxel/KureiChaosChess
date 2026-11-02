@@ -40,6 +40,7 @@ export class Match {
     return extra > 0 && this.movesThisTurn >= this.movesFor(this.player.color) - extra;
   }
   legal(piece) {
+    if (piece.witch) return []; // nadie la manda: se mueve sola (witchStep)
     let all = [...legalMoves(piece, this.pieces, this.board), ...this.special(piece), ...(this.rule?.moves?.(this, piece) || [])];
     if (this.rule?.filter) all = this.rule.filter(this, piece, all);
     return piece.color === this.player.color && this.quietOnly() ? all.filter((m) => !m.hits.length) : all;
@@ -146,8 +147,37 @@ export class Match {
     if (!sleeping.length) return [];
     const ctx = ctxOf(this.pieces, this.board), mine = this.pieces.filter((p) => p.color === color);
     const woke = sleeping.filter((w) => mine.some((p) => canHit(p, w, ctx)));
-    for (const w of woke) w.awake = true;
+    // Despierta con un blanco: la pieza que la apuntó.
+    for (const w of woke) Object.assign(w, { awake: true, target: mine.find((p) => canHit(p, w, ctx)).id });
     return woke;
+  }
+
+  // La bruja despierta no la mueve su bando: es un ente aparte que, tras el turno de su bando, caza a la
+  // pieza que la despertó (si cae, a la rival más cercana). Contra el rival novato solo actúa una ronda
+  // de cada dos. Devuelve lo que pasó con la forma de un `mech` para que el tablero lo anime.
+  witchStep(color) {
+    const out = { fx: [], kills: [], moved: [], spawned: [], art: [] };
+    const R = this.rivals?.[color] || this.rival || RIVALS.oficial;
+    if ((R.blunder || 0) >= 0.1 && Math.floor(this.turn / this.players.length) % 2) return null;
+    for (const w of this.pieces.filter((p) => p.witch && p.awake && p.color === color)) {
+      const foes = this.pieces.filter((p) => p.color !== color && !p.chicken);
+      const dist = (p, r = w.row, c = w.col) => Math.max(Math.abs(p.row - r), Math.abs(p.col - c));
+      let target = foes.find((p) => p.id === w.target);
+      if (!target) { target = foes.reduce((a, b) => (!a || dist(b) < dist(a) ? b : a), null); w.target = target?.id; }
+      if (!target) continue;
+      const moves = legalMoves(w, this.pieces, this.board);
+      const m = moves.find((x) => x.hits.includes(target)) || moves.filter((x) => !x.hits.length).reduce((a, b) => (!a || dist(target, b.row, b.col) < dist(target, a.row, a.col) ? b : a), null);
+      if (!m) continue;
+      out.moved.push({ piece: w, from: { row: w.row, col: w.col }, to: { row: m.row, col: m.col }, how: 'hop' });
+      for (const v of m.hits) {
+        v.hp = (v.hp ?? 1) - 1;
+        if (v.hp > 0) continue;
+        this.pieces.splice(this.pieces.indexOf(v), 1); out.kills.push(v);
+        if (v.royal && !this.pieces.some((q) => q.royal && q.color === v.color)) this.eliminated[v.color] = true;
+      }
+      w.row = m.row; w.col = m.col;
+    }
+    return out.moved.length ? out : null;
   }
 
   // Contagio: las piezas menores pegadas a cada víctima (2 o 3 en total) cambian al bando que capturó.
@@ -218,14 +248,16 @@ export class Match {
     this.quietTurns++;
     const collapse = this.modifier === 'chaos' && this.turn % 3 === 0 ? this.collapse() : null;
     const meteor = this.modifier === 'meteor' ? this.meteor() : null;
+    const mover = this.player.color;
     let next = this.current;
     do next = (next + 1) % this.players.length; while (this.eliminated[this.players[next].color] && next !== this.current);
     this.current = next;
     this.turnBonus = this.bonus?.(this) || 0;
     const tick = this.tick?.(this) || null;
     const mech = this.rule?.turn?.(this) || null;
-    if (this.checkOver()) return { ended: true, collapse, meteor, tick, mech, over: this.over };
-    return { ended: true, collapse, meteor, tick, mech };
+    const witch = this.witchStep(mover);
+    if (this.checkOver()) return { ended: true, collapse, meteor, tick, mech, witch, over: this.over };
+    return { ended: true, collapse, meteor, tick, mech, witch };
   }
 
   // Meteorito: un turno avisa dónde caerá (`doom`, una cruz de cinco casillas) y el siguiente cae:
@@ -340,7 +372,7 @@ export function botChooseMove(match) {
   const { pieces, board } = match;
   const R = match.rivals?.[match.player.color] || match.rival || RIVALS.oficial;
   const color = match.player.color;
-  const mine = pieces.filter((p) => p.color === color);
+  const mine = pieces.filter((p) => p.color === color && !p.witch); // la bruja va por su cuenta (witchStep)
   const royal = pieces.find((p) => p.royal && p.color !== color);
   const options = [];
   // Lo que vale perder la pieza: el jefe pierde una vida por golpe, no la partida de una vez,
@@ -375,7 +407,6 @@ export function botChooseMove(match) {
       score += Math.max(board.rows, board.cols) - (Math.abs(m.row - (board.rows - 1) / 2) + Math.abs(m.col - (board.cols - 1) / 2));
       if (royal && R.pressure) score += R.pressure * Math.max(0, 10 - (Math.abs(m.row - royal.row) + Math.abs(m.col - royal.col)));
       if (p.boss) score += m.hits.length * 15; // al jefe le gusta aplastar
-      if (p.awake) score += 4 + m.hits.length * 10; // la bruja despierta no para
       // Meteorito avisado: salir de la cruz y no meterse en ella (el rey, sobre todo).
       if (doomed) { if (doomed(m.row, m.col)) score -= worth(p); else if (doomed(p.row, p.col)) score += worth(p); }
       if (threat != null) score += care * Math.max(0, worth(p) - threat);

@@ -160,10 +160,13 @@ export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onS
           <p>${t('menu.tutorialAsk', 'El tutorial es una run corta de cuatro pisos y reemplaza la run actual.')}</p>
           <div class="menu-row"><button class="btn primary" onClick=${go(onTutorial)}>${t('menu.tutorialStart', 'Empezar tutorial')}</button><button class="btn ghost" onClick=${() => setAskTutorial(false)}>${t('menu.cancel', 'Cancelar')}</button></div>
         </div>`}
-        ${!askTutorial && html`<button class="btn primary" data-enter onClick=${go(hasRun ? onContinue : onNew)}><${Icon} name=${hasRun ? 'map' : 'swords'} />${hasRun ? t('menu.continue', 'Continuar run') : t('menu.start', 'Empezar run')}</button>`}
-        ${hasRun && !askTutorial && html`<${ConfirmButton} class="btn" enter onConfirm=${onNew} confirmLabel=${t('menu.newRunConfirm', 'Se pierde la run actual. ¿Seguro?')}><${Icon} name="refresh" />${t('menu.newRun', 'Nueva run')}<//>`}
+        ${!askTutorial && html`<div class="menu-halves"><div class="menu-half">
+        <button class="btn primary" data-enter onClick=${go(hasRun ? onContinue : onNew)}><${Icon} name=${hasRun ? 'map' : 'swords'} />${hasRun ? t('menu.continue', 'Continuar run') : t('menu.start', 'Empezar run')}</button>
+        ${hasRun && html`<${ConfirmButton} class="btn" enter onConfirm=${onNew} confirmLabel=${t('menu.newRunConfirm', 'Se pierde la run actual. ¿Seguro?')}><${Icon} name="refresh" />${t('menu.newRun', 'Nueva run')}<//>`}
+        </div><div class="menu-half">
         ${onMinis && html`<button class="btn" data-enter onClick=${onMinis}><${Icon} name="connect4" />${t('menu.minis', 'Minijuegos')}</button>`}
-        ${!askTutorial && html`<button class="btn" data-enter onClick=${go(onVersus)}><${Icon} name="human" />${t('menu.versus', 'Partida local')}</button>`}
+        <button class="btn" data-enter onClick=${go(onVersus)}><${Icon} name="human" />${t('menu.versus', 'Partida local')}</button>
+        </div></div>`}
         <div class="menu-row" data-enter>
           <button class="btn ghost" onClick=${onHowTo}><${Icon} name="book" />${t('menu.rules', 'Reglas')}</button>
           <button class="btn ghost" onClick=${onSettings}><${Icon} name="gear" />${t('menu.settings', 'Ajustes')}</button>

@@ -3,7 +3,7 @@
 // los anillos nuevos se suman alternando abajo a la derecha y arriba a la izquierda, como tierra
 // virgen por cavar (a veces con piedras). Las claves de casilla son absolutas: el 4×4 base va de
 // r0c0 a r3c3 y los anillos de arriba o de la izquierda tienen coordenadas negativas.
-import { SEEDS, GARDEN_ITEMS, SEED_BACK, DIG_COOLDOWN, MOVE_COOLDOWN, OBSTACLE_CHANCE, ROCK_HP, LANTERN_BOOST, LAKE_MAX } from '../data/garden.js';
+import { SEEDS, GARDEN_ITEMS, SEED_BACK, DIG_COOLDOWN, MOVE_COOLDOWN, OBSTACLE_CHANCE, ROCK_HP, LANTERN_BOOST, LAKE_MAX, WATER_STEPS, KOI_HUNGER_MS, KOI_COINS } from '../data/garden.js';
 
 const KEY = 'zugzwang.zen.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
@@ -69,7 +69,7 @@ export function loadZen() {
   if (!z.v) for (const k of ['r1c1', 'r2c1']) if (k in pots) { pots[movedPot(k)] = pots[k]; delete pots[k]; }
   const size = Math.min(ZEN_MAX, Math.max(ZEN_BASE, z.size || ZEN_BASE));
   const out = { ...blankZen(), size, off: z.off || 0, lake: z.lake || 2, pots, rocks: z.rocks || {}, tiles: z.tiles || {}, dug: z.dug || {}, lanterns: z.lanterns || [], lakeAt: z.lakeAt, moveT: z.moveT, items: z.items || {},
-    seeds: seedsOf(z.seeds), flores, planted, leaves: z.leaves || [], leafT: z.leafT, digT: z.digT };
+    seeds: seedsOf(z.seeds), flores, planted, leaves: z.leaves || [], leafT: z.leafT, digT: z.digT, koiT: z.koiT };
   return (z.v || 0) < 3 ? withBase(out) : out;
 }
 const movedPot = (k) => ({ r1c1: 'r1c3', r2c1: 'r2c3' })[k] || k;
@@ -111,15 +111,26 @@ const lit = (z, key) => {
   return (z.lanterns || []).some((l) => { const [lr, lc] = parseKey(l); return Math.max(Math.abs(lr - r), Math.abs(lc - c)) === 1; });
 };
 
-// Etapa de un tiesto a esta hora; msLeft es lo que falta para la flor. Sin planta: 'empty'.
+// Crecimiento (ms) de un tiesto: con agua avanza hasta el final de su tramo (`cap`) y se para hasta la
+// próxima regada. Las macetas de antes (sin `g`) conservan lo que llevaban y piden agua para seguir.
+function growth(z, key, pot, now) {
+  const full = bloomMs(pot.kind), boost = lit(z, key) ? LANTERN_BOOST : 1;
+  if (pot.g == null) return { g: Math.min(full, now - pot.t), full, boost, cap: 0 };
+  const g = pot.wet ? Math.min(pot.cap, pot.g + (now - pot.wt) * boost) : pot.g;
+  return { g, full, boost, cap: pot.wet ? pot.cap : 0 };
+}
+// Fin del tramo en el que está `g` (WATER_STEPS tramos iguales hasta la flor).
+const capOf = (g, full) => Math.min(full, (Math.floor((g / full) * WATER_STEPS + 1e-9) + 1) * (full / WATER_STEPS));
+
+// Etapa de un tiesto a esta hora. `watered`: tiene agua y está creciendo. msLeft: lo que falta para la
+// flor regándola a tiempo; stepLeft: lo que le dura el agua. Sin planta: 'empty'.
 export function zenStage(z, key, now = Date.now()) {
   const pot = z.pots[key];
   if (!pot) return { stage: 'empty' };
-  const boost = lit(z, key) ? LANTERN_BOOST : 1, full = bloomMs(pot.kind);
-  const grown = (now - pot.t) * boost;
-  const out = { kind: pot.kind, watered: !!pot.w, lit: boost > 1 };
-  if (grown >= full) return { ...out, stage: 'bloom' };
-  return { ...out, stage: grown >= full * 0.4 ? 'bud' : 'sprout', msLeft: (full - grown) / boost };
+  const { g, full, boost, cap } = growth(z, key, pot, now);
+  const out = { kind: pot.kind, watered: g < cap, lit: boost > 1, step: Math.min(WATER_STEPS, Math.floor((g / full) * WATER_STEPS + 1e-9)) };
+  if (g >= full) return { ...out, stage: 'bloom' };
+  return { ...out, stage: g >= full * 0.4 ? 'bud' : 'sprout', msLeft: (full - g) / boost, stepLeft: g < cap ? (cap - g) / boost : 0 };
 }
 
 // Sembrar gasta una semilla de verdad: sin semillas no hay planta.
@@ -127,19 +138,19 @@ export function zenSow(z, key, kind, now = Date.now()) {
   if (z.pots[key] || !(z.seeds[kind] > 0)) return z;
   return {
     ...z,
-    pots: { ...z.pots, [key]: { kind, t: now } },
+    pots: { ...z.pots, [key]: { kind, t: now, g: 0 } },
     seeds: { ...z.seeds, [kind]: z.seeds[kind] - 1 },
     planted: z.planted + 1,
   };
 }
 
-// Regar acorta a la mitad lo que falta, una sola vez por planta.
+// Regar: la planta que pide agua crece hasta el final de su tramo (WATER_STEPS regadas hasta la flor).
 export function zenWater(z, key, now = Date.now()) {
   const pot = z.pots[key];
-  if (!pot || pot.w) return z;
-  const { stage, msLeft } = zenStage(z, key, now);
-  if (stage === 'bloom') return z;
-  return { ...z, pots: { ...z.pots, [key]: { ...pot, w: true, t: pot.t - msLeft / 2 } } };
+  if (!pot) return z;
+  const { g, full, cap } = growth(z, key, pot, now);
+  if (g >= full || g < cap) return z;
+  return { ...z, pots: { ...z.pots, [key]: { kind: pot.kind, t: pot.t, regrown: pot.regrown, g, wt: now, wet: true, cap: capOf(g, full) } } };
 }
 // La regadera grande moja también las ocho vecinas que lo pidan.
 export function zenWaterAround(z, key, now = Date.now()) {
@@ -174,7 +185,7 @@ export function zenHarvest(z, key, now = Date.now(), rng = Math.random) {
   const back = rng() < SEED_BACK;
   return {
     ...z,
-    pots: { ...z.pots, [key]: again ? { kind, t: now, regrown: (pot.regrown || 0) + 1 } : null },
+    pots: { ...z.pots, [key]: again ? { kind, t: now, g: 0, regrown: (pot.regrown || 0) + 1 } : null },
     flores: { ...z.flores, [kind]: (z.flores[kind] || 0) + 1 },
     seeds: back ? { ...z.seeds, [kind]: (z.seeds[kind] || 0) + 1 } : z.seeds,
     gift: back ? kind : null,
@@ -309,3 +320,8 @@ export function pickSeed(rng = Math.random) {
   let x = rng() * total;
   return ZEN_KINDS.find((k) => (x -= SEEDS[k].weight) < 0) || ZEN_KINDS[0];
 }
+
+// Koi: tienen hambre cada KOI_HUNGER_MS; darles de comer entonces deja monedas (en el jardín y en el
+// estanque del tablero, que son los mismos peces).
+export const koiHungry = (z, now = Date.now()) => now - (z.koiT || 0) >= KOI_HUNGER_MS;
+export const feedKoi = (z, now = Date.now()) => (koiHungry(z, now) ? { z: { ...z, koiT: now }, coins: KOI_COINS } : { z, coins: 0 });

@@ -10,7 +10,7 @@ export const PIECES = localize('pieces', {
   bishop: { name: 'Alfil', move: 'alfil', value: 30, rule: 'Se desliza en diagonal.' },
   queen: { name: 'Reina', move: 'reina', value: 90, rule: 'Torre + alfil.' },
   king: { name: 'Rey', move: 'rey', value: 1000, rule: '1 paso en cualquier dirección. Si cae, su bando queda eliminado.' },
-  guard: { name: 'Guardia', move: 'guardia', value: 18, rule: 'Como el rey pero nunca retrocede: 1 paso adelante, a los lados o en diagonal hacia delante, o 2 en diagonal hacia delante si el paso está libre.' },
+  guard: { name: 'Guardia', move: 'guardia', value: 18, rule: 'Como el rey menos la casilla de justo detrás: 1 paso a cualquier lado (atrás solo en diagonal), o 2 en diagonal hacia delante si el paso está libre.' },
   advisor: { name: 'Consejero', move: 'consejero', value: 18, rule: '1 paso en diagonal.' },
   elephant: { name: 'Elefante', move: 'elefante', value: 22, rule: 'Salta 2 en diagonal.' },
   camel: { name: 'Camello', move: 'camello', value: 30, rule: 'Salta en L larga (3 y 1).' },

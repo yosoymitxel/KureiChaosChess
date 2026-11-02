@@ -207,6 +207,14 @@ export class BoardView {
     this.pondAt = { r0, c0, h: r1 - r0 + 1, w: c1 - c0 + 1, el };
   }
 
+  // Koi con hambre (src/game/zen.js): burbujas suaves en el agua.
+  setHungry(on) {
+    const el = this.pondAt?.el;
+    if (!el) return;
+    el.classList.toggle('hungry', !!on);
+    if (on && !el.querySelector('.koi-hungry')) el.insertAdjacentHTML('beforeend', '<span class="koi-hungry" aria-hidden="true"><i></i><i></i><i></i></span>');
+  }
+
   // Tocar el agua echa comida: el koi que antes pase por ese punto de su vuelta acelera y se la come.
   feed(tile, x, y) {
     const { r0, c0, h, w, el } = this.pondAt, box = tile.getBoundingClientRect(), s = Math.min(h, w);
@@ -214,6 +222,7 @@ export class BoardView {
     const px = 10 + (+tile.dataset.c - c0 + (x - box.left) / box.width - w / 2) * (20 / s);
     const py = 10 + (+tile.dataset.r - r0 + (y - box.top) / box.height - h / 2) * (20 / s);
     playSfx('splash');
+    this.onFeed?.(tile);
     const c = this.fx.pointOf(tile);
     if (!reduced()) this.fx.ring(c.x, c.y, { color: '#e6f6ff', radius: this.sq * 0.5, width: 2, life: 0.6 });
     const food = el.querySelector('.bd-food');

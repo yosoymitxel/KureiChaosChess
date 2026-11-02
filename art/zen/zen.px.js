@@ -287,6 +287,9 @@ obj("pond", 48, 48,
   ...STONES.map(([x, y, s]) => pebble(x, y, s)),
 );
 
+// Ala izquierda de la mariposa (6×9): la derecha es la misma en espejo; la columna 5 es medio cuerpo.
+obj("butterfly-wing", 6, 9, ...rows(0, "1-2:k", "0:k 1-2:n 3:k 5:k", "0:k 1:N 2-3:n 4:k 5:k", "0:k 1:n 2:F 3-4:n 5:k", "1:k 2-4:n 5:k", "2:k 3-4:A 5:k", "1:k 2:A 3:N 4:A 5:k", "1:k 2-3:A 4:k 5:k", "2-3:k"));
+
 // Koi 8×5 blanco y naranja mirando a la derecha.
 obj("koi", 8, 5, ...rows(1, "1:a 3-4:y 5:a", "2-3:y 4-5:a 6:y", "1:a 3:a 4-5:y"));
 
@@ -386,4 +389,4 @@ scene("jardin", { w: 144, h: 96, bg: "t" },
   stamp("branch", 104, 0), stamp("leaf", 100, 40), stamp("leaf", 60, 74, { flip: "x" }),
   stamp("can", 98, 52), stamp("shears", 118, 50), stamp("shovel", 136, 46), stamp("pouch", 80, 78));
 
-sheet("zen", ["pot", "romero-*", "salvia-*", "lavanda-*", "moss", "step", "stone", "lantern", "pond", "koi", "sand", "raw", "leaf", "branch", "can", "shears", "shovel", "pouch"], { pad: 2 });
+sheet("zen", ["pot", "romero-*", "salvia-*", "lavanda-*", "moss", "step", "stone", "lantern", "pond", "koi", "sand", "raw", "leaf", "branch", "can", "shears", "shovel", "pouch", "butterfly-wing"], { pad: 2 });

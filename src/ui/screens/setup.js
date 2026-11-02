@@ -296,6 +296,8 @@ function Cloud() {
   useEffect(() => { if (user) run(async () => setWhen(await cloudInfo()))(); }, [user]);
 
   const enter = (mode) => run(async () => {
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setMsg(t('cloud.badEmail', 'Escribe un correo válido.'));
+    if (pass.length < 8) return setMsg(t('cloud.short', 'La contraseña necesita al menos 8 caracteres.'));
     const r = await (mode === 'up' ? signUp : signIn)(email.trim(), pass);
     if (r === 'confirm') return setMsg(t('cloud.confirm', 'Cuenta creada: confirma el enlace que te llegó al correo y luego entra.'));
     setPass(''); setUser(cloudUser());
@@ -317,12 +319,12 @@ function Cloud() {
         <button class="btn sm" disabled=${busy} onClick=${() => { signOut(); setUser(null); setWhen(undefined); }}>${t('cloud.out', 'Salir')}</button>
       </div>` : html`
       <p class="shop-note">${t('cloud.hint', 'Con una cuenta, tu progreso pasa de un dispositivo a otro.')}</p>
-      <form class="cloud-form" onSubmit=${(e) => { e.preventDefault(); enter('in')(); }}>
+      <form class="cloud-form" novalidate onSubmit=${(e) => { e.preventDefault(); enter('in')(); }}>
         <input class="cloud-field" type="email" autocomplete="email" required placeholder=${t('cloud.email', 'Correo')} value=${email} onInput=${(e) => setEmail(e.currentTarget.value)} />
         <input class="cloud-field" type="password" autocomplete="current-password" required minlength="8" placeholder=${t('cloud.pass', 'Contraseña')} value=${pass} onInput=${(e) => setPass(e.currentTarget.value)} />
         <div class="menu-row">
           <button class="btn sm primary" type="submit" disabled=${busy}>${t('cloud.in', 'Entrar')}</button>
-          <button class="btn sm" type="button" disabled=${busy || !email.includes('@') || pass.length < 8} onClick=${enter('up')}>${t('cloud.signup', 'Crear cuenta')}</button>
+          <button class="btn sm" type="button" disabled=${busy} onClick=${enter('up')}>${t('cloud.signup', 'Crear cuenta')}</button>
         </div>
       </form>`}
     ${msg && html`<p class="shop-note" aria-live="polite">${msg}</p>`}
