@@ -542,7 +542,8 @@ const BOMB_SHAPES = {
 Object.assign(SCENARIOS, {
   bombs: {
     id: 'bombs', single: true,
-    goal: t('sc.bombs.goal', 'Aguanta con tu rey: cada jugada se marcan en rojo las casillas donde caerán bombas, y estallan en la siguiente. Sal de la zona marcada hasta que acaben las rondas.'),
+    goal: t('sc.bombs.goal', 'Sal de lo marcado en rojo antes de que estalle.'),
+    turnTime: { facil: 5, normal: 3.5, dificil: 2.5 }, // segundos por jugada: si se acaban, el rey se queda quieto
     levels: {
       facil: { rounds: 10, zones: 1, shapes: ['cross', 'row', 'col'], rubble: 2 },
       normal: { rounds: 12, zones: 2, shapes: ['cross', 'row', 'col', 'diag', 'square'], rubble: 3 },

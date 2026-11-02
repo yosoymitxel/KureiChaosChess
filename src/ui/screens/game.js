@@ -1,9 +1,9 @@
 // Game screen: the "director" that wires Match (rules) to BoardView (3D) and the HUD.
 import { html, render, useState, useEffect, useRef, motion, motionStagger } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
-import { TurnBanner, CardFace, MiniEnd } from '../components.js';
+import { TurnBanner, CardFace, MiniEnd, TurnClock } from '../components.js';
 import { usePad } from '../gamepad.js';
-import { BoardView } from '../../view/board-view.js';
+import { BoardView, WITCH } from '../../view/board-view.js';
 import { artOf } from '../../view/piece-art.js';
 import { Match, botChooseMove, freezeMatch, thawMatch } from '../../game/match.js';
 import { rivalForFloor } from '../../game/difficulty.js';
@@ -367,7 +367,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         addLog(tag + t('game.witchWakes', '¡La bruja despierta!'));
         playSfx('stomp');
         d.view.shake(10, 420);
-        d.moments.callout({ text: t('game.witchWakes', '¡La bruja despierta!'), sub: t('game.witchSub', 'La miraste: ahora va a por ti'), piece: { type: artOf(w), side: w.color }, tone: 'danger', anim: 'tremble', tier: 'major' });
+        d.moments.callout({ text: t('game.witchWakes', '¡La bruja despierta!'), sub: t('game.witchSub', 'La miraste: ahora va a por ti'), art: WITCH, tone: 'danger', anim: 'tremble', tier: 'major' });
       }
       const fallenBoss = res.victims.find((v) => v.killed && v.piece.boss)?.piece;
       if (fallenBoss) {
@@ -469,13 +469,25 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (seed) { const kind = seed; addZenSeeds(kind, it.seed || 1); addLog(t('game.seedLog', 'Semilla de {kind} para el jardín', { kind: ZEN_NAMES[kind].toLowerCase() })); }
     };
 
+    const pass = () => {
+      const a = match.afterMove({ pass: true });
+      return showMeteor(a.meteor).then(() => showTick(a.tick)).then(() => showMech(a.mech)).then(() => showMech(witchMech(a.witch))).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
+    };
+    // Minis cronometrados (scenario.turnTime): se acabó el tiempo y la jugada se pierde.
+    d.timeUp = () => {
+      if (d.busy || match.over || match.player.kind !== 'human') return;
+      clearSel();
+      addLog(t('log.timeUp', 'Se acabó el tiempo'));
+      setBanner({ key: Date.now(), text: t('log.timeUp', 'Se acabó el tiempo'), side: match.player.color });
+      pass();
+    };
+
     const startTurn = (newTurn = true) => {
       refresh();
       const p = match.player;
       if (!match.canMove()) {
         addLog(t('log.cantMove', '{name} no puede moverse', { name: p.name }));
-        const a = match.afterMove({ pass: true });
-        return showMeteor(a.meteor).then(() => showTick(a.tick)).then(() => showMech(a.mech)).then(() => showMech(witchMech(a.witch))).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
+        return pass();
       }
       if (p.kind === 'bot') {
         // The bot waits for the labels on screen: its move used to land under a collapse or a capture.
@@ -818,6 +830,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         <span class="mod-icon"><${Icon} name=${mod.icon} size=${22} /></span>
         <div><h2>${mod.name}</h2><p>${scenario ? mod.goal : mod.desc}</p>
           ${hud?.goal && html`<p class="goal" aria-live="polite"><strong>${hud.goal}</strong></p>`}
+          ${scenario?.turnTime && !end && html`<${TurnClock} secs=${scenario.turnTime[scenario.level] || scenario.turnTime.normal} run=${hud?.turn} paused=${!hud?.myTurn} onTimeout=${() => ref.current.timeUp?.()} />`}
           ${node.modifier === 'elite' && html`<ul class="elite-list">${eliteVariants(node.floor, run.map.floors).map((v) => html`<li><span class="elite-ico"><${Icon} name=${v.icon} size=${13} /></span><div><strong>${v.name}</strong><span>${v.desc}</span></div></li>`)}</ul>`}</div>
       </section>
       <section class="seats">

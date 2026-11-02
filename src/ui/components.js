@@ -31,6 +31,32 @@ export function Topbar({ title, sub, onBack, backLabel = t('common.back', 'Volve
   </header>`;
 }
 
+// Reloj de turno de los minis cronometrados: una barra que se vacía en `secs` segundos mientras no esté
+// en pausa (ni con una hoja o cinemática encima) y llama a `onTimeout`. `run` lo reinicia (cada turno).
+export function TurnClock({ secs, run, paused, onTimeout }) {
+  const ref = useRef(null), cb = useRef(onTimeout);
+  cb.current = onTimeout;
+  useEffect(() => {
+    const el = ref.current;
+    if (!secs || paused || !el) return;
+    let left = secs * 1000, last = performance.now(), raf = 0, ticked = 3;
+    const tick = (now) => {
+      if (!document.querySelector('.overlay, .moment')) left -= now - last;
+      last = now;
+      const f = Math.max(0, left / (secs * 1000));
+      el.style.setProperty('--left', f);
+      el.toggleAttribute('data-low', f < 0.34);
+      if (left < ticked * 1000 && ticked > 0) { if (left > 0) playSfx('tick'); ticked--; }
+      if (left <= 0) return cb.current();
+      raf = requestAnimationFrame(tick);
+    };
+    el.style.setProperty('--left', 1);
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [run, paused, secs]);
+  return secs ? html`<div class=${'turn-clock' + (paused ? ' idle' : '')} ref=${ref} role="timer" aria-label=${t('mini.clock', 'Tiempo del turno: {n} s', { n: secs })}><i></i></div>` : null;
+}
+
 // Cierre común de los minijuegos: resultado, motivo y botón en un solo bloque, en cada pantalla.
 export function MiniEnd({ win, title, note, label = t('common.continue', 'Continuar'), onEnd }) {
   useEffect(() => { playSfx(win ? 'mini_win' : 'mini_lose'); }, []);

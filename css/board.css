@@ -372,3 +372,5 @@
 [data-art="pixel"] .hen-vec { display: none; }
 [data-art="pixel"] .hen-px { display: inline; }
 .pc.witch-pc .hen { width: 100%; height: 100%; }
+.callout-svg { display: grid; width: 72px; height: 72px; }
+.callout-svg svg { width: 100%; height: 100%; }

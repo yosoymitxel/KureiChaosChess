@@ -6,9 +6,9 @@ import { grid, key, inside, shuffle, pick, at, piece, freeCells, movesOf, cheb }
 import { t } from '../i18n/index.js';
 
 export const DIFFS = {
-  facil: { name: 'Fácil', n: 7, waves: [3, 4, 5], range: 6, len: 8 },
-  normal: { name: 'Normal', n: 7, waves: [4, 5, 7], range: 4, len: 8 },
-  dificil: { name: 'Difícil', n: 7, waves: [5, 7, 9], range: 3, len: 9 },
+  facil: { name: 'Fácil', n: 7, waves: [3, 4, 5], range: 6, len: 8, time: 7 },
+  normal: { name: 'Normal', n: 7, waves: [4, 5, 7], range: 4, len: 8, time: 5 },
+  dificil: { name: 'Difícil', n: 7, waves: [5, 7, 9], range: 3, len: 9, time: 3.5 },
 };
 const TYPES = ['pawn', 'knight', 'guard'];
 
@@ -63,8 +63,12 @@ export function enemy(s) {
     [f.row, f.col] = best;
   }
   if (++s.clock >= s.diff.len) nextWave(s);
-  return { pre: [], post: [], ms: 380 };
+  return { pre: [], post: [{ doom: danger(s) }], ms: 380 };
 }
+
+// Aviso, como en la horda de la dama: casillas a las que algún enemigo llega el turno que viene.
+const danger = (s) => [...new Map(s.foes.flatMap((f) => reach(s, f)).filter(([r, c]) => inside(s.board, r, c)).map((x) => [key(...x), x])).values()];
+export const start = (s) => [{ doom: danger(s) }];
 
 // Autocomprobación: casilla a la que ningún enemigo llega el turno que viene y con más blancos a tiro.
 const reach = (s, f) => (f.type === 'knight' ? movesOf(f, [f], s.board) : [-1, 0, 1].flatMap((dr) => [-1, 0, 1].map((dc) => [f.row + dr, f.col + dc])));

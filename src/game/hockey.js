@@ -1,6 +1,6 @@
 // Hockey de mesa: el disco y dos torres sobre un tablero de 6×10. Física pura, sin DOM.
 // Unidades de mesa: 16 por casilla. Tu torre abajo (light), la del bot arriba (dark).
-import { substeps, collide, walls as rails } from './physics.js';
+import { substeps, collide, rim, walls as rails } from './physics.js';
 
 export const CELL = 16, COLS = 6, ROWS = 10;
 export const W = COLS * CELL, H = ROWS * CELL;
@@ -13,6 +13,8 @@ const FRICTION = 0.32; // pérdida por segundo, ligera
 const WALL_E = 0.88, MALLET_E = 0.9;
 const SERVE_PAUSE = 0.9; // respiro tras un gol antes de soltar el disco
 const STALL_T = 4; // disco quieto en la raya: se vuelve a sacar
+const STUCK_T = 2.5; // disco casi quieto en cualquier sitio (una esquina, contra una torre): se saca
+const CORNER = 14; // radio de las esquinas redondeadas de la mesa: el disco no se queda encajado
 export const HOLD_T = 7; // regla de mesa: nadie retiene el disco en su mitad más de 7 s
 
 // you: tope de tu torre; por debajo del disco, para que pegar el dedo al disco no gane solo.
@@ -141,6 +143,8 @@ function capSpeed(p) {
 function walls(s) {
   const p = s.puck, r = PUCK_R;
   rails(p, r, W, H, WALL_E, (v) => wall(s, v), (b) => b.x > GOAL[0] && b.x < GOAL[1]);
+  const cx = p.x < CORNER ? CORNER : p.x > W - CORNER ? W - CORNER : null, cy = p.y < CORNER ? CORNER : p.y > H - CORNER ? H - CORNER : null;
+  if (cx != null && cy != null) { const hit = rim(p, r, cx, cy, CORNER, WALL_E); if (hit > 25) wall(s, hit); }
   // Los postes son puntos: el disco que roza la esquina de la boca rebota en ella.
   for (const [qx, qy] of [[GOAL[0], 0], [GOAL[1], 0], [GOAL[0], H], [GOAL[1], H]]) {
     if (p.x === qx && p.y === qy) continue;
@@ -198,6 +202,9 @@ function sub(s, dt, bots) {
   const still = Math.hypot(p.vx, p.vy) < 6 && Math.abs(p.y - H / 2) < PUCK_R + 1;
   s.slow = still ? s.slow + dt : 0;
   if (s.slow > STALL_T) return serve(s, p.y < H / 2 ? 'bot' : 'me', 0.3);
+  const edge = p.x < PUCK_R + 5 || p.x > W - PUCK_R - 5 || p.y < PUCK_R + 5 || p.y > H - PUCK_R - 5;
+  s.stuck = edge && Math.hypot(p.vx, p.vy) < 12 ? (s.stuck || 0) + dt : 0;
+  if (s.stuck > STUCK_T) { s.stuck = 0; const half = p.y > H / 2 ? 'me' : 'bot'; s.events.push({ kind: 'hold', side: half, stuck: true }); return serve(s, half === 'me' ? 'bot' : 'me', 0.6); }
   // Retenerlo en tu mitad más de HOLD_T pasa el saque al rival.
   const half = p.y > H / 2 ? 'me' : 'bot';
   s.hold = half === s.half ? s.hold + dt : 0;

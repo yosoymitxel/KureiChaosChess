@@ -275,12 +275,12 @@ export class Moments {
   // A move was made: labels still waiting describe a board that no longer exists.
   dropWaiting() { this.waiting = []; }
 
-  async play({ text, sub, tone = 'paper', piece, pieceTo, icon, anim, tier }) {
+  async play({ text, sub, tone = 'paper', piece, pieceTo, icon, art, anim, tier }) {
     const hold = tier === 'major' ? 1 : tier === 'info' ? 0.4 : 0.7;
     const el = this.mount(`callout tone-${tone}${tier ? ' tier-' + tier : ''}`, html`
       <span class="band"></span>
-      ${(piece || icon) && html`<span class="callout-art">
-        ${piece ? html`<${PieceIcon} type=${piece.type} side=${piece.side} size=${72} paper=${false} />` : html`<${Icon} name=${icon} size=${52} />`}
+      ${(piece || icon || art) && html`<span class="callout-art">
+        ${art ? html`<span class="callout-svg" dangerouslySetInnerHTML=${{ __html: art }} />` : piece ? html`<${PieceIcon} type=${piece.type} side=${piece.side} size=${72} paper=${false} />` : html`<${Icon} name=${icon} size=${52} />`}
         ${pieceTo && html`<span class="swap-to"><${PieceIcon} type=${pieceTo.type} side=${pieceTo.side} size=${72} paper=${false} /></span>`}
       </span>`}
       <span class="callout-text"><strong>${text}</strong>${sub && html`<small>${sub}</small>`}</span>`);
@@ -292,8 +292,8 @@ export class Moments {
     // clip-path y no scaleX: mover transform-origin a un lado también movía el eje del giro de la banda.
     else motion(band, { clipPath: [dir === 'left' ? 'inset(0 100% 0 0)' : 'inset(0 0 0 100%)', 'inset(0 0% 0 0%)'] }, { duration: this.t(0.22), ease: OUT });
     motion(el.querySelectorAll('strong, small'), { scale: [1.5, 1], opacity: [0, 1] }, { duration: this.t(0.3), ease: OUT });
-    const art = el.querySelector('.callout-art');
-    await (art ? this.animate(anim, art, piece, this.t(hold)) : sleep(this.t(hold + 0.15)));
+    const box = el.querySelector('.callout-art');
+    await (box ? this.animate(anim, box, piece, this.t(hold)) : sleep(this.t(hold + 0.15)));
     const out = { left: { x: [0, 60] }, right: { x: [0, -60] }, top: { y: [0, 30] } }[dir];
     await motion(el, { opacity: [1, 0], ...out }, { duration: this.t(0.25), ease: IN });
     el.remove();

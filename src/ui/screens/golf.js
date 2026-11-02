@@ -176,7 +176,7 @@ export function GolfScreen({ sub, onBack, onEnd, endLabel = t('common.continue',
             <div class="ah gf" ref=${tableRef} role="application" aria-label=${t('golf.aria', 'Campo de golf: arrastra hacia atrás y suelta para golpear la bola')}
               onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${up}>
               ${course.tiles.map((k, i) => html`<i class=${'ah-cell ' + ((Math.floor(i / COLS) + i) % 2 ? 'b' : 'a') + (k === 'g' ? '' : ' gf-' + k)}></i>`)}
-              ${corners}<i class="gf-cup" style=${`left:${course.cup.x / W * 100}%;top:${course.cup.y / H * 100}%`}><b></b></i>
+              ${corners}<i class="gf-cup" style=${`left:${course.cup.x / W * 100}%;top:${course.cup.y / H * 100}%`}><svg class="gf-flag" viewBox="0 0 11 23" aria-hidden="true"><path d="M5.5 23V1.5" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round" /><path d="M6 1.6c1.6 1 3.2.4 4.6 1.3v4.6c-1.4-.9-3-.3-4.6-1.3z" fill="var(--accent)" stroke="var(--ink)" stroke-width="0.9" stroke-linejoin="round" /></svg></i>
               ${course.pieces.map((p) => pc(p.type, p.x, p.y))}
               ${course.mover && pc(course.mover.type, 0, 0, moverRef)}
               <span class="tk-aim" ref=${aimRef}></span>

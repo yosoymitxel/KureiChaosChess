@@ -89,7 +89,8 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = t('common.continue
         } else if (e.kind === 'hold') {
           playSfx('invalid');
           puckRef.current.classList.add('gone');
-          banner(duo ? t('hockey.sevenServe', 'Siete segundos: saca {name}', { name: e.side === 'me' ? foeName : meName }) : e.side === 'me' ? t('hockey.sevenBot', 'Siete segundos: saca el bot') : t('hockey.sevenYou', 'Siete segundos: sacas tú'));
+          if (e.stuck) banner(duo ? t('hockey.stuckServe', 'Disco atascado: saca {name}', { name: e.side === 'me' ? foeName : meName }) : e.side === 'me' ? t('hockey.stuckBot', 'Disco atascado: saca el bot') : t('hockey.stuckYou', 'Disco atascado: sacas tú'));
+          else banner(duo ? t('hockey.sevenServe', 'Siete segundos: saca {name}', { name: e.side === 'me' ? foeName : meName }) : e.side === 'me' ? t('hockey.sevenBot', 'Siete segundos: saca el bot') : t('hockey.sevenYou', 'Siete segundos: sacas tú'));
         }
       }
     };
