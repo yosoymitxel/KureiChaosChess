@@ -1076,7 +1076,7 @@ export class BoardView {
     for (const p of pieces) {
       const c = this.centerOf(p);
       // Zombi y contagio: los del APK (vuelco verde y desintegración); sin efectos, la nube de siempre.
-      if (this.fx.vfx && !reduced()) { this.apk(playAPKTransformVariant, p, 'zombify'); this.apk(playAPKDeathStyle, p, 'infect'); }
+      if (this.fx.vfx && !reduced()) { this.apk(playAPKTransformVariant, p, 'zombify', t('fx.zombie', '¡Zombi!')); this.apk(playAPKDeathStyle, p, 'infect'); }
       else this.fx.poison(c.x, c.y - this.sq * 0.3, this.sq);
       this.remake(p);
       this.squash(p, 0.75);
@@ -1093,7 +1093,7 @@ export class BoardView {
     this.fx.dust(c.x, c.y, 1.2);
     // Invocación zombi: las dos, la de siempre más el estallido y el cartel del APK.
     this.apk(playAPKSpawnVariant, p, 'zombie');
-    setTimeout(() => this.apk(playAPKTransformVariant, p, 'zombify'), this.d(420));
+    setTimeout(() => this.apk(playAPKTransformVariant, p, 'zombify', t('fx.zombie', '¡Zombi!')), this.d(420));
     playSfx('zombie');
     animate(el, { opacity: [0, 1], duration: this.d(160) });
     await animate(st, { z: 0, duration: this.d(420), ease: 'outBack', onUpdate: () => this.apply(p) });

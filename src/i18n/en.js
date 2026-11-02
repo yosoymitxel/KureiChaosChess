@@ -250,6 +250,8 @@ export default {
     "game.promotionSub": "The pawn rises to queen",
     "game.promotionMore": "{a} gains movement",
     "cloud.profile": "Profile",
+    "fx.zombie": "Zombie!",
+    "fx.card": "{name}!",
     "cloud.sumFloor": "Run",
     "cloud.sumFloorN": "{n}/{total}",
     "cloud.sumCoins": "Coins",

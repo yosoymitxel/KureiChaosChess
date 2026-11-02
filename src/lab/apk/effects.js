@@ -894,7 +894,8 @@ export function playAPKFloatingText(host, view, cell, message = '¡JAQUE!', colo
 }
 
 
-export function playAPKTransformVariant(host, view, cell, how = 'evolve') {
+// `label`: texto del cartel (el juego lo pasa traducido y según qué cambió); sin él, el del APK.
+export function playAPKTransformVariant(host, view, cell, how = 'evolve', label) {
   const palettes = {
     zombify: ['#3dff8e', '#1f7a3a', '#a9d68e'],
     devolve: ['#8d86bd', '#555', '#c28bff'],
@@ -902,7 +903,7 @@ export function playAPKTransformVariant(host, view, cell, how = 'evolve') {
     promote: ['#ffc83d', '#fff', '#9b4dff']
   };
   const colors = palettes[how] || palettes.evolve;
-  const word = how === 'zombify' ? '¡ZOMBI!' : how === 'devolve' ? 'DEVOLVED' : how === 'promote' ? 'PROMOTED!' : 'EVOLVED!';
+  const word = label ? label.toUpperCase() : how === 'zombify' ? '¡ZOMBI!' : how === 'devolve' ? 'DEVOLVED' : how === 'promote' ? 'PROMOTED!' : 'EVOLVED!';
   return animateCanvas(host, view, 820, (ctx, t, w, h, locate) => {
     const p = locate(cell), progress = easeOut(t), maxR = (view?.sq || 54) * 1.25;
     for (let ring = 0; ring < 3; ring++) {
