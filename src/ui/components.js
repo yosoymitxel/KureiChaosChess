@@ -19,7 +19,9 @@ export function ThemeLook({ t }) {
 
 export function Topbar({ title, sub, onBack, backLabel = t('common.back', 'Volver'), children }) {
   return html`<header class="topbar">
-    ${onBack && html`<button class="btn ghost sm" data-back onClick=${onBack}><${Icon} name="back" size=${16} />${backLabel}</button>`}
+    ${onBack && (onBack.confirm
+      ? html`<${ConfirmButton} class="btn ghost sm" onConfirm=${onBack} confirmLabel=${onBack.confirm}><${Icon} name="back" size=${16} />${backLabel}<//>`
+      : html`<button class="btn ghost sm" data-back onClick=${onBack}><${Icon} name="back" size=${16} />${backLabel}</button>`)}
     <div>
       <h1 class="title">${title}</h1>
       ${sub && html`<p class="sub">${sub}</p>`}

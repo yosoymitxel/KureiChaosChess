@@ -691,7 +691,7 @@ src/game/zen.js:311 +addZenSeeds
 src/game/zen.js:318 +pickSeed
 src/game/zen.js:326 +koiHungry
 src/game/zen.js:327 +feedKoi
-## src/i18n/en.js (1190L)
+## src/i18n/en.js (1191L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -832,15 +832,15 @@ src/lab/proto/diamond-game.js:14 +createDiamondBoard
 src/lab/proto/diamond-game.js:27 +createDiamondPieces
 src/lab/proto/diamond-game.js:40 +createDiamondMatch
 ## src/main.js (7L)
-## src/ui/app.js (387L)
+## src/ui/app.js (396L)
 src/ui/app.js:33 REST_CARDS
 src/ui/app.js:38 BAG_CARDS
 src/ui/app.js:45 shuffle3
 src/ui/app.js:47 MINI_PRIZES
 src/ui/app.js:48 ONE_SHOT
 src/ui/app.js:50 +App
-src/ui/app.js:343 MutationReveal
-src/ui/app.js:359 AchievementToast
+src/ui/app.js:352 MutationReveal
+src/ui/app.js:368 AchievementToast
 ## src/ui/board-fx.js (43L)
 src/ui/board-fx.js:5 wait
 src/ui/board-fx.js:9 +playFx
@@ -849,23 +849,23 @@ src/ui/board-fx.js:32 +playMech
 src/ui/coins.js:6 reduced
 src/ui/coins.js:8 +flyCoins
 src/ui/coins.js:25 +popSeed
-## src/ui/components.js (225L)
+## src/ui/components.js (227L)
 src/ui/components.js:12 +ThemeLook
 src/ui/components.js:20 +Topbar
-src/ui/components.js:33 +MiniEnd
-src/ui/components.js:43 diffName
-src/ui/components.js:48 +MiniDiff
-src/ui/components.js:64 +MiniTools
-src/ui/components.js:114 +ConfirmButton
-src/ui/components.js:125 +BossCard
-src/ui/components.js:138 +useEnter
-src/ui/components.js:146 Card
-src/ui/components.js:163 KIND_LABEL
-src/ui/components.js:164 +RARITY_LABEL
-src/ui/components.js:168 +CardFace
-src/ui/components.js:182 +CardPick
-src/ui/components.js:208 +TurnBanner
-src/ui/components.js:219 +Toggle
+src/ui/components.js:35 +MiniEnd
+src/ui/components.js:45 diffName
+src/ui/components.js:50 +MiniDiff
+src/ui/components.js:66 +MiniTools
+src/ui/components.js:116 +ConfirmButton
+src/ui/components.js:127 +BossCard
+src/ui/components.js:140 +useEnter
+src/ui/components.js:148 Card
+src/ui/components.js:165 KIND_LABEL
+src/ui/components.js:166 +RARITY_LABEL
+src/ui/components.js:170 +CardFace
+src/ui/components.js:184 +CardPick
+src/ui/components.js:210 +TurnBanner
+src/ui/components.js:221 +Toggle
 ## src/ui/demos.js (31L)
 src/ui/demos.js:10 +pieceDemo
 src/ui/demos.js:15 +mutationDemo

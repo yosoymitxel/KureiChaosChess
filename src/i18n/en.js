@@ -249,6 +249,7 @@ export default {
     "game.bigDown": "{name} down!",
     "game.promotionSub": "The pawn rises to queen",
     "game.promotionMore": "{a} gains movement",
+    "mini.leaveLoses": "Leaving counts as a loss. Tap again",
     "card.fx.crown": "{name} promoted",
     "rarity.lilac": "lilac",
     "board.wings": "+2 diagonal",

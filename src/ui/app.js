@@ -159,7 +159,12 @@ export function App() {
     setRun((r) => r && dropLevel(r));
     if (n.modifier === 'rest') { setReward({ kind: 'rest', cards: REST_CARDS }); return goTo('reward'); }
     if (n.modifier === 'bag') { setReward({ kind: 'bag', cards: shuffle3(BAG_CARDS) }); return goTo('reward'); }
-    if (MODIFIERS[n.modifier]?.mini) return goTo('mini');
+    if (MODIFIERS[n.modifier]?.mini) {
+      // Antitrampa: un mini que se dejó a medias (recarga o cierre) no se vuelve a sortear; cuenta como perdido.
+      if (run?.miniOpen === n.id) return setRun(completeNode({ ...run, miniOpen: undefined }, n));
+      setRun((r) => r && { ...r, miniOpen: n.id });
+      return goTo('mini');
+    }
     if (!seats) return goTo('setup');
     startGame(seats, n);
   };
@@ -227,13 +232,14 @@ export function App() {
 
   // Minigame inside the run: a win unlocks it and pays a prize; a loss just spends the node.
   const onMiniEnd = (won) => {
-    if (!won) { setRun(completeNode(run, node)); return goTo('map'); }
+    if (!won) { setRun(completeNode({ ...run, miniOpen: undefined }, node)); return goTo('map'); }
     award('mini_won');
     if (floorTier(node.floor, run.map.floors) === 'dificil') { award('mini_hard'); if (collect('hardMinis', node.modifier) >= 3) award('hard_trio'); }
     if (bump('miniWins') >= 25) award('minis_25');
     unlockMini(node.modifier);
     if (loadUnlocked().length >= Object.values(MODIFIERS).filter((m) => m.mini).length) award('all_minis');
-    setRun((r) => ({ ...r, minisWon: (r.minisWon || 0) + 1 }));
+    // El nodo se cierra ya: recargar en la pantalla del premio no deja volver a jugarlo y cobrar otra vez.
+    setRun((r) => completeNode({ ...r, miniOpen: undefined, minisWon: (r.minisWon || 0) + 1 }, node));
     const coins = COINS_PER_NODE.normal, seed = pickSeed();
     addCoins(coins);
     addZenSeeds(seed, 1);
@@ -241,6 +247,9 @@ export function App() {
     seedPop();
     goTo('reward');
   };
+
+  // Salir de un mini de la run es rendirse: si no, se podría salir y entrar hasta que toque una posición fácil.
+  const leaveMini = Object.assign(() => onMiniEnd(false), { confirm: t('mini.leaveLoses', 'Salir cuenta como derrota. Pulsa otra vez') });
 
   const onReward = (card) => {
     if (reward.kind === 'mutation') { setRun((r) => ({ ...r, mutations: [...r.mutations, card.id] })); return goTo('map'); }
@@ -313,7 +322,7 @@ export function App() {
     ${ask && html`<${ResumeOverlay} onClose=${() => setAsk(null)}
       onContinue=${() => { const s = run.suspended; setAsk(null); setRun((r) => ({ ...r, suspended: undefined })); startGame(s.seats, ask, s.match); }}
       onRestart=${() => { const s = run.suspended; setAsk(null); setRun((r) => resetLevel(r)); startGame(s.seats, ask); }} />`}
-    ${screen === 'mini' && Mini && html`<${Mini} key=${node.id + '-' + miniKey} sub=${t('mini.floorSub', 'Piso {n} · minijuego', { n: node.floor + 1 })} onBack=${() => goTo('map')} onEnd=${onMiniEnd}
+    ${screen === 'mini' && Mini && html`<${Mini} key=${node.id + '-' + miniKey} sub=${t('mini.floorSub', 'Piso {n} · minijuego', { n: node.floor + 1 })} onBack=${leaveMini} onEnd=${onMiniEnd}
       diff=${floorTier(node.floor, run.map.floors)}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />`}
     ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
