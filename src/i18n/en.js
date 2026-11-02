@@ -402,7 +402,6 @@ export default {
     "cloud.short": "The password needs at least 8 characters.",
     "game.witchKills": "The witch strikes: {list}",
     "game.witchMoves": "The witch goes after her prey",
-    "cloud.title": "Cloud save",
     "cloud.hint": "With an account, your progress moves between devices.",
     "cloud.email": "Email",
     "cloud.pass": "Password",
