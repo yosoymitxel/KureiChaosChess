@@ -1,0 +1,74 @@
+// Partida en la nube (Supabase): cuenta con correo y una fila por jugador en game_saves (RLS: cada
+// uno solo ve la suya). Guarda el mismo código KCC de la copia local, así la validación es una sola.
+// Sin SDK: fetch a Auth y a la REST, para que funcione igual en la web y en el zip de itch.io.
+import { exportSave, importSave } from './backup.js';
+
+const URL_ = 'https://fxjhuodttsbcyncpkcxb.supabase.co';
+const KEY = 'sb_publishable_LWVoByppthU1ihW1LvqdNA_CfSA2chx';
+const SESSION = 'kurei.cloud.session';
+
+const load = () => { try { return JSON.parse(localStorage.getItem(SESSION)); } catch { return null; } };
+const keep = (s) => { try { s ? localStorage.setItem(SESSION, JSON.stringify(s)) : localStorage.removeItem(SESSION); } catch {} return s; };
+
+async function call(path, { method = 'GET', body, token, prefer } = {}) {
+  const headers = { apikey: KEY, 'Content-Type': 'application/json' };
+  if (token) headers.Authorization = 'Bearer ' + token;
+  if (prefer) headers.Prefer = prefer;
+  const res = await fetch(URL_ + path, { method, headers, body: body && JSON.stringify(body), signal: AbortSignal.timeout?.(10000) });
+  const data = res.status === 204 ? null : await res.json().catch(() => null);
+  if (!res.ok) throw Object.assign(new Error(data?.msg || data?.message || data?.error_description || 'HTTP ' + res.status), { code: data?.error_code || data?.code, status: res.status });
+  return data;
+}
+
+const toSession = (d) => d?.access_token && keep({ token: d.access_token, refresh: d.refresh_token, until: Date.now() + (d.expires_in - 60) * 1000, id: d.user.id, email: d.user.email });
+
+export const cloudUser = () => load()?.email || null;
+
+// Token vigente; lo renueva si caducó. Sin sesión válida, la borra y devuelve null.
+async function session() {
+  const s = load();
+  if (!s) return null;
+  if (Date.now() < s.until) return s;
+  try { return toSession(await call('/auth/v1/token?grant_type=refresh_token', { method: 'POST', body: { refresh_token: s.refresh } })); }
+  catch (e) { if (e.status === 400 || e.status === 401) keep(null); throw e; }
+}
+
+// 'in' = sesión abierta · 'confirm' = cuenta creada, falta confirmar el correo.
+export async function signIn(email, password) {
+  toSession(await call('/auth/v1/token?grant_type=password', { method: 'POST', body: { email, password } }));
+  return 'in';
+}
+export async function signUp(email, password) {
+  const d = await call('/auth/v1/signup', { method: 'POST', body: { email, password } });
+  return toSession(d) ? 'in' : 'confirm';
+}
+export async function signOut() {
+  const s = load();
+  keep(null);
+  if (s) call('/auth/v1/logout', { method: 'POST', token: s.token }).catch(() => {});
+}
+
+// Fecha de la copia en la nube (o null si no hay).
+export async function cloudInfo() {
+  const s = await session();
+  if (!s) return null;
+  const rows = await call(`/rest/v1/game_saves?select=updated_at&user_id=eq.${s.id}`, { token: s.token });
+  return rows[0]?.updated_at || null;
+}
+
+export async function cloudUpload() {
+  const s = await session();
+  if (!s) throw new Error('auth');
+  const updated_at = new Date().toISOString();
+  await call('/rest/v1/game_saves?on_conflict=user_id', { method: 'POST', token: s.token, prefer: 'resolution=merge-duplicates,return=minimal', body: { user_id: s.id, save_data: { code: await exportSave() }, updated_at } });
+  return updated_at;
+}
+
+// Devuelve cuántas claves restauró (0 = nada en la nube o copia inválida).
+export async function cloudDownload() {
+  const s = await session();
+  if (!s) throw new Error('auth');
+  const rows = await call(`/rest/v1/game_saves?select=save_data&user_id=eq.${s.id}`, { token: s.token });
+  const code = rows[0]?.save_data?.code;
+  return code ? importSave(code) : 0;
+}

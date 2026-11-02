@@ -1,4 +1,4 @@
-import { html, useState, useRef } from '../lib.js';
+import { html, useState, useRef, useEffect } from '../lib.js';
 import { Icon } from '../icons.js';
 import { Topbar, useEnter, Toggle, ThemeLook } from '../components.js';
 import { nodeModifier, MODIFIERS } from '../../data/modifiers.js';
@@ -8,6 +8,7 @@ import { THEMES, vfxOn } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
 import { exportSave, importSave, MAX_BACKUP_CODE_CHARS } from '../../game/backup.js';
+import { cloudUser, signIn, signUp, signOut, cloudInfo, cloudUpload, cloudDownload } from '../../game/cloud.js';
 import { themeOwned } from '../../game/shop.js';
 import { eliteVariants, lessonText } from '../../game/generate.js';
 import { t, LANG, LANGS } from '../../i18n/index.js';
@@ -264,5 +265,57 @@ function Backup() {
     <textarea class="backup-code" rows="3" value=${code} placeholder=${t('backup.paste', 'Pega aquí tu código para restaurar')} onInput=${(e) => setCode(e.currentTarget.value)}></textarea>
     <button class="btn sm primary" disabled=${!code.trim()} onClick=${() => restore()}>${t('backup.restore', 'Restaurar')}</button>
     ${msg && html`<p class="shop-note" aria-live="polite">${msg}</p>`}
+    <${Cloud} />
   </section>`;
+}
+
+// Partida en la nube: entrar con correo, subir y bajar la misma copia KCC (src/game/cloud.js).
+function Cloud() {
+  const [user, setUser] = useState(cloudUser);
+  const [email, setEmail] = useState(''), [pass, setPass] = useState('');
+  const [when, setWhen] = useState(undefined), [busy, setBusy] = useState(false), [msg, setMsg] = useState('');
+  const date = (iso) => new Date(iso).toLocaleString(LANG);
+  const fail = (e) => {
+    if (e?.message === 'auth') setUser(null);
+    setMsg(e?.message === 'auth' ? t('cloud.expired', 'La sesión caducó: vuelve a entrar.')
+    : e?.status === 400 || e?.code === 'invalid_credentials' ? t('cloud.badLogin', 'Correo o contraseña incorrectos (o falta confirmar el correo).')
+    : e?.code === 'user_already_exists' ? t('cloud.exists', 'Ese correo ya tiene cuenta: entra con él.')
+    : e?.code === 'weak_password' ? t('cloud.weak', 'La contraseña es débil: usa al menos 8 caracteres.')
+    : t('cloud.offline', 'No hay conexión con la nube. Prueba más tarde.'));
+  };
+  const run = (fn) => async () => { setBusy(true); setMsg(''); try { await fn(); } catch (e) { fail(e); } setBusy(false); };
+  useEffect(() => { if (user) run(async () => setWhen(await cloudInfo()))(); }, [user]);
+
+  const enter = (mode) => run(async () => {
+    const r = await (mode === 'up' ? signUp : signIn)(email.trim(), pass);
+    if (r === 'confirm') return setMsg(t('cloud.confirm', 'Cuenta creada: confirma el enlace que te llegó al correo y luego entra.'));
+    setPass(''); setUser(cloudUser());
+  });
+  const up = run(async () => { setWhen(await cloudUpload()); setMsg(t('cloud.uploaded', 'Partida guardada en la nube.')); });
+  const down = run(async () => {
+    if (!await cloudDownload()) return setMsg(t('cloud.empty', 'No hay ninguna partida en la nube todavía.'));
+    setMsg(t('backup.done', 'Partida restaurada.'));
+    setTimeout(() => location.reload(), 600);
+  });
+
+  return html`<div class="cloud">
+    <h3>${t('cloud.title', 'Partida en la nube')}</h3>
+    ${user ? html`
+      <p class="shop-note">${t('cloud.as', 'Conectado como {email}.', { email: user })} ${when ? t('cloud.when', 'Última copia: {date}.', { date: date(when) }) : when === null ? t('cloud.none', 'Aún no has subido ninguna.') : ''}</p>
+      <div class="menu-row">
+        <button class="btn sm primary" disabled=${busy} onClick=${up}><${Icon} name="scroll" size=${16} />${t('cloud.upload', 'Guardar en la nube')}</button>
+        <button class="btn sm" disabled=${busy || !when} onClick=${down}><${Icon} name="bag" size=${16} />${t('cloud.download', 'Traer de la nube')}</button>
+        <button class="btn sm" disabled=${busy} onClick=${() => { signOut(); setUser(null); setWhen(undefined); }}>${t('cloud.out', 'Salir')}</button>
+      </div>` : html`
+      <p class="shop-note">${t('cloud.hint', 'Con una cuenta, tu progreso pasa de un dispositivo a otro.')}</p>
+      <form class="cloud-form" onSubmit=${(e) => { e.preventDefault(); enter('in')(); }}>
+        <input class="cloud-field" type="email" autocomplete="email" required placeholder=${t('cloud.email', 'Correo')} value=${email} onInput=${(e) => setEmail(e.currentTarget.value)} />
+        <input class="cloud-field" type="password" autocomplete="current-password" required minlength="8" placeholder=${t('cloud.pass', 'Contraseña')} value=${pass} onInput=${(e) => setPass(e.currentTarget.value)} />
+        <div class="menu-row">
+          <button class="btn sm primary" type="submit" disabled=${busy}>${t('cloud.in', 'Entrar')}</button>
+          <button class="btn sm" type="button" disabled=${busy || !email.includes('@') || pass.length < 8} onClick=${enter('up')}>${t('cloud.signup', 'Crear cuenta')}</button>
+        </div>
+      </form>`}
+    ${msg && html`<p class="shop-note" aria-live="polite">${msg}</p>`}
+  </div>`;
 }
