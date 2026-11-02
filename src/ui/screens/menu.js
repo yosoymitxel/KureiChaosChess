@@ -131,7 +131,7 @@ function fitCrown(el) {
   el.style.setProperty('--top', `${baseline - (asc + 1 - top) + fs * 0.012 - size * foot}px`);
 }
 
-export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onSettings, onMinis, onVersus, onZen, onShop, onGallery, onAchievements, settings, setSettings }) {
+export function MenuScreen({ hasRun, inTutorial, onNew, onTutorial, onContinue, onHowTo, onSettings, onMinis, onVersus, onZen, onShop, onGallery, onAchievements, settings, setSettings }) {
   const ref = useRef(null);
   useEnter(ref);
   const crown = useRef(null);
@@ -162,8 +162,8 @@ export function MenuScreen({ hasRun, onNew, onTutorial, onContinue, onHowTo, onS
         </div>`}
         ${!askTutorial && html`<div class="menu-halves">
         <button class="btn primary wide" data-enter onClick=${go(hasRun ? onContinue : onNew)}><${Icon} name=${hasRun ? 'map' : 'swords'} />${hasRun ? t('menu.continue', 'Continuar run') : t('menu.start', 'Empezar run')}</button>
-        ${hasRun && html`<${ConfirmButton} class="btn" enter onConfirm=${onNew} confirmLabel=${t('menu.newRunConfirm', 'Se pierde la run actual. ¿Seguro?')}><${Icon} name="refresh" />${t('menu.newRun', 'Nueva run')}<//>`}
-        ${onMinis && html`<button class=${'btn' + (hasRun ? '' : ' wide')} data-enter onClick=${onMinis}><${Icon} name="connect4" />${t('menu.minis', 'Minijuegos')}</button>`}
+        ${hasRun && !inTutorial && html`<${ConfirmButton} class="btn" enter onConfirm=${onNew} confirmLabel=${t('menu.newRunConfirm', 'Se pierde la run actual. ¿Seguro?')}><${Icon} name="refresh" />${t('menu.newRun', 'Nueva run')}<//>`}
+        ${onMinis && html`<button class=${'btn' + (hasRun && !inTutorial ? '' : ' wide')} data-enter onClick=${onMinis}><${Icon} name="connect4" />${t('menu.minis', 'Minijuegos')}</button>`}
         <button class="btn wide" data-enter onClick=${go(onVersus)}><${Icon} name="human" />${t('menu.multi', 'Multijugador')}</button>
         </div>`}
         <div class="menu-row" data-enter>

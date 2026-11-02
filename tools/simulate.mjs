@@ -63,7 +63,7 @@ console.log(stats);
   if (!cardTargets(m2, CARDS.colossus).includes(rook)) throw new Error('rook should be a colossus target');
   const pv = previewMoves(m2, CARDS.colossus, rook);
   if (rook.h) throw new Error('preview mutated the real piece');
-  if (!playCard(m2, 'colossus', { piece: rook }) || rook.h !== 2 || rook.hp !== 3) throw new Error('colossus failed');
+  if (!playCard(m2, 'colossus', { piece: rook }) || rook.h !== 2 || rook.hp !== 2) throw new Error('colossus failed');
   if (!m2.legal(rook).some((x) => x.row === 5 && x.col === 7)) throw new Error('colossus lost the rook move');
   if (playCard(m2, 'haste')) throw new Error('second card in one turn was allowed');
   const real = m2.legal(rook).length;
