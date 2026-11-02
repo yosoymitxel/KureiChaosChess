@@ -21,7 +21,10 @@ const SIDES = [
 
 // Selector de mecánicas de la run (los gambitos de Gambonanza): cada toque pasa normal → favorita → vetada.
 export const RUN_MECHANICS = ['ice', 'portal', 'fog', 'chaos', 'zombie', 'contagion', 'coven', 'meteor', 'rush', 'promote', 'elite'];
+// Las de reglas propias (src/game/mechanics.js) van plegadas: se despliegan con «Ver más».
+const MORE_MECHANICS = ['powers', 'hp', 'gravity', 'events', 'potato', 'invis', 'drunk', 'chicken', 'bullet', 'anti', 'randarmy', 'giant', 'pqueen', 'ppawn', 'horse'];
 function PrefsCard({ prefs, onPrefs }) {
+  const [open, setOpen] = useState(false);
   const state = (id) => (prefs.fav.includes(id) ? 'fav' : prefs.ban.includes(id) ? 'ban' : '');
   const cycle = (id) => {
     const fav = prefs.fav.filter((x) => x !== id), ban = prefs.ban.filter((x) => x !== id);
@@ -35,9 +38,10 @@ function PrefsCard({ prefs, onPrefs }) {
     <h2>${t('prefs.title', 'Mecánicas de esta run')}</h2>
     <p class="setup-note">${t('prefs.note', 'Toca una mecánica: favorita (sale mucho más, hasta {fav}), vetada (no sale, {ban}) o normal. El mapa se vuelve a sortear.', { fav: PREF_LIMITS.fav, ban: PREF_LIMITS.ban })}</p>
     <div class="pref-grid">
-      ${RUN_MECHANICS.map((id) => html`<button class=${'pref ' + state(id)} aria-label=${`${MODIFIERS[id].name}: ${label[state(id)]}`} title=${MODIFIERS[id].desc} onClick=${() => cycle(id)}>
-        <${Icon} name=${MODIFIERS[id].icon} size=${20} /><span>${MODIFIERS[id].name}</span><small>${label[state(id)]}</small></button>`)}
+      ${[...RUN_MECHANICS, ...MORE_MECHANICS.filter((id) => open || state(id))].map((id) => html`<button class=${'pref ' + state(id)} aria-label=${`${MODIFIERS[id].name}: ${label[state(id)]}`} title=${MODIFIERS[id].desc} onClick=${() => cycle(id)}>
+        <${Icon} name=${MODIFIERS[id].icon} size=${18} /><span>${MODIFIERS[id].name}</span></button>`)}
     </div>
+    <button class="btn sm pref-more" aria-expanded=${open} onClick=${() => setOpen(!open)}>${open ? t('prefs.less', 'Ver menos') : t('prefs.more', 'Ver {n} más', { n: MORE_MECHANICS.filter((id) => !state(id)).length })}</button>
   </section>`;
 }
 

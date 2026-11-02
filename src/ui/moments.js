@@ -199,8 +199,9 @@ export class Moments {
 
   // Demo breve de una pieza (mutación nueva o jefe): tablerito con su alcance de siempre y, en azul,
   // lo que se añade; la pieza salta a una casilla nueva. Se salta con un toque, como las cinemáticas.
-  async demo({ title, sub, piece, base, extra = [], n = 7, at, size = [1, 1], anchors, tone = 'paper' }) {
-    if (!this.enabled) return;
+  // `force`: pedida por el jugador (toque en el icono de la pieza), sale aunque los momentos estén apagados.
+  async demo({ title, sub, piece, base, extra = [], n = 7, at, size = [1, 1], anchors, tone = 'paper', force }) {
+    if (!this.enabled && !force) return;
     await this.whenIdle();
     const mid = (n - 1) / 2;
     const [h, w] = size, [ar, ac] = at || [mid, mid];

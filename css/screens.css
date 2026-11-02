@@ -334,6 +334,8 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 .chip-info strong { color: var(--ink); }
 .inspector { display: flex; gap: 12px; padding: 12px; border-radius: 12px; border: 2px dashed var(--brass); }
 .inspector.threat { border-color: var(--danger); }
+.insp-demo { flex: none; align-self: flex-start; padding: 2px; border: 0; border-radius: 8px; background: none; cursor: pointer; }
+.insp-demo:hover, .insp-demo:focus-visible { background: var(--paper-2); }
 .inspector small { font-weight: 500; color: var(--muted); }
 .inspector p { margin: 2px 0 6px; font-size: 13px; }
 .insp-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
@@ -477,10 +479,18 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
   .cine-body { flex-direction: column; text-align: center; }
   .cine-text { align-items: center; }
   .game { flex-direction: column; }
-  .hud { width: auto; margin: 0 10px calc(10px + env(safe-area-inset-bottom)); max-height: 34dvh; padding: 12px; gap: 10px; }
+  /* El tablero empieza debajo de la barra de arriba: el jefe no queda tapado. */
+  .game-main { padding-top: calc(48px + env(safe-area-inset-top)); }
+  /* Panel de altura fija: elegir una pieza no lo agranda ni encoge el tablero; lo que sobra, se desliza. */
+  .hud { width: auto; margin: 0 10px calc(8px + env(safe-area-inset-bottom)); height: 23dvh; max-height: none; padding: 8px 10px; gap: 6px; }
   .hud .mod-card, .hud .log, .hud .hud-tip, .hud .hand-list { display: none; }
-  .seats { flex-direction: row; flex-wrap: wrap; }
-  .seat { flex: 1; padding: 6px 8px; }
+  .seats { flex-direction: row; gap: 6px; }
+  .seat { flex: 1; min-width: 0; padding: 4px 8px; gap: 6px; }
+  .boss-bar { padding: 5px 10px; border-radius: 8px; }
+  .boss-row { font-size: 15px; }
+  .boss-row .hp b { width: 11px; height: 11px; }
+  .inspector { padding: 6px 8px; gap: 8px; }
+  .inspector p { margin: 0 0 4px; font-size: 12px; }
 }
 
 /* Overlays */
@@ -1361,9 +1371,11 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .bm-pc.hit svg { filter: brightness(2.4) saturate(0.25); }
 .bm.lost { filter: saturate(0.35) brightness(0.85); transition: filter 0.8s var(--ease-out); }
 /* Selector de mecánicas de la run: favorita en latón, vetada tachada en rojo. */
-.pref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
-.pref { display: grid; justify-items: center; gap: 2px; min-height: 76px; padding: 8px 6px; border-radius: 10px; border: 2px solid var(--ink); background: var(--paper-2); color: var(--ink); font: inherit; font-weight: 750; cursor: pointer; }
-.pref small { font-size: 12px; font-weight: 650; color: var(--ink-2); }
+/* Fichas de una línea (icono y nombre): el estado lo dicen el color y el tachado, y el nombre accesible. */
+.pref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 6px; }
+.pref { display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 8px; border-radius: 10px; border: 2px solid var(--ink); background: var(--paper-2); color: var(--ink); font: inherit; font-size: 13px; font-weight: 750; line-height: 1.15; text-align: left; cursor: pointer; }
+.pref .icon { flex: none; }
+.pref-more { justify-self: start; }
 .pref.fav { background: var(--brass); }
 .pref.ban { background: var(--paper-3); color: var(--danger); text-decoration: line-through; border-style: dashed; }
 .pref:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }

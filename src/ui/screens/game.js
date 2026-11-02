@@ -8,8 +8,8 @@ import { artOf } from '../../view/piece-art.js';
 import { Match, botChooseMove, freezeMatch, thawMatch } from '../../game/match.js';
 import { rivalForFloor } from '../../game/difficulty.js';
 import { generateBoard, placePieces, eliteVariants } from '../../game/generate.js';
-import { moveCells, cellsOf, key, anchorForCell, immune, walkable } from '../../game/rules.js';
-import { playDemo, mutationDemo, bossDemo } from '../demos.js';
+import { moveCells, cellsOf, key, anchorForCell, immune, walkable, reachPreview } from '../../game/rules.js';
+import { playDemo, mutationDemo, bossDemo, pieceDemo } from '../demos.js';
 import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
 import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
@@ -108,7 +108,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       }
       d.reach = color; setReach(color);
       const keys = new Set();
-      for (const p of match.pieces) if (p.color === color) for (const m of match.legal(p)) keys.add(key(m.row, m.col));
+      for (const p of match.pieces) if (p.color === color) for (const m of match.legal(p)) for (const [r, c] of cellsOf(p, m.row, m.col)) keys.add(key(r, c));
       d.view.setReach(keys, humans.includes(color) ? 'own' : 'rival');
     };
     const refresh = () => {
@@ -244,6 +244,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (p.ascended) cards.push('ascend');
       return {
         type: p.type, side: p.color, name: pieceName(p), color: SIDE_NAME[p.color], moves: count, threat,
+        // Demo de cómo se mueve (toque en el icono): el jefe con la suya; el resto con sus patrones de verdad.
+        demo: p.boss ? bossDemo(p.boss, p.color) : { ...pieceDemo(p.type, p.color), title: pieceName(p), ...reachPreview({ type: p.type, moves: p.moves, extra: p.extraMoveTypes || [] }) },
         boss: p.boss && BOSSES[p.boss].desc,
         guard: guarded && (p.trait === 'last' ? t('game.guardLast', 'Solo cae cuando sea la última pieza de su bando.') : t('game.guardEscort', 'Protegida: no cae mientras viva su escolta ({escort}).', { escort: (escort ? pieceName(escort) : t('game.piece', 'pieza')).toLowerCase() })),
         mut: [...new Set(mut)],
@@ -769,7 +771,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       </div>
       ${chipInfo && html`<p class="chip-info" role="status"><strong>${chipInfo.title}</strong> ${chipInfo.text}</p>`}
       ${inspect && html`<section class=${'inspector' + (inspect.threat ? ' threat' : '')}>
-        <${PieceIcon} type=${inspect.type} side=${inspect.side} size=${44} />
+        <button class="insp-demo" title=${t('game.howMoves', 'Ver cómo se mueve')} aria-label=${t('game.howMoves', 'Ver cómo se mueve')} onClick=${() => ref.current.moments && playDemo(ref.current.moments, { ...inspect.demo, force: true })}><${PieceIcon} type=${inspect.type} side=${inspect.side} size=${44} /></button>
         <div>
           <strong>${inspect.name} <small>${inspect.color}</small></strong>
           <p>${inspect.boss || tp('game.reach', inspect.moves, 'Alcanza {n} casilla', 'Alcanza {n} casillas')}</p>
