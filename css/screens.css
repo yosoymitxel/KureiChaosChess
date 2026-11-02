@@ -1271,6 +1271,25 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 }
 [data-art="pixel"] .ah-puck i { background: var(--tk); box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 6px var(--tk-2); }
 [data-art="pixel"] .ah-ring { border-style: dashed; }
+/* Golf de mesa: la misma mesa del hockey con suelos (arena, hielo, hueco), el hoyo con banderín y la guía de tiro. */
+.gf { cursor: grab; }
+.gf .ah-pc { width: calc(12.8 / 96 * 100%); }
+.gf .gf-ball { width: calc(6.4 / 96 * 100%); z-index: 6; }
+.gf .gf-ball i { --tk: var(--paper); --tk-2: color-mix(in oklch, var(--paper), var(--ink) 30%); background: radial-gradient(circle at 35% 30%, #fff 0 18%, var(--tk) 20% 70%, var(--tk-2) 72%); }
+.gf .ah-cell.gf-s { background-color: color-mix(in oklch, var(--tile-a), oklch(0.82 0.1 85) 70%); background-image: var(--grain), radial-gradient(circle at 30% 40%, oklch(0 0 0 / 0.12) 0 6%, transparent 7%), radial-gradient(circle at 70% 70%, oklch(0 0 0 / 0.1) 0 5%, transparent 6%); }
+.gf .ah-cell.gf-i { background-color: oklch(0.9 0.04 230); background-image: var(--grain), linear-gradient(125deg, transparent 40%, oklch(1 0 0 / 0.7) 41% 43%, transparent 44%), linear-gradient(35deg, transparent 62%, oklch(1 0 0 / 0.5) 63% 64%, transparent 65%); }
+.ah-cell.gf-v { position: relative; }
+.ah-cell.gf-v::before { content: ''; position: absolute; inset: 8%; border-radius: 30%; background: radial-gradient(circle at 50% 40%, oklch(0.45 0.09 235) 0 30%, oklch(0.3 0.08 245) 31% 60%, oklch(0.2 0.05 250) 61%); box-shadow: inset 0 3px 0 oklch(0 0 0 / 0.4); }
+.gf-cup { position: absolute; width: calc(10 / 96 * 100%); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; background: var(--ink); box-shadow: inset 0 2px 0 oklch(0 0 0 / 0.6), 0 0 0 2px color-mix(in oklch, var(--paper), transparent 40%); pointer-events: none; z-index: 1; }
+/* Banderín clavado en el hoyo. */
+.gf-cup b { position: absolute; left: 50%; bottom: 50%; width: 2px; height: 260%; background: var(--ink); }
+.gf-cup b::after { content: ''; position: absolute; left: 2px; top: 0; width: 220%; height: 34%; min-width: 9px; background: var(--accent); clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.gf-aim { position: absolute; left: 0; top: 0; height: 6px; margin-top: -3px; transform-origin: 0 50%; pointer-events: none; z-index: 5; transition: opacity 0.15s;
+  background: radial-gradient(circle, color-mix(in oklch, var(--brass), var(--accent) calc(var(--pow, 0) * 100%)) 0 45%, transparent 52%) 0 0 / 10px 6px repeat-x; filter: drop-shadow(0 0 1px var(--ink)) drop-shadow(0 1px 0 var(--ink)); }
+.mini-stats .chip.warn { color: var(--accent); }
+[data-art="pixel"] .gf-cup { border-radius: 2px; }
+[data-art="pixel"] .ah-cell.gf-v::before { border-radius: 0; }
+[data-art="pixel"] .gf-aim { background: linear-gradient(90deg, var(--brass) 0 50%, transparent 50%) 0 0 / 10px 6px repeat-x; filter: drop-shadow(0 0 0 var(--ink)); }
 .br > .goo { z-index: 0; transform: none; }
 .br {
   --cell: max(16px, min(calc((100cqw - 10px) / var(--n)), calc((100cqh - 10px) / var(--n)), 64px));

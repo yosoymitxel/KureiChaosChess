@@ -744,6 +744,24 @@ export default {
     // src/ui/screens/fusion.js
     "fusion.help": "Swipe, use the arrows or the controller: every piece runs to that side. Two equal pieces that collide merge into the next one up the ladder, from pawn to king. After each move a pawn enters. Build the target piece before the board fills up.",
     // src/ui/screens/hockey.js
+    "golf.albatross": "Albatross!",
+    "golf.eagle": "Eagle!",
+    "golf.birdie": "Birdie!",
+    "golf.par": "Par",
+    "golf.bogey": "Bogey",
+    "golf.ace": "Hole in one!",
+    "golf.over": "+{n}",
+    "golf.lip": "So close!",
+    "golf.fall": "In the pit: back where it was",
+    "golf.pickup": "Eight strokes: next hole",
+    "golf.aria": "Golf course: pull back and release to hit the ball",
+    "golf.hole": "Hole {n}/{of}",
+    "golf.parN": "Par {n}",
+    "golf.strokes": "Strokes {n}",
+    "golf.left": "{n} left",
+    "golf.won": "{n} strokes: within {max}.",
+    "golf.lost": "You went over {max} strokes.",
+    "golf.help": "Pull back from anywhere on the course and release: the ball goes the opposite way, harder the further you pull (on keyboard, arrows to aim and dose, space to hit). Sand slows it, ice makes it slide, pieces bounce it and in a pit the ball goes back where it was. Too fast and it skips over the hole. Sink all three holes without running out of strokes.",
     "hockey.help": "Drag your rook, the bottom one, with your finger or the mouse (or move it with the arrows) around your half of the table and hit the puck towards the top goal. The faster you hit it, the harder it goes, and the rails are good for bank shots. First to five goals wins; after each goal, whoever conceded serves. Don't hold the puck in your half for more than seven seconds or the serve goes to the rival.",
     // src/ui/screens/izombie.js
     "izombie.help": "Like I, Zombie from Plants vs. Zombies: you attack. The ivory defense doesn't move, but after each advance it captures whatever stops on its squares (tinted red). Buy pieces on the top row; when you press Advance each one takes its deepest chess step. Get a piece to each trophy on the last row: the one that arrives takes it and leaves the board. Capturing an ivory pawn pays 2 coins; any other piece, 1. You lose if you run out of pieces and coins for a pawn.",
@@ -1080,6 +1098,7 @@ export default {
     blind: { name: 'Blind queens', desc: 'Minigame: place your queens and choose where each one fires; the rivals appear at random and everyone fires at once. Reward: mutation or piece.' },
     witch: { name: 'The witch', desc: 'Minigame: collect the coins with your pieces without waking the sleeping witches; if one of your pieces can touch one, she wakes and hunts. Reward: mutation or piece.' },
     hockey: { name: 'Air hockey', desc: 'Minigame: drag your rook and score in the bot\'s goal; first to five goals wins. Reward: mutation or piece.', duo: { desc: 'At the same time: each moves the rook on their half.', opt: 'goals', label: 'Goals to win', choices: [[3, '3'], [5, '5'], [7, '7']] } },
+    golf: { name: 'Table golf', desc: 'Minigame: three holes with sand, ice, pits and bouncy pieces; pull back and release to putt without going over your strokes. Reward: mutation or piece.' },
   },
 
   achievements: {
@@ -1137,6 +1156,7 @@ export default {
     free_mini: { name: 'Just for fun', desc: 'Win a minigame in free play, from the menu.' },
     hard_trio: { name: 'Triple crown', desc: 'Win three different minigames on Hard.' },
     hockey_shutout: { name: 'Clean sheet', desc: 'Win air hockey without conceding a goal.' },
+    golf_ace: { name: 'Hole in one', desc: 'Sink the ball in a single stroke in table golf.' },
     outbreak_one: { name: 'Patient zero', desc: 'Complete the Outbreak with a single dose.' },
     queens_fast: { name: 'Flying queens', desc: 'Solve the queens with a minute or more to spare.' },
     flowers_25: { name: 'Florist', desc: 'Cut 25 flowers in the Zen Garden.' },
