@@ -102,11 +102,6 @@ export const CARDS = localize('cards', {
     desc: 'Luces de colores sobre el tablero el resto de la partida. Gratis.',
     apply: () => ({ visual: 'disco' }),
   },
-  bighead: {
-    id: 'bighead', name: 'Cabezones', rarity: 'lilac', lilac: true, icon: 'human', target: 'none',
-    desc: 'Todas las piezas con la cabeza enorme el resto de la partida. Gratis.',
-    apply: () => ({ visual: 'bighead' }),
-  },
   skies: {
     id: 'skies', name: 'Cambio de clima', rarity: 'lilac', lilac: true, icon: 'drop', target: 'none',
     desc: 'Cambia el clima de la mesa por otro al azar. Gratis.',

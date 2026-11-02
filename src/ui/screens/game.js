@@ -10,7 +10,7 @@ import { rivalForFloor } from '../../game/difficulty.js';
 import { generateBoard, placePieces, eliteVariants } from '../../game/generate.js';
 import { moveCells, cellsOf, key, anchorForCell, immune, walkable, reachPreview } from '../../game/rules.js';
 import { playDemo, mutationDemo, bossDemo, pieceDemo } from '../demos.js';
-import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
+import { CARDS, CARD_IDS, cardTargets, previewMoves, playCard } from '../../game/cards.js';
 import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
 import { MUTATIONS, countMutations, EXTRA_MOVES } from '../../data/mutations.js';
 import { weatherFor, TIED_WEATHER, WEATHER } from '../../data/weather.js';
@@ -23,7 +23,7 @@ import { BOSSES } from '../../data/bosses.js';
 import { PauseOverlay } from './overlays.js';
 import { Moments } from '../moments.js';
 import { playSfx, playJingle } from '../sfx.js';
-import { award, seePieces, seeMutations } from '../../game/achievements.js';
+import { award, seePieces, seeMutations, collect } from '../../game/achievements.js';
 import { PICKUPS, PICKUPS_EVERY, PICKUPS_MAX, dropPickups } from '../../data/pickups.js';
 import { PICKUP_ART } from '../zen-art.js';
 import { isShopCard, addCoins, loadShop } from '../../game/shop.js';
@@ -193,6 +193,10 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       await flyCard(i, res);
       playSfx('card');
       d.feats.cards++;
+      if (card.lilac) award('lilac');
+      if (card.id === 'ascend' && res.piece.type !== 'queen') award('crown_minor');
+      // Organizar se juega sola al empezar: no cuenta para la baraja.
+      if (collect('cardsPlayed', id) >= CARD_IDS.filter((c) => !CARDS[c].preMatch).length) award('all_cards');
       d.onUseCard(i);
       addLog(`Carta: ${card.name}`);
       d.moments.callout({ text: `¡${card.name}!`, sub: card.desc, tone: 'brass', icon: card.icon, anim: 'stomp', tier: 'info' });
@@ -335,7 +339,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (res.infected?.length) addLog(tag + t('log.infected', 'Contagio: {list} cambian de bando', { list: res.infected.map((p) => pieceName(p).toLowerCase()).join(', ') }));
       if (res.promoted) {
         addLog(tag + t('game.promotion', '¡Coronación!'));
-        if (piece.color === d.feats.human) award('crowned');
+        if (piece.color === d.feats.human && piece.type === 'queen') award('crowned');
+        else if (piece.color === d.feats.human) award('crown_minor');
       }
       await d.view.playMove(res);
       await showMech(res.mech);
@@ -383,7 +388,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       await d.view.meteor(m.cells, m.lost);
     };
     // Mecánicas de piso (src/game/mechanics.js): rótulo, registro y su animación.
-    const witchMech = (w) => w && { ...w, log: w.kills.length ? t('game.witchKills', 'La bruja caza: {list}', { list: w.kills.map((p) => pieceName(p).toLowerCase()).join(', ') }) : t('game.witchMoves', 'La bruja va tras su presa') };
+    const witchMech = (w) => w && (w.kills.length && w.moved[0]?.piece.color === d.feats.human && award('witch_ally'), { ...w, log: w.kills.length ? t('game.witchKills', 'La bruja caza: {list}', { list: w.kills.map((p) => pieceName(p).toLowerCase()).join(', ') }) : t('game.witchMoves', 'La bruja va tras su presa') });
     const showMech = async (m) => {
       if (!m) return;
       if (m.log) addLog(m.log);

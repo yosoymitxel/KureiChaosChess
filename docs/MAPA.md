@@ -90,27 +90,27 @@ src/data/weather.js:4 +WEATHER
 src/data/weather.js:17 +TIED_WEATHER
 src/data/weather.js:30 CHANCE
 src/data/weather.js:33 +weatherFor
-## src/game/achievements.js (139L)
+## src/game/achievements.js (143L)
 src/game/achievements.js:7 KEY
 src/game/achievements.js:8 read
 src/game/achievements.js:9 write
 src/game/achievements.js:12 +ACHIEVEMENT_GROUPS
 src/game/achievements.js:16 +achievementGroups
 src/game/achievements.js:23 +ACHIEVEMENTS
-src/game/achievements.js:95 +shown
-src/game/achievements.js:98 STATS_KEY
-src/game/achievements.js:99 +loadStats
-src/game/achievements.js:100 +bump
-src/game/achievements.js:102 +collect
-src/game/achievements.js:104 +loadAchievements
-src/game/achievements.js:105 +saveAchievements
-src/game/achievements.js:109 +award
-src/game/achievements.js:122 SEEN_KEY
-src/game/achievements.js:123 +loadSeen
-src/game/achievements.js:124 +seePieces
-src/game/achievements.js:132 MUT_KEY
-src/game/achievements.js:133 +loadMutSeen
-src/game/achievements.js:134 +seeMutations
+src/game/achievements.js:99 +shown
+src/game/achievements.js:102 STATS_KEY
+src/game/achievements.js:103 +loadStats
+src/game/achievements.js:104 +bump
+src/game/achievements.js:106 +collect
+src/game/achievements.js:108 +loadAchievements
+src/game/achievements.js:109 +saveAchievements
+src/game/achievements.js:113 +award
+src/game/achievements.js:126 SEEN_KEY
+src/game/achievements.js:127 +loadSeen
+src/game/achievements.js:128 +seePieces
+src/game/achievements.js:136 MUT_KEY
+src/game/achievements.js:137 +loadMutSeen
+src/game/achievements.js:138 +seeMutations
 ## src/game/backup.js (248L)
 src/game/backup.js:2 MAGIC_V1
 src/game/backup.js:3 MAGIC_V2
@@ -209,22 +209,22 @@ src/game/bowling.js:33 +newBowling
 src/game/bowling.js:41 +canLaunch
 src/game/bowling.js:43 +launch
 src/game/bowling.js:49 +tick
-## src/game/cards.js (196L)
+## src/game/cards.js (191L)
 src/game/cards.js:10 behind
 src/game/cards.js:11 occupiedBy
 src/game/cards.js:12 freeTile
 src/game/cards.js:14 guardBeside
 src/game/cards.js:15 growDir
 src/game/cards.js:17 +CARDS
-src/game/cards.js:137 +CARD_IDS
-src/game/cards.js:138 +HAND_LIMIT
-src/game/cards.js:139 +LILAC_LIMIT
-src/game/cards.js:141 +handFull
-src/game/cards.js:145 +STARTER_CARDS
-src/game/cards.js:147 +pickCardChoices
-src/game/cards.js:156 +cardTargets
-src/game/cards.js:168 +previewMoves
-src/game/cards.js:180 +playCard
+src/game/cards.js:132 +CARD_IDS
+src/game/cards.js:133 +HAND_LIMIT
+src/game/cards.js:134 +LILAC_LIMIT
+src/game/cards.js:136 +handFull
+src/game/cards.js:140 +STARTER_CARDS
+src/game/cards.js:142 +pickCardChoices
+src/game/cards.js:151 +cardTargets
+src/game/cards.js:163 +previewMoves
+src/game/cards.js:175 +playCard
 ## src/game/checkers.js (101L)
 src/game/checkers.js:4 +DIFFS
 src/game/checkers.js:9 DIAG
@@ -691,7 +691,7 @@ src/game/zen.js:311 +addZenSeeds
 src/game/zen.js:318 +pickSeed
 src/game/zen.js:326 +koiHungry
 src/game/zen.js:327 +feedKoi
-## src/i18n/en.js (1187L)
+## src/i18n/en.js (1190L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -985,13 +985,13 @@ src/ui/screens/gallery.js:26 ThemeGroup
 src/ui/screens/gallery.js:41 RULE
 src/ui/screens/gallery.js:42 Locked
 src/ui/screens/gallery.js:44 +GalleryScreen
-## src/ui/screens/game.js (868L)
+## src/ui/screens/game.js (873L)
 src/ui/screens/game.js:34 SIDE_NAME
 src/ui/screens/game.js:37 pieceName
 src/ui/screens/game.js:39 TIPS
 src/ui/screens/game.js:48 cardEffect
 src/ui/screens/game.js:62 +GameScreen
-src/ui/screens/game.js:839 EndOverlay
+src/ui/screens/game.js:844 EndOverlay
 ## src/ui/screens/hockey.js (210L)
 src/ui/screens/hockey.js:13 KEYS
 src/ui/screens/hockey.js:15 TOP_KEYS
@@ -1268,7 +1268,7 @@ css/base.css:163 /* Card back carries the pawn emblem: the box's identity mark.
 css/base.css:174 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
 css/base.css:214 /* Botones sin texto y cosas del jardín: el botón va en su esqu
 css/base.css:217 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
-## css/board.css (367L)
+## css/board.css (365L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
 css/board.css:36 /* Tiles
@@ -1310,7 +1310,7 @@ css/board.css:327 /* La mariposa queda posada un poco en el aire (lo deja su vue
 css/board.css:333 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
 css/board.css:346 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
 css/board.css:352 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
-css/board.css:356 /* Cartas lilas visuales: Disco (casillas que cambian de luz) y
+css/board.css:356 /* Carta lila Disco: las casillas cambian de luz.
 ## css/pixel.css (96L)
 css/pixel.css:1 /* Modo píxel: con un tema píxel (data-art="pixel", ver src/dat
 css/pixel.css:6 /* Jersey 10 (OFL), servida desde el juego: el subconjunto lati

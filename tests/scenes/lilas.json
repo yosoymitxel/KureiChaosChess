@@ -12,7 +12,6 @@
       "cards": [
         "haste",
         "disco",
-        "bighead",
         "fuse",
         "ascend"
       ]
@@ -47,9 +46,6 @@
       "card": "Disco"
     },
     {
-      "card": "Cabezones"
-    },
-    {
       "wait": 1200
     },
     {
@@ -58,7 +54,7 @@
     {
       "expect": {
         "noErrors": true,
-        "eval": "bench.match.pieces.find(p => p.row === 2 && p.col === 3).crowned && !!document.querySelector('.fx-disco.fx-bighead') && !!document.querySelector('.screen[data-weather]')"
+        "eval": "bench.match.pieces.find(p => p.row === 2 && p.col === 3).crowned && !!document.querySelector('.fx-disco') && !!document.querySelector('.screen[data-weather]')"
       }
     }
   ],
