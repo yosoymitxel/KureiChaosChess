@@ -1,0 +1,44 @@
+name: itch.io
+# Empaqueta el juego para itch.io y saca sus imágenes (portada, social, 21:9, capturas, GIF del menú)
+# como artefactos descargables. Se lanza a mano (Actions → itch.io → Run workflow) o con una etiqueta v*.
+on:
+  workflow_dispatch:
+    inputs:
+      lang:
+        description: Idioma de las imágenes (en / es)
+        default: en
+  push:
+    tags: ['v*']
+
+jobs:
+  itch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Paquete
+        run: |
+          node tools/build-itch.mjs
+          node tools/itch-package-selfcheck.mjs
+      - uses: actions/upload-artifact@v7
+        with:
+          name: itch-zip
+          path: dist/kurei-chaos-chess-itch.zip
+          retention-days: 30
+      - name: Navegador y ffmpeg
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Imágenes y GIF
+        run: node tools/itch-media.mjs --lang "${{ inputs.lang || 'en' }}" --out artifacts/itch-media
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: itch-media
+          path: artifacts/itch-media/
+          if-no-files-found: warn
+          retention-days: 30

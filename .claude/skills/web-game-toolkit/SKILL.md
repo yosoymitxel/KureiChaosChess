@@ -77,6 +77,44 @@ Zugzwang (`tools/`, `src/`) es la implementación de referencia cuando haga falt
   Mide en vez de suponer: `getBoundingClientRect`, `getComputedStyle(...).transform`, conteo de nodos.
 - Rendimiento: `@property` con `inherits:false` para variables animadas, pausar animaciones de fondo
   mientras se reparte, opacidades con valor inicial explícito, nada de `drop-shadow` por pieza en píxel.
+- **Partidas guionizadas** (`tools/play.mjs escena.json`): posición exacta, cartas, jugadas por
+  casilla, idioma, viewport y tema, con `expect` (selector, texto, `noErrors`). Cada bug que el dueño
+  reporta se queda como escena: reproducirlo cuesta un comando y no vuelve.
+- **Humo de todo el contenido**: un script que genera una escena mínima por minijuego (abrir, esperar,
+  `noErrors`) y las corre todas (`tools/minis-smoke.mjs`). Lento (minutos): antes de publicar, no por cambio.
+
+### Pruebas sin navegador (Node, una línea si va bien)
+- **Regresiones** (`tools/regress-selfcheck.mjs`): una comprobación por cada cosa que se rompió alguna
+  vez (reglas, coronación, enroque con cartas, cupos de mano, ranuras de guardado, tamaño de un sprite
+  leyendo el PNG con `zlib`). `localStorage` falso con una clase `MemoryStorage` de 10 líneas.
+- **Trampas** (`tools/exploits-selfcheck.mjs`): estrategias tontas (siempre la primera opción, la
+  última, subir siempre, acampar en un rincón, alternar dos direcciones) jugadas cientos de veces con
+  semilla; cada una con un tope de % de victoria por nivel. Si una gana demasiado, el diseño tiene un agujero.
+- **Balance** (`tools/balance.mjs --check`): bot contra bot con y sin cada carta/objeto; falla si uno
+  dispara el % de victoria o acorta demasiado las partidas respecto a la base.
+- Lógica pura e importable en Node (sin DOM) es lo que hace todo esto posible: diseñarla así desde el principio.
+
+### Publicar en itch.io sin trabajo a mano
+- `tools/build-itch.mjs`: copia lo que el juego carga, cambia el import map por copias en `vendor/`
+  (itch sirve en iframe; nada de CDN), incrusta los PNG sueltos en un módulo (itch admite ≤ 1000 archivos)
+  y comprime. `itch-package-selfcheck.mjs` abre el zip y verifica integridad, entrada y dependencias locales.
+- `tools/itch-media.mjs`: sirve `dist/itch` y saca portada 1260×1000, social 1200×630 (normal y píxel),
+  21:9 2520×1080, Embed BG, capturas 1280×720 y móvil, y GIF del menú grabados con `recordVideo` +
+  ffmpeg (`palettegen` 96 colores, 12 fps, 600 px; itch rechaza imágenes > 3 MB). Oculta avisos con CSS inyectado.
+- **Delegado a GitHub Actions** (`.github/workflows/itch.yml`, a mano o con etiqueta `v*`): deja
+  `itch-zip` e `itch-media` como artefactos. Claude lo lanza con `actions_run_trigger`, lee el resultado
+  con `actions_list`/`get_job_logs` y no gasta su máquina ni contexto generando medios.
+
+### Coherencia visual
+- **Tokens semánticos de color** en un solo archivo (`css/tokens.css`): un color por significado
+  (táctica, mutación, bolsa, descanso, rareza, bando), no por pantalla. El mismo tipo de cosa luce igual en todas partes.
+- **Clima/ambiente como capa sobre el fondo** (`::before` de la pantalla): motivos sutiles y
+  representativos (gotas, copos, hojas), versión vector y píxel, dos capas a distinto tamaño y
+  velocidad (cerca/lejos) para paralaje, tinte por clima. Nunca tapar el tema ni ser abstracto.
+- **Un solo motor de efectos** reutilizado en todos los modos (un canvas compartido por anfitrión con
+  varias animaciones a la vez), y textos flotantes de una función única traducida.
+- **Guardado**: varias ranuras (ajustes compartidos), copia exportable en código y, si hay nube,
+  comparar progresos y dejar elegir cuál se queda en vez de pisar.
 
 ## Herramientas externas
 

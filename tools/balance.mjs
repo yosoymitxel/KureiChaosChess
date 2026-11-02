@@ -7,7 +7,9 @@ import { Match, botChooseMove } from '../src/game/match.js';
 import { CARDS, CARD_IDS, cardTargets, previewMoves, playCard } from '../src/game/cards.js';
 import { cellsOf } from '../src/game/rules.js';
 
-const games = +(process.argv[2] || 200);
+// `--check`: en vez de la tabla, falla si una carta se dispara sobre la base (como el Coloso de 3 golpes).
+const CHECK = process.argv.includes('--check');
+const games = +(process.argv.find((a) => /^\d+$/.test(a)) || (CHECK ? 60 : 200));
 const MODS = ['none', 'none', 'rush', 'promote', 'ice', 'portal'];
 
 // Pick the target that gains the most reach (pieces) or hurts the enemy royal most (tiles).
@@ -55,6 +57,12 @@ for (const id of [null, ...CARD_IDS]) {
     const r = play(5000 + g, id);
     win += r.win; tie += r.tie; turns += r.turns;
   }
-  rows.push({ card: id || '(sin cartas)', winA: `${Math.round((win / games) * 100)}%`, ties: `${Math.round((tie / games) * 100)}%`, turns: +(turns / games).toFixed(1) });
+  rows.push({ card: id || '(sin cartas)', winA: `${Math.round((win / games) * 100)}%`, ties: `${Math.round((tie / games) * 100)}%`, turns: +(turns / games).toFixed(1), w: win / games, t: turns / games });
 }
-console.table(rows);
+if (!CHECK) console.table(rows.map(({ w, t, ...r }) => r));
+else {
+  // Tope: +45 puntos sobre jugar sin cartas, o partidas a menos de la mitad de largas.
+  const base = rows[0], bad = rows.slice(1).filter((r) => r.w > base.w + 0.45 || r.t < base.t * 0.5);
+  if (bad.length) { console.log('Balance de cartas:\n' + bad.map((r) => `${r.card}: gana ${r.winA} (base ${base.winA}), ${r.turns} turnos`).join('\n')); process.exit(1); }
+  console.log(`Balance OK: ${rows.length - 1} cartas sin dispararse sobre la base (${base.winA})`);
+}

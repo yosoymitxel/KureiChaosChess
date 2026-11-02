@@ -65,7 +65,12 @@ El juego guarda la partida en `localStorage`; en itch funciona igual dentro del 
   Van dentro de la descripción, uno bajo el primer párrafo y el otro antes de "And more"; el devlog lleva el de pixelada.
   Se regeneran grabando el menú con Playwright y pasándolo por ffmpeg (96 colores, 12 fps, 600 px): itch no acepta imágenes de más de 3 MB.
 
-Para regenerar las capturas, abre el juego en 1280×720 y repite las mismas pantallas: menú, primer piso de una run,
+**Automático:** GitHub → Actions → *itch.io* → *Run workflow* (o empujar una etiqueta `v1.0.x`). Deja dos artefactos
+(30 días): `itch-zip` (el zip para subir) e `itch-media` (portada 1260×1000, social normal y píxel, 21:9, Embed BG,
+menú 1280×720 normal y píxel, móvil y los dos GIF bajo 3 MB). En local: `node tools/build-itch.mjs && node tools/itch-media.mjs`.
+El trailer sigue siendo a mano (`docs/itch/trailer/`).
+
+Para regenerar las capturas a mano, abre el juego en 1280×720 y repite las mismas pantallas: menú, primer piso de una run,
 la mesa pixelada, la bruja, brote, hockey y el jardín.
 
 **Promo images** (Metadatos → Promo images), ya hechas con el propio juego:
