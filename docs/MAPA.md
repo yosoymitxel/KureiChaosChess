@@ -111,7 +111,7 @@ src/game/achievements.js:128 +seePieces
 src/game/achievements.js:136 MUT_KEY
 src/game/achievements.js:137 +loadMutSeen
 src/game/achievements.js:138 +seeMutations
-## src/game/backup.js (248L)
+## src/game/backup.js (272L)
 src/game/backup.js:2 MAGIC_V1
 src/game/backup.js:3 MAGIC_V2
 src/game/backup.js:4 MAX_BACKUP_BYTES
@@ -130,6 +130,9 @@ src/game/backup.js:144 validateSnapshot
 src/game/backup.js:176 saveData
 src/game/backup.js:185 +exportSave
 src/game/backup.js:204 +importSave
+src/game/backup.js:250 SLOT_KEYS
+src/game/backup.js:252 +slotSnapshot
+src/game/backup.js:259 +slotRestore
 ## src/game/barrier.js (111L)
 src/game/barrier.js:2 +N
 src/game/barrier.js:4 +DIFFS
@@ -622,6 +625,14 @@ src/game/shop.js:52 +takePending
 src/game/shop.js:61 +addToHand
 src/game/shop.js:79 +consumeCard
 src/game/shop.js:83 +isShopCard
+## src/game/slots.js (47L)
+src/game/slots.js:5 +SLOT_COUNT
+src/game/slots.js:6 KEY
+src/game/slots.js:8 +loadSlots
+src/game/slots.js:15 save
+src/game/slots.js:18 +storeActive
+src/game/slots.js:26 +switchSlot
+src/game/slots.js:40 +clearSlot
 ## src/game/turn-kit.js (22L)
 src/game/turn-kit.js:6 +grid
 src/game/turn-kit.js:7 +inside
@@ -692,7 +703,7 @@ src/game/zen.js:311 +addZenSeeds
 src/game/zen.js:318 +pickSeed
 src/game/zen.js:326 +koiHungry
 src/game/zen.js:327 +feedKoi
-## src/i18n/en.js (1192L)
+## src/i18n/en.js (1205L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -752,7 +763,7 @@ src/lab/apk/catalog.js:79 +APK_CHAOS_EVENTS
 src/lab/apk/catalog.js:94 +APK_HORDE_UPGRADES
 src/lab/apk/catalog.js:121 +APK_CATALOG
 src/lab/apk/catalog.js:127 +APK_BY_ID
-## src/lab/apk/effects.js (985L)
+## src/lab/apk/effects.js (975L)
 src/lab/apk/effects.js:4 surfaces
 src/lab/apk/effects.js:5 running
 src/lab/apk/effects.js:6 bossOverlays
@@ -763,45 +774,45 @@ src/lab/apk/effects.js:11 surfaceFor
 src/lab/apk/effects.js:25 cancel
 src/lab/apk/effects.js:30 +clearAPKEffects
 src/lab/apk/effects.js:43 pointOf
-src/lab/apk/effects.js:51 animateCanvas
-src/lab/apk/effects.js:94 square
-src/lab/apk/effects.js:103 +playAPKDeal
-src/lab/apk/effects.js:150 +playAPKSpawnBurst
-src/lab/apk/effects.js:168 +playAPKPixelTrail
-src/lab/apk/effects.js:184 +playAPKShockwave
-src/lab/apk/effects.js:206 +playAPKBombBlast
-src/lab/apk/effects.js:226 +playAPKMeteorImpact
-src/lab/apk/effects.js:250 +playAPKDamage
-src/lab/apk/effects.js:264 +playAPKTeleport
-src/lab/apk/effects.js:280 +playAPKFall
-src/lab/apk/effects.js:292 +playAPKParticleBurst
-src/lab/apk/effects.js:306 +playAPKBombField
-src/lab/apk/effects.js:327 +playAPKShield
-src/lab/apk/effects.js:351 +playAPKBeam
-src/lab/apk/effects.js:371 +playAPKVictory
-src/lab/apk/effects.js:385 +playAPKScreenShake
-src/lab/apk/effects.js:400 +playAPKZombieAttack
-src/lab/apk/effects.js:418 +playAPKTransform
-src/lab/apk/effects.js:454 +playAPKHotPotatoCrown
-src/lab/apk/effects.js:481 +playAPKChaosRoulette
-src/lab/apk/effects.js:519 +playAPKEventStamp
-src/lab/apk/effects.js:547 +playAPKZoneWarning
-src/lab/apk/effects.js:578 +playAPKWeakPointMarker
-src/lab/apk/effects.js:601 +playAPKWeakPointHit
-src/lab/apk/effects.js:617 +playAPKBullet
-src/lab/apk/effects.js:640 +playAPKBossCut
-src/lab/apk/effects.js:720 +playAPKCaption
-src/lab/apk/effects.js:739 +playAPKTilePattern
-src/lab/apk/effects.js:796 +playAPKDisco
-src/lab/apk/effects.js:812 +playAPKSpeedTimer
-src/lab/apk/effects.js:827 +playAPKDeathStyle
-src/lab/apk/effects.js:870 +playAPKCriticalDamage
-src/lab/apk/effects.js:888 +playAPKFloatingText
-src/lab/apk/effects.js:902 +playAPKTransformVariant
-src/lab/apk/effects.js:931 +playAPKSpawnVariant
-src/lab/apk/effects.js:945 +playAPKColumnBeam
-src/lab/apk/effects.js:956 +playAPKBanner
-src/lab/apk/effects.js:973 +playAPKTileSpark
+src/lab/apk/effects.js:53 animateCanvas
+src/lab/apk/effects.js:84 square
+src/lab/apk/effects.js:93 +playAPKDeal
+src/lab/apk/effects.js:140 +playAPKSpawnBurst
+src/lab/apk/effects.js:158 +playAPKPixelTrail
+src/lab/apk/effects.js:174 +playAPKShockwave
+src/lab/apk/effects.js:196 +playAPKBombBlast
+src/lab/apk/effects.js:216 +playAPKMeteorImpact
+src/lab/apk/effects.js:240 +playAPKDamage
+src/lab/apk/effects.js:254 +playAPKTeleport
+src/lab/apk/effects.js:270 +playAPKFall
+src/lab/apk/effects.js:282 +playAPKParticleBurst
+src/lab/apk/effects.js:296 +playAPKBombField
+src/lab/apk/effects.js:317 +playAPKShield
+src/lab/apk/effects.js:341 +playAPKBeam
+src/lab/apk/effects.js:361 +playAPKVictory
+src/lab/apk/effects.js:375 +playAPKScreenShake
+src/lab/apk/effects.js:390 +playAPKZombieAttack
+src/lab/apk/effects.js:408 +playAPKTransform
+src/lab/apk/effects.js:444 +playAPKHotPotatoCrown
+src/lab/apk/effects.js:471 +playAPKChaosRoulette
+src/lab/apk/effects.js:509 +playAPKEventStamp
+src/lab/apk/effects.js:537 +playAPKZoneWarning
+src/lab/apk/effects.js:568 +playAPKWeakPointMarker
+src/lab/apk/effects.js:591 +playAPKWeakPointHit
+src/lab/apk/effects.js:607 +playAPKBullet
+src/lab/apk/effects.js:630 +playAPKBossCut
+src/lab/apk/effects.js:710 +playAPKCaption
+src/lab/apk/effects.js:729 +playAPKTilePattern
+src/lab/apk/effects.js:786 +playAPKDisco
+src/lab/apk/effects.js:802 +playAPKSpeedTimer
+src/lab/apk/effects.js:817 +playAPKDeathStyle
+src/lab/apk/effects.js:860 +playAPKCriticalDamage
+src/lab/apk/effects.js:878 +playAPKFloatingText
+src/lab/apk/effects.js:892 +playAPKTransformVariant
+src/lab/apk/effects.js:921 +playAPKSpawnVariant
+src/lab/apk/effects.js:935 +playAPKColumnBeam
+src/lab/apk/effects.js:946 +playAPKBanner
+src/lab/apk/effects.js:963 +playAPKTileSpark
 ## src/lab/apk/expansion.js (736L)
 src/lab/apk/expansion.js:14 KN
 src/lab/apk/expansion.js:15 DIR8
@@ -986,13 +997,13 @@ src/ui/screens/gallery.js:26 ThemeGroup
 src/ui/screens/gallery.js:41 RULE
 src/ui/screens/gallery.js:42 Locked
 src/ui/screens/gallery.js:44 +GalleryScreen
-## src/ui/screens/game.js (883L)
+## src/ui/screens/game.js (885L)
 src/ui/screens/game.js:34 SIDE_NAME
 src/ui/screens/game.js:37 pieceName
 src/ui/screens/game.js:39 TIPS
 src/ui/screens/game.js:48 cardEffect
 src/ui/screens/game.js:62 +GameScreen
-src/ui/screens/game.js:854 EndOverlay
+src/ui/screens/game.js:856 EndOverlay
 ## src/ui/screens/hockey.js (210L)
 src/ui/screens/hockey.js:13 KEYS
 src/ui/screens/hockey.js:15 TOP_KEYS
@@ -1048,20 +1059,21 @@ src/ui/screens/scenario.js:32 +MatesScreen
 src/ui/screens/scenario.js:33 +ClockScreen
 src/ui/screens/scenario.js:34 +WitchScreen
 src/ui/screens/scenario.js:35 +BombsScreen
-## src/ui/screens/setup.js (334L)
-src/ui/screens/setup.js:16 SIDES
-src/ui/screens/setup.js:23 +RUN_MECHANICS
-src/ui/screens/setup.js:25 FEATURED
-src/ui/screens/setup.js:26 MORE_MECHANICS
-src/ui/screens/setup.js:27 PrefsCard
-src/ui/screens/setup.js:54 VERSUS_ROUNDS
-src/ui/screens/setup.js:55 VERSUS_SIZES
-src/ui/screens/setup.js:56 VERSUS_SHAPES
-src/ui/screens/setup.js:57 VersusCard
-src/ui/screens/setup.js:94 +SetupScreen
-src/ui/screens/setup.js:148 +SettingsScreen
-src/ui/screens/setup.js:218 Backup
-src/ui/screens/setup.js:282 Cloud
+## src/ui/screens/setup.js (357L)
+src/ui/screens/setup.js:17 SIDES
+src/ui/screens/setup.js:24 +RUN_MECHANICS
+src/ui/screens/setup.js:26 FEATURED
+src/ui/screens/setup.js:27 MORE_MECHANICS
+src/ui/screens/setup.js:28 PrefsCard
+src/ui/screens/setup.js:55 VERSUS_ROUNDS
+src/ui/screens/setup.js:56 VERSUS_SIZES
+src/ui/screens/setup.js:57 VERSUS_SHAPES
+src/ui/screens/setup.js:58 VersusCard
+src/ui/screens/setup.js:95 +SetupScreen
+src/ui/screens/setup.js:149 +SettingsScreen
+src/ui/screens/setup.js:220 Backup
+src/ui/screens/setup.js:284 Slots
+src/ui/screens/setup.js:305 Cloud
 ## src/ui/screens/shop.js (143L)
 src/ui/screens/shop.js:15 CARD_LIST
 src/ui/screens/shop.js:17 +ShopScreen
@@ -1330,7 +1342,7 @@ css/pixel.css:85 /* Sombra de la pieza y koi del estanque del tablero, sin degra
 css/pixel.css:87 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
 css/pixel.css:90 /* El ::before va fuera de :is(), que no admite pseudoelementos
 ## css/proto-diamond.css (83L)
-## css/screens.css (1542L)
+## css/screens.css (1547L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
 css/screens.css:12 /* Menu: asymmetric, the diorama is the focal point and the tit
@@ -1479,8 +1491,8 @@ css/screens.css:1394 /* Mobile-first repair: keep the game surface visible inste
 css/screens.css:1426 /* The animation lab must give its remaining viewport to the li
 css/screens.css:1469 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
 css/screens.css:1486 /* Copia de seguridad (Ajustes): el código se pega en un recuad
-css/screens.css:1492 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
-css/screens.css:1501 /* Backup: evita que los botones con etiquetas largas desborden
-css/screens.css:1529 /* Reference APK renderer: a separate green/pixel signature, di
+css/screens.css:1497 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
+css/screens.css:1506 /* Backup: evita que los botones con etiquetas largas desborden
+css/screens.css:1534 /* Reference APK renderer: a separate green/pixel signature, di
 ## css/tokens.css (50L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.

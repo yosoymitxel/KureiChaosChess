@@ -245,3 +245,27 @@ export async function importSave(code) {
     return 0;
   }
 }
+
+// Ranuras de guardado (src/game/slots.js): todo el progreso salvo los ajustes, que son de este aparato.
+const SLOT_KEYS = Object.keys(KEY_LIMITS).filter((k) => k !== 'zugzwang.settings.v2');
+
+export function slotSnapshot() {
+  const data = {};
+  for (const key of SLOT_KEYS) { const v = localStorage.getItem(key); if (v !== null) data[key] = v; }
+  return data;
+}
+
+// Cambia el progreso por el de la ranura (vacía = partida nueva). Devuelve false sin tocar nada si no es válida.
+export function slotRestore(data) {
+  const keys = data && Object.keys(data).length ? validateSnapshot(data) : [];
+  if (!keys || keys.some((k) => !SLOT_KEYS.includes(k))) return false;
+  const previous = new Map(SLOT_KEYS.map((k) => [k, localStorage.getItem(k)]));
+  try {
+    for (const k of SLOT_KEYS) localStorage.removeItem(k);
+    for (const k of keys) localStorage.setItem(k, data[k]);
+    return true;
+  } catch {
+    for (const [k, v] of previous) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} }
+    return false;
+  }
+}

@@ -23,8 +23,8 @@ function surfaceFor(host) {
 }
 
 function cancel(host) {
-  const job = running.get(host);
-  if (job) job.finish();
+  const set = running.get(host);
+  if (set) for (const job of [...set]) job.finish();
 }
 
 export function clearAPKEffects(host) {
@@ -48,46 +48,36 @@ function pointOf(host, view, cell) {
   return { x: rect.left + rect.width / 2 - hostRect.left, y: rect.top + rect.height / 2 - hostRect.top };
 }
 
+// Varios efectos a la vez sobre la misma capa: un solo bucle por tablero dibuja todos los vivos
+// (antes cada efecto nuevo cortaba al anterior).
 function animateCanvas(host, view, duration, draw) {
-  cancel(host);
   const canvas = surfaceFor(host);
-  const rect = host.getBoundingClientRect();
-  const ratio = Math.min(2, window.devicePixelRatio || 1);
-  const width = Math.max(1, Math.round(rect.width));
-  const height = Math.max(1, Math.round(rect.height));
-  canvas.width = Math.max(1, Math.round(width * ratio));
-  canvas.height = Math.max(1, Math.round(height * ratio));
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-  ctx.imageSmoothingEnabled = false;
+  let set = running.get(host);
+  if (!set) { set = new Set(); running.set(host, set); }
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   return new Promise((resolve) => {
-    let start = 0;
-    let settled = false;
-    const job = {
-      raf: 0,
-      finish: () => {
-        if (settled) return;
-        settled = true;
-        cancelAnimationFrame(job.raf);
-        ctx.clearRect(0, 0, width, height);
-        if (running.get(host) === job) running.delete(host);
-        resolve();
-      }
-    };
-    running.set(host, job);
-    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const actualDuration = reduced ? Math.min(120, duration) : duration;
-    const locate = (cell) => pointOf(host, view, cell);
-    const frame = (now) => {
-      if (settled || running.get(host) !== job) return;
-      if (!start) start = now;
-      const t = clamp((now - start) / actualDuration, 0, 1);
+    const job = { start: 0, duration: reduced ? Math.min(120, duration) : duration, draw, locate: (cell) => pointOf(host, view, cell),
+      finish: () => { if (!set.delete(job)) return; resolve(); } };
+    set.add(job);
+    if (set.size > 1) return;
+    const loop = (now) => {
+      const rect = host.getBoundingClientRect(), ratio = Math.min(2, window.devicePixelRatio || 1);
+      const width = Math.max(1, Math.round(rect.width)), height = Math.max(1, Math.round(rect.height));
+      if (canvas.width !== Math.round(width * ratio) || canvas.height !== Math.round(height * ratio)) { canvas.width = Math.round(width * ratio); canvas.height = Math.round(height * ratio); }
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.imageSmoothingEnabled = false;
       ctx.clearRect(0, 0, width, height);
-      draw(ctx, t, width, height, locate);
-      if (t < 1) job.raf = requestAnimationFrame(frame);
-      else job.finish();
+      for (const j of [...set]) {
+        if (!j.start) j.start = now;
+        const t = clamp((now - j.start) / j.duration, 0, 1);
+        ctx.save(); j.draw(ctx, t, width, height, j.locate); ctx.restore();
+        if (t >= 1) j.finish();
+      }
+      if (set.size) requestAnimationFrame(loop);
+      else ctx.clearRect(0, 0, width, height);
     };
-    job.raf = requestAnimationFrame(frame);
+    requestAnimationFrame(loop);
   });
 }
 

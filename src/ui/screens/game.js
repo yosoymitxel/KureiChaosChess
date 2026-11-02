@@ -494,11 +494,13 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         if (now && !d.check[s.color] && anyHuman) {
           const royal = match.pieces.find((x) => x.royal && x.color === s.color);
           const mine = s.kind === 'human';
+          // En minis la pieza que no debe caer puede no ser un rey (un caballo, una dama…): se nombra la que es.
+          const king = royal.type === 'king', what = pieceName(royal).toLowerCase();
           d.moments.callout({
-            text: t('game.check', '¡Jaque!'), piece: { type: royal.type, side: s.color }, anim: 'tremble', tier: 'major',
+            text: king ? t('game.check', '¡Jaque!') : t('game.danger', '¡En peligro!'), piece: { type: royal.type, side: s.color }, anim: 'tremble', tier: 'major',
             ...(mine
-              ? { sub: s === match.player ? t('game.checkMine', 'Tu turno: protege al rey') : t('game.checkOther', '{name}, tu rey está amenazado', { name: s.name }), tone: 'danger' }
-              : { sub: royal.boss ? t('game.bossInReach', '{name} está a tiro', { name: royal.name }) : t('game.kingInReach', 'El rey {side} está a tiro', { side: SIDE_NAME[s.color] }), tone: 'brass' }),
+              ? { sub: s === match.player ? (king ? t('game.checkMine', 'Tu turno: protege al rey') : t('game.dangerMine', 'Tu turno: protege a tu {a}', { a: what })) : king ? t('game.checkOther', '{name}, tu rey está amenazado', { name: s.name }) : t('game.dangerOther', '{name}, tu {a} está amenazado', { name: s.name, a: what }), tone: 'danger' }
+              : { sub: royal.boss ? t('game.bossInReach', '{name} está a tiro', { name: royal.name }) : king ? t('game.kingInReach', 'El rey {side} está a tiro', { side: SIDE_NAME[s.color] }) : t('game.pieceInReach', '{a} {side} está a tiro', { a: pieceName(royal), side: SIDE_NAME[s.color] }), tone: 'brass' }),
           });
           if (mine && s === match.player) warnedMe = true;
         }

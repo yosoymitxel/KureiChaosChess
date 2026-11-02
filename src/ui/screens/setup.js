@@ -1,6 +1,7 @@
 import { html, useState, useRef, useEffect } from '../lib.js';
 import { Icon } from '../icons.js';
-import { Topbar, useEnter, Toggle, ThemeLook } from '../components.js';
+import { Topbar, useEnter, Toggle, ThemeLook, ConfirmButton } from '../components.js';
+import { loadSlots, storeActive, switchSlot, clearSlot } from '../../game/slots.js';
 import { nodeModifier, MODIFIERS } from '../../data/modifiers.js';
 import { PREF_LIMITS, saveSettings } from '../../game/run.js';
 import { rivalForFloor, DIFFICULTIES } from '../../game/difficulty.js';
@@ -155,6 +156,7 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
     <${Topbar} title=${t('settings.title', 'Ajustes')} onBack=${onBack} />
     <div class="setup-body">
       <${Cloud} />
+      <${Slots} />
       <section class="panel setup-card set-lang" data-enter>
         <h2>${t('settings.language', 'Idioma')}</h2>
         <div class="segmented" role="group" aria-label=${t('settings.language', 'Idioma')}>
@@ -274,6 +276,27 @@ function Backup() {
     </div>
     <textarea class="backup-code" rows="3" value=${code} placeholder=${t('backup.paste', 'Pega aquí tu código para restaurar')} onInput=${(e) => setCode(e.currentTarget.value)}></textarea>
     <button class="btn sm primary" disabled=${!code.trim()} onClick=${() => restore()}>${t('backup.restore', 'Restaurar')}</button>
+    ${msg && html`<p class="shop-note" aria-live="polite">${msg}</p>`}
+  </section>`;
+}
+
+// Ranuras: tres partidas en este navegador (src/game/slots.js). Cambiar guarda la actual y recarga con la otra.
+function Slots() {
+  const [s, setS] = useState(() => { try { return storeActive(); } catch { return loadSlots(); } });
+  const [msg, setMsg] = useState('');
+  const date = (ms) => new Date(ms).toLocaleString(LANG, { dateStyle: 'short', timeStyle: 'short' });
+  const use = (i) => { if (switchSlot(i)) location.reload(); else setMsg(t('slots.fail', 'No se pudo cambiar de ranura (¿sin espacio?). No se tocó nada.')); };
+  return html`<section class="panel setup-card set-slots" data-enter>
+    <h2>${t('slots.title', 'Ranuras de guardado')}</h2>
+    <p class="shop-note">${t('slots.hint', 'Tres partidas distintas en este aparato: run, jardín, logros y mesas. Al cambiar, la actual se guarda sola.')}</p>
+    <ul class="slot-list">
+      ${s.list.map((slot, i) => html`<li class=${'slot' + (i === s.active ? ' on' : '')}>
+        <span class="slot-name"><b>${t('slots.n', 'Ranura {n}', { n: i + 1 })}</b>
+          <small>${i === s.active ? t('slots.active', 'En uso') : slot ? date(slot.at) : t('slots.empty', 'Vacía: empieza de cero')}</small></span>
+        ${i !== s.active && html`<${ConfirmButton} class="btn sm primary" onConfirm=${() => use(i)} confirmLabel=${t('slots.sure', '¿Cambiar?')}>${t('slots.use', 'Usar')}<//>`}
+        ${i !== s.active && slot && html`<${ConfirmButton} class="btn sm" onConfirm=${() => { clearSlot(i); setS(loadSlots()); }} confirmLabel=${t('slots.sureClear', '¿Borrar?')}>${t('slots.clear', 'Vaciar')}<//>`}
+      </li>`)}
+    </ul>
     ${msg && html`<p class="shop-note" aria-live="polite">${msg}</p>`}
   </section>`;
 }
