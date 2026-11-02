@@ -5,6 +5,7 @@ import { BOSSES } from '../data/bosses.js';
 import { applyMutations } from '../data/mutations.js';
 import { pickModifier, miniBossFloors, armyForFloor, ARMY_STEPS, isMiniModifier, RARE_TYPES, MINI_BOSSES, FINAL_BOSSES } from './difficulty.js';
 import { t, localize } from '../i18n/index.js';
+import { mechOf } from './mechanics.js';
 
 export function generateMap(seed, prefs) {
   const rng = mulberry32(seed);
@@ -106,8 +107,9 @@ export function generateBoard(seed, floor, totalFloors, modifier, opts = {}) {
   const small = t < 0.2;
   const base = 8 + Math.round(t * 4);
   // El Contagio pide 10 filas: cuatro líneas por bando y dos de tierra de nadie.
-  const rows = Math.max(modifier === 'contagion' ? 10 : 0, opts.size || (small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)))));
-  const cols = opts.size || (small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0))));
+  const size = opts.size || mechOf(modifier)?.size;
+  const rows = Math.max(modifier === 'contagion' ? 10 : 0, size || (small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)))));
+  const cols = size || (small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0))));
   const safe = rows <= 9 ? 2 : rows <= 10 ? 3 : 4;
   const shape = opts.shape || pickFrom(rng, SHAPES);
   const holes = new Set();
@@ -398,6 +400,7 @@ function placeOnce(board, { modifier, playerCount, isBoss, isMiniBoss, elite, se
     }
   }
 
+  mechOf(modifier)?.setup?.(pieces, board, rng);
   if (elite) protectElites(pieces, eliteVariants(floor ?? 0, totalFloors || 1));
   applyMutations(pieces, mutations, 'light');
 

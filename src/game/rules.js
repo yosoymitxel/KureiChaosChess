@@ -42,6 +42,7 @@ export const walkable = (b, r, c) => inBounds(b, r, c) && !b.holes.has(key(r, c)
 //  trait 'last'  -> only once it is the last non-royal piece of its side;
 //  escort: id    -> only after the escorting piece has fallen.
 export function immune(p, pieces) {
+  if (p.chicken) return true; // Gallinero: la gallina estorba, pero no se captura
   if (p.trait === 'last') return pieces.some((o) => o !== p && o.color === p.color && !o.royal);
   if (p.escort) return pieces.some((o) => o.id === p.escort);
   return false;
@@ -140,7 +141,7 @@ export function moveTypesOf(p) {
 
 // La bruja dormida no se mueve ni amenaza: despierta cuando una jugada rival puede tocarla (match.wake).
 function canMove(piece, r, c, ctx) {
-  if (piece.witch && !piece.awake) return false;
+  if ((piece.witch && !piece.awake) || piece.chicken) return false;
   return moveTypesOf(piece).some((t) => canMoveAs(piece, t, r, c, ctx));
 }
 

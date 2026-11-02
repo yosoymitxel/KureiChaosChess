@@ -5,6 +5,7 @@ import { countMutations } from '../data/mutations.js';
 import { PIECE_VALUE, MINOR_TYPES } from '../data/pieces.js';
 import { RIVALS } from './difficulty.js';
 import { reserveIds } from './generate.js';
+import { mechOf } from './mechanics.js';
 
 // Turns per player without a capture before the game is decided on piece count.
 export const QUIET_LIMIT = 20;
@@ -30,6 +31,7 @@ export class Match {
   }
 
   get player() { return this.players[this.current]; }
+  get rule() { return mechOf(this.modifier); }
   movesFor(color) { return (this.modifier === 'rush' ? 2 : 1) + (this.bonusMoves[color] || 0) + (color === this.player.color ? this.turnBonus || 0 : 0); }
   // The extra moves (Paso doble, Furia) cannot capture: a free second capture ended matches too
   // fast (tools/balance.mjs; Furia won 94% of bot games).
@@ -38,7 +40,8 @@ export class Match {
     return extra > 0 && this.movesThisTurn >= this.movesFor(this.player.color) - extra;
   }
   legal(piece) {
-    const all = [...legalMoves(piece, this.pieces, this.board), ...this.special(piece)];
+    let all = [...legalMoves(piece, this.pieces, this.board), ...this.special(piece), ...(this.rule?.moves?.(this, piece) || [])];
+    if (this.rule?.filter) all = this.rule.filter(this, piece, all);
     return piece.color === this.player.color && this.quietOnly() ? all.filter((m) => !m.hits.length) : all;
   }
 
@@ -80,10 +83,12 @@ export class Match {
   // Apply a move. Returns null if illegal.
   move(piece, to) {
     if (this.over || piece.color !== this.player.color) return null;
-    const m = this.legal(piece).find((x) => x.row === to.row && x.col === to.col);
+    let m = this.legal(piece).find((x) => x.row === to.row && x.col === to.col);
     if (!m) return null;
+    const turned = this.rule?.redirect?.(this, piece, m);
+    if (turned) { m = turned; to = { row: m.row, col: m.col }; }
     const occ = buildOccupancy(this.pieces);
-    const hits = m.ep ? m.hits : landing(piece, to.row, to.col, { board: this.board, occ, pieces: this.pieces });
+    const hits = m.ep || m.power ? m.hits : landing(piece, to.row, to.col, { board: this.board, occ, pieces: this.pieces });
     const from = { row: piece.row, col: piece.col };
     const victims = hits.map((v) => {
       v.hp = (v.hp ?? 1) - 1;
@@ -95,7 +100,7 @@ export class Match {
       this.pieces.splice(this.pieces.indexOf(v.piece), 1);
       if (v.piece.royal) this.eliminated[v.piece.color] = true;
     }
-    const res = { piece, from, to, victims, bounced, promoted: false };
+    const res = { piece, from, to, victims, bounced, promoted: false, drunk: !!m.drunk };
     if (!bounced) {
       piece.row = to.row; piece.col = to.col;
       piece.moved = true;
@@ -121,6 +126,7 @@ export class Match {
       res.woke = this.wake(piece.color);
       res.absorbed = this.absorb(piece, victims);
       this.terrainAfterMove(piece, from, res);
+      if (this.pieces.includes(piece)) this.rule?.after?.(this, piece, from, res);
     }
     if (!bounced && piece.type === 'pawn' && (this.modifier === 'promote' || piece.canCrown)) {
       const last = piece.color === 'light' ? 0 : this.board.rows - 1;
@@ -217,8 +223,9 @@ export class Match {
     this.current = next;
     this.turnBonus = this.bonus?.(this) || 0;
     const tick = this.tick?.(this) || null;
-    if (this.checkOver()) return { ended: true, collapse, meteor, tick, over: this.over };
-    return { ended: true, collapse, meteor, tick };
+    const mech = this.rule?.turn?.(this) || null;
+    if (this.checkOver()) return { ended: true, collapse, meteor, tick, mech, over: this.over };
+    return { ended: true, collapse, meteor, tick, mech };
   }
 
   // Meteorito: un turno avisa dónde caerá (`doom`, una cruz de cinco casillas) y el siguiente cae:
@@ -263,6 +270,7 @@ export class Match {
   checkOver() {
     if (this.over) return true;
     if (this.objective) return !!(this.over = this.objective(this));
+    if (this.rule?.over) return !!(this.over = this.rule.over(this));
     const alive = this.players.filter((p) => !this.eliminated[p.color]);
     const royals = this.pieces.filter((p) => p.royal && !this.eliminated[p.color]);
     const stalled = this.quietTurns >= QUIET_LIMIT * this.players.length;
@@ -304,7 +312,7 @@ function cheapestAttacker(match, mover, row, col, hits) {
 // Greedy bot: captures by value, centralisation, pressure on the enemy royal. The rival profile
 // (difficulty.js) dials what it sees, what it protects and how often it blunders.
 // Partida a medias, guardable en localStorage (salir al mapa o al menú y volver a entrar).
-const STATE = ['current', 'movesThisTurn', 'turn', 'eliminated', 'quietTurns', 'bonusMoves', 'turnBonus', 'cardUsed', 'doom'];
+const STATE = ['current', 'movesThisTurn', 'turn', 'eliminated', 'quietTurns', 'bonusMoves', 'turnBonus', 'cardUsed', 'doom', 'mech'];
 const toJSON = (v) => JSON.stringify(v, (_, x) => (x instanceof Set ? { $set: [...x] } : x instanceof Map ? { $map: [...x] } : x));
 const fromJSON = (s) => JSON.parse(s, (_, x) => (x?.$set ? new Set(x.$set) : x?.$map ? new Map(x.$map) : x));
 export function freezeMatch(match, dealt) {
@@ -374,6 +382,7 @@ export function botChooseMove(match) {
       if (guard && !m.hits.some(kills) && (underFire || p === myRoyal || onLine(p)) && exposes(p, m)) score -= guard * worth(myRoyal);
       // Peón que quiere coronar (La cacería): cuanto más cerca del fondo, mejor.
       if (R.advance && p.type === 'pawn') score += R.advance * (p.color === 'light' ? board.rows - 1 - m.row : m.row);
+      if (match.rule?.bot) score += match.rule.bot(match, p, m);
       if (care) {
         const attacker = cheapestAttacker(match, p, m.row, m.col, m.hits);
         if (attacker != null) score -= care * Math.max(0, worth(p) - attacker);

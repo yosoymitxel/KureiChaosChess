@@ -23,9 +23,9 @@ src/data/mates.js:1 +MATES
 ## src/data/minigame-catalog.js (36L)
 src/data/minigame-catalog.js:25 SCREENS
 src/data/minigame-catalog.js:35 +MINIGAMES
-## src/data/modifiers.js (66L)
+## src/data/modifiers.js (81L)
 src/data/modifiers.js:2 +MODIFIERS
-src/data/modifiers.js:62 +nodeModifier
+src/data/modifiers.js:77 +nodeModifier
 ## src/data/mutations.js (53L)
 src/data/mutations.js:4 +MUTATIONS
 src/data/mutations.js:16 KEYS
@@ -320,35 +320,35 @@ src/game/fusion.js:20 at
 src/game/fusion.js:22 spawn
 src/game/fusion.js:34 +slide
 src/game/fusion.js:65 canMove
-## src/game/generate.js (449L)
-src/game/generate.js:9 +generateMap
-src/game/generate.js:79 LESSONS
-src/game/generate.js:86 +lessonText
-src/game/generate.js:89 +tutorialMap
-src/game/generate.js:98 SHAPES
-src/game/generate.js:101 +generateBoard
-src/game/generate.js:155 +addTerrain
-src/game/generate.js:176 BACK_RANK
-src/game/generate.js:183 SECOND_RANK
-src/game/generate.js:190 pawnRank
-src/game/generate.js:191 centered
-src/game/generate.js:195 FORMATIONS
-src/game/generate.js:202 FORMATION_POOL
-src/game/generate.js:206 DEPLOYS
-src/game/generate.js:212 DEPLOY_POOL
-src/game/generate.js:213 spread
-src/game/generate.js:220 nextId
-src/game/generate.js:222 +reserveIds
-src/game/generate.js:223 +makePiece
-src/game/generate.js:231 +ELITE_RULES
-src/game/generate.js:235 +eliteVariants
-src/game/generate.js:241 protectElites
-src/game/generate.js:256 ensureRare
-src/game/generate.js:267 strikesSoon
-src/game/generate.js:272 quickThreats
-src/game/generate.js:282 +placePieces
-src/game/generate.js:293 placeOnce
-src/game/generate.js:413 +placeBoss
+## src/game/generate.js (452L)
+src/game/generate.js:10 +generateMap
+src/game/generate.js:80 LESSONS
+src/game/generate.js:87 +lessonText
+src/game/generate.js:90 +tutorialMap
+src/game/generate.js:99 SHAPES
+src/game/generate.js:102 +generateBoard
+src/game/generate.js:157 +addTerrain
+src/game/generate.js:178 BACK_RANK
+src/game/generate.js:185 SECOND_RANK
+src/game/generate.js:192 pawnRank
+src/game/generate.js:193 centered
+src/game/generate.js:197 FORMATIONS
+src/game/generate.js:204 FORMATION_POOL
+src/game/generate.js:208 DEPLOYS
+src/game/generate.js:214 DEPLOY_POOL
+src/game/generate.js:215 spread
+src/game/generate.js:222 nextId
+src/game/generate.js:224 +reserveIds
+src/game/generate.js:225 +makePiece
+src/game/generate.js:233 +ELITE_RULES
+src/game/generate.js:237 +eliteVariants
+src/game/generate.js:243 protectElites
+src/game/generate.js:258 ensureRare
+src/game/generate.js:269 strikesSoon
+src/game/generate.js:274 quickThreats
+src/game/generate.js:284 +placePieces
+src/game/generate.js:295 placeOnce
+src/game/generate.js:416 +placeBoss
 ## src/game/hockey.js (221L)
 src/game/hockey.js:3 +CELL
 src/game/hockey.js:4 +W
@@ -425,17 +425,17 @@ src/game/marcianos.js:53 climb
 src/game/marcianos.js:62 descend
 src/game/marcianos.js:88 fall
 src/game/marcianos.js:101 +step
-## src/game/match.js (389L)
-src/game/match.js:10 +QUIET_LIMIT
-src/game/match.js:11 +METEOR_EVERY
-src/game/match.js:13 +Match
-src/game/match.js:293 cheapestAttacker
-src/game/match.js:307 STATE
-src/game/match.js:308 toJSON
-src/game/match.js:309 fromJSON
-src/game/match.js:310 +freezeMatch
-src/game/match.js:316 +thawMatch
-src/game/match.js:330 +botChooseMove
+## src/game/match.js (398L)
+src/game/match.js:11 +QUIET_LIMIT
+src/game/match.js:12 +METEOR_EVERY
+src/game/match.js:14 +Match
+src/game/match.js:301 cheapestAttacker
+src/game/match.js:315 STATE
+src/game/match.js:316 toJSON
+src/game/match.js:317 fromJSON
+src/game/match.js:318 +freezeMatch
+src/game/match.js:324 +thawMatch
+src/game/match.js:338 +botChooseMove
 ## src/game/mates.js (95L)
 src/game/mates.js:7 +SIZE
 src/game/mates.js:8 +board
@@ -455,6 +455,20 @@ src/game/mates.js:60 +captureMove
 src/game/mates.js:67 +mateKeys
 src/game/mates.js:83 +solve
 src/game/mates.js:87 +defend
+## src/game/mechanics.js (347L)
+src/game/mechanics.js:16 ev
+src/game/mechanics.js:17 free
+src/game/mechanics.js:18 small
+src/game/mechanics.js:19 rnd
+src/game/mechanics.js:20 NEAR
+src/game/mechanics.js:22 kill
+src/game/mechanics.js:29 has
+src/game/mechanics.js:30 retype
+src/game/mechanics.js:31 chicks
+src/game/mechanics.js:33 +MECHANICS
+src/game/mechanics.js:327 safeHeir
+src/game/mechanics.js:333 shot
+src/game/mechanics.js:346 +mechOf
 ## src/game/outbreak.js (77L)
 src/game/outbreak.js:7 TYPES
 src/game/outbreak.js:8 +DIFFS
@@ -525,7 +539,7 @@ src/game/rampage.js:82 +start
 src/game/rampage.js:83 +pieces
 src/game/rampage.js:84 +marks
 src/game/rampage.js:85 +status
-## src/game/rules.js (230L)
+## src/game/rules.js (231L)
 src/game/rules.js:6 +key
 src/game/rules.js:8 +linkPortalPair
 src/game/rules.js:16 +portalAt
@@ -536,21 +550,21 @@ src/game/rules.js:37 +ctxOf
 src/game/rules.js:38 inBounds
 src/game/rules.js:39 +walkable
 src/game/rules.js:44 +immune
-src/game/rules.js:51 +landing
-src/game/rules.js:64 free
-src/game/rules.js:73 pathClear
-src/game/rules.js:83 forward
-src/game/rules.js:85 canMoveAs
-src/game/rules.js:137 +moveTypesOf
-src/game/rules.js:142 canMove
-src/game/rules.js:147 +pieceCanMove
-src/game/rules.js:153 +canHit
-src/game/rules.js:162 +legalMoves
-src/game/rules.js:171 +hasAnyLegalMove
-src/game/rules.js:177 +threatenedPieces
-src/game/rules.js:189 +moveCells
-src/game/rules.js:197 +anchorForCell
-src/game/rules.js:213 +reachPreview
+src/game/rules.js:52 +landing
+src/game/rules.js:65 free
+src/game/rules.js:74 pathClear
+src/game/rules.js:84 forward
+src/game/rules.js:86 canMoveAs
+src/game/rules.js:138 +moveTypesOf
+src/game/rules.js:143 canMove
+src/game/rules.js:148 +pieceCanMove
+src/game/rules.js:154 +canHit
+src/game/rules.js:163 +legalMoves
+src/game/rules.js:172 +hasAnyLegalMove
+src/game/rules.js:178 +threatenedPieces
+src/game/rules.js:190 +moveCells
+src/game/rules.js:198 +anchorForCell
+src/game/rules.js:214 +reachPreview
 ## src/game/run.js (81L)
 src/game/run.js:7 RUN_KEY
 src/game/run.js:8 SETTINGS_KEY
@@ -663,7 +677,7 @@ src/game/zen.js:294 +BUTTERFLY_MS
 src/game/zen.js:295 +butterflyGift
 src/game/zen.js:300 +addZenSeeds
 src/game/zen.js:307 +pickSeed
-## src/i18n/en.js (1130L)
+## src/i18n/en.js (1161L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -813,6 +827,10 @@ src/ui/app.js:46 ONE_SHOT
 src/ui/app.js:48 +App
 src/ui/app.js:336 MutationReveal
 src/ui/app.js:352 AchievementToast
+## src/ui/board-fx.js (43L)
+src/ui/board-fx.js:5 wait
+src/ui/board-fx.js:9 +playFx
+src/ui/board-fx.js:32 +playMech
 ## src/ui/coins.js (34L)
 src/ui/coins.js:6 reduced
 src/ui/coins.js:8 +flyCoins
@@ -953,13 +971,13 @@ src/ui/screens/gallery.js:26 ThemeGroup
 src/ui/screens/gallery.js:41 RULE
 src/ui/screens/gallery.js:42 Locked
 src/ui/screens/gallery.js:44 +GalleryScreen
-## src/ui/screens/game.js (817L)
-src/ui/screens/game.js:32 SIDE_NAME
-src/ui/screens/game.js:35 pieceName
-src/ui/screens/game.js:37 TIPS
-src/ui/screens/game.js:46 cardEffect
-src/ui/screens/game.js:60 +GameScreen
-src/ui/screens/game.js:788 EndOverlay
+## src/ui/screens/game.js (833L)
+src/ui/screens/game.js:33 SIDE_NAME
+src/ui/screens/game.js:36 pieceName
+src/ui/screens/game.js:38 TIPS
+src/ui/screens/game.js:47 cardEffect
+src/ui/screens/game.js:61 +GameScreen
+src/ui/screens/game.js:804 EndOverlay
 ## src/ui/screens/hockey.js (210L)
 src/ui/screens/hockey.js:13 KEYS
 src/ui/screens/hockey.js:15 TOP_KEYS
@@ -1030,10 +1048,9 @@ src/ui/screens/setup.js:273 Cloud
 ## src/ui/screens/shop.js (143L)
 src/ui/screens/shop.js:15 CARD_LIST
 src/ui/screens/shop.js:17 +ShopScreen
-## src/ui/screens/turn-mini.js (77L)
-src/ui/screens/turn-mini.js:12 wait
-src/ui/screens/turn-mini.js:16 +playFx
-src/ui/screens/turn-mini.js:38 +TurnMini
+## src/ui/screens/turn-mini.js (52L)
+src/ui/screens/turn-mini.js:11 wait
+src/ui/screens/turn-mini.js:13 +TurnMini
 ## src/ui/screens/turn-minis.js (20L)
 src/ui/screens/turn-minis.js:13 +RaceScreen
 src/ui/screens/turn-minis.js:14 +RampageScreen
@@ -1233,7 +1250,7 @@ css/base.css:148 /* Card back carries the pawn emblem: the box's identity mark.
 css/base.css:159 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
 css/base.css:199 /* Botones sin texto y cosas del jardín: el botón va en su esqu
 css/base.css:202 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
-## css/board.css (339L)
+## css/board.css (345L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
 css/board.css:36 /* Tiles
@@ -1261,17 +1278,19 @@ css/board.css:185 /* Mientras caen las piezas al empezar, quietas: el bote de 32
 css/board.css:187 /* transform y no translate: con translate el bote se recalcula
 css/board.css:189 /* En el set píxel la peana también es de píxeles: disco escalo
 css/board.css:201 /* Fog: an enemy far from your pieces is only a shape in the mi
-css/board.css:209 /* Chrome recortaba el cartel por arriba con la caja de la pean
-css/board.css:218 /* Piece badges: lock = escorted, flag = falls last, star = bor
-css/board.css:249 /* En móvil la capa baja hasta cubrir también las cartas, por e
-css/board.css:256 /* Etiqueta de casilla: ficha de papel con pico, encima de la c
-css/board.css:271 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
-css/board.css:277 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
-css/board.css:294 /* Estanque del centro abierto y coleccionables: tumbados sobre
-css/board.css:311 /* La mariposa queda posada un poco en el aire (lo deja su vuel
-css/board.css:317 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
-css/board.css:330 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
-css/board.css:336 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
+css/board.css:203 /* Ajedrez invisible: la rival que movió no se ve; la tuya, en 
+css/board.css:206 /* Corona caliente: la pieza coronada lleva la corona encima.
+css/board.css:215 /* Chrome recortaba el cartel por arriba con la caja de la pean
+css/board.css:224 /* Piece badges: lock = escorted, flag = falls last, star = bor
+css/board.css:255 /* En móvil la capa baja hasta cubrir también las cartas, por e
+css/board.css:262 /* Etiqueta de casilla: ficha de papel con pico, encima de la c
+css/board.css:277 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
+css/board.css:283 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
+css/board.css:300 /* Estanque del centro abierto y coleccionables: tumbados sobre
+css/board.css:317 /* La mariposa queda posada un poco en el aire (lo deja su vuel
+css/board.css:323 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
+css/board.css:336 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
+css/board.css:342 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
 ## css/pixel.css (96L)
 css/pixel.css:1 /* Modo píxel: con un tema píxel (data-art="pixel", ver src/dat
 css/pixel.css:6 /* Jersey 10 (OFL), servida desde el juego: el subconjunto lati

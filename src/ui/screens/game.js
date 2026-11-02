@@ -15,6 +15,7 @@ import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { weatherFor, TIED_WEATHER } from '../../data/weather.js';
 import { vfxOn } from '../../data/themes.js';
+import { playMech } from '../board-fx.js';
 import { takeNewDemos, loadBosses } from '../../game/run.js';
 import { PIECE_NAMES, MOVE_NAMES } from '../../data/pieces.js';
 import { BOSSES } from '../../data/bosses.js';
@@ -125,6 +126,12 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (scenario?.labels) d.view.setLabels(scenario.labels(match));
       if (scenario?.goals) d.view.setGoals(scenario.goals(match));
       if (scenario?.doom && !match.turn) d.view.setDoom(scenario.doom());
+      // Ajedrez invisible: lo rival desaparece; lo tuyo, en transparencia.
+      if (node.modifier === 'potato') for (const [q, el] of d.view.els) el.classList.toggle('crowned', !!q.crowned);
+      if (node.modifier === 'invis') {
+        const viewer = seats.find((x) => x.kind === 'human')?.color || 'light';
+        for (const [q, el] of d.view.els) { el.classList.toggle('ghost', !!q.unseen && q.color === viewer); el.classList.toggle('unseen', !!q.unseen && q.color !== viewer); }
+      }
       const boss = match.pieces.find((x) => x.boss);
       setHud({
         goal: scenario?.status(match),
@@ -312,6 +319,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         if (piece.color === d.feats.human) award('crowned');
       }
       await d.view.playMove(res);
+      await showMech(res.mech);
       pickUp(piece);
       if (res.woke?.length) {
         const w = res.woke[0];
@@ -334,6 +342,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       }
       await showMeteor(after.meteor);
       await showTick(after.tick);
+      await showMech(after.mech);
       d.busy = false;
       if (match.over) return finish(), true;
       startTurn(after.ended);
@@ -352,6 +361,13 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       }
       addLog(m.lost.length ? t('game.meteorHitLog', 'Cae el meteorito: se lleva {list}', { list: m.lost.map((p) => pieceName(p).toLowerCase()).join(', ') }) : t('game.meteorFallLog', 'Cae el meteorito'));
       await d.view.meteor(m.cells, m.lost);
+    };
+    // Mecánicas de piso (src/game/mechanics.js): rótulo, registro y su animación.
+    const showMech = async (m) => {
+      if (!m) return;
+      if (m.log) addLog(m.log);
+      if (m.callout) { addLog(m.callout.text); d.moments.callout({ ...m.callout, tone: 'danger', anim: 'tremble', tier: 'major' }); }
+      await playMech(d.view, m);
     };
     const showTick = async (tick) => {
       if (!tick) return;
@@ -416,7 +432,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (!match.canMove()) {
         addLog(t('log.cantMove', '{name} no puede moverse', { name: p.name }));
         const a = match.afterMove({ pass: true });
-        return showMeteor(a.meteor).then(() => showTick(a.tick)).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
+        return showMeteor(a.meteor).then(() => showTick(a.tick)).then(() => showMech(a.mech)).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
       }
       if (p.kind === 'bot') {
         // The bot waits for the labels on screen: its move used to land under a collapse or a capture.

@@ -200,6 +200,12 @@
 .pc.boss { pointer-events: auto; }
 /* Fog: an enemy far from your pieces is only a shape in the mist, never which piece it is. */
 .pc.fogged .pc-art, .pc.fogged .pc-hp, .pc.fogged .pc-badge { visibility: hidden; }
+/* Ajedrez invisible: la rival que movió no se ve; la tuya, en transparencia. */
+.pc.unseen .pc-stand { visibility: hidden; }
+.pc.ghost .pc-art { opacity: 0.4; }
+/* Corona caliente: la pieza coronada lleva la corona encima. */
+.pc.crowned .pc-art { position: relative; }
+.pc.crowned .pc-art::after { content: ''; position: absolute; z-index: 2; left: 30%; right: 30%; top: -14%; height: 22%; background: var(--brass); clip-path: polygon(0 100%, 0 20%, 25% 55%, 50% 0, 75% 55%, 100% 20%, 100% 100%); }
 .pc.fogged .pc-base { opacity: 0.5; }
 .pc.fogged .pc-fig::before {
   content: ''; position: absolute; left: 18%; right: 18%; bottom: 8%; height: 58%;
