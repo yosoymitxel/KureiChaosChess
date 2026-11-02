@@ -8,7 +8,7 @@ import { W, H, COLS, ROWS, HOLES, SHOT_MAX, PULL_MAX, DIFFS, newGolf, shoot, ste
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t } from '../../i18n/index.js';
 import { award } from '../../game/achievements.js';
-import { tableKit, toTable as tableAt } from '../table-kit.js';
+import { tableKit, toTable as tableAt, corners } from '../table-kit.js';
 
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 // Nombre del resultado de un hoyo según los golpes sobre el par.
@@ -176,10 +176,10 @@ export function GolfScreen({ sub, onBack, onEnd, endLabel = t('common.continue',
             <div class="ah gf" ref=${tableRef} role="application" aria-label=${t('golf.aria', 'Campo de golf: arrastra hacia atrás y suelta para golpear la bola')}
               onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${up}>
               ${course.tiles.map((k, i) => html`<i class=${'ah-cell ' + ((Math.floor(i / COLS) + i) % 2 ? 'b' : 'a') + (k === 'g' ? '' : ' gf-' + k)}></i>`)}
-              <i class="gf-cup" style=${`left:${course.cup.x / W * 100}%;top:${course.cup.y / H * 100}%`}><b></b></i>
+              ${corners}<i class="gf-cup" style=${`left:${course.cup.x / W * 100}%;top:${course.cup.y / H * 100}%`}><b></b></i>
               ${course.pieces.map((p) => pc(p.type, p.x, p.y))}
               ${course.mover && pc(course.mover.type, 0, 0, moverRef)}
-              <span class="gf-aim" ref=${aimRef}></span>
+              <span class="tk-aim" ref=${aimRef}></span>
               <span class="ah-puck gf-ball" ref=${ballRef}><i></i></span>
             </div>
           </div>

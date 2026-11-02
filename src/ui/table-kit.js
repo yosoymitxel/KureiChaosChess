@@ -1,4 +1,4 @@
-import { motion } from './lib.js';
+import { html, motion } from './lib.js';
 import { reduced } from './hop.js';
 
 // Lo común de las mesas con física (hockey, golf…): escala de unidades de mesa a píxeles, colocar
@@ -28,8 +28,36 @@ export function tableKit(table, wrap, settings, w, onResize) {
   };
 }
 
+// Esquinas de la mesa (sin tamaño), dentro de ella: toTable las mide con la cámara inclinada.
+export const corners = html`<i class="tk-corner tk-tl"></i><i class="tk-corner tk-tr"></i><i class="tk-corner tk-br"></i><i class="tk-corner tk-bl"></i>`;
+
+// Homografía que lleva 4 puntos de pantalla a 4 de mesa (eliminación de Gauss sobre 8 incógnitas).
+function homography(src, dst) {
+  const A = [];
+  src.forEach(([x, y], i) => {
+    const [u, v] = dst[i];
+    A.push([x, y, 1, 0, 0, 0, -x * u, -y * u, u], [0, 0, 0, x, y, 1, -x * v, -y * v, v]);
+  });
+  for (let c = 0; c < 8; c++) {
+    let p = c;
+    for (let r = c + 1; r < 8; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r;
+    [A[c], A[p]] = [A[p], A[c]];
+    for (let r = 0; r < 8; r++) if (r !== c) { const f = A[r][c] / A[c][c]; for (let k = c; k < 9; k++) A[r][k] -= f * A[c][k]; }
+  }
+  const [a, b, c, d, e, f, g, h] = A.map((row, i) => row[8] / row[i]);
+  return (x, y) => { const z = g * x + h * y + 1; return [(a * x + b * y + c) / z, (d * x + e * y + f) / z]; };
+}
+
 // Puntero → unidades de mesa; `rect` es una ref que se vacía al cambiar de tamaño o hacer scroll.
+// Con la cámara inclinada la mesa es un trapecio en pantalla: se miden sus esquinas y se deshace la perspectiva.
 export const toTable = (e, table, rect, w, h) => {
-  const r = rect.current || (rect.current = table.getBoundingClientRect());
-  return [((e.clientX - r.left) / r.width) * w, ((e.clientY - r.top) / r.height) * h];
+  if (!rect.current) {
+    const marks = [...table.querySelectorAll(':scope > .tk-corner')];
+    if (marks.length === 4) {
+      const pts = marks.map((m) => { const r = m.getBoundingClientRect(); return [r.left, r.top]; });
+      rect.current = { map: homography(pts, [[0, 0], [w, 0], [w, h], [0, h]]) };
+    } else rect.current = table.getBoundingClientRect();
+  }
+  const r = rect.current;
+  return r.map ? r.map(e.clientX, e.clientY) : [((e.clientX - r.left) / r.width) * w, ((e.clientY - r.top) / r.height) * h];
 };

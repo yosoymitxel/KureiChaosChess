@@ -33,3 +33,40 @@ export function walls(b, r, w, h, e, hit, open) {
   if (b.y < r) { b.y = r; if (b.vy < 0) { hit?.(-b.vy); b.vy = -b.vy * e; } }
   if (b.y > h - r) { b.y = h - r; if (b.vy > 0) { hit?.(b.vy); b.vy = -b.vy * e; } }
 }
+
+// Rozamiento de rodadura: frena `decel` (u/s²) y avanza. Devuelve la velocidad que le queda.
+export function slide(b, decel, dt) {
+  const sp = Math.hypot(b.vx, b.vy);
+  if (!sp) return 0;
+  const ns = Math.max(0, sp - decel * dt);
+  b.vx *= ns / sp; b.vy *= ns / sp;
+  b.x += b.vx * dt; b.y += b.vy * dt;
+  return ns;
+}
+
+// Choque entre dos cuerpos móviles (masas `ma`, `mb`), como bolas de billar. Devuelve la fuerza del golpe.
+export function bump(a, b, min, e, ma = 1, mb = 1) {
+  const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
+  if (d >= min) return 0;
+  const nx = d ? dx / d : 1, ny = d ? dy / d : 0, ia = 1 / ma, ib = 1 / mb, push = (min - d) / (ia + ib);
+  a.x -= nx * push * ia; a.y -= ny * push * ia;
+  b.x += nx * push * ib; b.y += ny * push * ib;
+  const rel = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+  if (rel >= 0) return 0;
+  const j = -(1 + e) * rel / (ia + ib);
+  a.vx -= j * nx * ia; a.vy -= j * ny * ia;
+  b.vx += j * nx * ib; b.vy += j * ny * ib;
+  return -rel;
+}
+
+// Banda circular de radio R centrada en (cx, cy) para un cuerpo de radio r. Devuelve la fuerza del rebote.
+export function rim(b, r, cx, cy, R, e) {
+  const dx = b.x - cx, dy = b.y - cy, d = Math.hypot(dx, dy), max = R - r;
+  if (d <= max || !d) return 0;
+  const nx = dx / d, ny = dy / d;
+  b.x = cx + nx * max; b.y = cy + ny * max;
+  const out = b.vx * nx + b.vy * ny;
+  if (out <= 0) return 0;
+  b.vx -= (1 + e) * out * nx; b.vy -= (1 + e) * out * ny;
+  return out;
+}

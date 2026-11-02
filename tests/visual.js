@@ -11,6 +11,7 @@ const pixelTheme = Object.values(THEMES).find(t => t.art === 'pixel');
 if (theme === 'pixel' && !pixelTheme) throw new Error('No hay tema pixel registrado');
 const chosenTheme = THEMES[theme] ? theme : theme === 'pixel' ? pixelTheme.id : 'walnut';
 applyTheme(chosenTheme);
+document.documentElement.dataset.camera = params.get('camera') || 'tilt';
 const miniDiff = Object.fromEntries(Object.keys(MINIGAMES).map(k => [k, diff]));
 const settings = {
   theme: chosenTheme, miniDiff,

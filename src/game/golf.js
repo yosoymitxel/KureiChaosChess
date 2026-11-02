@@ -1,7 +1,7 @@
 // Golf de mesa: una bola sobre el tablero de 6×10 con arena, hielo, huecos y piezas de obstáculo.
 // Física pura, sin DOM; mismas unidades que el hockey (16 por casilla). Tres hoyos al azar, cada
 // uno validado con el mismo simulador: un golfista codicioso lo emboca en su par.
-import { DT, substeps, collide, walls as rails } from './physics.js';
+import { DT, substeps, collide, slide, walls as rails } from './physics.js';
 
 export const CELL = 16, COLS = 6, ROWS = 10;
 export const W = COLS * CELL, H = ROWS * CELL;
@@ -48,11 +48,7 @@ function bounce(b, px, py, mvx, ev) {
 function roll(c, b, t, dt, ev) {
   const sp0 = Math.hypot(b.vx, b.vy);
   const ground = tileAt(c, b.x, b.y);
-  if (sp0 > 0) {
-    const ns = Math.max(0, sp0 - (ROLL[ground] ?? ROLL.g) * dt);
-    b.vx *= ns / sp0; b.vy *= ns / sp0;
-    b.x += b.vx * dt; b.y += b.vy * dt;
-  }
+  slide(b, ROLL[ground] ?? ROLL.g, dt);
   rails(b, BALL_R, W, H, WALL_E, (v) => v > 25 && ev?.push({ kind: 'wall', speed: v, x: b.x, y: b.y }));
   for (const p of c.pieces) bounce(b, p.x, p.y, 0, ev);
   if (c.mover) { const m = moverAt(c.mover, t); bounce(b, m.x, m.y, m.vx, ev); }

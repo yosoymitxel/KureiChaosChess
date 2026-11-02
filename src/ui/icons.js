@@ -84,6 +84,7 @@ const P = {
   // Hockey de mesa: la torre-mazo (pomo, mango y peana) y el disco.
   hockey: html`<circle cx="9" cy="4.6" r="2.6" /><rect x="7.6" y="5.5" width="2.8" height="7" rx="1" /><ellipse cx="9" cy="16.2" rx="7" ry="3" /><rect x="2" y="12.8" width="14" height="3.4" /><ellipse cx="9" cy="12.8" rx="7" ry="3" />${cut('M2.6 13.4a6.4 2.6 0 0 0 12.8 0', 1.2)}<ellipse cx="19" cy="19.6" rx="3.6" ry="1.6" /><rect x="15.4" y="17.6" width="7.2" height="2" /><ellipse cx="19" cy="17.6" rx="3.6" ry="1.6" />${cut('M15.8 18a3.2 1.3 0 0 0 6.4 0', 1)}`,
   golf: html`<rect x="5.4" y="2.4" width="2.2" height="16" rx="1" /><path d="M7.4 2.6l9.2 3.6-9.2 3.6z" /><ellipse cx="8.5" cy="19.6" rx="6.5" ry="2.4" />${cut('M3.6 19.6a4.9 1.3 0 0 0 9.8 0', 1.2)}<circle cx="18.6" cy="16.4" r="2.8" />`,
+  carrom: html`<path fill-rule="evenodd" d="M12 1.6a10.4 10.4 0 1 0 0 20.8a10.4 10.4 0 1 0 0-20.8zm0 2.6a7.8 7.8 0 1 1 0 15.6a7.8 7.8 0 1 1 0-15.6z" /><circle cx="12" cy="12" r="2.4" /><circle cx="8.2" cy="14.6" r="2.1" /><circle cx="15.6" cy="9" r="2.1" />`,
 };
 
 // Optical centring: measured offset of each glyph's bounding box from the 24×24 centre (viewBox shift;

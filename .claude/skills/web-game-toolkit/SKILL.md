@@ -69,6 +69,14 @@ Zugzwang (`tools/`, `src/`) es la implementación de referencia cuando haga falt
   no cede, bandas con bocas, subpasos) y un kit de pantalla (escala unidades→px, colocar, sacudida,
   aplastar, cartel). Un juego nuevo de física (golf, billar, pinball…) solo escribe sus reglas y su juice propio.
   Al refactorizar, comparar la salida del selfcheck antes y después: tiene que ser idéntica.
+  Piezas de la física: `collide` (contra algo fijo o que no cede), `bump` (dos móviles con masas, billar),
+  `walls` (bandas con bocas), `rim` (banda circular), `slide` (rozamiento de rodadura), `substeps`.
+- **La cámara del juego también en las mesas propias**: `rotate: x var(--cam)` (no `transform`, que las
+  sacudidas de Motion pisan) con `perspective` en el padre y las figuras estiradas `1/cos(--cam)` para
+  verse de pie. El puntero se pasa a unidades de mesa con una homografía desde 4 esquinas de tamaño 0.
+  Prefijar las clases de utilidad (`tk-…`): una `.br` de esquina heredó los estilos del tablero de Barrera.
+- En píxel (`border-radius: 0` global) una mesa redonda es un `clip-path` de círculo escalonado y su
+  borde, `drop-shadow` en el contenedor (el clip recorta el borde y los filtros propios).
 - Validar mesas al azar con el propio simulador: un bot codicioso con búsqueda (barrido grueso + fino) fija
   el par, y se descarta el tablero si algún golpe solo sale rozando un peligro (probar el peor caso con error).
 - Táctil: arrastrar debe funcionar igual que el ratón (vista previa bajo el dedo, se suelta y se

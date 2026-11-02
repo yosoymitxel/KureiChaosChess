@@ -15,6 +15,7 @@ import { FusionScreen } from '../ui/screens/fusion.js';
 import { DuelScreen } from '../ui/screens/duel.js';
 import { HockeyScreen } from '../ui/screens/hockey.js';
 import { GolfScreen } from '../ui/screens/golf.js';
+import { CarromScreen } from '../ui/screens/carrom.js';
 import { BlindScreen } from '../ui/screens/blind.js';
 import { BlizzardScreen } from '../ui/screens/blizzard.js';
 import { OutbreakScreen } from '../ui/screens/outbreak.js';
@@ -29,7 +30,7 @@ const SCREENS = {
   collapsingFloor: CollapsingFloorScreen, kingImpostor: KingImpostorScreen, connect4: Connect4Screen,
   bomber: BomberScreen, barrier: BarrierScreen, izombie: IZombieScreen, bowling: BowlingScreen,
   laststand: LastStandScreen, mates: MatesScreen, knight: KnightScreen, queens: QueensScreen,
-  marcianos: MarcianosScreen, checkers: CheckersScreen, fusion: FusionScreen, duel: DuelScreen, hockey: HockeyScreen, golf: GolfScreen,
+  marcianos: MarcianosScreen, checkers: CheckersScreen, fusion: FusionScreen, duel: DuelScreen, hockey: HockeyScreen, golf: GolfScreen, carrom: CarromScreen,
   blizzard: BlizzardScreen, outbreak: OutbreakScreen, clock: ClockScreen, blind: BlindScreen, witch: WitchScreen, bombs: BombsScreen,
   race: RaceScreen, rampage: RampageScreen, feast: FeastScreen, pdodge: PdodgeScreen, parkour: ParkourScreen, blaster: BlasterScreen, horde: HordeScreen,
 };

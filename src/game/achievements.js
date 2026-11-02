@@ -77,6 +77,7 @@ export const ACHIEVEMENTS = localize('achievements', [
   { id: 'free_mini', group: 'Minijuegos', name: 'Por gusto', desc: 'Gana un minijuego en partida libre, desde el menú.', icon: 'connect4' },
   { id: 'hard_trio', group: 'Minijuegos', name: 'Triple corona', desc: 'Gana tres minijuegos distintos en nivel Difícil.', icon: 'crown' },
   { id: 'hockey_shutout', group: 'Minijuegos', name: 'Portería a cero', desc: 'Gana al hockey de mesa sin encajar ningún gol.', icon: 'hockey' },
+  { id: 'carrom_clear', group: 'Minijuegos', name: 'Mesa limpia', desc: 'Mete tus cuatro fichas en un solo turno en el billar redondo.', icon: 'carrom' },
   { id: 'golf_ace', group: 'Minijuegos', name: 'Hoyo en uno', desc: 'Mete la bola de un solo golpe en el golf de mesa.', icon: 'golf' },
   { id: 'outbreak_one', group: 'Minijuegos', name: 'Paciente cero', desc: 'Completa el Brote con una sola dosis.', icon: 'drop' },
   { id: 'queens_fast', group: 'Minijuegos', name: 'Reinas al vuelo', desc: 'Resuelve las reinas con un minuto o más de sobra.', icon: 'queen' },

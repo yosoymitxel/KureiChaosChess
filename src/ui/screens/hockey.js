@@ -8,7 +8,7 @@ import { W, H, COLS, ROWS, PUCK_MAX, PLAYER_MAX, HOLD_T, DIFFS, newHockey, step,
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t } from '../../i18n/index.js';
 import { award } from '../../game/achievements.js';
-import { tableKit, toTable as tableAt } from '../table-kit.js';
+import { tableKit, toTable as tableAt, corners } from '../table-kit.js';
 
 // Flechas o WASD empujan tu torre; el puntero (dedo o ratón) la lleva directa.
 const KEYS = { arrowleft: [-1, 0], a: [-1, 0], arrowright: [1, 0], d: [1, 0], arrowup: [0, -1], w: [0, -1], arrowdown: [0, 1], s: [0, 1] };
@@ -168,7 +168,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = t('common.continue
             <div class="ah" ref=${tableRef} role="application" aria-label=${t('hockey.aria', 'Mesa de hockey: arrastra tu torre por tu mitad')}
               onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${up} onLostPointerCapture=${up}>
               ${Array.from({ length: ROWS * COLS }, (_, i) => html`<i class=${'ah-cell ' + ((Math.floor(i / COLS) + i) % 2 ? 'b' : 'a')}></i>`)}
-              <i class="ah-mid"></i><i class="ah-ring"></i>
+              ${corners}<i class="ah-mid"></i><i class="ah-ring"></i>
               <i class="ah-crease top"></i><i class="ah-crease bottom"></i>
               <i class="ah-goal top"></i><i class="ah-goal bottom"></i>
               ${pc('bot', botRef)}

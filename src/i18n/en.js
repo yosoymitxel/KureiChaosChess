@@ -744,6 +744,15 @@ export default {
     // src/ui/screens/fusion.js
     "fusion.help": "Swipe, use the arrows or the controller: every piece runs to that side. Two equal pieces that collide merge into the next one up the ladder, from pawn to king. After each move a pawn enters. Build the target piece before the board fills up.",
     // src/ui/screens/hockey.js
+    "carrom.queenYou": "The queen is yours!",
+    "carrom.queenBot": "The queen goes to the bot",
+    "carrom.foul": "Foul: the striker fell in",
+    "carrom.again": "Go again",
+    "carrom.botAgain": "The bot goes again",
+    "carrom.aria": "Round table: slide the striker along your arc and pull back to shoot",
+    "carrom.won": "You sank your {n} discs before the bot.",
+    "carrom.lost": "The bot sank its discs first: {a} to {b}.",
+    "carrom.help": "Drag the striker (the brass disc) along your arc, the bottom one, to choose where you shoot from. Then pull back from anywhere and release: it goes the opposite way, harder the further you pull (on keyboard, Z and X move it, arrows aim and dose, space shoots). Sink your four light discs before the bot sinks its own. The red queen counts as one of yours if you sink it. If you sink one of yours, you go again; if the striker falls in, it's a foul and one of your discs returns to the centre.",
     "golf.albatross": "Albatross!",
     "golf.eagle": "Eagle!",
     "golf.birdie": "Birdie!",
@@ -1099,6 +1108,7 @@ export default {
     witch: { name: 'The witch', desc: 'Minigame: collect the coins with your pieces without waking the sleeping witches; if one of your pieces can touch one, she wakes and hunts. Reward: mutation or piece.' },
     hockey: { name: 'Air hockey', desc: 'Minigame: drag your rook and score in the bot\'s goal; first to five goals wins. Reward: mutation or piece.', duo: { desc: 'At the same time: each moves the rook on their half.', opt: 'goals', label: 'Goals to win', choices: [[3, '3'], [5, '5'], [7, '7']] } },
     golf: { name: 'Table golf', desc: 'Minigame: three holes with sand, ice, pits and bouncy pieces; pull back and release to putt without going over your strokes. Reward: mutation or piece.' },
+    carrom: { name: 'Round billiards', desc: 'Minigame: carrom on a round table; slide the striker along your arc and sink your four discs before the bot. Reward: mutation or piece.' },
   },
 
   achievements: {
@@ -1156,6 +1166,7 @@ export default {
     free_mini: { name: 'Just for fun', desc: 'Win a minigame in free play, from the menu.' },
     hard_trio: { name: 'Triple crown', desc: 'Win three different minigames on Hard.' },
     hockey_shutout: { name: 'Clean sheet', desc: 'Win air hockey without conceding a goal.' },
+    carrom_clear: { name: 'Clean table', desc: 'Sink your four discs in a single turn in round billiards.' },
     golf_ace: { name: 'Hole in one', desc: 'Sink the ball in a single stroke in table golf.' },
     outbreak_one: { name: 'Patient zero', desc: 'Complete the Outbreak with a single dose.' },
     queens_fast: { name: 'Flying queens', desc: 'Solve the queens with a minute or more to spare.' },

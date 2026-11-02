@@ -1271,6 +1271,46 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 }
 [data-art="pixel"] .ah-puck i { background: var(--tk); box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 6px var(--tk-2); }
 [data-art="pixel"] .ah-ring { border-style: dashed; }
+/* La cámara de Ajustes (Cenital, Mesa, Épica) inclina también las mesas propias de los minis, como el
+   tablero (src/view/board-view.js CAMERAS). Con `rotate` y no `transform`: las sacudidas de Motion
+   escriben transform y no la pisan. Las figuras se estiran en vertical para seguir viéndose de pie. */
+:root { --cam: 0deg; }
+:root[data-camera="tilt"] { --cam: 40deg; }
+:root[data-camera="epic"] { --cam: 56deg; }
+/* Fuera la bolera (carril visto de lado) y Conecta 4 (tablero de pie); los de MiniBoard ya usan BoardView. */
+:has(> :is(.bm, .br, .fu)), .ah-wrap { perspective: 2000px; }
+:is(.bm:not(.bw), .br, .fu, .ah, .cr) { rotate: x var(--cam); transform-origin: 50% 60%; }
+.tk-corner { position: absolute; width: 0; height: 0; pointer-events: none; }
+.tk-tl { left: 0; top: 0; } .tk-tr { right: 0; top: 0; } .tk-br { right: 0; bottom: 0; } .tk-bl { left: 0; bottom: 0; }
+.bm-pc svg { transform-origin: 50% 100%; scale: 1 calc(1 / cos(var(--cam))); }
+.ah-fig svg { transform-origin: 50% 100%; scale: 1 calc(1 / cos(var(--cam))); }
+/* Billar redondo: mesa circular con casillas de tablero, cuatro agujeros, arcos de saque y fichas de damas.
+   Fichas y lanzador reutilizan el disco del hockey (.ah-puck) con el color de cada bando. */
+.cr {
+  position: relative; width: min(calc(100cqw - 8px), calc(100cqh - 8px), 560px); aspect-ratio: 1; border-radius: 50%; overflow: hidden;
+  border: 3px solid var(--ink); box-shadow: var(--lift), inset 0 0 0 calc(min(100cqw, 560px) * 0.03) var(--tile-side), inset 0 0 0 calc(min(100cqw, 560px) * 0.03 + 3px) var(--ink);
+  background: repeating-conic-gradient(var(--tile-a) 0 25%, var(--tile-b) 0 50%) 50% 50% / 25% 25%;
+  touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab;
+}
+.cr-lines { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: var(--ink); stroke-width: 1; opacity: 0.5; pointer-events: none; }
+.cr-lines .me { stroke: var(--side-light); stroke-width: 3; opacity: 1; }
+.cr-lines .bot { stroke: var(--side-dark); stroke-width: 3; opacity: 1; }
+.cr-pocket { position: absolute; width: calc(21 / 160 * 100%); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; background: var(--ink); box-shadow: inset 0 3px 0 oklch(0 0 0 / 0.6), 0 0 0 2px var(--tile-side); pointer-events: none; }
+.cr .cr-disc { width: calc(11.2 / 160 * 100%); }
+.cr .cr-striker { width: calc(14.8 / 160 * 100%); z-index: 3; }
+.cr-disc.me i { --tk: var(--side-light); --tk-2: color-mix(in oklch, var(--side-light), var(--ink) 38%); }
+.cr-disc.bot i { --tk: var(--side-dark); --tk-2: color-mix(in oklch, var(--side-dark), var(--ink) 38%); }
+.cr-disc.queen i { --tk: var(--accent); --tk-2: color-mix(in oklch, var(--accent), var(--ink) 38%); }
+.cr-striker.foe i { --tk: color-mix(in oklch, var(--brass), var(--side-dark) 35%); }
+.cr-disc.gone { opacity: 0; }
+.cr.lost { filter: saturate(0.35) brightness(0.85); transition: filter 0.8s var(--ease-out); }
+.mini-stats .chip.on { outline: 2px solid var(--brass); outline-offset: 1px; }
+/* Píxel: sin curvas en todo el juego; la mesa redonda es un círculo escalonado. */
+[data-art="pixel"] .cr { clip-path: polygon(60.0% 0.0%, 60.0% 2.5%, 70.0% 2.5%, 70.0% 5.0%, 75.0% 5.0%, 75.0% 7.5%, 77.5% 7.5%, 77.5% 10.0%, 82.5% 10.0%, 82.5% 12.5%, 85.0% 12.5%, 85.0% 15.0%, 87.5% 15.0%, 87.5% 17.5%, 90.0% 17.5%, 90.0% 20.0%, 90.0% 22.5%, 92.5% 22.5%, 92.5% 25.0%, 95.0% 25.0%, 95.0% 27.5%, 95.0% 30.0%, 97.5% 30.0%, 97.5% 32.5%, 97.5% 35.0%, 97.5% 37.5%, 97.5% 40.0%, 100.0% 40.0%, 100.0% 42.5%, 100.0% 45.0%, 100.0% 47.5%, 100.0% 50.0%, 100.0% 52.5%, 100.0% 55.0%, 100.0% 57.5%, 100.0% 60.0%, 97.5% 60.0%, 97.5% 62.5%, 97.5% 65.0%, 97.5% 67.5%, 97.5% 70.0%, 95.0% 70.0%, 95.0% 72.5%, 95.0% 75.0%, 92.5% 75.0%, 92.5% 77.5%, 90.0% 77.5%, 90.0% 80.0%, 90.0% 82.5%, 87.5% 82.5%, 87.5% 85.0%, 85.0% 85.0%, 85.0% 87.5%, 82.5% 87.5%, 82.5% 90.0%, 77.5% 90.0%, 77.5% 92.5%, 75.0% 92.5%, 75.0% 95.0%, 70.0% 95.0%, 70.0% 97.5%, 60.0% 97.5%, 60.0% 100.0%, 40.0% 100.0%, 40.0% 97.5%, 30.0% 97.5%, 30.0% 95.0%, 25.0% 95.0%, 25.0% 92.5%, 22.5% 92.5%, 22.5% 90.0%, 17.5% 90.0%, 17.5% 87.5%, 15.0% 87.5%, 15.0% 85.0%, 12.5% 85.0%, 12.5% 82.5%, 10.0% 82.5%, 10.0% 80.0%, 10.0% 77.5%, 7.5% 77.5%, 7.5% 75.0%, 5.0% 75.0%, 5.0% 72.5%, 5.0% 70.0%, 2.5% 70.0%, 2.5% 67.5%, 2.5% 65.0%, 2.5% 62.5%, 2.5% 60.0%, 0.0% 60.0%, 0.0% 57.5%, 0.0% 55.0%, 0.0% 52.5%, 0.0% 50.0%, 0.0% 47.5%, 0.0% 45.0%, 0.0% 42.5%, 0.0% 40.0%, 2.5% 40.0%, 2.5% 37.5%, 2.5% 35.0%, 2.5% 32.5%, 2.5% 30.0%, 5.0% 30.0%, 5.0% 27.5%, 5.0% 25.0%, 7.5% 25.0%, 7.5% 22.5%, 10.0% 22.5%, 10.0% 20.0%, 10.0% 17.5%, 12.5% 17.5%, 12.5% 15.0%, 15.0% 15.0%, 15.0% 12.5%, 17.5% 12.5%, 17.5% 10.0%, 22.5% 10.0%, 22.5% 7.5%, 25.0% 7.5%, 25.0% 5.0%, 30.0% 5.0%, 30.0% 2.5%, 40.0% 2.5%, 40.0% 0.0%); }
+[data-art="pixel"] .cr { border: 0; box-shadow: none; }
+[data-art="pixel"] .ah-wrap:has(> .cr) { filter: drop-shadow(3px 0 0 var(--ink)) drop-shadow(-3px 0 0 var(--ink)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 -3px 0 var(--ink)) drop-shadow(0 6px 0 oklch(0 0 0 / 0.35)); }
+[data-art="pixel"] .cr { background: repeating-conic-gradient(var(--tile-a) 0 25%, var(--tile-b) 0 50%) 50% 50% / 25% 25%; }
+[data-art="pixel"] .cr-pocket { clip-path: polygon(30% 0, 70% 0, 70% 10%, 90% 10%, 90% 30%, 100% 30%, 100% 70%, 90% 70%, 90% 90%, 70% 90%, 70% 100%, 30% 100%, 30% 90%, 10% 90%, 10% 70%, 0 70%, 0 30%, 10% 30%, 10% 10%, 30% 10%); }
 /* Golf de mesa: la misma mesa del hockey con suelos (arena, hielo, hueco), el hoyo con banderín y la guía de tiro. */
 .gf { cursor: grab; }
 .gf .ah-pc { width: calc(12.8 / 96 * 100%); }
@@ -1284,12 +1324,12 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 /* Banderín clavado en el hoyo. */
 .gf-cup b { position: absolute; left: 50%; bottom: 50%; width: 2px; height: 260%; background: var(--ink); }
 .gf-cup b::after { content: ''; position: absolute; left: 2px; top: 0; width: 220%; height: 34%; min-width: 9px; background: var(--accent); clip-path: polygon(0 0, 100% 50%, 0 100%); }
-.gf-aim { position: absolute; left: 0; top: 0; height: 6px; margin-top: -3px; transform-origin: 0 50%; pointer-events: none; z-index: 5; transition: opacity 0.15s;
+.tk-aim { position: absolute; left: 0; top: 0; height: 6px; margin-top: -3px; transform-origin: 0 50%; pointer-events: none; z-index: 5; transition: opacity 0.15s;
   background: radial-gradient(circle, color-mix(in oklch, var(--brass), var(--accent) calc(var(--pow, 0) * 100%)) 0 45%, transparent 52%) 0 0 / 10px 6px repeat-x; filter: drop-shadow(0 0 1px var(--ink)) drop-shadow(0 1px 0 var(--ink)); }
 .mini-stats .chip.warn { color: var(--accent); }
 [data-art="pixel"] .gf-cup { border-radius: 2px; }
 [data-art="pixel"] .ah-cell.gf-v::before { border-radius: 0; }
-[data-art="pixel"] .gf-aim { background: linear-gradient(90deg, var(--brass) 0 50%, transparent 50%) 0 0 / 10px 6px repeat-x; filter: drop-shadow(0 0 0 var(--ink)); }
+[data-art="pixel"] .tk-aim { background: linear-gradient(90deg, var(--brass) 0 50%, transparent 50%) 0 0 / 10px 6px repeat-x; filter: drop-shadow(0 0 0 var(--ink)); }
 .br > .goo { z-index: 0; transform: none; }
 .br {
   --cell: max(16px, min(calc((100cqw - 10px) / var(--n)), calc((100cqh - 10px) / var(--n)), 64px));
