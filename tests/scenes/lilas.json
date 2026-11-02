@@ -54,7 +54,7 @@
     {
       "expect": {
         "noErrors": true,
-        "eval": "bench.match.pieces.find(p => p.row === 2 && p.col === 3).crowned && !!document.querySelector('.fx-disco') && !!document.querySelector('.screen[data-weather]')"
+        "eval": "bench.match.pieces.find(p => p.row === 2 && p.col === 3).promoted && !!document.querySelector('.fx-disco') && !!document.querySelector('.screen[data-weather]')"
       }
     }
   ],
