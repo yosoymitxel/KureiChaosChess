@@ -55,11 +55,11 @@ export function tap(s, r, c) {
   return turn(s, p);
 }
 
-// El bot tira y, si es listo, mueve el peón que más avanza con esa tirada.
+// El bot tira y, si es listo, empuja a su peón más adelantado (si no, tocar siempre el mismo peón le ganaba).
 export function enemy(s) {
   const mine = s.pawns.filter((p) => p.color === 'dark');
   const roll = 1 + Math.floor(s.rng() * 4);
-  const p = s.diff.bot === 'random' ? pick(s.rng, mine) : mine.reduce((a, b) => (advance(s, b, roll, true).row - b.row < advance(s, a, roll, true).row - a.row ? b : a));
+  const p = s.diff.bot === 'random' ? pick(s.rng, mine) : mine.reduce((a, b) => (advance(s, b, roll, true).row < advance(s, a, roll, true).row ? b : a));
   const { fx } = advance(s, p, roll);
   if (p.row === 0) { s.over = 'lose'; s.note = t('race.lost', 'Un peón rival llegó antes.'); }
   return { pre: [], post: fx };

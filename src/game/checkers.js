@@ -2,8 +2,8 @@
 // coronación en la última fila; la dama da un paso en cualquier diagonal. Reglas puras, sin DOM.
 // El marfil abajo sube; el carmesí arriba baja.
 export const DIFFS = {
-  facil: { name: 'Fácil', size: 6, rows: 2, depth: 0 },
-  normal: { name: 'Normal', size: 8, rows: 3, depth: 1 },
+  facil: { name: 'Fácil', size: 6, rows: 2, depth: 1 },
+  normal: { name: 'Normal', size: 8, rows: 3, depth: 2 },
   dificil: { name: 'Difícil', size: 10, rows: 4, depth: 3 },
 };
 const DIAG = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
@@ -53,6 +53,7 @@ export function play(s, move) {
   const from = { r: ok.p.r, c: ok.p.c };
   ok.p.r = ok.to.r; ok.p.c = ok.to.c;
   if (ok.cap) s.pieces = s.pieces.filter((x) => x !== ok.cap);
+  s.quiet = ok.cap || !ok.p.king ? 0 : (s.quiet || 0) + 1;
   const crowned = !ok.p.king && ok.p.r === (ok.p.side === 'light' ? 0 : s.n - 1);
   if (crowned) ok.p.king = true;
   // La cadena sigue si la misma pieza puede volver a capturar (coronar corta la cadena).
@@ -60,6 +61,8 @@ export function play(s, move) {
   if (!s.chain) s.turn = s.turn === 'light' ? 'dark' : 'light';
   s.last = { from, to: { ...ok.to }, cap: ok.cap, crowned, p: ok.p };
   if (!legal(s).length) s.over = s.turn === 'light' ? 'lose' : 'win';
+  // Tablas tras 40 jugadas de damas sin capturar: no vale dar vueltas para siempre (y no cuentan como victoria).
+  else if (s.quiet >= 40) { s.over = 'lose'; s.draw = true; }
   return s.last;
 }
 

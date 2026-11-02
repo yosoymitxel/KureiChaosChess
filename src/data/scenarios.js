@@ -140,7 +140,9 @@ export const SCENARIOS = {
       const start = [N - 1, Math.floor(rng() * N)];
       const route = knightRoute(rng, start);
       const free = shuffle(rng, [...Array((N - 1) * N).keys()].map((i) => key(Math.floor(i / N), i % N)).filter((k) => !route.includes(k)));
-      b.mines = new Set(free.slice(0, lv.mines));
+      // Primero se minan los saltos de +2 filas que se salen de la ruta: subir a lo bruto sin leer los números ganaba a menudo.
+      const greedy = new Set(route.flatMap((k) => { const [r, c] = k.split(',').map(Number); return [c - 1, c + 1].map((cc) => key(r - 2, cc)); }));
+      b.mines = new Set([...free.filter((k) => greedy.has(k)), ...free.filter((k) => !greedy.has(k))].slice(0, lv.mines));
       const knight = makePiece('knight', 'light', ...start);
       const seen = new Set();
       const near = (r, c) => [-1, 0, 1].flatMap((dr) => [-1, 0, 1].map((dc) => key(r + dr, c + dc))).filter((k) => b.mines.has(k)).length;

@@ -4,9 +4,10 @@
 export const LADDER = ['pawn', 'guard', 'knight', 'bishop', 'camel', 'rook', 'cannon', 'queen', 'king'];
 // Más casillas dan aire; el tablero chico obliga a pensar cada jugada.
 export const DIFFS = {
-  facil: { name: 'Fácil', n: 5, goal: 5 },
-  normal: { name: 'Normal', n: 4, goal: 6 },
-  dificil: { name: 'Difícil', n: 4, goal: 7 },
+  // Una meta más que antes: alternar abajo/izquierda ganaba casi siempre.
+  facil: { name: 'Fácil', n: 4, goal: 6 },
+  normal: { name: 'Normal', n: 4, goal: 7 },
+  dificil: { name: 'Difícil', n: 4, goal: 8 },
 };
 const DIRS = { up: [-1, 0], down: [1, 0], left: [0, -1], right: [0, 1] };
 

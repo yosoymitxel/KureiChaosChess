@@ -38,16 +38,18 @@ export const FIGHTERS = {
 
 // Tu equipo es fijo y variado; el rival crece con la dificultad.
 export const DIFFS = {
-  facil: { name: 'Fácil', mine: ['knight', 'bishop', 'rook'], foes: ['pawn', 'pawn', 'knight'] },
-  normal: { name: 'Normal', mine: ['knight', 'bishop', 'rook'], foes: ['guard', 'bishop', 'rook'] },
-  dificil: { name: 'Difícil', mine: ['knight', 'bishop', 'rook'], foes: ['camel', 'queen', 'king'] },
+  // foes: el rival saca 3 de este grupo, en orden al azar (con un equipo fijo bastaba memorizar un ataque).
+  facil: { name: 'Fácil', mine: ['knight', 'bishop', 'rook'], foes: ['pawn', 'pawn', 'knight', 'guard'] },
+  normal: { name: 'Normal', mine: ['knight', 'bishop', 'rook'], foes: ['guard', 'bishop', 'rook', 'knight', 'camel'] },
+  dificil: { name: 'Difícil', mine: ['knight', 'bishop', 'rook'], foes: ['camel', 'queen', 'king', 'rook', 'bishop'] },
 };
 
 const unit = (type, side) => ({ type, side, hp: FIGHTERS[type].hp, max: FIGHTERS[type].hp, guard: false, boost: false, heals: 2 });
 
-export function newDuel(key = 'normal') {
+export function newDuel(key = 'normal', rng = Math.random) {
   const diff = DIFFS[key] || DIFFS.normal;
-  return { diff, mine: diff.mine.map((t) => unit(t, 'light')), foes: diff.foes.map((t) => unit(t, 'dark')), over: null, log: [] };
+  const foes = diff.foes.map((t) => [rng(), t]).sort((a, b) => a[0] - b[0]).slice(0, 3).map(([, t]) => unit(t, 'dark'));
+  return { diff, mine: diff.mine.map((t) => unit(t, 'light')), foes, over: null, log: [] };
 }
 
 export const active = (team) => team.find((u) => u.hp > 0);

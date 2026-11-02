@@ -719,9 +719,9 @@ export default {
     // src/ui/screens/marcianos.js
     "marcianos.help": "Move with the arrows or A/D, shoot with space and wait with S. Each piece comes down its own way: the pawn straight, the knight switching columns, the bishop diagonally and the elephant sometimes two at a time. From the second wave on they fire projectiles: get out of their column. After three waves the great horde arrives; if a crimson piece reaches your row, you lose a life.",
     // src/ui/screens/outbreak.js
-    "outbreak.help": "You have a few doses. The piece you infect infects in turn every piece it attacks according to how it moves (the rook in a straight line, the knight in an L, the bishop diagonally; an infected pawn attacks diagonally upwards), and the chain goes on. One tap shows how far it would reach; another tap on the same piece spends the dose. Infect them all.",
+    "outbreak.help": "You have a few doses. The piece you infect infects in turn every piece it attacks according to how it moves (the rook in a straight line, the knight in an L, the bishop diagonally; an infected pawn attacks diagonally upwards), and the chain goes on. One tap shows whom it infects first; another tap on the same piece spends the dose. Infect them all.",
     // src/ui/screens/queens.js
-    "queens.help": "Tap squares to place queens: none can share a row, column or diagonal, and the ones that clash are marked red. Place all {n} before time runs out.",
+    "queens.help": "Tap squares to place queens: none can share a row, column or diagonal, and the ones that clash are marked red. The two crimson ones are already set and don't move. Place all {n} before time runs out.",
     // src/ui/screens/duel.js
     "duel.hp": "Health {n} of {max}",
     "duel.guard": "Guard",
@@ -892,7 +892,7 @@ export default {
     "fusion.push": "Push",
     // src/ui/screens/outbreak.js
     "outbreak.board": "Outbreak board",
-    "outbreak.preview": "This dose would infect {n}. Tap again to use it.",
+    "outbreak.preview": "This dose first infects {n}; from there the chain goes on. Tap again to use it.",
     "outbreak.status": "Tap a crimson piece to see how far the infection reaches.",
     "outbreak.doses": "Doses {n}",
     "outbreak.healthy": "Healthy {n}",

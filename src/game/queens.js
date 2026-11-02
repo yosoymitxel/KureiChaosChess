@@ -8,9 +8,24 @@ export const DIFFS = {
 
 const attacks = (a, b) => a.r === b.r || a.c === b.c || Math.abs(a.r - b.r) === Math.abs(a.c - b.c);
 
-export const newQueens = (key = 'normal') => {
+// Una solución al azar (vuelta atrás con columnas barajadas).
+function solution(n, rng) {
+  const cols = [];
+  const ok = (r, c) => cols.every((cc, rr) => cc !== c && Math.abs(cc - c) !== r - rr);
+  const go = (r) => {
+    if (r === n) return true;
+    for (const c of [...Array(n).keys()].sort(() => rng() - 0.5)) if (ok(r, c)) { cols.push(c); if (go(r + 1)) return true; cols.pop(); }
+    return false;
+  };
+  go(0);
+  return cols.map((c, r) => ({ r, c }));
+}
+
+// Dos reinas ya puestas (de una solución al azar): con el tablero vacío bastaba memorizar una respuesta.
+export const newQueens = (key = 'normal', rng = Math.random) => {
   const diff = DIFFS[key] || DIFFS.normal;
-  return { n: diff.n, seconds: diff.seconds, queens: [], over: null };
+  const fixed = solution(diff.n, rng).sort(() => rng() - 0.5).slice(0, 2).map((q) => ({ ...q, fixed: true }));
+  return { n: diff.n, seconds: diff.seconds, queens: fixed, over: null };
 };
 
 export const clashing = (s) => s.queens.filter((q) => s.queens.some((o) => o !== q && attacks(q, o)));
@@ -18,6 +33,7 @@ export const clashing = (s) => s.queens.filter((q) => s.queens.some((o) => o !==
 export function toggle(s, r, c) {
   if (s.over) return false;
   const i = s.queens.findIndex((q) => q.r === r && q.c === c);
+  if (i >= 0 && s.queens[i].fixed) return false;
   if (i >= 0) s.queens.splice(i, 1);
   else if (s.queens.length < s.n) s.queens.push({ r, c });
   else return false;

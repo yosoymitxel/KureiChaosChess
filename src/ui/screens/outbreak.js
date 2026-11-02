@@ -51,7 +51,8 @@ export function OutbreakScreen({ sub, onBack, onEnd, endLabel = t('common.contin
 
   const pieces = s.pieces.map((p) => ({ id: p.id, type: p.type, color: shown.has(p.id) ? 'light' : 'dark', infected: shown.has(p.id), row: p.row, col: p.col }));
   const marks = new Map();
-  if (sel) for (const [i, w] of chain(s, sel).entries()) for (const x of w) marks.set(key(x.row, x.col), i ? 'hot gain' : 'foot');
+  // Solo el primer salto: con la cadena entera a la vista bastaba elegir el número más alto.
+  if (sel) for (const [i, w] of chain(s, sel).slice(0, 2).entries()) for (const x of w) marks.set(key(x.row, x.col), i ? 'hot gain' : 'foot');
   const left = s.pieces.filter((p) => !p.sick).length;
 
   return html`<div class="screen mini">
@@ -60,10 +61,10 @@ export function OutbreakScreen({ sub, onBack, onEnd, endLabel = t('common.contin
       <div class="mini-main">
         <${MiniBoard} weather=${TIED_WEATHER.outbreak} board=${board} pieces=${pieces} marks=${[...marks]} disabled=${!!s.over || busy} label=${t('outbreak.board', 'Tablero del brote')} onTap=${tap} onView=${(v) => (view.current = v)} />
         <div class="mini-side">
-          ${!s.over && html`<p class="mini-status" aria-live="polite">${sel ? t('outbreak.preview', 'Esta dosis contagiaría {n}. Toca otra vez para usarla.', { n: [...marks.keys()].length }) : t('outbreak.status', 'Toca una pieza carmesí para ver hasta dónde llega el contagio.')}</p>`}
+          ${!s.over && html`<p class="mini-status" aria-live="polite">${sel ? t('outbreak.preview', 'Esta dosis contagia primero a {n}; desde ahí, la cadena sigue. Toca otra vez para usarla.', { n: [...marks.keys()].length - 1 }) : t('outbreak.status', 'Toca una pieza carmesí para ver hasta dónde llega el contagio.')}</p>`}
           ${!s.over && html`<div class="mini-stats"><span class="chip">${t('outbreak.doses', 'Dosis {n}', { n: s.doses - s.used })}</span><span class="chip">${t('outbreak.healthy', 'Sanas {n}', { n: left })}</span></div>`}
           ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? t('outbreak.won', 'Brote completo con {n} dosis.', { n: s.used }) : t('outbreak.lost', 'Quedaron {n} piezas sanas.', { n: left })} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
-          <${MiniTools} mini="outbreak" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('outbreak.help', 'Tienes unas pocas dosis. La pieza que contagias contagia a su vez a todas las que ataca según cómo se mueve (la torre en línea recta, el caballo en L, el alfil en diagonal; el peón contagiado ataca en diagonal hacia arriba), y la cadena sigue. Un toque enseña hasta dónde llegaría; otro toque en la misma pieza gasta la dosis. Contagia a todas.')}<//>
+          <${MiniTools} mini="outbreak" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('outbreak.help', 'Tienes unas pocas dosis. La pieza que contagias contagia a su vez a todas las que ataca según cómo se mueve (la torre en línea recta, el caballo en L, el alfil en diagonal; el peón contagiado ataca en diagonal hacia arriba), y la cadena sigue. Un toque enseña a quién contagia primero; otro toque en la misma pieza gasta la dosis. Contagia a todas.')}<//>
         </div>
       </div>
     </div>

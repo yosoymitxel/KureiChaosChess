@@ -29,7 +29,7 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = t('common.continue
     return () => clearInterval(id);
   }, []);
 
-  const pieces = s.queens.map((q) => ({ id: key(q.r, q.c), type: 'queen', color: 'light', row: q.r, col: q.c }));
+  const pieces = s.queens.map((q) => ({ id: key(q.r, q.c), type: 'queen', color: q.fixed ? 'dark' : 'light', row: q.r, col: q.c }));
   const marks = new Map(clashing(s).map((q) => [key(q.r, q.c), 'cap danger']));
   return html`<div class="screen mini">
     <${Topbar} title=${MODIFIERS.queens.name} sub=${sub} onBack=${onBack} />
@@ -42,7 +42,7 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = t('common.continue
             <span class=${'chip' + (time <= 30 ? ' danger' : '')} aria-label=${t('queens.time', 'Quedan {n} segundos', { n: time })}><b>${time}</b> s</span>
           </div>`}
           ${s.over && html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? t('queens.won', '{n} reinas conviviendo sin atacarse.', { n: s.n }) : t('queens.lost', 'Se acabó el tiempo con {n} de {total} reinas.', { n: s.queens.length, total: s.n })} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`}
-          <${MiniTools} mini="queens" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('queens.help', 'Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Completa las {n} antes de que se acabe el tiempo.', { n: s.n })}<//>
+          <${MiniTools} mini="queens" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('queens.help', 'Toca casillas para colocar reinas: ninguna puede compartir fila, columna ni diagonal, y las que chocan se marcan en rojo. Las dos carmesíes ya están puestas y no se mueven. Completa las {n} antes de que se acabe el tiempo.', { n: s.n })}<//>
         </div>
       </div>
     </div>

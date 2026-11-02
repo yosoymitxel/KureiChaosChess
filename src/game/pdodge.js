@@ -28,7 +28,8 @@ export function next(s, p) {
 }
 const danger = (s) => s.falling.map((p) => next(s, p)).filter(Boolean).map(([r, c]) => [r, c]);
 const options = (s) => [[0, 0], ...[-1, 0, 1].flatMap((dr) => [-1, 0, 1].map((dc) => [dr, dc]))].map(([dr, dc]) => [s.king.row + dr, s.king.col + dc])
-  .filter(([r, c]) => inside(s.board, r, c) && (!at(s.falling, r, c) || (r === s.king.row && c === s.king.col)));
+  // La fila de arriba no es refugio: ahí no cae nada (antes, subir y quedarse ganaba siempre).
+  .filter(([r, c]) => r > 0 && inside(s.board, r, c) && (!at(s.falling, r, c) || (r === s.king.row && c === s.king.col)));
 
 // Piezas nuevas arriba, sin dejar al rey sin escapatoria; de vez en cuando, una estrella.
 function spawn(s) {

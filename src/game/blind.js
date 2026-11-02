@@ -55,9 +55,14 @@ export function fire(s) {
     foes.push({ id: 'f' + s.ids++, row, col, dir: 0, foe: true });
   }
   const all = [...s.mine, ...foes];
+  let hunter = rng() < s.diff.aim * 0.1;
   for (const f of foes) {
     if (rng() < s.diff.aim) {
-      const len = (d) => ray(s, { ...f, dir: d }, all).length;
+      // Una sola por andanada apunta a una dama tuya si alguna línea acaba en ella (si no, juntarlas en un
+      // rincón ganaba); las demás buscan la línea más larga.
+      const seek = hunter && s.mine.length > 0;
+      const len = (d) => { const cells = ray(s, { ...f, dir: d }, all), end = cells.at(-1), hit = seek && end && occupied(s.mine, ...end); return (hit ? 100 : 0) + cells.length; };
+      if (seek && len([...DIRS.keys()].sort((a, b) => len(b) - len(a))[0]) >= 100) hunter = false;
       f.dir = [...DIRS.keys()].sort((a, b) => len(b) - len(a))[0];
     } else f.dir = Math.floor(rng() * 8);
   }

@@ -8,10 +8,12 @@ export const DIFFS = {
 };
 const DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
-export const newBarrier = (key = 'normal') => {
+// Salidas en columnas al azar: con las dos fijas la partida era idéntica cada vez y bastaba memorizarla.
+export const newBarrier = (key = 'normal', rng = Math.random) => {
   const fences = (DIFFS[key] || DIFFS.normal).fences;
+  const col = () => 1 + Math.floor(rng() * (N - 2));
   return {
-    pos: { light: { r: N - 1, c: 3 }, dark: { r: 0, c: 3 } },
+    pos: { light: { r: N - 1, c: col() }, dark: { r: 0, c: col() } },
     goal: { light: 0, dark: N - 1 },
     left: { light: fences, dark: fences },
     walls: [], turn: 'light', over: null,

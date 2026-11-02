@@ -26,9 +26,11 @@ export const LOOT = { pawn: 2 };
 export function newZombie(key = 'normal', rng = Math.random) {
   const diff = DIFFS[key] || DIFFS.normal;
   const defense = DEFENSES[Math.floor(rng() * DEFENSES.length)];
+  // Espejo al azar: con solo tres defensas fijas, una receta memorizada ganaba siempre.
+  const flip = rng() < 0.5 ? (c) => COLS - 1 - c : (c) => c;
   return {
     board: { rows: ROWS, cols: COLS, holes: new Set(), terrain: new Map(), portals: new Map() },
-    pieces: defense.map(([t, r, c]) => makePiece(t, 'light', r, c, { royal: false })),
+    pieces: defense.map(([t, r, c]) => makePiece(t, 'light', r, flip(c), { royal: false })),
     coins: diff.budget, over: null, captures: [], diff,
     trophies: new Set(diff.trophies), taken: [],
   };

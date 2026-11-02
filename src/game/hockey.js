@@ -14,13 +14,14 @@ const STALL_T = 4; // disco quieto en la raya: se vuelve a sacar
 export const HOLD_T = 7; // regla de mesa: nadie retiene el disco en su mitad más de 7 s
 const DT = 1 / 240; // subpaso fijo: ningún choque se salta a tope de velocidad
 
+// you: tope de tu torre; por debajo del disco, para que pegar el dedo al disco no gane solo.
 // react: cada cuánto replantea (s); speed: tope de su torre; err: error de puntería y de lectura (u);
 // guard: lo que se adelanta de su portería al defender; bank: cuántos tiros intenta por banda;
 // read: si lee los rebotes en banda al defender (si no, sigue la línea recta y la banda lo engaña).
 export const DIFFS = {
-  facil: { name: 'Fácil', react: 0.3, speed: 115, err: 14, guard: 16, bank: 0.1, read: false },
-  normal: { name: 'Normal', react: 0.16, speed: 165, err: 8, guard: 20, bank: 0.3, read: false },
-  dificil: { name: 'Difícil', react: 0.1, speed: 205, err: 5, guard: 24, bank: 0.45, read: true },
+  facil: { name: 'Fácil', react: 0.3, speed: 115, err: 14, guard: 16, bank: 0.1, read: false, you: 300 },
+  normal: { name: 'Normal', react: 0.16, speed: 165, err: 8, guard: 20, bank: 0.3, read: false, you: 250 },
+  dificil: { name: 'Difícil', react: 0.1, speed: 205, err: 5, guard: 24, bank: 0.45, read: true, you: 230 },
 };
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -183,7 +184,7 @@ function sub(s, dt, bots) {
     s.ai[side] = (s.ai[side] ?? 0) - dt;
     if (s.ai[side] <= 0) { s.ai[side] = d.react; think(s, side); }
   }
-  drive(s.me, bots.includes('me') ? (s.foeDiff || s.diff).speed : PLAYER_MAX, dt);
+  drive(s.me, bots.includes('me') ? (s.foeDiff || s.diff).speed : s.duo ? PLAYER_MAX : s.diff.you, dt);
   drive(s.bot, s.duo ? PLAYER_MAX : s.diff.speed, dt);
   if (s.pause > 0) {
     // En el saque el disco está clavado: las torres no lo atraviesan (si no, al soltarlo salía hacia atrás).
