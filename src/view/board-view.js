@@ -443,13 +443,14 @@ export class BoardView {
     for (const k of footprint) this.tiles.get(k)?.classList.add('foot');
   }
   // cells: Set of "r,c"; captures: Set of "r,c" with an enemy
-  showMoves(cells, captures, danger = false) {
+  showMoves(cells, captures, danger = false, castles) {
     this.clearMarks();
     for (const k of cells) {
       const t = this.tiles.get(k);
       if (!t) continue;
       t.classList.add(captures.has(k) ? 'cap' : 'mv');
       if (danger) t.classList.add('danger');
+      if (castles?.has(k)) t.classList.add('castle');
     }
     // Un coleccionable al alcance lleva el aro verde alrededor: el punto quedaría tapado debajo.
     for (const el of this.tilesEl.querySelectorAll('.prop:not(.grab)')) el.classList.toggle('reach', cells.has(el.style.getPropertyValue('--r') + ',' + el.style.getPropertyValue('--c')));

@@ -221,7 +221,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const caps = new Set();
       for (const m of moves) if (m.hits.length) for (const v of m.hits) for (const [r, c] of cellsOf(v)) caps.add(key(r, c));
       const cells = moveCells(p, moves);
-      d.view.showMoves(cells, new Set([...cells].filter((k) => caps.has(k))), danger);
+      d.view.showMoves(cells, new Set([...cells].filter((k) => caps.has(k))), danger, new Set(moves.filter((m) => m.castle).map((m) => key(m.row, m.col))));
       return moves;
     };
     // Detalle de una pieza para el panel: separa lo que añadieron las mutaciones, las cartas o un

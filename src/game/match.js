@@ -64,7 +64,10 @@ export class Match {
         for (let c = piece.col + s; c !== rook.col; c += s) if (!open(piece.row, c)) clear = false;
         // El rey no enroca a través de una casilla atacada.
         if (!clear || [1, 2].some((k) => this.attacked(piece, piece.row, piece.col + k * s))) continue;
-        out.push({ row: piece.row, col: piece.col + 2 * s, hits: [], castle: { rook, col: piece.col + s } });
+        // Si una carta ya llevaba al rey a esa casilla, gana el enroque (se marca en azul).
+        const to = piece.col + 2 * s;
+        for (let i = out.length - 1; i >= 0; i--) if (out[i].row === piece.row && out[i].col === to && !out[i].hits.length) out.splice(i, 1);
+        out.push({ row: piece.row, col: to, hits: [], castle: { rook, col: piece.col + s } });
       }
     }
     return out;

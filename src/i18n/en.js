@@ -11,6 +11,7 @@ export default {
     'menu.newRunConfirm': 'Your current run will be lost. Sure?',
     'menu.minis': 'Minigames',
     'menu.versus': 'Local match',
+    'menu.multi': 'Multiplayer',
     'menu.rules': 'Rules',
     'menu.settings': 'Settings',
     'menu.fullscreen': 'Fullscreen',

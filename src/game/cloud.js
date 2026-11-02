@@ -6,6 +6,8 @@ import { exportSave, importSave } from './backup.js';
 const URL_ = 'https://fxjhuodttsbcyncpkcxb.supabase.co';
 const KEY = 'sb_publishable_LWVoByppthU1ihW1LvqdNA_CfSA2chx';
 const SESSION = 'kurei.cloud.session';
+// El enlace del correo vuelve siempre a la web (desde el zip de itch.io no hay URL estable); luego se entra con la contraseña.
+const BACK = 'https://yosoymitxel.github.io/KureiChaosChess/';
 
 const load = () => { try { return JSON.parse(localStorage.getItem(SESSION)); } catch { return null; } };
 const keep = (s) => { try { s ? localStorage.setItem(SESSION, JSON.stringify(s)) : localStorage.removeItem(SESSION); } catch {} return s; };
@@ -39,7 +41,7 @@ export async function signIn(email, password) {
   return 'in';
 }
 export async function signUp(email, password) {
-  const d = await call('/auth/v1/signup', { method: 'POST', body: { email, password } });
+  const d = await call('/auth/v1/signup?redirect_to=' + encodeURIComponent(BACK), { method: 'POST', body: { email, password } });
   return toSession(d) ? 'in' : 'confirm';
 }
 export async function signOut() {
@@ -72,3 +74,13 @@ export async function cloudDownload() {
   const code = rows[0]?.save_data?.code;
   return code ? importSave(code) : 0;
 }
+
+// Vuelta desde el enlace del correo: la sesión llega en el hash; se guarda y se limpia la URL.
+try {
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get('access_token')) {
+    const p = JSON.parse(atob(h.get('access_token').split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    toSession({ access_token: h.get('access_token'), refresh_token: h.get('refresh_token'), expires_in: +h.get('expires_in') || 3600, user: { id: p.sub, email: p.email } });
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+} catch {}
