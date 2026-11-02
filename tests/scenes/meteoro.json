@@ -1,0 +1,10 @@
+{
+  "cfg": { "node": { "modifier": "none" }, "pieces": ["king light 7 4", "king dark 0 4"] },
+  "themes": ["walnut", "pixelada"],
+  "steps": [
+    { "eval": "bench.view.setDoom([[3,3],[2,3],[4,3],[3,2],[3,4]])" },
+    { "wait": 400 },
+    { "shot": "aviso" },
+    { "expect": { "eval": "document.querySelectorAll('.doom-fx').length === (document.documentElement.dataset.art === 'pixel' ? 5 : 0)", "noErrors": true } }
+  ]
+}

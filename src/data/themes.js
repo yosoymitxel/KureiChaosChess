@@ -107,6 +107,9 @@ function pixelImages(pack) {
   return out;
 }
 
+// Efectos extra: encendidos de serie en las mesas píxel; en las demás, desde Ajustes o Pausa.
+export const vfxOn = (s) => s.fx ?? (THEMES[s.theme]?.art === 'pixel');
+
 let applied = [];
 export function applyTheme(id) {
   const t = THEMES[id] || THEMES.walnut;

@@ -4,7 +4,7 @@ import { Topbar, useEnter, Toggle, ThemeLook } from '../components.js';
 import { nodeModifier, MODIFIERS } from '../../data/modifiers.js';
 import { PREF_LIMITS, saveSettings } from '../../game/run.js';
 import { rivalForFloor, DIFFICULTIES } from '../../game/difficulty.js';
-import { THEMES } from '../../data/themes.js';
+import { THEMES, vfxOn } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
 import { exportSave, importSave, MAX_BACKUP_CODE_CHARS } from '../../game/backup.js';
@@ -194,7 +194,7 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
         <div class="set-toggles">
           <${Toggle} on=${settings.moments} onChange=${set('moments')} label=${t('settings.moments', 'Momentos destacados')} hint=${t('settings.momentsHint', 'Rótulos y cinemáticas en jugadas clave (se saltan con un toque)')} />
           <${Toggle} on=${settings.shake} onChange=${set('shake')} label=${t('settings.shake', 'Temblor de cámara')} hint=${t('settings.shakeHint', 'Impactos y derrumbes sacuden la mesa')} />
-          <${Toggle} on=${settings.vfx} onChange=${set('vfx')} label=${t('settings.vfx', 'Efectos extra (clima, auras…)')} hint=${t('settings.vfxHint', 'Lluvia, nieve, escudos y estelas sobre el tablero')} />
+          <${Toggle} on=${vfxOn(settings)} onChange=${set('fx')} label=${t('settings.vfx', 'Efectos extra (clima, auras…)')} hint=${t('settings.vfxHint', 'Lluvia, nieve, escudos y estelas sobre el tablero')} />
           ${canFullscreen && html`<${Toggle} on=${settings.fullscreen} onChange=${(v) => { set('fullscreen')(v); setFullscreen(v); }} label=${t('settings.fullscreen', 'Pantalla completa')} hint=${t('settings.fullscreenHint', 'Ahora y cada vez que empiece una partida')} />`}
         </div>
       </section>

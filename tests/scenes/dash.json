@@ -1,5 +1,5 @@
 {
-  "cfg": { "settings": { "vfx": true }, "run": { "cards": ["haste"] },
+  "cfg": { "settings": { "fx": true }, "run": { "cards": ["haste"] },
     "pieces": ["king light 7 4", "rook light 7 0", "pawn light 6 3", "king dark 0 4", "pawn dark 1 0"] },
   "viewports": ["mobile", "pc"], "themes": ["walnut", "pixelada"],
   "steps": [

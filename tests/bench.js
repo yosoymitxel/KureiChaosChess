@@ -1,6 +1,6 @@
 // Banco de pruebas de la partida: monta GameScreen con lo que diga `?cfg=` (JSON) para probar a mano
 // o desde tools/play.mjs. Todo es opcional:
-//   theme, lang ('es'|'en'), settings {vfx, speed, moments…}, seats [{color, kind, name}],
+//   theme, lang ('es'|'en'), settings {fx (efectos extra; sin él, según la mesa), speed, moments…}, seats [{color, kind, name}],
 //   node {modifier, isBoss, isMiniBoss, floor, floors, seed}, run {mutations, cards, bonuses},
 //   board {rows, cols, holes: [[r, c]]} y pieces ['rook light 6 0', {type, color, row, col, …extra}]
 //   (con piezas propias la partida arranca ya repartida, en esa posición exacta).

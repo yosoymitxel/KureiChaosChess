@@ -19,7 +19,7 @@ export class Fx {
     this.parts = [];
     this.sf = []; // efectos de Sprite Fusion en curso
     this.raf = 0;
-    this.vfx = false; // efectos extra (Sprite Fusion): Ajustes › Efectos extra, apagado por defecto
+    this.vfx = false; // efectos extra (Sprite Fusion): Ajustes › Efectos extra, de serie en las mesas píxel (vfxOn)
     this.ro = new ResizeObserver(() => this.resize());
     this.ro.observe(host); this.ro.observe(this.canvas);
     this.resize();

@@ -14,6 +14,7 @@ import { CARDS, cardTargets, previewMoves, playCard } from '../../game/cards.js'
 import { MODIFIERS, nodeModifier } from '../../data/modifiers.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { weatherFor, TIED_WEATHER } from '../../data/weather.js';
+import { vfxOn } from '../../data/themes.js';
 import { takeNewDemos, loadBosses } from '../../game/run.js';
 import { PIECE_NAMES, MOVE_NAMES } from '../../data/pieces.js';
 import { BOSSES } from '../../data/bosses.js';
@@ -629,7 +630,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     d.match = match;
     d.check = {};
     d.moments = new Moments(mainRef.current, { speed: settings.speed, enabled: settings.moments });
-    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, vfx: settings.vfx, speed: settings.speed, framed: !!scenario, pond: !scenario, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
+    d.view = new BoardView(hostRef.current, { camera: settings.camera, shake: settings.shake, vfx: vfxOn(settings), speed: settings.speed, framed: !!scenario, pond: !scenario, onTap, onDrop, canDrag, onImpact, onHover, onZoom: (z) => setZoom((v) => ((v > 1.01) === (z > 1.01) ? v : z)) });
     d.view.setBoard(board);
     d.view.setPieces(pieces);
     onDebug?.(d); // tests/bench.js
@@ -672,7 +673,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   }, []);
   const first = useRef(true);
   useEffect(() => { if (first.current) first.current = false; else ref.current.view?.restyle(); }, [settings.theme]);
-  useEffect(() => { ref.current.view?.setCamera(settings.camera); if (ref.current.view) { ref.current.view.shakeOn = settings.shake; ref.current.view.speed = settings.speed; ref.current.view.setVfx(settings.vfx); } if (ref.current.moments) Object.assign(ref.current.moments, { speed: settings.speed, enabled: settings.moments }); }, [settings]);
+  useEffect(() => { ref.current.view?.setCamera(settings.camera); if (ref.current.view) { ref.current.view.shakeOn = settings.shake; ref.current.view.speed = settings.speed; ref.current.view.setVfx(vfxOn(settings)); } if (ref.current.moments) Object.assign(ref.current.moments, { speed: settings.speed, enabled: settings.moments }); }, [settings]);
 
   const muts = Object.entries(countMutations(run.mutations || []));
   // Un toque explica el chip; el de peligro además hace latir las piezas amenazadas.

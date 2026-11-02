@@ -1,6 +1,7 @@
 import { html, useRef, useLayoutEffect } from './lib.js';
 import { BoardView } from '../view/board-view.js';
 import { loadSettings } from '../game/run.js';
+import { vfxOn } from '../data/themes.js';
 import { key } from '../game/rules.js';
 import { playSfx } from './sfx.js';
 
@@ -13,7 +14,7 @@ export function MiniBoard({ board, pieces, onTap, marks, labels, strikes, hidden
   tap.current = disabled ? null : onTap;
   useLayoutEffect(() => {
     const s = loadSettings();
-    view.current = new BoardView(host.current, { camera: s.camera, shake: s.shake, vfx: s.vfx, speed: s.speed, framed: true, onTap: (hit) => tap.current?.(hit.row, hit.col) });
+    view.current = new BoardView(host.current, { camera: s.camera, shake: s.shake, vfx: vfxOn(s), speed: s.speed, framed: true, onTap: (hit) => tap.current?.(hit.row, hit.col) });
     view.current.setWeather(weather);
     onView?.(view.current);
     return () => { view.current.ro.disconnect(); view.current.fx.destroy(); };

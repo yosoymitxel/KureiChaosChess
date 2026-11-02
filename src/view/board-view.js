@@ -1076,8 +1076,14 @@ export class BoardView {
   // Meteorito avisado: las casillas de la cruz laten en rojo hasta que cae.
   setDoom(cells = []) {
     if (cells.length) playSfx('alarm');
-    for (const t of this.tiles.values()) t.classList.remove('doom');
-    for (const [r, c] of cells) this.tiles.get(key(r, c))?.classList.add('doom');
+    for (const t of this.tiles.values()) { t.classList.remove('doom'); t.querySelector('.doom-fx')?.remove(); }
+    for (const [r, c] of cells) {
+      const t = this.tiles.get(key(r, c));
+      if (!t) continue;
+      t.classList.add('doom');
+      // Efectos extra: destello y franjas de peligro que corren por la zona marcada.
+      if (this.fx.vfx) t.append(Object.assign(document.createElement('i'), { className: 'doom-fx' }));
+    }
   }
   // Cae del cielo en diagonal con su estela, revienta en el centro de la cruz y la hunde con lo de encima.
   async meteor(cells, lost = []) {
