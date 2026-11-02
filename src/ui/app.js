@@ -27,13 +27,13 @@ import { Moments } from './moments.js';
 import { playDemo, mutationDemo } from './demos.js';
 import { BOSS_IDS } from '../data/bosses.js';
 import { applyTheme } from '../data/themes.js';
-import { CARDS, HAND_LIMIT, handFull, pickCardChoices } from '../game/cards.js';
+import { CARDS, HAND_LIMIT, STARTER_CARDS, handFull, pickCardChoices } from '../game/cards.js';
 import { t, tp } from '../i18n/index.js';
 
 const REST_CARDS = [
-  { id: 'extra_mut', name: t('boon.extra_mut', 'Meditar'), desc: t('boon.extra_mut.desc', 'Elige una mutación de entre tres.'), icon: 'scroll', kind: 'boon' },
-  { id: 'promote_one', name: t('boon.promote_one', 'Ascenso'), desc: t('boon.promote_one.desc', 'Un peón empieza el próximo nodo como reina.'), icon: 'queen', kind: 'boon' },
-  { id: 'fury_now', name: t('boon.fury_now', 'Impulso'), desc: t('boon.fury_now.desc', '+1 movimiento sin captura por turno en el próximo nodo.'), icon: 'boot', kind: 'boon' },
+  { id: 'extra_mut', name: t('boon.extra_mut', 'Meditar'), desc: t('boon.extra_mut.desc', 'Elige una mutación de entre tres.'), icon: 'scroll', kind: 'rest' },
+  { id: 'promote_one', name: t('boon.promote_one', 'Ascenso'), desc: t('boon.promote_one.desc', 'Un peón empieza el próximo nodo como reina.'), icon: 'queen', kind: 'rest' },
+  { id: 'fury_now', name: t('boon.fury_now', 'Impulso'), desc: t('boon.fury_now.desc', '+1 movimiento sin captura por turno en el próximo nodo.'), icon: 'boot', kind: 'rest' },
 ];
 const BAG_CARDS = [
   { id: 'mut', name: t('boon.mut', 'Frasco extraño'), desc: t('boon.mut.desc', 'Una mutación al azar, ahora mismo.'), icon: 'flask', rarity: 'rare', kind: 'boon' },
@@ -128,7 +128,8 @@ export function App() {
     const board = { size: cfg.size === 'random' ? undefined : cfg.size, shape: cfg.shape === 'random' ? undefined : cfg.shape };
     return { id: `versus-${seed}`, seed, floor: round, versus: true, modifier, board };
   };
-  const versusRun = (cfg) => ({ seed: 0, map: { floors: Math.max(cfg.rounds, 1) }, mutations: [], bonuses: {}, cards: [], completed: {} });
+  // Cada bando con su mano inicial: en la partida local los dos juegan cartas (una por turno, como en la torre).
+  const versusRun = (cfg) => ({ seed: 0, map: { floors: Math.max(cfg.rounds, 1) }, mutations: [], bonuses: {}, cards: [], hands: { light: [...STARTER_CARDS], dark: [...STARTER_CARDS] }, completed: {} });
   const newVersus = (cfg = versus?.cfg || { game: 'chess', mod: 'random', size: 'random', shape: 'random', rounds: 1, goals: 5, diff: 'normal' }) => {
     setVersus({ key: 0, cfg, score: {}, round: 0, run: versusRun(cfg), node: versusNode(cfg) });
     goTo('versus-setup');
@@ -149,7 +150,7 @@ export function App() {
   };
   const versusNext = () => {
     if (!versus?.ended || versus.done) return goTo('menu');
-    setVersus((v) => ({ ...v, key: v.key + 1, round: v.round + 1, ended: false, node: versusNode(v.cfg, v.round + 1) }));
+    setVersus((v) => ({ ...v, key: v.key + 1, round: v.round + 1, ended: false, node: versusNode(v.cfg, v.round + 1), run: versusRun(v.cfg) }));
   };
   const openShop = (from) => () => { setShopFrom(from); goTo('shop'); };
 
@@ -308,7 +309,7 @@ export function App() {
     ${screen === 'versus' && versus?.seats && html`<${GameScreen} key=${versus.node.id + '-' + versus.key}
       node=${versus.node} run=${versus.run} seats=${versus.seats} settings=${settings} setSettings=${setSettings} exitLabel=${versus.ended && !versus.done ? t('versus.next', 'Siguiente ronda') : t('versus.toMenu', 'Al menú')}
       onRound=${versusRound} onExit=${versusNext} onMenu=${() => goTo('menu')} onAbandon=${() => goTo('menu')} onWin=${versusNext}
-      onUseCard=${() => {}} onRestart=${() => setVersus((v) => ({ ...v, key: v.key + 1, ended: false, done: false, score: v.ended ? v.prev : v.score }))} onHowTo=${() => setHowTo(true)} />`}
+      onUseCard=${(i, color) => setVersus((v) => ({ ...v, run: { ...v.run, hands: { ...v.run.hands, [color]: v.run.hands[color].filter((_, j) => j !== i) } } }))} onRestart=${() => setVersus((v) => ({ ...v, key: v.key + 1, ended: false, done: false, score: v.ended ? v.prev : v.score, run: versusRun(v.cfg) }))} onHowTo=${() => setHowTo(true)} />`}
     ${screen === 'reward' && reward && html`<${CardPick} key=${reward.kind + reward.cards.map((c) => c.id).join()}
       title=${REWARD_TEXT[reward.kind][0]}
       subtitle=${REWARD_TEXT[reward.kind][1] + (reward.coins ? ' ' + tp('reward.coins', reward.coins, 'La victoria paga {n} moneda del jardín.', 'La victoria paga {n} monedas del jardín.') : '') + (reward.seed ? ' ' + t('reward.seed', 'Cayó una semilla de {kind}.', { kind: ZEN_NAMES[reward.seed] }) : '')}

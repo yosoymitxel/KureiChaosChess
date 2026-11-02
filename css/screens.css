@@ -164,14 +164,16 @@
 /* El troquel dice qué es el nodo: cuadrada y verde = minijuego (otro juego, otra caja);
    latón = descanso (la hoguera); cuero = bolsa. Las partidas siguen redondas en papel. */
 .node.k-mini:not(.done) .coin { border-radius: 10px; background: var(--side-wild); color: var(--ink); --icon-cut: var(--side-wild); box-shadow: 0 3px 0 color-mix(in oklch, var(--side-wild), black 30%), 0 6px 0 var(--ink), var(--lift); }
-/* Bolsa y descanso dan objetos: el mismo ámbar que el marco de esas cartas. La élite da mutación: aro verde. */
-.node:is(.k-rest, .k-bag):not(.done) .coin { background: var(--k-boon); color: var(--ink); --icon-cut: var(--k-boon); box-shadow: 0 3px 0 color-mix(in oklch, var(--k-boon), black 25%), 0 6px 0 var(--ink), var(--lift); }
+/* La bolsa da objetos (ámbar) y el descanso ventajas para el próximo piso (turquesa): el mismo color que sus cartas. La élite da mutación: aro verde. */
+.node.k-bag:not(.done) .coin { background: var(--k-boon); color: var(--ink); --icon-cut: var(--k-boon); box-shadow: 0 3px 0 color-mix(in oklch, var(--k-boon), black 25%), 0 6px 0 var(--ink), var(--lift); }
+.node.k-rest:not(.done) .coin { background: var(--k-rest); color: var(--ink); --icon-cut: var(--k-rest); box-shadow: 0 3px 0 color-mix(in oklch, var(--k-rest), black 25%), 0 6px 0 var(--ink), var(--lift); }
 .node:disabled:not(.done) { opacity: 0.5; }
 .node.done .coin { background: var(--ink); color: var(--paper); --icon-cut: var(--ink); box-shadow: 0 2px 0 var(--ink); translate: 0 4px; }
 .node.open { cursor: pointer; }
 .node.open .coin { border-color: var(--accent); border-width: 3.5px; }
 .node.open:hover .coin { transform: translateY(-4px); }
-.node .label { position: absolute; top: calc(100% + 8px); font-size: 13px; font-weight: 700; background: var(--paper); border: 1.5px solid var(--ink); padding: 4px 8px; border-radius: 6px; white-space: nowrap; }
+.node .label small { display: block; font-size: 11px; font-weight: 600; opacity: 0.75; }
+.node .label { text-align: center; position: absolute; top: calc(100% + 8px); font-size: 13px; font-weight: 700; background: var(--paper); border: 1.5px solid var(--ink); padding: 4px 8px; border-radius: 6px; white-space: nowrap; }
 .map-pawn { position: absolute; translate: -50% -88%; pointer-events: none; z-index: 3; filter: drop-shadow(0 8px 6px oklch(0.12 0.03 55 / 0.4)); }
 
 /* Setup and settings */

@@ -107,6 +107,7 @@ h2 { font-size: 17px; font-weight: 750; }
 /* El marco dice el tipo con un color fijo en todas las mesas (tokens --k-*): azul táctica, verde mutación, ámbar objeto, lila guiño. */
 .face.kind-tactic { --frame: var(--k-tactic); --window: color-mix(in oklch, var(--k-tactic), black 45%); --frame-text: var(--paper); }
 .face.kind-mutation { --frame: var(--k-mutation); --window: color-mix(in oklch, var(--k-mutation), black 45%); --frame-text: var(--paper); }
+.face.kind-rest { --frame: var(--k-rest); --window: color-mix(in oklch, var(--k-rest), black 50%); --frame-text: var(--ink); }
 .face.kind-boon { --frame: var(--k-boon); --window: color-mix(in oklch, var(--k-boon), black 50%); --frame-text: var(--ink); }
 .card .face {
   display: flex; flex-direction: column; padding: 9px; gap: 7px;
@@ -137,7 +138,6 @@ h2 { font-size: 17px; font-weight: 750; }
 :is(.card, .hand-card) .face.epic::after { background-image: linear-gradient(115deg, transparent 30%, color-mix(in oklch, var(--brass) 55%, transparent) 45%, oklch(1 0 0 / 0.5) 50%, transparent 62%); animation-duration: 2.8s; }
 :is(.card, .hand-card) .face.lilac::after { background-image: linear-gradient(115deg, transparent 30%, oklch(0.9 0.08 310 / 0.5) 47%, oklch(1 0 0 / 0.45) 50%, transparent 62%); animation-duration: 3.4s; }
 @keyframes holo { 0%, 55% { background-position: 120% 0; } 100% { background-position: -20% 0; } }
-[data-art="pixel"] :is(.card, .hand-card) .face:is(.rare, .epic, .lilac)::after { animation-timing-function: steps(8); }
 @media (prefers-reduced-motion: reduce) { :is(.card, .hand-card) .face:is(.rare, .epic, .lilac)::after { animation: none; opacity: 0; } }
 .gem.lilac, .card .gem.lilac, .hand-card .gem.lilac { background: oklch(0.72 0.14 310); box-shadow: inset 0 0 0 2px var(--paper); }
 .card .gem { position: absolute; top: 15px; right: 15px; width: 16px; height: 16px; rotate: 45deg; border: 2px solid var(--ink); border-radius: 3px; background: var(--paper-3); }

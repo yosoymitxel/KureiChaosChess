@@ -162,7 +162,7 @@ function Card({ card, chosen, onPick, style }) {
   </div>`;
 }
 
-const KIND_LABEL = { tactic: t('kind.tactic', 'Táctica'), mutation: t('game.mutation', 'Mutación'), boon: t('kind.boon', 'Objeto') };
+const KIND_LABEL = { tactic: t('kind.tactic', 'Táctica'), mutation: t('game.mutation', 'Mutación'), boon: t('kind.boon', 'Objeto'), rest: t('kind.rest', 'Ventaja') };
 export const RARITY_LABEL = { common: t('rarity.common', 'común'), rare: t('rarity.rare', 'rara'), epic: t('rarity.epic', 'épica'), lilac: t('rarity.lilac', 'lila') };
 
 // One card anatomy for every card in the game (rewards, hand, previews):

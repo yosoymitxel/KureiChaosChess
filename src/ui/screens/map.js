@@ -60,7 +60,7 @@ export function MapScreen({ run, onBack, onSelect, onShop }) {
             class=${`node mod-${n.modifier}${kind ? ' k-' + kind : ''}${open ? ' open' : ''}${done ? ' done' : ''}${n.isMiniBoss ? ' boss mboss' : n.isBoss ? ' boss' : ''}`}
             style=${{ left: p.x + '%', top: p.y + 'px' }} onClick=${() => open && pick(n)} title=${mod.name}>
             <span class="coin"><${Icon} name=${done ? 'check' : mod.icon} size=${n.isBoss || n.isMiniBoss ? 36 : 26} /></span>
-            ${open && html`<span class="label">${mod.name}</span>`}
+            ${open && html`<span class="label">${mod.name}${mod.hint && html`<small>${mod.hint}</small>`}</span>`}
           </button>`;
         })}
         <div class="map-pawn" ref=${pawn} style=${{ left: pawnAt.x + '%', top: pawnAt.y + 'px' }}><${PieceIcon} type="pawn" side="light" size=${40} /></div>

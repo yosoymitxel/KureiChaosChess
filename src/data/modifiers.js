@@ -30,8 +30,8 @@ export const MODIFIERS = localize('modifiers', {
   ppawn: { id: 'ppawn', name: 'Todos peones', desc: 'Fiesta: todo el ejército, menos el rey, son peones, y coronan.', icon: 'hand', weights: [0.2, 0.3, 0.3] },
   horse: { id: 'horse', name: 'Caballería total', desc: 'Fiesta: todo el ejército, menos el rey, son caballos.', icon: 'hunt', weights: [0.2, 0.3, 0.3] },
   boss: { id: 'boss', name: 'El jefe', desc: 'Un coloso de varias casillas guarda el último piso.', icon: 'boss' },
-  rest: { id: 'rest', name: 'Descanso', desc: 'Un respiro. Elige un beneficio.', icon: 'rest', kind: 'rest', weights: [3, 3, 2] },
-  bag: { id: 'bag', name: 'Bolsa', desc: 'Una bolsa con un objeto.', icon: 'bag', kind: 'bag', weights: [3, 2, 2] },
+  rest: { id: 'rest', name: 'Descanso', hint: 'Ventaja para el próximo piso', desc: 'Un respiro: elige una ventaja que te ayuda en el próximo piso (o una mutación).', icon: 'rest', kind: 'rest', weights: [3, 3, 2] },
+  bag: { id: 'bag', name: 'Bolsa', hint: 'Objeto para tu ejército', desc: 'Una bolsa: elige un objeto (piezas extra, cartas o una mutación al azar).', icon: 'bag', kind: 'bag', weights: [3, 2, 2] },
   // `duo`: se juega a dos en Partida local; `opt` es la opción que se elige antes (choices: [valor, rótulo]).
   // Minigames: an interlude with its own rules. Winning pays a mutation or a piece and unlocks it in the menu.
   // Each one also needs its screen in src/data/minigame-catalog.js; tools/check-registry.mjs checks it.

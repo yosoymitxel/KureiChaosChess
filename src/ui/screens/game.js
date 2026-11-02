@@ -78,7 +78,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
   const coinRef = useRef(null);
   const [reach, setReach] = useState(null); // bando cuyo alcance se ve en el tablero
   const mod = scenario || nodeModifier(node);
-  ref.current.hand = run.cards || [];
+  // Partida local: cada bando tiene su mano (run.hands); en la torre, la de la run.
+  const handOf = (color) => (run.hands ? run.hands[color] || [] : run.cards || []);
+  ref.current.hand = handOf(hud?.color ?? seats.find((s) => s.kind === 'human')?.color);
   ref.current.onUseCard = onUseCard;
   const addLog = (m) => setLog((l) => [...l.slice(-30), m]);
 
@@ -142,6 +144,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
         counts: Object.fromEntries(seats.map((s) => [s.color, match.pieces.filter((x) => x.color === s.color).length])),
         canCard: p.kind === 'human' && !match.cardUsed && !match.over,
         myTurn: p.kind === 'human' && !match.over,
+        color: p.color,
         captured: Object.fromEntries(seats.map((s) => [s.color, d.dealt.filter((x) => x.color === s.color && !match.pieces.includes(x)).map((x) => x.type)])),
         turn: match.turn,
       });
@@ -197,7 +200,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (card.id === 'ascend' && res.piece.type !== 'queen') award('crown_minor');
       // Organizar se juega sola al empezar: no cuenta para la baraja.
       if (collect('cardsPlayed', id) >= CARD_IDS.filter((c) => !CARDS[c].preMatch).length) award('all_cards');
-      d.onUseCard(i);
+      d.onUseCard(i, match.player.color);
       addLog(`Carta: ${card.name}`);
       d.moments.callout({ text: `¡${card.name}!`, sub: card.desc, tone: 'brass', icon: card.icon, anim: 'stomp', tier: 'info' });
       await d.view.applyCard(res);
@@ -594,7 +597,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       // La carta se juega sola al empezar y sale de la mano: 2, 4, 6 u 8 intercambios según el tablero (8×8 a 11×11+).
       const total = 2 * Math.max(1, Math.min(4, Math.min(board.rows, board.cols) - 7));
       d.feats.cards++;
-      d.onUseCard(d.hand.indexOf('organize'));
+      d.onUseCard(d.hand.indexOf('organize'), match.player.color);
       award('organize');
       d.placing = { total, left: total };
       d.busy = true;
@@ -753,7 +756,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     setChipInfo({ id, title, text });
     if (id === 'threats') ref.current.view?.pulseThreats();
   };
-  const hand = run.cards || [];
+  const hand = handOf(hud?.color ?? seats.find((s) => s.kind === 'human')?.color);
   const leave = (kind, then) => ref.current.leave(kind, then);
   const zoomBy = (f) => ref.current.view?.setZoom(ref.current.view.zoom * f);
   usePad({

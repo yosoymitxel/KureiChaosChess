@@ -32,7 +32,8 @@
   /* Qué te da cada cosa: fijo en todas las mesas (los temas no lo tocan). Cartas, nodos del mapa y premios. */
   --k-tactic: oklch(0.56 0.15 255);   /* táctica: azul, se juega en la partida */
   --k-mutation: oklch(0.62 0.15 150); /* mutación: verde, cambia tus piezas para siempre */
-  --k-boon: oklch(0.76 0.14 75);      /* objeto: ámbar, bolsa y descanso */
+  --k-boon: oklch(0.76 0.14 75);      /* objeto: ámbar, bolsa */
+  --k-rest: oklch(0.7 0.11 200);      /* ventaja del descanso: turquesa, dura el próximo piso */
   --k-lilac: oklch(0.6 0.13 310);     /* lila: guiño gratis */
   --rar-rare: oklch(0.62 0.2 25);     /* gema rara: rubí */
   --rar-epic: oklch(0.8 0.15 85);     /* gema épica: oro */
