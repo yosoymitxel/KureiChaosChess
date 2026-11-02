@@ -14,6 +14,16 @@ import { boardPond } from '../ui/zen-art.js';
 import { playAPKBombBlast, playAPKVictory, playAPKTeleport, playAPKTransformVariant, playAPKDeathStyle, playAPKSpawnVariant, playAPKFloatingText } from '../lab/apk/effects.js';
 
 const pixelArt = () => document.documentElement.dataset.art === 'pixel';
+// Gallina del Gallinero: dos dibujos (vector y píxel), CSS elige según la mesa.
+const HEN = `<svg class="hen" viewBox="0 0 24 24" aria-hidden="true"><g class="hen-vec">
+<path d="M5 13c0-4 3-6 7-6 2 0 3-2 5-2 2 0 3 2 2 4l2 1-2 1c0 5-4 8-8 8s-6-2-6-6z" fill="#f6f1e6" stroke="#2a2018" stroke-width="1.2" stroke-linejoin="round"/>
+<path d="M16 4.5c.5-1.5 2-1.5 2.4-.3.8-.6 1.8.3 1.1 1.2" fill="#d7333a" stroke="#2a2018" stroke-width=".8"/>
+<circle cx="17.6" cy="8.4" r=".9" fill="#2a2018"/><path d="M7 13c2 1 4 1 6-1" fill="none" stroke="#c9b9a0" stroke-width="1.1"/>
+<path d="M10 19v3M13 19v3" stroke="#e8942f" stroke-width="1.3" stroke-linecap="round"/></g>
+<g class="hen-px" shape-rendering="crispEdges"><rect x="15" y="3" width="4" height="2" fill="#d7333a"/><rect x="13" y="5" width="6" height="2" fill="#2a2018"/>
+<rect x="14" y="7" width="5" height="3" fill="#f6f1e6"/><rect x="17" y="8" width="1" height="1" fill="#2a2018"/><rect x="19" y="8" width="2" height="2" fill="#e8942f"/>
+<rect x="5" y="10" width="14" height="8" fill="#f6f1e6"/><rect x="4" y="11" width="1" height="6" fill="#2a2018"/><rect x="5" y="18" width="14" height="1" fill="#2a2018"/>
+<rect x="7" y="13" width="6" height="2" fill="#c9b9a0"/><rect x="10" y="19" width="1" height="3" fill="#e8942f"/><rect x="13" y="19" width="1" height="3" fill="#e8942f"/></g></svg>`;
 import { t } from '../i18n/index.js';
 
 // Color con que se pinta una pieza: la bruja del Aquelarre va con el tercer color de la mesa (el
@@ -313,14 +323,14 @@ export class BoardView {
   addPiece(p) {
     const el = document.createElement('div');
     const [h, w] = sizeOf(p);
-    el.className = `pc side-${look(p)}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}${p.infected ? ' infected' : ''}${p.disc ? ' disc' : ''}${p.crown ? ' crown' : ''}`;
+    el.className = `pc side-${look(p)}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}${p.infected ? ' infected' : ''}${p.disc ? ' disc' : ''}${p.crown ? ' crown' : ''}${p.chicken ? ' chicken' : ''}`;
     el.dataset.pid = p.id;
     el.style.setProperty('--h', h); el.style.setProperty('--w', w);
     el.style.setProperty('--s', h * w > 1 ? Math.max(h, w) * 0.85 : 1); // multi-cell figures read bigger than one tile
     el.style.setProperty('--head', headTop(artOf(p)).toFixed(3));
     el.style.setProperty('--bd', `-${(Math.random() * 3.4).toFixed(2)}s`); // cada pieza respira a su ritmo
     el.innerHTML = `<div class="pc-shadow"></div><div class="pc-base"><i></i><i></i><i></i></div>
-      <div class="pc-stand"><div class="pc-fig"><div class="pc-art">${pieceSVG(artOf(p))}</div>${p.boss || p.maxHp > 1 ? this.hpHTML(p) : ''}<span class="pc-badge"></span></div></div>`;
+      <div class="pc-stand"><div class="pc-fig"><div class="pc-art">${p.chicken ? HEN : pieceSVG(artOf(p))}</div>${p.boss || p.maxHp > 1 ? this.hpHTML(p) : ''}<span class="pc-badge"></span></div></div>`;
     this.piecesEl.appendChild(el);
     this.els.set(p, el);
     const st = { r: p.row, c: p.col, z: 0 };

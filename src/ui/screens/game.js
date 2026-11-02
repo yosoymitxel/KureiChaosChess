@@ -712,6 +712,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     const learned = pieces.filter((p) => p.color !== 'light' && p.extraMoveTypes?.length).length;
     // On a boss floor enemy officers borrow moves: the star badge marks them and the entrance says so.
     const bossSub = boss && BOSSES[boss.boss].desc + (learned ? ' ' + t('game.lentStar', 'Sus oficiales llevan la estrella: movimientos prestados.') : '');
+    // La mecánica del piso queda siempre en el registro, aunque las cinemáticas estén apagadas.
+    if (!scenario && node.modifier && node.modifier !== 'none') addLog(`${mod.name}: ${mod.desc}`);
     if (boss) addLog(t('game.bossAppears', 'Aparece {name}', { name: boss.name }) + (learned ? ' · ' + tp('game.lentOfficers', learned, '{n} oficial con movimientos prestados', '{n} oficiales con movimientos prestados') : ''));
     refresh();
     // Al continuar una partida guardada solo se reparte el tablero: nada de presentación ni moneda.
@@ -723,6 +725,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     ])
       .then(() => boss && d.moments.cinematic({ title: boss.name, sub: bossSub, piece: { type: artOf(boss), side: boss.color }, hp: { hp: boss.hp, max: boss.maxHp }, tone: 'danger', anim: 'stomp' }))
       .then(() => playDemos(boss))
+      // En el piso del jefe no sale la tarjeta del piso: la mecánica (gallinero, patata…) se explica aquí.
+      .then(() => boss && !scenario && node.modifier && node.modifier !== 'none' && d.moments.cinematic({ title: mod.name, sub: mod.desc, icon: mod.icon }))
       .then(() => tossCoin())
       .then(() => beginPlacing());
     const onKey = (e) => e.key === 'Escape' && (e.preventDefault(), setPaused((v) => !v));

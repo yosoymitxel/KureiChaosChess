@@ -364,3 +364,10 @@
   75% { box-shadow: inset 0 0 0 100vmax oklch(0.8 0.2 150 / 0.32); }
 }
 @media (prefers-reduced-motion: reduce) { .fx-disco .tile { animation: none; } }
+
+/* Gallina del Gallinero: dibujo propio (no un peón), sin base de bando. */
+.pc.chicken .pc-base { display: none; }
+.pc.chicken .hen { width: 100%; height: 100%; }
+.hen-px { display: none; }
+[data-art="pixel"] .hen-vec { display: none; }
+[data-art="pixel"] .hen-px { display: inline; }
