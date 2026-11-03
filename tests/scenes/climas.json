@@ -96,6 +96,22 @@
    "expect": {
     "noErrors": true
    }
+  },
+  {
+   "expect": {
+    "eval": "getComputedStyle(document.querySelector('.screen'), '::before').animationName.includes('wx-')&&getComputedStyle(document.querySelector('.screen'), '::before').animationName!=='wx-in'"
+   }
+  },
+  {
+   "eval": "bench.view.setVfx(false); 1"
+  },
+  {
+   "wait": 200
+  },
+  {
+   "expect": {
+    "eval": "getComputedStyle(document.querySelector('.screen'), '::before').animationName === 'wx-in'"
+   }
   }
  ]
 }

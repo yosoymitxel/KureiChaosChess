@@ -54,6 +54,7 @@ button { font: inherit; color: inherit; }
 @keyframes wx-embers { to { background-position: 0px -165px, 37px -54px, 0 0, 0 0; } }
 
 @media (prefers-reduced-motion: reduce) { .screen[data-weather]::before { animation: none !important; } }
+:root .screen[data-weather]:not([data-wxmove])::before { animation: wx-in 1.2s ease-out both; }
 h1, h2, h3 { margin: 0; line-height: 1.05; letter-spacing: -0.02em; text-wrap: balance; }
 h2 { font-size: 17px; font-weight: 750; }
 

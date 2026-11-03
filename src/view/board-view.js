@@ -134,9 +134,10 @@ export class BoardView {
     // La pantalla lleva el clima para la capa de textura sobre su fondo (css/base.css).
     const scr = this.host.closest('.screen');
     if (scr) kind ? (scr.dataset.weather = kind) : delete scr.dataset.weather;
+    scr?.toggleAttribute('data-wxmove', !!this.fx.vfx); // sin efectos, la textura queda quieta (no repinta cada cuadro)
   }
   // El ajuste de efectos extra se puede cambiar en pausa: aplica al momento, clima incluido.
-  setVfx(on) { if (this.fx.vfx === !!on) return; this.fx.vfx = !!on; this.fx.setWeather(this.weather); }
+  setVfx(on) { if (this.fx.vfx === !!on) return; this.fx.vfx = !!on; this.setWeather(this.weather); }
   setCamera(camera) { this.tilt = CAMERAS[camera] ?? 40; this.layout(); }
 
   // Pellizco: --zoom escala la escena y --px/--py la desplazan. `at` es el punto de la pantalla que
