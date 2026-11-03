@@ -7,7 +7,7 @@ const KEY = 'zugzwang.shop.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
 const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
-export const CARD_PRICE = { common: 40, rare: 70, lilac: 30 };
+export const CARD_PRICE = { common: 40, rare: 70, lilac: 90 } // lilas: de risa y cosméticas, las más caras;
 // Lo que paga ganar una partida en la travesía; los nodos duros pagan más.
 export const COINS_PER_NODE = { normal: 15, elite: 25, miniBoss: 40, boss: 80 };
 // Las mesas de pago salen de su `price` en src/data/themes.js.

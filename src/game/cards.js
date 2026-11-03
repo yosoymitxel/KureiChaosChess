@@ -99,12 +99,12 @@ export const CARDS = localize('cards', {
   },
   disco: {
     id: 'disco', name: 'Disco', rarity: 'lilac', lilac: true, icon: 'checkers', target: 'none',
-    desc: 'Luces de colores sobre el tablero el resto de la partida. Gratis.',
+    desc: 'Luces de colores sobre el tablero el resto de la partida. No gasta tu carta del turno.',
     apply: () => ({ visual: 'disco' }),
   },
   skies: {
     id: 'skies', name: 'Cambio de clima', rarity: 'lilac', lilac: true, icon: 'drop', target: 'none',
-    desc: 'Cambia el clima de la mesa por otro al azar. Gratis.',
+    desc: 'Cambia el clima de la mesa por otro al azar. No gasta tu carta del turno.',
     apply: () => ({ visual: 'weather' }),
   },
   summon: {
