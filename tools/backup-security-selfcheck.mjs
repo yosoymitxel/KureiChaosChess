@@ -43,8 +43,9 @@ const legacy = kcc1({
   [keySettings]: JSON.stringify({ theme: 'walnut', sound: true }),
   [keyMinis]: JSON.stringify(['witch', 'bowling']),
 });
-assert.equal(await importSave(legacy), 2, 'KCC1 backups must remain importable');
-assert.equal(localStorage.getItem(keySettings), JSON.stringify({ theme: 'walnut', sound: true }));
+// Los ajustes son de cada aparato: una copia trae el progreso, no los ajustes.
+assert.equal(await importSave(legacy), 1, 'KCC1 backups must remain importable');
+assert.equal(localStorage.getItem(keySettings), null, 'Settings stay on this device');
 assert.equal(localStorage.getItem(keyMinis), JSON.stringify(['witch', 'bowling']));
 
 resetStorage({
@@ -54,7 +55,7 @@ resetStorage({
 const exported = await exportSave();
 assert.ok(exported.startsWith('KCC2:') || exported.startsWith('KCC1:'));
 const exportedKeys = await importSave(exported);
-assert.equal(exportedKeys, 2, 'Current backups must round-trip');
+assert.equal(exportedKeys, 1, 'Current backups must round-trip');
 
 resetStorage({ [keySettings]: JSON.stringify({ theme: 'keep' }) });
 const unknownKey = kcc1({
@@ -107,7 +108,7 @@ assert.equal(localStorage.getItem(keySettings), previousSettings, 'Earlier write
 assert.equal(localStorage.getItem(keyShop), previousShop, 'The failed key must retain its previous value');
 
 resetStorage({
-  [keySettings]: JSON.stringify({ theme: 'safe' }),
+  [keyShop]: JSON.stringify({ coins: 3, pending: [], themes: [] }),
   'zugzwang.unlisted.v1': JSON.stringify({ ignored: true }),
 });
 const cleanExport = await exportSave();
