@@ -23,15 +23,15 @@ src/data/garden.js:40 +LAKE_MAX
 src/data/garden.js:41 +lakeCost
 ## src/data/mates.js (2L)
 src/data/mates.js:1 +MATES
-## src/data/minigame-catalog.js (36L)
-src/data/minigame-catalog.js:25 SCREENS
-src/data/minigame-catalog.js:35 +MINIGAMES
-## src/data/modifiers.js (90L)
+## src/data/minigame-catalog.js (39L)
+src/data/minigame-catalog.js:28 SCREENS
+src/data/minigame-catalog.js:38 +MINIGAMES
+## src/data/modifiers.js (93L)
 src/data/modifiers.js:2 +MODIFIERS
-src/data/modifiers.js:77 +nodeModifier
-src/data/modifiers.js:84 +BOARD_MECHANICS
-src/data/modifiers.js:87 +FEATURED_MECHANICS
-src/data/modifiers.js:89 +DUO_MECHANICS
+src/data/modifiers.js:80 +nodeModifier
+src/data/modifiers.js:87 +BOARD_MECHANICS
+src/data/modifiers.js:90 +FEATURED_MECHANICS
+src/data/modifiers.js:92 +DUO_MECHANICS
 ## src/data/mutations.js (53L)
 src/data/mutations.js:4 +MUTATIONS
 src/data/mutations.js:16 KEYS
@@ -56,7 +56,7 @@ src/data/pieces.js:28 +PIECE_RULES
 src/data/pieces.js:30 +MOVE_NAMES
 ## src/data/pixel-src.js (5L)
 src/data/pixel-src.js:4 +pixelSrc
-## src/data/scenarios.js (597L)
+## src/data/scenarios.js (617L)
 src/data/scenarios.js:15 +LEVELS
 src/data/scenarios.js:16 N
 src/data/scenarios.js:17 board
@@ -67,15 +67,15 @@ src/data/scenarios.js:21 taken
 src/data/scenarios.js:23 spots
 src/data/scenarios.js:29 rubble
 src/data/scenarios.js:36 +SCENARIOS
-src/data/scenarios.js:203 cellsWhere
-src/data/scenarios.js:208 crossing
-src/data/scenarios.js:378 routeLen
-src/data/scenarios.js:398 passable
-src/data/scenarios.js:407 knightRoute
-src/data/scenarios.js:432 freeTiles
-src/data/scenarios.js:493 WITCH_MOVES
-src/data/scenarios.js:535 BOMB_SHAPES
-src/data/scenarios.js:587 +buildScenario
+src/data/scenarios.js:215 cellsWhere
+src/data/scenarios.js:220 crossing
+src/data/scenarios.js:390 routeLen
+src/data/scenarios.js:412 passable
+src/data/scenarios.js:426 knightRoute
+src/data/scenarios.js:451 freeTiles
+src/data/scenarios.js:512 WITCH_MOVES
+src/data/scenarios.js:554 BOMB_SHAPES
+src/data/scenarios.js:607 +buildScenario
 ## src/data/sfx-samples.js (115L)
 src/data/sfx-samples.js:3 +SFX_SAMPLES
 ## src/data/themes.js (126L)
@@ -93,27 +93,27 @@ src/data/weather.js:4 +WEATHER
 src/data/weather.js:17 +TIED_WEATHER
 src/data/weather.js:30 CHANCE
 src/data/weather.js:33 +weatherFor
-## src/game/achievements.js (144L)
+## src/game/achievements.js (146L)
 src/game/achievements.js:7 KEY
 src/game/achievements.js:8 read
 src/game/achievements.js:9 write
 src/game/achievements.js:12 +ACHIEVEMENT_GROUPS
 src/game/achievements.js:16 +achievementGroups
 src/game/achievements.js:23 +ACHIEVEMENTS
-src/game/achievements.js:100 +shown
-src/game/achievements.js:103 STATS_KEY
-src/game/achievements.js:104 +loadStats
-src/game/achievements.js:105 +bump
-src/game/achievements.js:107 +collect
-src/game/achievements.js:109 +loadAchievements
-src/game/achievements.js:110 +saveAchievements
-src/game/achievements.js:114 +award
-src/game/achievements.js:127 SEEN_KEY
-src/game/achievements.js:128 +loadSeen
-src/game/achievements.js:129 +seePieces
-src/game/achievements.js:137 MUT_KEY
-src/game/achievements.js:138 +loadMutSeen
-src/game/achievements.js:139 +seeMutations
+src/game/achievements.js:102 +shown
+src/game/achievements.js:105 STATS_KEY
+src/game/achievements.js:106 +loadStats
+src/game/achievements.js:107 +bump
+src/game/achievements.js:109 +collect
+src/game/achievements.js:111 +loadAchievements
+src/game/achievements.js:112 +saveAchievements
+src/game/achievements.js:116 +award
+src/game/achievements.js:129 SEEN_KEY
+src/game/achievements.js:130 +loadSeen
+src/game/achievements.js:131 +seePieces
+src/game/achievements.js:139 MUT_KEY
+src/game/achievements.js:140 +loadMutSeen
+src/game/achievements.js:141 +seeMutations
 ## src/game/backup.js (302L)
 src/game/backup.js:2 MAGIC_V1
 src/game/backup.js:3 MAGIC_V2
@@ -153,7 +153,7 @@ src/game/barrier.js:48 +distance
 src/game/barrier.js:64 +canWall
 src/game/barrier.js:74 +act
 src/game/barrier.js:92 +botAction
-## src/game/blaster.js (87L)
+## src/game/blaster.js (91L)
 src/game/blaster.js:8 +DIFFS
 src/game/blaster.js:13 TYPES
 src/game/blaster.js:15 +create
@@ -162,11 +162,13 @@ src/game/blaster.js:27 +targets
 src/game/blaster.js:38 +tap
 src/game/blaster.js:50 nextWave
 src/game/blaster.js:57 +enemy
-src/game/blaster.js:70 reach
-src/game/blaster.js:71 +auto
-src/game/blaster.js:84 +pieces
-src/game/blaster.js:85 +marks
-src/game/blaster.js:86 +status
+src/game/blaster.js:70 danger
+src/game/blaster.js:71 +start
+src/game/blaster.js:74 reach
+src/game/blaster.js:75 +auto
+src/game/blaster.js:88 +pieces
+src/game/blaster.js:89 +marks
+src/game/blaster.js:90 +status
 ## src/game/blind.js (84L)
 src/game/blind.js:7 +DIRS
 src/game/blind.js:9 +DIFFS
@@ -185,27 +187,31 @@ src/game/blizzard.js:31 +shortest
 src/game/blizzard.js:51 +newBlizzard
 src/game/blizzard.js:74 +look
 src/game/blizzard.js:79 +move
-## src/game/bomber.js (206L)
-src/game/bomber.js:4 FUSE
-src/game/bomber.js:5 L_JUMP
-src/game/bomber.js:6 DIAG
-src/game/bomber.js:7 DIRS
-src/game/bomber.js:14 +FOES
-src/game/bomber.js:21 +DIFFS
-src/game/bomber.js:27 dist
-src/game/bomber.js:29 +newBomber
-src/game/bomber.js:57 inside
-src/game/bomber.js:58 free
-src/game/bomber.js:59 +doorOpen
-src/game/bomber.js:63 rays
-src/game/bomber.js:77 +blastOf
-src/game/bomber.js:79 explode
-src/game/bomber.js:95 huntStep
-src/game/bomber.js:114 wander
-src/game/bomber.js:124 leap
-src/game/bomber.js:134 inSight
-src/game/bomber.js:143 moveFoe
-src/game/bomber.js:170 +step
+## src/game/bomber.js (264L)
+src/game/bomber.js:5 FUSE
+src/game/bomber.js:6 L_JUMP
+src/game/bomber.js:7 DIAG
+src/game/bomber.js:8 DIRS
+src/game/bomber.js:16 +FOES
+src/game/bomber.js:23 +DIFFS
+src/game/bomber.js:30 dist
+src/game/bomber.js:32 +newBomber
+src/game/bomber.js:60 inside
+src/game/bomber.js:61 free
+src/game/bomber.js:62 +doorOpen
+src/game/bomber.js:66 rays
+src/game/bomber.js:80 +blastOf
+src/game/bomber.js:82 explode
+src/game/bomber.js:98 huntStep
+src/game/bomber.js:117 refuge
+src/game/bomber.js:134 wander
+src/game/bomber.js:144 leap
+src/game/bomber.js:154 inSight
+src/game/bomber.js:163 moveFoe
+src/game/bomber.js:208 +act
+src/game/bomber.js:231 +tick
+src/game/bomber.js:251 judge
+src/game/bomber.js:259 +step
 ## src/game/bowling.js (107L)
 src/game/bowling.js:4 +LAUNCH_COLS
 src/game/bowling.js:7 +DIFFS
@@ -235,6 +241,27 @@ src/game/cards.js:142 +pickCardChoices
 src/game/cards.js:151 +cardTargets
 src/game/cards.js:163 +previewMoves
 src/game/cards.js:175 +playCard
+## src/game/carrom.js (168L)
+src/game/carrom.js:6 +R
+src/game/carrom.js:7 +DISC_R
+src/game/carrom.js:8 +POCKETS
+src/game/carrom.js:9 +ARC_R
+src/game/carrom.js:10 +SHOT_MAX
+src/game/carrom.js:11 DECEL
+src/game/carrom.js:14 +DIFFS
+src/game/carrom.js:20 other
+src/game/carrom.js:21 +arcPoint
+src/game/carrom.js:26 +newCarrom
+src/game/carrom.js:40 +place
+src/game/carrom.js:52 +shoot
+src/game/carrom.js:64 physics
+src/game/carrom.js:82 clone
+src/game/carrom.js:85 +simulate
+src/game/carrom.js:95 +plan
+src/game/carrom.js:118 botShot
+src/game/carrom.js:124 +step
+src/game/carrom.js:131 sub
+src/game/carrom.js:145 resolve
 ## src/game/checkers.js (104L)
 src/game/checkers.js:4 +DIFFS
 src/game/checkers.js:9 DIAG
@@ -250,24 +277,29 @@ src/game/checkers.js:70 clone
 src/game/checkers.js:74 score
 src/game/checkers.js:76 search
 src/game/checkers.js:91 +botMove
-## src/game/cloud.js (95L)
+## src/game/cloud.js (125L)
 src/game/cloud.js:6 URL_
 src/game/cloud.js:7 KEY
 src/game/cloud.js:8 SESSION
 src/game/cloud.js:10 BACK
 src/game/cloud.js:12 load
-src/game/cloud.js:13 keep
-src/game/cloud.js:15 call
-src/game/cloud.js:25 toSession
-src/game/cloud.js:27 +cloudUser
-src/game/cloud.js:30 session
-src/game/cloud.js:39 +signIn
-src/game/cloud.js:43 +signUp
-src/game/cloud.js:47 +signOut
-src/game/cloud.js:54 +cloudInfo
-src/game/cloud.js:61 +cloudUpload
-src/game/cloud.js:70 +cloudPeek
-src/game/cloud.js:78 +cloudDownload
+src/game/cloud.js:15 SYNCED
+src/game/cloud.js:16 synced
+src/game/cloud.js:17 +cloudMarkSynced
+src/game/cloud.js:18 keep
+src/game/cloud.js:20 call
+src/game/cloud.js:30 toSession
+src/game/cloud.js:32 +cloudUser
+src/game/cloud.js:35 session
+src/game/cloud.js:44 +signIn
+src/game/cloud.js:48 +signUp
+src/game/cloud.js:52 +signOut
+src/game/cloud.js:60 +cloudInfo
+src/game/cloud.js:67 lastCode
+src/game/cloud.js:68 +cloudUpload
+src/game/cloud.js:81 +cloudAutoSave
+src/game/cloud.js:99 +cloudPeek
+src/game/cloud.js:107 +cloudDownload
 ## src/game/connect4.js (109L)
 src/game/connect4.js:2 +ROWS
 src/game/connect4.js:4 +emptyGrid
@@ -370,36 +402,69 @@ src/game/generate.js:274 quickThreats
 src/game/generate.js:284 +placePieces
 src/game/generate.js:295 placeOnce
 src/game/generate.js:416 +placeBoss
-## src/game/hockey.js (222L)
-src/game/hockey.js:3 +CELL
-src/game/hockey.js:4 +W
-src/game/hockey.js:5 +PUCK_R
-src/game/hockey.js:6 +GOAL
-src/game/hockey.js:7 +GOALS
-src/game/hockey.js:8 +PUCK_MAX
-src/game/hockey.js:9 +PLAYER_MAX
-src/game/hockey.js:10 FRICTION
-src/game/hockey.js:11 WALL_E
-src/game/hockey.js:12 SERVE_PAUSE
-src/game/hockey.js:13 STALL_T
-src/game/hockey.js:14 +HOLD_T
-src/game/hockey.js:15 DT
-src/game/hockey.js:21 +DIFFS
-src/game/hockey.js:27 clamp
-src/game/hockey.js:29 limits
-src/game/hockey.js:32 mallet
-src/game/hockey.js:35 +newHockey
-src/game/hockey.js:43 serve
-src/game/hockey.js:52 +aim
-src/game/hockey.js:58 drive
-src/game/hockey.js:69 +predictX
-src/game/hockey.js:78 +think
-src/game/hockey.js:120 bounceMallet
-src/game/hockey.js:140 capSpeed
-src/game/hockey.js:146 walls
-src/game/hockey.js:167 wall
-src/game/hockey.js:171 +step
-src/game/hockey.js:179 sub
+## src/game/golf.js (269L)
+src/game/golf.js:6 +CELL
+src/game/golf.js:7 +W
+src/game/golf.js:8 +BALL_R
+src/game/golf.js:9 +SHOT_MAX
+src/game/golf.js:10 +PULL_MAX
+src/game/golf.js:11 +HOLES
+src/game/golf.js:12 ROLL
+src/game/golf.js:13 CUP_V
+src/game/golf.js:14 PULL
+src/game/golf.js:15 WALL_E
+src/game/golf.js:20 +DIFFS
+src/game/golf.js:25 TYPES
+src/game/golf.js:27 clamp
+src/game/golf.js:28 center
+src/game/golf.js:29 +tileAt
+src/game/golf.js:35 +moverAt
+src/game/golf.js:40 bounce
+src/game/golf.js:48 roll
+src/game/golf.js:80 +simulate
+src/game/golf.js:91 field
+src/game/golf.js:109 score
+src/game/golf.js:118 +plan
+src/game/golf.js:146 +solve
+src/game/golf.js:159 +makeHole
+src/game/golf.js:191 +newGolf
+src/game/golf.js:200 startHole
+src/game/golf.js:211 +shoot
+src/game/golf.js:222 +step
+src/game/golf.js:229 lost
+src/game/golf.js:230 endHole
+src/game/golf.js:236 sub
+## src/game/hockey.js (214L)
+src/game/hockey.js:5 +CELL
+src/game/hockey.js:6 +W
+src/game/hockey.js:7 +PUCK_R
+src/game/hockey.js:8 +GOAL
+src/game/hockey.js:9 +GOALS
+src/game/hockey.js:10 +PUCK_MAX
+src/game/hockey.js:11 +PLAYER_MAX
+src/game/hockey.js:12 FRICTION
+src/game/hockey.js:13 WALL_E
+src/game/hockey.js:14 SERVE_PAUSE
+src/game/hockey.js:15 STALL_T
+src/game/hockey.js:16 STUCK_T
+src/game/hockey.js:17 CORNER
+src/game/hockey.js:18 +HOLD_T
+src/game/hockey.js:24 +DIFFS
+src/game/hockey.js:30 clamp
+src/game/hockey.js:32 limits
+src/game/hockey.js:35 mallet
+src/game/hockey.js:38 +newHockey
+src/game/hockey.js:46 serve
+src/game/hockey.js:55 +aim
+src/game/hockey.js:61 drive
+src/game/hockey.js:72 +predictX
+src/game/hockey.js:81 +think
+src/game/hockey.js:123 bounceMallet
+src/game/hockey.js:137 capSpeed
+src/game/hockey.js:143 walls
+src/game/hockey.js:158 wall
+src/game/hockey.js:162 +step
+src/game/hockey.js:168 sub
 ## src/game/horde.js (69L)
 src/game/horde.js:6 +DIFFS
 src/game/horde.js:12 +create
@@ -412,6 +477,28 @@ src/game/horde.js:60 +auto
 src/game/horde.js:66 +pieces
 src/game/horde.js:67 +marks
 src/game/horde.js:68 +status
+## src/game/hotbomb.js (185L)
+src/game/hotbomb.js:7 +W
+src/game/hotbomb.js:8 +POCKETS
+src/game/hotbomb.js:9 +FLY
+src/game/hotbomb.js:10 DECEL
+src/game/hotbomb.js:11 TYPES
+src/game/hotbomb.js:15 +DIFFS
+src/game/hotbomb.js:21 other
+src/game/hotbomb.js:22 dist
+src/game/hotbomb.js:23 +alive
+src/game/hotbomb.js:25 +newHotbomb
+src/game/hotbomb.js:44 arm
+src/game/hotbomb.js:53 give
+src/game/hotbomb.js:61 +holder
+src/game/hotbomb.js:64 +hurl
+src/game/hotbomb.js:79 +plan
+src/game/hotbomb.js:91 +step
+src/game/hotbomb.js:98 sub
+src/game/hotbomb.js:133 land
+src/game/hotbomb.js:145 boom
+src/game/hotbomb.js:167 physics
+src/game/hotbomb.js:180 judge
 ## src/game/izombie.js (98L)
 src/game/izombie.js:6 +ROWS
 src/game/izombie.js:9 +DIFFS
@@ -434,18 +521,21 @@ src/game/laststand.js:27 +canPlace
 src/game/laststand.js:30 +nextWave
 src/game/laststand.js:42 +place
 src/game/laststand.js:50 +step
-## src/game/marcianos.js (125L)
-src/game/marcianos.js:3 SHOT_STEP
-src/game/marcianos.js:4 MAX_SHOTS
-src/game/marcianos.js:8 +WAVES
-src/game/marcianos.js:17 FIRE
-src/game/marcianos.js:20 +DIFFS
-src/game/marcianos.js:26 +newMarcianos
-src/game/marcianos.js:34 spawnWave
-src/game/marcianos.js:53 climb
-src/game/marcianos.js:62 descend
-src/game/marcianos.js:88 fall
-src/game/marcianos.js:101 +step
+## src/game/marcianos.js (150L)
+src/game/marcianos.js:4 SHOT_STEP
+src/game/marcianos.js:5 MAX_SHOTS
+src/game/marcianos.js:9 +WAVES
+src/game/marcianos.js:18 FIRE
+src/game/marcianos.js:21 +DIFFS
+src/game/marcianos.js:27 +newMarcianos
+src/game/marcianos.js:35 spawnWave
+src/game/marcianos.js:54 climb
+src/game/marcianos.js:63 descend
+src/game/marcianos.js:91 fall
+src/game/marcianos.js:104 +act
+src/game/marcianos.js:123 +tick
+src/game/marcianos.js:136 settle
+src/game/marcianos.js:145 +step
 ## src/game/match.js (435L)
 src/game/match.js:12 +QUIET_LIMIT
 src/game/match.js:13 +METEOR_EVERY
@@ -490,7 +580,7 @@ src/game/mechanics.js:33 +MECHANICS
 src/game/mechanics.js:330 safeHeir
 src/game/mechanics.js:336 shot
 src/game/mechanics.js:349 +mechOf
-## src/game/outbreak.js (77L)
+## src/game/outbreak.js (78L)
 src/game/outbreak.js:7 TYPES
 src/game/outbreak.js:8 +DIFFS
 src/game/outbreak.js:15 +chain
@@ -527,6 +617,14 @@ src/game/pdodge.js:78 +pieces
 src/game/pdodge.js:79 +marks
 src/game/pdodge.js:80 +labels
 src/game/pdodge.js:81 +status
+## src/game/physics.js (73L)
+src/game/physics.js:3 +DT
+src/game/physics.js:6 +substeps
+src/game/physics.js:14 +collide
+src/game/physics.js:29 +walls
+src/game/physics.js:38 +slide
+src/game/physics.js:48 +bump
+src/game/physics.js:63 +rim
 ## src/game/queens.js (43L)
 src/game/queens.js:3 +DIFFS
 src/game/queens.js:9 attacks
@@ -711,7 +809,7 @@ src/game/zen.js:311 +addZenSeeds
 src/game/zen.js:318 +pickSeed
 src/game/zen.js:326 +koiHungry
 src/game/zen.js:327 +feedKoi
-## src/i18n/en.js (1224L)
+## src/i18n/en.js (1268L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -852,15 +950,15 @@ src/lab/proto/diamond-game.js:14 +createDiamondBoard
 src/lab/proto/diamond-game.js:27 +createDiamondPieces
 src/lab/proto/diamond-game.js:40 +createDiamondMatch
 ## src/main.js (7L)
-## src/ui/app.js (400L)
-src/ui/app.js:33 REST_CARDS
-src/ui/app.js:38 BAG_CARDS
-src/ui/app.js:45 shuffle3
-src/ui/app.js:47 MINI_PRIZES
-src/ui/app.js:48 ONE_SHOT
-src/ui/app.js:50 +App
-src/ui/app.js:356 MutationReveal
-src/ui/app.js:372 AchievementToast
+## src/ui/app.js (405L)
+src/ui/app.js:34 REST_CARDS
+src/ui/app.js:39 BAG_CARDS
+src/ui/app.js:46 shuffle3
+src/ui/app.js:48 MINI_PRIZES
+src/ui/app.js:49 ONE_SHOT
+src/ui/app.js:51 +App
+src/ui/app.js:361 MutationReveal
+src/ui/app.js:377 AchievementToast
 ## src/ui/board-fx.js (47L)
 src/ui/board-fx.js:6 wait
 src/ui/board-fx.js:10 +playFx
@@ -869,23 +967,24 @@ src/ui/board-fx.js:36 +playMech
 src/ui/coins.js:6 reduced
 src/ui/coins.js:8 +flyCoins
 src/ui/coins.js:25 +popSeed
-## src/ui/components.js (227L)
+## src/ui/components.js (253L)
 src/ui/components.js:12 +ThemeLook
 src/ui/components.js:20 +Topbar
-src/ui/components.js:35 +MiniEnd
-src/ui/components.js:45 diffName
-src/ui/components.js:50 +MiniDiff
-src/ui/components.js:66 +MiniTools
-src/ui/components.js:116 +ConfirmButton
-src/ui/components.js:127 +BossCard
-src/ui/components.js:140 +useEnter
-src/ui/components.js:148 Card
-src/ui/components.js:165 KIND_LABEL
-src/ui/components.js:166 +RARITY_LABEL
-src/ui/components.js:170 +CardFace
-src/ui/components.js:184 +CardPick
-src/ui/components.js:210 +TurnBanner
-src/ui/components.js:221 +Toggle
+src/ui/components.js:36 +TurnClock
+src/ui/components.js:61 +MiniEnd
+src/ui/components.js:71 diffName
+src/ui/components.js:76 +MiniDiff
+src/ui/components.js:92 +MiniTools
+src/ui/components.js:142 +ConfirmButton
+src/ui/components.js:153 +BossCard
+src/ui/components.js:166 +useEnter
+src/ui/components.js:174 Card
+src/ui/components.js:191 KIND_LABEL
+src/ui/components.js:192 +RARITY_LABEL
+src/ui/components.js:196 +CardFace
+src/ui/components.js:210 +CardPick
+src/ui/components.js:236 +TurnBanner
+src/ui/components.js:247 +Toggle
 ## src/ui/demos.js (31L)
 src/ui/demos.js:10 +pieceDemo
 src/ui/demos.js:15 +mutationDemo
@@ -933,7 +1032,7 @@ src/ui/hop.js:13 gooOf
 src/ui/hop.js:28 puddle
 src/ui/hop.js:35 +hopPiece
 src/ui/hop.js:74 +popPiece
-## src/ui/icons.js (108L)
+## src/ui/icons.js (111L)
 src/ui/icons.js:8 CUT
 src/ui/icons.js:9 cut
 src/ui/icons.js:10 dot
@@ -941,9 +1040,9 @@ src/ui/icons.js:13 f3
 src/ui/icons.js:14 bar
 src/ui/icons.js:19 rot
 src/ui/icons.js:21 P
-src/ui/icons.js:90 OFFSET
-src/ui/icons.js:97 +Icon
-src/ui/icons.js:105 +PieceIcon
+src/ui/icons.js:93 OFFSET
+src/ui/icons.js:100 +Icon
+src/ui/icons.js:108 +PieceIcon
 ## src/ui/lib.js (8L)
 src/ui/lib.js:4 +html
 ## src/ui/mini-board.js (76L)
@@ -976,7 +1075,7 @@ src/ui/screens/blind.js:17 +BlindScreen
 ## src/ui/screens/blizzard.js (84L)
 src/ui/screens/blizzard.js:12 KEYS
 src/ui/screens/blizzard.js:14 +BlizzardScreen
-## src/ui/screens/bomber.js (133L)
+## src/ui/screens/bomber.js (143L)
 src/ui/screens/bomber.js:13 KEYS
 src/ui/screens/bomber.js:14 PAD
 src/ui/screens/bomber.js:16 +BomberScreen
@@ -984,17 +1083,22 @@ src/ui/screens/bomber.js:16 +BomberScreen
 src/ui/screens/bowling.js:12 TICK_MS
 src/ui/screens/bowling.js:13 css
 src/ui/screens/bowling.js:15 +BowlingScreen
+## src/ui/screens/carrom.js (193L)
+src/ui/screens/carrom.js:12 css
+src/ui/screens/carrom.js:13 pct
+src/ui/screens/carrom.js:15 arcPath
+src/ui/screens/carrom.js:22 +CarromScreen
 ## src/ui/screens/checkers.js (85L)
 src/ui/screens/checkers.js:12 wait
 src/ui/screens/checkers.js:15 +CheckersScreen
 ## src/ui/screens/connect4.js (99L)
 src/ui/screens/connect4.js:10 wait
 src/ui/screens/connect4.js:13 +Connect4Screen
-## src/ui/screens/duel.js (118L)
-src/ui/screens/duel.js:13 wait
-src/ui/screens/duel.js:14 OUT
-src/ui/screens/duel.js:16 Plate
-src/ui/screens/duel.js:27 +DuelScreen
+## src/ui/screens/duel.js (137L)
+src/ui/screens/duel.js:14 wait
+src/ui/screens/duel.js:15 OUT
+src/ui/screens/duel.js:17 Plate
+src/ui/screens/duel.js:28 +DuelScreen
 ## src/ui/screens/fusion.js (69L)
 src/ui/screens/fusion.js:12 KEYS
 src/ui/screens/fusion.js:13 PAD
@@ -1005,18 +1109,27 @@ src/ui/screens/gallery.js:26 ThemeGroup
 src/ui/screens/gallery.js:41 RULE
 src/ui/screens/gallery.js:42 Locked
 src/ui/screens/gallery.js:44 +GalleryScreen
-## src/ui/screens/game.js (906L)
+## src/ui/screens/game.js (927L)
 src/ui/screens/game.js:34 SIDE_NAME
 src/ui/screens/game.js:37 pieceName
 src/ui/screens/game.js:39 TIPS
 src/ui/screens/game.js:48 cardEffect
 src/ui/screens/game.js:62 +GameScreen
-src/ui/screens/game.js:877 EndOverlay
-## src/ui/screens/hockey.js (210L)
-src/ui/screens/hockey.js:13 KEYS
-src/ui/screens/hockey.js:15 TOP_KEYS
-src/ui/screens/hockey.js:16 css
-src/ui/screens/hockey.js:19 +HockeyScreen
+src/ui/screens/game.js:898 EndOverlay
+## src/ui/screens/golf.js (201L)
+src/ui/screens/golf.js:13 css
+src/ui/screens/golf.js:15 NAMES
+src/ui/screens/golf.js:16 result
+src/ui/screens/golf.js:20 +GolfScreen
+## src/ui/screens/hockey.js (194L)
+src/ui/screens/hockey.js:14 KEYS
+src/ui/screens/hockey.js:16 TOP_KEYS
+src/ui/screens/hockey.js:17 css
+src/ui/screens/hockey.js:20 +HockeyScreen
+## src/ui/screens/hotbomb.js (148L)
+src/ui/screens/hotbomb.js:13 ROWS
+src/ui/screens/hotbomb.js:14 pct
+src/ui/screens/hotbomb.js:17 +HotbombScreen
 ## src/ui/screens/izombie.js (59L)
 src/ui/screens/izombie.js:13 +IZombieScreen
 ## src/ui/screens/laststand.js (68L)
@@ -1024,11 +1137,10 @@ src/ui/screens/laststand.js:13 +LastStandScreen
 ## src/ui/screens/map.js (71L)
 src/ui/screens/map.js:11 ROW
 src/ui/screens/map.js:13 +MapScreen
-## src/ui/screens/marcianos.js (139L)
+## src/ui/screens/marcianos.js (148L)
 src/ui/screens/marcianos.js:12 css
 src/ui/screens/marcianos.js:15 KEYS
-src/ui/screens/marcianos.js:16 WAIT
-src/ui/screens/marcianos.js:18 +MarcianosScreen
+src/ui/screens/marcianos.js:17 +MarcianosScreen
 ## src/ui/screens/menu.js (179L)
 src/ui/screens/menu.js:14 Diorama
 src/ui/screens/menu.js:102 fitCrown
@@ -1067,7 +1179,7 @@ src/ui/screens/scenario.js:32 +MatesScreen
 src/ui/screens/scenario.js:33 +ClockScreen
 src/ui/screens/scenario.js:34 +WitchScreen
 src/ui/screens/scenario.js:35 +BombsScreen
-## src/ui/screens/setup.js (399L)
+## src/ui/screens/setup.js (401L)
 src/ui/screens/setup.js:17 SIDES
 src/ui/screens/setup.js:25 MechPicker
 src/ui/screens/setup.js:39 PrefsCard
@@ -1084,7 +1196,7 @@ src/ui/screens/setup.js:330 Cloud
 ## src/ui/screens/shop.js (143L)
 src/ui/screens/shop.js:15 CARD_LIST
 src/ui/screens/shop.js:17 +ShopScreen
-## src/ui/screens/turn-mini.js (52L)
+## src/ui/screens/turn-mini.js (64L)
 src/ui/screens/turn-mini.js:11 wait
 src/ui/screens/turn-mini.js:13 +TurnMini
 ## src/ui/screens/turn-minis.js (20L)
@@ -1148,6 +1260,11 @@ src/ui/sfx.js:379 +stopAmbient
 src/ui/sfx.js:394 +JINGLES
 src/ui/sfx.js:395 +playJingle
 src/ui/sfx.js:416 +sfxState
+## src/ui/table-kit.js (64L)
+src/ui/table-kit.js:6 +tableKit
+src/ui/table-kit.js:32 +corners
+src/ui/table-kit.js:35 homography
+src/ui/table-kit.js:53 +toTable
 ## src/ui/zen-art.js (268L)
 src/ui/zen-art.js:8 +HEAD
 src/ui/zen-art.js:14 +chipArt
@@ -1197,19 +1314,19 @@ src/ui/zen-art.js:250 +boardPond
 src/ui/zen-art.js:256 +stoneArt
 src/ui/zen-art.js:262 +ITEM_ART
 src/ui/zen-art.js:267 +KOI_ART
-## src/view/board-view.js (1249L)
+## src/view/board-view.js (1251L)
 src/view/board-view.js:16 pixelArt
-src/view/board-view.js:18 WITCH
-src/view/board-view.js:30 HEN
-src/view/board-view.js:43 look
-src/view/board-view.js:45 +CAMERAS
-src/view/board-view.js:46 JUMPERS
-src/view/board-view.js:47 reduced
-src/view/board-view.js:48 wait
-src/view/board-view.js:49 css
-src/view/board-view.js:51 +collapseTiles
-src/view/board-view.js:63 BADGES
-src/view/board-view.js:71 +BoardView
+src/view/board-view.js:18 +WITCH
+src/view/board-view.js:29 HEN
+src/view/board-view.js:42 look
+src/view/board-view.js:44 +CAMERAS
+src/view/board-view.js:45 JUMPERS
+src/view/board-view.js:46 reduced
+src/view/board-view.js:47 wait
+src/view/board-view.js:48 css
+src/view/board-view.js:50 +collapseTiles
+src/view/board-view.js:62 BADGES
+src/view/board-view.js:70 +BoardView
 ## src/view/fx.js (337L)
 src/view/fx.js:9 WEATHER_RATE
 src/view/fx.js:10 SF_PX
@@ -1293,7 +1410,7 @@ css/base.css:191 /* Card back carries the pawn emblem: the box's identity mark.
 css/base.css:202 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
 css/base.css:242 /* Botones sin texto y cosas del jardín: el botón va en su esqu
 css/base.css:245 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
-## css/board.css (375L)
+## css/board.css (384L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
 css/board.css:36 /* Tiles
@@ -1307,7 +1424,7 @@ css/board.css:89 /* Una marca o un coleccionable al alcance: aro verde alrededor
 css/board.css:100 /* Card targeting: dashed brass outline on valid targets; previ
 css/board.css:108 /* Casilla que la defensa de un minijuego captura (Yo, Zombi).
 css/board.css:110 /* Terrain: ice is a pale frozen slab with cracks; portals are 
-css/board.css:112 /* Agujero en el hielo (Ventisca): agua oscura con el borde rot
+css/board.css:112 /* Agujero en el hielo (Ventisca, y casillas hundidas sobre hie
 css/board.css:124 /* Pieces
 css/board.css:128 /* Zombis de los minijuegos tipo PvZ: verde podrido, distinto d
 css/board.css:130 /* Peón zombi de la Plaga: figura verde podrida, base del color
@@ -1323,20 +1440,22 @@ css/board.css:190 /* En el set píxel la peana también es de píxeles: disco es
 css/board.css:202 /* Fog: an enemy far from your pieces is only a shape in the mi
 css/board.css:204 /* Ajedrez invisible: la rival que movió no se ve; la tuya, en 
 css/board.css:207 /* Corona caliente: la pieza coronada lleva la corona encima.
-css/board.css:216 /* Chrome recortaba el cartel por arriba con la caja de la pean
-css/board.css:225 /* Piece badges: lock = escorted, flag = falls last, star = bor
-css/board.css:256 /* En móvil la capa baja hasta cubrir también las cartas, por e
-css/board.css:263 /* Etiqueta de casilla: ficha de papel con pico, encima de la c
-css/board.css:278 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
-css/board.css:284 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
-css/board.css:303 /* Estanque del centro abierto y coleccionables: tumbados sobre
-css/board.css:310 /* Koi con hambre: burbujas que suben despacio en el centro del
-css/board.css:329 /* La mariposa queda posada un poco en el aire (lo deja su vuel
-css/board.css:335 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
-css/board.css:348 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
-css/board.css:354 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
-css/board.css:358 /* Carta lila Disco: las casillas cambian de luz.
-css/board.css:368 /* Gallina del Gallinero: dibujo propio (no un peón), sin base 
+css/board.css:209 /* Corona grande con contorno oscuro, que flota sobre la cabeza
+css/board.css:212 /* El heredero: anillo dorado que late hasta que la corona salt
+css/board.css:223 /* Chrome recortaba el cartel por arriba con la caja de la pean
+css/board.css:232 /* Piece badges: lock = escorted, flag = falls last, star = bor
+css/board.css:263 /* En móvil la capa baja hasta cubrir también las cartas, por e
+css/board.css:270 /* Etiqueta de casilla: ficha de papel con pico, encima de la c
+css/board.css:285 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
+css/board.css:291 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
+css/board.css:310 /* Estanque del centro abierto y coleccionables: tumbados sobre
+css/board.css:317 /* Koi con hambre: burbujas que suben despacio en el centro del
+css/board.css:336 /* La mariposa queda posada un poco en el aire (lo deja su vuel
+css/board.css:342 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
+css/board.css:355 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
+css/board.css:361 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
+css/board.css:365 /* Carta lila Disco: las casillas cambian de luz.
+css/board.css:375 /* Gallina del Gallinero: dibujo propio (no un peón), sin base 
 ## css/pixel.css (96L)
 css/pixel.css:1 /* Modo píxel: con un tema píxel (data-art="pixel", ver src/dat
 css/pixel.css:6 /* Jersey 10 (OFL), servida desde el juego: el subconjunto lati
@@ -1354,7 +1473,7 @@ css/pixel.css:85 /* Sombra de la pieza y koi del estanque del tablero, sin degra
 css/pixel.css:87 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
 css/pixel.css:90 /* El ::before va fuera de :is(), que no admite pseudoelementos
 ## css/proto-diamond.css (83L)
-## css/screens.css (1536L)
+## css/screens.css (1623L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
 css/screens.css:12 /* Menu: asymmetric, the diorama is the focal point and the tit
@@ -1465,46 +1584,56 @@ css/screens.css:1046 /* Aviso de logro: la ficha sube desde el borde inferior y 
 css/screens.css:1069 /* La bomba del cañón enemigo lleva su color y un aro carmesí, 
 css/screens.css:1071 /* Puerta de salida, como la del NES: un portón de piedra que s
 css/screens.css:1077 /* Duelo: arena de papel con dos peanas en diagonal, como los c
-css/screens.css:1113 /* Fusión: bandeja de madera con huecos; cada ficha es una losa
-css/screens.css:1151 /* Tablero del Bomberman con cuerpo: la losa del cantero, celda
-css/screens.css:1159 /* El marco de losa: el mismo para el tablero de minijuego (Boa
-css/screens.css:1178 /* La figura va SOBRE su peana: sin z-index la peana la tapaba 
-css/screens.css:1191 /* En la fila del fondo la figura se contiene para que la cabez
-css/screens.css:1206 /* Matamarcianos: la bola en vuelo, las vidas y el mando de dos
-css/screens.css:1211 /* Tu fila, marcada: pisarla cuesta una vida.
-css/screens.css:1218 /* Hockey de mesa: un tablero de 6×10 hace de mesa, la banda es
-css/screens.css:1230 /* Rayas de la mesa: la central, el círculo de saque y el área 
-css/screens.css:1239 /* Lo que se mueve: origen arriba a la izquierda y el script po
-css/screens.css:1243 /* La peana es la huella que choca; la torre se alza sobre ella
-css/screens.css:1254 /* Regla de los siete segundos: los tres últimos, el disco parp
-css/screens.css:1262 /* La mesa es alta: en el teléfono el escenario le da más alto 
-css/screens.css:1265 /* Píxel: losas del tema en las casillas y lo redondo, octógono
-css/screens.css:1281 /* Peón levantado mientras se arrastra, y la casilla a la que i
-css/screens.css:1285 /* La valla cae en su sitio con un golpe seco.
-css/screens.css:1298 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
-css/screens.css:1302 /* En pantallas bajas el tablero vale más que el chrome: menos 
-css/screens.css:1304 /* En el teléfono la compra se aprieta a una fila de ficha y pr
-css/screens.css:1310 /* Estado de los minis sobre la losa: ficha de monedas y contad
-css/screens.css:1313 /* Contadores en fila: un punto por unidad; apagado queda lo ga
-css/screens.css:1317 /* La última oleada es la horda: su punto es un banderín bermel
-css/screens.css:1319 /* Carriles de lanzamiento: velo claro (--zone), distinto del v
-css/screens.css:1321 /* El número del carril en su esquina: es la tecla que lo lanza
-css/screens.css:1323 /* La bolera es apaisada: su escenario no reserva el alto pensa
-css/screens.css:1327 /* La línea roja del original: hasta ahí se lanza.
-css/screens.css:1329 /* La ficha que rueda va como elemento para que Motion la pueda
-css/screens.css:1330 /* La ficha es una pieza de damas vista en perspectiva: disco c
-css/screens.css:1340 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
-css/screens.css:1358 /* Avance de la oleada con el banderín de la horda al 70 %.
-css/screens.css:1365 /* La cinta: las fichas que vienen, la primera se lanza al toca
-css/screens.css:1377 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
-css/screens.css:1382 /* Selector de mecánicas de la run: favorita en latón, vetada t
-css/screens.css:1386 /* «Ver todo»: fichas de una línea; el estado lo dicen el color
-css/screens.css:1396 /* Mobile-first repair: keep the game surface visible instead o
-css/screens.css:1428 /* The animation lab must give its remaining viewport to the li
-css/screens.css:1471 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
-css/screens.css:1488 /* Copia de seguridad (Ajustes): el código se pega en un recuad
-css/screens.css:1501 /* Botones de Perfil y Copia: tres por fila, icono arriba, sin 
-css/screens.css:1512 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
-css/screens.css:1523 /* Reference APK renderer: a separate green/pixel signature, di
+css/screens.css:1097 /* La barra baja de golpe y deja detrás, un instante, el trozo 
+css/screens.css:1116 /* Fusión: bandeja de madera con huecos; cada ficha es una losa
+css/screens.css:1154 /* Tablero del Bomberman con cuerpo: la losa del cantero, celda
+css/screens.css:1162 /* El marco de losa: el mismo para el tablero de minijuego (Boa
+css/screens.css:1181 /* La figura va SOBRE su peana: sin z-index la peana la tapaba 
+css/screens.css:1194 /* En la fila del fondo la figura se contiene para que la cabez
+css/screens.css:1209 /* Matamarcianos: la bola en vuelo, las vidas y el mando de dos
+css/screens.css:1214 /* Tu fila, marcada: pisarla cuesta una vida.
+css/screens.css:1221 /* Hockey de mesa: un tablero de 6×10 hace de mesa, la banda es
+css/screens.css:1234 /* Rayas de la mesa: la central, el círculo de saque y el área 
+css/screens.css:1243 /* Lo que se mueve: origen arriba a la izquierda y el script po
+css/screens.css:1247 /* La peana es la huella que choca; la torre se alza sobre ella
+css/screens.css:1258 /* Regla de los siete segundos: los tres últimos, el disco parp
+css/screens.css:1266 /* La mesa es alta: en el teléfono el escenario le da más alto 
+css/screens.css:1269 /* Píxel: losas del tema en las casillas y lo redondo, octógono
+css/screens.css:1278 /* La cámara de Ajustes (Cenital, Mesa, Épica) inclina también 
+css/screens.css:1284 /* Solo las mesas de física (hockey, golf, billar), mucho menos
+css/screens.css:1291 /* Papa caliente: la mesa del hockey con troneras; la bomba vue
+css/screens.css:1301 /* Billar redondo: mesa circular con casillas de tablero, cuatr
+css/screens.css:1322 /* Píxel: sin curvas en todo el juego; la mesa redonda es un cí
+css/screens.css:1328 /* Golf de mesa: la misma mesa del hockey con suelos (arena, hi
+css/screens.css:1330 /* Lo que asoma por encima de la fila de arriba (banderín, figu
+css/screens.css:1347 /* Banderín: mástil de tinta y gallardete bermellón, dibujado e
+css/screens.css:1362 /* Peón levantado mientras se arrastra, y la casilla a la que i
+css/screens.css:1366 /* La valla cae en su sitio con un golpe seco.
+css/screens.css:1379 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
+css/screens.css:1383 /* En pantallas bajas el tablero vale más que el chrome: menos 
+css/screens.css:1385 /* En el teléfono la compra se aprieta a una fila de ficha y pr
+css/screens.css:1391 /* Reloj de turno (minis cronometrados): barra que se vacía; en
+css/screens.css:1397 /* Estado de los minis sobre la losa: ficha de monedas y contad
+css/screens.css:1400 /* Contadores en fila: un punto por unidad; apagado queda lo ga
+css/screens.css:1404 /* La última oleada es la horda: su punto es un banderín bermel
+css/screens.css:1406 /* Carriles de lanzamiento: velo claro (--zone), distinto del v
+css/screens.css:1408 /* El número del carril en su esquina: es la tecla que lo lanza
+css/screens.css:1410 /* La bolera es apaisada: su escenario no reserva el alto pensa
+css/screens.css:1414 /* La línea roja del original: hasta ahí se lanza.
+css/screens.css:1416 /* La ficha que rueda va como elemento para que Motion la pueda
+css/screens.css:1417 /* La ficha es una pieza de damas vista en perspectiva: disco c
+css/screens.css:1427 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
+css/screens.css:1445 /* Avance de la oleada con el banderín de la horda al 70 %.
+css/screens.css:1452 /* La cinta: las fichas que vienen, la primera se lanza al toca
+css/screens.css:1464 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
+css/screens.css:1469 /* Selector de mecánicas de la run: favorita en latón, vetada t
+css/screens.css:1473 /* «Ver todo»: fichas de una línea; el estado lo dicen el color
+css/screens.css:1483 /* Mobile-first repair: keep the game surface visible instead o
+css/screens.css:1515 /* The animation lab must give its remaining viewport to the li
+css/screens.css:1558 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
+css/screens.css:1575 /* Copia de seguridad (Ajustes): el código se pega en un recuad
+css/screens.css:1588 /* Botones de Perfil y Copia: tres por fila, icono arriba, sin 
+css/screens.css:1599 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
+css/screens.css:1610 /* Reference APK renderer: a separate green/pixel signature, di
 ## css/tokens.css (51L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.

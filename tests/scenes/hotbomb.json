@@ -1,0 +1,7 @@
+{
+ "mini": "hotbomb", "themes": ["walnut", "pixelada"],
+ "steps": [ { "wait": 2500 }, { "shot": "inicio" },
+  { "eval": "(()=>{const t=document.querySelector('.hb'),b=t.querySelector('.ah-pc.foe').getBoundingClientRect(),o={bubbles:true,pointerId:1,clientX:b.x+b.width/2,clientY:b.y+b.height/2};t.dispatchEvent(new PointerEvent('pointerdown',o));t.dispatchEvent(new PointerEvent('pointerup',o));return 1})()" },
+  { "wait": 280 }, { "shot": "vuelo" }, { "wait": 14000 }, { "shot": "despues" },
+  { "expect": { "eval": "document.querySelectorAll('.hb .ah-pc').length >= 5", "noErrors": true } } ]
+}

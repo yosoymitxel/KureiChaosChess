@@ -744,6 +744,12 @@ export default {
     // src/ui/screens/fusion.js
     "fusion.help": "Swipe, use the arrows or the controller: every piece runs to that side. Two equal pieces that collide merge into the next one up the ladder, from pawn to king. After each move a pawn enters. Build the target piece before the board fills up.",
     // src/ui/screens/hockey.js
+    "hotbomb.yours": "The bomb is yours!",
+    "hotbomb.theirs": "The bomb goes to the bot",
+    "hotbomb.aria": "Billiards table: tap where you want to throw the bomb",
+    "hotbomb.won": "The bot ran out of pieces.",
+    "hotbomb.lost": "You ran out of pieces.",
+    "hotbomb.help": "The bomb is burning and one piece holds it. When it's yours, tap or drag to where you want to throw it and release: it spins through the air and the piece closest to where it lands catches it; if it lands near no one, it rolls until it touches one. When the fuse runs out it explodes: it takes the piece holding it and the blast pushes the ones around, which can fall into the pockets. Whoever leaves the other with no pieces wins. On hard you can't see how much fuse is left.",
     "carrom.queenYou": "The queen is yours!",
     "carrom.queenBot": "The queen goes to the bot",
     "carrom.foul": "Foul: the striker fell in",
@@ -1113,6 +1119,7 @@ export default {
     witch: { name: 'The witch', desc: 'Minigame: collect the coins with your pieces without waking the sleeping witches; if one of your pieces can touch one, she wakes and hunts. Reward: mutation or piece.' },
     hockey: { name: 'Air hockey', desc: 'Minigame: drag your rook and score in the bot\'s goal; first to five goals wins. Reward: mutation or piece.', duo: { desc: 'At the same time: each moves the rook on their half.', opt: 'goals', label: 'Goals to win', choices: [[3, '3'], [5, '5'], [7, '7']] } },
     golf: { name: 'Table golf', desc: 'Minigame: three holes with sand, ice, pits and bouncy pieces; pull back and release to putt without going over your strokes. Reward: mutation or piece.' },
+    hotbomb: { name: 'Hot potato', desc: 'Minigame: a bomb with a fuse on a billiards table; spin it at the bot\'s pieces before it blows up on you. Whoever leaves the other with no pieces wins. Reward: mutation or piece.' },
     carrom: { name: 'Round billiards', desc: 'Minigame: carrom on a round table; slide the striker along your arc and sink your four discs before the bot. Reward: mutation or piece.' },
   },
 

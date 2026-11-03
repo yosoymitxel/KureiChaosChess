@@ -1288,6 +1288,16 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .tk-corner { position: absolute; width: 0; height: 0; pointer-events: none; }
 .tk-tl { left: 0; top: 0; } .tk-tr { right: 0; top: 0; } .tk-br { right: 0; bottom: 0; } .tk-bl { left: 0; bottom: 0; }
 .ah-fig svg { transform-origin: 50% 100%; scale: 1 calc(1 / cos(var(--cam))); }
+/* Papa caliente: la mesa del hockey con troneras; la bomba vuela en arco sobre su sombra. */
+.hb .cr-pocket { width: calc(13 / 96 * 100%); z-index: 1; }
+.hb .ah-pc { z-index: 2; }
+.hb .ah-pc.hold .ah-base { box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 5px var(--pc-2), 0 0 0 3px var(--accent), 0 4px 5px oklch(0 0 0 / 0.35); }
+.hb-bomb { position: absolute; left: 0; top: 0; width: calc(10 / 96 * 100%); aspect-ratio: 1; z-index: 4; pointer-events: none; will-change: transform; transition: opacity 0.2s; }
+.hb-bomb.off { opacity: 0; }
+.hb-shadow { position: absolute; inset: 20% 10% 0; border-radius: 50%; background: oklch(0 0 0 / 0.35); }
+.hb-ball { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink); filter: drop-shadow(0 0 1px var(--paper)); }
+.hb-ball .icon { width: 100%; height: 100%; }
+.hb-bomb.soon .hb-ball { color: var(--danger); animation: ah-warn 0.4s ease-in-out infinite; }
 /* Billar redondo: mesa circular con casillas de tablero, cuatro agujeros, arcos de saque y fichas de damas.
    Fichas y lanzador reutilizan el disco del hockey (.ah-puck) con el color de cada bando. */
 .cr {

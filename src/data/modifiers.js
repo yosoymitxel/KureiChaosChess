@@ -72,6 +72,7 @@ export const MODIFIERS = localize('modifiers', {
   witch: { id: 'witch', name: 'La bruja', desc: 'Minijuego: recoge las monedas con tus piezas sin despertar a las brujas dormidas; si una de tus piezas puede tocarla, despierta y caza. Premio: mutación o pieza.', icon: 'target', mini: true, weights: [0, 1, 1] },
   hockey: { id: 'hockey', name: 'Hockey de mesa', desc: 'Minijuego: arrastra tu torre y mete el disco en la portería del bot; gana quien llegue a cinco goles. Premio: mutación o pieza.', icon: 'hockey', mini: true, duo: { desc: 'A la vez: cada uno mueve la torre de su mitad.', opt: 'goals', label: 'Goles para ganar', choices: [[3, '3'], [5, '5'], [7, '7']] }, weights: [0.7, 1, 1] },
   golf: { id: 'golf', name: 'Golf de mesa', desc: 'Minijuego: tres hoyos con arena, hielo, huecos y piezas que rebotan; tira hacia atrás y suelta para golpear sin pasarte de los golpes. Premio: mutación o pieza.', icon: 'golf', mini: true, weights: [0.6, 1, 1] },
+  hotbomb: { id: 'hotbomb', name: 'Papa caliente', desc: 'Minijuego: una bomba con mecha en una mesa de billar; lánzala girando a las piezas del bot antes de que te estalle. Gana quien deje al otro sin piezas. Premio: mutación o pieza.', icon: 'bomb', mini: true, weights: [0.6, 1, 1] },
   carrom: { id: 'carrom', name: 'Billar redondo', desc: 'Minijuego: carrom en una mesa circular; mueve el lanzador por tu arco y mete tus cuatro fichas antes que el bot. Premio: mutación o pieza.', icon: 'carrom', mini: true, weights: [0.6, 1, 1] },
 });
 
