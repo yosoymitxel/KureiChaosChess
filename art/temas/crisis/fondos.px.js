@@ -38,15 +38,14 @@ slab("tile-b", DARK, nap);
 slab("tile-b2", DARK, stain);
 slab("tile-b3", DARK, bill);
 
-// Mesa: terrazo negro en baldosas de 16 con su junta; empalma por los cuatro lados.
+// Mesa: el piso de la sucursal, baldosa negra de 16 con junta y bisel; en una, un comunicado
+// pisoteado que dice que todo está normal. Empalma por los cuatro lados.
 sprite("table", { w: 32, h: 32 }, rect(0, 0, 32, 32, "r"), (c) => {
   for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) {
     if (x % 16 === 15 || y % 16 === 15) c.px(x, y, "j");
-    else if ((x + y) % 16 === 0 && (x * 7 + y * 3) % 5 === 0) c.px(x, y, "z");
+    else if (x % 16 === 0 || y % 16 === 0) c.px(x, y, "R");
   }
-  c.rect(0, 0, 15, 15, "R");
-  c.rect(16, 16, 15, 15, "R");
-  c.px(5, 9, "z"); c.px(22, 4, "z"); c.px(26, 25, "z"); c.px(10, 21, "z");
+  c.rect(19, 3, 9, 7, "z"); c.hline(20, 5, 6, "j"); c.hline(20, 7, 4, "j"); c.px(26, 8, "g");
 });
 
 const H = "#ffffff55", L = "#00000040", INK = "#101412";

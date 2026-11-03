@@ -1,16 +1,16 @@
 {
   "nombre": "Crisis Financiera",
   "precio": 180,
-  "descripcion": "Sucursal bancaria abandonada tras el corralito: monedas, tarjetas y cajeros contra auditores y cobradores, sobre baldosa de mármol sucio y moqueta verde dinero.",
+  "descripcion": "El día que intervinieron al banco digital: ahorristas en la fila, cajeros clausurados, la app con la ruedita eterna y la bóveda vacía, contra el interventor, el cobrador y las empresas vinculadas.",
   "colores": {
     "table": "#121614",
     "table-2": "#1a201d",
     "tile-a": "#b9c2bd",
     "tile-b": "#2f4a3c",
     "tile-side": "#18241e",
-    "side-light": "#e6ede8",
-    "side-dark": "#d8404c",
-    "side-wild": "#e8c45a"
+    "side-light": "#eef3ef",
+    "side-dark": "#ff5a6a",
+    "side-wild": "#f4dc80"
   },
   "interfaz": {
     "paper": "#e9efe9",
@@ -18,14 +18,32 @@
     "paper-3": "#b8c4bb",
     "ink": "#101412",
     "ink-2": "#26302b",
-    "accent": "#1f9a55",
-    "accent-ink": "#0c4a28",
+    "accent": "#4f8a1a",
+    "accent-ink": "#1f3a08",
     "brass": "#d9b44a",
     "muted": "#5b6a61"
   },
   "bandos": {
-    "claro": ["#e6ede8", "#bccac1", "#83978a", "#3fd47a", "#1b8a4a"],
-    "oscuro": ["#7a7f88", "#555961", "#33363c", "#e0434f", "#8a1c26"],
-    "salvaje": ["#f4dc80", "#d2aa44", "#8e6c1e", "#3fcfe0", "#1a7a8a"]
+    "claro": [
+      "#eef3ef",
+      "#c5d1c9",
+      "#8a9a90",
+      "#9be22d",
+      "#4f8a1a"
+    ],
+    "oscuro": [
+      "#80858d",
+      "#5a5e66",
+      "#383b42",
+      "#ff5a6a",
+      "#b0283a"
+    ],
+    "salvaje": [
+      "#f4dc80",
+      "#d2aa44",
+      "#8e6c1e",
+      "#3fcfe0",
+      "#1a7a8a"
+    ]
   }
 }

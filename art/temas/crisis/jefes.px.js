@@ -1,69 +1,78 @@
-// Jefes del tema "Crisis Financiera": la gente y las cosas que vienen a cobrar. Bando claro en
-// plata (w W o) con verde (g G), como las piezas; piel, traje, papel y pantallas son fijos.
+// Jefes del tema "Crisis Financiera": los que llegan el día de la intervención. Bando claro en
+// plata (w W o) con verde lima (g G), como las piezas; piel, papel, pantallas y tinta son fijos.
 // Reconstruir:  node <pxl>/bin/pxl.js build art/temas/crisis/jefes.px.js  &&  node tools/pixel-art.mjs
 
 pal({
-  k: "#101412",
-  w: "#e6ede8", W: "#bccac1", o: "#83978a", g: "#3fd47a", G: "#1b8a4a",
-  s: "#e0b08c", S: "#a8785a", t: "#2a2f36", T: "#1a1e23",
-  y: "#f2cf5a", Y: "#b08a24", m: "#9aa3a8", M: "#5e666b",
-  n: "#0e1a16", c: "#7ff0c0", r: "#ff4a5a", p: "#f1efe4", P: "#c9c4b0",
+  k: "#0d1110",
+  w: "#eef3ef", W: "#c5d1c9", o: "#8a9a90", g: "#9be22d", G: "#4f8a1a",
+  s: "#e8b48e", S: "#b27a58", h: "#3a2a22", H: "#d9d9d2",
+  t: "#2b3038", T: "#1b1f25", y: "#f5cf4a", Y: "#b38a22",
+  p: "#f4f1e6", P: "#cfc8b2", n: "#0b1712", c: "#8ef0c8", r: "#ff4256", R: "#a8202f",
+  m: "#a3acb1", M: "#646d72", b: "#f7d23a", u: "#c8a070", U: "#8e6a44",
 });
-ramps("oWw", "Gg", "Ss", "Tt", "Yy", "Mm", "Pp");
+ramps("oWw", "Gg", "Ss", "Tt", "Yy", "Pp", "Mm", "Rr", "Uu");
 
 const boss = (name, opts, ...items) => {
   sprite("_" + name, opts, ...items);
   sprite(name, { base: "_" + name, outline: "k" });
 };
-const face = (x, y, w) => [rect(x, y, w, 7, "s"), rect(x + w - 2, y, 2, 7, "S"), px(x + 2, y + 3, "k"), px(x + w - 3, y + 3, "k"), hline(x + 2, y + 5, w - 4, "S")];
 
-// Titán: el auditor, enorme, de traje, con la lupa y la carpeta.
-boss("boss-titan", { w: 40, h: 44 },
-  rect(8, 18, 24, 22, "t"), rect(26, 18, 6, 22, "T"), poly([16, 18, 20, 26, 24, 18], "w"), vline(20, 20, 10, "g"),
-  ...face(13, 6, 14), rect(13, 4, 14, 3, "M"), rect(14, 9, 5, 3, "c", ), rect(21, 9, 5, 3, "c"), hline(19, 10, 2, "k"),
-  rect(2, 22, 6, 14, "t"), circ(4, 16, 5, "m"), circ(4, 16, 3, "c"), rect(32, 22, 7, 12, "w"), rect(32, 22, 7, 2, "G"),
-  rect(10, 40, 8, 4, "T"), rect(22, 40, 8, 4, "T"),
+// Titán: el interventor, un funcionario gigante con el sello rojo levantado.
+boss("boss-titan", { w: 40, h: 42 },
+  rect(12, 2, 14, 13, "s"), rect(12, 2, 14, 3, "h"), rect(23, 4, 3, 11, "S"),
+  rect(14, 7, 4, 2, "c"), rect(20, 7, 4, 2, "c"), hline(18, 7, 2, "k"), hline(16, 12, 6, "R"), px(15, 11, "S"), px(22, 11, "S"),
+  poly([8, 15, 30, 15, 33, 38, 5, 38], "o"), poly([24, 15, 30, 15, 33, 38, 27, 38], "W"), poly([16, 15, 19, 21, 22, 15], "w"), vline(19, 18, 12, "g"),
+  rect(30, 16, 5, 12, "o"), rect(2, 9, 5, 17, "o"), rect(1, 6, 7, 3, "s"),
+  rect(3, 4, 3, 2, "U"), rect(0, 0, 10, 4, "R"), hline(0, 3, 10, "r"), line(3, 1, 6, 2, "p"), line(6, 1, 3, 2, "p"),
+  rect(32, 25, 7, 9, "p"), rect(37, 25, 2, 9, "P"), ...[27, 29, 31].map((y) => hline(33, y, 4, "o")), rect(31, 27, 2, 3, "s"),
+  rect(9, 38, 8, 4, "T"), rect(22, 38, 8, 4, "T"),
 );
 
-// Carnero: el cobrador que embiste con la factura vencida por delante.
-boss("boss-ram", { w: 44, h: 32 },
-  rect(12, 10, 22, 16, "t"), rect(28, 10, 6, 16, "T"), ...face(30, 2, 12), rect(30, 0, 12, 3, "G"),
-  rect(0, 8, 14, 18, "p"), rect(11, 8, 3, 18, "P"), ...[11, 14, 17].map((y) => hline(2, y, 8, "o")), text(3, 20, "!!", "r"),
-  rect(14, 26, 6, 6, "T"), rect(26, 26, 6, 6, "T"), rect(20, 14, 8, 3, "w"),
+// Carnero: el cobrador que embiste, porque la deuda no se anula aunque el banco cierre.
+boss("boss-ram", { w: 44, h: 30 },
+  rect(30, 2, 12, 11, "s"), rect(30, 2, 12, 3, "h"), rect(39, 4, 3, 9, "S"), px(33, 7, "k"), px(37, 7, "k"), hline(32, 6, 3, "h"), hline(36, 6, 3, "h"), hline(33, 10, 5, "R"),
+  poly([14, 10, 34, 12, 36, 24, 12, 24], "o"), poly([28, 12, 34, 12, 36, 24, 30, 24], "W"), rect(26, 13, 3, 6, "w"),
+  rect(0, 6, 16, 16, "p"), rect(13, 6, 3, 16, "P"), text(1, 7, "PAGUE", "R"), ...[14, 16, 18].map((y) => hline(2, y, 10, "o")), hline(2, 20, 6, "r"),
+  rect(16, 12, 6, 4, "s"), rect(14, 24, 6, 6, "T"), rect(28, 24, 6, 6, "T"),
 );
 
-// Hidra: un cajero con tres pantallas que se ríen, cada una con su error.
-boss("boss-hydra", { w: 46, h: 42 },
-  rect(10, 18, 26, 24, "w"), rect(30, 18, 6, 24, "W"), rect(10, 18, 26, 3, "G"), rect(14, 32, 18, 2, "n"),
-  ...[[2, 6], [17, 0], [32, 6]].flatMap(([x, y]) => [rect(x, y, 13, 11, "o"), rect(x + 2, y + 2, 9, 7, "n"),
-    px(x + 4, y + 4, "r"), px(x + 8, y + 4, "r"), hline(x + 4, y + 6, 5, "c"), vline(x + 6, y + 11, 18 - y - 11 + 1, "M")]),
+// Hidra: la app de tres cabezas, tres celulares que contestan errores distintos.
+boss("boss-hydra", { w: 46, h: 40 },
+  rect(10, 22, 26, 18, "w"), rect(30, 22, 6, 18, "W"), rect(10, 22, 26, 3, "g"), rect(13, 30, 20, 2, "n"), rect(13, 34, 20, 2, "n"),
+  ...[[1, 6, "404"], [17, 0, "500"], [33, 6, "ERR"]].flatMap(([x, y, err]) => [
+    rect(x, y, 12, 16, "o"), rect(x + 1, y + 1, 10, 14, "n"), px(x + 3, y + 4, "r"), px(x + 8, y + 4, "r"), hline(x + 3, y + 7, 6, "R"),
+    text(x + 1, y + 9, err, "c"), rect(x + 5, y + 16, 2, 22 - y - 16 + 1, "M")]),
 );
 
-// Gólem: un montón de cajas fuertes apiladas que camina.
+// Gólem: las empresas vinculadas, un gigante de cajas de cartón "S.A." que se presta a sí mismo.
 boss("boss-golem", { w: 40, h: 42 },
-  ...[[4, 26, 32, 14], [8, 12, 24, 14], [12, 0, 16, 12]].flatMap(([x, y, w, h]) => [rect(x, y, w, h, "w"), rect(x + w - 5, y, 5, h, "W"),
-    circ(x + w / 2, y + h / 2, Math.min(w, h) / 4, "m"), ring(x + w / 2, y + h / 2, Math.min(w, h) / 4, "M"), hline(x, y, w, "g")]),
-  px(17, 5, "r"), px(22, 5, "r"), rect(6, 40, 10, 2, "M"), rect(24, 40, 10, 2, "M"),
+  ...[[4, 26, 32, 12], [8, 13, 24, 13], [12, 1, 16, 12]].flatMap(([x, y, w, h]) => [rect(x, y, w, h, "u"), rect(x + w - 4, y, 4, h, "U"), hline(x, y, w, "w"), vline(x + w / 2, y, 3, "U"), ...(h < 13 && y < 5 ? [] : [text(x + w / 2 - 3, y + h - 6, "SA", "U")])]),
+  px(16, 5, "k"), px(23, 5, "k"), rect(17, 8, 6, 2, "n"), px(18, 9, "y"), px(21, 9, "y"),
+  rect(0, 16, 8, 5, "u"), rect(32, 16, 8, 5, "u"), vline(4, 16, 5, "U"), vline(36, 16, 5, "U"),
+  rect(6, 38, 10, 4, "U"), rect(24, 38, 10, 4, "U"),
 );
 
-// Jinete: el ejecutivo de corbata verde, alto y flaco, con el celular.
+// Jinete: el cadete con la caja de la capitalización de 100 millones, que no llegó a tiempo.
 boss("boss-rider", { w: 21, h: 42 },
-  rect(4, 12, 14, 22, "t"), rect(14, 12, 4, 22, "T"), poly([9, 12, 11, 16, 13, 12], "w"), vline(11, 14, 12, "g"), px(11, 26, "G"),
-  ...face(5, 2, 12), rect(5, 0, 12, 3, "T"), rect(18, 14, 3, 7, "n"), px(19, 16, "c"),
-  rect(5, 34, 5, 8, "T"), rect(12, 34, 5, 8, "T"),
+  rect(3, 0, 15, 15, "u"), rect(14, 0, 4, 15, "U"), hline(3, 0, 15, "w"), text(5, 2, "USD", "k"), text(3, 8, "100M", "G"),
+  rect(4, 15, 12, 7, "s"), rect(4, 15, 12, 2, "G"), rect(13, 16, 3, 6, "S"), px(7, 18, "k"), px(12, 18, "k"), rect(9, 20, 2, 1, "R"), px(16, 18, "c"), px(17, 19, "c"),
+  rect(3, 22, 14, 11, "w"), rect(13, 22, 4, 11, "W"), hline(3, 27, 14, "g"),
+  rect(4, 33, 5, 7, "t"), rect(12, 33, 5, 7, "t"), rect(3, 40, 6, 2, "T"), rect(12, 40, 6, 2, "T"),
 );
 
-// Muro: la ventanilla de atención con su vidrio, el cartel y la cola de recibos.
+// Muro: la ventanilla bajada: cerrado, vuelva en 15 días.
 boss("boss-wall", { w: 45, h: 26 },
-  rect(0, 8, 45, 18, "w"), rect(0, 8, 45, 3, "G"), hline(0, 8, 45, "g"), rect(0, 22, 45, 4, "o"),
-  ...[2, 17, 32].flatMap((x) => [rect(x, 12, 12, 9, "c"), hline(x + 2, 14, 4, "w"), rect(x + 4, 19, 4, 2, "n")]),
-  rect(14, 0, 20, 7, "n"), text(13, 1, "CERRADO", "r", { gap: 0 }),
+  rect(0, 0, 45, 22, "w"), rect(0, 0, 45, 3, "g"), hline(0, 2, 45, "G"),
+  rect(3, 5, 39, 14, "o"), ...[7, 10, 13, 16].map((y) => hline(3, y, 39, "W")),
+  rect(7, 6, 31, 11, "p"), text(9, 7, "CERRADO", "R"), text(9, 13, "15DIAS", "k"),
+  rect(0, 22, 45, 4, "o"), hline(0, 22, 45, "W"),
 );
 
-// Devorador: la alcancía hambrienta que se traga las cuentas, boca abierta llena de monedas.
-boss("boss-devourer", { w: 46, h: 38 },
-  ellipse(22, 20, 21, 15, "w"), ellipse(26, 23, 16, 11, "W"), poly([10, 6, 15, 0, 18, 7], "G"), poly([26, 6, 31, 0, 34, 7], "G"),
-  ellipse(36, 22, 8, 7, "n"), ...[[33, 21], [37, 24], [35, 26]].map(([x, y]) => circ(x, y, 1, "y")), hline(30, 16, 12, "r"),
-  px(26, 13, "r"), px(27, 13, "r"), hline(14, 5, 8, "n"),
-  rect(8, 32, 6, 6, "G"), rect(28, 32, 6, 6, "G"),
+// Devorador: la tarjeta de crédito con boca, que sigue cobrando cuotas aunque todo esté caído.
+boss("boss-devourer", { w: 46, h: 36 },
+  rect(0, 2, 46, 30, "w"), rect(38, 2, 8, 30, "W"), rect(0, 6, 46, 4, "o"),
+  rect(5, 13, 8, 6, "y"), hline(5, 16, 8, "Y"), vline(9, 13, 6, "Y"),
+  rect(26, 12, 5, 5, "p"), rect(34, 12, 5, 5, "p"), px(28, 14, "k"), px(36, 14, "k"),
+  rect(22, 21, 22, 9, "R"), ...[23, 27, 31, 35, 39].map((x) => [rect(x, 21, 2, 2, "p"), rect(x + 2, 28, 2, 2, "p")]).flat(),
+  circ(26, 26, 2, "y"), circ(33, 25, 1, "y"), text(1, 22, "CUOTA", "G"), text(1, 27, "999", "R"),
 );
