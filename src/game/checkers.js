@@ -4,7 +4,7 @@
 export const DIFFS = {
   facil: { name: 'Fácil', size: 6, rows: 2, depth: 1 },
   normal: { name: 'Normal', size: 8, rows: 3, depth: 2 },
-  dificil: { name: 'Difícil', size: 10, rows: 4, depth: 3 },
+  dificil: { name: 'Difícil', size: 10, rows: 4, depth: 2 },
 };
 const DIAG = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
 const fwd = (side) => (side === 'light' ? -1 : 1);

@@ -21,8 +21,8 @@ src/data/garden.js:37 +KOI_HUNGER_MS
 src/data/garden.js:38 +KOI_COINS
 src/data/garden.js:40 +LAKE_MAX
 src/data/garden.js:41 +lakeCost
-## src/data/mates.js (2L)
-src/data/mates.js:1 +MATES
+## src/data/mates.js (3L)
+src/data/mates.js:2 +MATES
 ## src/data/minigame-catalog.js (40L)
 src/data/minigame-catalog.js:29 SCREENS
 src/data/minigame-catalog.js:39 +MINIGAMES
@@ -56,7 +56,7 @@ src/data/pieces.js:28 +PIECE_RULES
 src/data/pieces.js:30 +MOVE_NAMES
 ## src/data/pixel-src.js (5L)
 src/data/pixel-src.js:4 +pixelSrc
-## src/data/scenarios.js (617L)
+## src/data/scenarios.js (618L)
 src/data/scenarios.js:15 +LEVELS
 src/data/scenarios.js:16 N
 src/data/scenarios.js:17 board
@@ -73,9 +73,9 @@ src/data/scenarios.js:390 routeLen
 src/data/scenarios.js:412 passable
 src/data/scenarios.js:426 knightRoute
 src/data/scenarios.js:451 freeTiles
-src/data/scenarios.js:512 WITCH_MOVES
-src/data/scenarios.js:554 BOMB_SHAPES
-src/data/scenarios.js:607 +buildScenario
+src/data/scenarios.js:513 WITCH_MOVES
+src/data/scenarios.js:555 BOMB_SHAPES
+src/data/scenarios.js:608 +buildScenario
 ## src/data/sfx-samples.js (115L)
 src/data/sfx-samples.js:3 +SFX_SAMPLES
 ## src/data/themes.js (126L)
@@ -114,7 +114,7 @@ src/game/achievements.js:131 +seePieces
 src/game/achievements.js:139 MUT_KEY
 src/game/achievements.js:140 +loadMutSeen
 src/game/achievements.js:141 +seeMutations
-## src/game/backup.js (302L)
+## src/game/backup.js (267L)
 src/game/backup.js:2 MAGIC_V1
 src/game/backup.js:3 MAGIC_V2
 src/game/backup.js:4 MAX_BACKUP_BYTES
@@ -132,14 +132,14 @@ src/game/backup.js:99 inspectJson
 src/game/backup.js:144 validateSnapshot
 src/game/backup.js:176 saveData
 src/game/backup.js:185 +exportSave
-src/game/backup.js:205 +decodeSave
+src/game/backup.js:204 +decodeSave
 src/game/backup.js:218 +localSaveData
 src/game/backup.js:221 +summarizeSave
 src/game/backup.js:228 +sameProgress
-src/game/backup.js:234 +importSave
-src/game/backup.js:280 SLOT_KEYS
-src/game/backup.js:282 +slotSnapshot
-src/game/backup.js:289 +slotRestore
+src/game/backup.js:236 +importSave
+src/game/backup.js:245 SLOT_KEYS
+src/game/backup.js:247 +slotSnapshot
+src/game/backup.js:254 +slotRestore
 ## src/game/barrier.js (111L)
 src/game/barrier.js:2 +N
 src/game/barrier.js:4 +DIFFS
@@ -278,7 +278,7 @@ src/game/checkers.js:70 clone
 src/game/checkers.js:74 score
 src/game/checkers.js:76 search
 src/game/checkers.js:91 +botMove
-## src/game/cloud.js (125L)
+## src/game/cloud.js (112L)
 src/game/cloud.js:6 URL_
 src/game/cloud.js:7 KEY
 src/game/cloud.js:8 SESSION
@@ -295,12 +295,12 @@ src/game/cloud.js:35 session
 src/game/cloud.js:44 +signIn
 src/game/cloud.js:48 +signUp
 src/game/cloud.js:52 +signOut
-src/game/cloud.js:60 +cloudInfo
-src/game/cloud.js:67 lastCode
-src/game/cloud.js:68 +cloudUpload
-src/game/cloud.js:81 +cloudAutoSave
-src/game/cloud.js:99 +cloudPeek
-src/game/cloud.js:107 +cloudDownload
+src/game/cloud.js:59 lastCode
+src/game/cloud.js:61 +cloudStopped
+src/game/cloud.js:62 saved
+src/game/cloud.js:64 +cloudUpload
+src/game/cloud.js:75 +cloudAutoSave
+src/game/cloud.js:95 +cloudPeek
 ## src/game/connect4.js (109L)
 src/game/connect4.js:2 +ROWS
 src/game/connect4.js:4 +emptyGrid
@@ -682,7 +682,7 @@ src/game/rules.js:183 +threatenedPieces
 src/game/rules.js:195 +moveCells
 src/game/rules.js:203 +anchorForCell
 src/game/rules.js:219 +reachPreview
-## src/game/run.js (81L)
+## src/game/run.js (83L)
 src/game/run.js:7 RUN_KEY
 src/game/run.js:8 SETTINGS_KEY
 src/game/run.js:10 read
@@ -706,9 +706,9 @@ src/game/run.js:60 +loadBosses
 src/game/run.js:61 +unlockBoss
 src/game/run.js:63 +DEFAULT_SETTINGS
 src/game/run.js:65 +loadSettings
-src/game/run.js:69 +saveSettings
-src/game/run.js:73 DEMO_KEY
-src/game/run.js:74 +takeNewDemos
+src/game/run.js:71 +saveSettings
+src/game/run.js:75 DEMO_KEY
+src/game/run.js:76 +takeNewDemos
 ## src/game/shop.js (84L)
 src/game/shop.js:6 KEY
 src/game/shop.js:7 read
@@ -728,14 +728,13 @@ src/game/shop.js:52 +takePending
 src/game/shop.js:61 +addToHand
 src/game/shop.js:79 +consumeCard
 src/game/shop.js:83 +isShopCard
-## src/game/slots.js (47L)
-src/game/slots.js:5 +SLOT_COUNT
-src/game/slots.js:6 KEY
-src/game/slots.js:8 +loadSlots
-src/game/slots.js:15 save
-src/game/slots.js:18 +storeActive
-src/game/slots.js:26 +switchSlot
-src/game/slots.js:40 +clearSlot
+## src/game/slots.js (41L)
+src/game/slots.js:6 +SLOT_COUNT
+src/game/slots.js:7 KEY
+src/game/slots.js:9 +loadSlots
+src/game/slots.js:16 save
+src/game/slots.js:19 +switchSlot
+src/game/slots.js:34 +clearSlot
 ## src/game/tenpin.js (119L)
 src/game/tenpin.js:5 +W
 src/game/tenpin.js:6 +SHOT_MAX
@@ -823,7 +822,7 @@ src/game/zen.js:311 +addZenSeeds
 src/game/zen.js:318 +pickSeed
 src/game/zen.js:326 +koiHungry
 src/game/zen.js:327 +feedKoi
-## src/i18n/en.js (1283L)
+## src/i18n/en.js (1288L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -973,10 +972,10 @@ src/ui/app.js:49 ONE_SHOT
 src/ui/app.js:51 +App
 src/ui/app.js:361 MutationReveal
 src/ui/app.js:377 AchievementToast
-## src/ui/board-fx.js (47L)
-src/ui/board-fx.js:6 wait
-src/ui/board-fx.js:10 +playFx
-src/ui/board-fx.js:36 +playMech
+## src/ui/board-fx.js (48L)
+src/ui/board-fx.js:7 wait
+src/ui/board-fx.js:11 +playFx
+src/ui/board-fx.js:37 +playMech
 ## src/ui/coins.js (44L)
 src/ui/coins.js:6 reduced
 src/ui/coins.js:8 +flyCoins
@@ -1125,13 +1124,13 @@ src/ui/screens/gallery.js:26 ThemeGroup
 src/ui/screens/gallery.js:41 RULE
 src/ui/screens/gallery.js:42 Locked
 src/ui/screens/gallery.js:44 +GalleryScreen
-## src/ui/screens/game.js (927L)
+## src/ui/screens/game.js (926L)
 src/ui/screens/game.js:34 SIDE_NAME
 src/ui/screens/game.js:37 pieceName
 src/ui/screens/game.js:39 TIPS
 src/ui/screens/game.js:48 cardEffect
 src/ui/screens/game.js:62 +GameScreen
-src/ui/screens/game.js:898 EndOverlay
+src/ui/screens/game.js:897 EndOverlay
 ## src/ui/screens/golf.js (201L)
 src/ui/screens/golf.js:13 css
 src/ui/screens/golf.js:15 NAMES
@@ -1193,7 +1192,7 @@ src/ui/screens/scenario.js:32 +MatesScreen
 src/ui/screens/scenario.js:33 +ClockScreen
 src/ui/screens/scenario.js:34 +WitchScreen
 src/ui/screens/scenario.js:35 +BombsScreen
-## src/ui/screens/setup.js (401L)
+## src/ui/screens/setup.js (406L)
 src/ui/screens/setup.js:17 SIDES
 src/ui/screens/setup.js:25 MechPicker
 src/ui/screens/setup.js:39 PrefsCard
@@ -1204,9 +1203,9 @@ src/ui/screens/setup.js:60 VersusCard
 src/ui/screens/setup.js:94 +SetupScreen
 src/ui/screens/setup.js:148 +SettingsScreen
 src/ui/screens/setup.js:219 Backup
-src/ui/screens/setup.js:291 ProgressChoice
-src/ui/screens/setup.js:309 Slots
-src/ui/screens/setup.js:330 Cloud
+src/ui/screens/setup.js:292 ProgressChoice
+src/ui/screens/setup.js:310 Slots
+src/ui/screens/setup.js:331 Cloud
 ## src/ui/screens/shop.js (143L)
 src/ui/screens/shop.js:15 CARD_LIST
 src/ui/screens/shop.js:17 +ShopScreen
@@ -1334,8 +1333,8 @@ src/ui/zen-art.js:250 +boardPond
 src/ui/zen-art.js:256 +stoneArt
 src/ui/zen-art.js:262 +ITEM_ART
 src/ui/zen-art.js:267 +KOI_ART
-## src/view/board-view.js (1251L)
-src/view/board-view.js:16 pixelArt
+## src/view/board-view.js (1250L)
+src/view/board-view.js:16 +pixelArt
 src/view/board-view.js:18 +WITCH
 src/view/board-view.js:29 HEN
 src/view/board-view.js:42 look
@@ -1409,28 +1408,28 @@ src/view/weather-fx.js:220 leaves
 src/view/weather-fx.js:249 BUB
 src/view/weather-fx.js:250 bubbles
 src/view/weather-fx.js:300 +WEATHER_FX
-## css/base.css (263L)
+## css/base.css (264L)
 css/base.css:1 /* Reset, typography, browser surfaces and shared components.
 css/base.css:22 /* Icon() pinta las dos versiones; cada mesa muestra la suya (p
 css/base.css:27 /* Clima: textura encima del fondo de la mesa (no lo reemplaza)
 css/base.css:31 /* Dos capas del mismo motivo: cerca (grande, recorre más) y le
 css/base.css:32 /* Clima: motivos pequeños por TODO el fondo (gotas, copos, jir
-css/base.css:60 /* Buttons are printed tokens: the solid bottom edge is the tok
-css/base.css:90 /* Teléfonos de 360 px: título en una línea al lado del Volver 
-css/base.css:99 /* Paper panels: the rulebook and score sheets of the box.
-css/base.css:114 /* Reward cards: actual playing cards of the game, so the card 
-css/base.css:135 /* Cartas de antes de la partida (Organizar): marco azul pizarr
-css/base.css:144 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
-css/base.css:148 /* Cartas lilas: gratis, aparte de la mano normal.
-css/base.css:150 /* Rareza que se ve sin buscar la gema: un brillo cruza la cart
-css/base.css:164 /* Rareza con canal propio, independiente del color del tipo (e
-css/base.css:169 /* Rara: el título es una banda de plata pulida. Épica: latón c
-css/base.css:180 /* Every figure on a card is paper with an ink outline, so stam
-css/base.css:191 /* Card back carries the pawn emblem: the box's identity mark.
-css/base.css:202 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
-css/base.css:242 /* Botones sin texto y cosas del jardín: el botón va en su esqu
-css/base.css:245 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
-## css/board.css (386L)
+css/base.css:61 /* Buttons are printed tokens: the solid bottom edge is the tok
+css/base.css:91 /* Teléfonos de 360 px: título en una línea al lado del Volver 
+css/base.css:100 /* Paper panels: the rulebook and score sheets of the box.
+css/base.css:115 /* Reward cards: actual playing cards of the game, so the card 
+css/base.css:136 /* Cartas de antes de la partida (Organizar): marco azul pizarr
+css/base.css:145 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
+css/base.css:149 /* Cartas lilas: gratis, aparte de la mano normal.
+css/base.css:151 /* Rareza que se ve sin buscar la gema: un brillo cruza la cart
+css/base.css:165 /* Rareza con canal propio, independiente del color del tipo (e
+css/base.css:170 /* Rara: el título es una banda de plata pulida. Épica: latón c
+css/base.css:181 /* Every figure on a card is paper with an ink outline, so stam
+css/base.css:192 /* Card back carries the pawn emblem: the box's identity mark.
+css/base.css:203 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
+css/base.css:243 /* Botones sin texto y cosas del jardín: el botón va en su esqu
+css/base.css:246 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
+## css/board.css (385L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
 css/board.css:36 /* Tiles

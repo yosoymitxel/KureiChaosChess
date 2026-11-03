@@ -57,18 +57,20 @@ export async function signOut() {
 }
 
 let lastCode = null;
+// Por qué se paró el guardado automático: 'clash' (otro aparato subió antes) o 'auth' (sesión caducada).
+export let cloudStopped = null;
+const saved = (code, rows) => { lastCode = code; cloudStopped = null; return cloudMarkSynced(rows?.[0]?.updated_at || new Date().toISOString()); };
+
 export async function cloudUpload(code) {
   const s = await session();
   if (!s) throw new Error('auth');
-  const updated_at = new Date().toISOString();
   code ||= await exportSave();
-  await call('/rest/v1/game_saves?on_conflict=user_id', { method: 'POST', token: s.token, prefer: 'resolution=merge-duplicates,return=minimal', body: { user_id: s.id, save_data: { code }, updated_at } });
-  lastCode = code;
-  return cloudMarkSynced(updated_at);
+  const rows = await call('/rest/v1/game_saves?on_conflict=user_id', { method: 'POST', token: s.token, prefer: 'resolution=merge-duplicates,return=representation', body: { user_id: s.id, save_data: { code }, updated_at: new Date().toISOString() } });
+  return saved(code, rows);
 }
 
-// Guardado automático con sesión abierta: sube si el progreso cambió y nadie más subió desde la
-// última sincronía; si otro aparato subió, no pisa nada (Perfil muestra cuál quedarse).
+// Guardado automático con sesión abierta: sube solo si la nube sigue en la última copia de este aparato.
+// PATCH condicionado a esa fecha (sin hueco entre leer y escribir): 0 filas = otro aparato subió antes.
 let timer;
 export function cloudAutoSave(delay = 3000) {
   if (!load()) return;
@@ -78,12 +80,14 @@ export function cloudAutoSave(delay = 3000) {
       const code = await exportSave();
       if (code === lastCode) return;
       const s = await session();
-      if (!s) return;
-      const rows = await call(`/rest/v1/game_saves?select=updated_at&user_id=eq.${s.id}`, { token: s.token });
-      const at = rows[0]?.updated_at || null, mine = synced();
-      if (at ? !mine || Date.parse(at) !== Date.parse(mine) : mine) return;
-      await cloudUpload(code);
-    } catch {}
+      if (!s) { cloudStopped = 'auth'; return; }
+      const mine = synced(), body = { save_data: { code }, updated_at: new Date().toISOString() };
+      const rows = mine
+        ? await call(`/rest/v1/game_saves?user_id=eq.${s.id}&updated_at=eq.${encodeURIComponent(mine)}`, { method: 'PATCH', token: s.token, prefer: 'return=representation', body })
+        : await call('/rest/v1/game_saves', { method: 'POST', token: s.token, prefer: 'return=representation', body: { user_id: s.id, ...body } }).catch((e) => { if (e.status === 409) return []; throw e; });
+      if (rows?.length) saved(code, rows);
+      else cloudStopped = 'clash';
+    } catch (e) { if (e.status === 400 || e.status === 401) cloudStopped = 'auth'; }
   }, delay);
 }
 

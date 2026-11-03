@@ -9,7 +9,7 @@ import { THEMES, vfxOn } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
 import { exportSave, importSave, MAX_BACKUP_CODE_CHARS, decodeSave, localSaveData, summarizeSave, sameProgress } from '../../game/backup.js';
-import { cloudUser, signIn, signUp, signOut, cloudUpload, cloudPeek, cloudMarkSynced } from '../../game/cloud.js';
+import { cloudUser, signIn, signUp, signOut, cloudUpload, cloudPeek, cloudMarkSynced, cloudStopped } from '../../game/cloud.js';
 import { themeOwned } from '../../game/shop.js';
 import { eliteVariants, lessonText } from '../../game/generate.js';
 import { t, LANG, LANGS } from '../../i18n/index.js';
@@ -384,7 +384,7 @@ function Cloud() {
   return html`<section class="panel setup-card set-profile cloud" data-enter>
     <h2>${t('cloud.profile', 'Perfil')}</h2>
     ${user ? html`
-      <p class="shop-note">${t('cloud.as', 'Conectado como {email}.', { email: user })} ${t('cloud.auto', 'Se guarda sola al avanzar.')} ${when ? t('cloud.when', 'Última copia: {date}.', { date: date(when) }) : when === null ? t('cloud.none', 'Aún no has subido ninguna.') : ''}</p>
+      <p class="shop-note">${t('cloud.as', 'Conectado como {email}.', { email: user })} ${cloudStopped === 'clash' ? t('cloud.stoppedClash', 'El guardado automático está parado: otro aparato subió otra partida. Elige cuál se queda.') : cloudStopped === 'auth' ? t('cloud.stoppedAuth', 'El guardado automático está parado: vuelve a entrar.') : t('cloud.auto', 'Se guarda sola al avanzar.')} ${when ? t('cloud.when', 'Última copia: {date}.', { date: date(when) }) : when === null ? t('cloud.none', 'Aún no has subido ninguna.') : ''}</p>
       <div class="menu-row set-actions">
         <button class="btn sm primary" disabled=${busy} onClick=${up}><${Icon} name="scroll" size=${16} />${t('cloud.upload', 'Guardar en la nube')}</button>
         <button class="btn sm" disabled=${busy || !when} onClick=${down}><${Icon} name="bag" size=${16} />${t('cloud.download', 'Traer de la nube')}</button>

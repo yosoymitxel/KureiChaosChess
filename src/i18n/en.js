@@ -448,6 +448,8 @@ export default {
     "cloud.download": "Load from cloud",
     "cloud.uploaded": "Game saved to the cloud.",
     "cloud.empty": "There's no game in the cloud yet.",
+    "cloud.stoppedClash": "Auto-save is paused: another device uploaded a different game. Choose which one stays.",
+    "cloud.stoppedAuth": "Auto-save is paused: sign in again.",
     "cloud.newer": "The cloud has a game from a newer version: update before saving.",
     "cloud.same": "The cloud has the same progress as this device.",
     "backup.tooLarge": "The backup is larger than the maximum allowed size.",
