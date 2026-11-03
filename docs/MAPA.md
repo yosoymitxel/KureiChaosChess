@@ -23,15 +23,15 @@ src/data/garden.js:40 +LAKE_MAX
 src/data/garden.js:41 +lakeCost
 ## src/data/mates.js (2L)
 src/data/mates.js:1 +MATES
-## src/data/minigame-catalog.js (39L)
-src/data/minigame-catalog.js:28 SCREENS
-src/data/minigame-catalog.js:38 +MINIGAMES
-## src/data/modifiers.js (93L)
+## src/data/minigame-catalog.js (40L)
+src/data/minigame-catalog.js:29 SCREENS
+src/data/minigame-catalog.js:39 +MINIGAMES
+## src/data/modifiers.js (94L)
 src/data/modifiers.js:2 +MODIFIERS
-src/data/modifiers.js:80 +nodeModifier
-src/data/modifiers.js:87 +BOARD_MECHANICS
-src/data/modifiers.js:90 +FEATURED_MECHANICS
-src/data/modifiers.js:92 +DUO_MECHANICS
+src/data/modifiers.js:81 +nodeModifier
+src/data/modifiers.js:88 +BOARD_MECHANICS
+src/data/modifiers.js:91 +FEATURED_MECHANICS
+src/data/modifiers.js:93 +DUO_MECHANICS
 ## src/data/mutations.js (53L)
 src/data/mutations.js:4 +MUTATIONS
 src/data/mutations.js:16 KEYS
@@ -477,28 +477,27 @@ src/game/horde.js:60 +auto
 src/game/horde.js:66 +pieces
 src/game/horde.js:67 +marks
 src/game/horde.js:68 +status
-## src/game/hotbomb.js (185L)
-src/game/hotbomb.js:7 +W
-src/game/hotbomb.js:8 +POCKETS
-src/game/hotbomb.js:9 +FLY
-src/game/hotbomb.js:10 DECEL
-src/game/hotbomb.js:11 TYPES
-src/game/hotbomb.js:15 +DIFFS
-src/game/hotbomb.js:21 other
-src/game/hotbomb.js:22 dist
-src/game/hotbomb.js:23 +alive
-src/game/hotbomb.js:25 +newHotbomb
-src/game/hotbomb.js:44 arm
-src/game/hotbomb.js:53 give
-src/game/hotbomb.js:61 +holder
-src/game/hotbomb.js:64 +hurl
-src/game/hotbomb.js:79 +plan
-src/game/hotbomb.js:91 +step
-src/game/hotbomb.js:98 sub
-src/game/hotbomb.js:133 land
-src/game/hotbomb.js:145 boom
-src/game/hotbomb.js:167 physics
-src/game/hotbomb.js:180 judge
+## src/game/hotbomb.js (189L)
+src/game/hotbomb.js:10 +PC_R
+src/game/hotbomb.js:11 +FLY
+src/game/hotbomb.js:12 DECEL
+src/game/hotbomb.js:13 TYPES
+src/game/hotbomb.js:17 +DIFFS
+src/game/hotbomb.js:23 other
+src/game/hotbomb.js:24 dist
+src/game/hotbomb.js:25 +alive
+src/game/hotbomb.js:27 +newHotbomb
+src/game/hotbomb.js:47 arm
+src/game/hotbomb.js:56 give
+src/game/hotbomb.js:64 +holder
+src/game/hotbomb.js:67 +hurl
+src/game/hotbomb.js:83 +plan
+src/game/hotbomb.js:95 +step
+src/game/hotbomb.js:102 sub
+src/game/hotbomb.js:137 land
+src/game/hotbomb.js:149 boom
+src/game/hotbomb.js:171 physics
+src/game/hotbomb.js:184 judge
 ## src/game/izombie.js (98L)
 src/game/izombie.js:6 +ROWS
 src/game/izombie.js:9 +DIFFS
@@ -625,6 +624,22 @@ src/game/physics.js:29 +walls
 src/game/physics.js:38 +slide
 src/game/physics.js:48 +bump
 src/game/physics.js:63 +rim
+## src/game/pool.js (136L)
+src/game/pool.js:6 +W
+src/game/pool.js:7 +POCKETS
+src/game/pool.js:8 +SPOT
+src/game/pool.js:9 DECEL
+src/game/pool.js:11 +DIFFS
+src/game/pool.js:17 other
+src/game/pool.js:19 +newPool
+src/game/pool.js:30 +shoot
+src/game/pool.js:41 physics
+src/game/pool.js:57 +simulate
+src/game/pool.js:65 +plan
+src/game/pool.js:85 +step
+src/game/pool.js:92 sub
+src/game/pool.js:109 free
+src/game/pool.js:115 resolve
 ## src/game/queens.js (43L)
 src/game/queens.js:3 +DIFFS
 src/game/queens.js:9 attacks
@@ -809,7 +824,7 @@ src/game/zen.js:311 +addZenSeeds
 src/game/zen.js:318 +pickSeed
 src/game/zen.js:326 +koiHungry
 src/game/zen.js:327 +feedKoi
-## src/i18n/en.js (1268L)
+## src/i18n/en.js (1274L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -1126,10 +1141,9 @@ src/ui/screens/hockey.js:14 KEYS
 src/ui/screens/hockey.js:16 TOP_KEYS
 src/ui/screens/hockey.js:17 css
 src/ui/screens/hockey.js:20 +HockeyScreen
-## src/ui/screens/hotbomb.js (148L)
-src/ui/screens/hotbomb.js:13 ROWS
-src/ui/screens/hotbomb.js:14 pct
-src/ui/screens/hotbomb.js:17 +HotbombScreen
+## src/ui/screens/hotbomb.js (146L)
+src/ui/screens/hotbomb.js:13 pct
+src/ui/screens/hotbomb.js:16 +HotbombScreen
 ## src/ui/screens/izombie.js (59L)
 src/ui/screens/izombie.js:13 +IZombieScreen
 ## src/ui/screens/laststand.js (68L)
@@ -1158,6 +1172,11 @@ src/ui/screens/overlays.js:13 useEscape
 src/ui/screens/overlays.js:20 +ResumeOverlay
 src/ui/screens/overlays.js:31 +PauseOverlay
 src/ui/screens/overlays.js:62 +HowToOverlay
+## src/ui/screens/pool.js (175L)
+src/ui/screens/pool.js:11 css
+src/ui/screens/pool.js:12 pct
+src/ui/screens/pool.js:13 ROWS
+src/ui/screens/pool.js:17 +PoolScreen
 ## src/ui/screens/queens.js (51L)
 src/ui/screens/queens.js:11 +QueensScreen
 ## src/ui/screens/scenario.js (36L)
@@ -1473,7 +1492,7 @@ css/pixel.css:85 /* Sombra de la pieza y koi del estanque del tablero, sin degra
 css/pixel.css:87 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
 css/pixel.css:90 /* El ::before va fuera de :is(), que no admite pseudoelementos
 ## css/proto-diamond.css (83L)
-## css/screens.css (1623L)
+## css/screens.css (1627L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
 css/screens.css:12 /* Menu: asymmetric, the diorama is the focal point and the tit
@@ -1601,39 +1620,40 @@ css/screens.css:1266 /* La mesa es alta: en el teléfono el escenario le da más
 css/screens.css:1269 /* Píxel: losas del tema en las casillas y lo redondo, octógono
 css/screens.css:1278 /* La cámara de Ajustes (Cenital, Mesa, Épica) inclina también 
 css/screens.css:1284 /* Solo las mesas de física (hockey, golf, billar), mucho menos
-css/screens.css:1291 /* Papa caliente: la mesa del hockey con troneras; la bomba vue
-css/screens.css:1301 /* Billar redondo: mesa circular con casillas de tablero, cuatr
-css/screens.css:1322 /* Píxel: sin curvas en todo el juego; la mesa redonda es un cí
-css/screens.css:1328 /* Golf de mesa: la misma mesa del hockey con suelos (arena, hi
-css/screens.css:1330 /* Lo que asoma por encima de la fila de arriba (banderín, figu
-css/screens.css:1347 /* Banderín: mástil de tinta y gallardete bermellón, dibujado e
-css/screens.css:1362 /* Peón levantado mientras se arrastra, y la casilla a la que i
-css/screens.css:1366 /* La valla cae en su sitio con un golpe seco.
-css/screens.css:1379 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
-css/screens.css:1383 /* En pantallas bajas el tablero vale más que el chrome: menos 
-css/screens.css:1385 /* En el teléfono la compra se aprieta a una fila de ficha y pr
-css/screens.css:1391 /* Reloj de turno (minis cronometrados): barra que se vacía; en
-css/screens.css:1397 /* Estado de los minis sobre la losa: ficha de monedas y contad
-css/screens.css:1400 /* Contadores en fila: un punto por unidad; apagado queda lo ga
-css/screens.css:1404 /* La última oleada es la horda: su punto es un banderín bermel
-css/screens.css:1406 /* Carriles de lanzamiento: velo claro (--zone), distinto del v
-css/screens.css:1408 /* El número del carril en su esquina: es la tecla que lo lanza
-css/screens.css:1410 /* La bolera es apaisada: su escenario no reserva el alto pensa
-css/screens.css:1414 /* La línea roja del original: hasta ahí se lanza.
-css/screens.css:1416 /* La ficha que rueda va como elemento para que Motion la pueda
-css/screens.css:1417 /* La ficha es una pieza de damas vista en perspectiva: disco c
-css/screens.css:1427 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
-css/screens.css:1445 /* Avance de la oleada con el banderín de la horda al 70 %.
-css/screens.css:1452 /* La cinta: las fichas que vienen, la primera se lanza al toca
-css/screens.css:1464 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
-css/screens.css:1469 /* Selector de mecánicas de la run: favorita en latón, vetada t
-css/screens.css:1473 /* «Ver todo»: fichas de una línea; el estado lo dicen el color
-css/screens.css:1483 /* Mobile-first repair: keep the game surface visible instead o
-css/screens.css:1515 /* The animation lab must give its remaining viewport to the li
-css/screens.css:1558 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
-css/screens.css:1575 /* Copia de seguridad (Ajustes): el código se pega en un recuad
-css/screens.css:1588 /* Botones de Perfil y Copia: tres por fila, icono arriba, sin 
-css/screens.css:1599 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
-css/screens.css:1610 /* Reference APK renderer: a separate green/pixel signature, di
+css/screens.css:1291 /* Billar: la mesa del hockey con banda de madera ancha (como e
+css/screens.css:1296 /* Papa caliente: la mesa del billar redondo con piezas; la bom
+css/screens.css:1305 /* Billar redondo: mesa circular con casillas de tablero, cuatr
+css/screens.css:1326 /* Píxel: sin curvas en todo el juego; la mesa redonda es un cí
+css/screens.css:1332 /* Golf de mesa: la misma mesa del hockey con suelos (arena, hi
+css/screens.css:1334 /* Lo que asoma por encima de la fila de arriba (banderín, figu
+css/screens.css:1351 /* Banderín: mástil de tinta y gallardete bermellón, dibujado e
+css/screens.css:1366 /* Peón levantado mientras se arrastra, y la casilla a la que i
+css/screens.css:1370 /* La valla cae en su sitio con un golpe seco.
+css/screens.css:1383 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
+css/screens.css:1387 /* En pantallas bajas el tablero vale más que el chrome: menos 
+css/screens.css:1389 /* En el teléfono la compra se aprieta a una fila de ficha y pr
+css/screens.css:1395 /* Reloj de turno (minis cronometrados): barra que se vacía; en
+css/screens.css:1401 /* Estado de los minis sobre la losa: ficha de monedas y contad
+css/screens.css:1404 /* Contadores en fila: un punto por unidad; apagado queda lo ga
+css/screens.css:1408 /* La última oleada es la horda: su punto es un banderín bermel
+css/screens.css:1410 /* Carriles de lanzamiento: velo claro (--zone), distinto del v
+css/screens.css:1412 /* El número del carril en su esquina: es la tecla que lo lanza
+css/screens.css:1414 /* La bolera es apaisada: su escenario no reserva el alto pensa
+css/screens.css:1418 /* La línea roja del original: hasta ahí se lanza.
+css/screens.css:1420 /* La ficha que rueda va como elemento para que Motion la pueda
+css/screens.css:1421 /* La ficha es una pieza de damas vista en perspectiva: disco c
+css/screens.css:1431 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
+css/screens.css:1449 /* Avance de la oleada con el banderín de la horda al 70 %.
+css/screens.css:1456 /* La cinta: las fichas que vienen, la primera se lanza al toca
+css/screens.css:1468 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
+css/screens.css:1473 /* Selector de mecánicas de la run: favorita en latón, vetada t
+css/screens.css:1477 /* «Ver todo»: fichas de una línea; el estado lo dicen el color
+css/screens.css:1487 /* Mobile-first repair: keep the game surface visible instead o
+css/screens.css:1519 /* The animation lab must give its remaining viewport to the li
+css/screens.css:1562 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
+css/screens.css:1579 /* Copia de seguridad (Ajustes): el código se pega en un recuad
+css/screens.css:1592 /* Botones de Perfil y Copia: tres por fila, icono arriba, sin 
+css/screens.css:1603 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
+css/screens.css:1614 /* Reference APK renderer: a separate green/pixel signature, di
 ## css/tokens.css (51L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.

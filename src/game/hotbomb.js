@@ -1,11 +1,13 @@
-// Papa caliente: mesa de billar con las piezas de cada bando quietas; la bomba arde en tiempo real y la
+// Papa caliente: la mesa redonda del billar (carrom.js) con las piezas de cada bando quietas; la bomba arde en tiempo real y la
 // pieza que la tiene la lanza girando hacia otra. La atrapa la pieza más cercana a donde cae; si nadie,
 // rueda hasta que toca una. Al acabarse la mecha estalla: mata a quien la tiene (o lo que pille cerca)
 // y la onda empuja al resto, que puede caer por las troneras. Gana quien deja al otro sin piezas.
-import { substeps, slide, bump, walls } from './physics.js';
+import { substeps, slide, bump, rim } from './physics.js';
+import { R, W, H, POCKETS, POCKET_R } from './carrom.js';
 
-export const W = 96, H = 160, PC_R = 7.6, BOMB_R = 4, POCKET_R = 8.5;
-export const POCKETS = [[5, 5], [W - 5, 5], [3, H / 2], [W - 3, H / 2], [5, H - 5], [W - 5, H - 5]].map(([x, y]) => ({ x, y }));
+export { W, H, POCKETS };
+
+export const PC_R = 7.6, BOMB_R = 4;
 export const FLY = 0.55, CATCH = PC_R + 7, KILL = 11, BLAST = 34;
 const DECEL = 70, ROLL_DECEL = 90, E = 0.85, ROLL = 55, PUSH = 260;
 const TYPES = ['pawn', 'knight', 'bishop', 'rook', 'queen'];
@@ -27,7 +29,8 @@ export function newHotbomb(key = 'normal', rng = Math.random) {
   // Cada bando en su mitad, lejos de troneras y bandas, sin pisarse.
   const put = (side, n) => {
     for (let i = 0, tries = 0; i < n && tries < 2000; tries++) {
-      const x = 14 + rng() * (W - 28), y = side === 'me' ? H / 2 + 14 + rng() * (H / 2 - 28) : 14 + rng() * (H / 2 - 28);
+      const x = 14 + rng() * (W - 28), y = side === 'me' ? R + 10 + rng() * (R - 24) : 14 + rng() * (R - 24);
+      if (Math.hypot(x - R, y - R) > R - 16) continue;
       if (pcs.some((p) => Math.hypot(p.x - x, p.y - y) < PC_R * 3.2) || POCKETS.some((q) => Math.hypot(q.x - x, q.y - y) < 22)) continue;
       pcs.push({ id: pcs.length, side, type: TYPES[Math.floor(rng() * TYPES.length)], x, y, vx: 0, vy: 0, out: false });
       i++;
@@ -65,7 +68,8 @@ export function hurl(s, x, y, side = 'me', err = 0.05) {
   const h = holder(s);
   if (s.over || s.phase !== 'hold' || !h || h.side !== side) return false;
   const d = Math.hypot(x - h.x, y - h.y), a = s.rng() * Math.PI * 2, r = d * err * Math.sqrt(s.rng());
-  const to = { x: Math.max(BOMB_R, Math.min(W - BOMB_R, x + Math.cos(a) * r)), y: Math.max(BOMB_R, Math.min(H - BOMB_R, y + Math.sin(a) * r)) };
+  const to = { x: x + Math.cos(a) * r, y: y + Math.sin(a) * r }, out = Math.hypot(to.x - R, to.y - R), max = R - BOMB_R;
+  if (out > max) { to.x = R + ((to.x - R) / out) * max; to.y = R + ((to.y - R) / out) * max; }
   s.fly = { from: { x: h.x, y: h.y }, to, t: 0, by: h.id };
   s.holder = null;
   s.phase = 'fly';
@@ -121,8 +125,8 @@ function sub(s, dt) {
   } else if (s.phase === 'roll') {
     const b = s.bomb;
     slide(b, ROLL_DECEL, dt);
-    walls(b, BOMB_R, W, H, 0.6);
-    const q = POCKETS.find((p) => dist(p, b) < POCKET_R);
+    rim(b, BOMB_R, R, R, R, 0.6);
+    const q = POCKETS.find((p) => dist(p, b) < POCKET_R * 0.8);
     if (q) { Object.assign(b, q); return boom(s, true); }
     const p = alive(s).find((x) => dist(x, b) < PC_R + BOMB_R);
     if (p) give(s, p);
@@ -170,9 +174,9 @@ function physics(s, dt) {
   for (const p of live) if (slide(p, DECEL, dt) > 0.5) moving = true;
   for (let i = 0; i < live.length; i++) for (let j = i + 1; j < live.length; j++) bump(live[i], live[j], 2 * PC_R, E);
   for (const p of live) {
-    const q = POCKETS.find((o) => dist(o, p) < POCKET_R + 1.5);
+    const q = POCKETS.find((o) => dist(o, p) < POCKET_R);
     if (q && Math.hypot(p.vx, p.vy) > 1) { p.out = true; Object.assign(p, { x: q.x, y: q.y, vx: 0, vy: 0 }); s.events.push({ kind: 'pocket', id: p.id, side: p.side, x: q.x, y: q.y }); continue; }
-    walls(p, PC_R, W, H, 0.7);
+    rim(p, PC_R, R, R, R, 0.7);
   }
   return moving;
 }

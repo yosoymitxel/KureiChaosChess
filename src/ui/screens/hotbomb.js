@@ -10,7 +10,6 @@ import { MODIFIERS } from '../../data/modifiers.js';
 import { t } from '../../i18n/index.js';
 import { tableKit, toTable as tableAt, corners } from '../table-kit.js';
 
-const ROWS = 10, COLS = 6;
 const pct = (v, of) => (v / of) * 100 + '%';
 
 // Toca o arrastra hacia donde quieres lanzar la bomba y suelta: sale girando desde tu pieza que la tiene.
@@ -119,10 +118,9 @@ export function HotbombScreen({ sub, onBack, onEnd, endLabel = t('common.continu
       <div class="mini-main">
         <div class="mini-stage">
           <div class="ah-wrap" ref=${wrapRef}>
-            <div class="ah hb" ref=${tableRef} role="application" aria-label=${t('hotbomb.aria', 'Mesa de billar: toca donde quieras lanzar la bomba')}
+            <div class="cr hb" ref=${tableRef} role="application" aria-label=${t('hotbomb.aria', 'Mesa redonda: toca donde quieras lanzar la bomba')}
               onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${() => (aim.current.on = false)}>
-              ${Array.from({ length: ROWS * COLS }, (_, i) => html`<i class=${'ah-cell ' + ((Math.floor(i / COLS) + i) % 2 ? 'b' : 'a')}></i>`)}
-              ${corners}<i class="ah-mid"></i>
+              ${corners}
               ${POCKETS.map((p) => html`<i class="cr-pocket" style=${`left:${pct(p.x, W)};top:${pct(p.y, H)}`}></i>`)}
               ${s.pcs.map((p) => html`<span class=${'ah-pc ' + (p.side === 'me' ? 'me side-light' : 'foe side-dark')} ref=${(el) => (pcRefs.current[p.id] = el)}>
                 <span class="ah-body"><i class="ah-base"></i><span class="ah-fig" dangerouslySetInnerHTML=${{ __html: pieceSVG(p.type) }} /></span>
