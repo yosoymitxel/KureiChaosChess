@@ -250,8 +250,9 @@ export function FilterMenu({ value = 'off', onChange }) {
   const cur = FILTERS.find((f) => f.id === value) || FILTERS[0];
   return html`<details class="filter-menu">
     <summary>${t('settings.filter', 'Filtro de pantalla')}: <b>${t('filter.' + cur.id, cur.name)}</b></summary>
-    <div class="segmented" role="group" aria-label=${t('settings.filter', 'Filtro de pantalla')}>
-      ${FILTERS.map((f) => html`<button class=${value === f.id ? 'on' : ''} aria-pressed=${value === f.id} onClick=${() => onChange(f.id)}>${t('filter.' + f.id, f.name)}</button>`)}
+    <div class="theme-grid" role="group" aria-label=${t('settings.filter', 'Filtro de pantalla')}>
+      ${FILTERS.map((f) => html`<button class=${'theme' + (value === f.id ? ' on' : '')} aria-pressed=${value === f.id} title=${t('filterDesc.' + f.id, f.desc)} onClick=${() => onChange(f.id)}>
+        <span class="filter-look" data-fx=${f.id}></span><span class="theme-name">${t('filter.' + f.id, f.name)}</span></button>`)}
     </div>
   </details>`;
 }

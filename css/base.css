@@ -262,27 +262,28 @@ h2 { font-size: 17px; font-weight: 750; }
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
-/* Filtros de pantalla (src/data/filters.js): capa encima de todo, sin capturar toques. */
+/* Filtros de pantalla (src/data/filters.js): capa encima de todo, sin capturar toques.
+   Las mismas reglas pintan la muestra del menú ([data-fx]). */
 html[data-filter]:not([data-filter="off"]) body::after {
   content: ""; position: fixed; inset: 0; z-index: 2147483647; pointer-events: none;
 }
-html[data-filter="crt"] body::after {
-  background: repeating-linear-gradient(0deg, rgb(0 0 0 / .18) 0 1px, transparent 1px 3px),
-    radial-gradient(ellipse at center, transparent 60%, rgb(0 0 0 / .45));
-  backdrop-filter: contrast(1.08) saturate(1.2);
-}
-html[data-filter="green"] body::after {
-  background: repeating-linear-gradient(0deg, rgb(0 0 0 / .2) 0 1px, transparent 1px 3px);
-  backdrop-filter: grayscale(1) sepia(1) hue-rotate(60deg) saturate(2.6);
-}
-html[data-filter="amber"] body::after {
-  background: repeating-linear-gradient(0deg, rgb(0 0 0 / .2) 0 1px, transparent 1px 3px);
-  backdrop-filter: grayscale(1) sepia(1) hue-rotate(-12deg) saturate(2.4);
-}
-html[data-filter="gray"] body::after { backdrop-filter: grayscale(1) contrast(1.05); }
-html[data-filter="cine"] body::after {
-  background: radial-gradient(ellipse at center, transparent 50%, rgb(0 0 0 / .55));
-  backdrop-filter: contrast(1.12) saturate(.85);
-}
+html[data-filter="crt"] body::after, [data-fx="crt"]::after { background: repeating-linear-gradient(0deg, rgb(0 0 0 / .2) 0 1px, transparent 1px 3px), radial-gradient(ellipse at center, transparent 60%, rgb(0 0 0 / .45)); }
+html[data-filter="vhs"] body::after, [data-fx="vhs"]::after { background: repeating-linear-gradient(0deg, rgb(255 255 255 / .05) 0 1px, transparent 1px 4px), radial-gradient(ellipse at center, transparent 65%, rgb(0 0 0 / .35)); backdrop-filter: saturate(1.5) contrast(.92) blur(.4px); }
+html[data-filter="green"] body::after, [data-fx="green"]::after { background: repeating-linear-gradient(0deg, rgb(0 0 0 / .2) 0 1px, transparent 1px 3px); backdrop-filter: grayscale(1) sepia(1) hue-rotate(60deg) saturate(2.6); }
+html[data-filter="amber"] body::after, [data-fx="amber"]::after { background: repeating-linear-gradient(0deg, rgb(0 0 0 / .2) 0 1px, transparent 1px 3px); backdrop-filter: grayscale(1) sepia(1) hue-rotate(-12deg) saturate(2.4); }
+html[data-filter="gray"] body::after, [data-fx="gray"]::after { backdrop-filter: grayscale(1) contrast(1.05); }
+html[data-filter="sepia"] body::after, [data-fx="sepia"]::after { background: radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / .3)); backdrop-filter: sepia(.85) contrast(1.05); }
+html[data-filter="cine"] body::after, [data-fx="cine"]::after { background: radial-gradient(ellipse at center, transparent 50%, rgb(0 0 0 / .55)); backdrop-filter: contrast(1.12) saturate(.85); }
+html[data-filter="night"] body::after, [data-fx="night"]::after { background: rgb(10 20 60 / .18); backdrop-filter: brightness(.8) saturate(.7) hue-rotate(-10deg); }
+html[data-filter="pop"] body::after, [data-fx="pop"]::after { backdrop-filter: saturate(1.7) contrast(1.15); }
 .filter-menu > summary { cursor: pointer; padding: .4rem 0; }
 .filter-menu[open] > summary { margin-bottom: .4rem; }
+.filter-look { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 8px; overflow: hidden;
+  background: radial-gradient(circle at 30% 40%, oklch(0.62 0.2 25) 0 16%, transparent 17%),
+    radial-gradient(circle at 70% 60%, oklch(0.6 0.16 250) 0 16%, transparent 17%),
+    repeating-conic-gradient(oklch(0.85 0.05 80) 0 25%, oklch(0.45 0.06 55) 0 50%) 0 0 / 50% 50%; }
+.filter-look::after { content: ""; position: absolute; inset: 0; }
+.pause .filter-menu .theme-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.pause .filter-menu .theme { padding: 3px; gap: 2px; border-radius: 8px; }
+.pause .filter-menu .theme-name { font-size: .62rem; }
+.pause .filter-look { aspect-ratio: 2 / 1; }
