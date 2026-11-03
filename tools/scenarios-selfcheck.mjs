@@ -1,5 +1,6 @@
 // Minijuegos sobre el tablero de la partida (src/data/scenarios.js): se arman, terminan y varían.
 import assert from 'node:assert/strict';
+import { mulberry32 } from '../src/core/rng.js';
 import { SCENARIOS, buildScenario } from '../src/data/scenarios.js';
 import { Match, botChooseMove } from '../src/game/match.js';
 import { RIVALS } from '../src/game/difficulty.js';
@@ -121,6 +122,61 @@ for (const level of ['facil', 'normal', 'dificil']) {
   assert.equal(wins, 40, `bombs/${level}: a careful king survives ${wins}/40`);
   assert.ok(blind < 40, `bombs/${level}: bombs threaten a careless king`);
   console.log(`bombs ${level}: rey atento gana ${wins}/40 · despistado ${blind}/40`);
+}
+
+// Escape, contrabando, laboratorio, campo minado y reloj son pasables: un corredor simple (va por el camino
+// más corto a lo marcado o a la meta, no se pone a tiro y conoce las minas) gana alguna en cada dificultad.
+function runner(m, sc, i0 = 0) {
+  const me = sc.runner || m.pieces.find((p) => p.color === 'light');
+  if (!me || !m.pieces.includes(me)) return null;
+  const labels = sc.labels?.(m) || new Map(), marks = [...labels].filter(([, v]) => String(v).startsWith('icon:')).map(([k]) => k);
+  const goal = sc.goalAt || ((p) => p.row === 0), mines = sc.board.mines || new Set();
+  let isTarget = (r, c) => (marks.length ? marks.includes(key(r, c)) : goal({ row: r, col: c }));
+  const others = m.pieces.filter((p) => p !== me);
+  // Saltos que faltan desde (r, c) hasta un objetivo, con las piezas de ahora como obstáculos.
+  const dist = (r, c) => {
+    let front = [[r, c]], seen = new Set([key(r, c)]);
+    for (let d = 0; d < 12 && front.length; d++) {
+      if (front.some(([a, b]) => isTarget(a, b))) return d;
+      const next = [];
+      for (const [a, b] of front) for (const t of legalMoves({ ...me, row: a, col: b }, others, m.board)) {
+        const k = key(t.row, t.col);
+        if (!seen.has(k) && !mines.has(k)) { seen.add(k); next.push([t.row, t.col]); }
+      }
+      front = next;
+    }
+    return 99;
+  };
+  // Reloj: si apura, primero el reloj y luego las monedas.
+  const clock = sc.goals?.()[0];
+  if (clock && labels.get(clock) <= dist(me.row, me.col) + 2) { const coins = isTarget; isTarget = (r, c) => key(r, c) === clock; if (dist(me.row, me.col) > 50) isTarget = coins; }
+  let best = null, top = -Infinity;
+  for (const mv of m.legal(me)) {
+    if (mines.has(key(mv.row, mv.col))) continue;
+    const at = [me.row, me.col];
+    Object.assign(me, { row: mv.row, col: mv.col });
+    const ctx = ctxOf(m.pieces, m.board), shot = m.pieces.some((e) => e.color === 'dark' && canHit(e, me, ctx));
+    const score = (isTarget(mv.row, mv.col) ? 100 : -3 * dist(mv.row, mv.col)) - (shot ? 60 : 0) + ((mv.row * 7 + mv.col * 3 + i0) % 5) * 0.1;
+    Object.assign(me, { row: at[0], col: at[1] });
+    if (score > top) { top = score; best = { piece: me, target: { row: mv.row, col: mv.col } }; }
+  }
+  return best;
+}
+for (const id of ['escape', 'contraband', 'laboratory', 'minefield', 'clock']) for (const level of ['facil', 'normal', 'dificil']) {
+  let wins = 0;
+  for (let seed = 1; seed <= 40; seed++) {
+    Math.random = mulberry32(seed); // el bot rival también tira dados: así el resultado no baila entre ejecuciones
+    const sc = buildScenario(id, level, seed), m = matchOf(sc);
+    for (let i = 0; i < 400 && !m.over; i++) {
+      const mv = m.canMove() && (m.player.color === 'light' ? runner(m, sc, i) : (sc.bot?.(m) || botChooseMove(m)));
+      if (mv) m.move(mv.piece, mv.target);
+      sc.labels?.(m);
+      m.afterMove({ pass: !mv });
+    }
+    if (m.over?.victory) wins++;
+  }
+  console.log(`${id} ${level}: corredor simple gana ${wins}/40`);
+  assert.ok(wins >= 2, `${id}/${level}: a simple runner wins ${wins}/40 (must be passable)`);
 }
 
 console.log('Escenarios OK: mesas variables, final con veredicto, coronación, minas, disfraces, brujas y bombas pasables');

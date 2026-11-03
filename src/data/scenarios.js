@@ -459,8 +459,8 @@ Object.assign(SCENARIOS, {
     goal: t('sc.clock.goal', 'Llega a la casilla del reloj antes de que se agote (el número son tus jugadas) y recoge las monedas. Van apareciendo piezas carmesí que te cazan; tú también puedes capturarlas.'),
     levels: {
       facil: { coins: 4, time: 6, every: 4, foes: ['pawn', 'pawn', 'knight'], rival: 'aprendiz', piece: ['queen', 'rook'] },
-      normal: { coins: 5, time: 5, every: 3, foes: ['pawn', 'knight', 'bishop'], rival: 'oficial', piece: ['rook', 'bishop', 'knight'] },
-      dificil: { coins: 6, time: 4, every: 2, foes: ['knight', 'bishop', 'rook'], rival: 'oficial', piece: ['knight', 'bishop'] },
+      normal: { coins: 4, time: 6, every: 4, foes: ['pawn', 'knight', 'bishop'], rival: 'oficial', piece: ['rook', 'bishop', 'knight'] },
+      dificil: { coins: 5, time: 6, every: 3, foes: ['knight', 'bishop', 'rook'], rival: 'oficial', piece: ['knight', 'bishop'] },
     },
     setup(lv, rng) {
       const b = board(), runner = makePiece(pickFrom(rng, lv.piece), 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
@@ -473,7 +473,8 @@ Object.assign(SCENARIOS, {
         const fit = options.find(([r, c]) => { const d = routeLen(b, runner, (p) => p.row === r && p.col === c); return d >= 2 && d <= lv.time - 1; }) || options[0];
         Object.assign(clock, { k: key(...fit), until: now + lv.time });
       };
-      const addCoin = (all) => { const [r, c] = shuffle(rng, freeTiles(b, all)).find(([r, c]) => key(r, c) !== clock.k) || []; if (r != null) coins.add(key(r, c)); };
+      // Solo donde la pieza puede llegar (un alfil no alcanza las casillas del otro color).
+      const addCoin = (all) => { const [r, c] = shuffle(rng, freeTiles(b, all)).find(([r, c]) => key(r, c) !== clock.k && routeLen(b, runner, (p) => p.row === r && p.col === c) < Infinity) || []; if (r != null) coins.add(key(r, c)); };
       newClock(0, pieces);
       for (let i = 0; i < 3; i++) addCoin(pieces);
       return {
