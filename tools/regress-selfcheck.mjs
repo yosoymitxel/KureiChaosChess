@@ -20,8 +20,8 @@ const { makePiece } = await import('../src/game/generate.js');
 const { legalMoves, key } = await import('../src/game/rules.js');
 const { CARDS, playCard, cardTargets, previewMoves, handFull, HAND_LIMIT, LILAC_LIMIT } = await import('../src/game/cards.js');
 const { addToHand } = await import('../src/game/shop.js');
-const { exportSave, decodeSave, localSaveData, sameProgress, summarizeSave } = await import('../src/game/backup.js');
-const { loadSlots, switchSlot, storeActive } = await import('../src/game/slots.js');
+const { exportSave, decodeSave, localSaveData, sameProgress, summarizeSave, importSave } = await import('../src/game/backup.js');
+const { loadSlots, switchSlot} = await import('../src/game/slots.js');
 
 const fails = [];
 const check = (ok, msg) => { if (!ok) fails.push(msg); };
@@ -86,9 +86,10 @@ const cells = (p, pieces, b = board()) => new Set(legalMoves(p, pieces, b).map((
   localStorage.clear();
   localStorage.setItem('zugzwang.run.v2', JSON.stringify({ currentFloor: 2, map: { floors: 9 }, mutations: ['fury'] }));
   localStorage.setItem('zugzwang.settings.v2', JSON.stringify({ theme: 'walnut' }));
-  storeActive();
+  localStorage.setItem('kurei.cloud.synced', '2026-01-01T00:00:00Z');
   check(switchSlot(1) && !localStorage.getItem('zugzwang.run.v2'), 'ranura vacía: sin run');
   check(localStorage.getItem('zugzwang.settings.v2'), 'ranuras: los ajustes no se tocan');
+  check(!localStorage.getItem('kurei.cloud.synced'), 'ranuras: cambiar olvida la sincronía (la nube no sube sola otro progreso)');
   check(switchSlot(0) && JSON.parse(localStorage.getItem('zugzwang.run.v2')).currentFloor === 2, 'ranura 1: vuelve la run');
   check(loadSlots().active === 0, 'ranuras: activa la 1');
   const code = await exportSave(), data = await decodeSave(code);
@@ -96,6 +97,14 @@ const cells = (p, pieces, b = board()) => new Set(legalMoves(p, pieces, b).map((
   check(summarizeSave(data).floor === 3 && summarizeSave(data).mutations === 1, 'copia: resumen de la run');
   check(!sameProgress(localSaveData(), { ...data, 'zugzwang.run.v2': '{}' }), 'copia: detecta progreso distinto');
   check(sameProgress(localSaveData(), { ...data, 'zugzwang.settings.v2': '{"theme":"x"}' }), 'copia: los ajustes no cuentan como diferencia');
+  // Restaurar sustituye el progreso entero (sin mezclar) y deja los ajustes del aparato.
+  localStorage.removeItem('zugzwang.run.v2');
+  localStorage.setItem('zugzwang.shop.v1', JSON.stringify({ coins: 7 }));
+  const noRun = await exportSave();
+  localStorage.setItem('zugzwang.run.v2', JSON.stringify({ currentFloor: 4, map: { floors: 9 }, mutations: [] }));
+  localStorage.setItem('zugzwang.settings.v2', JSON.stringify({ theme: 'pixelada' }));
+  check(await importSave(noRun) && !localStorage.getItem('zugzwang.run.v2'), 'copia: restaurar quita la run que no trae');
+  check(JSON.parse(localStorage.getItem('zugzwang.settings.v2')).theme === 'pixelada', 'copia: restaurar no cambia los ajustes del aparato');
 }
 
 // Maceta píxel: estrecha (la regeneraron ancha una vez). Se mide la tinta del PNG.

@@ -200,7 +200,6 @@ export async function exportSave() {
   return MAGIC_V1 + toBase64(bytes);
 }
 
-// Returns the number of restored keys, or 0 without changing storage when validation fails.
 // Lee un código KCC sin tocar nada: el progreso que trae, o null si no es válido.
 export async function decodeSave(code) {
   try {
@@ -211,6 +210,7 @@ export async function decodeSave(code) {
     if (text.startsWith(MAGIC_V2)) json = await inflate(fromBase64(text.slice(MAGIC_V2.length), MAX_COMPRESSED_BYTES));
     else if (text.startsWith(MAGIC_V1)) json = decoder.decode(fromBase64(text.slice(MAGIC_V1.length), MAX_BACKUP_BYTES));
     else return null;
+    if (encoder.encode(json).byteLength > MAX_BACKUP_BYTES) return null;
     const data = JSON.parse(json);
     return validateSnapshot(data) ? data : null;
   } catch { return null; }
@@ -231,49 +231,14 @@ export function sameProgress(a, b) {
   return [...keys].every((k) => (a || {})[k] === (b || {})[k]);
 }
 
+// Aplica un código KCC como progreso entero (lo que no traiga se borra; los ajustes son de este aparato).
+// Devuelve cuántas claves puso, o 0 sin tocar nada si no es válido.
 export async function importSave(code) {
-  try {
-    if (typeof code !== 'string') return 0;
-    const text = code.trim();
-    if (!text || text.length > MAX_BACKUP_CODE_CHARS) return 0;
-
-    let json;
-    if (text.startsWith(MAGIC_V2)) {
-      const bytes = fromBase64(text.slice(MAGIC_V2.length), MAX_COMPRESSED_BYTES);
-      json = await inflate(bytes);
-    } else if (text.startsWith(MAGIC_V1)) {
-      const bytes = fromBase64(text.slice(MAGIC_V1.length), MAX_BACKUP_BYTES);
-      json = decoder.decode(bytes);
-    } else {
-      return 0;
-    }
-
-    if (encoder.encode(json).byteLength > MAX_BACKUP_BYTES) return 0;
-    const data = JSON.parse(json);
-    const keys = validateSnapshot(data);
-    if (!keys) return 0;
-
-    // localStorage has no multi-key transaction. Roll back touched keys if a write fails.
-    const previous = new Map(keys.map((key) => [key, localStorage.getItem(key)]));
-    try {
-      for (const key of keys) localStorage.setItem(key, data[key]);
-    } catch {
-      for (const key of keys) {
-        try {
-          const oldValue = previous.get(key);
-          if (oldValue === null) localStorage.removeItem(key);
-          else localStorage.setItem(key, oldValue);
-        } catch {
-          // Best-effort rollback; return failure rather than claiming a restore.
-        }
-      }
-      return 0;
-    }
-
-    return keys.length;
-  } catch {
-    return 0;
-  }
+  const data = await decodeSave(code);
+  if (!data) return 0;
+  delete data['zugzwang.settings.v2'];
+  const n = Object.keys(data).length;
+  return n && slotRestore(data) ? n : 0;
 }
 
 // Ranuras de guardado (src/game/slots.js): todo el progreso salvo los ajustes, que son de este aparato.

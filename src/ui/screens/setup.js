@@ -1,7 +1,7 @@
 import { html, useState, useRef, useEffect } from '../lib.js';
 import { Icon } from '../icons.js';
 import { Topbar, useEnter, Toggle, ThemeLook, ConfirmButton } from '../components.js';
-import { loadSlots, storeActive, switchSlot, clearSlot } from '../../game/slots.js';
+import { loadSlots, switchSlot, clearSlot } from '../../game/slots.js';
 import { nodeModifier, MODIFIERS, BOARD_MECHANICS, FEATURED_MECHANICS, DUO_MECHANICS } from '../../data/modifiers.js';
 import { PREF_LIMITS, saveSettings } from '../../game/run.js';
 import { rivalForFloor, DIFFICULTIES } from '../../game/difficulty.js';
@@ -9,7 +9,7 @@ import { THEMES, vfxOn } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
 import { exportSave, importSave, MAX_BACKUP_CODE_CHARS, decodeSave, localSaveData, summarizeSave, sameProgress } from '../../game/backup.js';
-import { cloudUser, signIn, signUp, signOut, cloudUpload, cloudDownload, cloudPeek, cloudMarkSynced } from '../../game/cloud.js';
+import { cloudUser, signIn, signUp, signOut, cloudUpload, cloudPeek, cloudMarkSynced } from '../../game/cloud.js';
 import { themeOwned } from '../../game/shop.js';
 import { eliteVariants, lessonText } from '../../game/generate.js';
 import { t, LANG, LANGS } from '../../i18n/index.js';
@@ -260,6 +260,7 @@ function Backup() {
     if (!sure) return setPending({ value, here: summarizeSave(localSaveData()), there: summarizeSave(data) });
     setPending(null);
     if (!await importSave(value)) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
+    cloudMarkSynced(null);
     setMsg(t('backup.done', 'Partida restaurada.'));
     setTimeout(() => location.reload(), 600);
   };
@@ -307,7 +308,7 @@ function ProgressChoice({ here, there, thereTitle, onKeepHere, onKeepThere }) {
 
 // Ranuras: tres partidas en este navegador (src/game/slots.js). Cambiar guarda la actual y recarga con la otra.
 function Slots() {
-  const [s, setS] = useState(() => { try { return storeActive(); } catch { return loadSlots(); } });
+  const [s, setS] = useState(loadSlots);
   const [msg, setMsg] = useState('');
   const date = (ms) => new Date(ms).toLocaleString(LANG, { dateStyle: 'short', timeStyle: 'short' });
   const use = (i) => { if (switchSlot(i)) location.reload(); else setMsg(t('slots.fail', 'No se pudo cambiar de ranura (¿sin espacio?). No se tocó nada.')); };
@@ -335,7 +336,7 @@ function Cloud() {
   const fail = (e) => {
     if (e?.message === 'auth') setUser(null);
     setMsg(e?.message === 'auth' ? t('cloud.expired', 'La sesión caducó: vuelve a entrar.')
-    : e?.status === 400 || e?.code === 'invalid_credentials' ? t('cloud.badLogin', 'Correo o contraseña incorrectos (o falta confirmar el correo).')
+    : e?.code === 'invalid_credentials' ? t('cloud.badLogin', 'Correo o contraseña incorrectos (o falta confirmar el correo).')
     : e?.code === 'user_already_exists' ? t('cloud.exists', 'Ese correo ya tiene cuenta: entra con él.')
     : e?.code === 'weak_password' ? t('cloud.weak', 'La contraseña es débil: usa al menos 8 caracteres.')
     : t('cloud.offline', 'No hay conexión con la nube. Prueba más tarde.'));
@@ -347,32 +348,36 @@ function Cloud() {
     const peek = await cloudPeek();
     setWhen(peek?.at || null);
     const remote = peek && await decodeSave(peek.code);
+    // Una copia que esta versión no sabe leer (hecha con una más nueva) no se pisa.
+    if (peek && !remote) { setMsg(t('cloud.newer', 'La nube tiene una partida de una versión más nueva del juego: actualiza antes de guardar.')); return true; }
     const differ = !!(remote && !sameProgress(localSaveData(), remote));
-    setClash(differ ? { here: summarizeSave(localSaveData()), there: summarizeSave(remote), at: peek.at } : null);
+    setClash(differ ? { here: summarizeSave(localSaveData()), there: summarizeSave(remote), at: peek.at, code: peek.code } : null);
     if (remote && !differ) cloudMarkSynced(peek.at);
-    return differ;
+    return differ ? true : peek ? 'same' : false;
   };
   useEffect(() => { if (user) run(check)(); }, [user]);
 
   const enter = (mode) => run(async () => {
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setMsg(t('cloud.badEmail', 'Escribe un correo válido.'));
     if (pass.length < 8) return setMsg(t('cloud.short', 'La contraseña necesita al menos 8 caracteres.'));
-    const r = await (mode === 'up' ? signUp : signIn)(email.trim(), pass);
+    let r;
+    try { r = await (mode === 'up' ? signUp : signIn)(email.trim(), pass); } catch (e) { if (e?.status === 400) return setMsg(t('cloud.badLogin', 'Correo o contraseña incorrectos (o falta confirmar el correo).')); throw e; }
     if (r === 'confirm') return setMsg(t('cloud.confirm', 'Cuenta creada: confirma el enlace que te llegó al correo y luego entra.'));
     setPass(''); setUser(cloudUser());
   });
   const keepHere = run(async () => { setWhen(await cloudUpload()); setClash(null); setMsg(t('cloud.uploaded', 'Partida guardada en la nube.')); });
+  // Se aplica la copia que se mostró, no una que haya podido subir otro aparato mientras tanto.
   const keepThere = run(async () => {
-    if (!await cloudDownload()) return setMsg(t('cloud.empty', 'No hay ninguna partida en la nube todavía.'));
+    if (!clash || !await importSave(clash.code)) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
+    cloudMarkSynced(clash.at);
     setMsg(t('backup.done', 'Partida restaurada.'));
     setTimeout(() => location.reload(), 600);
   });
-  const up = run(async () => { if (await check()) return; setWhen(await cloudUpload()); setMsg(t('cloud.uploaded', 'Partida guardada en la nube.')); });
+  const up = run(async () => { if (await check() === true) return; setWhen(await cloudUpload()); setMsg(t('cloud.uploaded', 'Partida guardada en la nube.')); });
   const down = run(async () => {
-    if (await check()) return;
-    if (!await cloudDownload()) return setMsg(t('cloud.empty', 'No hay ninguna partida en la nube todavía.'));
-    setMsg(t('backup.done', 'Partida restaurada.'));
-    setTimeout(() => location.reload(), 600);
+    const r = await check();
+    if (r === 'same') setMsg(t('cloud.same', 'La nube tiene el mismo progreso que este aparato.'));
+    else if (!r) setMsg(t('cloud.empty', 'No hay ninguna partida en la nube todavía.'));
   });
 
   // Perfil: arriba del todo en Ajustes; la copia local (código y archivo) queda al final, aparte.

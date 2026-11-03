@@ -1,6 +1,7 @@
 // Ranuras de guardado: tres partidas independientes en este navegador. La activa vive en las claves de
 // siempre; al cambiar, se guarda en su ranura y se carga la otra (vacía = empezar de cero). Los ajustes no cambian.
 import { slotSnapshot, slotRestore } from './backup.js';
+import { cloudMarkSynced } from './cloud.js';
 
 export const SLOT_COUNT = 3;
 const KEY = 'kurei.slots.v1';
@@ -14,14 +15,6 @@ export function loadSlots() {
 }
 const save = (s) => localStorage.setItem(KEY, JSON.stringify(s));
 
-// Guarda el progreso actual en la ranura activa (para ver su fecha sin tener que cambiar).
-export function storeActive() {
-  const s = loadSlots();
-  s.list[s.active] = { data: slotSnapshot(), at: Date.now() };
-  save(s);
-  return s;
-}
-
 // Devuelve false si no se pudo (sin espacio o ranura dañada); en ese caso nada cambia.
 export function switchSlot(i) {
   const s = loadSlots();
@@ -34,6 +27,7 @@ export function switchSlot(i) {
   if (!slotRestore(s.list[i]?.data || {})) return false;
   s.active = i;
   try { save(s); } catch { slotRestore(before); return false; }
+  cloudMarkSynced(null); // otro progreso: que la nube no lo suba sola encima del de la ranura anterior
   return true;
 }
 

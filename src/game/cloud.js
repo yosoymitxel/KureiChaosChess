@@ -1,7 +1,7 @@
 // Partida en la nube (Supabase): cuenta con correo y una fila por jugador en game_saves (RLS: cada
 // uno solo ve la suya). Guarda el mismo código KCC de la copia local, así la validación es una sola.
 // Sin SDK: fetch a Auth y a la REST, para que funcione igual en la web y en el zip de itch.io.
-import { exportSave, importSave } from './backup.js';
+import { exportSave } from './backup.js';
 
 const URL_ = 'https://fxjhuodttsbcyncpkcxb.supabase.co';
 const KEY = 'sb_publishable_LWVoByppthU1ihW1LvqdNA_CfSA2chx';
@@ -56,14 +56,6 @@ export async function signOut() {
   if (s) call('/auth/v1/logout', { method: 'POST', token: s.token }).catch(() => {});
 }
 
-// Fecha de la copia en la nube (o null si no hay).
-export async function cloudInfo() {
-  const s = await session();
-  if (!s) return null;
-  const rows = await call(`/rest/v1/game_saves?select=updated_at&user_id=eq.${s.id}`, { token: s.token });
-  return rows[0]?.updated_at || null;
-}
-
 let lastCode = null;
 export async function cloudUpload(code) {
   const s = await session();
@@ -103,20 +95,11 @@ export async function cloudPeek() {
   return rows[0]?.save_data?.code ? { code: rows[0].save_data.code, at: rows[0].updated_at } : null;
 }
 
-// Devuelve cuántas claves restauró (0 = nada en la nube o copia inválida).
-export async function cloudDownload() {
-  const s = await session();
-  if (!s) throw new Error('auth');
-  const rows = await call(`/rest/v1/game_saves?select=save_data,updated_at&user_id=eq.${s.id}`, { token: s.token });
-  const code = rows[0]?.save_data?.code, n = code ? await importSave(code) : 0;
-  if (n) cloudMarkSynced(rows[0].updated_at);
-  return n;
-}
-
 // Vuelta desde el enlace del correo: la sesión llega en el hash; se guarda y se limpia la URL.
 try {
   const h = new URLSearchParams(location.hash.slice(1));
-  if (h.get('access_token')) {
+  // Solo la confirmación de una cuenta nueva y sin otra sesión abierta: un enlace ajeno no cambia de cuenta.
+  if (h.get('access_token') && h.get('type') === 'signup' && !load()) {
     const p = JSON.parse(atob(h.get('access_token').split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
     toSession({ access_token: h.get('access_token'), refresh_token: h.get('refresh_token'), expires_in: +h.get('expires_in') || 3600, user: { id: p.sub, email: p.email } });
     history.replaceState(null, '', location.pathname + location.search);
