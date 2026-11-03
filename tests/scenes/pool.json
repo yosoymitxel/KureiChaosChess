@@ -1,7 +1,33 @@
 {
- "mini": "pool", "themes": ["walnut", "pixelada"],
- "steps": [ { "wait": 2500 }, { "shot": "inicio" },
-  { "eval": "(()=>{const t=document.querySelector('.pl'),b=t.querySelector('.cr-striker').getBoundingClientRect(),x=b.x+b.width/2,y=b.y+b.height/2,o=(dy)=>({bubbles:true,pointerId:1,clientX:x,clientY:y+dy});t.dispatchEvent(new PointerEvent('pointerdown',o(0)));t.dispatchEvent(new PointerEvent('pointermove',o(40)));t.dispatchEvent(new PointerEvent('pointerup',o(40)));return 1})()" },
-  { "wait": 6000 }, { "shot": "tiro" },
-  { "expect": { "eval": "document.querySelectorAll('.pl .cr-pocket').length === 6", "noErrors": true } } ]
+ "mini": "pool",
+ "themes": [
+  "walnut",
+  "pixelada"
+ ],
+ "steps": [
+  {
+   "wait": 2500
+  },
+  {
+   "shot": "inicio"
+  },
+  {
+   "i18n": true
+  },
+  {
+   "eval": "(()=>{const t=document.querySelector('.pl'),b=t.querySelector('.cr-striker').getBoundingClientRect(),x=b.x+b.width/2,y=b.y+b.height/2,o=(dy)=>({bubbles:true,pointerId:1,clientX:x,clientY:y+dy});t.dispatchEvent(new PointerEvent('pointerdown',o(0)));t.dispatchEvent(new PointerEvent('pointermove',o(40)));t.dispatchEvent(new PointerEvent('pointerup',o(40)));return 1})()"
+  },
+  {
+   "wait": 6000
+  },
+  {
+   "shot": "tiro"
+  },
+  {
+   "expect": {
+    "eval": "document.querySelectorAll('.pl .cr-pocket').length === 6",
+    "noErrors": true
+   }
+  }
+ ]
 }

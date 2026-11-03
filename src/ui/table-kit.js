@@ -28,10 +28,8 @@ export function tableKit(table, wrap, settings, w, onResize) {
   };
 }
 
-// Tirachinas de las mesas de tiro (billares, bolos): arrastrar hacia atrás y soltar sale al revés, más
-// fuerte cuanto más se tira. Si `near(p)` dice que el toque cae sobre la bola, arrastrar la mueve con
-// `slide(p)`. Teclado: flechas apuntan y dosifican, Z/X llaman a `nudge(±1)`, espacio tira.
-// `table()` da el elemento de la mesa; `origin()` el punto de salida (unidades de mesa).
+// Tirachinas de billares y bolos: tirar hacia atrás y soltar. Un toque que `near(p)` da por bueno mueve
+// la salida con `slide(p)` en vez de apuntar; Z/X llaman a `nudge(±1)`.
 export function slingshot({ table, w, h, ready, origin, shoot, pullMax = 60, near, slide, nudge }) {
   const a = { on: false, slide: false, keys: false, from: null, ang: -Math.PI / 2, pow: 0.5 }, rect = { current: null };
   const at = (e) => toTable(e, table(), rect, w, h);
@@ -67,7 +65,6 @@ export function slingshot({ table, w, h, ready, origin, shoot, pullMax = 60, nea
       e.preventDefault();
       a.keys = true;
     },
-    // La flecha de puntería: crece con la fuerza y sale del punto de tiro.
     draw(el, k) {
       const show = ready() && (a.on || a.keys);
       el.style.opacity = show ? 1 : 0;

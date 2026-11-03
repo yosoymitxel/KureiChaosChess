@@ -11,7 +11,6 @@ import { t } from '../../i18n/index.js';
 import { tableKit, toTable as tableAt, corners } from '../table-kit.js';
 
 
-// Toca o arrastra hacia donde quieres lanzar la bomba y suelta: sale girando desde tu pieza que la tiene.
 export function HotbombScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newHotbomb(diff || settings.miniDiff?.hotbomb));
   const [hud, setHud] = useState({ me: 0, bot: 0, mine: true, fuse: 0 });
@@ -74,7 +73,8 @@ export function HotbombScreen({ sub, onBack, onEnd, endLabel = t('common.continu
       const ball = el.querySelector('.hb-ball'), f = s.phase === 'fly' && s.fly;
       const lift = f ? Math.sin(Math.PI * f.t) * Math.hypot(f.to.x - f.from.x, f.to.y - f.from.y) * 0.35 * k : s.phase === 'hold' ? 10 * k : 0;
       ball.style.transform = `translateY(${-lift}px) rotate(${f ? f.t * 720 : 0}deg)`;
-      el.classList.toggle('soon', s.fuse < 2.5 && s.phase !== 'wait');
+      ball.classList.toggle('soon', s.fuse < 2.5 && s.phase !== 'wait');
+      ball.textContent = s.diff.show ? Math.max(0, Math.ceil(s.fuse)) : '';
       el.classList.toggle('off', s.phase === 'wait');
     };
     const drawAim = () => {
@@ -124,7 +124,7 @@ export function HotbombScreen({ sub, onBack, onEnd, endLabel = t('common.continu
                 <span class="ah-body"><i class="ah-base"></i><span class="ah-fig" dangerouslySetInnerHTML=${{ __html: pieceSVG(p.type) }} /></span>
               </span>`)}
               <span class="tk-aim" ref=${aimRef}></span>
-              <span class="hb-bomb" ref=${bombRef}><i class="hb-shadow"></i><span class="hb-ball"><${Icon} name="bomb" size=${24} /></span></span>
+              <span class="hb-bomb" ref=${bombRef}><i class="hb-shadow"></i><span class="hb-ball bm-bomb"></span></span>
             </div>
           </div>
         </div>

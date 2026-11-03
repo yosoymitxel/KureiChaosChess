@@ -11,10 +11,8 @@ import { tableKit, slingshot, corners } from '../table-kit.js';
 
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const pct = (v, of) => (v / of) * 100 + '%';
-const ROWS = 10, COLS = 6;
+const ROWS = 14, COLS = 6;
 
-// Arrastrar la bola la mueve por la línea de tiro; arrastrar en cualquier otro punto es el tirachinas
-// (hacia atrás y soltar). Teclado: Z/X mueven la bola, flechas apuntan y dosifican, espacio tira.
 export function TenpinScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
   const [s] = useState(() => newTenpin(diff || settings.miniDiff?.tenpin));
   const [hud, setHud] = useState({ me: 0, bot: 0, turn: 'me', frame: 1 });
@@ -114,7 +112,7 @@ export function TenpinScreen({ sub, onBack, onEnd, endLabel = t('common.continue
                 <span class="ah-body"><i class="ah-base"></i><span class="ah-fig" dangerouslySetInnerHTML=${{ __html: pieceSVG(p.type) }} /></span>
               </span>`)}
               <span class="tk-aim" ref=${aimRef}></span>
-              <span class="ah-puck cr-striker tp-ball" ref=${ballRef}><b class="bm-tok"></b></span>
+              <span class="ah-puck tp-ball" ref=${ballRef}><i></i></span>
             </div>
           </div>
         </div>

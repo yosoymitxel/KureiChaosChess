@@ -2,7 +2,7 @@
 // bot os turnáis por entradas de dos tiros; cuenta lo derribado. Física de mesa compartida (physics.js).
 import { substeps, slide, bump } from './physics.js';
 
-export const W = 96, H = 160, GUTTER = 9, BALL_R = 6, PIN_R = 7.6, LINE = H - 18;
+export const W = 96, H = 224, GUTTER = 9, BALL_R = 6, PIN_R = 7.6, LINE = H - 18;
 export const SHOT_MAX = 300, PULL_MAX = 60, FRAMES = 3, PIN_TYPES = ['bishop', 'guard', 'advisor'];
 const DECEL = 22, PIN_DECEL = 200, E = 0.6, M_BALL = 2.2, DOWN = 6, WOBBLE = 0.015;
 
@@ -10,12 +10,11 @@ const DECEL = 22, PIN_DECEL = 200, E = 0.6, M_BALL = 2.2, DOWN = 6, WOBBLE = 0.0
 export const DIFFS = {
   facil: { name: 'Fácil', err: 0.07, powErr: 0.2, slide: 8 },
   normal: { name: 'Normal', err: 0.04, powErr: 0.1, slide: 4 },
-  dificil: { name: 'Difícil', err: 0.02, powErr: 0.05, slide: 2 },
+  dificil: { name: 'Difícil', err: 0.03, powErr: 0.05, slide: 3 },
 };
 
-// Triángulo con la punta hacia el jugador.
 const RACK = [];
-for (let row = 0; row < 4; row++) for (let i = 0; i <= row; i++) RACK.push({ x: W / 2 + (i - row / 2) * 17, y: 60 - row * 14.7 });
+for (let row = 0; row < 4; row++) for (let i = 0; i <= row; i++) RACK.push({ x: W / 2 + (i - row / 2) * 17, y: 70 - row * 14.7 });
 
 export function newTenpin(key = 'normal', rng = Math.random) {
   const diff = DIFFS[key] || DIFFS.normal;
@@ -31,7 +30,6 @@ function rack(s) {
   (s.next ||= []).push({ kind: 'rack' });
 }
 
-// Sitúa la bola en la línea de tiro (entre las canaletas).
 export function place(s, x) {
   if (s.phase !== 'aim') return false;
   s.x = Math.max(GUTTER + BALL_R, Math.min(W - GUTTER - BALL_R, x));

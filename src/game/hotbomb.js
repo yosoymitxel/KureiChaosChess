@@ -1,8 +1,5 @@
-// Papa caliente: las piezas de los dos bandos forman un corro en la mesa redonda (carrom.js). La bomba
-// arde en tiempo real y quien la tiene la lanza girando; la atrapa la pieza más cercana a donde cae, así
-// que apuntar a una rival que tiene al lado una tuya es arriesgado. Al acabarse la mecha estalla y se
-// lleva a quien la tiene (o a la pieza que pille si estalla en el aire); el corro se cierra y sigue.
-// Gana quien deja al otro sin piezas.
+// Papa caliente: corro de piezas en la mesa redonda; la bomba arde en tiempo real y la atrapa la pieza
+// más cercana a donde cae. Al estallar se lleva a quien la tiene; gana quien deja al otro sin piezas.
 import { substeps } from './physics.js';
 import { R, W, H } from './carrom.js';
 
@@ -35,13 +32,11 @@ export function newHotbomb(key = 'normal', rng = Math.random) {
   return s;
 }
 
-// Hueco de cada pieza viva en el corro, repartidas a partes iguales y en su orden.
 function slots(s) {
   const live = alive(s);
   return live.map((p, i) => { const a = s.rot + (i / live.length) * Math.PI * 2; return [p, { x: R + Math.cos(a) * RING, y: R + Math.sin(a) * RING }]; });
 }
 
-// Bomba nueva con mecha nueva en una pieza al azar del bando.
 function arm(s, side) {
   const team = alive(s, side);
   if (!team.length) return;
@@ -59,7 +54,7 @@ function give(s, p) {
   (s.next ||= []).push({ kind: 'catch', id: p.id, side: p.side });
 }
 
-// Lanza hacia (x, y) en unidades de mesa; cae con un error proporcional a la distancia.
+// Cae con un error proporcional a la distancia.
 export function hurl(s, x, y, side = 'me', err = 0.05) {
   const h = holder(s);
   if (s.over || s.phase !== 'hold' || !h || h.side !== side) return false;
@@ -93,7 +88,6 @@ export function step(s, dt) {
 function sub(s, dt) {
   s.t += dt;
   if (s.phase === 'wait') {
-    // El corro se cierra: cada pieza camina hasta su hueco nuevo.
     let moving = false;
     for (const [p, at] of slots(s)) {
       const d = dist(p, at), k = Math.min(1, (WALK * dt) / (d || 1));

@@ -109,7 +109,6 @@ function physics(T, discs, st, dt, ev, onPocket) {
   return moving;
 }
 
-// Tiro simulado desde (x, y) hasta que todo para: qué entró y si fue falta (para la máquina y las pruebas).
 export function simulate(s, from, ang, pow) {
   const discs = s.discs.map((d) => ({ ...d })), st = { ...from, vx: Math.cos(ang) * s.T.shotMax * pow, vy: Math.sin(ang) * s.T.shotMax * pow, in: false };
   const got = { me: 0, bot: 0, queen: 0, foul: false };
@@ -170,7 +169,6 @@ function sub(s, dt) {
   if (!moving) resolve(s);
 }
 
-// Primer hueco libre cerca de (x, y), en espiral.
 function free(s, { x, y }) {
   let a = 0, px = x, py = y;
   while (s.discs.some((d) => !d.in && Math.hypot(d.x - px, d.y - py) < 2 * s.T.discR + 0.5)) { a += 0.9; px = x + Math.cos(a) * a * 1.5; py = y + Math.sin(a) * a * 1.5; }
