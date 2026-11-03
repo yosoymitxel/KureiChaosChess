@@ -6,8 +6,8 @@
     "table": "#121614",
     "table-2": "#1a201d",
     "tile-a": "#b9c2bd",
-    "tile-b": "#2f4a3c",
-    "tile-side": "#18241e",
+    "tile-b": "#1f4a3a",
+    "tile-side": "#0f241c",
     "side-light": "#eef3ef",
     "side-dark": "#ff5a6a",
     "side-wild": "#f4dc80"
@@ -16,10 +16,10 @@
     "paper": "#e9efe9",
     "paper-2": "#d6dfd8",
     "paper-3": "#b8c4bb",
-    "ink": "#101412",
+    "ink": "#232327",
     "ink-2": "#26302b",
-    "accent": "#4f8a1a",
-    "accent-ink": "#1f3a08",
+    "accent": "#159460",
+    "accent-ink": "#0a4a2e",
     "brass": "#d9b44a",
     "muted": "#5b6a61"
   },
@@ -28,8 +28,8 @@
       "#eef3ef",
       "#c5d1c9",
       "#8a9a90",
-      "#9be22d",
-      "#4f8a1a"
+      "#34d391",
+      "#159460"
     ],
     "oscuro": [
       "#80858d",

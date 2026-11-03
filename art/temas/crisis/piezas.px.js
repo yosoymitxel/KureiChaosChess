@@ -5,8 +5,8 @@
 // Reconstruir:  node <pxl>/bin/pxl.js build art/temas/crisis/piezas.px.js  &&  node tools/pixel-art.mjs
 
 pal({
-  k: "#0d1110",
-  w: "#eef3ef", W: "#c5d1c9", o: "#8a9a90", g: "#9be22d", G: "#4f8a1a",
+  k: "#232327",
+  w: "#eef3ef", W: "#c5d1c9", o: "#8a9a90", g: "#34d391", G: "#159460",
   s: "#e8b48e", S: "#b27a58", h: "#3a2a22", H: "#d9d9d2",
   t: "#2b3038", T: "#1b1f25", y: "#f5cf4a", Y: "#b38a22",
   p: "#f4f1e6", P: "#cfc8b2", n: "#0b1712", c: "#8ef0c8", r: "#ff4256", R: "#a8202f",
@@ -99,7 +99,7 @@ piece("advisor", { w: 24, h: 27 },
   rect(1, 10, 11, 11, "w"), rect(9, 10, 3, 11, "W"), vline(6, 10, 6, "g"), rect(0, 11, 2, 7, "w"),
   rect(12, 12, 4, 2, "w"), rect(15, 11, 2, 3, "s"),
   poly([18, 0, 19, 3, 23, 2, 21, 5, 24, 7, 21, 8, 22, 12, 18, 10, 14, 12, 15, 8, 12, 7, 15, 5, 13, 2, 17, 3], "y"),
-  px(16, 4, "R"), px(20, 8, "R"), line(20, 4, 16, 8, "R"),
+  circ(18, 6, 2, "Y"), px(18, 6, "y"),
   rect(2, 21, 4, 4, "t"), rect(7, 21, 4, 4, "t"), rect(1, 25, 5, 2, "T"), rect(7, 25, 5, 2, "T"),
 );
 
@@ -118,7 +118,7 @@ piece("elephant", { w: 30, h: 26 },
 // Camello: el jubilado encorvado con su bastón y la carpeta del catastro, haciendo la fila otra vez.
 piece("camel", { w: 22, h: 30 },
   rect(3, 2, 8, 8, "s"), rect(3, 2, 8, 2, "H"), rect(3, 2, 2, 5, "H"), rect(9, 3, 2, 7, "S"),
-  rect(4, 5, 3, 2, "c"), px(7, 5, "k"), px(4, 6, "k"), hline(4, 8, 3, "H"),
+  hline(3, 5, 5, "M"), px(4, 6, "k"), px(7, 5, "M"), hline(4, 8, 3, "H"),
   poly([5, 10, 13, 8, 18, 12, 18, 24, 6, 24], "w"), poly([13, 8, 18, 12, 18, 24, 15, 24], "W"), hline(8, 11, 6, "o"),
   rect(0, 13, 6, 8, "P"), rect(0, 13, 6, 1, "Y"), hline(1, 16, 4, "o"), hline(1, 18, 3, "o"),
   vline(20, 14, 16, "M"), rect(18, 13, 3, 2, "M"), rect(17, 15, 2, 2, "s"),

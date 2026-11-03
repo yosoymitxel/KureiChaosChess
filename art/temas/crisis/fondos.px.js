@@ -4,9 +4,9 @@
 
 pal({
   a: "#b9c2bd", A: "#cfd7d2", c: "#9aa59f", C: "#76827b",
-  d: "#2f4a3c", D: "#3a5a49", e: "#253c30", E: "#18241e",
+  d: "#1f4a3a", D: "#28604a", e: "#183a2e", E: "#0f241c",
   r: "#121614", R: "#1a201d", z: "#222a26", j: "#0b0e0c",
-  p: "#d8d5c6", g: "#3fd47a", x: "#ff4a5a",
+  p: "#d8d5c6", g: "#34d391", x: "#ff4a5a",
 });
 
 const slab = (name, [base, hi, lo, deep], ...marks) => sprite(name, { w: 16, h: 16 },
