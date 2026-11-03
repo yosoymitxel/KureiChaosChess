@@ -4,7 +4,7 @@
 import { DT, substeps, slide, bump, walls } from './physics.js';
 
 export const W = 96, H = 160, BALL_R = 4.4, POCKET_R = 7;
-export const POCKETS = [[6, 6], [W - 6, 6], [4, H / 2], [W - 4, H / 2], [6, H - 6], [W - 6, H - 6]].map(([x, y]) => ({ x, y }));
+export const POCKETS = [[6, 6], [W - 6, 6], [6, H / 2], [W - 6, H / 2], [6, H - 6], [W - 6, H - 6]].map(([x, y]) => ({ x, y }));
 export const SPOT = { x: W / 2, y: H * 0.76 }, SHOT_MAX = 340, PULL_MAX = 60, PER_SIDE = 4, MAX_TURNS = 60;
 const DECEL = 75, E_BALL = 0.93, E_WALL = 0.75;
 

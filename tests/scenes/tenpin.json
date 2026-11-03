@@ -1,0 +1,7 @@
+{
+ "mini": "tenpin", "themes": ["walnut", "pixelada"],
+ "steps": [ { "wait": 2500 }, { "shot": "inicio" },
+  { "eval": "(()=>{const t=document.querySelector('.tp'),b=t.querySelector('.tp-ball').getBoundingClientRect(),x=b.x+b.width/2+60,y=b.y-40,o=(dy)=>({bubbles:true,pointerId:1,clientX:x,clientY:y+dy});t.dispatchEvent(new PointerEvent('pointerdown',o(0)));t.dispatchEvent(new PointerEvent('pointermove',o(50)));t.dispatchEvent(new PointerEvent('pointerup',o(50)));return 1})()" },
+  { "wait": 700 }, { "shot": "choque" }, { "wait": 3000 }, { "shot": "despues" },
+  { "expect": { "eval": "document.querySelectorAll('.tp .tp-pin').length === 10", "noErrors": true } } ]
+}

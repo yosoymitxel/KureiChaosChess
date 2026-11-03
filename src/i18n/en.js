@@ -744,6 +744,14 @@ export default {
     // src/ui/screens/fusion.js
     "fusion.help": "Swipe, use the arrows or the controller: every piece runs to that side. Two equal pieces that collide merge into the next one up the ladder, from pawn to king. After each move a pawn enters. Build the target piece before the board fills up.",
     // src/ui/screens/hockey.js
+    "tenpin.strike": "Strike!",
+    "tenpin.spare": "Spare!",
+    "tenpin.pins": "{n} pins",
+    "tenpin.aria": "Bowling lane: drag the ball along the line and pull back to throw",
+    "tenpin.frame": "Frame {a} of {b}",
+    "tenpin.won": "You knocked down more than the bot: {a} to {b}.",
+    "tenpin.lost": "The bot knocked down more: {b} to {a}.",
+    "tenpin.help": "Drag the ball along the bottom line to choose where you throw from. Then pull back from anywhere and release: it goes the opposite way, harder the further you pull (on keyboard, Z and X move it, arrows aim and dose, space throws). Each frame you have two throws to knock down the ten pins: bishops, guards and advisors. If the ball drops into the gutter, it won't touch anything. After {n} frames whoever knocked down more wins; if you tie, another one is played.",
     "pool.foul": "Foul: the cue ball fell in",
     "pool.aria": "Billiards table: pull back and release to strike the cue ball",
     "pool.won": "You sank your {n} balls before the bot.",
@@ -1124,6 +1132,7 @@ export default {
     witch: { name: 'The witch', desc: 'Minigame: collect the coins with your pieces without waking the sleeping witches; if one of your pieces can touch one, she wakes and hunts. Reward: mutation or piece.' },
     hockey: { name: 'Air hockey', desc: 'Minigame: drag your rook and score in the bot\'s goal; first to five goals wins. Reward: mutation or piece.', duo: { desc: 'At the same time: each moves the rook on their half.', opt: 'goals', label: 'Goals to win', choices: [[3, '3'], [5, '5'], [7, '7']] } },
     golf: { name: 'Table golf', desc: 'Minigame: three holes with sand, ice, pits and bouncy pieces; pull back and release to putt without going over your strokes. Reward: mutation or piece.' },
+    tenpin: { name: 'Bowling', desc: 'Minigame: bowling against the bot on a lane with gutters; the ten pins are bishops, guards and advisors. Three frames of two throws: whoever knocks down more wins. Reward: mutation or piece.' },
     pool: { name: 'Billiards', desc: 'Minigame: billiards on a rectangular table with six pockets; the cue ball stays where it stops. Sink your four balls before the bot. Reward: mutation or piece.' },
     hotbomb: { name: 'Hot potato', desc: 'Minigame: the pieces stand in a ring on the round table and throw a lit bomb at each other; whoever holds it when it blows loses that piece. Leave the bot with no pieces. Reward: mutation or piece.' },
     carrom: { name: 'Round billiards', desc: 'Minigame: carrom on a round table; slide the striker along your arc and sink your four discs before the bot. Reward: mutation or piece.' },
