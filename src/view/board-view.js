@@ -13,9 +13,9 @@ import { Icon } from '../ui/icons.js';
 import { boardPond } from '../ui/zen-art.js';
 import { playAPKBombBlast, playAPKVictory, playAPKTeleport, playAPKTransformVariant, playAPKDeathStyle, playAPKSpawnVariant, playAPKFloatingText } from '../lab/apk/effects.js';
 
-const pixelArt = () => document.documentElement.dataset.art === 'pixel';
+export const pixelArt = () => document.documentElement.dataset.art === 'pixel';
 // Bruja (Aquelarre, minijuego y carta): sombrero picudo, cara verde y capa; vector y píxel como la gallina.
-export const WITCH = `<svg class="hen witch-art" viewBox="0 0 24 24" aria-hidden="true"><g class="hen-vec">
+export const WITCH = `<svg class="hen" viewBox="0 0 24 24" aria-hidden="true"><g class="hen-vec">
 <path d="M6 22c0-5 2-9 6-9s6 4 6 9z" fill="#3b2457" stroke="#1b1226" stroke-width="1.1" stroke-linejoin="round"/>
 <circle cx="12" cy="11" r="3.6" fill="#8fcf6a" stroke="#1b1226" stroke-width="1"/>
 <circle cx="10.8" cy="10.6" r=".55" fill="#1b1226"/><circle cx="13.2" cy="10.6" r=".55" fill="#1b1226"/><path d="M12 11.2l.9 1.5h-1.8z" fill="#6fae4c" stroke="#1b1226" stroke-width=".5" stroke-linejoin="round"/>
@@ -877,7 +877,7 @@ export class BoardView {
     const rx = k * w, ry = k * h;
     base.style.opacity = 0;
     liquid(this.gooEl, {
-      side: look(p), rx, ry, px: 1 / this.sq, area: [this.board.cols, this.board.rows], dur, pixel: document.documentElement.dataset.art === 'pixel',
+      side: look(p), rx, ry, px: 1 / this.sq, area: [this.board.cols, this.board.rows], dur, pixel: pixelArt(),
       from: [from.col + w / 2, from.row + h / 2], to: [to.col + w / 2, to.row + h / 2],
     }).then(() => {
       base.style.opacity = '';
@@ -1066,8 +1066,8 @@ export class BoardView {
     this.host.querySelectorAll('.tile.twin').forEach((t) => t.classList.remove('twin'));
   }
 
-  // Efectos del APK elegidos en el laboratorio (comparativa APK ↔ Kure'i): solo con efectos activados.
-  apk(fn, ...args) { if (this.fx.vfx && !reduced()) fn(this.host, this, ...args); }
+  // Efectos del APK: solo en mesas píxel con efectos (en vector quedan los de Kure'i).
+  apk(fn, ...args) { if (pixelArt() && this.fx.vfx && !reduced()) fn(this.host, this, ...args); }
   nearCell(x, y) {
     let best = null, d = Infinity;
     for (const [k, t] of this.tiles) { const p = this.fx.pointOf(t), dd = (p.x - x) ** 2 + (p.y - y) ** 2; if (dd < d) { d = dd; best = k; } }
@@ -1075,9 +1075,8 @@ export class BoardView {
     return { row, col };
   }
   // Texto flotante único del juego (daño, cartas, jaque…): `color` del cartel en la versión APK.
-  floatText(x, y, text, color = '#ffc83d') {
-    // Texto flotante: el del APK (cartel pixelado sobre la casilla); sin efectos, el de siempre.
-    if (this.fx.vfx && !reduced()) return playAPKFloatingText(this.host, this, this.nearCell(x, y), String(text), color);
+  floatText(x, y, text, color = css('--brass')) {
+    if (pixelArt() && this.fx.vfx && !reduced()) return playAPKFloatingText(this.host, this, this.nearCell(x, y), String(text), color);
     const n = document.createElement('div');
     n.className = 'float-text';
     n.textContent = text;
@@ -1093,7 +1092,7 @@ export class BoardView {
     for (const p of pieces) {
       const c = this.centerOf(p);
       // Zombi y contagio: los del APK (vuelco verde y desintegración); sin efectos, la nube de siempre.
-      if (this.fx.vfx && !reduced()) { this.apk(playAPKTransformVariant, p, 'zombify', t('fx.zombie', '¡Zombi!')); this.apk(playAPKDeathStyle, p, 'infect'); }
+      if (pixelArt() && this.fx.vfx && !reduced()) { this.apk(playAPKTransformVariant, p, 'zombify', t('fx.zombie', '¡Zombi!')); this.apk(playAPKDeathStyle, p, 'infect'); }
       else this.fx.poison(c.x, c.y - this.sq * 0.3, this.sq);
       this.remake(p);
       this.squash(p, 0.75);
@@ -1226,9 +1225,8 @@ export class BoardView {
 
   async victory(winnerColor) {
     const losers = [...this.els.keys()].filter((p) => p.color !== winnerColor);
-    // Victoria: en píxel el confeti del APK; en vector, el de Kure'i.
-    if (pixelArt() && this.fx.vfx) this.apk(playAPKVictory, [css('--side-light'), '#ffc83d', '#3dff8e']);
-    else this.fx.confetti([css('--side-light'), css('--accent'), '#ffcf6b', css('--side-wild')]);
+    if (pixelArt() && this.fx.vfx && !reduced()) this.apk(playAPKVictory, [css('--side-light'), css('--brass'), css('--win')]);
+    else this.fx.confetti([css('--side-light'), css('--accent'), css('--brass'), css('--side-wild')]);
     losers.forEach((p, i) => {
       const st = this.state.get(p), el = this.els.get(p);
       animate(st, { z: this.sq * 5, duration: this.d(900), delay: this.d(i * 40), ease: 'inExpo', onUpdate: () => this.apply(p) });

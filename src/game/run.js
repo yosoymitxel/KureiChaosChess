@@ -64,6 +64,8 @@ export const DEFAULT_SETTINGS = { theme: 'walnut', camera: 'tilt', shake: true, 
 // El ajuste viejo guardaba un solo nivel global; ahora es un nivel por minijuego.
 export const loadSettings = () => {
   const s = { ...DEFAULT_SETTINGS, ...(read(SETTINGS_KEY) || {}) };
+  if (s.vfx === true && s.fx == null) s.fx = true; // ajuste viejo `vfx` (solo true: false era el valor de serie)
+  delete s.vfx;
   return typeof s.miniDiff === 'string' ? { ...s, miniDiff: { bowling: s.miniDiff } } : s;
 };
 export const saveSettings = (s) => write(SETTINGS_KEY, s);

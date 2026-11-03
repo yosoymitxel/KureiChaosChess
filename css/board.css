@@ -376,10 +376,9 @@
 
 /* Gallina del Gallinero: dibujo propio (no un peón), sin base de bando. */
 .pc.chicken .pc-base { display: none; }
-.pc.chicken .hen { width: 100%; height: 100%; }
+.pc:is(.chicken, .witch-pc) .hen { width: 100%; height: 100%; }
 .hen-px { display: none; }
 [data-art="pixel"] .hen-vec { display: none; }
 [data-art="pixel"] .hen-px { display: inline; }
-.pc.witch-pc .hen { width: 100%; height: 100%; }
 .callout-svg { display: grid; width: 72px; height: 72px; }
 .callout-svg svg { width: 100%; height: 100%; }

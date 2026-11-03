@@ -213,9 +213,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       addLog(`Carta: ${card.name}`);
       d.moments.callout({ text: t('fx.card', '¡{name}!', { name: card.name }), sub: card.desc, tone: 'brass', icon: card.icon, anim: 'stomp', tier: 'info' });
       await d.view.applyCard(res);
-      // Destellos del APK: la pieza que recibe la carta y la pista de baile.
-      if (res.piece && match.pieces.includes(res.piece)) playAPKTransformVariant(d.view.host, d.view, res.piece, card.id === 'ascend' ? 'promote' : 'evolve', t('fx.card', '¡{name}!', { name: card.name }));
-      if (res.visual === 'disco') playAPKDisco(d.view.host, d.view);
+      if (res.piece && match.pieces.includes(res.piece)) d.view.apk(playAPKTransformVariant, res.piece, card.id === 'ascend' ? 'promote' : 'evolve', t('fx.card', '¡{name}!', { name: card.name }));
+      if (res.visual === 'disco') d.view.apk(playAPKDisco);
       if (res.visual === 'weather') { const pool = Object.keys(WEATHER).filter((k) => k !== d.view.weather); d.view.setWeather(pool[Math.floor(Math.random() * pool.length)]); }
       else if (res.visual) d.view.host.classList.add('fx-' + res.visual);
       d.busy = false;
@@ -567,7 +566,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       }
       if (res.promoted) {
         const q = res.piece.type === 'queen';
-        playAPKTransformVariant(d.view.host, d.view, res.piece, 'promote', t('game.promotion', '¡Coronación!'));
+        d.view.apk(playAPKTransformVariant, res.piece, 'promote', t('game.promotion', '¡Coronación!'));
         d.moments.callout({ text: t('game.promotion', '¡Coronación!'), sub: q ? t('game.promotionSub', 'El peón asciende a reina') : t('game.promotionMore', '{a} gana movimiento', { a: pieceName(res.piece) }), tone: 'brass', piece: { type: q ? 'pawn' : res.piece.type, side: res.piece.color }, pieceTo: { type: res.piece.type, side: res.piece.color }, anim: 'promote' });
       }
     };
@@ -766,7 +765,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     addEventListener('keydown', onKey);
     // Destellos sueltos en casillas al azar mientras nadie mueve: el tablero no se queda quieto.
     const sparks = setInterval(() => {
-      if (d.busy || !d.view.fx.vfx || document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (d.busy || d.paused || match.over || !d.view.fx.vfx || document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const tiles = [...d.view.tiles.keys()], k = tiles[Math.floor(Math.random() * tiles.length)];
       if (k) { const [row, col] = k.split(',').map(Number); playAPKTileSpark(d.view.host, d.view, { row, col }); }
     }, 3200);

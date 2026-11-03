@@ -2,6 +2,7 @@
 import { key } from '../game/rules.js';
 import { playSfx } from './sfx.js';
 import { playAPKBeam, playAPKShockwave, playAPKParticleBurst } from '../lab/apk/effects.js';
+import { pixelArt } from '../view/board-view.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -18,7 +19,7 @@ export async function playFx(v, list = []) {
     if (e.sink) await v.collapse(e.sink);
     if (e.fire) for (const [r, c] of e.fire) { const p = pt(r, c); if (p) v.fx.fire(p.x - v.sq * 0.4, p.y - v.sq * 0.9, v.sq * 0.8, v.sq, 1.2); }
     if (e.beam) { const a = pt(...e.beam[0]), b = pt(...e.beam[1]); if (a && b) { playSfx('laser'); // Rayo: en píxel el haz del APK; en vector, el de Kure'i.
-        if (document.documentElement.dataset.art === 'pixel' && v.fx.vfx) v.apk(playAPKBeam, { row: e.beam[0][0], col: e.beam[0][1] }, { row: e.beam[1][0], col: e.beam[1][1] }, e.color || '#b06bff');
+        if (pixelArt() && v.fx.vfx) v.apk(playAPKBeam, { row: e.beam[0][0], col: e.beam[0][1] }, { row: e.beam[1][0], col: e.beam[1][1] }, e.color || '#b06bff');
         else v.fx.beam(a.x, a.y - v.sq * 0.3, b.x, b.y - v.sq * 0.3, { color: e.color || '#c58bff' }); } }
     if (e.float) { const p = pt(e.float[0], e.float[1]); if (p) v.floatText(p.x, p.y - v.sq * 0.7, e.float[2]); }
     // Onda y ráfaga: las del APK con efectos activados.
