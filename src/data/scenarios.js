@@ -5,7 +5,7 @@
 import { mulberry32, pickFrom } from '../core/rng.js';
 import { makePiece, placeBoss, addTerrain, generateBoard, placePieces } from '../game/generate.js';
 import { MINI_BOSSES, FINAL_BOSSES, RIVALS } from '../game/difficulty.js';
-import { legalMoves, key } from '../game/rules.js';
+import { legalMoves, key, canHit, ctxOf } from '../game/rules.js';
 import { applyMutations, EXTRA_MOVES } from './mutations.js';
 import { MODIFIERS } from './modifiers.js';
 import { MATES } from './mates.js';
@@ -38,6 +38,7 @@ export const SCENARIOS = {
   caceria: {
     id: 'caceria',
     goal: t('sc.caceria.goal', 'Captura a todos los peones carmesí antes de que uno corone. Comen en diagonal: cuidado con dónde caes.'),
+    turnTime: { facil: 6, normal: 4, dificil: 3 }, // a contrarreloj: si dudas, los peones avanzan igual
     levels: {
       facil: { hunters: ['knight', 'bishop', 'rook', 'knight'], pawns: 2, holes: 2, rival: { noise: 6, capture: 1, pressure: 0, care: 0, advance: 2 } },
       normal: { hunters: ['knight', 'bishop', 'rook'], pawns: 3, holes: 3, rival: { noise: 2, capture: 1, pressure: 0, care: 1, advance: 3 } },
@@ -47,7 +48,7 @@ export const SCENARIOS = {
       const b = board(), pieces = [];
       const files = shuffle(rng, [...Array(N).keys()]).slice(0, lv.pawns);
       // Sin doble paso (startRow -1): la carrera dura lo bastante para cazar.
-      for (const c of files) pieces.push(makePiece('pawn', 'dark', Math.floor(rng() * 2), c, { canCrown: true, startRow: -1 }));
+      for (const c of files) pieces.push(makePiece('pawn', 'dark', Math.floor(rng() * 2), c, { startRow: -1 }));
       spots(rng, pieces, b, N - 4, N - 2, lv.hunters.length).forEach(([r, c], i) => pieces.push(makePiece(lv.hunters[i], 'light', r, c)));
       rubble(rng, b, pieces, lv.holes, (r, c) => files.includes(c));
       return {
@@ -154,13 +155,24 @@ export const SCENARIOS = {
           : m.turn >= limit ? { victory: false, note: t('sc.minefield.lost2', 'Se acabaron los saltos.') } : null,
         status: (m) => `Saltos: ${limit - m.turn} · minas: ${b.mines.size}`,
         goals: () => cellsWhere(b, (r) => r === 0),
-        // Lo pisado (y en Fácil y Normal lo que lo rodea sin minas) queda escrito.
+        // Lo pisado (y en Fácil y Normal lo que lo rodea sin minas) queda escrito; como en el Buscaminas,
+        // una casilla sin minas alrededor destapa en cadena todas sus vecinas.
         labels: (m) => {
           if (m.pieces.length) {
-            seen.add(key(knight.row, knight.col));
+            const open = [key(knight.row, knight.col)];
             if (lv.area) for (const dr of [-1, 0, 1]) for (const dc of [-1, 0, 1]) {
               const r = knight.row + dr, c = knight.col + dc;
-              if (r >= 0 && c >= 0 && r < N && c < N && !b.mines.has(key(r, c))) seen.add(key(r, c));
+              if (r >= 0 && c >= 0 && r < N && c < N && !b.mines.has(key(r, c))) open.push(key(r, c));
+            }
+            while (open.length) {
+              const k = open.pop();
+              if (seen.has(k)) continue;
+              seen.add(k);
+              const [r, c] = k.split(',').map(Number);
+              if (!near(r, c)) for (const dr of [-1, 0, 1]) for (const dc of [-1, 0, 1]) {
+                const rr = r + dr, cc = c + dc;
+                if (rr >= 0 && cc >= 0 && rr < N && cc < N && !b.mines.has(key(rr, cc))) open.push(key(rr, cc));
+              }
             }
           }
           return new Map([...seen].map((k) => [k, near(...k.split(',').map(Number))]));
@@ -375,7 +387,7 @@ Object.assign(SCENARIOS, {
 
 // Jugadas mínimas de `piece` (sin guardias, con portales) hasta cumplir `goal` habiendo pisado
 // todas las `samples`; Infinity si no se puede. Valida que cada mesa al azar sea pasable.
-function routeLen(b, piece, goal, samples = []) {
+function routeLen(b, piece, goal, samples = [], avoid = new Set()) {
   const full = (1 << samples.length) - 1;
   const id = (p, mask) => key(p.row, p.col) + '|' + mask;
   let front = [{ row: piece.row, col: piece.col, mask: 0 }], d = 0;
@@ -386,6 +398,7 @@ function routeLen(b, piece, goal, samples = []) {
     for (const p of front) for (const m of legalMoves({ ...piece, row: p.row, col: p.col }, [], b)) {
       const twin = b.portals.get(key(m.row, m.col));
       const [row, col] = twin ? twin.split(',').map(Number) : [m.row, m.col];
+      if (avoid.has(key(row, col))) continue;
       const i = samples.indexOf(key(row, col));
       const s = { row, col, mask: i < 0 ? p.mask : p.mask | (1 << i) };
       if (!seen.has(id(s, s.mask))) { seen.add(id(s, s.mask)); next.push(s); }
@@ -394,11 +407,17 @@ function routeLen(b, piece, goal, samples = []) {
   }
   return Infinity;
 }
-// Reparte hasta que la ruta mínima quepa holgada en las rondas.
+// Reparte hasta que la ruta mínima quepa holgada en las rondas, y sin pasar por casillas de un guardia
+// ni a tiro de uno tal como empiezan (si no, en Difícil salían tableros cerrados desde la primera jugada).
 function passable(lv, deal) {
-  for (;;) {
+  for (let tries = 0; ; tries++) {
     const g = deal();
-    const d = routeLen(g.board, g.runner, g.goalAt, g.samples);
+    const guards = g.pieces.filter((p) => p.color === 'dark'), ctx = ctxOf(g.pieces, g.board), avoid = new Set(guards.map((p) => key(p.row, p.col)));
+    for (let r = 0; r < g.board.rows; r++) for (let c = 0; c < g.board.cols; c++) {
+      const spot = { type: 'pawn', color: 'light', row: r, col: c, id: 'probe' };
+      if (guards.some((q) => canHit(q, spot, ctx))) avoid.add(key(r, c));
+    }
+    const d = routeLen(g.board, g.runner, g.goalAt, g.samples, tries < 400 ? avoid : new Set());
     if (d >= 2 && d <= lv.rounds - 2) return g;
   }
 }
