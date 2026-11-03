@@ -87,6 +87,38 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "colibries-flores-lilas"
   },
+  "crisis": {
+    "id": "crisis",
+    "name": "Crisis Financiera",
+    "price": 180,
+    "swatch": [
+      "#121614",
+      "#b9c2bd",
+      "#d8404c",
+      "#e8c45a"
+    ],
+    "vars": {
+      "table": "#121614",
+      "table-2": "#1a201d",
+      "tile-a": "#b9c2bd",
+      "tile-b": "#2f4a3c",
+      "tile-side": "#18241e",
+      "side-light": "#e6ede8",
+      "side-dark": "#d8404c",
+      "side-wild": "#e8c45a",
+      "paper": "#e9efe9",
+      "paper-2": "#d6dfd8",
+      "paper-3": "#b8c4bb",
+      "ink": "#101412",
+      "ink-2": "#26302b",
+      "accent": "#1f9a55",
+      "accent-ink": "#0c4a28",
+      "brass": "#d9b44a",
+      "muted": "#5b6a61"
+    },
+    "art": "pixel",
+    "pack": "crisis"
+  },
   "gatos": {
     "id": "gatos",
     "name": "Michis",

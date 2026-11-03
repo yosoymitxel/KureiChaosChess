@@ -1249,7 +1249,7 @@ export default {
     'gatos-negros-naranjosos': { name: 'Black cats' }, goticas: { name: 'Gothic Tomb' }, 'goticas-waifu': { name: 'Vampire Doll' },
     'pandas-mapaches': { name: 'Pandas' }, piratas: { name: 'Pirates' }, 'reino-hongos': { name: 'Mushrooms' },
     scifi: { name: 'Galaxy' }, zombis: { name: 'Zombies' },
-    halloween: { name: 'Halloween' }, marcianitos: { name: 'Little Martians' }, paraguay: { name: 'Ñandutí' }, vesper: { name: 'Vesper' }, 'vocaloid-miku': { name: 'Miku' },
+    halloween: { name: 'Halloween' }, marcianitos: { name: 'Little Martians' }, paraguay: { name: 'Ñandutí' }, crisis: { name: 'Financial Crisis' }, vesper: { name: 'Vesper' }, 'vocaloid-miku': { name: 'Miku' },
   },
 
   seeds: {
