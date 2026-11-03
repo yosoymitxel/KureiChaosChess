@@ -1,0 +1,31 @@
+{
+ "cfg": {
+  "node": {
+   "modifier": "potato"
+  }
+ },
+ "themes": [
+  "walnut",
+  "pixelada"
+ ],
+ "steps": [
+  {
+   "wait": 3000
+  },
+  {
+   "eval": "(()=>{const e=document.querySelectorAll('.pc')[3];e.classList.add('crowned');e.querySelector('.pc-fig').insertAdjacentHTML('beforeend','<i class=\"pc-crown\"></i>');document.querySelectorAll('.pc')[12].classList.add('heir');return 1})()"
+  },
+  {
+   "wait": 400
+  },
+  {
+   "shot": "corona"
+  },
+  {
+   "expect": {
+    "eval": "document.elementFromPoint(...(b=>[b.x+b.width/2,b.y+b.height*.8])(document.querySelector('.pc-crown').getBoundingClientRect())).className==='pc-crown'",
+    "noErrors": true
+   }
+  }
+ ]
+}

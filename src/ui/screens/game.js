@@ -130,7 +130,15 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (scenario?.goals) d.view.setGoals(scenario.goals(match));
       if (scenario?.doom && !match.turn) d.view.setDoom(scenario.doom());
       // Ajedrez invisible: lo rival desaparece; lo tuyo, en transparencia.
-      if (node.modifier === 'potato') for (const [q, el] of d.view.els) el.classList.toggle('crowned', !!q.crowned);
+      if (node.modifier === 'potato') {
+        const heirs = Object.values(match.mech?.heirs || {});
+        for (const [q, el] of d.view.els) {
+          el.classList.toggle('crowned', !!q.crowned); el.classList.toggle('heir', heirs.includes(q.id));
+          const fig = el.querySelector('.pc-fig'), mark = fig?.querySelector('.pc-crown');
+          if (q.crowned && fig && !mark) fig.insertAdjacentHTML('beforeend', '<i class="pc-crown"></i>');
+          else if (!q.crowned) mark?.remove();
+        }
+      }
       if (node.modifier === 'invis') {
         const viewer = seats.find((x) => x.kind === 'human')?.color || 'light';
         for (const [q, el] of d.view.els) { el.classList.toggle('ghost', !!q.unseen && q.color === viewer); el.classList.toggle('unseen', !!q.unseen && q.color !== viewer); }

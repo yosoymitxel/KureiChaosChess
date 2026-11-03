@@ -205,8 +205,15 @@
 .pc.unseen .pc-stand { visibility: hidden; }
 .pc.ghost .pc-art { opacity: 0.4; }
 /* Corona caliente: la pieza coronada lleva la corona encima. */
-.pc.crowned .pc-art { position: relative; }
-.pc.crowned .pc-art::after { content: ''; position: absolute; z-index: 2; left: 30%; right: 30%; top: -14%; height: 22%; background: var(--brass); clip-path: polygon(0 100%, 0 20%, 25% 55%, 50% 0, 75% 55%, 100% 20%, 100% 100%); }
+.pc-fig:has(.pc-crown) { position: relative; }
+/* Corona grande con contorno oscuro, que flota sobre la cabeza, y base dorada: se distingue de lejos. */
+.pc-crown { position: absolute; z-index: 2; left: 18%; right: 18%; top: -24%; height: 38%; transform: translateZ(1px); background: #ffcf6b; clip-path: polygon(0 100%, 0 15%, 25% 50%, 50% 0, 75% 50%, 100% 15%, 100% 100%); filter: drop-shadow(0 0 1px #3a2208) drop-shadow(0 0 1px #3a2208); animation: pc-crown 1.6s ease-in-out infinite; }
+.pc:is(.crowned, .heir):not(.threat, .sel) .pc-base::after { border-color: #ffcf6b; box-shadow: 0 0 10px 2px #ffcf6b99; }
+/* El heredero: anillo dorado que late hasta que la corona salta. */
+.pc.heir .pc-base::after { animation: pc-heir 0.8s ease-in-out infinite alternate; }
+@keyframes pc-crown { 50% { translate: 0 -8%; } }
+@keyframes pc-heir { to { opacity: 0.35; scale: 1.15; } }
+@media (prefers-reduced-motion: reduce) { .pc-crown, .pc.heir .pc-base::after { animation: none; } }
 .pc.fogged .pc-base { opacity: 0.5; }
 .pc.fogged .pc-fig::before {
   content: ''; position: absolute; left: 18%; right: 18%; bottom: 8%; height: 58%;
@@ -215,7 +222,7 @@
 }
 /* Chrome recortaba el cartel por arriba con la caja de la peana (cámara épica, jefe del fondo):
    como plano 3D propio se pinta entero. */
-.pc:has(.pc-hp) :is(.pc-stand, .pc-fig) { transform-style: preserve-3d; }
+.pc:has(.pc-hp, .pc-crown) :is(.pc-stand, .pc-fig) { transform-style: preserve-3d; }
 .pc-hp { transform: translateZ(1px); }
 .pc-hp { position: absolute; left: 50%; top: calc(var(--head, 0.1) * 100% - 4px); translate: -50% -100%; display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: var(--ink); border-radius: 6px; white-space: nowrap; }
 .pc-hp span { margin-right: 4px; font: 800 calc(var(--sq) * 0.26)/1 var(--font); color: var(--paper); text-box: trim-both cap alphabetic; }
