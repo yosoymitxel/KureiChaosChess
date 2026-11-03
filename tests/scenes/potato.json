@@ -1,31 +1,9 @@
 {
- "cfg": {
-  "node": {
-   "modifier": "potato"
-  }
- },
- "themes": [
-  "walnut",
-  "pixelada"
- ],
- "steps": [
-  {
-   "wait": 3000
-  },
-  {
-   "eval": "(()=>{const e=document.querySelectorAll('.pc')[3];e.classList.add('crowned');e.querySelector('.pc-fig').insertAdjacentHTML('beforeend','<i class=\"pc-crown\"></i>');document.querySelectorAll('.pc')[12].classList.add('heir');return 1})()"
-  },
-  {
-   "wait": 400
-  },
-  {
-   "shot": "corona"
-  },
-  {
-   "expect": {
-    "eval": "document.querySelector('.pc-crown').getBoundingClientRect().height > 5",
-    "noErrors": true
-   }
-  }
- ]
+ "cfg": { "node": { "modifier": "potato" }, "board": { "rows": 8, "cols": 8 },
+  "pieces": ["king light 7 4", { "type": "queen", "color": "light", "row": 7, "col": 3, "crowned": true }, "pawn light 6 0", "king dark 0 4", "knight dark 0 1", "pawn dark 1 7"] },
+ "themes": ["walnut", "pixelada"],
+ "steps": [ { "wait": 1500 },
+  { "eval": "(()=>{const m=bench.match;(m.mech||={}).heirs={dark:m.pieces.find(p=>p.type==='knight').id};return 1})()" },
+  { "move": "6,0>5,0" }, { "shot": "corona" },
+  { "expect": { "eval": "!!document.querySelector('.pc.crowned .pc-crown') && !!document.querySelector('.pc.heir') && document.querySelector('.pc-crown').getBoundingClientRect().height > 5", "noErrors": true } } ]
 }

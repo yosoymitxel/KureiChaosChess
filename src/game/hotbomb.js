@@ -29,7 +29,7 @@ export function newHotbomb(key = 'normal', rng = Math.random) {
   // Bandos intercalados por el corro (lo más repartidos posible), girado al azar.
   const order = [...Array.from({ length: me }, (_, i) => ['me', (i + 0.5) / me]), ...Array.from({ length: bot }, (_, i) => ['bot', (i + rng() * 0.5) / bot])].sort((a, b) => a[1] - b[1]);
   const pcs = order.map(([side], id) => ({ id, side, type: TYPES[Math.floor(rng() * TYPES.length)], x: R, y: R, out: false }));
-  const s = { diff, rng, pcs, rot: rng() * Math.PI * 2, bomb: { x: R, y: R }, holder: null, fly: null, phase: 'hold', fuse: 0, fuseMax: 0, botT: 0, wait: 0, t: 0, last: 'me', events: [], next: null, over: null };
+  const s = { diff, rng, pcs, rot: rng() * Math.PI * 2, bomb: { x: R, y: R }, holder: null, fly: null, phase: 'hold', fuse: 0, botT: 0, wait: 0, t: 0, last: 'me', events: [], next: null, over: null };
   for (const [p, at] of slots(s)) Object.assign(p, at);
   arm(s, 'me');
   return s;
@@ -46,7 +46,7 @@ function arm(s, side) {
   const team = alive(s, side);
   if (!team.length) return;
   const [a, b] = s.diff.fuse;
-  s.fuse = s.fuseMax = a + s.rng() * (b - a);
+  s.fuse = a + s.rng() * (b - a);
   give(s, team[Math.floor(s.rng() * team.length)]);
   s.next = [...(s.next || []), { kind: 'arm', side }];
 }

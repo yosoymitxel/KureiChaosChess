@@ -7,7 +7,7 @@ import { pieceSVG } from '../../view/piece-art.js';
 import { W, H, GUTTER, LINE, BALL_R, SHOT_MAX, PULL_MAX, FRAMES, DIFFS, newTenpin, place, shoot, step, total } from '../../game/tenpin.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t } from '../../i18n/index.js';
-import { tableKit, toTable as tableAt, corners } from '../table-kit.js';
+import { tableKit, slingshot, corners } from '../table-kit.js';
 
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const pct = (v, of) => (v / of) * 100 + '%';
@@ -20,38 +20,18 @@ export function TenpinScreen({ sub, onBack, onEnd, endLabel = t('common.continue
   const [hud, setHud] = useState({ me: 0, bot: 0, turn: 'me', frame: 1 });
   const [over, setOver] = useState(null);
   const tableRef = useRef(null), wrapRef = useRef(null), screenRef = useRef(null), ballRef = useRef(null), aimRef = useRef(null), pinRefs = useRef({});
-  const aim = useRef({ on: false, ang: -Math.PI / 2, pow: 0.7, from: null, slide: false });
-  const rect = useRef(null);
-
-  const toTable = (e) => tableAt(e, tableRef.current, rect, W, H);
-  const ready = () => !s.over && s.phase === 'aim' && s.turn === 'me';
-  const pull = (at) => {
-    const a = aim.current, dx = a.from[0] - at[0], dy = a.from[1] - at[1], d = Math.hypot(dx, dy);
-    if (d > 2) a.ang = Math.atan2(dy, dx);
-    a.pow = Math.min(1, d / PULL_MAX);
-  };
-  const down = (e) => {
-    if (!ready()) return;
-    e.preventDefault();
-    rect.current = null;
-    tableRef.current.setPointerCapture?.(e.pointerId);
-    const at = toTable(e), near = Math.hypot(at[0] - s.x, at[1] - LINE) < BALL_R * 2.5;
-    Object.assign(aim.current, { on: !near, slide: near, from: at, pow: 0 });
-  };
-  const move = (e) => {
-    const a = aim.current;
-    if (a.slide) place(s, toTable(e)[0]);
-    else if (a.on && a.from) pull(toTable(e));
-  };
-  const up = (e) => {
-    const a = aim.current;
-    if (a.on && a.from) { pull(toTable(e)); if (a.pow > 0.06) shoot(s, a.ang, a.pow); }
-    Object.assign(a, { on: false, slide: false, from: null });
-  };
+  const [sl] = useState(() => slingshot({
+    table: () => tableRef.current, w: W, h: H, pullMax: PULL_MAX, origin: () => ({ x: s.x, y: LINE }),
+    ready: () => !s.over && s.phase === 'aim' && s.turn === 'me',
+    shoot: (ang, pow) => shoot(s, ang, pow),
+    near: ([x, y]) => Math.hypot(x - s.x, y - LINE) < BALL_R * 2.5,
+    slide: ([x]) => place(s, x),
+    nudge: (d) => place(s, s.x + d * 3),
+  }));
 
   useEffect(() => {
     const table = tableRef.current, fx = new Fx(table);
-    const kit = tableKit(table, wrapRef.current, settings, W, () => (rect.current = null));
+    const kit = tableKit(table, wrapRef.current, settings, W, sl.reset);
     const { still, place: put, at, shake, squash, banner } = kit;
     const color = { me: css('--side-light'), brass: css('--brass'), accent: css('--accent'), paper: css('--paper') };
 
@@ -85,16 +65,6 @@ export function TenpinScreen({ sub, onBack, onEnd, endLabel = t('common.continue
       if (s.events.some((e) => /result|turn/.test(e.kind))) setHud({ me: total(s, 'me'), bot: total(s, 'bot'), turn: s.turn, frame: Math.min(s.frame + 1, s.frames) });
     };
 
-    const drawAim = () => {
-      const el = aimRef.current, a = aim.current, show = ready() && (a.on || a.keys);
-      el.style.opacity = show ? 1 : 0;
-      if (!show) return;
-      const k = kit.k();
-      el.style.width = (10 + a.pow * 50) * k + 'px';
-      el.style.transform = `translate3d(${s.x * k}px, ${LINE * k}px, 0) rotate(${a.ang}rad)`;
-      el.style.setProperty('--pow', a.pow);
-    };
-
     let raf = 0, last = performance.now();
     const frame = (now) => {
       const dt = Math.min((now - last) / 1000, 1 / 20);
@@ -103,7 +73,7 @@ export function TenpinScreen({ sub, onBack, onEnd, endLabel = t('common.continue
       put(ballRef.current, s.ball || { x: s.x, y: LINE });
       ballRef.current.classList.toggle('foe', s.turn === 'bot');
       for (const p of s.pins) if (!p.gone) put(pinRefs.current[p.id], p);
-      drawAim();
+      sl.draw(aimRef.current, kit.k());
       juice();
       if (s.over) {
         setOver(s.over);
@@ -115,27 +85,14 @@ export function TenpinScreen({ sub, onBack, onEnd, endLabel = t('common.continue
     };
     raf = requestAnimationFrame(frame);
 
-    const onKey = (e) => {
-      if (e.type !== 'keydown' || e.target.closest?.('input, select, textarea, .overlay') || !ready()) return;
-      const a = aim.current, key = e.key.toLowerCase();
-      const turn = { arrowleft: -1, a: -1, arrowright: 1, d: 1 }[key], dose = { arrowup: 1, w: 1, arrowdown: -1, s: -1 }[key], slide = { z: -1, x: 1 }[key];
-      if (turn) a.ang += turn * (e.shiftKey ? 0.1 : 0.02);
-      else if (dose) a.pow = Math.max(0.05, Math.min(1, a.pow + dose * 0.05));
-      else if (slide) place(s, s.x + slide * 3);
-      else if ((key === ' ' || key === 'enter') && a.keys) { if (shoot(s, a.ang, a.pow)) a.keys = false; }
-      else return;
-      e.preventDefault();
-      a.keys = true;
-    };
-    const scrolled = () => (rect.current = null);
-    addEventListener('keydown', onKey);
-    addEventListener('scroll', scrolled, true);
+    addEventListener('keydown', sl.key);
+    addEventListener('scroll', sl.reset, true);
     return () => {
       cancelAnimationFrame(raf);
       kit.destroy();
       fx.destroy();
-      removeEventListener('keydown', onKey);
-      removeEventListener('scroll', scrolled, true);
+      removeEventListener('keydown', sl.key);
+      removeEventListener('scroll', sl.reset, true);
     };
   }, []);
 
@@ -148,7 +105,7 @@ export function TenpinScreen({ sub, onBack, onEnd, endLabel = t('common.continue
         <div class="mini-stage">
           <div class="ah-wrap" ref=${wrapRef}>
             <div class="ah pl tp" ref=${tableRef} role="application" aria-label=${t('tenpin.aria', 'Pista de bolos: arrastra la bola por la línea y tira hacia atrás para lanzar')}
-              onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${up}>
+              onPointerDown=${sl.down} onPointerMove=${sl.move} onPointerUp=${sl.up} onPointerCancel=${sl.up}>
               ${Array.from({ length: ROWS * COLS }, (_, i) => html`<i class=${'ah-cell ' + ((Math.floor(i / COLS) + i) % 2 ? 'b' : 'a')}></i>`)}
               ${corners}
               <i class="tp-gutter" style=${{ left: 0, width: pct(GUTTER, W) }}></i><i class="tp-gutter" style=${{ right: 0, width: pct(GUTTER, W) }}></i>

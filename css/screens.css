@@ -1455,7 +1455,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .pc.disc .pc-art::before { content: ''; top: auto; bottom: -24%; height: 56%; } /* centrada en la casilla: la base del soporte está en su centro */
 .pc.disc .pc-art svg, .pc.disc .pc-base i { display: none; }
 .pc.disc.side-dark .pc-art::before { --tk: var(--side-dark); --tk-2: color-mix(in oklch, var(--side-dark), black 40%); }
-.pc.disc.crown .pc-art::after { content: ''; position: absolute; z-index: 2; left: 31%; right: 31%; bottom: 23%; height: 24%; background: var(--brass); clip-path: polygon(0 100%, 0 20%, 25% 55%, 50% 0, 75% 55%, 100% 20%, 100% 100%); }
+.pc.disc.crown .pc-art::after { content: ''; position: absolute; z-index: 2; left: 31%; right: 31%; bottom: 23%; height: 24%; }
 .bm-cell.boom .bm-tok { --tk: var(--accent); --tk-2: var(--accent-ink); }
 .bm-cell.boom .bm-tok::after { content: ''; position: absolute; left: 50%; top: -34%; width: 3px; height: 40%; background: var(--ink); translate: -50% 0; border-radius: 2px; }
 .bm-cell.boom .bm-tok::before { content: ''; position: absolute; left: 50%; top: -48%; width: 12px; height: 12px; translate: -50% 0; background: radial-gradient(#fff2c2 0 30%, #ffcf6b 31% 60%, #ff8a3d 61%); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }

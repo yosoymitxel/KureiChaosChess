@@ -23,9 +23,9 @@ src/data/garden.js:40 +LAKE_MAX
 src/data/garden.js:41 +lakeCost
 ## src/data/mates.js (2L)
 src/data/mates.js:1 +MATES
-## src/data/minigame-catalog.js (41L)
-src/data/minigame-catalog.js:30 SCREENS
-src/data/minigame-catalog.js:40 +MINIGAMES
+## src/data/minigame-catalog.js (40L)
+src/data/minigame-catalog.js:29 SCREENS
+src/data/minigame-catalog.js:39 +MINIGAMES
 ## src/data/modifiers.js (95L)
 src/data/modifiers.js:2 +MODIFIERS
 src/data/modifiers.js:82 +nodeModifier
@@ -241,27 +241,28 @@ src/game/cards.js:142 +pickCardChoices
 src/game/cards.js:151 +cardTargets
 src/game/cards.js:163 +previewMoves
 src/game/cards.js:175 +playCard
-## src/game/carrom.js (168L)
+## src/game/carrom.js (202L)
 src/game/carrom.js:6 +R
 src/game/carrom.js:7 +DISC_R
 src/game/carrom.js:8 +POCKETS
 src/game/carrom.js:9 +ARC_R
-src/game/carrom.js:10 +SHOT_MAX
-src/game/carrom.js:11 DECEL
+src/game/carrom.js:10 +PULL_MAX
 src/game/carrom.js:14 +DIFFS
-src/game/carrom.js:20 other
-src/game/carrom.js:21 +arcPoint
-src/game/carrom.js:26 +newCarrom
-src/game/carrom.js:40 +place
-src/game/carrom.js:52 +shoot
-src/game/carrom.js:64 physics
-src/game/carrom.js:82 clone
-src/game/carrom.js:85 +simulate
-src/game/carrom.js:95 +plan
-src/game/carrom.js:118 botShot
-src/game/carrom.js:124 +step
-src/game/carrom.js:131 sub
-src/game/carrom.js:145 resolve
+src/game/carrom.js:20 RW
+src/game/carrom.js:22 +TABLES
+src/game/carrom.js:42 other
+src/game/carrom.js:43 +arcPoint
+src/game/carrom.js:48 +newCarrom
+src/game/carrom.js:72 +place
+src/game/carrom.js:84 +shoot
+src/game/carrom.js:96 physics
+src/game/carrom.js:113 +simulate
+src/game/carrom.js:122 +plan
+src/game/carrom.js:146 botShot
+src/game/carrom.js:152 +step
+src/game/carrom.js:159 sub
+src/game/carrom.js:174 free
+src/game/carrom.js:180 resolve
 ## src/game/checkers.js (104L)
 src/game/checkers.js:4 +DIFFS
 src/game/checkers.js:9 DIAG
@@ -621,22 +622,6 @@ src/game/physics.js:29 +walls
 src/game/physics.js:38 +slide
 src/game/physics.js:48 +bump
 src/game/physics.js:63 +rim
-## src/game/pool.js (136L)
-src/game/pool.js:6 +W
-src/game/pool.js:7 +POCKETS
-src/game/pool.js:8 +SPOT
-src/game/pool.js:9 DECEL
-src/game/pool.js:11 +DIFFS
-src/game/pool.js:17 other
-src/game/pool.js:19 +newPool
-src/game/pool.js:30 +shoot
-src/game/pool.js:41 physics
-src/game/pool.js:57 +simulate
-src/game/pool.js:65 +plan
-src/game/pool.js:85 +step
-src/game/pool.js:92 sub
-src/game/pool.js:109 free
-src/game/pool.js:115 resolve
 ## src/game/queens.js (43L)
 src/game/queens.js:3 +DIFFS
 src/game/queens.js:9 attacks
@@ -1112,11 +1097,13 @@ src/ui/screens/bomber.js:16 +BomberScreen
 src/ui/screens/bowling.js:12 TICK_MS
 src/ui/screens/bowling.js:13 css
 src/ui/screens/bowling.js:15 +BowlingScreen
-## src/ui/screens/carrom.js (193L)
+## src/ui/screens/carrom.js (162L)
 src/ui/screens/carrom.js:12 css
-src/ui/screens/carrom.js:13 pct
+src/ui/screens/carrom.js:13 ROWS
 src/ui/screens/carrom.js:15 arcPath
-src/ui/screens/carrom.js:22 +CarromScreen
+src/ui/screens/carrom.js:21 +CarromScreen
+src/ui/screens/carrom.js:23 +PoolScreen
+src/ui/screens/carrom.js:25 CueScreen
 ## src/ui/screens/checkers.js (85L)
 src/ui/screens/checkers.js:12 wait
 src/ui/screens/checkers.js:15 +CheckersScreen
@@ -1185,11 +1172,6 @@ src/ui/screens/overlays.js:13 useEscape
 src/ui/screens/overlays.js:20 +ResumeOverlay
 src/ui/screens/overlays.js:31 +PauseOverlay
 src/ui/screens/overlays.js:62 +HowToOverlay
-## src/ui/screens/pool.js (175L)
-src/ui/screens/pool.js:11 css
-src/ui/screens/pool.js:12 pct
-src/ui/screens/pool.js:13 ROWS
-src/ui/screens/pool.js:17 +PoolScreen
 ## src/ui/screens/queens.js (51L)
 src/ui/screens/queens.js:11 +QueensScreen
 ## src/ui/screens/scenario.js (36L)
@@ -1228,7 +1210,7 @@ src/ui/screens/setup.js:330 Cloud
 ## src/ui/screens/shop.js (143L)
 src/ui/screens/shop.js:15 CARD_LIST
 src/ui/screens/shop.js:17 +ShopScreen
-## src/ui/screens/tenpin.js (177L)
+## src/ui/screens/tenpin.js (134L)
 src/ui/screens/tenpin.js:12 css
 src/ui/screens/tenpin.js:13 pct
 src/ui/screens/tenpin.js:14 ROWS
@@ -1297,11 +1279,12 @@ src/ui/sfx.js:379 +stopAmbient
 src/ui/sfx.js:394 +JINGLES
 src/ui/sfx.js:395 +playJingle
 src/ui/sfx.js:416 +sfxState
-## src/ui/table-kit.js (64L)
+## src/ui/table-kit.js (116L)
 src/ui/table-kit.js:6 +tableKit
-src/ui/table-kit.js:32 +corners
-src/ui/table-kit.js:35 homography
-src/ui/table-kit.js:53 +toTable
+src/ui/table-kit.js:35 +slingshot
+src/ui/table-kit.js:84 +corners
+src/ui/table-kit.js:87 homography
+src/ui/table-kit.js:105 +toTable
 ## src/ui/zen-art.js (268L)
 src/ui/zen-art.js:8 +HEAD
 src/ui/zen-art.js:14 +chipArt
@@ -1447,7 +1430,7 @@ css/base.css:191 /* Card back carries the pawn emblem: the box's identity mark.
 css/base.css:202 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
 css/base.css:242 /* Botones sin texto y cosas del jardín: el botón va en su esqu
 css/base.css:245 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
-## css/board.css (384L)
+## css/board.css (386L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
 css/board.css:36 /* Tiles
@@ -1478,21 +1461,22 @@ css/board.css:202 /* Fog: an enemy far from your pieces is only a shape in the m
 css/board.css:204 /* Ajedrez invisible: la rival que movió no se ve; la tuya, en 
 css/board.css:207 /* Corona caliente: la pieza coronada lleva la corona encima.
 css/board.css:209 /* Corona grande con contorno oscuro, que flota sobre la cabeza
-css/board.css:212 /* El heredero: anillo dorado que late hasta que la corona salt
-css/board.css:223 /* Chrome recortaba el cartel por arriba con la caja de la pean
-css/board.css:232 /* Piece badges: lock = escorted, flag = falls last, star = bor
-css/board.css:263 /* En móvil la capa baja hasta cubrir también las cartas, por e
-css/board.css:270 /* Etiqueta de casilla: ficha de papel con pico, encima de la c
-css/board.css:285 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
-css/board.css:291 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
-css/board.css:310 /* Estanque del centro abierto y coleccionables: tumbados sobre
-css/board.css:317 /* Koi con hambre: burbujas que suben despacio en el centro del
-css/board.css:336 /* La mariposa queda posada un poco en el aire (lo deja su vuel
-css/board.css:342 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
-css/board.css:355 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
-css/board.css:361 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
-css/board.css:365 /* Carta lila Disco: las casillas cambian de luz.
-css/board.css:375 /* Gallina del Gallinero: dibujo propio (no un peón), sin base 
+css/board.css:210 /* La silueta de corona, una sola: la de Corona caliente y la d
+css/board.css:214 /* El heredero: anillo dorado que late hasta que la corona salt
+css/board.css:225 /* Chrome recortaba el cartel por arriba con la caja de la pean
+css/board.css:234 /* Piece badges: lock = escorted, flag = falls last, star = bor
+css/board.css:265 /* En móvil la capa baja hasta cubrir también las cartas, por e
+css/board.css:272 /* Etiqueta de casilla: ficha de papel con pico, encima de la c
+css/board.css:287 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
+css/board.css:293 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
+css/board.css:312 /* Estanque del centro abierto y coleccionables: tumbados sobre
+css/board.css:319 /* Koi con hambre: burbujas que suben despacio en el centro del
+css/board.css:338 /* La mariposa queda posada un poco en el aire (lo deja su vuel
+css/board.css:344 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
+css/board.css:357 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
+css/board.css:363 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
+css/board.css:367 /* Carta lila Disco: las casillas cambian de luz.
+css/board.css:377 /* Gallina del Gallinero: dibujo propio (no un peón), sin base 
 ## css/pixel.css (96L)
 css/pixel.css:1 /* Modo píxel: con un tema píxel (data-art="pixel", ver src/dat
 css/pixel.css:6 /* Jersey 10 (OFL), servida desde el juego: el subconjunto lati
@@ -1510,7 +1494,7 @@ css/pixel.css:85 /* Sombra de la pieza y koi del estanque del tablero, sin degra
 css/pixel.css:87 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
 css/pixel.css:90 /* El ::before va fuera de :is(), que no admite pseudoelementos
 ## css/proto-diamond.css (83L)
-## css/screens.css (1637L)
+## css/screens.css (1641L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
 css/screens.css:12 /* Menu: asymmetric, the diorama is the focal point and the tit
@@ -1643,37 +1627,39 @@ css/screens.css:1297 /* Bolos: la pista del billar con canaletas y línea de tir
 css/screens.css:1304 /* Papa caliente: la mesa del billar redondo con piezas; la bom
 css/screens.css:1313 /* Billar redondo: mesa circular con casillas de tablero, cuatr
 css/screens.css:1324 /* Tronera: agujero hondo con aro de latón, todo dentro de su c
-css/screens.css:1336 /* Píxel: sin curvas en todo el juego; la mesa redonda es un cí
-css/screens.css:1342 /* Golf de mesa: la misma mesa del hockey con suelos (arena, hi
-css/screens.css:1344 /* Lo que asoma por encima de la fila de arriba (banderín, figu
-css/screens.css:1361 /* Banderín: mástil de tinta y gallardete bermellón, dibujado e
-css/screens.css:1376 /* Peón levantado mientras se arrastra, y la casilla a la que i
-css/screens.css:1380 /* La valla cae en su sitio con un golpe seco.
-css/screens.css:1393 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
-css/screens.css:1397 /* En pantallas bajas el tablero vale más que el chrome: menos 
-css/screens.css:1399 /* En el teléfono la compra se aprieta a una fila de ficha y pr
-css/screens.css:1405 /* Reloj de turno (minis cronometrados): barra que se vacía; en
-css/screens.css:1411 /* Estado de los minis sobre la losa: ficha de monedas y contad
-css/screens.css:1414 /* Contadores en fila: un punto por unidad; apagado queda lo ga
-css/screens.css:1418 /* La última oleada es la horda: su punto es un banderín bermel
-css/screens.css:1420 /* Carriles de lanzamiento: velo claro (--zone), distinto del v
-css/screens.css:1422 /* El número del carril en su esquina: es la tecla que lo lanza
-css/screens.css:1424 /* La bolera es apaisada: su escenario no reserva el alto pensa
-css/screens.css:1428 /* La línea roja del original: hasta ahí se lanza.
-css/screens.css:1430 /* La ficha que rueda va como elemento para que Motion la pueda
-css/screens.css:1431 /* La ficha es una pieza de damas vista en perspectiva: disco c
-css/screens.css:1441 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
-css/screens.css:1459 /* Avance de la oleada con el banderín de la horda al 70 %.
-css/screens.css:1466 /* La cinta: las fichas que vienen, la primera se lanza al toca
-css/screens.css:1478 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
-css/screens.css:1483 /* Selector de mecánicas de la run: favorita en latón, vetada t
-css/screens.css:1487 /* «Ver todo»: fichas de una línea; el estado lo dicen el color
-css/screens.css:1497 /* Mobile-first repair: keep the game surface visible instead o
-css/screens.css:1529 /* The animation lab must give its remaining viewport to the li
-css/screens.css:1572 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
-css/screens.css:1589 /* Copia de seguridad (Ajustes): el código se pega en un recuad
-css/screens.css:1602 /* Botones de Perfil y Copia: tres por fila, icono arriba, sin 
-css/screens.css:1613 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
-css/screens.css:1624 /* Reference APK renderer: a separate green/pixel signature, di
+css/screens.css:1328 /* Fichas, bolas y lanzador son la ficha de damas (.bm-tok) vis
+css/screens.css:1339 /* Píxel: sin curvas en todo el juego; la mesa redonda es un cí
+css/screens.css:1344 /* En píxel, la tronera es un círculo dibujado en píxeles (12×1
+css/screens.css:1346 /* Golf de mesa: la misma mesa del hockey con suelos (arena, hi
+css/screens.css:1348 /* Lo que asoma por encima de la fila de arriba (banderín, figu
+css/screens.css:1365 /* Banderín: mástil de tinta y gallardete bermellón, dibujado e
+css/screens.css:1380 /* Peón levantado mientras se arrastra, y la casilla a la que i
+css/screens.css:1384 /* La valla cae en su sitio con un golpe seco.
+css/screens.css:1397 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
+css/screens.css:1401 /* En pantallas bajas el tablero vale más que el chrome: menos 
+css/screens.css:1403 /* En el teléfono la compra se aprieta a una fila de ficha y pr
+css/screens.css:1409 /* Reloj de turno (minis cronometrados): barra que se vacía; en
+css/screens.css:1415 /* Estado de los minis sobre la losa: ficha de monedas y contad
+css/screens.css:1418 /* Contadores en fila: un punto por unidad; apagado queda lo ga
+css/screens.css:1422 /* La última oleada es la horda: su punto es un banderín bermel
+css/screens.css:1424 /* Carriles de lanzamiento: velo claro (--zone), distinto del v
+css/screens.css:1426 /* El número del carril en su esquina: es la tecla que lo lanza
+css/screens.css:1428 /* La bolera es apaisada: su escenario no reserva el alto pensa
+css/screens.css:1432 /* La línea roja del original: hasta ahí se lanza.
+css/screens.css:1434 /* La ficha que rueda va como elemento para que Motion la pueda
+css/screens.css:1435 /* La ficha es una pieza de damas vista en perspectiva: disco c
+css/screens.css:1445 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
+css/screens.css:1463 /* Avance de la oleada con el banderín de la horda al 70 %.
+css/screens.css:1470 /* La cinta: las fichas que vienen, la primera se lanza al toca
+css/screens.css:1482 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
+css/screens.css:1487 /* Selector de mecánicas de la run: favorita en latón, vetada t
+css/screens.css:1491 /* «Ver todo»: fichas de una línea; el estado lo dicen el color
+css/screens.css:1501 /* Mobile-first repair: keep the game surface visible instead o
+css/screens.css:1533 /* The animation lab must give its remaining viewport to the li
+css/screens.css:1576 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
+css/screens.css:1593 /* Copia de seguridad (Ajustes): el código se pega en un recuad
+css/screens.css:1606 /* Botones de Perfil y Copia: tres por fila, icono arriba, sin 
+css/screens.css:1617 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
+css/screens.css:1628 /* Reference APK renderer: a separate green/pixel signature, di
 ## css/tokens.css (51L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.

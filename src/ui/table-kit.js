@@ -28,6 +28,58 @@ export function tableKit(table, wrap, settings, w, onResize) {
   };
 }
 
+// Tirachinas de las mesas de tiro (billares, bolos): arrastrar hacia atrás y soltar sale al revés, más
+// fuerte cuanto más se tira. Si `near(p)` dice que el toque cae sobre la bola, arrastrar la mueve con
+// `slide(p)`. Teclado: flechas apuntan y dosifican, Z/X llaman a `nudge(±1)`, espacio tira.
+// `table()` da el elemento de la mesa; `origin()` el punto de salida (unidades de mesa).
+export function slingshot({ table, w, h, ready, origin, shoot, pullMax = 60, near, slide, nudge }) {
+  const a = { on: false, slide: false, keys: false, from: null, ang: -Math.PI / 2, pow: 0.5 }, rect = { current: null };
+  const at = (e) => toTable(e, table(), rect, w, h);
+  const pull = (p) => {
+    const dx = a.from[0] - p[0], dy = a.from[1] - p[1], d = Math.hypot(dx, dy);
+    if (d > 2) a.ang = Math.atan2(dy, dx);
+    a.pow = Math.min(1, d / pullMax);
+  };
+  return {
+    reset: () => (rect.current = null),
+    down(e) {
+      if (!ready()) return;
+      e.preventDefault();
+      rect.current = null;
+      table().setPointerCapture?.(e.pointerId);
+      const p = at(e), sl = !!near?.(p);
+      Object.assign(a, { on: !sl, slide: sl, from: p, pow: 0 });
+    },
+    move(e) { if (a.slide) slide(at(e)); else if (a.on && a.from) pull(at(e)); },
+    up(e) {
+      if (a.on && a.from) { pull(at(e)); if (a.pow > 0.06) shoot(a.ang, a.pow); }
+      Object.assign(a, { on: false, slide: false, from: null });
+    },
+    key(e) {
+      if (e.type !== 'keydown' || e.target.closest?.('input, select, textarea, .overlay') || !ready()) return;
+      const key = e.key.toLowerCase();
+      const turn = { arrowleft: -1, a: -1, arrowright: 1, d: 1 }[key], dose = { arrowup: 1, w: 1, arrowdown: -1, s: -1 }[key], side = { z: -1, x: 1 }[key];
+      if (turn) a.ang += turn * (e.shiftKey ? 0.12 : 0.03);
+      else if (dose) a.pow = Math.max(0.05, Math.min(1, a.pow + dose * 0.05));
+      else if (side && nudge) nudge(side);
+      else if ((key === ' ' || key === 'enter') && a.keys) { if (shoot(a.ang, a.pow)) a.keys = false; }
+      else return;
+      e.preventDefault();
+      a.keys = true;
+    },
+    // La flecha de puntería: crece con la fuerza y sale del punto de tiro.
+    draw(el, k) {
+      const show = ready() && (a.on || a.keys);
+      el.style.opacity = show ? 1 : 0;
+      if (!show) return;
+      const o = origin();
+      el.style.width = (10 + a.pow * 50) * k + 'px';
+      el.style.transform = `translate3d(${o.x * k}px, ${o.y * k}px, 0) rotate(${a.ang}rad)`;
+      el.style.setProperty('--pow', a.pow);
+    },
+  };
+}
+
 // Esquinas de la mesa (sin tamaño), dentro de ella: toTable las mide con la cámara inclinada.
 export const corners = html`<i class="tk-corner tk-tl"></i><i class="tk-corner tk-tr"></i><i class="tk-corner tk-br"></i><i class="tk-corner tk-bl"></i>`;
 

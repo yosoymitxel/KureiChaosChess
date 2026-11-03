@@ -1,11 +1,13 @@
 // Billar: las partidas terminan, un jugador con buen pulso le gana a la máquina según el nivel y tirar
 // siempre recto arriba a tope no gana. `node tools/pool-selfcheck.mjs [--all]`.
 import { mulberry32 } from '../src/core/rng.js';
-import { newPool, plan, shoot, step, DIFFS } from '../src/game/pool.js';
+import { newCarrom, plan, shoot, step, TABLES } from '../src/game/carrom.js';
+
+const DIFFS = TABLES.rect.diffs;
 
 const fails = [], rows = [];
 const play = (level, seed, pick) => {
-  const rng = mulberry32(seed), s = newPool(level, rng);
+  const rng = mulberry32(seed), s = newCarrom(level, rng, { table: 'rect' });
   for (let i = 0; i < 40000 && !s.over; i++) {
     if (s.turn === 'me' && s.phase === 'aim') { const [a, p] = pick(s, rng); shoot(s, a, p); }
     step(s, 1 / 20);

@@ -207,8 +207,10 @@
 /* Corona caliente: la pieza coronada lleva la corona encima. */
 .pc-fig:has(.pc-crown) { position: relative; }
 /* Corona grande con contorno oscuro, que flota sobre la cabeza, y base dorada: se distingue de lejos. */
-.pc-crown { position: absolute; z-index: 2; left: 18%; right: 18%; top: -24%; height: 38%; transform: translateZ(1px); background: #ffcf6b; clip-path: polygon(0 100%, 0 15%, 25% 50%, 50% 0, 75% 50%, 100% 15%, 100% 100%); filter: drop-shadow(0 0 1px #3a2208) drop-shadow(0 0 1px #3a2208); animation: pc-crown 1.6s ease-in-out infinite; }
-.pc:is(.crowned, .heir):not(.threat, .sel) .pc-base::after { border-color: #ffcf6b; box-shadow: 0 0 10px 2px #ffcf6b99; }
+/* La silueta de corona, una sola: la de Corona caliente y la de la dama coronada en Damas. */
+.pc-crown, .pc.disc.crown .pc-art::after { background: var(--brass); clip-path: polygon(0 100%, 0 15%, 25% 50%, 50% 0, 75% 50%, 100% 15%, 100% 100%); }
+.pc-crown { position: absolute; z-index: 2; left: 18%; right: 18%; top: -24%; height: 38%; transform: translateZ(1px); filter: drop-shadow(0 0 1px var(--ink)) drop-shadow(0 0 1px var(--ink)); animation: pc-crown 1.6s ease-in-out infinite; }
+.pc:is(.crowned, .heir):not(.threat, .sel) .pc-base::after { border-color: var(--brass); box-shadow: 0 0 10px 2px color-mix(in oklch, var(--brass), transparent 40%); }
 /* El heredero: anillo dorado que late hasta que la corona salta. */
 .pc.heir .pc-base::after { animation: pc-heir 0.8s ease-in-out infinite alternate; }
 @keyframes pc-crown { 50% { translate: 0 -8%; } }
