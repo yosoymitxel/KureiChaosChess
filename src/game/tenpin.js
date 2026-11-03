@@ -2,7 +2,7 @@
 // bot os turnáis por entradas de dos tiros; cuenta lo derribado. Física de mesa compartida (physics.js).
 import { substeps, slide, bump } from './physics.js';
 
-export const W = 96, H = 160, GUTTER = 9, BALL_R = 6, PIN_R = 4.2, LINE = H - 18;
+export const W = 96, H = 160, GUTTER = 9, BALL_R = 6, PIN_R = 7.6, LINE = H - 18;
 export const SHOT_MAX = 300, PULL_MAX = 60, FRAMES = 3, PIN_TYPES = ['bishop', 'guard', 'advisor'];
 const DECEL = 22, PIN_DECEL = 200, E = 0.6, M_BALL = 2.2, DOWN = 6, WOBBLE = 0.015;
 
@@ -15,7 +15,7 @@ export const DIFFS = {
 
 // Triángulo con la punta hacia el jugador.
 const RACK = [];
-for (let row = 0; row < 4; row++) for (let i = 0; i <= row; i++) RACK.push({ x: W / 2 + (i - row / 2) * 13, y: 46 - row * 11 });
+for (let row = 0; row < 4; row++) for (let i = 0; i <= row; i++) RACK.push({ x: W / 2 + (i - row / 2) * 17, y: 60 - row * 14.7 });
 
 export function newTenpin(key = 'normal', rng = Math.random) {
   const diff = DIFFS[key] || DIFFS.normal;

@@ -157,7 +157,7 @@ export function TenpinScreen({ sub, onBack, onEnd, endLabel = t('common.continue
                 <span class="ah-body"><i class="ah-base"></i><span class="ah-fig" dangerouslySetInnerHTML=${{ __html: pieceSVG(p.type) }} /></span>
               </span>`)}
               <span class="tk-aim" ref=${aimRef}></span>
-              <span class="ah-puck cr-striker tp-ball" ref=${ballRef}><i></i></span>
+              <span class="ah-puck cr-striker tp-ball" ref=${ballRef}><b class="bm-tok"></b></span>
             </div>
           </div>
         </div>

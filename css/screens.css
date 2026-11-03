@@ -1297,7 +1297,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 /* Bolos: la pista del billar con canaletas y línea de tiro; los bolos son piezas que se tumban al caer. */
 .tp-gutter { position: absolute; top: 0; bottom: 0; z-index: 1; background: linear-gradient(90deg, oklch(0 0 0 / 0.35), oklch(0 0 0 / 0.15), oklch(0 0 0 / 0.35)); box-shadow: inset 0 0 0 1.5px oklch(0 0 0 / 0.3); pointer-events: none; }
 .tp-line { position: absolute; left: 0; right: 0; z-index: 1; height: 3px; background: var(--danger); opacity: 0.6; pointer-events: none; }
-.tp .tp-pin { width: calc(8.4 / 96 * 100%); z-index: 2; }
+.tp .tp-pin { z-index: 2; } /* del tamaño de las piezas del hockey: una casilla */
 .tp .tp-pin.down { opacity: 0.6; }
 .tp .tp-pin.gone { display: none; }
 .tp .tp-ball { width: calc(12 / 96 * 100%); z-index: 3; }
@@ -1325,20 +1325,14 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .cr-pocket { position: absolute; width: calc(20 / 160 * 100%); aspect-ratio: 1; translate: -50% -50%; clip-path: circle(50%); pointer-events: none;
   background: radial-gradient(circle at 50% 58%, oklch(0.2 0.03 55) 0 30%, oklch(0.08 0.02 55) 62%, var(--ink) 66%, color-mix(in oklch, var(--brass), var(--tile-side) 30%) 70% 88%, var(--ink) 92%); }
 .cr .cr-disc { width: calc(11.2 / 160 * 100%); z-index: 2; }
+/* Fichas, bolas y lanzador son la ficha de damas (.bm-tok) vista desde arriba: ocupa todo su círculo. */
+.ah-puck > .bm-tok { inset: 0; --cell: 5px; }
+.cr-striker > .bm-tok { --tk: var(--brass); --tk-2: color-mix(in oklch, var(--brass), var(--ink) 40%); }
 .cr .cr-striker { width: calc(14.8 / 160 * 100%); z-index: 3; }
-.cr-disc.me i { --tk: var(--side-light); --tk-2: color-mix(in oklch, var(--side-light), var(--ink) 38%); }
-.cr-disc.bot i { --tk: var(--side-dark); --tk-2: color-mix(in oklch, var(--side-dark), var(--ink) 38%); }
-.cr-disc.queen i { --tk: var(--accent); --tk-2: color-mix(in oklch, var(--accent), var(--ink) 38%); }
-/* Lo que se tira (lanzador, blanca, bola de bolos) lleva un aro del color de quien tira: así se distingue
-   de las fichas y se ve de un vistazo de quién es el turno. */
-.cr-striker i { --turn: var(--side-light); box-shadow: inset 0 0 0 2px var(--ink), 0 0 0 2px var(--ink), 0 0 0 5px var(--turn), 0 0 0 7px var(--ink), 0 6px 6px oklch(0 0 0 / 0.3); }
-.cr-striker.foe i { --turn: var(--side-dark); }
-[data-art="pixel"] .cr-striker i { box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 5px var(--turn), inset 0 0 0 7px var(--ink); }
-/* Billar y bolos: bolas de verdad (esfera con brillo), no fichas de damas. */
-:is(.pl .cr-disc, .pl-cue, .tp-ball) i { background: radial-gradient(circle at 34% 30%, oklch(1 0 0 / 0.85) 0 9%, var(--tk) 26% 62%, var(--tk-2) 100%); }
-.pl-cue i { --tk: oklch(0.97 0.01 90); --tk-2: oklch(0.78 0.02 80); }
-.tp-ball i { --tk: oklch(0.42 0.1 275); --tk-2: oklch(0.24 0.06 275); }
-[data-art="pixel"] :is(.pl .cr-disc, .pl-cue, .tp-ball) i { background: linear-gradient(var(--tk-2), var(--tk-2)) 70% 75% / 30% 25% no-repeat, linear-gradient(oklch(1 0 0 / 0.85), oklch(1 0 0 / 0.85)) 25% 25% / 22% 22% no-repeat, var(--tk); }
+.cr-disc.me .bm-tok { --tk: var(--side-light); --tk-2: color-mix(in oklch, var(--side-light), var(--ink) 38%); }
+.cr-disc.bot .bm-tok { --tk: var(--side-dark); --tk-2: color-mix(in oklch, var(--side-dark), var(--ink) 38%); }
+.cr-disc.queen .bm-tok { --tk: var(--accent); --tk-2: color-mix(in oklch, var(--accent), var(--ink) 38%); }
+.cr-striker.foe .bm-tok { --tk: color-mix(in oklch, var(--brass), var(--side-dark) 35%); }
 .cr-disc.gone { opacity: 0; }
 .cr.lost { filter: saturate(0.35) brightness(0.85); transition: filter 0.8s var(--ease-out); }
 .mini-stats .chip.on { outline: 2px solid var(--brass); outline-offset: 1px; }

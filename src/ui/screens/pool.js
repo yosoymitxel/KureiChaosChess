@@ -154,9 +154,9 @@ export function PoolScreen({ sub, onBack, onEnd, endLabel = t('common.continue',
               ${Array.from({ length: ROWS * COLS }, (_, i) => html`<i class=${'ah-cell ' + ((Math.floor(i / COLS) + i) % 2 ? 'b' : 'a')}></i>`)}
               ${corners}
               ${POCKETS.map((p) => html`<i class="cr-pocket" style=${`left:${pct(p.x, W)};top:${pct(p.y, H)}`}></i>`)}
-              ${s.balls.map((d) => html`<span class=${'ah-puck cr-disc ' + d.side} ref=${(el) => (ballRefs.current[d.id] = el)}><i></i></span>`)}
+              ${s.balls.map((d) => html`<span class=${'ah-puck cr-disc ' + d.side} ref=${(el) => (ballRefs.current[d.id] = el)}><b class="bm-tok"></b></span>`)}
               <span class="tk-aim" ref=${aimRef}></span>
-              <span class="ah-puck cr-striker pl-cue" ref=${cueRef}><i></i></span>
+              <span class="ah-puck cr-striker pl-cue" ref=${cueRef}><b class="bm-tok"></b></span>
             </div>
           </div>
         </div>

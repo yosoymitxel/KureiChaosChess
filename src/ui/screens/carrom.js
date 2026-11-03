@@ -172,9 +172,9 @@ export function CarromScreen({ sub, onBack, onEnd, endLabel = t('common.continue
                 <circle cx=${R} cy=${R} r=${R * 0.3} /><path class="me" d=${arcPath('me')} /><path class="bot" d=${arcPath('bot')} />
               </svg>
               ${POCKETS.map((p) => html`<i class="cr-pocket" style=${`left:${pct(p.x)};top:${pct(p.y)}`}></i>`)}
-              ${s.discs.map((d) => html`<span class=${'ah-puck cr-disc ' + d.side} ref=${(el) => (discRefs.current[d.id] = el)}><i></i></span>`)}
+              ${s.discs.map((d) => html`<span class=${'ah-puck cr-disc ' + d.side} ref=${(el) => (discRefs.current[d.id] = el)}><b class="bm-tok"></b></span>`)}
               <span class="tk-aim" ref=${aimRef}></span>
-              <span class="ah-puck cr-striker" ref=${strikerRef}><i></i></span>
+              <span class="ah-puck cr-striker" ref=${strikerRef}><b class="bm-tok"></b></span>
             </div>
           </div>
         </div>
