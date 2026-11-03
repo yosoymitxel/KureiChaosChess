@@ -1313,7 +1313,10 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .cr-lines { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: var(--ink); stroke-width: 1; opacity: 0.5; pointer-events: none; }
 .cr-lines .me { stroke: var(--side-light); stroke-width: 3; opacity: 1; }
 .cr-lines .bot { stroke: var(--side-dark); stroke-width: 3; opacity: 1; }
-.cr-pocket { position: absolute; width: calc(21 / 160 * 100%); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; background: var(--ink); box-shadow: inset 0 3px 0 oklch(0 0 0 / 0.6), 0 0 0 2px var(--tile-side); pointer-events: none; }
+/* Tronera: agujero hondo (más oscuro arriba, donde cae la sombra de la banda) con aro de latón. */
+.cr-pocket { position: absolute; width: calc(21 / 160 * 100%); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 50% 62%, oklch(0.22 0.03 55) 0 35%, oklch(0.1 0.02 55) 68%);
+  box-shadow: inset 0 4px 3px oklch(0 0 0 / 0.75), 0 0 0 2px var(--ink), 0 0 0 4px color-mix(in oklch, var(--brass), var(--tile-side) 35%), 0 0 0 5.5px var(--ink); }
 .cr .cr-disc { width: calc(11.2 / 160 * 100%); }
 .cr .cr-striker { width: calc(14.8 / 160 * 100%); z-index: 3; }
 .cr-disc.me i { --tk: var(--side-light); --tk-2: color-mix(in oklch, var(--side-light), var(--ink) 38%); }
@@ -1328,7 +1331,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 [data-art="pixel"] .cr { border: 0; box-shadow: none; }
 [data-art="pixel"] .ah-wrap:has(> .cr) { filter: drop-shadow(3px 0 0 var(--ink)) drop-shadow(-3px 0 0 var(--ink)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 -3px 0 var(--ink)) drop-shadow(0 6px 0 oklch(0 0 0 / 0.35)); }
 [data-art="pixel"] .cr { background: repeating-conic-gradient(var(--tile-a) 0 25%, var(--tile-b) 0 50%) 50% 50% / 25% 25%; }
-[data-art="pixel"] .cr-pocket { clip-path: polygon(30% 0, 70% 0, 70% 10%, 90% 10%, 90% 30%, 100% 30%, 100% 70%, 90% 70%, 90% 90%, 70% 90%, 70% 100%, 30% 100%, 30% 90%, 10% 90%, 10% 70%, 0 70%, 0 30%, 10% 30%, 10% 10%, 30% 10%); }
+[data-art="pixel"] .cr-pocket { background: radial-gradient(circle, oklch(0.12 0.02 55) 0 55%, var(--brass) 55% 70%, var(--ink) 70%); box-shadow: none; border-radius: 0; clip-path: polygon(30% 0, 70% 0, 70% 10%, 90% 10%, 90% 30%, 100% 30%, 100% 70%, 90% 70%, 90% 90%, 70% 90%, 70% 100%, 30% 100%, 30% 90%, 10% 90%, 10% 70%, 0 70%, 0 30%, 10% 30%, 10% 10%, 30% 10%); }
 /* Golf de mesa: la misma mesa del hockey con suelos (arena, hielo, hueco), el hoyo con banderín y la guía de tiro. */
 .gf { cursor: grab; border-radius: 14px; }
 /* Lo que asoma por encima de la fila de arriba (banderín, figuras) se ve: la mesa no recorta y son las

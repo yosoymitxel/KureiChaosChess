@@ -1,7 +1,7 @@
 // Papa caliente: las partidas terminan, quien apunta bien le gana al bot según el nivel y tirar al
 // azar no gana en normal y difícil. `node tools/hotbomb-selfcheck.mjs [--all]`.
 import { mulberry32 } from '../src/core/rng.js';
-import { newHotbomb, hurl, plan, step, holder, DIFFS, W, H } from '../src/game/hotbomb.js';
+import { newHotbomb, hurl, plan, step, holder, alive, DIFFS } from '../src/game/hotbomb.js';
 
 const fails = [], rows = [];
 const play = (level, seed, pick) => {
@@ -16,7 +16,7 @@ const play = (level, seed, pick) => {
   return s;
 };
 const aim = (s) => { const p = plan(s, 'me'); return [p.x, p.y, 0.08]; };
-const blind = (s, rng) => [rng() * W, rng() * H, 0.08];
+const blind = (s, rng) => { const p = alive(s)[Math.floor(rng() * alive(s).length)]; return [p.x, p.y, 0.08]; };
 const rate = (n, f) => { let w = 0; for (let k = 1; k <= n; k++) w += f(k).over === 'win' ? 1 : 0; return w / n; };
 
 const goal = { facil: [0.6, 1], normal: [0.3, 0.9], dificil: [0.1, 0.75] };

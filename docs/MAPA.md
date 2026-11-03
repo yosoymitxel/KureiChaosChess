@@ -477,27 +477,24 @@ src/game/horde.js:60 +auto
 src/game/horde.js:66 +pieces
 src/game/horde.js:67 +marks
 src/game/horde.js:68 +status
-## src/game/hotbomb.js (189L)
+## src/game/hotbomb.js (136L)
 src/game/hotbomb.js:10 +PC_R
-src/game/hotbomb.js:11 +FLY
-src/game/hotbomb.js:12 DECEL
-src/game/hotbomb.js:13 TYPES
-src/game/hotbomb.js:17 +DIFFS
-src/game/hotbomb.js:23 other
-src/game/hotbomb.js:24 dist
-src/game/hotbomb.js:25 +alive
+src/game/hotbomb.js:11 WALK
+src/game/hotbomb.js:12 TYPES
+src/game/hotbomb.js:16 +DIFFS
+src/game/hotbomb.js:22 other
+src/game/hotbomb.js:23 dist
+src/game/hotbomb.js:24 +alive
+src/game/hotbomb.js:25 +holder
 src/game/hotbomb.js:27 +newHotbomb
-src/game/hotbomb.js:47 arm
-src/game/hotbomb.js:56 give
-src/game/hotbomb.js:64 +holder
-src/game/hotbomb.js:67 +hurl
-src/game/hotbomb.js:83 +plan
-src/game/hotbomb.js:95 +step
-src/game/hotbomb.js:102 sub
-src/game/hotbomb.js:137 land
-src/game/hotbomb.js:149 boom
-src/game/hotbomb.js:171 physics
-src/game/hotbomb.js:184 judge
+src/game/hotbomb.js:39 slots
+src/game/hotbomb.js:45 arm
+src/game/hotbomb.js:54 give
+src/game/hotbomb.js:63 +hurl
+src/game/hotbomb.js:76 +plan
+src/game/hotbomb.js:86 +step
+src/game/hotbomb.js:93 sub
+src/game/hotbomb.js:123 boom
 ## src/game/izombie.js (98L)
 src/game/izombie.js:6 +ROWS
 src/game/izombie.js:9 +DIFFS
@@ -1141,9 +1138,8 @@ src/ui/screens/hockey.js:14 KEYS
 src/ui/screens/hockey.js:16 TOP_KEYS
 src/ui/screens/hockey.js:17 css
 src/ui/screens/hockey.js:20 +HockeyScreen
-## src/ui/screens/hotbomb.js (146L)
-src/ui/screens/hotbomb.js:13 pct
-src/ui/screens/hotbomb.js:16 +HotbombScreen
+## src/ui/screens/hotbomb.js (144L)
+src/ui/screens/hotbomb.js:15 +HotbombScreen
 ## src/ui/screens/izombie.js (59L)
 src/ui/screens/izombie.js:13 +IZombieScreen
 ## src/ui/screens/laststand.js (68L)
@@ -1492,7 +1488,7 @@ css/pixel.css:85 /* Sombra de la pieza y koi del estanque del tablero, sin degra
 css/pixel.css:87 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
 css/pixel.css:90 /* El ::before va fuera de :is(), que no admite pseudoelementos
 ## css/proto-diamond.css (83L)
-## css/screens.css (1627L)
+## css/screens.css (1630L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
 css/screens.css:12 /* Menu: asymmetric, the diorama is the focal point and the tit
@@ -1623,37 +1619,38 @@ css/screens.css:1284 /* Solo las mesas de física (hockey, golf, billar), mucho 
 css/screens.css:1291 /* Billar: la mesa del hockey con banda de madera ancha (como e
 css/screens.css:1296 /* Papa caliente: la mesa del billar redondo con piezas; la bom
 css/screens.css:1305 /* Billar redondo: mesa circular con casillas de tablero, cuatr
-css/screens.css:1326 /* Píxel: sin curvas en todo el juego; la mesa redonda es un cí
-css/screens.css:1332 /* Golf de mesa: la misma mesa del hockey con suelos (arena, hi
-css/screens.css:1334 /* Lo que asoma por encima de la fila de arriba (banderín, figu
-css/screens.css:1351 /* Banderín: mástil de tinta y gallardete bermellón, dibujado e
-css/screens.css:1366 /* Peón levantado mientras se arrastra, y la casilla a la que i
-css/screens.css:1370 /* La valla cae en su sitio con un golpe seco.
-css/screens.css:1383 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
-css/screens.css:1387 /* En pantallas bajas el tablero vale más que el chrome: menos 
-css/screens.css:1389 /* En el teléfono la compra se aprieta a una fila de ficha y pr
-css/screens.css:1395 /* Reloj de turno (minis cronometrados): barra que se vacía; en
-css/screens.css:1401 /* Estado de los minis sobre la losa: ficha de monedas y contad
-css/screens.css:1404 /* Contadores en fila: un punto por unidad; apagado queda lo ga
-css/screens.css:1408 /* La última oleada es la horda: su punto es un banderín bermel
-css/screens.css:1410 /* Carriles de lanzamiento: velo claro (--zone), distinto del v
-css/screens.css:1412 /* El número del carril en su esquina: es la tecla que lo lanza
-css/screens.css:1414 /* La bolera es apaisada: su escenario no reserva el alto pensa
-css/screens.css:1418 /* La línea roja del original: hasta ahí se lanza.
-css/screens.css:1420 /* La ficha que rueda va como elemento para que Motion la pueda
-css/screens.css:1421 /* La ficha es una pieza de damas vista en perspectiva: disco c
-css/screens.css:1431 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
-css/screens.css:1449 /* Avance de la oleada con el banderín de la horda al 70 %.
-css/screens.css:1456 /* La cinta: las fichas que vienen, la primera se lanza al toca
-css/screens.css:1468 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
-css/screens.css:1473 /* Selector de mecánicas de la run: favorita en latón, vetada t
-css/screens.css:1477 /* «Ver todo»: fichas de una línea; el estado lo dicen el color
-css/screens.css:1487 /* Mobile-first repair: keep the game surface visible instead o
-css/screens.css:1519 /* The animation lab must give its remaining viewport to the li
-css/screens.css:1562 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
-css/screens.css:1579 /* Copia de seguridad (Ajustes): el código se pega en un recuad
-css/screens.css:1592 /* Botones de Perfil y Copia: tres por fila, icono arriba, sin 
-css/screens.css:1603 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
-css/screens.css:1614 /* Reference APK renderer: a separate green/pixel signature, di
+css/screens.css:1316 /* Tronera: agujero hondo (más oscuro arriba, donde cae la somb
+css/screens.css:1329 /* Píxel: sin curvas en todo el juego; la mesa redonda es un cí
+css/screens.css:1335 /* Golf de mesa: la misma mesa del hockey con suelos (arena, hi
+css/screens.css:1337 /* Lo que asoma por encima de la fila de arriba (banderín, figu
+css/screens.css:1354 /* Banderín: mástil de tinta y gallardete bermellón, dibujado e
+css/screens.css:1369 /* Peón levantado mientras se arrastra, y la casilla a la que i
+css/screens.css:1373 /* La valla cae en su sitio con un golpe seco.
+css/screens.css:1386 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
+css/screens.css:1390 /* En pantallas bajas el tablero vale más que el chrome: menos 
+css/screens.css:1392 /* En el teléfono la compra se aprieta a una fila de ficha y pr
+css/screens.css:1398 /* Reloj de turno (minis cronometrados): barra que se vacía; en
+css/screens.css:1404 /* Estado de los minis sobre la losa: ficha de monedas y contad
+css/screens.css:1407 /* Contadores en fila: un punto por unidad; apagado queda lo ga
+css/screens.css:1411 /* La última oleada es la horda: su punto es un banderín bermel
+css/screens.css:1413 /* Carriles de lanzamiento: velo claro (--zone), distinto del v
+css/screens.css:1415 /* El número del carril en su esquina: es la tecla que lo lanza
+css/screens.css:1417 /* La bolera es apaisada: su escenario no reserva el alto pensa
+css/screens.css:1421 /* La línea roja del original: hasta ahí se lanza.
+css/screens.css:1423 /* La ficha que rueda va como elemento para que Motion la pueda
+css/screens.css:1424 /* La ficha es una pieza de damas vista en perspectiva: disco c
+css/screens.css:1434 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
+css/screens.css:1452 /* Avance de la oleada con el banderín de la horda al 70 %.
+css/screens.css:1459 /* La cinta: las fichas que vienen, la primera se lanza al toca
+css/screens.css:1471 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
+css/screens.css:1476 /* Selector de mecánicas de la run: favorita en latón, vetada t
+css/screens.css:1480 /* «Ver todo»: fichas de una línea; el estado lo dicen el color
+css/screens.css:1490 /* Mobile-first repair: keep the game surface visible instead o
+css/screens.css:1522 /* The animation lab must give its remaining viewport to the li
+css/screens.css:1565 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
+css/screens.css:1582 /* Copia de seguridad (Ajustes): el código se pega en un recuad
+css/screens.css:1595 /* Botones de Perfil y Copia: tres por fila, icono arriba, sin 
+css/screens.css:1606 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
+css/screens.css:1617 /* Reference APK renderer: a separate green/pixel signature, di
 ## css/tokens.css (51L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.

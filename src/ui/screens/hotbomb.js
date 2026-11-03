@@ -5,12 +5,11 @@ import { reduced } from '../hop.js';
 import { Fx } from '../../view/fx.js';
 import { playSfx } from '../sfx.js';
 import { pieceSVG } from '../../view/piece-art.js';
-import { W, H, POCKETS, BLAST, DIFFS, newHotbomb, hurl, step, holder, alive } from '../../game/hotbomb.js';
+import { W, H, BLAST, DIFFS, newHotbomb, hurl, step, holder, alive } from '../../game/hotbomb.js';
 import { MODIFIERS } from '../../data/modifiers.js';
 import { t } from '../../i18n/index.js';
 import { tableKit, toTable as tableAt, corners } from '../table-kit.js';
 
-const pct = (v, of) => (v / of) * 100 + '%';
 
 // Toca o arrastra hacia donde quieres lanzar la bomba y suelta: sale girando desde tu pieza que la tiene.
 export function HotbombScreen({ sub, onBack, onEnd, endLabel = t('common.continue', 'Continuar'), settings, setSettings, onRestart, diff }) {
@@ -54,11 +53,11 @@ export function HotbombScreen({ sub, onBack, onEnd, endLabel = t('common.continu
         else if (e.kind === 'land') playSfx('land', 0.7);
         else if (e.kind === 'arm') banner(e.side === 'me' ? t('hotbomb.yours', '¡La bomba es tuya!') : t('hotbomb.theirs', 'La bomba, para el bot'));
         else if (e.kind === 'boom') {
-          if (e.pocket) playSfx('boom'); else fx.explosion(p.x, p.y, 1.2);
+          fx.explosion(p.x, p.y, 1.2);
           if (!still) fx.ring(p.x, p.y, { radius: kit.k() * BLAST, color: '#ffcf6b', width: 4, life: 0.4 });
           shake(8);
           for (const id of e.dead) gone(id);
-        } else if (e.kind === 'pocket') { playSfx('pop'); gone(e.id); }
+        }
       }
     };
     const gone = (id) => {
@@ -118,10 +117,9 @@ export function HotbombScreen({ sub, onBack, onEnd, endLabel = t('common.continu
       <div class="mini-main">
         <div class="mini-stage">
           <div class="ah-wrap" ref=${wrapRef}>
-            <div class="cr hb" ref=${tableRef} role="application" aria-label=${t('hotbomb.aria', 'Mesa redonda: toca donde quieras lanzar la bomba')}
+            <div class="cr hb" ref=${tableRef} role="application" aria-label=${t('hotbomb.aria', 'Corro de piezas: toca a qué pieza lanzar la bomba')}
               onPointerDown=${down} onPointerMove=${move} onPointerUp=${up} onPointerCancel=${() => (aim.current.on = false)}>
               ${corners}
-              ${POCKETS.map((p) => html`<i class="cr-pocket" style=${`left:${pct(p.x, W)};top:${pct(p.y, H)}`}></i>`)}
               ${s.pcs.map((p) => html`<span class=${'ah-pc ' + (p.side === 'me' ? 'me side-light' : 'foe side-dark')} ref=${(el) => (pcRefs.current[p.id] = el)}>
                 <span class="ah-body"><i class="ah-base"></i><span class="ah-fig" dangerouslySetInnerHTML=${{ __html: pieceSVG(p.type) }} /></span>
               </span>`)}
@@ -137,7 +135,7 @@ export function HotbombScreen({ sub, onBack, onEnd, endLabel = t('common.continu
             <span class=${'chip' + (hud.fuse <= 2 ? ' warn' : '')}><${Icon} name="bomb" size=${14} />${s.diff.show ? hud.fuse + ' s' : '?'}</span>
           </div>`}
           ${over && html`<${MiniEnd} win=${over === 'win'} note=${over === 'win' ? t('hotbomb.won', 'El bot se quedó sin piezas.') : t('hotbomb.lost', 'Te quedaste sin piezas.')} label=${endLabel} onEnd=${() => onEnd(over === 'win')} />`}
-          <${MiniTools} mini="hotbomb" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('hotbomb.help', 'La bomba arde y la tiene una pieza. Cuando es tuya, toca o arrastra hasta donde quieras lanzarla y suelta: sale girando y la atrapa la pieza más cercana a donde cae; si no cae cerca de nadie, rueda hasta tocar una. Al acabarse la mecha estalla: se lleva a la pieza que la tiene y la onda empuja a las de alrededor, que pueden caer por las troneras. Gana quien deje al otro sin piezas. En difícil no se ve cuánto le queda.')}<//>
+          <${MiniTools} mini="hotbomb" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('hotbomb.help', 'Las piezas forman un corro y una tiene la bomba encendida. Cuando es tuya, toca o arrastra hasta la pieza a la que quieras lanzarla y suelta: sale girando y la atrapa la más cercana a donde cae, así que cuidado con las tuyas de al lado. Al acabarse la mecha estalla y se lleva a quien la tiene; el corro se cierra y la bomba pasa al otro bando. Gana quien deje al otro sin piezas. En difícil no se ve cuánto le queda.')}<//>
         </div>
       </div>
     </div>
