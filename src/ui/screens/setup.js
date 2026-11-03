@@ -1,12 +1,11 @@
 import { html, useState, useRef, useEffect } from '../lib.js';
 import { Icon } from '../icons.js';
-import { Topbar, useEnter, Toggle, ThemeLook, ConfirmButton } from '../components.js';
+import { Topbar, useEnter, Toggle, FilterMenu, ThemeLook, ConfirmButton } from '../components.js';
 import { loadSlots, switchSlot, clearSlot } from '../../game/slots.js';
 import { nodeModifier, MODIFIERS, BOARD_MECHANICS, FEATURED_MECHANICS, DUO_MECHANICS } from '../../data/modifiers.js';
 import { PREF_LIMITS, saveSettings } from '../../game/run.js';
 import { rivalForFloor, DIFFICULTIES } from '../../game/difficulty.js';
 import { THEMES, vfxOn } from '../../data/themes.js';
-import { FILTERS } from '../../data/filters.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
 import { exportSave, importSave, MAX_BACKUP_CODE_CHARS, decodeSave, localSaveData, summarizeSave, sameProgress } from '../../game/backup.js';
@@ -204,12 +203,6 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
             ${[[0.75, t('settings.speedSlow', 'Pausada')], [1, t('settings.speedNormal', 'Normal')], [1.6, t('settings.speedFast', 'Rápida')]].map(([v, label]) => html`<button class=${settings.speed === v ? 'on' : ''} aria-pressed=${settings.speed === v} onClick=${() => set('speed')(v)}>${label}</button>`)}
           </div>
         </div>
-        <div class="set-group">
-          <h2>${t('settings.filter', 'Filtro de pantalla')}</h2>
-          <div class="segmented" role="group" aria-label=${t('settings.filter', 'Filtro de pantalla')}>
-          ${FILTERS.map((f) => html`<button class=${(settings.filter || 'off') === f.id ? 'on' : ''} aria-pressed=${(settings.filter || 'off') === f.id} onClick=${() => set('filter')(f.id)}>${t('filter.' + f.id, f.name)}</button>`)}
-        </div>
-        </div>
         <div class="set-toggles">
           <${Toggle} on=${settings.moments} onChange=${set('moments')} label=${t('settings.moments', 'Momentos destacados')} hint=${t('settings.momentsHint', 'Rótulos y cinemáticas en jugadas clave (se saltan con un toque)')} />
           <${Toggle} on=${settings.shake} onChange=${set('shake')} label=${t('settings.shake', 'Temblor de cámara')} hint=${t('settings.shakeHint', 'Impactos y derrumbes sacuden la mesa')} />
@@ -217,6 +210,7 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
           ${canFullscreen && html`<${Toggle} on=${settings.fullscreen} onChange=${(v) => { set('fullscreen')(v); setFullscreen(v); }} label=${t('settings.fullscreen', 'Pantalla completa')} hint=${t('settings.fullscreenHint', 'Ahora y cada vez que empiece una partida')} />`}
         </div>
       </section>
+      <section class="panel setup-card" data-enter><${FilterMenu} value=${settings.filter} onChange=${set('filter')} /></section>
       <${Backup} />
     </div>
   </div>`;
@@ -359,7 +353,7 @@ function Cloud() {
     if (peek && !remote) { setMsg(t('cloud.newer', 'La nube tiene una partida de una versión más nueva del juego: actualiza antes de guardar.')); return true; }
     const differ = !!(remote && !sameProgress(localSaveData(), remote));
     setClash(differ ? { here: summarizeSave(localSaveData()), there: summarizeSave(remote), at: peek.at, code: peek.code } : null);
-    if (remote && !differ) cloudMarkSynced(peek.at);
+    if (remote && !differ) cloudMarkSynced(peek.at, peek.code);
     return differ ? true : peek ? 'same' : false;
   };
   useEffect(() => { if (user) run(check)(); }, [user]);
@@ -376,7 +370,7 @@ function Cloud() {
   // Se aplica la copia que se mostró, no una que haya podido subir otro aparato mientras tanto.
   const keepThere = run(async () => {
     if (!clash || !await importSave(clash.code)) return setMsg(t('backup.bad', 'Ese código no es una copia válida.'));
-    cloudMarkSynced(clash.at);
+    cloudMarkSynced(clash.at, clash.code);
     setMsg(t('backup.done', 'Partida restaurada.'));
     setTimeout(() => location.reload(), 600);
   });

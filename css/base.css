@@ -284,3 +284,5 @@ html[data-filter="cine"] body::after {
   background: radial-gradient(ellipse at center, transparent 50%, rgb(0 0 0 / .55));
   backdrop-filter: contrast(1.12) saturate(.85);
 }
+.filter-menu > summary { cursor: pointer; padding: .4rem 0; }
+.filter-menu[open] > summary { margin-bottom: .4rem; }

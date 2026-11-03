@@ -6,6 +6,7 @@ import { pieceSVG } from '../view/piece-art.js';
 import { Moments } from './moments.js';
 import { MODIFIERS } from '../data/modifiers.js';
 import { t } from '../i18n/index.js';
+import { FILTERS } from '../data/filters.js';
 
 // Muestra de una mesa sin texto: su mesa y sus dos casillas de fondo, y el rey dibujado con el
 // arte de esa mesa (píxel o vectorial) y el color de su bando claro. Tienda, ajustes y pausa.
@@ -242,6 +243,17 @@ export function TurnBanner({ text, side }) {
     return () => a.stop?.();
   }, [text]);
   return html`<div class=${'turn-banner side-' + side} ref=${ref}><span>${text}</span></div>`;
+}
+
+// Filtros de pantalla: opcionales, así que van plegados (Ajustes y Pausa).
+export function FilterMenu({ value = 'off', onChange }) {
+  const cur = FILTERS.find((f) => f.id === value) || FILTERS[0];
+  return html`<details class="filter-menu">
+    <summary>${t('settings.filter', 'Filtro de pantalla')}: <b>${t('filter.' + cur.id, cur.name)}</b></summary>
+    <div class="segmented" role="group" aria-label=${t('settings.filter', 'Filtro de pantalla')}>
+      ${FILTERS.map((f) => html`<button class=${value === f.id ? 'on' : ''} aria-pressed=${value === f.id} onClick=${() => onChange(f.id)}>${t('filter.' + f.id, f.name)}</button>`)}
+    </div>
+  </details>`;
 }
 
 export function Toggle({ on, onChange, label, hint }) {

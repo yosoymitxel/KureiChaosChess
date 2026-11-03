@@ -1,7 +1,7 @@
 // Partida en la nube (Supabase): cuenta con correo y una fila por jugador en game_saves (RLS: cada
 // uno solo ve la suya). Guarda el mismo código KCC de la copia local, así la validación es una sola.
 // Sin SDK: fetch a Auth y a la REST, para que funcione igual en la web y en el zip de itch.io.
-import { exportSave } from './backup.js';
+import { exportSave, decodeSave, importSave, localSaveData, sameProgress } from './backup.js';
 
 const URL_ = 'https://fxjhuodttsbcyncpkcxb.supabase.co';
 const KEY = 'sb_publishable_LWVoByppthU1ihW1LvqdNA_CfSA2chx';
@@ -14,7 +14,15 @@ const load = () => { try { return JSON.parse(localStorage.getItem(SESSION)); } c
 // el guardado automático puede subir sin pisar lo de otro aparato.
 const SYNCED = 'kurei.cloud.synced';
 const synced = () => { try { return localStorage.getItem(SYNCED) || null; } catch { return null; } };
-export const cloudMarkSynced = (at) => { try { at ? localStorage.setItem(SYNCED, at) : localStorage.removeItem(SYNCED); } catch {} return at; };
+// BASE: la copia de esa fecha, para saber si este aparato avanzó desde entonces.
+const BASE = 'kurei.cloud.base';
+export const cloudMarkSynced = (at, code) => {
+  try {
+    at ? localStorage.setItem(SYNCED, at) : localStorage.removeItem(SYNCED);
+    code && at ? localStorage.setItem(BASE, code) : !at && localStorage.removeItem(BASE);
+  } catch {}
+  return at;
+};
 const keep = (s) => { try { s ? localStorage.setItem(SESSION, JSON.stringify(s)) : localStorage.removeItem(SESSION); } catch {} return s; };
 
 async function call(path, { method = 'GET', body, token, prefer } = {}) {
@@ -59,7 +67,7 @@ export async function signOut() {
 let lastCode = null;
 // Por qué se paró el guardado automático: 'clash' (otro aparato subió antes) o 'auth' (sesión caducada).
 export let cloudStopped = null;
-const saved = (code, rows) => { lastCode = code; cloudStopped = null; return cloudMarkSynced(rows?.[0]?.updated_at || new Date().toISOString()); };
+const saved = (code, rows) => { lastCode = code; cloudStopped = null; return cloudMarkSynced(rows?.[0]?.updated_at || new Date().toISOString(), code); };
 
 export async function cloudUpload(code) {
   const s = await session();
@@ -97,6 +105,27 @@ export async function cloudPeek() {
   if (!s) throw new Error('auth');
   const rows = await call(`/rest/v1/game_saves?select=save_data,updated_at&user_id=eq.${s.id}`, { token: s.token });
   return rows[0]?.save_data?.code ? { code: rows[0].save_data.code, at: rows[0].updated_at } : null;
+}
+
+// Al abrir el juego o volver a la pestaña: si otro aparato subió algo nuevo y este no avanzó desde
+// su última copia, se trae solo y recarga. Si los dos avanzaron, se para y Ajustes pregunta.
+export async function cloudAutoPull() {
+  if (!load()) return false;
+  try {
+    const peek = await cloudPeek();
+    if (!peek || peek.at === synced()) return false;
+    const remote = await decodeSave(peek.code);
+    if (!remote) return false;
+    const local = localSaveData();
+    if (sameProgress(local, remote)) { cloudMarkSynced(peek.at, peek.code); return false; }
+    let base = null;
+    try { base = await decodeSave(localStorage.getItem(BASE)); } catch {}
+    if (!base || !sameProgress(local, base)) { cloudStopped = 'clash'; return false; }
+    if (!await importSave(peek.code)) return false;
+    cloudMarkSynced(peek.at, peek.code);
+    lastCode = null;
+    return true;
+  } catch (e) { if (e.status === 400 || e.status === 401 || e.message === 'auth') cloudStopped = 'auth'; return false; }
 }
 
 // Vuelta desde el enlace del correo: la sesión llega en el hash; se guarda y se limpia la URL.

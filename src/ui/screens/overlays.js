@@ -1,10 +1,9 @@
 import { html, useEffect } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
-import { ConfirmButton, BossCard, Toggle, ThemeLook } from '../components.js';
+import { ConfirmButton, BossCard, Toggle, FilterMenu, ThemeLook } from '../components.js';
 import { PIECE_RULES, PIECE_NAMES } from '../../data/pieces.js';
 import { BOSSES, BOSS_IDS } from '../../data/bosses.js';
 import { THEMES, vfxOn } from '../../data/themes.js';
-import { FILTERS } from '../../data/filters.js';
 import { loadBosses } from '../../game/run.js';
 import { themeOwned } from '../../game/shop.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
@@ -41,15 +40,13 @@ export function PauseOverlay({ onResume, onRestart, onExit, onMenu, onAbandon, o
         ${Object.values(THEMES).filter((th) => themeOwned(th.id)).map((th) => html`<button class=${'theme-pick' + (settings.theme === th.id ? ' on' : '')} title=${th.name} aria-label=${t('settings.table', 'Mesa') + ' ' + th.name} aria-pressed=${settings.theme === th.id}
           onClick=${() => setSettings((s) => ({ ...s, theme: th.id }))}><${ThemeLook} t=${th} /></button>`)}
       </div>
-      <div class="segmented" role="group" aria-label=${t('settings.filter', 'Filtro de pantalla')}>
-        ${FILTERS.map((f) => html`<button class=${(settings.filter || 'off') === f.id ? 'on' : ''} aria-pressed=${(settings.filter || 'off') === f.id} onClick=${() => set('filter')(f.id)}>${t('filter.' + f.id, f.name)}</button>`)}
-      </div>
       <div class="pause-toggles">
         <${Toggle} on=${settings.sound} onChange=${set('sound')} label=${t('settings.sound', 'Sonidos')} />
         <${Toggle} on=${settings.moments} onChange=${set('moments')} label=${t('settings.moments', 'Momentos destacados')} />
         <${Toggle} on=${settings.shake} onChange=${set('shake')} label=${t('settings.shake', 'Temblor de cámara')} />
         <${Toggle} on=${vfxOn(settings)} onChange=${set('fx')} label=${t('settings.vfx', 'Efectos extra (clima, auras…)')} />
       </div>
+      <${FilterMenu} value=${settings.filter} onChange=${set('filter')} />
       <div class="pause-grid">
         <button class="btn sm" onClick=${onHowTo}><${Icon} name="book" size=${16} />${t('pause.rules', 'Reglas')}</button>
         ${onRestart && html`<button class="btn sm" onClick=${onRestart}><${Icon} name="refresh" size=${16} />${t('common.restart', 'Reiniciar')}</button>`}
