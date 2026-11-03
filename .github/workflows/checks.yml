@@ -1,0 +1,21 @@
+name: Comprobaciones
+
+# Corre en paralelo la lista «Comprobar» de CLAUDE.md (la misma que se corre a mano antes de subir).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Comprobar
+        run: |
+          awk '/Comprobar:/,/Lentas:/' CLAUDE.md | grep -v 'Lentas:' | grep -o 'tools/[a-z0-9-]*\.mjs' > checks.txt
+          cat checks.txt | xargs -P 4 -I{} sh -c 'if node {} > "$(basename {}).log" 2>&1; then echo "ok {}"; else echo "FALLA {}"; cat "$(basename {}).log"; exit 255; fi'
