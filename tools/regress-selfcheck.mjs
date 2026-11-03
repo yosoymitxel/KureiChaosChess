@@ -2,7 +2,7 @@
 // cupos de mano, Coloso, vista previa de Escolta, ranuras y copias, y la maceta píxel estrecha.
 // `node tools/regress-selfcheck.mjs` → una línea si todo va bien; la lista de fallos y código 1 si no.
 import { readFileSync } from 'node:fs';
-import { inflateSync } from 'node:zlib';
+import { decodePNG } from './png.mjs';
 
 class MemoryStorage {
   values = new Map();
@@ -109,18 +109,9 @@ const cells = (p, pieces, b = board()) => new Set(legalMoves(p, pieces, b).map((
 
 // Maceta píxel: estrecha (la regeneraron ancha una vez). Se mide la tinta del PNG.
 {
-  const png = readFileSync(new URL('../assets/zen/pot.png', import.meta.url));
-  const w = png.readUInt32BE(16), h = png.readUInt32BE(20);
-  let idat = [], o = 8;
-  while (o < png.length) { const len = png.readUInt32BE(o), type = png.toString('ascii', o + 4, o + 8); if (type === 'IDAT') idat.push(png.subarray(o + 8, o + 8 + len)); o += 12 + len; }
-  const raw = inflateSync(Buffer.concat(idat)), stride = w * 4 + 1;
-  // Fila de la base (y = 18): solo se miran los alfas; con filtro 0 o sub basta contar bytes no nulos del canal alfa.
+  const { w, h, px } = decodePNG(readFileSync(new URL('../assets/zen/pot.png', import.meta.url)));
   let minX = w, maxX = -1;
-  for (let y = 0; y < h; y++) {
-    const f = raw[y * stride];
-    if (f !== 0) continue;
-    for (let x = 0; x < w; x++) if (raw[y * stride + 1 + x * 4 + 3]) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); }
-  }
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (px[(y * w + x) * 4 + 3]) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); }
   check(maxX < 0 || maxX - minX + 1 <= 20, `maceta píxel: demasiado ancha (${maxX - minX + 1} px)`);
 }
 

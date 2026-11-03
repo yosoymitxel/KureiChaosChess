@@ -55,7 +55,8 @@ const mf = buildScenario('minefield', 'dificil', 9);
 const m = matchOf(mf);
 const knight = mf.pieces[0];
 const mine = [...mf.board.mines].find((k) => m.legal(knight).some((t) => key(t.row, t.col) === k));
-if (mine) {
+assert.ok(mine, 'campo minado: el caballo debe tener una mina a su alcance para probarla');
+{
   const [r, c] = mine.split(',').map(Number);
   const res = m.move(knight, { row: r, col: c });
   assert.ok(res.mine && !m.pieces.length && mf.board.holes.has(mine), 'stepping on a mine removes the knight and leaves a hole');
