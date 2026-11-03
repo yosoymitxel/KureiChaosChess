@@ -6,6 +6,7 @@ import { nodeModifier, MODIFIERS, BOARD_MECHANICS, FEATURED_MECHANICS, DUO_MECHA
 import { PREF_LIMITS, saveSettings } from '../../game/run.js';
 import { rivalForFloor, DIFFICULTIES } from '../../game/difficulty.js';
 import { THEMES, vfxOn } from '../../data/themes.js';
+import { FILTERS } from '../../data/filters.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
 import { exportSave, importSave, MAX_BACKUP_CODE_CHARS, decodeSave, localSaveData, summarizeSave, sameProgress } from '../../game/backup.js';
@@ -202,6 +203,12 @@ export function SettingsScreen({ settings, setSettings, onBack }) {
           <div class="segmented" role="group" aria-label=${t('settings.speed', 'Velocidad de animación')}>
             ${[[0.75, t('settings.speedSlow', 'Pausada')], [1, t('settings.speedNormal', 'Normal')], [1.6, t('settings.speedFast', 'Rápida')]].map(([v, label]) => html`<button class=${settings.speed === v ? 'on' : ''} aria-pressed=${settings.speed === v} onClick=${() => set('speed')(v)}>${label}</button>`)}
           </div>
+        </div>
+        <div class="set-group">
+          <h2>${t('settings.filter', 'Filtro de pantalla')}</h2>
+          <div class="segmented" role="group" aria-label=${t('settings.filter', 'Filtro de pantalla')}>
+          ${FILTERS.map((f) => html`<button class=${(settings.filter || 'off') === f.id ? 'on' : ''} aria-pressed=${(settings.filter || 'off') === f.id} onClick=${() => set('filter')(f.id)}>${t('filter.' + f.id, f.name)}</button>`)}
+        </div>
         </div>
         <div class="set-toggles">
           <${Toggle} on=${settings.moments} onChange=${set('moments')} label=${t('settings.moments', 'Momentos destacados')} hint=${t('settings.momentsHint', 'Rótulos y cinemáticas en jugadas clave (se saltan con un toque)')} />

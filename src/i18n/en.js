@@ -57,6 +57,13 @@ export default {
     'settings.shakeHint': 'Impacts and collapses shake the table',
     'settings.vfx': 'Extra effects (weather, auras…)',
     'settings.vfxHint': 'Rain, snow, shields and trails over the board',
+    'settings.filter': 'Screen filter',
+    'filter.off': 'Original',
+    'filter.crt': 'CRT',
+    'filter.green': 'Phosphor',
+    'filter.amber': 'Amber',
+    'filter.gray': 'Grayscale',
+    'filter.cine': 'Cinema',
     'settings.fullscreen': 'Fullscreen',
     'settings.fullscreenHint': 'Now and every time a match starts',
     // Shared pieces of the interface

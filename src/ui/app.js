@@ -78,6 +78,7 @@ export function App() {
   // En el cuerpo, antes de montar: el diorama del menú construye su mesa en un efecto hijo
   // y necesita data-art (y las variables) ya puestos para pintar las piezas a píxel.
   applyTheme(settings.theme);
+  document.documentElement.dataset.filter = settings.filter || 'off';
   document.documentElement.dataset.camera = settings.camera || 'tilt'; // la cámara también inclina las mesas propias de los minis
   useEffect(() => { saveSettings(settings); }, [settings]);
   // Con cuenta, la nube se pone al día sola al cambiar de pantalla y al dejar la pestaña.

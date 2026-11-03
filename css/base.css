@@ -261,3 +261,26 @@ h2 { font-size: 17px; font-weight: 750; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* Filtros de pantalla (src/data/filters.js): capa encima de todo, sin capturar toques. */
+html[data-filter]:not([data-filter="off"]) body::after {
+  content: ""; position: fixed; inset: 0; z-index: 2147483647; pointer-events: none;
+}
+html[data-filter="crt"] body::after {
+  background: repeating-linear-gradient(0deg, rgb(0 0 0 / .18) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 60%, rgb(0 0 0 / .45));
+  backdrop-filter: contrast(1.08) saturate(1.2);
+}
+html[data-filter="green"] body::after {
+  background: repeating-linear-gradient(0deg, rgb(0 0 0 / .2) 0 1px, transparent 1px 3px);
+  backdrop-filter: grayscale(1) sepia(1) hue-rotate(60deg) saturate(2.6);
+}
+html[data-filter="amber"] body::after {
+  background: repeating-linear-gradient(0deg, rgb(0 0 0 / .2) 0 1px, transparent 1px 3px);
+  backdrop-filter: grayscale(1) sepia(1) hue-rotate(-12deg) saturate(2.4);
+}
+html[data-filter="gray"] body::after { backdrop-filter: grayscale(1) contrast(1.05); }
+html[data-filter="cine"] body::after {
+  background: radial-gradient(ellipse at center, transparent 50%, rgb(0 0 0 / .55));
+  backdrop-filter: contrast(1.12) saturate(.85);
+}

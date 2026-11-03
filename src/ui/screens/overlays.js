@@ -4,6 +4,7 @@ import { ConfirmButton, BossCard, Toggle, ThemeLook } from '../components.js';
 import { PIECE_RULES, PIECE_NAMES } from '../../data/pieces.js';
 import { BOSSES, BOSS_IDS } from '../../data/bosses.js';
 import { THEMES, vfxOn } from '../../data/themes.js';
+import { FILTERS } from '../../data/filters.js';
 import { loadBosses } from '../../game/run.js';
 import { themeOwned } from '../../game/shop.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
@@ -39,6 +40,9 @@ export function PauseOverlay({ onResume, onRestart, onExit, onMenu, onAbandon, o
       <div class="theme-strip" role="group" aria-label=${t('settings.table', 'Mesa')}>
         ${Object.values(THEMES).filter((th) => themeOwned(th.id)).map((th) => html`<button class=${'theme-pick' + (settings.theme === th.id ? ' on' : '')} title=${th.name} aria-label=${t('settings.table', 'Mesa') + ' ' + th.name} aria-pressed=${settings.theme === th.id}
           onClick=${() => setSettings((s) => ({ ...s, theme: th.id }))}><${ThemeLook} t=${th} /></button>`)}
+      </div>
+      <div class="segmented" role="group" aria-label=${t('settings.filter', 'Filtro de pantalla')}>
+        ${FILTERS.map((f) => html`<button class=${(settings.filter || 'off') === f.id ? 'on' : ''} aria-pressed=${(settings.filter || 'off') === f.id} onClick=${() => set('filter')(f.id)}>${t('filter.' + f.id, f.name)}</button>`)}
       </div>
       <div class="pause-toggles">
         <${Toggle} on=${settings.sound} onChange=${set('sound')} label=${t('settings.sound', 'Sonidos')} />
