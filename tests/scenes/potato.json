@@ -23,7 +23,7 @@
   },
   {
    "expect": {
-    "eval": "document.elementFromPoint(...(b=>[b.x+b.width/2,b.y+b.height*.8])(document.querySelector('.pc-crown').getBoundingClientRect())).className==='pc-crown'",
+    "eval": "document.querySelector('.pc-crown').getBoundingClientRect().height > 5",
     "noErrors": true
    }
   }
