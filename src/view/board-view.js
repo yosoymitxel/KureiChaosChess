@@ -74,6 +74,7 @@ export class BoardView {
   // `pond`: el hueco del centro se llena de agua con koi (solo en el tablero de la run).
   constructor(host, { camera = 'tilt', shake = true, vfx = false, speed = 1, framed = false, pond = false, onTap, onDrop, canDrag, onImpact, onHover, onZoom } = {}) {
     Object.assign(this, { host, onTap, onDrop, canDrag, onImpact, onHover, onZoom, shakeOn: shake, speed, pondOn: pond });
+    BoardView.last = this; // el banco de pruebas (tests/visual*.js) le pone clima desde fuera
     this.tilt = CAMERAS[camera] ?? 40;
     this.zoom = 1; this.pan = { x: 0, y: 0 };
     host.classList.add('table');
@@ -134,6 +135,7 @@ export class BoardView {
   setWeather(kind) {
     this.weather = kind;
     // Los nenúfares del clima Estanque flotan por fuera de este tablero.
+    if (kind === 'pond') WEATHER_FX.pond.squash = () => Math.max(0.3, Math.cos((this.tilt * Math.PI) / 180));
     if (kind === 'pond') WEATHER_FX.pond.avoid = () => { const a = this.tilesEl.getBoundingClientRect(), c = this.fx.canvas.getBoundingClientRect(); return { x: a.left - c.left, y: a.top - c.top, w: a.width, h: a.height }; };
     this.fx.setWeather(kind);
     // La pantalla lleva el clima para la capa de textura sobre su fondo (css/base.css).

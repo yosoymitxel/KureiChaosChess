@@ -1,5 +1,6 @@
 import { html, render } from '../src/ui/lib.js';
 import { applyTheme, THEMES } from '../src/data/themes.js';
+import { BoardView } from '../src/view/board-view.js';
 import { GameScreen } from '../src/ui/screens/game.js';
 import { MODIFIERS } from '../src/data/modifiers.js';
 
@@ -40,3 +41,12 @@ render(html`<${GameScreen}
   onRestart=${() => location.reload()} onHowTo=${noop} onUseCard=${noop}
 />`, document.getElementById('root'));
 document.documentElement.dataset.visualQa = 'board:' + variant;
+
+// Filtro de pantalla y clima del banco de pruebas (lab-preview.html): el clima se pone a cada tablero
+// que se monte, porque los minijuegos rehacen el suyo.
+document.documentElement.dataset.filter = params.get('filter') || 'off';
+const weather = params.get('weather');
+if (weather) {
+  let seen = null;
+  setInterval(() => { const v = BoardView.last; if (v && v !== seen && v.host.isConnected) { seen = v; v.setVfx(true); v.setWeather(weather); } }, 400);
+}

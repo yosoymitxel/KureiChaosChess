@@ -35,6 +35,10 @@ const MINIS = [
 ];
 
 const themeSelect = document.getElementById('theme');
+const filterSelect = document.getElementById('filter');
+const weatherSelect = document.getElementById('weather');
+fillSelect(filterSelect, (await import('./data/filters.js')).FILTERS.map((f) => [f.id, f.name]));
+fillSelect(weatherSelect, [['', 'Sin clima'], ...Object.values((await import('./data/weather.js')).WEATHER).map((w) => [w.id, w.name])]);
 const miniSelect = document.getElementById('mini');
 const difficulty = document.getElementById('difficulty');
 const frame = document.getElementById('preview');
@@ -63,7 +67,8 @@ function updatePreview() {
   const isProto = selected.startsWith('proto:');
   difficulty.disabled = isApk;
   if (isApk) difficulty.value = 'normal';
-  const params = new URLSearchParams({ theme: themeSelect.value, diff: isApk ? 'normal' : difficulty.value });
+  const params = new URLSearchParams({ theme: themeSelect.value, diff: isApk ? 'normal' : difficulty.value, filter: filterSelect.value });
+  if (weatherSelect.value) params.set('weather', weatherSelect.value);
   if (isProto) {
     params.set('proto', selected.slice(6));
     frame.src = 'tests/proto-diamond.html?' + params.toString();
@@ -81,4 +86,6 @@ function updatePreview() {
 themeSelect.addEventListener('change', updatePreview);
 miniSelect.addEventListener('change', updatePreview);
 difficulty.addEventListener('change', updatePreview);
+filterSelect.addEventListener('change', updatePreview);
+weatherSelect.addEventListener('change', updatePreview);
 updatePreview();

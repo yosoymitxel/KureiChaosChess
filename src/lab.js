@@ -484,58 +484,7 @@ const APK_FX = {
 
 };
 
-// Lo nuestro para comparar con el APK (lo que no tenía escena propia).
-const kings = () => [makePiece('king', 'light', 6, 6), makePiece('king', 'dark', 0, 0)];
-const at = (v, r, c) => v.fx.pointOf(v.tiles.get(key(r, c)));
-const CROSS = [[3, 3], [2, 3], [4, 3], [3, 2], [3, 4]];
-const KUREI = {
-  'Kure\'i · Meteorito': () => ({ b: board(), pieces: kings(), after: async (v) => { v.setDoom(CROSS); await new Promise((r) => setTimeout(r, 1200)); v.setDoom(); await v.meteor(CROSS); } }),
-  'Kure\'i · Zona marcada': () => ({ b: board(), pieces: kings(), after: (v) => v.setDoom(CROSS) }),
-  'Kure\'i · Sacudida': () => ({ b: board(), pieces: kings(), after: (v) => v.shake(18, 520) }),
-  'Kure\'i · Ráfaga': () => ({ b: board(), pieces: kings(), after: (v) => { const p = at(v, 3, 3); v.fx.burst(p.x, p.y, { count: 30, color: ['#ffcf6b', '#fff'] }); } }),
-  'Kure\'i · Onda': () => ({ b: board(), pieces: kings(), after: (v) => { const p = at(v, 3, 3); v.fx.ring(p.x, p.y, { radius: v.sq * 1.6, width: 5 }); v.fx.dust(p.x, p.y, 1.2); v.shake(10, 300); } }),
-  'Kure\'i · Rayo': () => ({ b: board(), pieces: kings(), after: (v) => { const a = at(v, 5, 3), b = at(v, 1, 3); v.fx.beam(a.x, a.y, b.x, b.y, { color: '#c58bff', width: 7 }); } }),
-  'Kure\'i · Portal': () => {
-    const p = makePiece('knight', 'light', 5, 1);
-    return { b: board(), pieces: [p, ...kings()], after: (v) => v.warp(p, { from: { row: 5, col: 1 }, to: { row: 2, col: 4 } }) };
-  },
-  'Kure\'i · Golpe y daño': () => {
-    const p = makePiece('rook', 'dark', 3, 3, { hp: 2, maxHp: 2 });
-    return { b: board(), pieces: [p, ...kings()], after: (v) => { v.hurt(p); const c = at(v, 3, 3); v.floatText(c.x, c.y - v.sq * 0.6, '-1'); } };
-  },
-  'Kure\'i · Texto flotante': () => ({ b: board(), pieces: kings(), after: (v) => { const c = at(v, 3, 3); v.floatText(c.x, c.y, '¡Jaque!'); } }),
-  'Kure\'i · Aparición': () => ({ b: board(), pieces: kings(), after: (v) => v.dropIn(makePiece('pawn', 'light', 3, 3)) }),
-  'Kure\'i · Zombi que se levanta': () => ({ b: board(), pieces: kings(), after: (v) => v.rise(makePiece('pawn', 'light', 3, 3, { zombie: true })) }),
-};
 
-// Pares APK ↔ Kure'i para elegir qué se queda (la elección se guarda en este navegador).
-const COMPARE = [
-  ['Escudo', 'APK · Escudo energético', 'Escudo: golpe al jefe'],
-  ['Escudo roto', 'APK · Escudo roto', 'Escudo: se rompe'],
-  ['Meteorito', 'APK · Lluvia de meteoritos (aviso e impacto)', 'Kure\'i · Meteorito'],
-  ['Zona de ataque', 'APK · Zona de ataque telegrafiada (mxZone)', 'Kure\'i · Zona marcada'],
-  ['Bomba', 'APK · Explosión de bomba (área 3×3)', 'Explosión: mina'],
-  ['Sacudida', 'APK · Sacudida de impacto', 'Kure\'i · Sacudida'],
-  ['Victoria', 'APK · Pantalla de victoria (confeti)', 'Victoria'],
-  ['Ráfaga', 'APK · Ráfaga de partículas', 'Kure\'i · Ráfaga'],
-  ['Onda', 'APK · Impacto por bloques (onda)', 'Kure\'i · Onda'],
-  ['Rayo', 'APK · Rayo mágico (haz)', 'Kure\'i · Rayo'],
-  ['Teletransporte', 'APK · Teletransporte (vórtice cian/violeta)', 'Kure\'i · Portal'],
-  ['Zombi', 'APK · Transformación zombi (INFECTED!)', "Kure'i: Plaga zombi (efecto actual)"],
-  ['Contagio', 'APK · Desintegración infecciosa (die: infect)', 'Veneno: contagio'],
-  ['Invocación zombi', 'APK · Invocación zombi (spawn: zombie)', 'Kure\'i · Zombi que se levanta'],
-  ['Caída', 'APK · Caída y desaparición de pieza', 'Derrumbe'],
-  ['Captura', 'APK · Captura con corte (die: capture)', 'Salto de caballo'],
-  ['Daño', 'APK · Golpe y daño de pieza', 'Kure\'i · Golpe y daño'],
-  ['Texto flotante', 'APK · Texto flotante (text)', 'Kure\'i · Texto flotante'],
-  ['Estela', 'APK · Estela pixelada (movimiento)', 'Dash: Paso doble'],
-  ['Aparición', 'APK · Aparición de pieza (ráfaga pixelada)', 'Kure\'i · Aparición'],
-  ['Coronación', 'APK · Coronación (transform: promote)', 'Coronación'],
-  ['Entrada de tablero', 'APK · Entrada de tablero (losas y piezas pixeladas)', 'Piezas'],
-  ['Banner', 'APK · Banner de evento (banner)', 'Momento: piso'],
-  ['Jefe entra', 'APK · Entrada cinematográfica de jefe (mxBossCut)', 'Momento: jefe'],
-  ['Jefe cae', 'APK · Derrota cinematográfica de jefe (mxBossCut)', 'Momento: jefe derribado'],
-];
 
 async function moveAPKLabPiece(v, piece, to, duration) {
   const st = v.state.get(piece);
@@ -589,7 +538,7 @@ async function slideAPKLabPiece(v, piece, to, duration=420) {
 async function run(name) {
   clearAPKEffects(stage);
   view?.destroy();
-  const s = (SCENES[name] || FX[name] || APK_FX[name] || KUREI[name])();
+  const s = (SCENES[name] || FX[name] || APK_FX[name])();
   stage.classList.toggle('apk-ref-mode', Boolean(s.apkPlay));
   view = new BoardView(document.getElementById('board'), { camera, vfx: !s.apkPlay, shake: !s.apkPlay, pond: !!s.pond });
   view.setBoard(s.b);
@@ -626,7 +575,7 @@ let current = null;
 const play2 = (name) => {
   current = name;
   // El selector del prototipo deja visible cuál escena está activa.
-  for (const button of document.querySelectorAll('#apk-scenes button, #compare button')) {
+  for (const button of document.querySelectorAll('#apk-scenes button')) {
     button.setAttribute('aria-pressed', String(button.dataset.scene === name));
   }
   return play(name);
@@ -648,32 +597,6 @@ for (const name of Object.keys(APK_FX)) {
   b.onclick = () => play2(name);
   document.getElementById('apk-scenes').appendChild(b);
 }
-const KEEP = 'zugzwang.lab.keep';
-const keep = (() => { try { return JSON.parse(localStorage.getItem(KEEP)) || {}; } catch { return {}; } })();
-const pairs = document.getElementById('compare');
-for (const [label, apk, ours] of COMPARE) {
-  const row = document.createElement('div');
-  row.className = 'lab-pair';
-  const title = document.createElement('b'); title.textContent = label;
-  const pick = document.createElement('div'); pick.className = 'segmented';
-  for (const [id, text, scene] of [['apk', 'APK', apk], ['kurei', "Kure'i", ours]]) {
-    const b = document.createElement('button');
-    b.textContent = '▶ ' + text; b.dataset.scene = scene; b.onclick = () => play2(scene);
-    pick.appendChild(b);
-  }
-  const mark = document.createElement('select');
-  mark.setAttribute('aria-label', 'Me quedo con ' + label);
-  for (const [v, t] of [['', 'Sin decidir'], ['apk', 'APK'], ['kurei', "Kure'i"], ['ambos', 'Los dos']]) mark.add(new Option(t, v));
-  mark.value = keep[label] || '';
-  mark.onchange = () => { keep[label] = mark.value; try { localStorage.setItem(KEEP, JSON.stringify(keep)); } catch {} };
-  row.append(title, pick, mark);
-  pairs.appendChild(row);
-}
-document.getElementById('copy-keep').onclick = async (e) => {
-  const names = { apk: 'APK', kurei: "Kure'i", ambos: 'los dos' };
-  const text = COMPARE.map(([l]) => `${l}: ${names[keep[l]] || 'sin decidir'}`).join('\n');
-  try { await navigator.clipboard.writeText(text); e.target.textContent = 'Copiado'; } catch { prompt('Copia la lista', text); }
-};
 // Mesa normal o píxel: los efectos se ven distinto en cada una.
 const arts = document.getElementById('arts');
 for (const [id, label] of [['walnut', 'Normal'], ['pixelada', 'Píxel'], ['paraguay', 'Ñandutí'], ['crisis', 'Crisis']]) {

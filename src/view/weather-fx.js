@@ -324,6 +324,7 @@ function padSprite(r, pixel, lotus) {
 const offBoard = (x, y, m) => { const a = pond.avoid?.(); return !a || x < a.x - m || x > a.x + a.w + m || y < a.y - m || y > a.y + a.h + m; };
 const pond = {
   avoid: null,
+  squash: () => 0.6, // cuánto se aplasta en vertical el plano de la mesa (coseno de la cámara); lo pone BoardView
   count: (w, h) => ({ drop: w * h * 0.00009, pad: Math.min(10, w * h * 0.00004) }),
   spawn(kind, w, h, any) {
     if (kind === 'pad') {
@@ -348,10 +349,11 @@ const pond = {
       const img = padSprite(Math.round(p.r), pixel, p.lotus), s = pixel ? G : 0.5, bob = 1 + Math.sin(T + p.seed) * 0.02;
       ctx.imageSmoothingEnabled = !pixel;
       const x = pixel ? Math.round(p.x / G) * G : p.x, y = pixel ? Math.round(p.y / G) * G : p.y;
+      const k = pond.squash(), iw = img.width * s * bob, ih = img.height * s * bob * k;
       ctx.globalAlpha = 0.25; ctx.fillStyle = '#0b1a22';
-      ctx.beginPath(); ctx.ellipse(x + p.r * 0.2, y + p.r * 0.3, p.r, p.r, 0, 0, TAU); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(x + p.r * 0.2, y + p.r * 0.3 * k, p.r, p.r * k, 0, 0, TAU); ctx.fill();
       ctx.globalAlpha = 1;
-      return ctx.drawImage(img, x - (img.width * s * bob) / 2, y - (img.height * s * bob) / 2, img.width * s * bob, img.height * s * bob);
+      return ctx.drawImage(img, x - iw / 2, y - ih / 2, iw, pixel ? Math.round(ih / G) * G : ih);
     }
     if (!p.hit) {
       ctx.fillStyle = DRIP.drop; ctx.globalAlpha = 0.55;
@@ -360,7 +362,7 @@ const pond = {
     for (const lag of [0, 0.25]) {
       const k = (p.hit - lag) / 0.95;
       if (k <= 0 || k >= 1) continue;
-      const rx = (2 + k * 16) * p.big, ry = rx * 0.42;
+      const rx = (2 + k * 16) * p.big, ry = rx * pond.squash();
       ctx.globalAlpha = (1 - k) * (lag ? 0.35 : 0.6);
       if (pixel) {
         ctx.fillStyle = DRIP.ring;

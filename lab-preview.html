@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#2a2118">
-  <title>Zugzwang · Banco de pruebas</title>
+  <title>Kure'iChaosChess · Banco de pruebas</title>
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/board.css">
@@ -110,8 +110,17 @@
             <select id="difficulty"><option value="facil">Fácil</option><option value="normal" selected>Normal</option><option value="dificil">Difícil</option></select>
           </label>
         </section>
+        <section class="catalog-section">
+          <h2>3. Adicionales</h2>
+          <label class="catalog-field" for="filter">Filtro de pantalla
+            <select id="filter"><option value="off">Original</option></select>
+          </label>
+          <label class="catalog-field" for="weather">Clima (en los tableros)
+            <select id="weather"><option value="">Sin clima</option></select>
+          </label>
+        </section>
         <section class="catalog-section board-section">
-          <h2>3. Tablero completo</h2>
+          <h2>4. Tablero completo</h2>
           <a class="catalog-board-link panel" href="lab.html">
             <strong>Abrir laboratorio de tablero ↗</strong>
             <span>Vista separada para probar el tablero completo, las escenas y la cámara sin mezclarlo con los selectores.</span>
@@ -119,7 +128,7 @@
         </section>
       </aside>
       <section class="catalog-stage" aria-label="Vista previa interactiva">
-        <iframe id="preview" title="Vista previa del minijuego" src="tests/visual.html?mini=caceria&theme=walnut&diff=normal"></iframe>
+        <iframe id="preview" title="Vista previa del minijuego" src="tests/visual.html?mini=caceria&theme=paraguay&diff=normal"></iframe>
       </section>
     </div>
     <p class="catalog-note">La vista previa usa las pantallas reales del juego. Las compras y el progreso no se guardan aquí.</p>

@@ -1,5 +1,6 @@
 import { html, render, useState } from '../src/ui/lib.js';
 import { applyTheme, THEMES } from '../src/data/themes.js';
+import { BoardView } from '../src/view/board-view.js';
 import { MINIGAMES } from '../src/data/minigame-catalog.js';
 const params = new URLSearchParams(location.search);
 const id = params.get('mini') || 'caceria';
@@ -37,3 +38,12 @@ function Bench() {
 }
 render(html`<${Bench} />`, document.getElementById('root'));
 document.documentElement.dataset.visualQa = id;
+
+// Filtro de pantalla y clima del banco de pruebas (lab-preview.html): el clima se pone a cada tablero
+// que se monte, porque los minijuegos rehacen el suyo.
+document.documentElement.dataset.filter = params.get('filter') || 'off';
+const weather = params.get('weather');
+if (weather) {
+  let seen = null;
+  setInterval(() => { const v = BoardView.last; if (v && v !== seen && v.host.isConnected) { seen = v; v.setVfx(true); v.setWeather(weather); } }, 400);
+}
