@@ -161,6 +161,7 @@ export class Fx {
   // niebla y brasas. Se emite en cada cuadro mientras `weather` esté puesto; null lo apaga.
   setWeather(kind) {
     if (!this.vfx || matchMedia('(prefers-reduced-motion: reduce)').matches) kind = null;
+    this.parts = this.parts.filter((p) => !p.wk); // las del clima anterior no se quedan mezcladas
     this.weather = kind ? { kind, acc: 0, W: WEATHER_FX[kind], n: {} } : null;
     if (kind) this.kick();
   }

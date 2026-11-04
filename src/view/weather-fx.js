@@ -3,6 +3,8 @@
 // distinta velocidad, brasas (chispas, rescoldos y ceniza sobre un fondo de calor) y luciérnagas que
 // vagan y parpadean. Cada tipo dice cuántas partículas quiere vivas, cómo nace una (`any`: en
 // cualquier punto, para arrancar lleno), cómo se mueve (`tick`) y cómo se pinta en vector o en píxel.
+import { drawPad, drawLotus } from './pond.js';
+
 const G = 3; // la rejilla de las mesas píxel (la misma de Fx.block)
 const TAU = Math.PI * 2;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -297,4 +299,78 @@ const bubbles = {
   },
 };
 
-export const WEATHER_FX = { snow, fog, embers, fireflies, leaves, bubbles };
+// ── Estanque ─────────────────────────────────────────────────────────────────────────────
+// La mesa se vuelve agua (el tinte va en css/base.css): nenúfares que derivan por fuera del
+// tablero y gotas que, al tocar el agua, abren dos aros aplastados que crecen y se apagan.
+// `avoid()` lo pone BoardView: el rectángulo del tablero, para que las hojas no lo tapen.
+const DRIP = { drop: '#cfe6ff', ring: '#e6f6ff' };
+const padSprites = {};
+function padSprite(r, pixel, lotus) {
+  const key = r + (pixel ? 'p' : 'v') + (lotus ? 'l' : '');
+  if (padSprites[key]) return padSprites[key];
+  const k = pixel ? 1 / G : 2, c = document.createElement('canvas'), n = Math.ceil(r * 2.2 * k);
+  c.width = c.height = n;
+  const ctx = c.getContext('2d');
+  ctx.scale(k, k);
+  drawPad(ctx, n / k / 2, n / k / 2, r, -0.4);
+  if (lotus) drawLotus(ctx, n / k / 2 - r * 0.1, n / k / 2 - r * 0.15, r * 0.62);
+  if (pixel) { // opaco o nada: borde limpio
+    const img = ctx.getImageData(0, 0, n, n);
+    for (let i = 3; i < img.data.length; i += 4) img.data[i] = img.data[i] < 110 ? 0 : 255;
+    ctx.putImageData(img, 0, 0);
+  }
+  return (padSprites[key] = c);
+}
+const offBoard = (x, y, m) => { const a = pond.avoid?.(); return !a || x < a.x - m || x > a.x + a.w + m || y < a.y - m || y > a.y + a.h + m; };
+const pond = {
+  avoid: null,
+  count: (w, h) => ({ drop: w * h * 0.00009, pad: Math.min(10, w * h * 0.00004) }),
+  spawn(kind, w, h, any) {
+    if (kind === 'pad') {
+      const r = rnd(9, 17);
+      for (let i = 0; i < 30; i++) { const x = rnd(0, w), y = rnd(0, h); if (offBoard(x, y, r)) return { x, y, vx: 0, vy: 0, r, seed: rnd(0, 99), lotus: Math.random() < 0.25 }; }
+      return { x: rnd(0, w), y: h + 40, vx: 0, vy: 0, r, seed: 0, gone: true };
+    }
+    const ty = rnd(h * 0.05, h * 0.98);
+    return { x: rnd(0, w), y: any ? rnd(-20, ty) : ty - rnd(40, 160), vx: 0, vy: 0, ty, hit: 0, big: rnd(0.8, 1.3) };
+  },
+  tick(p, dt, T, w, h) {
+    if (p.r) { // nenúfar: deriva lenta; si el tablero lo alcanza (se movió la cámara), se va y nace otro
+      p.x += Math.sin(T * 0.2 + p.seed) * 3 * dt; p.y += Math.cos(T * 0.15 + p.seed) * 2 * dt;
+      return !p.gone && offBoard(p.x, p.y, p.r * 0.6) && p.x > -p.r && p.x < w + p.r && p.y > -p.r && p.y < h + p.r;
+    }
+    if (!p.hit) { p.y += 280 * dt; if (p.y >= p.ty) { p.y = p.ty; p.hit = 0.001; } return true; }
+    p.hit += dt;
+    return p.hit < 1.2;
+  },
+  draw(ctx, p, T, pixel) {
+    if (p.r) {
+      const img = padSprite(Math.round(p.r), pixel, p.lotus), s = pixel ? G : 0.5, bob = 1 + Math.sin(T + p.seed) * 0.02;
+      ctx.imageSmoothingEnabled = !pixel;
+      const x = pixel ? Math.round(p.x / G) * G : p.x, y = pixel ? Math.round(p.y / G) * G : p.y;
+      ctx.globalAlpha = 0.25; ctx.fillStyle = '#0b1a22';
+      ctx.beginPath(); ctx.ellipse(x + p.r * 0.2, y + p.r * 0.3, p.r, p.r, 0, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 1;
+      return ctx.drawImage(img, x - (img.width * s * bob) / 2, y - (img.height * s * bob) / 2, img.width * s * bob, img.height * s * bob);
+    }
+    if (!p.hit) {
+      ctx.fillStyle = DRIP.drop; ctx.globalAlpha = 0.55;
+      return pixel ? dot(ctx, p.x, p.y, G, true) : ctx.fillRect(p.x, p.y - 7, 1, 7);
+    }
+    for (const lag of [0, 0.25]) {
+      const k = (p.hit - lag) / 0.95;
+      if (k <= 0 || k >= 1) continue;
+      const rx = (2 + k * 16) * p.big, ry = rx * 0.42;
+      ctx.globalAlpha = (1 - k) * (lag ? 0.35 : 0.6);
+      if (pixel) {
+        ctx.fillStyle = DRIP.ring;
+        for (let a = 0; a < TAU; a += Math.max(0.12, (G * 1.2) / rx)) dot(ctx, p.x + Math.cos(a) * rx, p.y + Math.sin(a) * ry, G, true);
+      } else {
+        ctx.strokeStyle = DRIP.ring; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.ellipse(p.x, p.y, rx, ry, 0, 0, TAU); ctx.stroke();
+      }
+    }
+  },
+};
+
+export const WEATHER_FX = { snow, fog, embers, fireflies, leaves, bubbles, pond };

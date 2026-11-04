@@ -11,6 +11,8 @@ import { key, cellsOf, sizeOf, portalAt } from '../game/rules.js';
 import { render, html } from '../ui/lib.js';
 import { Icon } from '../ui/icons.js';
 import { boardPond } from '../ui/zen-art.js';
+import { Pond, runPond } from './pond.js';
+import { WEATHER_FX } from './weather-fx.js';
 import { playAPKBombBlast, playAPKVictory, playAPKTeleport, playAPKTransformVariant, playAPKDeathStyle, playAPKSpawnVariant, playAPKFloatingText } from '../lab/apk/effects.js';
 
 export const pixelArt = () => document.documentElement.dataset.art === 'pixel';
@@ -130,7 +132,10 @@ export class BoardView {
   d(ms) { return reduced() ? Math.min(ms, 120) : ms / this.speed; }
 
   setWeather(kind) {
-    this.weather = kind; this.fx.setWeather(kind);
+    this.weather = kind;
+    // Los nenúfares del clima Estanque flotan por fuera de este tablero.
+    if (kind === 'pond') WEATHER_FX.pond.avoid = () => { const a = this.tilesEl.getBoundingClientRect(), c = this.fx.canvas.getBoundingClientRect(); return { x: a.left - c.left, y: a.top - c.top, w: a.width, h: a.height }; };
+    this.fx.setWeather(kind);
     // La pantalla lleva el clima para la capa de textura sobre su fondo (css/base.css).
     const scr = this.host.closest('.screen');
     if (scr) kind ? (scr.dataset.weather = kind) : delete scr.dataset.weather;
@@ -234,6 +239,7 @@ export class BoardView {
 
   // Centro abierto: si el hueco del medio está casi lleno, se vuelve un estanque con dos koi.
   pond({ rows, cols, holes }) {
+    this.pondSim = null;
     const mid = [...holes].map((k) => k.split(',').map(Number)).filter(([r, c]) => Math.abs(r - (rows - 1) / 2) <= rows * 0.2 && Math.abs(c - (cols - 1) / 2) <= cols * 0.2);
     if (mid.length < 2) return;
     const rs = mid.map(([r]) => r), cs = mid.map(([, c]) => c);
@@ -252,6 +258,11 @@ export class BoardView {
     this.tilesEl.appendChild(el);
     render(boardPond, el);
     this.pondAt = { r0, c0, h: r1 - r0 + 1, w: c1 - c0 + 1, el };
+    // Estanque vivo (src/view/pond.js): el agua cuadrada del hueco, un rectángulo de esquinas romas.
+    const cv = el.querySelector('.bd-pondcv'), [W, H] = [20 * (c1 - c0 + 1) / Math.min(r1 - r0 + 1, c1 - c0 + 1), 20 * (r1 - r0 + 1) / Math.min(r1 - r0 + 1, c1 - c0 + 1)];
+    const pond = this.pondSim = new Pond(cv, { size: [W, H], inside: (x, y) => ((x - W / 2) / (W / 2 - 1.4)) ** 4 + ((y - H / 2) / (H / 2 - 1.4)) ** 4 < 1, count: 2, len: 7, speed: 2.6,
+      pads: [[W * 0.75, H * 0.72, 2.2], [W * 0.24, H * 0.3, 1.7]], lotus: 0, duckweed: 6 });
+    runPond(pond, () => (cv.isConnected ? cv : null), reduced());
   }
 
   // Koi con hambre (src/game/zen.js): burbujas suaves en el agua.
@@ -262,45 +273,16 @@ export class BoardView {
     if (on && !el.querySelector('.koi-hungry')) el.insertAdjacentHTML('beforeend', '<span class="koi-hungry" aria-hidden="true"><i></i><i></i><i></i></span>');
   }
 
-  // Tocar el agua echa comida: el koi que antes pase por ese punto de su vuelta acelera y se la come.
+  // Tocar el agua echa comida y abre un aro; los koi van a buscarla.
   feed(tile, x, y) {
-    const { r0, c0, h, w, el } = this.pondAt, box = tile.getBoundingClientRect(), s = Math.min(h, w);
-    // A unidades del dibujo (viewBox 20×20, centrado si el estanque no es cuadrado).
-    const px = 10 + (+tile.dataset.c - c0 + (x - box.left) / box.width - w / 2) * (20 / s);
-    const py = 10 + (+tile.dataset.r - r0 + (y - box.top) / box.height - h / 2) * (20 / s);
+    const { r0, c0 } = this.pondAt, box = tile.getBoundingClientRect(), u = 20 / Math.min(this.pondAt.h, this.pondAt.w);
     playSfx('splash');
     this.onFeed?.(tile);
-    const c = this.fx.pointOf(tile);
-    if (!reduced()) this.fx.ring(c.x, c.y, { color: '#e6f6ff', radius: this.sq * 0.5, width: 2, life: 0.6 });
-    const food = el.querySelector('.bd-food');
-    const bits = [0, 1, 2].map(() => {
-      const b = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      b.setAttribute('cx', (px + (Math.random() - 0.5) * 1.6).toFixed(2)); b.setAttribute('cy', (py + (Math.random() - 0.5) * 1.6).toFixed(2));
-      b.setAttribute('r', '.32'); b.setAttribute('class', 'zn-pellet');
-      food.appendChild(b);
-      return b;
-    });
-    const eat = () => bits.forEach((b) => b.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }).finished.then(() => b.remove()));
-    // Vueltas de board.css (koi-swim): el pez a sale arriba (radio 5, 14 s, horario), el b abajo (radio 6.5, 19 s, antihorario).
-    const theta = (Math.atan2(py - 10, px - 10) * 180) / Math.PI, RUSH = 3;
-    const fish = [...el.querySelectorAll('.bd-koi')].map((g, i) => {
-      const anim = g.getAnimations()[0];
-      if (!anim) return null;
-      const [r, dur, start, dir] = i ? [6.5, 19000, 90, -1] : [5, 14000, -90, 1];
-      const now = start + (dir * 360 * ((anim.currentTime ?? 0) % dur)) / dur;
-      const lap = (((dir * (theta - now)) % 360) + 360) % 360;
-      let wait = (lap / 360) * dur / RUSH;
-      if (wait < 500) wait += dur / RUSH;
-      return { anim, r, wait };
-    }).filter(Boolean);
-    if (!fish.length) return void setTimeout(eat, 1500);
-    const f = fish.reduce((a, b) => (b.wait < a.wait ? b : a));
-    const rad = (theta * Math.PI) / 180, tx = 10 + f.r * Math.cos(rad), ty = 10 + f.r * Math.sin(rad);
-    bits.forEach((b) => b.animate([{ transform: 'none' }, { transform: `translate(${(tx - px).toFixed(2)}px, ${(ty - py).toFixed(2)}px)` }], { duration: 500, easing: 'ease-out', fill: 'forwards' }));
-    f.anim.koiRush = (f.anim.koiRush || 0) + 1;
-    f.anim.updatePlaybackRate(RUSH);
-    setTimeout(() => { eat(); if (!--f.anim.koiRush) f.anim.updatePlaybackRate(1); }, f.wait);
+    // A unidades del estanque: 20 por el lado corto.
+    this.pondSim?.tap((+tile.dataset.c - c0 + (x - box.left) / box.width) * u, (+tile.dataset.r - r0 + (y - box.top) / box.height) * u);
+    if (!this.pondSim) { const c = this.fx.pointOf(tile); this.fx.ring(c.x, c.y, { color: '#e6f6ff', radius: this.sq * 0.5, width: 2, life: 0.6 }); }
   }
+
 
   // Objetos tumbados sobre una casilla (los coleccionables): caen rebotando; devuelve el elemento.
   addProp(row, col, cls) {

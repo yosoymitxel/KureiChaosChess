@@ -717,23 +717,24 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 .zn-cut { fill: none; stroke: var(--ink); stroke-width: .9; stroke-linecap: round; }
 .zn-dot { fill: var(--ink); }
 /* Estanque: orilla de musgo, agua con hondura, koi, nenúfares, loto y ondas lentas. */
-.zn-pondart { width: 104%; height: 104%; overflow: visible; filter: drop-shadow(0 4px 3px oklch(0.15 0.03 55 / 0.28)); }
+.zn-pondbox { position: relative; width: 104%; height: 104%; filter: drop-shadow(0 4px 3px oklch(0.15 0.03 55 / 0.28)); }
+.zn-pondart, .zn-pondtop, .zn-pondbox > .zn-pondcv { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.zn-pondbox > .zn-pondcv { clip-path: url(#zn-pond-clip); pointer-events: none; }
+[data-art="pixel"] .zn-pondbox > .zn-pondcv { clip-path: url(#zn-pond-clip-px); }
+.zn-pondtop { pointer-events: none; }
 .zn-bank { fill: oklch(0.52 0.07 125); }
 .zn-water { fill: url(#zn-water-g); stroke: var(--ink); stroke-width: .9; }
 .zn-shallow { stop-color: oklch(0.68 0.07 192); }
 .zn-mid { stop-color: oklch(0.5 0.07 212); }
 .zn-deep { stop-color: oklch(0.34 0.06 230); }
-.zn-depth { fill: oklch(0.24 0.05 235 / 0.3); }
+/* Estanque vivo (src/view/pond.js): el lienzo llena el agua; en píxel se ve a baja resolución. */
+.zn-pondcv, .bd-pondcv { display: block; width: 100%; height: 100%; }
+[data-art="pixel"] :is(.zn-pondcv, .bd-pondcv) { image-rendering: pixelated; }
 .zn-koi path { stroke: var(--ink); stroke-width: .45; }
 .zn-koi-a path { fill: oklch(0.72 0.16 50); }
 .zn-koi-a .zn-koi-spot { fill: var(--paper); stroke: none; }
 .zn-koi-b path { fill: oklch(0.95 0.02 85); }
 .zn-koi-b .zn-koi-spot { fill: oklch(0.6 0.19 30); stroke: none; }
-.zn-ripple { fill: none; stroke: oklch(1 0 0 / 0.55); stroke-width: .5; transform-box: fill-box; transform-origin: center; animation: zn-ripple 7s ease-out infinite; }
-.zn-ripple-2 { animation-delay: -3.5s; }
-@keyframes zn-ripple { from { scale: 0.3; opacity: 0.9; } to { scale: 3.2; opacity: 0; } }
-.zn-pad { fill: oklch(0.56 0.12 145); stroke: var(--ink); stroke-width: .6; }
-.zn-lotus path { fill: oklch(0.88 0.06 12); stroke: var(--ink); stroke-width: .4; }
 .zn-rock { fill: oklch(0.72 0.012 80); stroke: var(--ink); stroke-width: .7; }
 .zn-mossdab { fill: var(--leaf); }
 /* Musgo, pisadera y farol. */
@@ -846,7 +847,6 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 .zn-fly-body { fill: var(--ink); }
 .zn-antenna { fill: none; stroke: var(--ink); stroke-width: .3; stroke-linecap: round; }
 /* Alimento de los koi: bolitas que flotan hasta que se las comen. */
-.zn-pellet { fill: oklch(0.7 0.1 70); stroke: var(--ink); stroke-width: .2; }
 /* Estado del jardín: una línea tranquila bajo el cantero. */
 .zn-status { margin: clamp(22px, 4.5vh, 40px) 0 0; min-height: 2.8em; /* dos líneas reservadas: el panel no salta */ font-size: 15px; font-weight: 650; color: var(--paper-2); text-align: center; text-wrap: balance; }
 /* Panel: sobres de semillas, herramientas con mango redondo, ampliar y tienda. */

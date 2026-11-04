@@ -96,34 +96,23 @@ const STONES = Array.from({ length: 15 }, (_, i) => {
   return [f(24 + Math.cos(t) * r), f(24.5 + Math.sin(t) * r * 0.9), f(s), f(s * 0.72), (i * 37) % 60 - 30];
 });
 const KOI = html`<path d="M3.2 0C1.8-1.3-.6-1.5-2.4-.6L-3.8-1.6-3.4 0-3.8 1.6-2.4.6C-.6 1.5 1.8 1.3 3.2 0Z"/>`;
-// Órbita de un koi por el estanque (misma orilla ondulada que el agua): ángulo -> [x, y].
-export const orbit = (r, cx, cy) => (t) => { const rr = shore(r, t); return [cx + Math.cos(t) * rr, cy + Math.sin(t) * rr * 0.9]; };
-export const KOI_ORBITS = [{ r: 9.5, cx: 24, cy: 25, speed: 3.2, dir: 1 }, { r: 12.5, cx: 24, cy: 24, speed: 2.6, dir: -1 }];
-export const pondArt = (still) => html`<svg class="zn-pondart" viewBox="0 0 48 48">
+// Si un punto del dibujo (48×48) es agua, con un margen para que el koi no roce las piedras.
+export const pondInside = (x, y) => { const dx = x - 24, dy = (y - 24.5) / 0.9; return Math.hypot(dx, dy) < shore(16.6, Math.atan2(dy, dx)) - 2; };
+// Tres capas: el fondo (orilla y agua), el estanque vivo en un <canvas> recortado a la orilla
+// (pond.js) y encima las piedras. El recorte va en unidades de la caja para que el lienzo no se escale.
+export const pondArt = () => html`<div class="zn-pondbox"><svg class="zn-pondart" viewBox="0 0 48 48">
   <defs>
     <radialGradient id="zn-water-g" cx="42%" cy="38%" r="70%"><stop offset="0" class="zn-shallow"/><stop offset=".7" class="zn-mid"/><stop offset="1" class="zn-deep"/></radialGradient>
-    <clipPath id="zn-pond-clip"><path d=${loop(16.6)}/></clipPath>
+    <clipPath id="zn-pond-clip" clipPathUnits="objectBoundingBox"><path transform="scale(.020833)" d=${loop(16.6)}/></clipPath>
+    <clipPath id="zn-pond-clip-px" clipPathUnits="objectBoundingBox"><path transform="scale(.020833)" d=${loop(14.6)}/></clipPath>
   </defs>
   ${px('pond', 48, 48)}
   <path class="zn-bank zn-vec" d=${loop(18.2)}/>
   <path class="zn-water zn-vec" d=${loop(16.6)}/>
-  <g clip-path="url(#zn-pond-clip)">
-    <path class="zn-depth zn-vec" d=${loop(11, 25, 26)}/>
-    <g class="zn-food"></g>
-    <g class="zn-koi zn-koi-a" transform="translate(30 20)"><g class="zn-vec">${KOI}<circle class="zn-koi-spot" cx="1.1" cy="-.2" r=".8"/></g>${px('koi', 8, 5, -4.4, -2.5)}</g>
-    <g class="zn-koi zn-koi-b" transform="translate(16 30) rotate(180)"><g class="zn-vec">${KOI}<circle class="zn-koi-spot" cx="-.6" cy=".1" r=".9"/></g>${px('koi', 8, 5, -4.4, -2.5)}</g>
-    ${!still && html`<circle class="zn-ripple" cx="19" cy="29" r="2"/><circle class="zn-ripple zn-ripple-2" cx="29" cy="20" r="2"/>`}
-    <path class="zn-glint zn-vec" d="M14 18c2.5-2.6 6-3.8 9-3.6"/>
-  </g>
-  <g class="zn-lilies zn-vec">
-    <path class="zn-pad" d="M31.5 33 35.6 31.6A4 4 0 1 1 35.2 36.2Z"/>
-    <path class="zn-pad" d="M15.2 33.6 12.4 31.4A3 3 0 1 0 15.8 31.2Z"/>
-    <path class="zn-pad" d="M34 17.6 36.8 18A2.4 2.4 0 1 1 34.6 16Z"/>
-    <g class="zn-lotus" transform="translate(33.2 33.4)"><path d="M0 0C-2.6-.4-3.2-2.6-2.4-3.6-1.4-2.6-.6-1.6 0 0Z"/><path d="M0 0C2.6-.4 3.2-2.6 2.4-3.6 1.4-2.6.6-1.6 0 0Z"/><path d="M0 0C-1-1.6-1-3.6 0-4.8 1-3.6 1-1.6 0 0Z"/></g>
-  </g>
+</svg><canvas class="zn-pondcv"></canvas><svg class="zn-pondtop" viewBox="0 0 48 48">
   <g class="zn-vec">${STONES.map(([x, y, rx, ry, rot]) => html`<ellipse class="zn-rock" cx=${x} cy=${y} rx=${rx} ry=${ry} transform=${`rotate(${rot} ${x} ${y})`}/>`)}</g>
   <path class="zn-mossdab zn-vec" d="M5.4 30.6c1.4-1.8 3.8-1.6 4.6.2-1.6.8-3.2.8-4.6-.2zM38.6 12.4c1.6-1 3.4-.4 3.8 1-1.4.6-2.8.4-3.8-1z"/>
-</svg>`;
+</svg></div>`;
 
 // Musgo en montículo con helechito y una piedra: rompe la rejilla.
 export const MOSS = html`<svg class="zn-standart" viewBox="0 0 24 24" aria-hidden="true">${px('moss', 24, 24)}<g class="zn-vec">
@@ -248,8 +237,7 @@ export const PICKUP_ART = { leaf: mapleLeaf, seed: POUCH, butterfly: BUTTERFLY }
 // Cada koi va en su propia capa HTML que gira: girar un <g> dentro del SVG no pasa al compositor y
 // recalculaba el tablero entero en cada fotograma.
 export const boardPond = html`<div class="bd-pond" aria-hidden="true">
-  <svg viewBox="0 0 20 20"><g class="bd-food"></g></svg>
-  ${['a', 'b'].map((k) => html`<div class=${'bd-koi bd-koi-' + k}><svg viewBox="0 0 20 20"><g class=${'zn-koi zn-koi-' + k}><g transform=${k === 'a' ? 'translate(10 5) scale(.9)' : 'translate(10 16.5) scale(.75)'}><g class="zn-vec">${KOI}<circle class="zn-koi-spot" cx="1.1" cy="-.2" r=".8"/></g>${px('koi', 8, 5, -4.4, -2.5)}</g></g></svg></div>`)}
+  <canvas class="bd-pondcv"></canvas>
 </div>`;
 
 // Piedra que sale al ampliar: canto rodado con su cara al sol; `cracks` grietas según los golpes.

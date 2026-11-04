@@ -8,6 +8,7 @@ export const WEATHER = {
   fog: { id: 'fog', name: 'Niebla', weight: 2 },
   snow: { id: 'snow', name: 'Nieve', weight: 2 },
   bubbles: { id: 'bubbles', name: 'Burbujas', weight: 1 },
+  pond: { id: 'pond', name: 'Estanque', weight: 3 },
   embers: { id: 'embers', name: 'Brasas', weight: 0 }, // solo jefe final y meteoritos
 };
 

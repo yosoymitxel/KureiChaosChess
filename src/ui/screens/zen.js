@@ -6,7 +6,8 @@ import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Topbar, useEnter } from '../components.js';
 import { Icon } from '../icons.js';
 import { Fx } from '../../view/fx.js';
-import { chipArt, POT, SOIL, plantArt, pondArt, MOSS, STEP, LANTERN, BRANCH, mapleLeaf, rakeArt, orbit, KOI_ORBITS, BUTTERFLY, CAN, SHEARS, SHOVEL, POUCH, GLOVE, px, stoneArt, ITEM_ART, KOI_ART } from '../zen-art.js';
+import { Pond, runPond } from '../../view/pond.js';
+import { chipArt, POT, SOIL, plantArt, pondArt, pondInside, MOSS, STEP, LANTERN, BRANCH, mapleLeaf, rakeArt, BUTTERFLY, CAN, SHEARS, SHOVEL, POUCH, GLOVE, px, stoneArt, ITEM_ART, KOI_ART } from '../zen-art.js';
 import { ZEN_KINDS, ZEN_NAMES, ZEN_MAX, cellKey, cellType, lakeRect, expandCost, zenStage, zenSow, zenWater, zenWaterAround, zenDig, digWait, zenBreak, zenHarvest, zenExpand, zenLake, zenPlace, zenClear, zenStore, zenMove, zenMovePond, moveWait, zenLeaves, zenSweep, koiHungry, feedKoi, LEAF_COINS, BUTTERFLY_MS, butterflyGift, loadZen, saveZen } from '../../game/zen.js';
 import { SEEDS, GARDEN_ITEMS, LAKE_MAX, lakeCost, DIG_COOLDOWN, MOVE_COOLDOWN, WATER_STEPS } from '../../data/garden.js';
 import { award } from '../../game/achievements.js';
@@ -73,7 +74,7 @@ export function ZenScreen({ onBack, onShop }) {
   const handRef = useRef(null);
   const [fly, setFly] = useState(null); // mariposa: { key, id }
   const coinRef = useRef(null), yardRef = useRef(null), fxRef = useRef(null), flyRef = useRef(null);
-  const prevStage = useRef(null), leafCount = useRef(z.leaves.length), feedRef = useRef(null);
+  const prevStage = useRef(null), leafCount = useRef(z.leaves.length);
 
   // Reloj del jardín: crecen las plantas y caen hojas de la rama.
   useEffect(() => {
@@ -421,62 +422,21 @@ export function ZenScreen({ onBack, onShop }) {
     flyAway();
   };
 
-  // Koi: nadan su órbita y, si tocas el agua, cae alimento y van a comérselo.
+  // Estanque vivo (src/view/pond.js): un koi más por cada ampliación del estanque.
+  const pondRef = useRef(null);
   useEffect(() => {
-    if (reduced()) return;
-    const svg = yardRef.current?.querySelector('.zn-pondart');
-    if (!svg) return;
-    const fish = [...svg.querySelectorAll('.zn-koi')].map((g, i) => {
-      const o = KOI_ORBITS[i], path = orbit(o.r, o.cx, o.cy), t = Math.random() * Math.PI * 2, [x, y] = path(t);
-      return { g, o, path, t, x, y, h: 0 };
-    });
-    let raf, last = performance.now();
-    const step = (time) => {
-      const dt = Math.min(0.05, (time - last) / 1000);
-      last = time;
-      const food = feedRef.current;
-      fish.forEach((f, i) => {
-        f.t += (f.o.dir * f.o.speed * dt) / f.o.r;
-        let [tx, ty] = f.path(f.t + f.o.dir * 0.5);
-        let speed = f.o.speed;
-        const bit = food?.pellets.find((p) => !p.eaten);
-        if (bit) {
-          tx = bit.x + (i ? 1 : -1) * 0.6; ty = bit.y; speed = 7;
-          if (Math.hypot(bit.x - f.x, bit.y - f.y) < 1.2) { bit.eaten = true; bit.el.remove(); }
-        }
-        const want = Math.atan2(ty - f.y, tx - f.x);
-        let d = want - f.h;
-        d = Math.atan2(Math.sin(d), Math.cos(d));
-        f.h += d * Math.min(1, dt * 4);
-        f.x += Math.cos(f.h) * speed * dt;
-        f.y += Math.sin(f.h) * speed * dt;
-        f.g.setAttribute('transform', `translate(${f.x.toFixed(2)} ${f.y.toFixed(2)}) rotate(${((f.h * 180) / Math.PI).toFixed(1)})`);
-      });
-      if (food && food.pellets.every((p) => p.eaten)) feedRef.current = null;
-      raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, []);
+    const cv = () => yardRef.current?.querySelector('.zn-pondcv');
+    if (!cv()) return;
+    const n = z.lake || 2;
+    const pond = pondRef.current = new Pond(cv(), { size: [48, 48], inside: pondInside, count: Math.min(5, n + 1), len: 7.5, speed: 3.2,
+      pads: [[33.5, 33.5, 3.4], [14.5, 32.5, 2.6], [34.5, 17, 2.2], [17, 16, 1.8]], lotus: 0, duckweed: 14 });
+    return runPond(pond, cv, reduced());
+  }, [z.lake || 2]);
   const feed = (e) => {
     const svg = e.currentTarget.querySelector('.zn-pondart'), r = svg.getBoundingClientRect();
     const x = ((e.clientX - r.left) / r.width) * 48, y = ((e.clientY - r.top) / r.height) * 48;
     if (Math.hypot(x - 24, (y - 24.5) / 0.9) > 15) return; // fuera del agua
-    const yard = yardRef.current.getBoundingClientRect();
-    if (!reduced()) {
-      fxRef.current.ring(e.clientX - yard.left, e.clientY - yard.top, { color: '#e6f6ff', radius: r.width * 0.12, width: 2, life: 0.6 });
-      setTimeout(() => fxRef.current.ring(e.clientX - yard.left, e.clientY - yard.top, { color: '#e6f6ff', radius: r.width * 0.2, width: 1.5, life: 0.8 }), 180);
-    }
-    const g = svg.querySelector('.zn-food'), pellets = [];
-    for (let i = 0; i < 4; i++) {
-      const p = { x: x + (Math.random() - 0.5) * 3, y: y + (Math.random() - 0.5) * 3 };
-      p.el = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      p.el.setAttribute('cx', p.x.toFixed(2)); p.el.setAttribute('cy', p.y.toFixed(2)); p.el.setAttribute('r', '.45');
-      p.el.setAttribute('class', 'zn-pellet');
-      g.appendChild(p.el);
-      pellets.push(p);
-    }
-    feedRef.current = { pellets: [...(feedRef.current?.pellets.filter((p) => !p.eaten) || []), ...pellets] };
+    pondRef.current?.tap(x, y);
     playSfx('splash');
     // Con hambre (burbujas en el agua), comer deja monedas; si no, solo vienen a picotear.
     const fed = feedKoi(z);
@@ -533,7 +493,7 @@ export function ZenScreen({ onBack, onShop }) {
       const key = cellKey(r, c), ct = cellType(z, key);
       if (ct === 'pond') {
         if (r === lr.r && c === lr.c) {
-          cells.push(html`<button key="pond" class=${'bm-cell zen-pond' + (moving === 'pond' ? ' zn-moving' : '') + (koiHungry(z, now) ? ' hungry' : '')} style=${{ gridRow: `span ${lakeN}`, gridColumn: `span ${lakeN}` }} aria-label=${t('zen.pondAria', 'Estanque: toca el agua para dar de comer a los koi')} onClick=${tool === 'move' ? () => tap('pond', 'pond') : feed}>${pondArt(reduced())}<span class="koi-hungry" aria-hidden="true"><i></i><i></i><i></i></span></button>`);
+          cells.push(html`<button key="pond" class=${'bm-cell zen-pond' + (moving === 'pond' ? ' zn-moving' : '') + (koiHungry(z, now) ? ' hungry' : '')} style=${{ gridRow: `span ${lakeN}`, gridColumn: `span ${lakeN}` }} aria-label=${t('zen.pondAria', 'Estanque: toca el agua para dar de comer a los koi')} onClick=${tool === 'move' ? () => tap('pond', 'pond') : feed}>${pondArt()}<span class="koi-hungry" aria-hidden="true"><i></i><i></i><i></i></span></button>`);
           objs.push({ x: lr.c + off + lakeN / 2, y: lr.r + off + lakeN / 2 + 0.02, r: 0.39 * lakeN, sx: 1.06 });
         }
         continue;

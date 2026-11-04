@@ -7,6 +7,8 @@ src/core/rng.js:11 +randomSeed
 ## src/data/bosses.js (37L)
 src/data/bosses.js:6 +BOSSES
 src/data/bosses.js:36 +BOSS_IDS
+## src/data/filters.js (16L)
+src/data/filters.js:4 +FILTERS
 ## src/data/garden.js (42L)
 src/data/garden.js:9 +SEEDS
 src/data/garden.js:16 +GARDEN_ITEMS
@@ -88,11 +90,11 @@ src/data/themes.js:114 +applyTheme
 ## src/data/tile-marks.js (23L)
 src/data/tile-marks.js:7 +MARK_SIZE
 src/data/tile-marks.js:8 +TILE_MARKS
-## src/data/weather.js (43L)
+## src/data/weather.js (44L)
 src/data/weather.js:4 +WEATHER
-src/data/weather.js:17 +TIED_WEATHER
-src/data/weather.js:30 CHANCE
-src/data/weather.js:33 +weatherFor
+src/data/weather.js:18 +TIED_WEATHER
+src/data/weather.js:31 CHANCE
+src/data/weather.js:34 +weatherFor
 ## src/game/achievements.js (146L)
 src/game/achievements.js:7 KEY
 src/game/achievements.js:8 read
@@ -278,29 +280,32 @@ src/game/checkers.js:70 clone
 src/game/checkers.js:74 score
 src/game/checkers.js:76 search
 src/game/checkers.js:91 +botMove
-## src/game/cloud.js (112L)
+## src/game/cloud.js (143L)
 src/game/cloud.js:6 URL_
 src/game/cloud.js:7 KEY
 src/game/cloud.js:8 SESSION
 src/game/cloud.js:10 BACK
 src/game/cloud.js:12 load
 src/game/cloud.js:15 SYNCED
-src/game/cloud.js:16 synced
-src/game/cloud.js:17 +cloudMarkSynced
-src/game/cloud.js:18 keep
-src/game/cloud.js:20 call
-src/game/cloud.js:30 toSession
-src/game/cloud.js:32 +cloudUser
-src/game/cloud.js:35 session
-src/game/cloud.js:44 +signIn
-src/game/cloud.js:48 +signUp
-src/game/cloud.js:52 +signOut
-src/game/cloud.js:59 lastCode
-src/game/cloud.js:61 +cloudStopped
-src/game/cloud.js:62 saved
-src/game/cloud.js:64 +cloudUpload
-src/game/cloud.js:75 +cloudAutoSave
-src/game/cloud.js:95 +cloudPeek
+src/game/cloud.js:17 +cloudIsOurs
+src/game/cloud.js:18 synced
+src/game/cloud.js:20 BASE
+src/game/cloud.js:21 +cloudMarkSynced
+src/game/cloud.js:28 keep
+src/game/cloud.js:30 call
+src/game/cloud.js:40 toSession
+src/game/cloud.js:42 +cloudUser
+src/game/cloud.js:45 session
+src/game/cloud.js:54 +signIn
+src/game/cloud.js:58 +signUp
+src/game/cloud.js:62 +signOut
+src/game/cloud.js:69 lastCode
+src/game/cloud.js:71 +cloudStopped
+src/game/cloud.js:72 saved
+src/game/cloud.js:74 +cloudUpload
+src/game/cloud.js:85 +cloudAutoSave
+src/game/cloud.js:105 +cloudPeek
+src/game/cloud.js:114 +cloudAutoPull
 ## src/game/connect4.js (109L)
 src/game/connect4.js:2 +ROWS
 src/game/connect4.js:4 +emptyGrid
@@ -822,7 +827,7 @@ src/game/zen.js:311 +addZenSeeds
 src/game/zen.js:318 +pickSeed
 src/game/zen.js:326 +koiHungry
 src/game/zen.js:327 +feedKoi
-## src/i18n/en.js (1288L)
+## src/i18n/en.js (1309L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -963,15 +968,15 @@ src/lab/proto/diamond-game.js:14 +createDiamondBoard
 src/lab/proto/diamond-game.js:27 +createDiamondPieces
 src/lab/proto/diamond-game.js:40 +createDiamondMatch
 ## src/main.js (7L)
-## src/ui/app.js (405L)
+## src/ui/app.js (412L)
 src/ui/app.js:34 REST_CARDS
 src/ui/app.js:39 BAG_CARDS
 src/ui/app.js:46 shuffle3
 src/ui/app.js:48 MINI_PRIZES
 src/ui/app.js:49 ONE_SHOT
 src/ui/app.js:51 +App
-src/ui/app.js:361 MutationReveal
-src/ui/app.js:377 AchievementToast
+src/ui/app.js:368 MutationReveal
+src/ui/app.js:384 AchievementToast
 ## src/ui/board-fx.js (48L)
 src/ui/board-fx.js:7 wait
 src/ui/board-fx.js:11 +playFx
@@ -980,24 +985,25 @@ src/ui/board-fx.js:37 +playMech
 src/ui/coins.js:6 reduced
 src/ui/coins.js:8 +flyCoins
 src/ui/coins.js:25 +popSeed
-## src/ui/components.js (253L)
-src/ui/components.js:12 +ThemeLook
-src/ui/components.js:20 +Topbar
-src/ui/components.js:36 +TurnClock
-src/ui/components.js:61 +MiniEnd
-src/ui/components.js:71 diffName
-src/ui/components.js:76 +MiniDiff
-src/ui/components.js:92 +MiniTools
-src/ui/components.js:142 +ConfirmButton
-src/ui/components.js:153 +BossCard
-src/ui/components.js:166 +useEnter
-src/ui/components.js:174 Card
-src/ui/components.js:191 KIND_LABEL
-src/ui/components.js:192 +RARITY_LABEL
-src/ui/components.js:196 +CardFace
-src/ui/components.js:210 +CardPick
-src/ui/components.js:236 +TurnBanner
-src/ui/components.js:247 +Toggle
+## src/ui/components.js (266L)
+src/ui/components.js:13 +ThemeLook
+src/ui/components.js:21 +Topbar
+src/ui/components.js:37 +TurnClock
+src/ui/components.js:62 +MiniEnd
+src/ui/components.js:72 diffName
+src/ui/components.js:77 +MiniDiff
+src/ui/components.js:93 +MiniTools
+src/ui/components.js:143 +ConfirmButton
+src/ui/components.js:154 +BossCard
+src/ui/components.js:167 +useEnter
+src/ui/components.js:175 Card
+src/ui/components.js:192 KIND_LABEL
+src/ui/components.js:193 +RARITY_LABEL
+src/ui/components.js:197 +CardFace
+src/ui/components.js:211 +CardPick
+src/ui/components.js:237 +TurnBanner
+src/ui/components.js:249 +FilterMenu
+src/ui/components.js:260 +Toggle
 ## src/ui/demos.js (31L)
 src/ui/demos.js:10 +pieceDemo
 src/ui/demos.js:15 +mutationDemo
@@ -1165,12 +1171,12 @@ src/ui/screens/minis.js:8 +MinisScreen
 ## src/ui/screens/outbreak.js (73L)
 src/ui/screens/outbreak.js:14 wait
 src/ui/screens/outbreak.js:16 +OutbreakScreen
-## src/ui/screens/overlays.js (84L)
+## src/ui/screens/overlays.js (85L)
 src/ui/screens/overlays.js:12 closeOnBackdrop
 src/ui/screens/overlays.js:13 useEscape
 src/ui/screens/overlays.js:20 +ResumeOverlay
 src/ui/screens/overlays.js:31 +PauseOverlay
-src/ui/screens/overlays.js:62 +HowToOverlay
+src/ui/screens/overlays.js:63 +HowToOverlay
 ## src/ui/screens/queens.js (51L)
 src/ui/screens/queens.js:11 +QueensScreen
 ## src/ui/screens/scenario.js (36L)
@@ -1192,7 +1198,7 @@ src/ui/screens/scenario.js:32 +MatesScreen
 src/ui/screens/scenario.js:33 +ClockScreen
 src/ui/screens/scenario.js:34 +WitchScreen
 src/ui/screens/scenario.js:35 +BombsScreen
-## src/ui/screens/setup.js (406L)
+## src/ui/screens/setup.js (409L)
 src/ui/screens/setup.js:17 SIDES
 src/ui/screens/setup.js:25 MechPicker
 src/ui/screens/setup.js:39 PrefsCard
@@ -1202,10 +1208,10 @@ src/ui/screens/setup.js:59 VERSUS_SHAPES
 src/ui/screens/setup.js:60 VersusCard
 src/ui/screens/setup.js:94 +SetupScreen
 src/ui/screens/setup.js:148 +SettingsScreen
-src/ui/screens/setup.js:219 Backup
-src/ui/screens/setup.js:292 ProgressChoice
-src/ui/screens/setup.js:310 Slots
-src/ui/screens/setup.js:331 Cloud
+src/ui/screens/setup.js:220 Backup
+src/ui/screens/setup.js:293 ProgressChoice
+src/ui/screens/setup.js:311 Slots
+src/ui/screens/setup.js:332 Cloud
 ## src/ui/screens/shop.js (143L)
 src/ui/screens/shop.js:15 CARD_LIST
 src/ui/screens/shop.js:17 +ShopScreen
@@ -1225,21 +1231,21 @@ src/ui/screens/turn-minis.js:16 +PdodgeScreen
 src/ui/screens/turn-minis.js:17 +ParkourScreen
 src/ui/screens/turn-minis.js:18 +BlasterScreen
 src/ui/screens/turn-minis.js:19 +HordeScreen
-## src/ui/screens/zen.js (673L)
-src/ui/screens/zen.js:18 ETAPAS
-src/ui/screens/zen.js:20 TOOLS
-src/ui/screens/zen.js:28 STORE
-src/ui/screens/zen.js:30 TOOL_ART
-src/ui/screens/zen.js:31 reduced
-src/ui/screens/zen.js:32 later
-src/ui/screens/zen.js:34 the
-src/ui/screens/zen.js:35 cap
-src/ui/screens/zen.js:37 ROOM
-src/ui/screens/zen.js:39 INFO
-src/ui/screens/zen.js:45 SOIL_COLORS
-src/ui/screens/zen.js:46 OUT
-src/ui/screens/zen.js:50 potArt
-src/ui/screens/zen.js:59 +ZenScreen
+## src/ui/screens/zen.js (633L)
+src/ui/screens/zen.js:19 ETAPAS
+src/ui/screens/zen.js:21 TOOLS
+src/ui/screens/zen.js:29 STORE
+src/ui/screens/zen.js:31 TOOL_ART
+src/ui/screens/zen.js:32 reduced
+src/ui/screens/zen.js:33 later
+src/ui/screens/zen.js:35 the
+src/ui/screens/zen.js:36 cap
+src/ui/screens/zen.js:38 ROOM
+src/ui/screens/zen.js:40 INFO
+src/ui/screens/zen.js:46 SOIL_COLORS
+src/ui/screens/zen.js:47 OUT
+src/ui/screens/zen.js:51 potArt
+src/ui/screens/zen.js:60 +ZenScreen
 ## src/ui/sfx.js (419L)
 src/ui/sfx.js:7 +SFX_VOLUMES
 src/ui/sfx.js:14 JITTER
@@ -1284,7 +1290,7 @@ src/ui/table-kit.js:33 +slingshot
 src/ui/table-kit.js:81 +corners
 src/ui/table-kit.js:84 homography
 src/ui/table-kit.js:102 +toTable
-## src/ui/zen-art.js (268L)
+## src/ui/zen-art.js (256L)
 src/ui/zen-art.js:8 +HEAD
 src/ui/zen-art.js:14 +chipArt
 src/ui/zen-art.js:16 f
@@ -1306,50 +1312,59 @@ src/ui/zen-art.js:89 shore
 src/ui/zen-art.js:90 loop
 src/ui/zen-art.js:94 STONES
 src/ui/zen-art.js:98 KOI
-src/ui/zen-art.js:100 +orbit
-src/ui/zen-art.js:101 +KOI_ORBITS
-src/ui/zen-art.js:102 +pondArt
-src/ui/zen-art.js:129 +MOSS
-src/ui/zen-art.js:138 +STEP
-src/ui/zen-art.js:145 +LANTERN
-src/ui/zen-art.js:161 MAPLE
-src/ui/zen-art.js:162 VEINS
-src/ui/zen-art.js:163 maple
-src/ui/zen-art.js:164 +mapleLeaf
-src/ui/zen-art.js:165 +BRANCH
-src/ui/zen-art.js:173 +BUTTERFLY
-src/ui/zen-art.js:181 +CAN
-src/ui/zen-art.js:189 +SHEARS
-src/ui/zen-art.js:195 +SHOVEL
-src/ui/zen-art.js:200 +POUCH
-src/ui/zen-art.js:207 GLOVE_GRID
-src/ui/zen-art.js:212 GLOVE_PAL
-src/ui/zen-art.js:213 gloveCell
-src/ui/zen-art.js:214 glovePx
-src/ui/zen-art.js:218 +GLOVE
-src/ui/zen-art.js:228 +rakeArt
-src/ui/zen-art.js:245 +PICKUP_ART
-src/ui/zen-art.js:250 +boardPond
-src/ui/zen-art.js:256 +stoneArt
-src/ui/zen-art.js:262 +ITEM_ART
-src/ui/zen-art.js:267 +KOI_ART
-## src/view/board-view.js (1250L)
-src/view/board-view.js:16 +pixelArt
-src/view/board-view.js:18 +WITCH
-src/view/board-view.js:29 HEN
-src/view/board-view.js:42 look
-src/view/board-view.js:44 +CAMERAS
-src/view/board-view.js:45 JUMPERS
-src/view/board-view.js:46 reduced
-src/view/board-view.js:47 wait
-src/view/board-view.js:48 css
-src/view/board-view.js:50 +collapseTiles
-src/view/board-view.js:62 BADGES
-src/view/board-view.js:70 +BoardView
-## src/view/fx.js (337L)
+src/ui/zen-art.js:100 +pondInside
+src/ui/zen-art.js:103 +pondArt
+src/ui/zen-art.js:118 +MOSS
+src/ui/zen-art.js:127 +STEP
+src/ui/zen-art.js:134 +LANTERN
+src/ui/zen-art.js:150 MAPLE
+src/ui/zen-art.js:151 VEINS
+src/ui/zen-art.js:152 maple
+src/ui/zen-art.js:153 +mapleLeaf
+src/ui/zen-art.js:154 +BRANCH
+src/ui/zen-art.js:162 +BUTTERFLY
+src/ui/zen-art.js:170 +CAN
+src/ui/zen-art.js:178 +SHEARS
+src/ui/zen-art.js:184 +SHOVEL
+src/ui/zen-art.js:189 +POUCH
+src/ui/zen-art.js:196 GLOVE_GRID
+src/ui/zen-art.js:201 GLOVE_PAL
+src/ui/zen-art.js:202 gloveCell
+src/ui/zen-art.js:203 glovePx
+src/ui/zen-art.js:207 +GLOVE
+src/ui/zen-art.js:217 +rakeArt
+src/ui/zen-art.js:234 +PICKUP_ART
+src/ui/zen-art.js:239 +boardPond
+src/ui/zen-art.js:244 +stoneArt
+src/ui/zen-art.js:250 +ITEM_ART
+src/ui/zen-art.js:255 +KOI_ART
+## src/view/board-view.js (1232L)
+src/view/board-view.js:18 +pixelArt
+src/view/board-view.js:20 +WITCH
+src/view/board-view.js:31 HEN
+src/view/board-view.js:44 look
+src/view/board-view.js:46 +CAMERAS
+src/view/board-view.js:47 JUMPERS
+src/view/board-view.js:48 reduced
+src/view/board-view.js:49 wait
+src/view/board-view.js:50 css
+src/view/board-view.js:52 +collapseTiles
+src/view/board-view.js:64 BADGES
+src/view/board-view.js:72 +BoardView
+## src/view/fx.js (338L)
 src/view/fx.js:9 WEATHER_RATE
 src/view/fx.js:10 SF_PX
 src/view/fx.js:12 +Fx
+## src/view/koi.js (99L)
+src/view/koi.js:6 N
+src/view/koi.js:7 WIDTH
+src/view/koi.js:8 f2
+src/view/koi.js:9 wrap
+src/view/koi.js:11 +School
+src/view/koi.js:64 +spine
+src/view/koi.js:75 +bodyPath
+src/view/koi.js:91 +finPath
+src/view/koi.js:95 +spotPath
 ## src/view/liquid.js (89L)
 src/view/liquid.js:6 count
 src/view/liquid.js:11 +liquid
@@ -1379,57 +1394,76 @@ src/view/piece-art.js:109 +pieceSVG
 src/view/piece-art.js:123 +headTop
 src/view/piece-art.js:125 +RAW_BODIES
 src/view/piece-art.js:129 +artOf
-## src/view/weather-fx.js (301L)
-src/view/weather-fx.js:6 G
-src/view/weather-fx.js:7 TAU
-src/view/weather-fx.js:8 rnd
-src/view/weather-fx.js:9 BAYER
-src/view/weather-fx.js:10 bayer
-src/view/weather-fx.js:12 noise
-src/view/weather-fx.js:14 dot
-src/view/weather-fx.js:19 glow
-src/view/weather-fx.js:28 FALL
-src/view/weather-fx.js:29 FLAKE
-src/view/weather-fx.js:30 CRYSTAL
-src/view/weather-fx.js:34 snowWind
-src/view/weather-fx.js:35 snow
-src/view/weather-fx.js:68 TONES
-src/view/weather-fx.js:69 fog
-src/view/weather-fx.js:107 EMBER
-src/view/weather-fx.js:108 embers
-src/view/weather-fx.js:158 night
-src/view/weather-fx.js:166 FLY
-src/view/weather-fx.js:167 fireflies
-src/view/weather-fx.js:204 LEAF_SHAPES
-src/view/weather-fx.js:209 LEAF_PALS
-src/view/weather-fx.js:210 leafArt
-src/view/weather-fx.js:211 leafSprites
-src/view/weather-fx.js:220 leaves
-src/view/weather-fx.js:249 BUB
-src/view/weather-fx.js:250 bubbles
-src/view/weather-fx.js:300 +WEATHER_FX
-## css/base.css (264L)
+## src/view/pond.js (214L)
+src/view/pond.js:8 TAU
+src/view/pond.js:9 rnd
+src/view/pond.js:12 KOI
+src/view/pond.js:18 WATER
+src/view/pond.js:19 PAD
+src/view/pond.js:20 LOTUS
+src/view/pond.js:21 PALETTE
+src/view/pond.js:25 +drawPad
+src/view/pond.js:39 +drawLotus
+src/view/pond.js:48 +Pond
+src/view/pond.js:184 quantize
+src/view/pond.js:201 +runPond
+## src/view/weather-fx.js (377L)
+src/view/weather-fx.js:8 G
+src/view/weather-fx.js:9 TAU
+src/view/weather-fx.js:10 rnd
+src/view/weather-fx.js:11 BAYER
+src/view/weather-fx.js:12 bayer
+src/view/weather-fx.js:14 noise
+src/view/weather-fx.js:16 dot
+src/view/weather-fx.js:21 glow
+src/view/weather-fx.js:30 FALL
+src/view/weather-fx.js:31 FLAKE
+src/view/weather-fx.js:32 CRYSTAL
+src/view/weather-fx.js:36 snowWind
+src/view/weather-fx.js:37 snow
+src/view/weather-fx.js:70 TONES
+src/view/weather-fx.js:71 fog
+src/view/weather-fx.js:109 EMBER
+src/view/weather-fx.js:110 embers
+src/view/weather-fx.js:160 night
+src/view/weather-fx.js:168 FLY
+src/view/weather-fx.js:169 fireflies
+src/view/weather-fx.js:206 LEAF_SHAPES
+src/view/weather-fx.js:211 LEAF_PALS
+src/view/weather-fx.js:212 leafArt
+src/view/weather-fx.js:213 leafSprites
+src/view/weather-fx.js:222 leaves
+src/view/weather-fx.js:251 BUB
+src/view/weather-fx.js:252 bubbles
+src/view/weather-fx.js:306 DRIP
+src/view/weather-fx.js:307 padSprites
+src/view/weather-fx.js:308 padSprite
+src/view/weather-fx.js:324 offBoard
+src/view/weather-fx.js:325 pond
+src/view/weather-fx.js:376 +WEATHER_FX
+## css/base.css (293L)
 css/base.css:1 /* Reset, typography, browser surfaces and shared components.
 css/base.css:22 /* Icon() pinta las dos versiones; cada mesa muestra la suya (p
 css/base.css:27 /* Clima: textura encima del fondo de la mesa (no lo reemplaza)
 css/base.css:31 /* Dos capas del mismo motivo: cerca (grande, recorre más) y le
 css/base.css:32 /* Clima: motivos pequeños por TODO el fondo (gotas, copos, jir
-css/base.css:61 /* Buttons are printed tokens: the solid bottom edge is the tok
-css/base.css:91 /* Teléfonos de 360 px: título en una línea al lado del Volver 
-css/base.css:100 /* Paper panels: the rulebook and score sheets of the box.
-css/base.css:115 /* Reward cards: actual playing cards of the game, so the card 
-css/base.css:136 /* Cartas de antes de la partida (Organizar): marco azul pizarr
-css/base.css:145 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
-css/base.css:149 /* Cartas lilas: gratis, aparte de la mano normal.
-css/base.css:151 /* Rareza que se ve sin buscar la gema: un brillo cruza la cart
-css/base.css:165 /* Rareza con canal propio, independiente del color del tipo (e
-css/base.css:170 /* Rara: el título es una banda de plata pulida. Épica: latón c
-css/base.css:181 /* Every figure on a card is paper with an ink outline, so stam
-css/base.css:192 /* Card back carries the pawn emblem: the box's identity mark.
-css/base.css:203 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
-css/base.css:243 /* Botones sin texto y cosas del jardín: el botón va en su esqu
-css/base.css:246 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
-## css/board.css (385L)
+css/base.css:64 /* Buttons are printed tokens: the solid bottom edge is the tok
+css/base.css:94 /* Teléfonos de 360 px: título en una línea al lado del Volver 
+css/base.css:103 /* Paper panels: the rulebook and score sheets of the box.
+css/base.css:118 /* Reward cards: actual playing cards of the game, so the card 
+css/base.css:139 /* Cartas de antes de la partida (Organizar): marco azul pizarr
+css/base.css:148 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
+css/base.css:152 /* Cartas lilas: gratis, aparte de la mano normal.
+css/base.css:154 /* Rareza que se ve sin buscar la gema: un brillo cruza la cart
+css/base.css:168 /* Rareza con canal propio, independiente del color del tipo (e
+css/base.css:173 /* Rara: el título es una banda de plata pulida. Épica: latón c
+css/base.css:184 /* Every figure on a card is paper with an ink outline, so stam
+css/base.css:195 /* Card back carries the pawn emblem: the box's identity mark.
+css/base.css:206 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
+css/base.css:246 /* Botones sin texto y cosas del jardín: el botón va en su esqu
+css/base.css:249 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
+css/base.css:268 /* Filtros de pantalla (src/data/filters.js): capa encima de to
+## css/board.css (379L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
 css/board.css:36 /* Tiles
@@ -1469,13 +1503,13 @@ css/board.css:272 /* Etiqueta de casilla: ficha de papel con pico, encima de la 
 css/board.css:287 /* Mesa Pixelada: el set de pxl. El PNG ya trae color y contorn
 css/board.css:293 /* Fondos del tema píxel (art/temas/<tema>, variables puestas p
 css/board.css:312 /* Estanque del centro abierto y coleccionables: tumbados sobre
-css/board.css:319 /* Koi con hambre: burbujas que suben despacio en el centro del
-css/board.css:338 /* La mariposa queda posada un poco en el aire (lo deja su vuel
-css/board.css:344 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
-css/board.css:357 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
-css/board.css:363 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
-css/board.css:367 /* Carta lila Disco: las casillas cambian de luz.
-css/board.css:377 /* Gallina del Gallinero: dibujo propio (no un peón), sin base 
+css/board.css:318 /* Koi con hambre: burbujas que suben despacio en el centro del
+css/board.css:333 /* La mariposa queda posada un poco en el aire (lo deja su vuel
+css/board.css:338 /* Meteorito: la cruz avisada late en rojo; la roca cae encendi
+css/board.css:351 /* Ventisca: bloque de hielo (frena al que resbala) y casillas 
+css/board.css:357 /* Estela del dash (jugadas extra): sin sombra ni base, teñida 
+css/board.css:361 /* Carta lila Disco: las casillas cambian de luz.
+css/board.css:371 /* Gallina del Gallinero: dibujo propio (no un peón), sin base 
 ## css/pixel.css (96L)
 css/pixel.css:1 /* Modo píxel: con un tema píxel (data-art="pixel", ver src/dat
 css/pixel.css:6 /* Jersey 10 (OFL), servida desde el juego: el subconjunto lati
@@ -1562,22 +1596,23 @@ css/screens.css:674 /* Burbuja de necesidad, como en PvZ: gota si falta riego, t
 css/screens.css:687 /* Maceta con planta: anclada a su base, sombra de contacto en 
 css/screens.css:695 /* Esmalte de la maceta y color de la flor por especie; la vací
 css/screens.css:719 /* Estanque: orilla de musgo, agua con hondura, koi, nenúfares,
-css/screens.css:739 /* Musgo, pisadera y farol.
-css/screens.css:750 /* Piedras de la tierra nueva: canto rodado con la cara al sol 
-css/screens.css:758 /* La rama de arce asoma por la esquina y suelta, muy de vez en
-css/screens.css:767 /* Hojas caídas sobre la arena: se tocan para barrerlas.
-css/screens.css:772 /* Asa de las animaciones de la planta: escala desde donde nace
-css/screens.css:774 /* Tierra húmeda tras regar, hasta que la flor abre.
-css/screens.css:776 /* La regadera aparece sobre la maceta, se inclina, riega y se 
-css/screens.css:788 /* El chorro sale del pico mientras la regadera está inclinada;
-css/screens.css:793 /* Herramientas: dibujo común.
-css/screens.css:803 /* La mano: la herramienta elegida acompaña al ratón sobre el j
-css/screens.css:806 /* Mazo y bolsa van con su icono, en tinta para leerse sobre la
-css/screens.css:812 /* Mazo y bolsa son iconos con versión vector y píxel: aquí sol
-css/screens.css:819 /* El gesto al tocar: las tijeras bajan al tallo y cortan dos v
-css/screens.css:828 /* El mazo se alza y cae de golpe sobre la piedra.
-css/screens.css:838 /* Mariposa: vuela hasta la flor, bate las alas y se posa.
-css/screens.css:848 /* Alimento de los koi: bolitas que flotan hasta que se las com
+css/screens.css:730 /* Estanque vivo (src/view/pond.js): el lienzo llena el agua; e
+css/screens.css:740 /* Musgo, pisadera y farol.
+css/screens.css:751 /* Piedras de la tierra nueva: canto rodado con la cara al sol 
+css/screens.css:759 /* La rama de arce asoma por la esquina y suelta, muy de vez en
+css/screens.css:768 /* Hojas caídas sobre la arena: se tocan para barrerlas.
+css/screens.css:773 /* Asa de las animaciones de la planta: escala desde donde nace
+css/screens.css:775 /* Tierra húmeda tras regar, hasta que la flor abre.
+css/screens.css:777 /* La regadera aparece sobre la maceta, se inclina, riega y se 
+css/screens.css:789 /* El chorro sale del pico mientras la regadera está inclinada;
+css/screens.css:794 /* Herramientas: dibujo común.
+css/screens.css:804 /* La mano: la herramienta elegida acompaña al ratón sobre el j
+css/screens.css:807 /* Mazo y bolsa van con su icono, en tinta para leerse sobre la
+css/screens.css:813 /* Mazo y bolsa son iconos con versión vector y píxel: aquí sol
+css/screens.css:820 /* El gesto al tocar: las tijeras bajan al tallo y cortan dos v
+css/screens.css:829 /* El mazo se alza y cae de golpe sobre la piedra.
+css/screens.css:839 /* Mariposa: vuela hasta la flor, bate las alas y se posa.
+css/screens.css:849 /* Alimento de los koi: bolitas que flotan hasta que se las com
 css/screens.css:850 /* Estado del jardín: una línea tranquila bajo el cantero.
 css/screens.css:852 /* Panel: sobres de semillas, herramientas con mango redondo, a
 css/screens.css:863 /* El sobre va cerrado arriba con la costura en zigzag de los s
