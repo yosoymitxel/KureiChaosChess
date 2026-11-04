@@ -6,6 +6,7 @@ import { key, reachPreview } from './game/rules.js';
 import { Moments } from './ui/moments.js';
 import { BOSSES } from './data/bosses.js';
 import { WEATHER } from './data/weather.js';
+import { FILTERS } from './data/filters.js';
 import { applyTheme } from './data/themes.js';
 import { animate } from 'animejs';
 import { clearAPKEffects, playAPKPixelTrail, playAPKShockwave, playAPKZombieAttack, playAPKTransform, playAPKDeal, playAPKMeteorImpact, playAPKBombBlast, playAPKBombField, playAPKDamage, playAPKTeleport, playAPKFall, playAPKParticleBurst, playAPKShield, playAPKBeam, playAPKVictory, playAPKScreenShake, playAPKSpawnBurst, playAPKHotPotatoCrown, playAPKChaosRoulette, playAPKEventStamp, playAPKZoneWarning, playAPKWeakPointMarker, playAPKWeakPointHit, playAPKBullet, playAPKBossCut, playAPKCaption, playAPKTilePattern, playAPKDisco, playAPKSpeedTimer, playAPKDeathStyle, playAPKCriticalDamage, playAPKFloatingText, playAPKTransformVariant, playAPKSpawnVariant, playAPKColumnBeam, playAPKBanner, playAPKTileSpark } from './lab/apk/effects.js';
@@ -81,6 +82,11 @@ const SCENES = {
 // Efectos extra (Ajustes › Efectos extra): en el lab van siempre encendidos.
 const FX = {
   ...Object.fromEntries(Object.values(WEATHER).map((w) => [`Clima: ${w.name}`, () => ({ b: board(), pieces: [makePiece('king', 'light', 6, 3), makePiece('queen', 'light', 5, 3), makePiece('king', 'dark', 0, 3), makePiece('knight', 'dark', 1, 1)], weather: w.id })])),
+  'Estanque central con koi': () => {
+    const b = { rows: 7, cols: 7, holes: new Set([key(3, 3), key(3, 4), key(4, 3), key(4, 4)]), protectRows: 2 };
+    return { b, pond: true, pieces: [makePiece('king', 'light', 6, 3), makePiece('rook', 'light', 6, 0), makePiece('king', 'dark', 0, 3), makePiece('knight', 'dark', 1, 1)],
+      after: (v) => { const t = document.querySelector('.pond-tile'); if (t) { const r = t.getBoundingClientRect(); v.feed(t, r.left + r.width / 2, r.top + r.height / 2); } } };
+  },
   'Escudo: golpe al jefe': SCENES['Golpe al jefe'],
   'Escudo: se rompe': () => {
     const b = board(), pieces = [makePiece('rook', 'light', 5, 3), makePiece('king', 'light', 6, 6)];
@@ -585,7 +591,7 @@ async function run(name) {
   view?.destroy();
   const s = (SCENES[name] || FX[name] || APK_FX[name] || KUREI[name])();
   stage.classList.toggle('apk-ref-mode', Boolean(s.apkPlay));
-  view = new BoardView(document.getElementById('board'), { camera, vfx: !s.apkPlay, shake: !s.apkPlay });
+  view = new BoardView(document.getElementById('board'), { camera, vfx: !s.apkPlay, shake: !s.apkPlay, pond: !!s.pond });
   view.setBoard(s.b);
   view.setPieces(s.pieces);
   view.setWeather(s.weather || null);
@@ -670,11 +676,19 @@ document.getElementById('copy-keep').onclick = async (e) => {
 };
 // Mesa normal o píxel: los efectos se ven distinto en cada una.
 const arts = document.getElementById('arts');
-for (const [id, label] of [['walnut', 'Normal'], ['pixelada', 'Píxel']]) {
+for (const [id, label] of [['walnut', 'Normal'], ['pixelada', 'Píxel'], ['paraguay', 'Ñandutí'], ['crisis', 'Crisis']]) {
   const b = document.createElement('button');
   b.textContent = label; b.className = id === theme ? 'on' : '';
   b.onclick = () => { theme = id; applyTheme(id); [...arts.children].forEach((x) => x.classList.toggle('on', x === b)); if (current && !MOMENTS[current]) run(current); };
   arts.appendChild(b);
+}
+// Filtro de pantalla (src/data/filters.js), el mismo de Ajustes.
+const filters = document.getElementById('filters');
+for (const f of FILTERS) {
+  const b = document.createElement('button');
+  b.textContent = f.name; b.className = f.id === 'off' ? 'on' : '';
+  b.onclick = () => { document.documentElement.dataset.filter = f.id; [...filters.children].forEach((x) => x.classList.toggle('on', x === b)); };
+  filters.appendChild(b);
 }
 const cams = document.getElementById('cams');
 for (const [id, label] of [['flat', 'Cenital'], ['tilt', 'Mesa'], ['epic', 'Épica']]) {
@@ -684,5 +698,5 @@ for (const [id, label] of [['flat', 'Cenital'], ['tilt', 'Mesa'], ['epic', 'Épi
   cams.appendChild(b);
 }
 const q = new URLSearchParams(location.search);
-if (q.get('art') === 'pixel') arts.lastChild.click();
+if (q.get('art') === 'pixel') arts.children[1].click();
 play2(q.get('scene') || 'Golpe al jefe');

@@ -54,7 +54,7 @@ function fillSelect(select, rows) {
   fillSelect(themeSelect, Object.values(THEMES).map(theme => [theme.id, theme.name]));
 }
 fillSelect(miniSelect, MINIS);
-themeSelect.value = THEMES.walnut ? 'walnut' : Object.keys(THEMES)[0];
+themeSelect.value = THEMES.paraguay ? 'paraguay' : Object.keys(THEMES)[0];
 miniSelect.value = 'caceria';
 
 function updatePreview() {
