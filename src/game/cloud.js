@@ -13,6 +13,8 @@ const load = () => { try { return JSON.parse(localStorage.getItem(SESSION)); } c
 // Fecha de la última copia de la nube que este aparato subió o aplicó: si la nube sigue en esa fecha,
 // el guardado automático puede subir sin pisar lo de otro aparato.
 const SYNCED = 'kurei.cloud.synced';
+// La copia de la nube es la última que subió o trajo este aparato: lo de aquí solo puede ser más nuevo.
+export const cloudIsOurs = (at) => !!at && at === synced();
 const synced = () => { try { return localStorage.getItem(SYNCED) || null; } catch { return null; } };
 // BASE: la copia de esa fecha, para saber si este aparato avanzó desde entonces.
 const BASE = 'kurei.cloud.base';

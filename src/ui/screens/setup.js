@@ -9,7 +9,7 @@ import { THEMES, vfxOn } from '../../data/themes.js';
 import { MUTATIONS, countMutations } from '../../data/mutations.js';
 import { canFullscreen, setFullscreen } from '../fullscreen.js';
 import { exportSave, importSave, MAX_BACKUP_CODE_CHARS, decodeSave, localSaveData, summarizeSave, sameProgress } from '../../game/backup.js';
-import { cloudUser, signIn, signUp, signOut, cloudUpload, cloudPeek, cloudMarkSynced, cloudStopped } from '../../game/cloud.js';
+import { cloudUser, signIn, signUp, signOut, cloudUpload, cloudPeek, cloudMarkSynced, cloudStopped, cloudIsOurs } from '../../game/cloud.js';
 import { themeOwned } from '../../game/shop.js';
 import { eliteVariants, lessonText } from '../../game/generate.js';
 import { t, LANG, LANGS } from '../../i18n/index.js';
@@ -352,6 +352,8 @@ function Cloud() {
     // Una copia que esta versión no sabe leer (hecha con una más nueva) no se pisa.
     if (peek && !remote) { setMsg(t('cloud.newer', 'La nube tiene una partida de una versión más nueva del juego: actualiza antes de guardar.')); return true; }
     const differ = !!(remote && !sameProgress(localSaveData(), remote));
+    // Solo este aparato avanzó desde su última copia: se sube sin preguntar.
+    if (differ && cloudIsOurs(peek.at)) { setClash(null); setWhen(await cloudUpload()); return 'same'; }
     setClash(differ ? { here: summarizeSave(localSaveData()), there: summarizeSave(remote), at: peek.at, code: peek.code } : null);
     if (remote && !differ) cloudMarkSynced(peek.at, peek.code);
     return differ ? true : peek ? 'same' : false;
