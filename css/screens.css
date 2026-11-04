@@ -970,9 +970,10 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
   .zen-main { grid-template-columns: minmax(0, 1fr) clamp(290px, 26vw, 340px); column-gap: clamp(24px, 3.2vw, 48px); }
   .zen-scene .mini-stage { min-height: 0; max-height: calc(100dvh - 190px); }
   /* El marco de madera y la perspectiva bajan del cantero: sin este margen pisaban el texto de debajo. */
-  .bm.zn-tray { --cell: max(18px, min(calc((100cqw - 76px) / var(--n)), calc((100cqh - 220px) / var(--n)), 110px)); }
+  .bm.zn-tray { --cell: max(18px, min(calc((100cqw - 76px) / var(--n)), calc((100cqh - 220px) / var(--n)), 180px)); }
   .zen-panel { align-self: center; }
 }
+@media (min-height: 1000px) and (min-width: 900px) { .bm.zn-tray { --cell: max(18px, min(calc((100cqw - 76px) / var(--n)), calc((100cqh - 190px) / var(--n)), 180px)); } }
 /* Semillas en la tienda: la flor recortada sobre el verde del tablero. */
 .seed-icon { background: var(--tile-b); background-image: var(--grain); }
 .seed-icon svg { width: 30px; height: 30px; }

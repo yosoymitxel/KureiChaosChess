@@ -142,7 +142,6 @@ export class Pond {
       ctx.save(); ctx.clip(body);
       for (const p of sh.spots) { ctx.fillStyle = p.color; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.rx, p.ry, p.ang, 0, TAU); ctx.fill(); }
       ctx.restore();
-      if (pixel) { ctx.strokeStyle = WATER.ink; ctx.lineWidth = 0.5; ctx.stroke(body); }
       ctx.fillStyle = '#171815';
       for (const e of sh.eyes) { ctx.beginPath(); ctx.arc(e.x, e.y, pixel ? 0.5 : e.r, 0, TAU); ctx.fill(); }
     }
