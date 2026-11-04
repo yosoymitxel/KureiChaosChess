@@ -91,10 +91,17 @@ const loop = (r, cx = 24, cy = 24.5, sy = 0.9, n = 48) => {
   const pts = Array.from({ length: n }, (_, i) => { const t = (i / n) * Math.PI * 2, rr = shore(r, t); return [f(cx + Math.cos(t) * rr), f(cy + Math.sin(t) * rr * sy)]; });
   return `M${pts.map((p) => p.join(' ')).join('L')}Z`;
 };
+// Piedras de la orilla: las de Kenney (CC0), tres tamaños; cada mesa usa su versión y no se mezclan.
+// Se pintan de arriba abajo para que las de delante tapen a las de atrás.
+const ROCK = { s: [4.5, 4, 6, 5], m: [6, 5.25, 8, 7], l: [7.2, 6.1, 10, 10] }; // vector [w, h], píxel [w, h]
 const STONES = Array.from({ length: 15 }, (_, i) => {
-  const t = (i / 15) * Math.PI * 2 + (i % 3) * 0.08, r = shore(18.6, t), s = 2 + ((i * 7) % 5) * 0.32;
-  return [f(24 + Math.cos(t) * r), f(24.5 + Math.sin(t) * r * 0.9), f(s), f(s * 0.72), (i * 37) % 60 - 30];
-});
+  const t = (i / 15) * Math.PI * 2 + (i % 3) * 0.08, r = shore(18.6, t);
+  return [f(24 + Math.cos(t) * r), f(24.5 + Math.sin(t) * r * 0.9), i % 5 === 0 ? 'l' : i % 2 ? 's' : 'm'];
+}).sort((a, b) => a[1] - b[1]);
+const rock = (k, x, y, pixel) => {
+  const [w, h] = pixel ? ROCK[k].slice(2) : ROCK[k], [x0, y0] = pixel ? [Math.round(x - w / 2), Math.round(y - h / 2)] : [f(x - w / 2), f(y - h / 2)];
+  return html`<image class=${pixel ? 'zn-px' : 'zn-vec'} href=${`assets/zen/rock-${k}${pixel ? '-px' : ''}.png`} x=${x0} y=${y0} width=${w} height=${h}/>`;
+};
 const KOI = html`<path d="M3.2 0C1.8-1.3-.6-1.5-2.4-.6L-3.8-1.6-3.4 0-3.8 1.6-2.4.6C-.6 1.5 1.8 1.3 3.2 0Z"/>`;
 // Si un punto del dibujo (48×48) es agua, con un margen para que el koi no roce las piedras.
 export const pondInside = (x, y) => { const dx = x - 24, dy = (y - 24.5) / 0.9; return Math.hypot(dx, dy) < shore(16.6, Math.atan2(dy, dx)) - 2; };
@@ -104,13 +111,13 @@ export const pondArt = () => html`<div class="zn-pondbox"><svg class="zn-pondart
   <defs>
     <radialGradient id="zn-water-g" cx="42%" cy="38%" r="70%"><stop offset="0" class="zn-shallow"/><stop offset=".7" class="zn-mid"/><stop offset="1" class="zn-deep"/></radialGradient>
     <clipPath id="zn-pond-clip" clipPathUnits="objectBoundingBox"><path transform="scale(.020833)" d=${loop(16.6)}/></clipPath>
-    <clipPath id="zn-pond-clip-px" clipPathUnits="objectBoundingBox"><path transform="scale(.020833)" d=${loop(14.6)}/></clipPath>
+    <clipPath id="zn-pond-clip-px" clipPathUnits="objectBoundingBox"><path transform="scale(.020833)" d=${loop(15.6)}/></clipPath>
   </defs>
   ${px('pond', 48, 48)}
   <path class="zn-bank zn-vec" d=${loop(18.2)}/>
   <path class="zn-water zn-vec" d=${loop(16.6)}/>
 </svg><canvas class="zn-pondcv"></canvas><svg class="zn-pondtop" viewBox="0 0 48 48">
-  <g class="zn-vec">${STONES.map(([x, y, rx, ry, rot]) => html`<ellipse class="zn-rock" cx=${x} cy=${y} rx=${rx} ry=${ry} transform=${`rotate(${rot} ${x} ${y})`}/>`)}</g>
+  ${STONES.map(([x, y, k]) => html`${rock(k, x, y)}${rock(k, x, y, true)}`)}
   <path class="zn-mossdab zn-vec" d="M5.4 30.6c1.4-1.8 3.8-1.6 4.6.2-1.6.8-3.2.8-4.6-.2zM38.6 12.4c1.6-1 3.4-.4 3.8 1-1.4.6-2.8.4-3.8-1z"/>
 </svg></div>`;
 

@@ -344,7 +344,6 @@ export const PIXEL_THEMES = {
   "paraguay": {
     "id": "paraguay",
     "name": "Ñandutí",
-    "price": 160,
     "swatch": [
       "#2c1d15",
       "#e2d6ba",

@@ -247,23 +247,11 @@ obj("lantern", 24, 32,
   vline(16, 29, 2, "5"),
 );
 
-// Estanque 48×48: orilla ondulada, borde de cantos rodados, agua con luz arriba a la izquierda y
-// sombra de la orilla, brillo, tres nenúfares y un loto. Sin peces: los koi se animan encima.
+// Estanque 48×48: orilla de musgo ondulada y agua con luz arriba a la izquierda y la sombra de la orilla.
 const shore = (r, t) => r * (1 + 0.07 * Math.sin(3 * t + 0.6) + 0.05 * Math.cos(2 * t));
 const polar = (x, y, cx = 24, cy = 24.5) => {
   const dx = x + 0.5 - cx, dy = (y + 0.5 - cy) / 0.9;
   return [Math.hypot(dx, dy), Math.atan2(dy, dx)];
-};
-const STONES = Array.from({ length: 14 }, (_, i) => {
-  const t = (i / 14) * Math.PI * 2 + (i % 3) * 0.1, r = shore(18.4, t), s = 2.3 + ((i * 7) % 5) * 0.3;
-  return [24 + Math.cos(t) * r, 24.5 + Math.sin(t) * r * 0.9, s];
-});
-const pad = (cx, cy, r, notch) => (c) => {
-  c.circ(cx, cy, r + 1, "k");
-  c.circ(cx, cy, r, "h");
-  c.circ(cx + 1, cy + 1, r - 1, "g");
-  c.line(cx, cy, cx + Math.round(Math.cos(notch) * r), cy + Math.round(Math.sin(notch) * r), "k");
-  c.px(cx - r + 1, cy - 1, "H");
 };
 obj("pond", 48, 48,
   (c) => {
@@ -279,12 +267,8 @@ obj("pond", 48, 48,
       } else if (r < shore(20.2, t)) c.px(x, y, Math.sin(t + 0.8) < -0.3 ? "h" : "g"); // orilla de musgo
     }
   },
-  // brillo del cielo
-  line(13, 20, 16, 17, "X"), line(17, 16, 21, 15, "X"), px(16, 17, "Y"), px(17, 16, "Y"), line(28, 37, 32, 38, "x"),
-  pad(33, 34, 4, -0.5), pad(14, 32, 3, -2.4), pad(35, 18, 2, -1.7),
-  // loto sobre el nenúfar grande
-  rows(31, "33:o", "32:o 33:O 34:o", "31-35:o"), px(32, 33, "O"), px(34, 33, "O"), px(33, 30, "o"), row(30, "32:k 34:k"),
-  ...STONES.map(([x, y, s]) => pebble(x, y, s)),
+  // Brillos, nenúfares, peces y piedras ya no van aquí: el agua viva la pinta src/view/pond.js y las
+  // piedras son las de Kenney (assets/zen/rock-*-px.png), puestas encima por src/ui/zen-art.js.
 );
 
 // Ala izquierda de la mariposa (6×9): la derecha es la misma en espejo; la columna 5 es medio cuerpo.

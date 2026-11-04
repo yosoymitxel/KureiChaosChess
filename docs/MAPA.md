@@ -1290,7 +1290,7 @@ src/ui/table-kit.js:33 +slingshot
 src/ui/table-kit.js:81 +corners
 src/ui/table-kit.js:84 homography
 src/ui/table-kit.js:102 +toTable
-## src/ui/zen-art.js (256L)
+## src/ui/zen-art.js (263L)
 src/ui/zen-art.js:8 +HEAD
 src/ui/zen-art.js:14 +chipArt
 src/ui/zen-art.js:16 f
@@ -1310,34 +1310,36 @@ src/ui/zen-art.js:67 lavStem
 src/ui/zen-art.js:74 +plantArt
 src/ui/zen-art.js:89 shore
 src/ui/zen-art.js:90 loop
-src/ui/zen-art.js:94 STONES
-src/ui/zen-art.js:98 KOI
-src/ui/zen-art.js:100 +pondInside
-src/ui/zen-art.js:103 +pondArt
-src/ui/zen-art.js:118 +MOSS
-src/ui/zen-art.js:127 +STEP
-src/ui/zen-art.js:134 +LANTERN
-src/ui/zen-art.js:150 MAPLE
-src/ui/zen-art.js:151 VEINS
-src/ui/zen-art.js:152 maple
-src/ui/zen-art.js:153 +mapleLeaf
-src/ui/zen-art.js:154 +BRANCH
-src/ui/zen-art.js:162 +BUTTERFLY
-src/ui/zen-art.js:170 +CAN
-src/ui/zen-art.js:178 +SHEARS
-src/ui/zen-art.js:184 +SHOVEL
-src/ui/zen-art.js:189 +POUCH
-src/ui/zen-art.js:196 GLOVE_GRID
-src/ui/zen-art.js:201 GLOVE_PAL
-src/ui/zen-art.js:202 gloveCell
-src/ui/zen-art.js:203 glovePx
-src/ui/zen-art.js:207 +GLOVE
-src/ui/zen-art.js:217 +rakeArt
-src/ui/zen-art.js:234 +PICKUP_ART
-src/ui/zen-art.js:239 +boardPond
-src/ui/zen-art.js:244 +stoneArt
-src/ui/zen-art.js:250 +ITEM_ART
-src/ui/zen-art.js:255 +KOI_ART
+src/ui/zen-art.js:96 ROCK
+src/ui/zen-art.js:97 STONES
+src/ui/zen-art.js:101 rock
+src/ui/zen-art.js:105 KOI
+src/ui/zen-art.js:107 +pondInside
+src/ui/zen-art.js:110 +pondArt
+src/ui/zen-art.js:125 +MOSS
+src/ui/zen-art.js:134 +STEP
+src/ui/zen-art.js:141 +LANTERN
+src/ui/zen-art.js:157 MAPLE
+src/ui/zen-art.js:158 VEINS
+src/ui/zen-art.js:159 maple
+src/ui/zen-art.js:160 +mapleLeaf
+src/ui/zen-art.js:161 +BRANCH
+src/ui/zen-art.js:169 +BUTTERFLY
+src/ui/zen-art.js:177 +CAN
+src/ui/zen-art.js:185 +SHEARS
+src/ui/zen-art.js:191 +SHOVEL
+src/ui/zen-art.js:196 +POUCH
+src/ui/zen-art.js:203 GLOVE_GRID
+src/ui/zen-art.js:208 GLOVE_PAL
+src/ui/zen-art.js:209 gloveCell
+src/ui/zen-art.js:210 glovePx
+src/ui/zen-art.js:214 +GLOVE
+src/ui/zen-art.js:224 +rakeArt
+src/ui/zen-art.js:241 +PICKUP_ART
+src/ui/zen-art.js:246 +boardPond
+src/ui/zen-art.js:251 +stoneArt
+src/ui/zen-art.js:257 +ITEM_ART
+src/ui/zen-art.js:262 +KOI_ART
 ## src/view/board-view.js (1232L)
 src/view/board-view.js:18 +pixelArt
 src/view/board-view.js:20 +WITCH
@@ -1441,28 +1443,28 @@ src/view/weather-fx.js:308 padSprite
 src/view/weather-fx.js:324 offBoard
 src/view/weather-fx.js:325 pond
 src/view/weather-fx.js:376 +WEATHER_FX
-## css/base.css (293L)
+## css/base.css (292L)
 css/base.css:1 /* Reset, typography, browser surfaces and shared components.
 css/base.css:22 /* Icon() pinta las dos versiones; cada mesa muestra la suya (p
 css/base.css:27 /* Clima: textura encima del fondo de la mesa (no lo reemplaza)
 css/base.css:31 /* Dos capas del mismo motivo: cerca (grande, recorre más) y le
 css/base.css:32 /* Clima: motivos pequeños por TODO el fondo (gotas, copos, jir
-css/base.css:64 /* Buttons are printed tokens: the solid bottom edge is the tok
-css/base.css:94 /* Teléfonos de 360 px: título en una línea al lado del Volver 
-css/base.css:103 /* Paper panels: the rulebook and score sheets of the box.
-css/base.css:118 /* Reward cards: actual playing cards of the game, so the card 
-css/base.css:139 /* Cartas de antes de la partida (Organizar): marco azul pizarr
-css/base.css:148 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
-css/base.css:152 /* Cartas lilas: gratis, aparte de la mano normal.
-css/base.css:154 /* Rareza que se ve sin buscar la gema: un brillo cruza la cart
-css/base.css:168 /* Rareza con canal propio, independiente del color del tipo (e
-css/base.css:173 /* Rara: el título es una banda de plata pulida. Épica: latón c
-css/base.css:184 /* Every figure on a card is paper with an ink outline, so stam
-css/base.css:195 /* Card back carries the pawn emblem: the box's identity mark.
-css/base.css:206 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
-css/base.css:246 /* Botones sin texto y cosas del jardín: el botón va en su esqu
-css/base.css:249 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
-css/base.css:268 /* Filtros de pantalla (src/data/filters.js): capa encima de to
+css/base.css:63 /* Buttons are printed tokens: the solid bottom edge is the tok
+css/base.css:93 /* Teléfonos de 360 px: título en una línea al lado del Volver 
+css/base.css:102 /* Paper panels: the rulebook and score sheets of the box.
+css/base.css:117 /* Reward cards: actual playing cards of the game, so the card 
+css/base.css:138 /* Cartas de antes de la partida (Organizar): marco azul pizarr
+css/base.css:147 /* Gema de rareza: común hueca, rara roja, épica de latón. La u
+css/base.css:151 /* Cartas lilas: gratis, aparte de la mano normal.
+css/base.css:153 /* Rareza que se ve sin buscar la gema: un brillo cruza la cart
+css/base.css:167 /* Rareza con canal propio, independiente del color del tipo (e
+css/base.css:172 /* Rara: el título es una banda de plata pulida. Épica: latón c
+css/base.css:183 /* Every figure on a card is paper with an ink outline, so stam
+css/base.css:194 /* Card back carries the pawn emblem: the box's identity mark.
+css/base.css:205 /* Mando (src/ui/gamepad.js). El botón va dentro del elemento a
+css/base.css:245 /* Botones sin texto y cosas del jardín: el botón va en su esqu
+css/base.css:248 /* Grupos: L a la izquierda y R a la derecha de la fila; en una
+css/base.css:267 /* Filtros de pantalla (src/data/filters.js): capa encima de to
 ## css/board.css (379L)
 css/board.css:1 /* 3D tabletop: tilted board plane, tiles with thickness, cardb
 css/board.css:26 /* Liquid base while a piece moves: drawn on the board plane ju
