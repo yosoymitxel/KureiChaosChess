@@ -594,7 +594,7 @@ async function run(name) {
   view = new BoardView(document.getElementById('board'), { camera, vfx: !s.apkPlay, shake: !s.apkPlay, pond: !!s.pond });
   view.setBoard(s.b);
   view.setPieces(s.pieces);
-  view.setWeather(s.weather || null);
+  view.setWeather(s.weather || weather);
   if (s.apkPlay) { if (!s.skipDeal) await playAPKDeal(view, s.pieces, stage); }
   else await view.intro(s.pieces);
   if (s.apkPlay) {
@@ -681,6 +681,15 @@ for (const [id, label] of [['walnut', 'Normal'], ['pixelada', 'Píxel'], ['parag
   b.textContent = label; b.className = id === theme ? 'on' : '';
   b.onclick = () => { theme = id; applyTheme(id); [...arts.children].forEach((x) => x.classList.toggle('on', x === b)); if (current && !MOMENTS[current]) run(current); };
   arts.appendChild(b);
+}
+// Clima sobre la escena que esté puesta (src/data/weather.js); se mantiene al cambiar de escena.
+let weather = null;
+const weathers = document.getElementById('weathers');
+for (const [id, name] of [[null, 'Sin clima'], ...Object.values(WEATHER).map((w) => [w.id, w.name])]) {
+  const b = document.createElement('button');
+  b.textContent = name; b.className = id ? '' : 'on';
+  b.onclick = () => { weather = id; view?.setWeather(id); [...weathers.children].forEach((x) => x.classList.toggle('on', x === b)); };
+  weathers.appendChild(b);
 }
 // Filtro de pantalla (src/data/filters.js), el mismo de Ajustes.
 const filters = document.getElementById('filters');
