@@ -80,6 +80,8 @@ Diseño y desarrollo: [yosoymitxel](https://github.com/yosoymitxel).
 
 - Música: Open Lo-Fi (btahir) y Ninja Adventure (Pixel-boy), CC0.
 - Sonidos: Kenney, OpenGameArt y Ninja Adventure, CC0.
+- Piedras del estanque: Kenney (RTS Medieval), CC0.
+- Koi del estanque: adaptados de [nagomi](https://github.com/msk1039/nagomi), PolyForm Noncommercial 1.0.0. Required Notice: Copyright 2026 Mayank Kadam (https://github.com/msk1039).
 - Letras: Bricolage Grotesque y Jersey 10 (SIL OFL).
 
 ¿Quieres ver cómo está hecho o añadir algo? Mira la [guía de desarrollo](docs/DESARROLLO.md).

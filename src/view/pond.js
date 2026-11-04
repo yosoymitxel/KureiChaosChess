@@ -1,24 +1,18 @@
 // Estanque vivo en un <canvas>: lecho con hondura, luz que ondula en el fondo, sombras, koi
 // procedurales (koi.js), nenúfares que derivan y se apartan de las ondas, un loto, lenteja de agua,
-// brillos y aros al tocar o al caer gotas. Las ideas son de nagomi (msk1039); el código es propio.
+// brillos y aros al tocar o al caer gotas. Ideas de nagomi (msk1039); los koi, adaptados de su código
+// (ver koi.js).
 // Trabaja en unidades del dibujo (el jardín usa 48×48, el tablero 20×20). En píxel se pinta a baja
 // resolución y cada píxel se lleva al color más cercano de una paleta corta: sprites limpios.
-import { School, spine, bodyPath, finPath, spotPath } from './koi.js';
+import { School, spine, koiShape, KOI_KINDS } from './koi.js';
 
 const TAU = Math.PI * 2;
 const rnd = (a, b) => a + Math.random() * (b - a);
 
-// Variedades de koi: cuerpo, manchas, aletas.
-const KOI = [
-  { body: '#f4efe6', spot: '#d8402a', fin: '#f8f4ec' }, // kohaku
-  { body: '#f08a2c', spot: '#fff1dc', fin: '#f7b16a' }, // naranja
-  { body: '#2b2a30', spot: '#ece5d8', fin: '#55535c', red: '#d8402a' }, // showa
-  { body: '#f2c14e', spot: '#fff2c2', fin: '#f6d98a' }, // yamabuki
-];
 const WATER = { deep: '#17414f', mid: '#245f6b', shallow: '#3a8584', light: '#bfeee6', ink: '#14191d' };
 const PAD = { base: '#4f8f3a', dark: '#36692a', light: '#86bd5c', vein: '#3a6f2c' };
 const LOTUS = { out: '#f3b8cd', in: '#fbe0ea', deep: '#df88aa', core: '#f2d36b' };
-const PALETTE = [...new Set([...Object.values(WATER), ...Object.values(PAD), ...Object.values(LOTUS), ...KOI.flatMap((k) => Object.values(k)), '#ffffff', '#2f7468', '#5aa39a', '#9a7b4c', '#7fc4a0'])]
+const PALETTE = [...new Set([...Object.values(WATER), ...Object.values(PAD), ...Object.values(LOTUS), ...KOI_KINDS.flatMap((k) => [k.base, k.accent, k.marking, k.fin]), '#171815', '#ffffff', '#2f7468', '#5aa39a', '#9a7b4c', '#7fc4a0'])]
   .map((h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]);
 
 // Nenúfar: disco con su muesca, cara más clara arriba a la izquierda, nervios desde el centro.
@@ -122,29 +116,35 @@ export class Pond {
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
-    const fish = this.school.fish.map((f) => ({ f, s: spine(f, len), k: KOI[f.kind % KOI.length] }));
+    const fish = this.school.fish.map((f) => {
+      const sh = koiShape(spine(f, len, Math.min(1, 0.3 + f.burst + f.v / (this.school.speed * 4))), f, len);
+      return { f, sh, path: outline(sh) };
+    });
     // Sombras: de peces y nenúfares, corridas abajo a la derecha (la luz viene de arriba).
     ctx.fillStyle = WATER.ink;
-    for (const { f, s } of fish) {
+    for (const { f, path } of fish) {
       ctx.globalAlpha = pixel ? 0.3 : 0.18 + 0.12 * (1 - f.depth);
       ctx.save(); ctx.translate(len * 0.12 + f.depth * len * 0.08, len * 0.16 + f.depth * len * 0.1);
-      ctx.fill(new Path2D(bodyPath(s, len))); ctx.restore();
+      ctx.fill(path); ctx.restore();
     }
     ctx.globalAlpha = 0.22;
     for (const p of this.pads) { ctx.beginPath(); ctx.arc(p.x + p.r * 0.25, p.y + p.r * 0.35, p.r, 0, TAU); ctx.fill(); }
     ctx.globalAlpha = 1;
-    // Koi: más hondos, más velados por el agua.
-    for (const { f, s, k } of fish) {
+    // Koi: aletas y cola debajo, cuerpo, manchas recortadas al cuerpo, ojos. Más hondos, más velados.
+    for (const { f, sh, path } of fish) {
       ctx.globalAlpha = pixel ? 1 : 1 - Math.max(0, f.depth) * 0.35; // en píxel, colores puros
-      ctx.fillStyle = k.fin; ctx.fill(new Path2D(finPath(s, len)));
-      const body = new Path2D(bodyPath(s, len));
-      ctx.fillStyle = k.body; ctx.fill(body);
+      ctx.fillStyle = sh.kind.fin;
+      for (const tri of [...sh.fins, ...sh.tail]) { ctx.beginPath(); tri.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.fill(); }
+      const body = new Path2D();
+      sh.body.forEach(([x, y], i) => (i ? body.lineTo(x, y) : body.moveTo(x, y)));
+      body.closePath(); body.moveTo(sh.nose.x + sh.nose.r, sh.nose.y); body.arc(sh.nose.x, sh.nose.y, sh.nose.r, 0, TAU);
+      ctx.fillStyle = sh.kind.base; ctx.fill(body);
       ctx.save(); ctx.clip(body);
-      ctx.fillStyle = k.spot; ctx.fill(new Path2D(spotPath(s, f.kind % 2)));
-      if (k.red) { ctx.fillStyle = k.red; ctx.beginPath(); ctx.arc(s[1].x, s[1].y, s[1].w * 0.6, 0, TAU); ctx.fill(); }
+      for (const p of sh.spots) { ctx.fillStyle = p.color; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.rx, p.ry, p.ang, 0, TAU); ctx.fill(); }
       ctx.restore();
       if (pixel) { ctx.strokeStyle = WATER.ink; ctx.lineWidth = 0.5; ctx.stroke(body); }
-      else { ctx.fillStyle = WATER.ink; for (const side of [-1, 1]) { const h = s[0]; ctx.beginPath(); ctx.arc(h.x + h.nx * h.w * 0.55 * side + (h.x - s[1].x) * 0.25, h.y + h.ny * h.w * 0.55 * side + (h.y - s[1].y) * 0.25, len * 0.022, 0, TAU); ctx.fill(); } }
+      ctx.fillStyle = '#171815';
+      for (const e of sh.eyes) { ctx.beginPath(); ctx.arc(e.x, e.y, pixel ? 0.5 : e.r, 0, TAU); ctx.fill(); }
     }
     ctx.globalAlpha = 1;
     // Comida flotando.
@@ -178,6 +178,14 @@ export class Pond {
     }
     ctx.globalAlpha = 1;
   }
+}
+
+// Silueta entera (cuerpo, aletas y cola) para la sombra y el borde en píxel.
+function outline(sh) {
+  const p = new Path2D();
+  for (const poly of [sh.body, ...sh.fins, ...sh.tail]) { poly.forEach(([x, y], i) => (i ? p.lineTo(x, y) : p.moveTo(x, y))); p.closePath(); }
+  p.moveTo(sh.nose.x + sh.nose.r, sh.nose.y); p.arc(sh.nose.x, sh.nose.y, sh.nose.r, 0, TAU);
+  return p;
 }
 
 // Cada píxel al color más cercano de la paleta (y opaco o nada): sin bordes suavizados.
