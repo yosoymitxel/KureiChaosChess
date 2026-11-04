@@ -99,7 +99,7 @@ export function koiShape(s, f, len) {
   const t = s[N - 1], spread = bw * (0.58 + 0.08 * Math.sin(f.phase - 0.8)), back = (k) => [t.x - t.fx * bw * k, t.y - t.fy * bw * k];
   const tail = [[[t.x, t.y], add(back(1.38), t.nx, t.ny, spread), back(0.86)], [[t.x, t.y], back(0.86), add(back(1.38), t.nx, t.ny, -spread)]];
   const h = s[0], nose = { x: h.x + h.fx * bw * 0.43, y: h.y + h.fy * bw * 0.43, r: Math.max(0.1, h.w * 0.72 * 0.72) };
-  const body = [...L, [nose.x + h.nx * h.w * 0.72, nose.y + h.ny * h.w * 0.72], [nose.x - h.nx * h.w * 0.72, nose.y - h.ny * h.w * 0.72], ...R.slice().reverse()];
+  const body = [[nose.x + h.nx * h.w * 0.72, nose.y + h.ny * h.w * 0.72], ...L, ...R.slice().reverse(), [nose.x - h.nx * h.w * 0.72, nose.y - h.ny * h.w * 0.72]];
   const kind = KOI_KINDS[f.kind % KOI_KINDS.length];
   const spots = kind.spots.map(([pos, l, w, off, c]) => {
     const at = pos * (N - 1), k = Math.min(N - 2, Math.floor(at)), u = at - k, a = s[k], b = s[k + 1], lw = a.w * (1 - u) + b.w * u;
