@@ -436,6 +436,38 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "piratas"
   },
+  "quelonios": {
+    "id": "quelonios",
+    "name": "Quelonios",
+    "price": 240,
+    "swatch": [
+      "#102629",
+      "#d7c6a1",
+      "#9aa5d2",
+      "#d5a34d"
+    ],
+    "vars": {
+      "table": "#102629",
+      "table-2": "#19383a",
+      "tile-a": "#d7c6a1",
+      "tile-b": "#3e6a61",
+      "tile-side": "#294b48",
+      "side-light": "#cce0a0",
+      "side-dark": "#9aa5d2",
+      "side-wild": "#d5a34d",
+      "paper": "#e9ead8",
+      "paper-2": "#d8dfc1",
+      "paper-3": "#b8c8a4",
+      "ink": "#172a2d",
+      "ink-2": "#465f56",
+      "accent": "#4d8278",
+      "accent-ink": "#183c3c",
+      "brass": "#d3ad66",
+      "muted": "#697d70"
+    },
+    "art": "pixel",
+    "pack": "quelonios"
+  },
   "reino-hongos": {
     "id": "reino-hongos",
     "name": "Hongos",
