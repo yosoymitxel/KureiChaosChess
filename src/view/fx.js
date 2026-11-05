@@ -288,7 +288,7 @@ export class Fx {
         this.weather.n[wk] = Math.max(this.weather.n[wk] || 0, Math.ceil(target));
       }
       this.weather.warm = true;
-      if (W.under) { ctx.save(); W.under(ctx, T, pixel, this.w, this.h); ctx.restore(); }
+      if (W.under && !this.noShade) { ctx.save(); W.under(ctx, T, pixel, this.w, this.h); ctx.restore(); } // capas que no cubren la pantalla (menú, jardín): sin sombra de noche, que dejaría un borde
     } else if (this.weather && !this.weather.warm && this.h > 40) { this.weather.warm = true; this.prewarm(this.weather.kind); }
     if (this.weather && !W) {
       const rate = WEATHER_RATE[this.weather.kind] * (this.w / 360);

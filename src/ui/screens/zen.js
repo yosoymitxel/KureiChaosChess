@@ -98,7 +98,7 @@ export function ZenScreen({ onBack, onShop }) {
   useEffect(() => { if (!gain) return; const t = setTimeout(() => setGain(null), 3200); return () => clearTimeout(t); }, [gain]);
   useEffect(() => { if (!msg) return; const t = setTimeout(() => { setMsg(null); setArmed(false); }, 5000); return () => clearTimeout(t); }, [msg]);
   const [sky] = useState(() => zenSky());
-  useEffect(() => { const fx = fxRef.current = new Fx(yardRef.current); fx.vfx = true; fx.setWeather(sky); return () => fx.destroy(); }, []);
+  useEffect(() => { const fx = fxRef.current = new Fx(yardRef.current); Object.assign(fx, { vfx: true, noShade: true }); fx.setWeather(sky); return () => fx.destroy(); }, []);
 
   const now = Date.now();
   const digRest = digWait(z, now), moveRest = moveWait(z, now);

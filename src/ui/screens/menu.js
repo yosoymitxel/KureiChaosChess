@@ -12,10 +12,12 @@ import { t } from '../../i18n/index.js';
 // Decorative diorama: a small board with a boss facing a few pieces, gently swaying.
 // Five more pieces, labelled above, turn into the extras: Jardín Zen, Tienda, Galería, Logros and Tutorial.
 function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
-  const host = useRef(null), tags = useRef(null), titan = useRef({ id: null, n: 0, t: 0 });
+  const host = useRef(null), tags = useRef(null), retag = useRef(null), titan = useRef({ id: null, n: 0, t: 0 });
   const open = { 'x-zen': onZen, 'x-tienda': onShop, 'x-galeria': onGallery, 'x-logros': onAchievements, 'x-tutorial': onTutorial };
   useEffect(() => {
     const v = new BoardView(host.current, { camera: 'epic' });
+    // Ambiente propio del inicio: polvo flotando bajo una lámpara (la luz va en css); sin textura de clima.
+    Object.assign(v.fx, { vfx: true, noShade: true }); v.setWeather('dust'); delete host.current.closest('.screen')?.dataset.weather;
     const board = { rows: 6, cols: 6, holes: new Set(['2,0', '3,5', '2,5']) };
     const pieces = [
       makePiece('king', 'dark', 0, 2, { boss: 'titan', h: 2, w: 2, hp: 3, maxHp: 3, name: BOSSES.titan.name }),
@@ -66,12 +68,22 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
     };
     let gone = false;
     const kick = (ms) => { until = Math.max(until, performance.now() + ms); if (!raf && !gone) follow(); };
+    retag.current = kick;
     follow();
     // 1.7 s tras el reparto: lo que queda del giro del tablero (settle, 1.6 s).
-    v.intro(pieces).finally(() => { until = 0; kick(1700); });
+    v.intro(pieces).finally(() => { until = 0; kick(1700); later(); });
+    // Vida en la mesa cada pocos segundos: una pieza da un saltito y levanta polvo, o el Titán pisa fuerte.
+    let life = 0;
+    const later = () => { if (!gone && !matchMedia('(prefers-reduced-motion: reduce)').matches) life = setTimeout(beat, 4500 + Math.random() * 4500); };
+    const beat = () => {
+      const p = pieces[Math.random() < 0.3 ? 0 : 1 + Math.floor(Math.random() * (pieces.length - 1))], c = v.centerOf(p);
+      if (p === pieces[0]) { v.squash(p, 0.7); v.shake(5, 300); v.fx.pfx('groundSlam', c.x, c.y, { k: v.sq / 260, palette: ['#2a1f16', '#4d3a28', '#7a604a', '#a88a6c', '#d6c1a2', '#f2e6d0', '#ffffff'] }); }
+      else { v.squash(p, 0.85); v.fx.pfx('poof', c.x, c.y, { k: v.sq / 200 }); }
+      later();
+    };
     const ro = new ResizeObserver(() => kick(800)); // el tablero se reajusta con transición de 0.6 s
     ro.observe(host.current);
-    return () => { gone = true; cancelAnimationFrame(raf); ro.disconnect(); tags.current?.replaceChildren(); v.destroy(); };
+    return () => { gone = true; clearTimeout(life); cancelAnimationFrame(raf); ro.disconnect(); tags.current?.replaceChildren(); v.destroy(); };
   }, []);
   // Secreto: tres toques seguidos al Titán lo despiertan.
   const poke = (el) => {
@@ -90,7 +102,9 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
     const fn = open[pc?.dataset.pid];
     if (fn) fn();
   };
-  return html`<div class="diorama-wrap">
+  // Con ratón, la mesa se inclina apenas hacia el puntero: profundidad sin mover la cámara del juego.
+  const lean = (e) => { if (e.pointerType !== 'mouse') return; const r = e.currentTarget.getBoundingClientRect(); e.currentTarget.style.setProperty('--px', ((e.clientX - r.left) / r.width - 0.5).toFixed(3)); e.currentTarget.style.setProperty('--py', ((e.clientY - r.top) / r.height - 0.5).toFixed(3)); retag.current?.(700); }; // las etiquetas siguen a sus piezas
+  return html`<div class="diorama-wrap" onPointerMove=${lean}>
     <div class="diorama" ref=${host} role="group" aria-label=${t('menu.extras', 'Extras')} onClick=${pick}></div>
     <div class="x-tags" ref=${tags} aria-hidden="true" onClick=${pick}></div>
   </div>`;

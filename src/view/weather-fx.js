@@ -375,4 +375,15 @@ const pond = {
   },
 };
 
-export const WEATHER_FX = { snow, fog, embers, fireflies, leaves, bubbles, pond };
+// Polvo bajo la lámpara (solo el menú): motas que flotan despacio y brillan al cruzar el cono de luz.
+const dust = {
+  count: (w) => ({ mote: Math.round(w / 22) }),
+  spawn: (kind, w, h, any) => ({ x: rnd(w * 0.15, w * 0.95), y: any ? rnd(0, h) : h + 6, vx: rnd(-6, 6), vy: rnd(-14, -5), life: rnd(10, 20), max: 1, seed: Math.random() * 100, size: rnd(1, 2.4) }),
+  tick(p, dt, T, w, h) { p.vx += Math.sin(T * 0.6 + p.seed) * 4 * dt; return p.y > -8 && p.x > -8 && p.x < w + 8; },
+  draw(ctx, p, T, pixel, w) {
+    const lit = Math.max(0, 1 - Math.abs(p.x / w - 0.55) * 2.4), a = 0.18 + 0.6 * lit * (0.7 + 0.3 * Math.sin(T * 1.7 + p.seed));
+    ctx.globalAlpha = a; ctx.fillStyle = '#fff1cf'; dot(ctx, p.x, p.y, p.size, pixel);
+    if (lit > 0.4) glow(ctx, p.x, p.y, p.size * 5, '#ffe7b0', 0.25 * lit);
+  },
+};
+export const WEATHER_FX = { snow, fog, embers, fireflies, leaves, bubbles, pond, dust };
