@@ -1,0 +1,49 @@
+{
+  "nombre": "Pizzería Pixel",
+  "precio": 240,
+  "descripcion": "Un menú de combate de pizza, hamburguesas, papas fritas, panchos y comida rápida convertido en piezas y jefes pixel art.",
+  "colores": {
+    "table": "#21191d",
+    "table-2": "#322126",
+    "tile-a": "#f0d6a5",
+    "tile-b": "#a34d3c",
+    "tile-side": "#65362f",
+    "side-light": "#f7d98f",
+    "side-dark": "#8c70bc",
+    "side-wild": "#6d9d4f"
+  },
+  "interfaz": {
+    "paper": "#f5e8d0",
+    "paper-2": "#ead5b3",
+    "paper-3": "#d3b58d",
+    "ink": "#2a2020",
+    "ink-2": "#594038",
+    "accent": "#c74734",
+    "accent-ink": "#64251f",
+    "brass": "#e8ae45",
+    "muted": "#806858"
+  },
+  "bandos": {
+    "l": [
+      "#f7d98f",
+      "#efab55",
+      "#d96b42",
+      "#a63e34",
+      "#602a2b"
+    ],
+    "d": [
+      "#e0d4f3",
+      "#bba7dd",
+      "#8c70bc",
+      "#5f4a8f",
+      "#392d5e"
+    ],
+    "w": [
+      "#d4e6a1",
+      "#a9cb70",
+      "#6d9d4f",
+      "#436d3c",
+      "#29472f"
+    ]
+  }
+}

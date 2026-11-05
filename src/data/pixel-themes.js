@@ -658,5 +658,37 @@ export const PIXEL_THEMES = {
     },
     "art": "pixel",
     "pack": "zombis"
+  },
+  "fast-food": {
+    "id": "fast-food",
+    "name": "Pizzería Pixel",
+    "price": 240,
+    "swatch": [
+      "#21191d",
+      "#f0d6a5",
+      "#8c70bc",
+      "#6d9d4f"
+    ],
+    "vars": {
+      "table": "#21191d",
+      "table-2": "#322126",
+      "tile-a": "#f0d6a5",
+      "tile-b": "#a34d3c",
+      "tile-side": "#65362f",
+      "side-light": "#f7d98f",
+      "side-dark": "#8c70bc",
+      "side-wild": "#6d9d4f",
+      "paper": "#f5e8d0",
+      "paper-2": "#ead5b3",
+      "paper-3": "#d3b58d",
+      "ink": "#2a2020",
+      "ink-2": "#594038",
+      "accent": "#c74734",
+      "accent-ink": "#64251f",
+      "brass": "#e8ae45",
+      "muted": "#806858"
+    },
+    "art": "pixel",
+    "pack": "fast-food"
   }
 };
