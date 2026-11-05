@@ -36,7 +36,7 @@ for (const name of ROCKS) {
   // Las píxel vienen azuladas: sus tonos, de oscuro a claro, pasan al granito del jardín (zen.px.js).
   if (name.endsWith('-px')) {
     const lum = (i) => px[i] * 0.3 + px[i + 1] * 0.59 + px[i + 2] * 0.11, tones = [...new Set([...Array(w * h).keys()].filter((i) => px[i * 4 + 3]).map((i) => lum(i * 4)))].sort((a, b) => a - b);
-    const GRANITE = [[0x24, 0x18, 0x12], [0x4d, 0x49, 0x44], [0x77, 0x72, 0x6b], [0xa9, 0xa4, 0x9c], [0xcb, 0xc7, 0xbf]];
+    const GRANITE = [[0x3a, 0x35, 0x30], [0x4d, 0x49, 0x44], [0x77, 0x72, 0x6b], [0xa9, 0xa4, 0x9c], [0xcb, 0xc7, 0xbf]];
     for (let i = 0; i < px.length; i += 4) if (px[i + 3]) px.set(GRANITE[Math.min(GRANITE.length - 1, tones.indexOf(lum(i)))], i);
   }
   writeFileSync(`${OUT}${name}.png`, encodePNG({ w, h, px }));

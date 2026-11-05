@@ -753,6 +753,8 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 .lab-menu .segmented { flex-wrap: wrap; }
 .zn-pondbox { position: relative; width: 104%; height: 104%; filter: drop-shadow(0 4px 3px oklch(0.15 0.03 55 / 0.28)); }
 .zn-pondart, .zn-pondtop, .zn-pondbox > .zn-pondcv { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+/* Las piedras vectoriales de Kenney son claras para el granito del jardín: se oscurecen. */
+.zn-pondtop image.zn-vec { filter: brightness(0.74) contrast(1.08); }
 .zn-pondbox > .zn-pondcv { clip-path: url(#zn-pond-clip); pointer-events: none; }
 [data-art="pixel"] .zn-pondbox > .zn-pondcv { clip-path: url(#zn-pond-clip-px); }
 .zn-pondtop { pointer-events: none; }
@@ -800,7 +802,7 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 .zn-maple-b path:first-child { fill: oklch(0.72 0.15 58); }
 .zn-maple-c path:first-child { fill: oklch(0.5 0.17 22); }
 /* Hojas caídas sobre la arena: se tocan para barrerlas. */
-.zn-fallen { --s: 0.36; --t: 0; position: absolute; z-index: 2; width: calc(var(--cell) * var(--s)); height: calc(var(--cell) * var(--s)); margin: calc(var(--cell) * var(--s) / -2) 0 0 calc(var(--cell) * var(--s) / -2); padding: 0; border: 0; background: none; cursor: pointer; rotate: var(--r); filter: drop-shadow(0 2px 1px oklch(0 0 0 / 0.3)); }
+.zn-fallen { --s: 0.36; --t: 0; position: absolute; z-index: 6; /* por encima del estanque: también se barre la que cae al agua */ width: calc(var(--cell) * var(--s)); height: calc(var(--cell) * var(--s)); margin: calc(var(--cell) * var(--s) / -2) 0 0 calc(var(--cell) * var(--s) / -2); padding: 0; border: 0; background: none; cursor: pointer; rotate: var(--r); filter: drop-shadow(0 2px 1px oklch(0 0 0 / 0.3)); }
 .zn-fallen svg { width: 100%; height: 100%; }
 /* Tonos de otoño rojizos (los amarillos se confunden con monedas); en píxel el mismo giro al sprite. */
 .zn-fallen .zn-maple path:first-child { fill: oklch(calc(0.5 + var(--t) * 0.05) 0.18 calc(22 + var(--t) * 7)); }
