@@ -394,3 +394,161 @@ THEMES['terrario-vivo']['fixed'].update({'g': ['#6b8f4e', '#557a3e', '#40603a', 
                                          'm': ['#b8394a', '#922d3c']})
 THEMES['paleontologia']['sprites'].update({'boss-titan': pb_titan, 'boss-ram': pb_ram, 'boss-hydra': pb_hydra,
     'boss-golem': pb_golem, 'boss-rider': pb_rider, 'boss-wall': pb_wall, 'boss-devourer': pb_devourer})
+
+# ---------- Quelonios: tortugas de perfil ----------
+def tort(s, cx, gy, rx, ry, head=(0, 0), neck=None, hr=3, legs_=True, flip=1, scutes=True, plast=True):
+    """Caparazón en cúpula sobre suelo gy; cabeza a la derecha."""
+    top = gy - 3 - ry
+    if legs_:
+        for dx in (-rx * 0.55, rx * 0.45):
+            s.stroke([(cx + dx, gy - 4), (cx + dx + 0.5, gy - 0.5)], 2, 2.3, mat='s')
+    hx, hy = head
+    if neck: s.stroke(neck, 2.2, 1.8, mat='s')
+    s.ell(hx, hy, hr * 1.25, hr, mat='s')
+    s.dot(hx + hr * 0.5, hy - hr * 0.35, 'o')
+    s.ell(cx, gy - 3, rx, ry)
+    s.cut(cx, gy + 1.5, rx + 2, 4.3)
+    if plast: s.ell(cx, gy - 3.4, rx - 0.5, 1.4, mat='p')
+    if scutes:
+        n = max(3, int(rx / 3.4))
+        for i in range(1, n):
+            x = cx - rx + 2 * rx * i / n
+            s.line([(x, top + 1.5 + abs(x - cx) * 0.15), (x + (x - cx) * 0.12, gy - 5)], 3)
+        s.line([(cx - rx + 2, gy - 3 - ry * 0.45), (cx, top + ry * 0.5), (cx + rx - 2, gy - 3 - ry * 0.45)], 3)
+
+def q_pawn(s):  # cría de tortuga verde con aletas
+    s.stroke([(11, 33), (7, 35)], 1.6, 0.8, mat='s').stroke([(23, 32), (28, 35)], 1.8, 0.8, mat='s')
+    tort(s, 17, 35, 8, 6, head=(27, 28.5), neck=[(23, 30), (26, 29)], hr=2.6, legs_=False)
+
+def q_rook(s):  # tortuga de caja: domo alto
+    tort(s, 17, 35, 11, 13, head=(30.5, 30), neck=[(26, 32), (29, 31)], hr=2.8)
+
+def q_knight(s):  # tortuga caimán: pico ganchudo, quillas
+    tort(s, 15, 35, 11, 8, head=(29, 26), neck=[(24, 30), (27, 27)], hr=4, scutes=False)
+    for x in (9, 14, 19):
+        s.ell(x, 35 - 3 - 8 + (abs(x - 15) * 0.3), 1.6, 2.5)
+    s.stroke([(32, 26), (35, 28), (33.5, 30)], 1.1, 0.6, mat='k')
+    s.stroke([(4, 32), (1, 34)], 1, 0.4, mat='s')
+
+def q_bishop(s):  # mata mata: cabeza triangular, cuello con flecos, erguido
+    tort(s, 13, 35, 9, 6, head=(25, 8), neck=[(19, 30), (23, 22), (22, 14), (24, 9)], hr=3)
+    s.stroke([(27, 7), (32, 6)], 1, 0.4, mat='s')
+    for y in (26, 21, 16):
+        s.stroke([(20.5, y), (18, y + 1)], 0.6, mat='s').stroke([(24.5, y), (27, y + 1)], 0.6, mat='s')
+
+def q_queen(s):  # carey: aletas largas, pico fino, escudos superpuestos
+    s.stroke([(20, 25), (28, 18), (33, 17)], 1.8, 0.6, mat='s')
+    s.stroke([(10, 31), (4, 34)], 1.5, 0.6, mat='s')
+    tort(s, 15, 35, 11, 8, head=(30, 26), neck=[(25, 29), (28, 27)], hr=2.6, legs_=False)
+    s.stroke([(32, 26), (35, 27)], 0.7, 0.4, mat='k')
+    s.stroke([(21, 33), (28, 35)], 1.6, 0.8, mat='s')
+    for x in (9, 14, 19):
+        s.line([(x - 2, 27), (x, 23), (x + 2, 27)], 4)
+    s.ell(15, 22.5, 3.5, 1.6, mat='a')
+    for x in (12, 15, 18):
+        s.ell(x, 20.5, 0.9, 1.8, mat='a')
+
+def q_king(s):  # tortuga radiada con corona
+    tort(s, 16, 35, 12, 11, head=(30.5, 29), neck=[(26, 31), (29, 30)], hr=2.8, scutes=False)
+    for cx in (9, 16, 23):
+        cy = 25 if cx == 16 else 27
+        s.ell(cx, cy, 1.4, 1.4, mat='a')
+        for a in range(0, 360, 60):
+            import math as m
+            s.dot(cx + 2.6 * m.cos(m.radians(a)), cy + 2.6 * m.sin(m.radians(a)), 'av')
+    s.ell(16, 18, 5, 2, mat='a')
+    for x in (12, 16, 20):
+        s.ell(x, 15.5, 1.1, 2.4, mat='a')
+
+def q_guard(s):  # tortuga mapa: quilla dentada
+    tort(s, 16, 35, 11, 8, head=(29.5, 29), neck=[(25, 31), (28, 30)], hr=2.7, scutes=False)
+    for x in (10, 14, 18, 22):
+        s.ell(x, 23.5 - (2 if x in (14, 18) else 0), 1.2, 2.4)
+    for y in (27, 30):
+        s.line([(7, y), (12, y - 1.5), (17, y), (22, y - 1.5), (26, y)], 'a')
+
+def q_advisor(s):  # tortuga pintada: borde rojo, rayas amarillas en el cuello
+    tort(s, 16, 35, 11, 7.5, head=(29.5, 27), neck=[(24, 31), (28, 28)], hr=2.8)
+    s.line([(5.5, 31), (16, 33.5), (26.5, 31)], 'm')
+    s.line([(25, 29.5), (29, 27.5)], 'a').line([(26, 31), (31, 28.5)], 'a')
+
+def q_elephant(s):  # Galápagos: domo y patas columnares, cuello alto
+    tort(s, 15, 35, 12, 12, head=(31, 13), neck=[(24, 26), (28, 19), (30, 14)], hr=3, legs_=False)
+    for x in (7, 22):
+        s.stroke([(x, 29), (x, 35)], 2.6, 3, mat='s')
+    s.dot(32, 15, 'k')
+
+def q_camel(s):  # laúd: sin escudos, crestas, aletas enormes
+    s.stroke([(18, 24), (26, 16), (33, 14)], 2.4, 0.6, mat='s')
+    s.ell(16, 28, 13, 6.5, rot=-6)
+    s.cut(16, 37, 16, 3)
+    for y in (24.5, 28):
+        s.line([(4, y + 2), (16, y - 1), (28, y + 1)], 3)
+    s.stroke([(27, 28), (31, 27)], 2.4, mat='s')
+    s.ell(32, 27, 3.2, 2.7, mat='s').dot(33, 26, 'o')
+    s.stroke([(8, 32), (3, 35)], 1.6, 0.6, mat='s').stroke([(21, 32), (27, 35)], 1.6, 0.6, mat='s')
+
+def q_cannon(s):  # caparazón blando: plano, hocico tubular
+    tort(s, 15, 35, 12, 4.5, head=(28, 31), neck=[(24, 32), (27, 31)], hr=2.4, scutes=False)
+    s.stroke([(30, 30.5), (35, 30)], 0.8, 0.6, mat='s')
+    for x, y in ((9, 28), (14, 27), (19, 27.5), (12, 30), (18, 30.5)):
+        s.dot(x, y, 4)
+
+def qb_titan(s):  # gigante anciana
+    tort(s, 20, 44, 18, 16, head=(42, 33), neck=[(34, 39), (39, 35)], hr=4, legs_=False)
+    for x in (8, 30):
+        s.stroke([(x, 38), (x, 44)], 3.4, 4, mat='s')
+    s.stroke([(43, 37), (44, 41)], 0.7, 0.4, mat='w')
+
+def qb_ram(s):  # caimán con mandíbula abierta, embistiendo
+    tort(s, 17, 44, 15, 10, head=(37, 31), neck=[(30, 37), (34, 33)], hr=4.5, scutes=False)
+    for x in (9, 15, 21, 27):
+        s.ell(x, 30 - (2 if x in (15, 21) else 0), 1.8, 3)
+    s.stroke([(40, 34), (46, 38), (45, 40)], 1.6, 0.8, mat='s').stroke([(40, 30), (47, 30), (46, 33)], 1.4, 0.7, mat='k')
+    s.ell(42, 35, 2.5, 1.4, mat='m')
+
+def qb_hydra(s):  # tres cuellos
+    tort(s, 18, 44, 15, 11, head=(40, 13), neck=[(28, 38), (36, 26), (39, 16)], hr=3.2)
+    for neck, hd in (([(14, 30), (10, 18), (6, 10)], (6, 8)), ([(22, 30), (24, 14), (25, 6)], (26, 4))):
+        s.stroke(neck, 2.2, 1.8, mat='s')
+        s.ell(*hd, 3.8, 3, mat='s').dot(hd[0] + 1.4, hd[1] - 1, 'o')
+
+def qb_golem(s):  # tortuga pétrea con musgo y cristales
+    tort(s, 22, 44, 19, 14, head=(43, 36), neck=[(38, 40), (41, 37)], hr=3.6, scutes=False)
+    for x, y, r in ((12, 32, 3), (22, 27, 3.6), (32, 32, 3), (17, 38, 2.4), (28, 38, 2.4)):
+        s.ell(x, y, r, r * 0.8, mat='r')
+    for x, h in ((14, 6), (22, 9), (29, 5)):
+        s.stroke([(x, 22), (x + 1, 22 - h)], 1.8, 0.6, mat='c')
+    s.ell(8, 30, 3, 1.4, mat='g').ell(36, 30, 3.5, 1.4, mat='g')
+
+def qb_rider(s):  # cuello de serpiente muy alto
+    tort(s, 18, 44, 13, 9, head=(36, 6), neck=[(28, 38), (34, 30), (30, 20), (35, 9)], hr=3.2)
+
+def qb_wall(s):  # caparazón como escudo monumental, ancho y bajo
+    tort(s, 24, 44, 23, 10, head=(46, 39), neck=[(44, 41), (45, 40)], hr=2.4)
+    for x in (6, 16, 32, 42):
+        s.ell(x, 30, 1.6, 1.6, mat='a')
+
+def qb_devourer(s):  # caimán colosal con señuelo
+    tort(s, 16, 44, 15, 12, head=(37, 30), neck=[(28, 37), (33, 32)], hr=5, scutes=False)
+    for x in (8, 14, 20, 26):
+        s.ell(x, 27 - (2 if x in (14, 20) else 0), 2, 3.2)
+    s.stroke([(38, 32), (47, 40), (45, 42)], 2.2, 1, mat='s').stroke([(39, 27), (47, 25), (46, 29)], 2, 1, mat='k')
+    s.ell(42, 33, 3.5, 2.2, mat='m')
+    s.stroke([(43, 34), (44, 36)], 0.6, mat='m2')
+    for x in (41, 44):
+        s.stroke([(x, 29), (x, 31)], 0.5, mat='w')
+
+THEMES['quelonios'] = {
+    'outline': '#152325',
+    'fixed': {'o': ['#101a1b'], 's': ['#9fae8a', '#7f8f6d', '#617053', '#46523e', '#2f382b'],
+              'p': ['#e3d2a3', '#c9b383'], 'k': ['#cbb98e', '#a99568'], 'w': ['#f2ecd8'],
+              'a': ['#f0cf62', '#d8a93e', '#a97a28', '#7a5320', '#4f3518'], 'av': ['#f0cf62'],
+              'r': ['#8d8f86', '#74766e', '#5c5e57', '#45473f'], 'c': ['#a6e3e0', '#6fbcc0', '#4a8d96'],
+              'g': ['#6b9a4e', '#4f7a3c'], 'm': ['#c45a5a', '#9a3e45'], 'm2': ['#f3d36b']},
+    'sprites': {'pawn': q_pawn, 'rook': q_rook, 'knight': q_knight, 'bishop': q_bishop, 'queen': q_queen,
+                'king': q_king, 'guard': q_guard, 'advisor': q_advisor, 'elephant': q_elephant,
+                'camel': q_camel, 'cannon': q_cannon, 'boss-titan': qb_titan, 'boss-ram': qb_ram,
+                'boss-hydra': qb_hydra, 'boss-golem': qb_golem, 'boss-rider': qb_rider, 'boss-wall': qb_wall,
+                'boss-devourer': qb_devourer},
+}

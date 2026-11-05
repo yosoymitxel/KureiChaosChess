@@ -1,6 +1,6 @@
 # Genera piezas y jefes píxel "orgánicos" (formas por unión de elipses y trazos curvos, con volumen
 # y contorno) para los temas paleontologia y terrario-vivo. Escribe en art/temas/<id>/dibujos/.
-# Uso: python3 tools/organic-sprites.py && node tools/pixel-art.mjs
+# Uso: python3 tools/organic-sprites.py [tema…] && node tools/pixel-art.mjs
 import json, math, os
 import numpy as np
 from PIL import Image
@@ -130,7 +130,9 @@ def save(im, path):
 
 from organic_designs import THEMES  # noqa: E402
 
+import sys  # noqa: E402
 for th, spec in THEMES.items():
+    if len(sys.argv) > 1 and th not in sys.argv[1:]: continue
     tema = json.load(open(f'art/temas/{th}/tema.json'))
     ramp = [hexc(c) for c in tema['bandos']['claro']]
     fixed = {k: [hexc(c) for c in v] for k, v in spec['fixed'].items()}
