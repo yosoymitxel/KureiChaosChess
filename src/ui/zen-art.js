@@ -93,7 +93,7 @@ const loop = (r, cx = 24, cy = 24.5, sy = 0.9, n = 48) => {
 };
 // Piedras de la orilla: las de Kenney (CC0), tres tamaños; cada mesa usa su versión y no se mezclan.
 // Se pintan de arriba abajo para que las de delante tapen a las de atrás.
-const ROCK = { s: [4.5, 4, 5, 4], m: [6, 5.25, 6.5, 5.7], l: [7.2, 6.1, 8, 8] }; // vector [w, h], píxel [w, h]
+const ROCK = { s: [4.5, 4, 6, 5], m: [6, 5.25, 8, 7], l: [7.2, 6.1, 10, 10] }; // vector [w, h], píxel [w, h]
 const STONES = Array.from({ length: 15 }, (_, i) => {
   const t = (i / 15) * Math.PI * 2 + (i % 3) * 0.08, r = shore(18.6, t);
   return [f(24 + Math.cos(t) * r), f(24.5 + Math.sin(t) * r * 0.9), i % 5 === 0 ? 'l' : i % 2 ? 's' : 'm'];
