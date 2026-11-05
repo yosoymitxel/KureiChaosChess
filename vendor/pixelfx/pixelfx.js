@@ -1,4 +1,4 @@
-// pixelfx (https://github.com/patch-gg/pixelfx): núcleo y 3 efectos empaquetados con esbuild, sin otros cambios.
+// pixelfx (https://github.com/patch-gg/pixelfx): núcleo y 7 efectos empaquetados con esbuild, sin otros cambios.
 // MIT License. Copyright (c) 2026 Patch. Partes adaptan Sprite Fusion Pixel Art VFX, Copyright (c) 2026 Hugo Duprez, MIT.
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {
@@ -7,7 +7,7 @@ var __export = (target, all) => {
 };
 
 // pixelfx/src/core/math.js
-var TAU = Math.PI * 2, clamp = (x, a = 0, b = 1) => x < a ? a : x > b ? b : x;
+var TAU = Math.PI * 2, clamp = (x, a = 0, b = 1) => x < a ? a : x > b ? b : x, lerp = (a, b, t) => a + (b - a) * t;
 var seg = (t, t0, t1) => clamp((t - t0) / (t1 - t0)), smooth = (e0, e1, x) => {
   let t = seg(x, e0, e1);
   return t * t * (3 - 2 * t);
@@ -32,7 +32,13 @@ var ease = {
   outElastic: (t) => t <= 0 ? 0 : t >= 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * (2 * Math.PI / 3)) + 1,
   outBounce: (t) => t < 1 / 2.75 ? 7.5625 * t * t : t < 2 / 2.75 ? 7.5625 * (t -= 1.5 / 2.75) * t + 0.75 : t < 2.5 / 2.75 ? 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375 : 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375
 };
-var Rng = class {
+function hash(...ns) {
+  let h = 2654435769;
+  for (let n of ns)
+    h = Math.imul(h ^ (n | 0), 2246822507), h ^= h >>> 13, h = Math.imul(h, 3266489909), h ^= h >>> 16;
+  return h >>> 0;
+}
+var rand = (...ns) => hash(...ns) / 4294967296, Rng = class {
   constructor(seed = 1) {
     this.s = seed >>> 0 || 1;
   }
@@ -60,6 +66,14 @@ var Rng = class {
     return (this.next() + this.next() + this.next() + this.next() - 2) * 1.732;
   }
 };
+function noise(x, seed = 0) {
+  let i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f);
+  return lerp(rand(i, seed), rand(i + 1, seed), u) * 2 - 1;
+}
+function noise2(x, y, seed = 0) {
+  let ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy, ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy), a = rand(ix, iy, seed), b = rand(ix + 1, iy, seed), c = rand(ix, iy + 1, seed), d = rand(ix + 1, iy + 1, seed);
+  return lerp(lerp(a, b, ux), lerp(c, d, ux), uy) * 2 - 1;
+}
 
 // pixelfx/src/core/color.js
 var rgb = (r, g, b) => 255 << 24 | (b & 255) << 16 | (g & 255) << 8 | r & 255, red = (c) => c & 255, green = (c) => c >>> 8 & 255, blue = (c) => c >>> 16 & 255;
@@ -684,16 +698,16 @@ function painterFor(frame2) {
   return p || painters.set(frame2, p = new Painter(frame2)), p.reset();
 }
 var FADE = 0.3, isRamp = (v) => Array.isArray(v) && v.length > 0 && v.every((c) => typeof c == "number" || /^#[0-9a-f]{3,8}$/i.test(c));
-function resolveOptions(meta4, o = {}) {
-  let opts = { ...meta4.options ?? {}, ...o };
-  for (let [k, def] of Object.entries(meta4.options ?? {}))
+function resolveOptions(meta8, o = {}) {
+  let opts = { ...meta8.options ?? {}, ...o };
+  for (let [k, def] of Object.entries(meta8.options ?? {}))
     isRamp(def) && isRamp(o[k]) && o[k].length !== def.length && (opts[k] = fit(o[k], def.length).map(toHex));
-  return meta4.actor && !opts.actor && (opts.actor = stockActor(meta4.actor === 2 ? 2 : 1)), opts;
+  return meta8.actor && !opts.actor && (opts.actor = stockActor(meta8.actor === 2 ? 2 : 1)), opts;
 }
 function createFx(mod, o = {}) {
-  let meta4 = mod.meta ?? {}, opts = resolveOptions(meta4, o), impl = mod.create ? mod.create(opts) : mod, D = meta4.duration ?? 1, t = 0, stopAt = 1 / 0;
+  let meta8 = mod.meta ?? {}, opts = resolveOptions(meta8, o), impl = mod.create ? mod.create(opts) : mod, D = meta8.duration ?? 1, t = 0, stopAt = 1 / 0;
   return {
-    meta: meta4,
+    meta: meta8,
     options: opts,
     get t() {
       return t;
@@ -706,7 +720,7 @@ function createFx(mod, o = {}) {
     draw(frame2, layer) {
       let p = painterFor(frame2);
       p.place(opts.x ?? 0, opts.y ?? 0, !!opts.flip, opts.angle ?? 0), p.fade = stopAt === 1 / 0 ? 1 : clamp(1 - (t - stopAt) / FADE), p.lightK = opts.light ?? 1;
-      let tt = meta4.loop ? t % D : Math.min(t, D);
+      let tt = meta8.loop ? t % D : Math.min(t, D);
       layer !== "front" && impl.drawBack && (p.layer = "back", impl.drawBack(p, tt, opts)), layer !== "back" && (p.layer = "front", impl.draw(p, tt, opts));
     },
     /** Let it end: loops fade out, one-shots cut short. */
@@ -714,7 +728,7 @@ function createFx(mod, o = {}) {
       stopAt === 1 / 0 && (stopAt = t);
     },
     done() {
-      return t - stopAt >= FADE || !meta4.loop && t >= D;
+      return t - stopAt >= FADE || !meta8.loop && t >= D;
     }
   };
 }
@@ -870,7 +884,48 @@ var GRAVITY = 950, CROSS = [[1, 0], [-1, 0], [0, 1], [0, -1]], DIAG = [[1, 1], [
     }
   }
 };
-var Lights = class {
+var B = { SHARD: 0, CHUNK: 1, DRIP: 2 }, Bits = class {
+  constructor(opts = {}) {
+    this.list = [], this.ground = opts.ground ?? (() => 1 / 0);
+  }
+  add(b) {
+    let life = b.life ?? 1;
+    this.list.push({ kind: B.SHARD, vx: 0, vy: 0, a: 0, va: 0, s: 1, c: WHITE, g: 1, drag: 0, bounce: 0, rest: !1, ...b, life, max: life });
+  }
+  get count() {
+    return this.list.length;
+  }
+  update(dt) {
+    for (let i = this.list.length - 1; i >= 0; i--) {
+      let b = this.list[i];
+      if ((b.life -= dt) <= 0) {
+        this.list.splice(i, 1);
+        continue;
+      }
+      if (b.rest) continue;
+      b.vy += GRAVITY * b.g * dt, b.vx -= b.vx * b.drag * dt, b.vy -= b.vy * b.drag * dt, b.x += b.vx * dt, b.y += b.vy * dt, b.a += b.va * dt;
+      let floor = this.ground(b.x), sp = b.vy;
+      b.g <= 0 || b.y < floor || sp <= 0 || (b.y = floor - 0.01, b.kind === B.DRIP ? b.life = 0 : b.bounce > 0 && sp > 70 ? (b.vy = -sp * b.bounce, b.vx *= 0.7, b.va *= 0.6) : (b.rest = !0, b.vx = b.vy = 0));
+    }
+  }
+  draw(p) {
+    for (let b of this.list) {
+      let a = Math.min(1, b.life / 0.4), ca = Math.cos(b.a), sa = Math.sin(b.a);
+      if (b.kind === B.SHARD)
+        for (let d = -b.s / 2; d <= b.s / 2; d += 0.5) p.dot(b.x + ca * d, b.y + sa * d, d > b.s / 2 - 0.6 ? WHITE : hex(b.c), a);
+      else if (b.kind === B.DRIP)
+        p.dot(b.x, b.y, hex(b.c), a), p.dot(b.x, b.y - 1, hex(b.c), a * 0.5);
+      else {
+        let R = (b.ramp ?? ["#1c2030", "#3a4a66", "#6e86a8", "#a8c0dc", "#e8f2ff"]).map(hex), n = R.length, x = Math.round(b.x), y = Math.round(b.y), r = Math.ceil(b.s) + 1;
+        for (let py = -r; py <= r; py++)
+          for (let px = -r; px <= r; px++) {
+            let u = (px + 0.5) * ca + (py + 0.5) * sa, v = -(px + 0.5) * sa + (py + 0.5) * ca, d = Math.abs(u) / b.s + Math.abs(v) / (b.s * 0.62);
+            d > 1.3 || p.dot(x + px, y + py, d > 1 ? R[0] : v < 0 ? u < 0 ? R[n - 1] : R[n - 2] : u < 0 ? R[n - 3] : R[Math.max(1, n - 4)], a);
+          }
+      }
+    }
+  }
+}, Lights = class {
   constructor() {
     this.list = [];
   }
@@ -908,6 +963,18 @@ function flare(p, x, y, L, k, ramp2) {
       let u = d / len2;
       p.dot(x + ca * d, y + sa * d, u < 0.35 ? WHITE : u < 0.7 ? R[n - 2] : R[n - 3], u < 0.6 ? 1 : k * 1.5 * (1 - u) + 0.2);
     }
+  }
+}
+function band(p, cx, cy, r, sy, th, k, ramp2, keep = () => !0, hot = !1) {
+  if (r <= 0 || k <= 0) return;
+  let R = ramp2.map(hex), n = R.length;
+  for (let j = 0, m = Math.ceil(r * TAU * 1.2); j < m; j++) {
+    let ang = j / m * TAU, ca = Math.cos(ang), sa = Math.sin(ang);
+    if (keep(ang))
+      for (let o = th; o >= 0; o -= 0.5) {
+        let u = o / th, c = u < 0.15 ? hot ? WHITE : R[n - 1] : u < 0.4 ? R[n - 2] : u < 0.7 ? R[n - 3] : R[n - 4];
+        p.dot(cx + ca * (r - o), cy + sa * (r - o) * sy, c, k * (u < 0.4 ? 1.2 : 1.15 - u));
+      }
   }
 }
 
@@ -1245,9 +1312,9 @@ var meta2 = {
   }
 }, CY = -17;
 function create2(o) {
-  let C = fit(o.palette, 6), S = fit(o.stars, 3), R = new Rng(o.seed), floor = () => 0, ps = new Particles({ rng: R, ground: floor, sparks: [WHITE, S[1], S[0], C[2]] }), lights = new Lights(), balls = [], lines = [], ring = 9;
-  for (let i = 0; i < ring; i++) {
-    let a = i / ring * TAU + R.range(-0.2, 0.2), sp = R.range(95, 140), r = R.range(5, 7);
+  let C = fit(o.palette, 6), S = fit(o.stars, 3), R = new Rng(o.seed), floor = () => 0, ps = new Particles({ rng: R, ground: floor, sparks: [WHITE, S[1], S[0], C[2]] }), lights = new Lights(), balls = [], lines = [], ring2 = 9;
+  for (let i = 0; i < ring2; i++) {
+    let a = i / ring2 * TAU + R.range(-0.2, 0.2), sp = R.range(95, 140), r = R.range(5, 7);
     balls.push({ x: Math.cos(a) * 3, y: CY + Math.sin(a) * 3, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * 0.8 - 12, r0: r * 0.5, r1: r, life: R.range(0.7, 1.05), delay: R.range(0, 0.03) });
   }
   for (let i = 0; i < 5; i++) {
@@ -1406,9 +1473,757 @@ function create3(o) {
     }
   };
 }
+
+// pixelfx/src/fx/nature/healing-bloom.js
+var healing_bloom_exports = {};
+__export(healing_bloom_exports, {
+  create: () => create4,
+  meta: () => meta4
+});
+
+// pixelfx/src/fx/nature/_lib.js
+var MASK = new Uint8Array(64 * 64), FACE = new Int8Array(64 * 64), ROWS = 400, RL = new Float32Array(ROWS), RR = new Float32Array(ROWS), RU = new Float32Array(ROWS);
+function drawLeaf(p, x, y, len2, wid, ang, fl, pal, alpha = 1) {
+  let ca = Math.cos(ang), sa = Math.sin(ang), sq = Math.cos(fl), w = Math.max(0.55, Math.abs(sq) * wid), under = sq < 0, R = Math.ceil(len2 / 2 + 2), X = Math.round(x), Y = Math.round(y), inside = (i, j) => {
+    let u = (i + 0.5) * ca + (j + 0.5) * sa + len2 / 2, v = -(i + 0.5) * sa + (j + 0.5) * ca;
+    if (u < 0 || u > len2) return 0;
+    let half = w * Math.pow(Math.sin(Math.PI * u / len2), 0.75);
+    return Math.abs(v) <= half ? v < 0 ? 1 : 2 : 0;
+  };
+  for (let j = -R; j <= R; j++)
+    for (let i = -R; i <= R; i++) {
+      let s = inside(i, j);
+      if (!s) {
+        (inside(i - 1, j) || inside(i + 1, j) || inside(i, j - 1) || inside(i, j + 1)) && p.dot(X + i, Y + j, pal[0], alpha);
+        continue;
+      }
+      let u = (i + 0.5) * ca + (j + 0.5) * sa + len2 / 2, v = -(i + 0.5) * sa + (j + 0.5) * ca, rib = Math.abs(v) < 0.5 && u > len2 * 0.12 && u < len2 * 0.88 && w > 1.2;
+      p.dot(X + i, Y + j, rib ? pal[1] : s === 1 !== under ? pal[3] : pal[2], alpha);
+    }
+  p.dot(X - ca * (len2 / 2 + 1), Y - sa * (len2 / 2 + 1), pal[1], alpha);
+}
+
+// pixelfx/src/fx/nature/healing-bloom.js
+var meta4 = {
+  name: "Healing bloom",
+  desc: "A sprout pushes up and unfurls, a bud swells and opens round a glowing golden heart in a flare of healing light; its petals lift away one by one as motes.",
+  tags: ["nature", "heal", "flower", "plant", "buff", "ground", "one-shot"],
+  size: [124, 120],
+  origin: [62, 108],
+  duration: 3.3,
+  loop: !1,
+  fps: 30,
+  bg: "ground",
+  options: {
+    palette: ["#0c1a10", "#173a1a", "#24582a", "#357a34", "#52a03e", "#86c84e", "#c4ec7a", "#f4ffd0"],
+    petal: ["#4a1a3a", "#a8406e", "#ec8ab0", "#ffd8e8"],
+    heart: ["#a8641a", "#f0b42e", "#ffe680", "#fffbe0"],
+    seed: 4
+  }
+}, STEM = 0.42, BUD = 0.75, OPEN = 1.05, LIFT = 1.7, WILT = 2.4, H = 36, NPET = 6;
+function cross2(p, x, y, L, C, a, glint2) {
+  let X = Math.round(x), Y = Math.round(y), ins = (dx, dy) => dx === 0 && Math.abs(dy) <= L || dy === 0 && Math.abs(dx) <= L;
+  for (let dy = -L - 1; dy <= L + 1; dy++)
+    for (let dx = -L - 1; dx <= L + 1; dx++)
+      ins(dx, dy) ? p.dot(X + dx, Y + dy, glint2 && !dx && !dy ? WHITE : dy < 0 || dx < 0 ? C[6] : C[5], a) : L > 1 && (ins(dx - 1, dy) || ins(dx + 1, dy) || ins(dx, dy - 1) || ins(dx, dy + 1)) && p.dot(X + dx, Y + dy, C[2], a * 0.8);
+  p.glow(x, y, 5 + L * 2, C[6], 0.35 * a);
+}
+function create4(o) {
+  let C = fit(o.palette, 8), Pt = fit(o.petal, 4), Ht = fit(o.heart, 4), R = new Rng(o.seed), floor = () => 0, ps = new Particles({ rng: R, ground: floor, sparks: [Ht[3], Ht[2], Ht[1], Ht[0]] }), lights = new Lights(), flying = [], glyphs = [], petals = Array.from({ length: NPET }, (_, i) => ({ az: i / NPET * TAU + 0.3, off: i * 0.7 % 1, gone: !1, at: LIFT + i * 0.37 % 1 * 0.55 })), t = 0, popped = !1, sprouted = !1, grow = () => ease.outCubic(clamp(t / STEM)) * (1 - ease.inCubic(clamp((t - WILT) / 0.6))), sway = () => Math.sin(t * 2.6) * 1.4 * smooth(0.2, 0.6, t), stem = () => {
+    let g = grow(), pts = [];
+    for (let i = 0; i <= 12; i++) {
+      let s = i / 12;
+      pts.push([Math.sin(s * 3.2) * 2.2 * s + sway() * s * s, (1 - g) * H * 1.1 - s * H]);
+    }
+    return pts;
+  }, open = () => ease.outBack(clamp((t - BUD) / (OPEN - BUD)), 1.4);
+  return {
+    update(dt) {
+      t += dt;
+      let f = Math.min(1, dt * 120), top = stem()[12];
+      if (!sprouted) {
+        sprouted = !0;
+        for (let i = 0; i < 8; i++) ps.spawn(P.GRIT, R.range(-3, 3), -1, R.range(-40, 40), -R.range(40, 100), R.range(0.5, 0.8), R.pick([C[2], C[3]]), 1);
+        for (let i = 0; i < 3; i++) ps.spawn(P.DUST, R.range(-3, 3), -1, R.sign() * R.range(10, 30), -R.range(4, 10), R.range(0.4, 0.6), C[3], R.range(1.5, 2.5));
+      }
+      if (t > STEM && t < BUD && R.chance(0.3 * f)) {
+        let a = R.range(0, TAU), d = R.range(14, 26), x = top[0] + Math.cos(a) * d, y = top[1] - 3 + Math.sin(a) * d * 0.8;
+        ps.spawn(P.STREAK, x, y, (top[0] - x) * 3.4, (top[1] - 3 - y) * 3.4, R.range(0.18, 0.26), R.chance(0.5) ? Ht[2] : C[6]);
+      }
+      if (!popped && t >= OPEN - 0.12) {
+        popped = !0, lights.add(top[0], top[1] - 3, 22, WHITE, 0.45, 0.08), lights.add(top[0], top[1] - 3, 70, Ht[2], 0.5, 0.8);
+        for (let i = 0; i < 16; i++) {
+          let a = R.range(0, TAU), sp = R.range(40, 120);
+          ps.spawn(P.MOTE, top[0], top[1] - 3, Math.cos(a) * sp, Math.sin(a) * sp - 20, R.range(0.4, 0.8), R.chance(0.5) ? Ht[3] : C[7], 0.7);
+        }
+        for (let i = 0; i < 5; i++) ps.spawn(P.STAR, top[0] + R.range(-10, 10), top[1] - R.range(0, 14), 0, -6, R.range(0.3, 0.6), Ht[3], R.range(1, 2.4), R.range(0, 0.3));
+      }
+      t > OPEN && t < WILT && R.chance(0.13 * f) && glyphs.push({ x: R.range(-22, 22), y: -R.range(2, 36), t0: t, life: Math.min(R.range(0.7, 1.1), meta4.duration - 0.05 - t), L: R.chance(0.35) ? 3 : 2, seed: R.next() * 9 }), t > OPEN - 0.1 && t < WILT && R.chance(0.35 * f) && ps.spawn(P.EMBER, R.range(-20, 20), -R.range(0, 8), R.range(-6, 6), -R.range(25, 55), Math.min(R.range(0.6, 1.1), meta4.duration - 0.05 - t), R.chance(0.6) ? C[6] : Ht[2], R.chance(0.3) ? 2 : 1);
+      for (let i = glyphs.length - 1; i >= 0; i--) t - glyphs[i].t0 > glyphs[i].life && glyphs.splice(i, 1);
+      for (let q of petals)
+        if (!q.gone && t >= q.at) {
+          q.gone = !0;
+          let e = Math.PI / 2 - 0.15, dx = Math.sin(e) * Math.cos(q.az), L = 10;
+          flying.push({ x: top[0] + dx * L * 0.6, y: top[1] - 3 - Math.cos(e) * L * 0.6, vx: dx * 30 + R.range(-10, 10), vy: -R.range(25, 45), a: Math.atan2(-Math.cos(e), dx), va: R.range(-5, 5), fl: 0, vf: R.range(5, 9), life: Math.min(R.range(0.75, 1), meta4.duration - 0.45 - t), max: 0 }), flying[flying.length - 1].max = flying[flying.length - 1].life;
+        }
+      for (let i = flying.length - 1; i >= 0; i--) {
+        let q = flying[i];
+        if ((q.life -= dt) <= 0) {
+          ps.spawn(P.STAR, q.x, q.y, 0, -8, Math.min(0.35, meta4.duration - 0.05 - t), Pt[3], 1.8), flying.splice(i, 1);
+          continue;
+        }
+        q.vx -= q.vx * 1.5 * dt, q.vy -= q.vy * 0.8 * dt + 10 * dt, q.x += q.vx * dt + Math.sin(q.fl) * 12 * dt, q.y += q.vy * dt, q.a += q.va * dt, q.fl += q.vf * dt;
+      }
+      ps.update(dt), lights.update(dt);
+    },
+    drawBack(p) {
+      let bloom = smooth(OPEN - 0.15, OPEN + 0.2, t) * (1 - smooth(WILT - 0.2, WILT + 0.5, t)), top = stem()[12];
+      for (let h = 0; h < 70; h += 7) p.glow(0, -h, 22, C[5], 0.12 * bloom * (1 - h / 80));
+      let k = clamp((t - OPEN + 0.12) / 0.6);
+      k > 0 && k < 1 && band(p, 0, 0.5, 6 + 30 * ease.outCubic(k), 0.18, Math.max(1, 3 * (1 - k)), 1.1 - k, [C[3], C[5], Ht[2], Ht[3]], (g) => Math.sin(g) < 0);
+      let fw = 6 + 16 * smooth(0, 0.8, t);
+      for (let x = Math.floor(-fw); x <= fw; x++) {
+        let u = Math.abs(x) / fw, a = Math.sqrt(1 - u) * smooth(0, 0.4, t) * (1 - smooth(WILT, WILT + 0.6, t));
+        p.dot(x, 0, u < 0.3 ? C[6] : u < 0.65 ? C[5] : C[4], a), x % 5 === 0 && p.glow(x, 0, 8, C[5], 0.2 * a * (1 - u));
+      }
+      if (t > BUD - 0.05) for (let q of petals) Math.sin(q.az) < 0 && !q.gone && petal(p, q, top);
+      ps.draw(p, "back");
+    },
+    draw(p) {
+      let pts = stem(), top = pts[12];
+      if (grow() > 0.02) {
+        for (let i = 1; i < pts.length; i++) {
+          let [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+          y1 > 0 || (p.line(x0, y0, x1, y1, C[5]), p.line(x0 + 1, y0, x1 + 1, y1, C[3]));
+        }
+        for (let [i, sd, d] of [[4, -1, 0.1], [7, 1, 0.22]]) {
+          let lk = ease.outBack(clamp((t - d - 0.12) / 0.3), 1.6) * (1 - smooth(WILT, WILT + 0.5, t) * 0.4), [x, y] = pts[i];
+          if (lk <= 0 || y > -1) continue;
+          let la = sd < 0 ? -2.6 + 0.4 * (1 - lk) : -0.55 - 0.4 * (1 - lk);
+          drawLeaf(p, x + Math.cos(la) * 6 * lk, y + Math.sin(la) * 6 * lk, 12 * lk, 3.4, la, 0.25, [C[1], C[3], C[5], C[6]]);
+        }
+        if (t > STEM - 0.1 && t < OPEN - 0.1) {
+          let b = clamp((t - STEM + 0.1) / (BUD - STEM)), w = 2 + 2.5 * b, h = 3.5 + 5 * b;
+          p.ellipse(top[0], top[1] - h * 0.6, w, h, (d, a) => Math.cos(a) < -0.2 ? Pt[2] : d > 0.7 ? Pt[0] : Pt[1]), p.glow(top[0], top[1] - h * 0.6, 8 + 8 * b, Ht[2], 0.25 * b);
+        }
+      }
+      for (let q of petals) Math.sin(q.az) >= 0 && !q.gone && t > BUD - 0.05 && petal(p, q, top);
+      if (t > OPEN - 0.12 && t < WILT + 0.3) {
+        let pulse = 0.85 + 0.15 * Math.sin(t * 9), k = 1 - smooth(WILT - 0.3, WILT + 0.3, t), cy = top[1] - 4;
+        p.circle(top[0], cy, 3.3 * k, Ht[1]), p.circle(top[0] - 0.5, cy - 0.5, 2.2 * k, Ht[2]), p.px(top[0] - 1, cy - 1, Ht[3]), p.glow(top[0], cy, 16 * pulse, Ht[2], 0.5 * k), p.glow(top[0], cy, 34, C[5], 0.2 * k);
+      }
+      let e = t - OPEN + 0.12;
+      e > 0 && e < 0.16 && sparkle(p, top[0], top[1] - 3, 10 * (1 - e / 0.16), Ht[3], Ht[2], 0.6);
+      for (let q of flying) drawLeaf(p, q.x, q.y, 6, 2.2, q.a, q.fl, [Pt[0], Pt[1], Pt[2], Pt[3]], Math.min(1, q.life / 0.3));
+      for (let q of glyphs) {
+        let k = (t - q.t0) / q.life;
+        cross2(p, q.x + Math.sin(k * 5 + q.seed) * 2, q.y - k * 24, q.L, C, Math.sin(Math.PI * k), Math.sin(k * 14 + q.seed) > 0.8);
+      }
+      ps.draw(p, "front"), lights.draw(p);
+    }
+  };
+  function petal(p, q, top) {
+    let op = open(), e = lerp(0.15, Math.PI / 2 - 0.2, op), dx = Math.sin(e) * Math.cos(q.az), dz = Math.sin(e) * Math.sin(q.az), dy = -Math.cos(e), L = lerp(8, 12, op), len2 = L * Math.hypot(dx, dy), ang = Math.atan2(dy, dx), back = dz < 0, cy = top[1] - 3;
+    len2 < 1.5 || drawLeaf(p, top[0] + dx * L * 0.5, cy + dy * L * 0.5, len2 + 1, 3 + (1 - Math.abs(dz)) * 0.8, ang, back ? 0.9 : 0.2, back ? [Pt[0], Pt[0], Pt[1], Pt[2]] : [Pt[0], Pt[1], Pt[2], Pt[3]]);
+  }
+}
+
+// pixelfx/src/fx/water/splash.js
+var splash_exports = {};
+__export(splash_exports, {
+  create: () => create5,
+  meta: () => meta5
+});
+
+// pixelfx/src/fx/water/_lib.js
+var WATER = ["#0a1630", "#123063", "#1b5596", "#2a7fc4", "#45a9e3", "#86d3f5", "#cdf1ff", "#ffffff"], ROCK = ["#141219", "#221f2b", "#34303f", "#4a4558", "#655f74", "#8a8498"];
+function bead(p, x, y, vx, vy, s, C, a = 1) {
+  let sp = Math.hypot(vx, vy) || 1, ux = vx / sp, uy = vy / sp, tail = Math.min(5, sp * 0.011);
+  if (tail >= 1 && p.line(x - ux * (tail + 1), y - uy * (tail + 1), x - ux * 1.2, y - uy * 1.2, (u) => u < 0.45 ? C[3] : s > 1 ? C[5] : C[4], a), s >= 3)
+    p.circle(x, y, 1.75, C[4], a), p.circle(x - 0.25, y - 0.25, 1.15, C[6], a), p.dot(x - 0.7, y - 0.7, WHITE, a);
+  else if (s >= 2) {
+    let X = Math.floor(x), Y = Math.floor(y);
+    p.dot(X, Y, WHITE, a), p.dot(X + 1, Y, C[6], a), p.dot(X, Y + 1, C[5], a), p.dot(X + 1, Y + 1, C[4], a);
+  } else p.dot(x, y, sp > 160 ? C[6] : C[5], a);
+}
+var Drops = class {
+  constructor({ sy = 0.22, g = 820, drag = 0.35, onLand = null } = {}) {
+    this.sy = sy, this.g = g, this.drag = drag, this.onLand = onLand, this.list = [];
+  }
+  add(d) {
+    let life = d.life ?? 4;
+    this.list.push({ x: 0, z: 0, h: 0, vx: 0, vz: 0, vh: 0, s: 1, delay: 0, ...d, life, max: life });
+  }
+  get count() {
+    return this.list.length;
+  }
+  update(dt) {
+    let k = this.drag * dt;
+    for (let i = this.list.length - 1; i >= 0; i--) {
+      let d = this.list[i];
+      if (d.delay > 0) {
+        d.delay -= dt;
+        continue;
+      }
+      if ((d.life -= dt) <= 0) {
+        this.list.splice(i, 1);
+        continue;
+      }
+      d.vh -= this.g * dt, d.vx -= d.vx * k, d.vz -= d.vz * k, d.vh -= d.vh * k * 0.5, d.x += d.vx * dt, d.z += d.vz * dt, d.h += d.vh * dt, d.h <= 0 && d.vh < 0 && (d.h = 0, this.list.splice(i, 1), this.onLand?.(d));
+    }
+  }
+  /** Draw the drops behind z = 0 ("back"), in front of it ("front"), or all. */
+  draw(p, C, layer) {
+    for (let d of this.list) {
+      if (d.delay > 0 || layer === "back" && d.z >= 0 || layer === "front" && d.z < 0) continue;
+      let x = d.x, y = d.z * this.sy - d.h;
+      bead(p, x, y, d.vx, d.vz * this.sy - d.vh, d.s, C, Math.min(1, d.life / 0.2)), p.glow(x, y, 2.5 + d.s, C[5], 0.1 + 0.05 * d.s);
+    }
+  }
+};
+function ring(p, cx, cy, r, sy, k, C, { n = 2, gap = 3, half = 0, hot = !1, glint: glint2 = 0, seed = 0, wob = 0 } = {}) {
+  if (!(k <= 0.02 || r < 0.5)) {
+    for (let j = 0; j < n; j++) {
+      let rr = r - j * gap;
+      if (rr < 0.6) break;
+      let kj = k * (1 - j * 0.42), m = Math.max(6, Math.ceil(rr * TAU * 1.3)), need = 1.15 - 2.3 * Math.min(1, kj * 1.25);
+      for (let i = 0; i < m; i++) {
+        let a = i / m * TAU, s = Math.sin(a), near = s > 0;
+        if (half > 0 && !near || half < 0 && near || noise(a * 4.7 + seed * 13.1 + j * 5.3, seed) * 0.65 + noise(a * 11.3 + seed * 7.7, seed + 3) * 0.35 < need) continue;
+        let lit = kj * (near ? 1 : 0.7) * (0.88 - 0.12 * Math.cos(a)), c = hot && near && j === 0 ? WHITE : C[lit > 0.7 ? 6 : lit > 0.38 ? 5 : 4], ra = wob ? rr + wob * noise(a * 2.6 + seed * 1.9 + j, seed + 11) : rr, x = cx + Math.cos(a) * ra, y = cy + s * ra * sy;
+        p.dot(x, y, c), j === 0 && p.light(x, y, C[4], 0.3 * lit);
+      }
+    }
+    if (glint2 > 0 && half >= 0) {
+      let x = cx + Math.cos(2.05) * r, y = cy + Math.sin(2.05) * r * sy;
+      p.px(x, y, WHITE), p.glow(x, y, 3 + glint2 * 2, C[5], 0.35 * glint2);
+    }
+  }
+}
+var Ripples = class {
+  constructor({ sy = 0.22 } = {}) {
+    this.sy = sy, this.list = [];
+  }
+  add(x, z, r0, r1, life, o = {}) {
+    this.list.push({ x, z, r0, r1, life, age: -(o.delay ?? 0), k: o.k ?? 1, n: o.n ?? 2, gap: o.gap ?? 3, hot: o.hot ?? 0.1, glint: o.glint ?? 0, seed: this.seq = (this.seq ?? 0) + 1 });
+  }
+  get count() {
+    return this.list.length;
+  }
+  update(dt) {
+    for (let i = this.list.length - 1; i >= 0; i--) (this.list[i].age += dt) >= this.list[i].life && this.list.splice(i, 1);
+  }
+  draw(p, C, half = 0) {
+    for (let q of this.list) {
+      if (q.age < 0) continue;
+      let u = q.age / q.life, r = q.r0 + (q.r1 - q.r0) * (1 - Math.pow(1 - u, 2.6)), k = q.k * Math.pow(1 - u, 1.7);
+      ring(p, q.x, q.z * this.sy, r, this.sy, k, C, { n: q.n, gap: q.gap * (0.55 + 0.6 * u), half, hot: q.age < q.hot, glint: q.glint * k, seed: q.seed });
+    }
+  }
+};
+function lace(p, cx, cy, rx, ry, k, C, t, seed = 0) {
+  if (k <= 0.01 || rx < 1) return;
+  let sy = ry / rx;
+  p.shade(cx - rx, cy - ry, cx + rx, cy + ry, (x, y, o) => {
+    let dx = (x - cx) / rx, dy = (y - cy) / ry, d = dx * dx + dy * dy;
+    if (d > 1) return;
+    let u = (x - cx) * 0.36, v = (y - cy) / sy * 0.36, n = noise2(u + seed * 7.13, v - t * 0.35, seed), m = noise2(u * 2.2 - t * 0.3, v * 2.2 + seed * 3.1, seed + 9), net = 1 - Math.abs(n) * 4.6 + m * 0.3, need = 1.02 - k * (1.15 - d * 0.9);
+    net < need || (o.c = net > need + 0.4 ? WHITE : C[6]);
+  });
+}
+var Mist = class {
+  constructor() {
+    this.list = [];
+  }
+  add(x, y, vx, vy, r0, r1, life, c, a = 0.25, delay = 0) {
+    this.list.push({ x, y, vx, vy, r0, r1, life, max: life, c: hex(c), a, delay });
+  }
+  get count() {
+    return this.list.length;
+  }
+  update(dt) {
+    for (let i = this.list.length - 1; i >= 0; i--) {
+      let m = this.list[i];
+      if (m.delay > 0) {
+        m.delay -= dt;
+        continue;
+      }
+      if ((m.life -= dt) <= 0) {
+        this.list.splice(i, 1);
+        continue;
+      }
+      m.vx -= m.vx * 2.4 * dt, m.vy -= m.vy * 2.4 * dt + 7 * dt, m.x += m.vx * dt, m.y += m.vy * dt;
+    }
+  }
+  draw(p, haze) {
+    for (let m of this.list) {
+      if (m.delay > 0) continue;
+      let age = 1 - m.life / m.max, r = m.r0 + (m.r1 - m.r0) * (1 - Math.pow(1 - age, 2.2)), a = m.a * Math.min(1, age / 0.12) * Math.pow(1 - age, 1.4);
+      a < 0.01 || (p.disc(m.x, m.y, r, m.c, (d) => a * (1 - d * d) * (1 - d * 0.5)), p.disc(m.x - r * 0.2, m.y - r * 0.32, r * 0.55, WHITE, (d) => a * 0.25 * (1 - d) * (1 - d)), haze && p.glow(m.x, m.y, r * 1.5, haze, 0.16 * a / m.a * Math.min(1, m.a * 3)));
+    }
+  }
+};
+function pebble(p, x, y, r, ST) {
+  p.shade(x - r - 1, y - r - 1, x + r + 1, y + r + 1, (px, py, o) => {
+    let dx = px - x, dy = py - y, d = Math.hypot(dx * 1.1, dy);
+    if (d > r + 0.8) return;
+    let lit = (dx + dy) / Math.max(0.5, r);
+    o.c = d > r ? ST[0] : lit < -0.7 ? ST[5] : lit < 0.2 ? ST[4] : lit < 0.8 ? ST[3] : ST[2];
+  });
+}
+var rock = () => ROCK.map(hex);
+
+// pixelfx/src/fx/water/splash.js
+var meta5 = {
+  name: "Splash",
+  desc: "A stone drops into still water: a white hit, a crown that tears into droplets arcing out to plink down with rings, a jet that bounces back, foam and drifting mist.",
+  tags: ["water", "splash", "impact", "drop", "liquid", "one-shot"],
+  size: [176, 100],
+  origin: [88, 78],
+  duration: 2.5,
+  loop: !1,
+  fps: 30,
+  bg: "ground",
+  options: { palette: WATER, stone: !0, seed: 3 }
+}, SY = 0.22, HIT = 0.16, G = 820, FINGERS = 12, JET = 0.3, TEAR = 0.11, height = (u) => 19 * ease.outCubic(clamp(u / 0.09)) * (1 - ease.inQuad(clamp((u - 0.12) / 0.3))), foot = (u) => 3 + 7.5 * ease.outCubic(clamp(u / 0.45)), lip = (u) => foot(u) + height(u) * 0.42 + 3 * ease.outCubic(clamp(u / 0.25)), jetH = (u) => 26 * (ease.outCubic(clamp(u / 0.12)) - ease.inQuad(clamp((u - 0.15) / 0.28)));
+function create5(o) {
+  let C = fit(o.palette, 8), R = new Rng(o.seed), ST = rock(), phi = R.range(0, TAU), ps = new Particles({ rng: R }), mist = new Mist(), lights = new Lights(), rings = new Ripples({ sy: SY }), plinks = [], bubbles = [], spikes = Array.from({ length: FINGERS }, (_, k) => ({ a: (k * TAU / FINGERS + phi) % TAU, L: R.range(0.2, 0.36) })), drops = new Drops({
+    sy: SY,
+    g: G,
+    onLand: (d) => {
+      if (rings.add(d.x, d.z, 0.6, 2 + d.s * 1.8, 0.34 + d.s * 0.1, { n: 1, k: 0.95, hot: 0.06 }), plinks.push({ x: d.x, y: d.z * SY, s: d.s, age: 0 }), d.s > 1 && !d.small)
+        for (let i = 0; i < d.s; i++) {
+          let a = R.range(0, TAU), v = R.range(10, 34);
+          drops.add({ x: d.x, z: d.z, h: 0.5, vx: Math.cos(a) * v, vz: Math.sin(a) * v, vh: R.range(55, 110), s: 1, small: !0, life: 1 });
+        }
+    }
+  }), t = 0, done = /* @__PURE__ */ new Set(), once = (key, at) => !done.has(key) && t >= at && done.add(key), scallop = (a, h) => h * (0.86 + 0.14 * noise(Math.cos(a) * 2.2 + Math.sin(a) * 1.3 + phi * 3, o.seed));
+  function crown(p, back) {
+    let u = t - HIT, h = height(u);
+    if (u < 0 || h < 0.7) return;
+    let r0 = foot(u), rt = lip(u), white = u < 0.045, cells = /* @__PURE__ */ new Map(), put = (x, y, c, a, rank) => {
+      let X = Math.floor(x), Y = Math.floor(y), key = (Y + 4096) * 8192 + X + 4096, cur = cells.get(key);
+      (!cur || rank > cur.r) && cells.set(key, { x: X, y: Y, c, a, r: rank });
+    }, n = Math.ceil(rt * TAU * 1.6);
+    for (let i = 0; i < n; i++) {
+      let a = i / n * TAU, s = Math.sin(a), c = Math.cos(a);
+      if (s < 0 !== back) continue;
+      let lane = Math.floor((a + phi) * rt / 2.2), streak = rand(lane, 31) < 0.3, H2 = scallop(a, h), keep = 1 - clamp((u - 0.13 - 0.14 * rand(lane, 7)) / 0.1), steps = Math.ceil(H2 * 1.4) + 2;
+      for (let k = 0; k <= steps * keep; k++) {
+        let v = k / steps, r = r0 + (rt - r0) * Math.pow(v, 2.2), x = c * r, y = s * r * SY - H2 * v;
+        white ? put(x, y, WHITE, 1, 3) : back ? put(x, y, v > 0.72 ? streak ? C[5] : C[4] : streak ? C[3] : C[2], 1, 1) : Math.abs(c) > 0.9 ? put(x, y, c < 0 ? Math.abs(c) > 0.97 ? WHITE : C[6] : C[4], 1, 2) : v < 0.1 ? put(x, y, v < 0.05 ? WHITE : C[6], 1, 2) : streak ? put(x, y, c < -0.2 ? C[6] : C[5], 1, 1) : put(x, y, c < 0 ? C[5] : C[4], 0.22, 0);
+      }
+      if (!white && keep >= 1) {
+        let x = c * rt, y = s * rt * SY - H2;
+        put(x, y, back ? C[5] : c < 0.45 ? WHITE : C[6], 1, 3), !back && c < 0.2 && put(x, y + 1, C[6], 1, 2);
+      }
+    }
+    for (let q of cells.values())
+      q.r === 0 ? p.blend(q.x, q.y, q.c, q.a) : p.px(q.x, q.y, q.c);
+    let reach = 1 - smooth(TEAR, TEAR + 0.1, u);
+    for (let f of spikes) {
+      if (Math.sin(f.a) < 0 !== back || reach <= 0) continue;
+      let H2 = scallop(f.a, h), L = h * f.L * reach, x0 = Math.cos(f.a) * rt, y0 = Math.sin(f.a) * rt * SY - H2, x1 = x0 + Math.cos(f.a) * L * 0.45, y1 = y0 - L;
+      L >= 1 && p.line(x0, y0, x1, y1, white ? WHITE : back ? C[4] : C[6]), u > 0.04 && u < TEAR && bead(p, x1 - (back ? 0 : 0.5), y1 - 1, 0, -1, back ? 1 : 2, C), !back && Math.sin(f.a) > 0.3 && p.glow(x0, y0, 6, C[5], 0.22 * reach);
+    }
+  }
+  function jet(p) {
+    let u = t - HIT - JET, h = jetH(u);
+    if (u < 0 || h < 0.8) return;
+    let top = -h;
+    p.ellipse(0, 0, 5, 2.4, (d, a) => Math.sin(a) > 0 ? null : d < 0.5 ? WHITE : Math.cos(a) < 0 ? C[6] : C[5]), p.shade(-3, top - 2, 3, 0, (x, y, out) => {
+      let v = clamp((y - top) / h), w = 1.15 + 1.5 * v * v * v, q = x / w;
+      Math.abs(q) > 1 || (out.c = q < -0.5 ? C[6] : q < 0.3 ? WHITE : q < 0.72 ? C[5] : C[4]);
+    }), u < 0.12 && (p.circle(0, top - 1, 1.7, C[5]), p.circle(-0.3, top - 1.3, 1.1, C[6]), p.px(-1, top - 2, WHITE)), p.glowLine(0, -1, 0, top, 7, C[5], 0.3);
+  }
+  return {
+    update(dt) {
+      if (t += dt, once("hit", HIT)) {
+        lights.add(0, -6, 52, C[5], 0.6, 0.45), lights.add(0, -4, 16, WHITE, 0.5, 0.08), rings.add(0, 0, 8, 56, 2, { n: 2, gap: 3.4, k: 1.35, hot: 0.16, glint: 1 }), rings.add(0, 0, 5, 38, 1.7, { n: 1, k: 0.9, delay: 0.14 });
+        for (let i = 0; i < 20; i++) {
+          let a = R.range(0, TAU), v = R.range(50, 125);
+          drops.add({ x: Math.cos(a) * 3, z: Math.sin(a) * 3, h: R.range(1, 6), vx: Math.cos(a) * v, vz: Math.sin(a) * v, vh: R.range(160, 270), s: R.chance(0.25) ? 2 : 1, delay: R.range(0, 0.04) });
+        }
+        for (let i = 0; i < 9; i++) {
+          let s = i % 2 ? 1 : -1, x = s * R.range(4, 12);
+          mist.add(x, -R.range(1, 7), s * R.range(25, 70), -R.range(4, 16), R.range(2.5, 4), R.range(7, 11), R.range(0.9, 1.5), R.chance(0.5) ? C[6] : C[5], R.range(0.3, 0.42), R.range(0, 0.1));
+        }
+      }
+      if (once("spray", HIT + 0.04)) {
+        for (let i = 0; i < 20; i++) {
+          let a = R.range(0, TAU);
+          ps.spawn(P.FLAKE, Math.cos(a) * 9, Math.sin(a) * 9 * SY - R.range(6, 15), Math.cos(a) * R.range(25, 90), -R.range(30, 100), R.range(0.7, 1.3), R.chance(0.5) ? WHITE : C[6], R.range(0.6, 1.5));
+        }
+        for (let i = 0; i < 5; i++) ps.spawn(P.STAR, R.range(-13, 13), -R.range(6, 20), 0, -4, R.range(0.25, 0.55), C[6], R.range(1, 2.4), R.range(0, 0.15));
+      }
+      if (once("tear", HIT + TEAR)) {
+        let h = height(TEAR), rt = lip(TEAR);
+        for (let f of spikes) {
+          let a = f.a + R.range(-0.08, 0.08), v = R.range(32, 88), L = h * f.L;
+          drops.add({ x: Math.cos(f.a) * (rt + L * 0.45), z: Math.sin(f.a) * rt, h: h + L + 1, vx: Math.cos(a) * v, vz: Math.sin(a) * v, vh: R.range(90, 190), s: R.chance(0.3) ? 3 : 2 });
+        }
+      }
+      let u = t - HIT;
+      if (u > 0.13 && u < 0.3 && R.chance(0.3)) {
+        let a = R.range(0, TAU), rt = lip(u), v = R.range(15, 45);
+        drops.add({ x: Math.cos(a) * rt, z: Math.sin(a) * rt, h: scallop(a, height(u)) * R.range(0.6, 1), vx: Math.cos(a) * v, vz: Math.sin(a) * v, vh: R.range(-10, 45), s: R.chance(0.3) ? 2 : 1 });
+      }
+      if (once("fall", HIT + 0.3))
+        for (let i = 0; i < 8; i++) {
+          let a = R.range(0, TAU), r = lip(0.3), v = R.range(15, 40);
+          drops.add({ x: Math.cos(a) * r, z: Math.sin(a) * r, h: R.range(3, 7), vx: Math.cos(a) * v, vz: Math.sin(a) * v, vh: R.range(30, 80), s: R.chance(0.4) ? 2 : 1 });
+        }
+      if (once("bead", HIT + JET + 0.12)) {
+        drops.add({ x: 0, z: 0.2, h: jetH(0.12) + 1, vx: R.range(-6, 6), vz: 0, vh: 55, s: 3 });
+        for (let i = 0; i < 3; i++) mist.add(R.range(-3, 3), -jetH(0.12) + R.range(2, 8), R.range(-14, 14), -R.range(4, 12), 2, R.range(4, 6), R.range(0.6, 1), C[6], 0.3);
+      }
+      if (once("slump", HIT + JET + 0.38)) {
+        rings.add(0, 0, 3, 30, 1.5, { n: 2, gap: 2.6, k: 0.9 });
+        for (let i = 0; i < 4; i++) mist.add(R.range(-6, 6), -R.range(1, 4), R.range(-30, 30), -R.range(3, 10), 2.5, R.range(6, 9), R.range(0.8, 1.2), C[5], 0.28);
+      }
+      for (let [i, at] of [[0, 0.95], [1, 1.2], [2, 1.5]])
+        once("glug" + i, HIT + at) && bubbles.push({ x: R.range(-5, 5), z: R.range(-6, 6), t0: t, r: R.range(1.3, 2.3), popped: !1 });
+      for (let b of bubbles)
+        if (!b.popped && t - b.t0 > 0.2) {
+          b.popped = !0, rings.add(b.x, b.z, 1, 7, 0.6, { n: 1, k: 0.9 }), plinks.push({ x: b.x, y: b.z * SY, s: 1, age: 0 });
+          for (let i = 0; i < 2; i++) drops.add({ x: b.x, z: b.z, h: 1, vx: R.range(-20, 20), vz: R.range(-10, 10), vh: R.range(50, 90), s: 1, small: !0, life: 1 });
+        }
+      for (let i = plinks.length - 1; i >= 0; i--) (plinks[i].age += dt) > 0.14 && plinks.splice(i, 1);
+      drops.update(dt), rings.update(dt), mist.update(dt), ps.update(dt), lights.update(dt);
+    },
+    drawBack(p) {
+      let u = t - HIT;
+      if (u > 0 && u < 0.26) {
+        let r = foot(u) * 0.85 * (1 - smooth(0.12, 0.26, u));
+        p.ellipse(0, 0, r, r * SY + 0.6, (d, a) => Math.sin(a) < 0 ? C[1] : C[2]);
+      }
+      rings.draw(p, C, -1), crown(p, !0), drops.draw(p, C, "back");
+    },
+    draw(p) {
+      let u = t - HIT;
+      if (rings.draw(p, C, 1), u > 0.2) {
+        let rx = 4 + 11 * ease.outCubic(clamp((u - 0.2) / 0.7)), k = smooth(0.2, 0.32, u) * (1 - smooth(0.5, 2, u)) * 0.9;
+        lace(p, 0, 0, rx, rx * SY + 0.5, k, C, t, o.seed);
+      }
+      crown(p, !1), jet(p);
+      for (let b of bubbles) {
+        let g = (t - b.t0) / 0.2;
+        if (g > 1) continue;
+        let r = b.r * ease.outBack(g), x = b.x, y = b.z * SY;
+        for (let a = Math.PI; a <= TAU + 0.01; a += 0.5 / Math.max(1, r)) p.dot(x + Math.cos(a) * r, y + Math.sin(a) * r, C[6]);
+        p.px(x - r * 0.4, y - r * 0.6, WHITE), p.glow(x, y - 1, 4, C[5], 0.25);
+      }
+      for (let q of plinks) {
+        let k = q.age / 0.14;
+        k < 0.5 && p.px(q.x, q.y, WHITE), q.s > 1 && p.line(q.x, q.y - 1, q.x, q.y - 1 - 3 * (1 - k), k < 0.4 ? WHITE : C[6]), p.glow(q.x, q.y, 4, C[5], 0.3 * (1 - k));
+      }
+      if (drops.draw(p, C, "front"), u >= 0 && u < 0.07 && (p.ellipse(0, 0, 10, 2.4, (d) => d < 0.6 ? WHITE : C[6]), sparkle(p, 0, -3, 5 * (1 - u / 0.07), C[6], C[5], 0.5)), o.stone && t < HIT) {
+        let v = t / HIT, y = -70 + 70 * (0.4 * v + 0.6 * v * v);
+        p.line(0, y - 12, 0, y - 3, ST[4], (w) => w * 0.8), pebble(p, 0, y, 2.6, ST);
+      }
+      mist.draw(p, C[5]), ps.draw(p), lights.draw(p), u > 0 && (p.glow(0, -2, 34, C[4], 0.2 * (1 - smooth(0, 1.6, u))), p.glow(0, 2, 64, C[3], 0.16 * (1 - smooth(0.1, 2.1, u))));
+    }
+  };
+}
+
+// pixelfx/src/fx/impacts/blunt-hit.js
+var blunt_hit_exports = {};
+__export(blunt_hit_exports, {
+  create: () => create6,
+  meta: () => meta6
+});
+
+// pixelfx/src/fx/impacts/_lib.js
+var SOOT = hex("#0d0a12"), OUTLINE = hex("#1a1422"), LIGHT2 = Math.atan2(-1, -1);
+function stone(c) {
+  return c = hex(c), { light: mix(scale(c, 1.35), WHITE, 0.08), body: c, shade: scale(c, 0.64), dust: mix(scale(c, 1.2), rgb(150, 140, 150), 0.3), lip: mix(scale(c, 1.55), WHITE, 0.12) };
+}
+function star(p, x, y, list, sc, th, [rim, body, inner, core], a = 1, heart = 2.4) {
+  for (let pass = 0; pass < 3; pass++)
+    for (let s of list) {
+      let c = Math.cos(s.a), sn = Math.sin(s.a), L = s.len * sc;
+      for (let d = 0; d <= L && !(pass === 2 && d > L * 0.55); d += 0.5) {
+        let hw0 = s.w * th * (1 - d / L) * Math.min(1, 0.5 + d / 3), hw = pass === 0 ? hw0 + 0.8 : pass === 1 ? hw0 : hw0 * 0.45, col = pass === 0 ? rim : pass === 1 ? d < L * 0.35 ? inner : body : core;
+        for (let o = -hw; o <= hw; o += 0.5) p.dot(x + c * d - sn * o, y + sn * d + c * o, col, a);
+      }
+    }
+  let r = heart * sc * Math.sqrt(th);
+  p.circle(x, y, r + 0.8, inner, a), p.circle(x, y, r, core, a);
+}
+function walk(R, x, y, a, L, { jit = 0.55, steer = 0.45, step = [2, 4], maxY = 1 / 0, d0 = 0 } = {}) {
+  let pts = [[x, y, d0]], d = 0, cur = a;
+  for (; d < L - 0.01; ) {
+    let s = Math.min(L - d, R.range(step[0], step[1]));
+    cur += R.range(-jit, jit) + (a - cur) * steer, x += Math.cos(cur) * s, y = clamp(y + Math.sin(cur) * s, 0.5, maxY), d += s, pts.push([x, y, d0 + d]);
+  }
+  return pts;
+}
+function makeCracks(R, n, { len: len2 = [14, 40], dive = 0.85, maxY = 22, forks = 0.5, x0 = [1, 5] } = {}) {
+  let out = [];
+  for (let i = 0; i < n; i++) {
+    let side = i % 2 ? 1 : -1, dip = 0.06 + Math.pow(R.next(), 1.7) * dive, L = R.range(len2[0], len2[1]) * (1 - 0.5 * dip / (dive + 0.06)), a = side > 0 ? dip : Math.PI - dip, pts = walk(R, side * R.range(x0[0], x0[1]), R.range(0.5, 1.5), a, L, { maxY }), c = { pts, len: L, t0: R.range(0, 0.035), kids: [] };
+    for (let j = 2; j < pts.length - 1; j++)
+      if (R.chance(forks * 0.4)) {
+        let [fx, fy, fd] = pts[j];
+        c.kids.push(walk(R, fx, fy, a + R.sign() * R.range(0.45, 1), R.range(3, 9) * (1 - 0.5 * j / pts.length), { maxY, d0: fd, jit: 0.7, step: [1.5, 3] }));
+      }
+    out.push(c);
+  }
+  return out;
+}
+function drawCracks(p, cracks, g, heat, hot, dark, lip2, k = 1) {
+  if (k <= 0) return;
+  let col = (d) => {
+    let h = heat(d);
+    return h > 0.75 ? hot[0] : h > 0.5 ? hot[1] : h > 0.3 ? hot[2] : h > 0.12 ? hot[3] : dark;
+  };
+  for (let c of cracks) {
+    let G2 = g(c);
+    if (!(G2 <= 0))
+      for (let path of [c.pts, ...c.kids])
+        for (let i = 1; i < path.length; i++) {
+          let [x0, y0, d0] = path[i - 1], [x1, y1, d1] = path[i];
+          if (d0 >= G2) break;
+          let f = d1 > G2 ? (G2 - d0) / (d1 - d0) : 1, ex = x0 + (x1 - x0) * f, ey = y0 + (y1 - y0) * f;
+          p.line(x0, y0 + 1, ex, ey + 1, lip2, (u) => rand(Math.round(x0 + (ex - x0) * u), Math.round(y0 + (ey - y0) * u), 5) < 0.3 ? k * 0.8 : 0), p.line(x0, y0, ex, ey, (u) => col(d0 + (d1 - d0) * f * u), k);
+          let h = heat(d0);
+          h > 0.12 && p.glow((x0 + ex) / 2, (y0 + ey) / 2, 4 + h * 4, hot[2], 0.22 * h * k);
+        }
+  }
+}
+function frontCrescent(p, x, dir, h, w, cols, k = 1) {
+  if (h < 1 || w < 0.3 || k <= 0) return;
+  let ry = h * 0.8, cy = -h * 0.2, rx = Math.max(2, h * 0.55), x0 = dir > 0 ? x - rx - w - 1 : x - 1, x1 = dir > 0 ? x + 1 : x + rx + w + 1;
+  p.shade(x0, -h - 1, x1, 0, (px, py, out) => {
+    if (py > 0) return;
+    let ey = (py - cy) / ry;
+    if (ey <= -1 || ey >= 1) return;
+    let e2 = 1 - ey * ey, edge = rx * Math.sqrt(e2) - rx, wt = w * Math.pow(e2, 0.45), q = (edge - (px - x) * dir) / Math.max(0.5, wt);
+    q < 0 || q > 1 || (out.c = q < 0.28 ? cols[0] : q < 0.62 ? cols[1] : cols[2], out.a = k * (ey < -0.8 ? 0.7 : 1) * (q > 0.7 ? 1.25 - q * 0.8 : 1));
+  });
+}
+var rockShape = (R, n = 6) => Array.from({ length: n }, () => R.range(0.7, 1.12));
+function rock2(p, b, st) {
+  let r = 0.75 + b.s * 0.8, n = b.pts.length, fade = Math.min(1, b.life / 0.5), ca = Math.cos(b.a), sa = Math.sin(b.a);
+  p.shade(b.x - r - 2, b.y - r - 2, b.x + r + 2, b.y + r + 2, (x, y, out) => {
+    let dx = x - b.x, dy = y - b.y, u = dx * ca + dy * sa, v = -dx * sa + dy * ca, d = Math.hypot(u, v), ang = Math.atan2(v, u);
+    ang < 0 && (ang += TAU);
+    let f = ang / TAU * n, i = Math.floor(f) % n, w = f - Math.floor(f), edge = r * (b.pts[i] * (1 - w) + b.pts[(i + 1) % n] * w);
+    if (d > edge + 0.85) return;
+    if (out.a = fade, d > edge) return OUTLINE;
+    let lit = Math.cos((i + 0.5) / n * TAU + b.a - LIGHT2);
+    return d < edge * 0.42 ? lit > 0.55 ? st.light : st.body : lit > 0.35 ? st.light : lit < -0.4 ? st.shade : st.body;
+  });
+}
+
+// pixelfx/src/fx/impacts/blunt-hit.js
+var meta6 = {
+  name: "Blunt hit",
+  desc: "A heavy, soft thud: a white-hot lumpy blob cools to cream in a warm pool of light, inked wedges jab out and snap back, a squashed ring of dust puffs swells and drifts, clods drop.",
+  tags: ["impact", "hit", "blunt", "punch", "club", "thump", "dust", "comic", "one-shot"],
+  size: [128, 88],
+  origin: [64, 72],
+  duration: 0.9,
+  loop: !1,
+  fps: 30,
+  bg: "ground",
+  options: { palette: ["#1d1620", "#4a3a3c", "#7d6a66", "#b09c90", "#dccab4", "#f6ead2", "#ffffff"], warm: "#ffc98a", dust: "#b7a8a6", clod: "#6e5a5a", height: 22, seed: 9 }
+}, lump = (r, a, ph) => r * (1 + 0.15 * Math.sin(5 * a + ph) + 0.08 * Math.sin(9 * a + ph * 2.3));
+function create6(o) {
+  let C = fit(o.palette, 7), R = new Rng(o.seed), X = 0, Y = -o.height, PH = R.range(0, TAU), floor = () => 0, WARM = hex(o.warm), DUST2 = hex(o.dust), st = stone(o.clod), lights = new Lights(), bits = new Bits({ ground: floor });
+  lights.add(X, Y, 48, WARM, 0.6, 0.4), lights.add(X, Y, 16, WHITE, 0.6, 0.07), lights.add(X, -2, 36, WARM, 0.25, 0.4);
+  let wedges = Array.from({ length: 9 }, (_, i) => ({ a: i / 9 * TAU + R.range(-0.2, 0.2), len: R.range(6, 15), w: R.range(3.2, 5), r0: R.range(13, 16), t0: R.range(0.015, 0.04), out: R.range(0.04, 0.06), back: R.range(0.09, 0.14) })), puffs = Array.from({ length: 30 }, (_, i) => {
+    let a = i / 30 * TAU + R.range(-0.12, 0.12), side = Math.abs(Math.cos(a)), v = R.range(40, 140) * (0.6 + 0.5 * side);
+    return { x: X + Math.cos(a) * 9, y: Y + Math.sin(a) * 6, vx: Math.cos(a) * v, vy: Math.sin(a) * v * 0.5, r: R.range(2.4, 6.2) * (0.75 + 0.35 * side), life: R.range(0.35, 0.85), max: 0, t0: R.range(0.03, 0.1), lift: R.range(4, 16) };
+  });
+  for (let i = 0; i < 5; i++)
+    puffs.push({ x: X + R.range(-6, 6), y: Y - R.range(3, 6), vx: R.range(-30, 30), vy: -R.range(20, 45), r: R.range(3.5, 5.5), life: R.range(0.6, 0.85), max: 0, t0: R.range(0.05, 0.1), lift: R.range(14, 24) });
+  for (let q of puffs) q.max = q.life;
+  for (let i = 0; i < 5; i++) {
+    let s = R.sign(), a = -Math.PI / 2 + s * R.range(0.5, 1.3), v = R.range(70, 140);
+    bits.add({ kind: B.CHUNK, x: X + s * R.range(4, 8), y: Y + R.range(-3, 3), vx: Math.cos(a) * v, vy: Math.sin(a) * v, g: 1, drag: 0.6, bounce: 0.28, life: R.range(0.65, 0.85), a: R.range(0, TAU), va: s * R.range(8, 16), s: R.chance(0.4) ? 2 : 1, pts: rockShape(R), pvy: 0 });
+  }
+  let kicks = [], t = 0;
+  return {
+    update(dt) {
+      t += dt;
+      for (let q of puffs)
+        t < q.t0 || (q.life -= dt, q.vx -= q.vx * 4.5 * dt, q.vy -= q.vy * 4.5 * dt + (q.lift ?? 6) * dt, q.x += q.vx * dt, q.y += q.vy * dt);
+      for (let b of bits.list) b.pvy = b.vy;
+      bits.update(dt);
+      for (let b of bits.list)
+        if (b.pvy > 60 && b.vy <= 0) {
+          for (let i = 0; i < 2; i++) kicks.push({ x: b.x, y: -1, vx: R.sign() * R.range(8, 22), vy: -R.range(3, 10), r: R.range(1.2, 2), life: 0.4, max: 0.4, t0: 0 });
+          b.pvy = 0;
+        }
+      for (let q of kicks)
+        q.life -= dt, q.vx -= q.vx * 4 * dt, q.vy -= q.vy * 4 * dt, q.x += q.vx * dt, q.y += q.vy * dt;
+      lights.update(dt);
+    },
+    draw(p) {
+      for (let q of [...puffs, ...kicks]) {
+        let k = q.life / q.max;
+        if (t < q.t0 || k <= 0) continue;
+        let r = q.r * (0.7 + (1 - k) * 0.85), a = Math.pow(k, 1.25) * Math.min(1, (t - q.t0) / 0.03), c = mix(DUST2, WARM, clamp(1 - (t - 0.03) / 0.25) * 0.55);
+        p.disc(q.x, q.y, r, c, (d) => 0.58 * a * (1 - d * d * 0.75)), p.disc(q.x - r * 0.22, q.y - r * 0.32, r * 0.58, mix(c, WHITE, 0.55), (d) => 0.48 * a * (1 - d * d));
+      }
+      for (let b of bits.list) rock2(p, b, st);
+      if (t < 0.058) {
+        let f = t < 0.025 ? 0 : 1, R0 = f ? 13.5 : 11.5;
+        p.shade(X - R0 * 1.4, Y - R0 * 1.4, X + R0 * 1.4, Y + R0 * 1.4, (x, y) => {
+          let dx = x - X, dy = (y - Y) * (f ? 1.25 : 1.1), d = Math.hypot(dx, dy), ro = lump(R0, Math.atan2(dy, dx), PH + f * 0.6);
+          if (d > ro) return;
+          let q = d / ro;
+          return f === 0 ? q < 0.55 ? WHITE : q < 0.86 ? C[5] : C[4] : q < 0.3 ? WHITE : q < 0.72 ? C[5] : q < 0.9 ? C[4] : C[3];
+        });
+      }
+      for (let w of wedges) {
+        let u = t - w.t0;
+        if (u < 0 || u > w.out + w.back) continue;
+        let s = u < w.out ? ease.outCubic(u / w.out) : 1 - ease.inQuad((u - w.out) / w.back), L = w.len * s;
+        if (L < 1.5) continue;
+        let ca = Math.cos(w.a), sa = Math.sin(w.a), r0 = w.r0 + 2 * s, hw = w.w * (0.6 + 0.4 * s) / 2, tip = [X + ca * r0, Y + sa * r0], end = [X + ca * (r0 + L), Y + sa * (r0 + L)], n = [-sa * hw, ca * hw], wedge = (g) => [[tip[0] - ca * g, tip[1] - sa * g], [end[0] + n[0] * (1 + g * 0.45) + ca * g, end[1] + n[1] * (1 + g * 0.45) + sa * g], [end[0] - n[0] * (1 + g * 0.45) + ca * g, end[1] - n[1] * (1 + g * 0.45) + sa * g]];
+        p.poly(wedge(1), C[1]), p.poly(wedge(0), u < w.out + 0.02 ? WHITE : C[5]);
+      }
+      let pop = Math.exp(-t / 0.06);
+      pop > 0.02 && p.glow(X, Y, 28, WARM, 0.5 * pop), lights.draw(p);
+    }
+  };
+}
+
+// pixelfx/src/fx/impacts/ground-slam.js
+var ground_slam_exports = {};
+__export(ground_slam_exports, {
+  create: () => create7,
+  meta: () => meta7
+});
+var meta7 = {
+  name: "Ground slam",
+  desc: "Something lands hard: the floor flashes and cracks, two crescent shock waves race out along it, a dust wave and a tall dust cloud rise, rocks erupt, bounce and settle.",
+  tags: ["impact", "ground", "slam", "shockwave", "quake", "rocks", "dust", "one-shot"],
+  size: [288, 208],
+  origin: [144, 164],
+  duration: 3.2,
+  loop: !1,
+  fps: 30,
+  bg: "ground",
+  options: { palette: ["#2a1712", "#5e2c1c", "#a4502a", "#e8893a", "#ffc764", "#fff0b4", "#ffffff"], stone: "#4a3f69", reach: 104, seed: 5 }
+}, WAVE = 0.6;
+function crater(p, st, hot, C, k) {
+  for (let x = -12; x <= 11; x++) {
+    let q = Math.abs(x + 0.5) / 12, dep = Math.round(2.6 * (1 - q * q));
+    if (q < 0.84) {
+      for (let y = 0; y < dep; y++) p.dot(x, y, SOOT, k);
+      p.dot(x, dep, hot > 0.5 ? C[5] : hot > 0.2 ? C[4] : st.lip, k);
+    } else
+      p.dot(x, -1, q > 0.93 ? st.light : st.lip, k), q < 0.9 && p.dot(x, -2, st.light, k * 0.8);
+  }
+}
+function create7(o) {
+  let C = fit(o.palette, 7), st = stone(o.stone), REACH = o.reach, R = new Rng(o.seed), floor = () => 0, D = meta7.duration, ps = new Particles({ rng: R, ground: floor, sparks: [C[6], C[5], C[4], C[3]] }), bits = new Bits({ ground: floor }), lights = new Lights(), HOT2 = [WHITE, C[5], C[4], C[3]], dustLit = mix(st.dust, WHITE, 0.2), cracks = makeCracks(R, 10, { len: [22, 58], dive: 0.55, maxY: 22, forks: 0.7, x0: [2, 9] }), front = (t2) => 7 + (REACH - 7) * ease.outCubic(clamp((t2 - 0.015) / WAVE)), heat = (t2) => Math.pow(clamp(1 - t2 / 0.8), 1.4), crest = (u) => [6 + 28 * Math.pow(1 - u, 0.75), 1.5 + 5 * Math.pow(1 - u, 0.9)], burst = [
+    { a: -0.07, len: R.range(34, 40), w: 1.9 },
+    { a: Math.PI + 0.07, len: R.range(34, 40), w: 1.9 },
+    { a: -0.42 + R.range(-0.08, 0.08), len: R.range(15, 20), w: 1.5 },
+    { a: -Math.PI + 0.42 + R.range(-0.08, 0.08), len: R.range(15, 20), w: 1.5 },
+    { a: -Math.PI / 2 + R.range(-0.15, 0.15), len: R.range(18, 24), w: 1.7 },
+    { a: -1.05 + R.range(-0.1, 0.1), len: R.range(10, 14), w: 1.2 },
+    { a: -Math.PI + 1.05 + R.range(-0.1, 0.1), len: R.range(10, 14), w: 1.2 }
+  ], embers = [];
+  for (let c of cracks)
+    for (let [x, y, d] of c.pts) d > 3 && d < 32 && R.chance(0.25) && embers.push({ x, y, d, life: R.range(0.8, 2.2), ph: R.range(0, TAU) });
+  lights.add(0, -12, 96, C[4], 0.6, 0.6), lights.add(0, -4, 50, WHITE, 0.9, 0.14);
+  for (let i = 0; i < 56; i++) {
+    let low = i < 14, s = R.sign(), a = low ? s > 0 ? -R.range(0.04, 0.6) : Math.PI + R.range(0.04, 0.6) : -Math.PI / 2 + R.range(-1.15, 1.15), sp = low ? R.range(150, 380) : R.range(200, 500);
+    ps.spawn(P.SPARK, R.range(-4, 4), -1, Math.cos(a) * sp, Math.sin(a) * sp, low ? R.range(0.2, 0.5) : R.range(0.25, 0.65), WHITE, 1, low ? 0 : R.range(0, 0.05));
+  }
+  for (let i = 0; i < 20; i++) {
+    let s = i < 3 ? 4 : R.int(1, 3), a = -Math.PI / 2 + R.range(-0.5, 0.5), sp = s > 3 ? R.range(110, 190) : R.range(170, 380) * (s > 2 ? 0.8 : 1);
+    bits.add({ kind: B.CHUNK, x: R.range(-7, 7), y: -2, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 1, drag: 0.4, bounce: 0.38, life: R.range(1.9, 2.7), a: R.range(0, TAU), va: R.range(-14, 14), s, pts: rockShape(R), pvy: 0 });
+  }
+  for (let i = 0; i < 110; i++) {
+    let u = R.range(-1, 1), a = -Math.PI / 2 + u * 0.65, sp = R.range(110, 380) * (1 - 0.35 * Math.abs(u));
+    ps.spawn(P.GRIT, u * 6, -1, Math.cos(a) * sp, Math.sin(a) * sp, R.range(1, 2.2), R.pick([st.light, st.body, st.body, st.shade, st.shade, st.lip]), R.chance(0.35) ? 2 : 1);
+  }
+  for (let i = 0; i < 28; i++) {
+    let core = i < 14, s = R.sign();
+    ps.spawn(P.SMOKE, core ? R.range(-5, 5) : s * R.range(4, 12), -R.range(2, 10), core ? R.range(-12, 12) : s * R.range(14, 38), -R.range(50, 130) * (core ? 1 : R.range(0.3, 0.6)), R.range(1.9, 2.7), R.chance(0.35) ? dustLit : st.dust, core ? R.range(4.5, 9) : R.range(4, 7.5), R.range(0.02, 0.22), PF.BIG);
+  }
+  for (let i = 0; i < 10; i++) {
+    let s = R.sign();
+    ps.spawn(P.SMOKE, s * R.range(2, 14), -R.range(2, 6), s * R.range(20, 70), -R.range(4, 20), R.range(1.4, 2.3), st.dust, R.range(6, 9), R.range(0, 0.08), PF.BIG);
+  }
+  for (let i = 0; i < 26; i++)
+    ps.spawn(P.FLAKE, R.range(-22, 22), -R.range(14, 80), R.range(-12, 12), R.range(-10, 4), R.range(1.2, 2), R.chance(0.5) ? st.lip : dustLit, R.range(0.5, 1.2), R.range(0.25, 1));
+  let t = 0, acc = [R.next(), R.next()], ring2 = (p, back) => {
+    let u = clamp((t - 0.015) / (WAVE + 0.1));
+    t < 0.015 || u >= 0.9 || band(
+      p,
+      0,
+      0.5,
+      front(t) + 1,
+      0.16,
+      Math.max(1, 4 * Math.pow(1 - u, 0.8)),
+      u < 0.55 ? 1.1 : (0.9 - u) / 0.35,
+      u < 0.35 ? [C[3], C[4], C[5], C[6]] : [st.body, st.light, C[4], C[5]],
+      (g) => Math.sin(g) < 0 === back,
+      t < 0.09
+    );
+  }, fronts = (p) => {
+    let u = clamp((t - 0.03) / (WAVE + 0.16));
+    if (t < 0.03 || u >= 1) return;
+    let fr = front(t), [h, w] = crest(u), k = u < 0.7 ? 1 : (1 - u) / 0.3, cols = u < 0.14 ? [WHITE, C[6], C[5]] : u < 0.34 ? [C[6], C[5], C[4]] : u < 0.55 ? [C[5], C[4], st.lip] : [st.lip, st.light, st.dust];
+    for (let s of [-1, 1])
+      frontCrescent(p, s * fr, s, h, w, cols, k), p.glow(s * fr, -h * 0.3, 8 + h * 0.7, C[4], 0.5 * (1 - u) * k);
+  };
+  return {
+    update(dt) {
+      t += dt;
+      let u = clamp((t - 0.015) / WAVE);
+      if (u > 0 && u < 1) {
+        let fr = front(t), [h] = crest(u);
+        for (let k = 0; k < 2; k++) {
+          let s = k ? 1 : -1;
+          for (acc[k] += dt * 120 * (1 - u * 0.7); acc[k] > 1; acc[k]--)
+            ps.spawn(P.SMOKE, s * (fr - R.range(1, 7)), -R.range(0.5, 3), s * R.range(15, 70) * (1 - u), -R.range(2, 12), R.range(1, 2.1), R.chance(0.3) ? dustLit : st.dust, R.range(2.5, 6.5) * (1 - 0.4 * u), 0, PF.BIG), R.chance(0.5) && ps.spawn(P.DUST, s * (fr - R.range(0, 3)), -R.range(0.3, 0.9) * h, s * R.range(-15, 25), -R.range(8, 35), R.range(0.3, 0.6), R.chance(0.5) ? dustLit : st.dust, R.range(1.2, 2.4)), R.chance(0.4) && ps.spawn(P.GRIT, s * fr, -1, s * R.range(10, 60), -R.range(40, 140) * (1 - u), R.range(0.5, 1), R.pick([st.light, st.body, st.lip]), 1), u < 0.45 && R.chance(0.2) && ps.spawn(P.SPARK, s * fr, -1, s * R.range(60, 200), -R.range(30, 160), R.range(0.12, 0.3));
+        }
+      }
+      for (let b of bits.list) b.pvy = b.vy;
+      bits.update(dt);
+      for (let b of bits.list)
+        if (b.pvy > 70 && b.vy <= 0) {
+          let n = b.pvy > 200 ? 3 : 2;
+          for (let i = 0; i < n; i++) ps.spawn(P.DUST, b.x + R.range(-1.5, 1.5), -0.5, R.sign() * R.range(8, 35), -R.range(2, 16), R.range(0.3, 0.65), st.dust, R.range(1.3, 2.4) * (0.7 + b.s * 0.25));
+          b.pvy = 0;
+        }
+      ps.update(dt), lights.update(dt);
+    },
+    drawBack(p) {
+      let fade = 1 - smooth(D - 0.9, D - 0.15, t), H2 = heat(t);
+      t > 0.02 && crater(p, st, H2, C, fade), drawCracks(p, cracks, (c) => c.len * ease.outCubic(clamp((t - c.t0) / 0.1)), (d) => H2 * clamp(1.2 - d / 40), HOT2, SOOT, st.light, fade);
+      for (let e of embers) {
+        let k = 1 - (t - 0.1) / e.life;
+        if (t < 0.1 || k <= 0) continue;
+        let f = 0.6 + 0.4 * Math.sin(t * 23 + e.ph);
+        p.px(e.x, e.y, k * f > 0.55 ? C[5] : k * f > 0.25 ? C[4] : C[3]), p.glow(e.x, e.y, 4, C[4], 0.35 * k * f);
+      }
+      ring2(p, !0), ps.draw(p, "back");
+    },
+    draw(p) {
+      ring2(p, !1), fronts(p);
+      for (let b of bits.list) rock2(p, b, st);
+      ps.draw(p, "front"), t < 0.035 ? (p.ellipse(0, 0, 30, 4.5, (d) => d > 0.8 ? C[4] : d > 0.5 ? C[6] : WHITE), star(p, 0, -1, burst, 1, 1, [C[4], C[6], WHITE, WHITE])) : t < 0.07 && star(p, 0, -1, burst, 1.25, 0.5, [C[3], C[5], C[6], WHITE]), t < 0.14 && p.glowLine(-80, 0, 80, 0, 10, C[5], 0.55 * (1 - t / 0.14));
+      let H2 = heat(t);
+      H2 > 0 && p.glow(0, 1, 46, C[4], 0.35 * H2), lights.draw(p);
+    }
+  };
+}
 export {
+  blunt_hit_exports as bluntHit,
   collect_burst_exports as collectBurst,
   createFx,
+  ground_slam_exports as groundSlam,
+  healing_bloom_exports as healingBloom,
   hit_spark_exports as hitSpark,
-  poof_exports as poof
+  poof_exports as poof,
+  splash_exports as splash
 };

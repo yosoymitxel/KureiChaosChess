@@ -44,6 +44,10 @@ const INFO = {
   rock: [t('zen.rockName', 'Piedra'), t('zen.rockInfo', 'Pártela a golpes de mazo; queda tierra para cavar o para una maceta.')],
 };
 const SOIL_COLORS = ['#4a3220', '#6b4a30', '#8a6a48'];
+// Rampas de pixelfx (de oscuro a claro) para que sus efectos vistan los colores del jardín.
+const SOIL_RAMP = ['#24170e', '#4a3220', '#6b4a30', '#8a6a48', '#b39272', '#e0cbb0'];
+const LEAF_RAMP = ['#14261a', '#2a4d2a', '#3f7a35', '#5a9b45', '#7fbf5a', '#c4ec7a'];
+const SAND_RAMP = ['#3a2e22', '#6b5a44', '#a08a6a', '#cbb89a', '#e8dcc4', '#fff8ea', '#ffffff'];
 const OUT = [0.16, 1, 0.3, 1];
 
 // Una maceta completa: el tiesto quieto y la planta encima según su etapa, meciéndose a su ritmo.
@@ -113,6 +117,7 @@ export function ZenScreen({ onBack, onShop }) {
   // Posiciones en la capa de efectos (la del patio) y piezas de cada maceta.
   const cellOf = (key) => yardRef.current?.querySelector(`[data-k="${key}"]`);
   const at = (el, bias = 0.5) => fxRef.current.pointOf(el, bias);
+  const pfx = (name, el, bias, o) => { if (!el) return; const p = at(el, bias); fxRef.current.pfx(name, p.x, p.y, o); };
   // Anima la planta de un tiesto. Motion recuerda el último fotograma (tras cortar: subida, giro y
   // escala 0), así que se vuelve a cero antes de cada animación o la siguiente planta nacería desplazada.
   const growFx = (key, frames, opts) => {
@@ -161,6 +166,7 @@ export function ZenScreen({ onBack, onShop }) {
     const p = at(cell, 0.66);
     fxRef.current.burst(p.x, p.y, { count: 10, color: SOIL_COLORS, speed: [40, 140], life: [0.3, 0.6], size: [2, 4], gravity: 500, shape: 'chunk', spread: Math.PI, angle: -Math.PI / 2 });
     growFx(key, { scale: [0, 1.25, 1] }, { duration: 0.6, ease: OUT });
+    pfx('healingBloom', cell, 0.66);
   });
   const fxWater = (key) => {
     const cell = cellOf(key), yard = yardRef.current;
@@ -172,6 +178,7 @@ export function ZenScreen({ onBack, onShop }) {
       playSfx('water');
       growFx(key, { rotate: [0, -6, 4, 0], scaleY: [1, 0.94, 1.05, 1] }, { duration: 0.9, ease: 'easeInOut' }); // la planta agradece el agua
       const p = at(cell, 0.42);
+      pfx('splash', cell, 0.62, { stone: false });
       for (let i = 0; i < 3; i++) setTimeout(() => fxRef.current.burst(p.x + 6, p.y - 8, { count: 8, color: ['#9fd3ff', '#5aa9e6', '#e6f6ff'], speed: [30, 90], life: [0.35, 0.6], size: [1.5, 3], gravity: 900, spread: 0.7, angle: Math.PI / 2 + 0.3 }), i * 140);
     }, 420);
     setTimeout(() => setPour(null), 1500);
@@ -201,6 +208,7 @@ export function ZenScreen({ onBack, onShop }) {
         ? { count: 16, color: ['#5a9b45', '#7fbf5a', '#3f7a35'], speed: [60, 200], life: [0.6, 1.1], size: [2, 4], gravity: 220, drag: 0.9, shape: 'chunk' }
         : { count: 18, color: ['#9a958c', '#c9c4ba', '#6e6a63'], speed: [90, 280], life: [0.4, 0.8], size: [2.5, 5], gravity: 700, shape: 'chunk', spread: Math.PI * 0.9, angle: -Math.PI / 2 });
       fxRef.current.dust(p.x, p.y, 0.8);
+      pfx(tool === 'cut' ? 'poof' : 'hitSpark', cell, 0.6, tool === 'cut' ? { palette: LEAF_RAMP } : undefined);
       if (tool === 'cut') fxRef.current.burst(p.x, p.y - 8, { count: 10, color: ['#7fbf5a', '#a6d77a'], speed: [30, 110], life: [1, 1.6], size: [3, 5], gravity: 60, drag: 0.85, shape: 'chunk' });
       setTimeout(() => done?.(), 300);
     }, tool === 'cut' ? 560 : 380);
@@ -215,6 +223,7 @@ export function ZenScreen({ onBack, onShop }) {
     const p = at(cell, 0.7);
     fxRef.current.burst(p.x, p.y, { count: 16, color: SOIL_COLORS, speed: [80, 260], life: [0.4, 0.8], size: [2.5, 5], gravity: 700, shape: 'chunk', spread: Math.PI * 0.9, angle: -Math.PI / 2 });
     fxRef.current.dust(p.x, p.y, 0.9);
+    pfx('poof', cell, 0.7, { palette: SOIL_RAMP });
     const art = cell.querySelector('.zn-plant, .zn-stone');
     if (art) motion(art, { scale: [0.4, 1.12, 1], y: [8, -4, 0] }, { duration: 0.5, ease: OUT });
   };
@@ -223,6 +232,7 @@ export function ZenScreen({ onBack, onShop }) {
     if (!cell || reduced()) return;
     const p = at(cell, 0.25), fl = getComputedStyle(cell.querySelector('.zn-plant')).getPropertyValue('--fl').trim() || '#ffcf6b';
     fxRef.current.sparkle(p.x, p.y, fl, 8);
+    pfx('healingBloom', cell, 0.4);
     growFx(key, { scale: [1, 1.18, 0.96, 1] }, { duration: 0.6, ease: OUT });
   };
 
@@ -272,7 +282,7 @@ export function ZenScreen({ onBack, onShop }) {
         const next = moving === 'pond' ? zenMovePond(z, key) : zenMove(z, moving, key, now);
         if (next === z) return say(moving === 'pond' ? t('zen.pondNoFit', 'El estanque no cabe ahí: necesita tierra libre.')
           : cellType(z, moving) === 'pot' ? t('zen.potWhere', 'La maceta va en tierra cavada: usa la pala primero.') : t('zen.lanternWhere', 'El farol va en tierra libre.'));
-        setMoving(null); apply(next); playSfx('dig');
+        setMoving(null); apply(next); playSfx('dig'); later(() => pfx('bluntHit', moving === 'pond' ? yardRef.current?.querySelector('.zen-pond') : cellOf(key), 0.7, { palette: SAND_RAMP }), 80);
         return say(t('zen.moved', 'Movido.'));
       }
       if (type === 'pond') {
@@ -288,7 +298,7 @@ export function ZenScreen({ onBack, onShop }) {
     if (GARDEN_ITEMS[tool]) {
       const next = zenPlace(z, tool, key);
       if (next === z) return say(tool === 'lantern' ? t('zen.lanternWhere', 'El farol va en tierra libre.') : t('zen.potWhere', 'La maceta va en tierra cavada: usa la pala primero.'));
-      apply(next); playSfx('dig');
+      apply(next); playSfx('dig'); later(() => pfx('bluntHit', cellOf(key), 0.7, { palette: SAND_RAMP }), 80);
       if (!next.items[tool]) setTool('sow');
       return say(tool === 'lantern' ? t('zen.lanternSet', 'Farol puesto: lo que crece a su lado abre antes.') : t('zen.potSet', 'Maceta puesta: ya se puede sembrar.'));
     }
@@ -301,7 +311,7 @@ export function ZenScreen({ onBack, onShop }) {
     if (type === 'rock') {
       if (tool !== 'hammer') return info(key, 'rock');
       const { z: next, broke } = zenBreak(z, key);
-      fxClear(key, 'hammer', () => { const c = cellOf(key) && fxRef.current?.pointOf(cellOf(key)); if (c) fxRef.current.pfx(broke ? 'poof' : 'hitSpark', c.x, c.y); apply(next); });
+      fxClear(key, 'hammer', () => { if (broke) pfx('poof', cellOf(key), 0.6); apply(next); });
       return say(broke ? t('zen.rockBreaks', 'La piedra se parte: queda tierra virgen.') : t('zen.rockCracks', 'La piedra se agrieta: otro golpe.'));
     }
     if (type === 'raw') {
@@ -459,6 +469,7 @@ export function ZenScreen({ onBack, onShop }) {
     setCoins(loadShop().coins);
     apply(zenExpand(z));
     playSfx('coin');
+    later(() => pfx('groundSlam', yardRef.current?.querySelector('.zn-tray'), 0.75, { palette: SAND_RAMP, stone: '#8a7a62' }), 80);
     award('zen_ring');
     if (z.size + 1 >= ZEN_MAX) award('zen_max');
     say(t('zen.expanded', 'El cantero crece a {size}: la tierra nueva pide cava.', { size: `${z.size + 1}×${z.size + 1}` }));
@@ -542,6 +553,7 @@ export function ZenScreen({ onBack, onShop }) {
     setCoins(loadShop().coins);
     apply(next);
     playSfx('splash');
+    later(() => pfx('splash', yardRef.current?.querySelector('.zen-pond'), 0.55, { stone: false }), 80);
     if (n + 1 >= LAKE_MAX) award('pond_max');
     say(t('zen.pondGrown', 'El estanque crece a {size}.', { size: `${n + 1}×${n + 1}` }));
   };
