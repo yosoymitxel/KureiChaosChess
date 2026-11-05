@@ -24,21 +24,21 @@
     "muted": "#806858"
   },
   "bandos": {
-    "l": [
+    "claro": [
       "#f7d98f",
       "#efab55",
       "#d96b42",
       "#a63e34",
       "#602a2b"
     ],
-    "d": [
+    "oscuro": [
       "#e0d4f3",
       "#bba7dd",
       "#8c70bc",
       "#5f4a8f",
       "#392d5e"
     ],
-    "w": [
+    "salvaje": [
       "#d4e6a1",
       "#a9cb70",
       "#6d9d4f",

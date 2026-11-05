@@ -565,3 +565,181 @@ THEMES['quelonios'] = {
                 'boss-hydra': qb_hydra, 'boss-golem': qb_golem, 'boss-rider': qb_rider, 'boss-wall': qb_wall,
                 'boss-devourer': qb_devourer},
 }
+
+# ---------- Pizzería: comida con colores propios; el bando va en envoltorios y bandejas ----------
+def tray(s, cx, rx, gy=35, h=2.6):
+    s.ell(cx, gy - h, rx, h)
+
+def burger(s, cx, gy, rx, layers=1, crown=False):
+    y = gy
+    s.ell(cx, y - 2, rx - 1, 2.4, mat='bun')
+    y -= 3.5
+    for _ in range(layers):
+        s.ell(cx, y, rx, 2.2, mat='meat')
+        s.stroke([(cx - rx + 1, y - 2), (cx - rx / 3, y - 0.5), (cx + rx / 3, y - 2), (cx + rx - 1, y - 0.6)], 1.1, mat='ch')
+        y -= 3.4
+    s.stroke([(cx - rx, y + 1), (cx - rx / 2, y + 2.2), (cx, y + 0.8), (cx + rx / 2, y + 2.2), (cx + rx, y + 1)], 1.1, mat='let')
+    s.ell(cx, y - 2.5, rx, rx * 0.62, mat='bun')
+    for dx in (-rx / 2, 0, rx / 2):
+        s.dot(cx + dx, y - 2.5 - rx * 0.35, 'w')
+    return y - 2.5 - rx * 0.62
+
+def crown(s, cx, top, w=4.5):
+    s.ell(cx, top, w, 1.8)
+    for dx in (-w * 0.75, 0, w * 0.75):
+        s.ell(cx + dx, top - 2.2, 1.1, 2.3)
+
+def ff_pawn(s):  # porción de pizza en papel
+    s.stroke([(18, 30), (18, 8)], 8.5, 1.2, mat='ch')
+    s.stroke([(10, 30), (18, 31.5), (26, 30)], 2.6, mat='dough')
+    for x, y in ((16, 24), (20, 19), (17.5, 14)):
+        s.ell(x, y, 1.9, 1.7, mat='pep')
+    s.stroke([(12, 33), (18, 34.5), (24, 33)], 2)
+
+def ff_rook(s):
+    tray(s, 18, 13)
+    burger(s, 18, 32.5, 11)
+
+def ff_knight(s):  # pancho en barquita
+    s.stroke([(6, 25), (18, 20), (31, 13)], 4.4, 4, mat='bun')
+    s.stroke([(4, 24), (18, 18), (33, 10.5)], 2.4, mat='saus')
+    s.line([(7, 22), (10, 21), (13, 22), (16, 19), (19, 20), (22, 17), (25, 17), (28, 13), (31, 12)], 'mus')
+    s.stroke([(7, 32), (18, 30), (29, 23)], 3.8, 3.2)
+
+def ff_bishop(s):  # vaso con tapa y sorbete
+    s.stroke([(18, 32), (18, 12)], 6, 7.5)
+    s.ell(18, 10.5, 8.5, 2.2, mat='cup')
+    s.stroke([(20, 9), (23, 2), (26, 0.8)], 0.8, mat='straw')
+    s.stroke([(11.5, 21), (18, 22), (24.5, 21)], 1.2, mat='cup')
+
+def ff_queen(s):  # pizza entera con corona, en su tabla
+    tray(s, 18, 11)
+    s.ell(18, 19, 12, 12, mat='dough')
+    s.ell(18, 19, 9.8, 9.8, mat='ch')
+    for x, y in ((14, 15), (22, 16), (18, 21), (13, 23), (23, 24)):
+        s.ell(x, y, 2, 1.8, mat='pep')
+    crown(s, 18, 5.5)
+
+def ff_king(s):
+    tray(s, 18, 13)
+    top = burger(s, 18, 32.5, 11, layers=2)
+    crown(s, 18, top + 1, 5)
+
+def ff_guard(s):  # caja de papas
+    for i, x in enumerate((11, 14, 17, 20, 23, 26)):
+        s.stroke([(x, 22), (x + (i % 2) * 1.2 - 0.6, 3 + (i % 3) * 2.5)], 1.3, mat='fry')
+    s.stroke([(18, 33), (18, 24)], 7.5, 9.5)
+    s.ell(18, 28, 2.6, 2.4, mat='ch')
+
+def ff_advisor(s):  # taco
+    tray(s, 18, 12)
+    s.ell(18, 24, 12, 7, mat='let')
+    for x in (10, 15, 20, 25):
+        s.ell(x, 19.5 + abs(x - 17.5) * 0.25, 2.2, 1.8, mat='tom')
+    s.ell(18, 27, 13, 6.5, mat='nacho')
+    s.cut(18, 37, 16, 4)
+
+def ff_elephant(s):  # nachos en cuenco
+    for x, y, r in ((10, 22, 5), (17, 19, 5.5), (24, 21, 5), (14, 24, 4.5), (21, 25, 4.5)):
+        s.stroke([(x - r, y + 2), (x, y - r), (x + r, y + 2)], 1.6, mat='nacho')
+    s.stroke([(9, 24), (14, 26), (18, 23), (23, 26), (27, 24)], 1.6, mat='ch')
+    s.ell(18, 30, 13, 5)
+    s.cut(18, 23, 14, 3)
+
+def ff_camel(s):  # torre de aros de cebolla
+    tray(s, 18, 11)
+    for i, y in enumerate((29, 23.5, 18, 12.5)):
+        x = 18 + (1 if i % 2 else -1)
+        s.ell(x, y, 9 - i * 0.6, 3.4, mat='ring')
+        s.ell(x, y, 4.5 - i * 0.4, 1.3, mat='ringd')
+
+def ff_cannon(s):  # botella de kétchup con etiqueta del bando
+    s.stroke([(18, 33), (18, 15)], 7, 6, mat='ket')
+    s.stroke([(18, 13), (18, 7)], 3.2, 2, mat='ket')
+    s.ell(18, 5, 2.4, 2, mat='cap')
+    s.ell(18, 24, 6, 4.5)
+    s.dot(14, 16, 'w').dot(14, 17, 'w')
+
+def ffb_titan(s):
+    tray(s, 24, 21, 44, 3)
+    top = burger(s, 24, 41, 18, layers=3)
+    crown(s, 24, top + 1.5, 7)
+
+def ffb_ram(s):  # pancho acorazado con cuernos de aros
+    s.stroke([(6, 33), (24, 30), (42, 27)], 6.5, 6, mat='bun')
+    s.stroke([(3, 31), (24, 28), (45, 24)], 3.6, mat='saus')
+    s.line([(6, 29), (10, 27), (14, 29), (18, 26), (22, 28), (26, 25), (30, 27), (34, 24), (38, 26), (42, 23)], 'mus')
+    for x in (34, 43):
+        s.ell(x, 15, 5, 5, mat='ring').ell(x, 15, 2, 2, mat='ringd')
+    s.stroke([(6, 41), (24, 39), (42, 37)], 4.5, 4.5)
+    s.ell(42, 26, 1.4, 1.4, mat='w').dot(42, 26, 'o')
+
+def ffb_hydra(s):  # tres porciones que salen de una caja
+    s.ell(24, 38, 19, 6)
+    s.ell(24, 33, 17, 2.2, mat='dough')
+    for base, tip in (((14, 32), (5, 10)), ((24, 32), (24, 5)), ((34, 32), (43, 10))):
+        s.stroke([base, tip], 6, 1.2, mat='ch')
+        bx, by = base; tx, ty = tip
+        for t in (0.35, 0.65):
+            s.ell(bx + (tx - bx) * t, by + (ty - by) * t, 1.8, 1.6, mat='pep')
+        s.dot(bx + (tx - bx) * 0.82 - 1, by + (ty - by) * 0.82, 'o').dot(bx + (tx - bx) * 0.82 + 1, by + (ty - by) * 0.82, 'o')
+
+def ffb_golem(s):  # horno de pizza con ojos de brasa y brazos de papas
+    for x0, x1 in ((7, 2), (41, 46)):
+        s.stroke([(x0, 30), (x1, 22)], 1.6, mat='fry')
+    s.ell(24, 26, 18, 16, mat='brick')
+    s.cut(24, 50, 24, 8)
+    s.ell(24, 33, 9, 7, mat='o')
+    s.ell(24, 36, 6, 3, mat='fire')
+    s.ell(17, 20, 2.8, 2.4, mat='fire').ell(31, 20, 2.8, 2.4, mat='fire')
+    s.ell(24, 41.5, 20, 2.5)
+    s.stroke([(24, 10), (24, 3)], 2.2, mat='brick')
+
+def ffb_rider(s):  # moto de reparto con caja de pizza
+    s.ell(10, 39, 5, 5, mat='o').ell(38, 39, 5, 5, mat='o')
+    s.ell(10, 39, 2, 2, mat='cap').ell(38, 39, 2, 2, mat='cap')
+    s.stroke([(8, 32), (24, 34), (36, 30), (40, 20)], 4, 3)
+    s.stroke([(40, 20), (44, 18)], 1.2, mat='cap')
+    s.ell(14, 22, 10, 5)
+    s.ell(14, 18, 10, 2, mat='dough')
+    s.ell(14, 22, 3, 2, mat='ch')
+
+def ffb_wall(s):  # barricada de cajas de pizza
+    for row, y in enumerate((40, 34, 28)):
+        n = 3 - row
+        for i in range(n):
+            x = 24 + (i - (n - 1) / 2) * 14
+            s.ell(x, y, 7.4, 3)
+            s.ell(x, y - 1, 2.6, 1.2, mat='ch')
+    s.stroke([(8, 25), (6, 19)], 1, mat='fry').stroke([(40, 25), (42, 18)], 1, mat='fry')
+
+def ffb_devourer(s):  # hamburguesa monstruo con fauces
+    tray(s, 24, 20, 44, 3)
+    s.ell(24, 37, 18, 4, mat='bun')
+    s.ell(24, 22, 19, 13, mat='bun')
+    s.ell(24, 28, 17, 6, mat='o')
+    for x in range(10, 39, 4):
+        s.stroke([(x, 22.5), (x + 1, 26)], 1, 0.4, mat='ch').stroke([(x + 2, 33), (x + 2.5, 30)], 1, 0.4, mat='ch')
+    s.ell(17, 15, 3, 3, mat='tom').ell(31, 15, 3, 3, mat='tom')
+    s.dot(17, 15, 'o').dot(31, 15, 'o')
+    s.stroke([(7, 33), (24, 35), (41, 33)], 1.1, mat='let')
+
+THEMES['fast-food'] = {
+    'outline': '#2a1a1c',
+    'fixed': {'o': ['#2a1a1c', '#22151a'], 'w': ['#fff6dc'],
+              'bun': ['#f6cf7c', '#e9ab55', '#c98439', '#93582a', '#5e3720'],
+              'meat': ['#9a5338', '#7a3c29', '#58291f', '#3d1c17'], 'ch': ['#ffe27a', '#f6c443', '#d79a2c', '#a5701f'],
+              'let': ['#a6d86b', '#78b448', '#548a36'], 'tom': ['#ea5c4c', '#c23a33', '#8f2629'],
+              'pep': ['#c8463b', '#a13230', '#76232a'], 'dough': ['#f3cd85', '#dda45a', '#b77b3a', '#86532a'],
+              'saus': ['#d86c45', '#b54e33', '#863524'], 'mus': ['#ffd84a'],
+              'cup': ['#f6f1e6', '#ddd5c4', '#b8ad97'], 'straw': ['#e8574a', '#b83a33'],
+              'fry': ['#ffe07a', '#f4c048', '#d59a2e'], 'nacho': ['#f8cf60', '#e1a73f', '#b9792b'],
+              'ring': ['#f2c06a', '#d89746', '#ab6a2e', '#7a4523'], 'ringd': ['#5b3420'],
+              'ket': ['#e5453c', '#c22f2e', '#931f26', '#661a22'], 'cap': ['#f6f1e6', '#c8c0ae'],
+              'brick': ['#c97a52', '#a65d3f', '#7f432f', '#5a2f24'], 'fire': ['#ffd25a', '#ff9a3a', '#e5553a']},
+    'sprites': {'pawn': ff_pawn, 'rook': ff_rook, 'knight': ff_knight, 'bishop': ff_bishop, 'queen': ff_queen,
+                'king': ff_king, 'guard': ff_guard, 'advisor': ff_advisor, 'elephant': ff_elephant,
+                'camel': ff_camel, 'cannon': ff_cannon, 'boss-titan': ffb_titan, 'boss-ram': ffb_ram,
+                'boss-hydra': ffb_hydra, 'boss-golem': ffb_golem, 'boss-rider': ffb_rider, 'boss-wall': ffb_wall,
+                'boss-devourer': ffb_devourer},
+}

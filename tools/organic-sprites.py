@@ -134,7 +134,7 @@ import sys  # noqa: E402
 for th, spec in THEMES.items():
     if len(sys.argv) > 1 and th not in sys.argv[1:]: continue
     tema = json.load(open(f'art/temas/{th}/tema.json'))
-    ramp = [hexc(c) for c in tema['bandos']['claro']]
+    ramp = [hexc(c) for c in tema['bandos'].get('claro') or tema['bandos']['l']]
     fixed = {k: [hexc(c) for c in v] for k, v in spec['fixed'].items()}
     out = hexc(spec['outline'])
     for name, fn in spec['sprites'].items():
