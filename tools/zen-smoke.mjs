@@ -83,18 +83,21 @@ for (const view of views) for (const theme of themes) {
 
   // Sembrar, regar, cortar y ampliar el estanque: cada uno pinta su efecto.
   // Mira la zona de la acción varias veces: el efecto tiene que asomar en alguna.
-  const painted = async (name, sel, act, wait = 1200) => {
+  const painted = async (name, sel, act, wait = 1200, min = 40) => {
     at = name;
     await page.waitForTimeout(1600); // que se apague lo anterior
     const a = await ink(page, sel);
     await act();
     let b = 0;
     for (let t = 0; t < wait; t += 150) { await page.waitForTimeout(150); b = Math.max(b, await ink(page, sel)); }
-    if (b <= a + 40) bad(`${name}: sin efecto (${a} → ${b} px)`);
+    if (b <= a + min) bad(`${name}: sin efecto (${a} → ${b} px)`);
   };
   const cell = (k) => page.locator(`[data-k="${k}"]`);
-  await painted('sembrar', '[data-k="r0c0"]', () => cell('r0c0').click());
-  await painted('regar', '[data-k="r0c0"]', async () => { await page.getByRole('button', { name: /^Regar/ }).click(); await cell('r0c0').click(); }, 1800);
+  at = 'sembrar';
+  await cell('r0c0').click(); // sembrar solo salpica tierra: se comprueba que quedó sembrado
+  await page.waitForTimeout(400);
+  if (!(await said(/Sembraste/))) bad('sembrar: no se sembró');
+  await painted('regar', '[data-k="r0c0"]', async () => { await page.getByRole('button', { name: /^Regar/ }).click(); await cell('r0c0').click(); }, 1800, 10); // gotas finas: poca tinta
   await painted('cortar', '[data-k="r0c2"]', async () => { await page.getByRole('button', { name: /^Cortar/ }).click(); await cell('r0c2').click(); }, 1800);
   // Mover el estanque con los guantes: arriba a la derecha (donde estaba el arbusto) y de vuelta.
   const pondAt = () => page.locator('.zen-pond').evaluate((el) => { const r = el.getBoundingClientRect(), t = el.closest('.zn-tray').getBoundingClientRect(); return [Math.round(r.left - t.left), Math.round(r.top - t.top)]; });
@@ -137,10 +140,37 @@ for (const view of views) for (const theme of themes) {
   await shot('movido');
   } catch (e) { bad(`${at}: ${e.message.split('\n').filter((l, i) => !i || /intercepts|waiting for/.test(l)).slice(0, 3).join(' · ')}`); }
 
+  // Jardín al máximo (8×8, estanque 4×4): el polvo de cavar mide como su casilla, no como el jardín chico.
+  at = 'jardín 8×8';
+  try {
+    await page.evaluate(() => { localStorage.setItem('zugzwang.zen.v1', JSON.stringify({ v: 3, size: 8, lake: 4, pots: {}, tiles: {}, lanterns: [] })); localStorage.setItem('zugzwang.zensky.v1', JSON.stringify({ sky: null, until: Date.now() + 1e7, left: 3 })); });
+    await page.reload();
+    await page.getByText(/Jardín Zen/).first().click({ force: true });
+    await page.locator('.zn-yard').waitFor();
+    await page.waitForTimeout(1500);
+    await page.getByRole('button', { name: /^Cavar/ }).click();
+    const target = page.locator('.zn-raw:not(.zn-dug)').last(), cw = await target.evaluate((el) => el.getBoundingClientRect().width);
+    await target.click();
+    let wide = 0;
+    for (let t = 0; t < 1500; t += 150) {
+      await page.waitForTimeout(150);
+      wide = Math.max(wide, await page.evaluate(() => {
+        const c = document.querySelector('.zn-yard > .fx-layer'), k = c.width / c.getBoundingClientRect().width, d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+        let lo = c.width, hi = -1;
+        for (let i = 3; i < d.length; i += 4) if (d[i] > 40) { const x = ((i - 3) / 4) % c.width; if (x < lo) lo = x; if (x > hi) hi = x; }
+        return hi < 0 ? 0 : (hi - lo) / k;
+      }));
+    }
+    if (!wide) bad(`${at}: cavar sin efecto`);
+    else if (wide > cw * 3.5 || wide < cw * 0.5) bad(`${at}: efecto de ${Math.round(wide)} px para casilla de ${Math.round(cw)} px`);
+    if (await page.locator('.zen-pond').evaluate((el) => el.style.gridRow) !== 'span 4') bad(`${at}: el estanque no es 4×4`);
+    await shot('8x8');
+  } catch (e) { bad(`${at}: ${e.message.split('\n')[0]}`); }
+
   if (errors.length) bad('errores de página: ' + errors.slice(0, 3).join(' | '));
   await ctx.close();
 }
 await browser.close();
 server.close();
 if (fails.length) { console.log('Jardín con fallos:\n' + fails.join('\n')); process.exit(1); }
-console.log(`Jardín OK: clima, destello, sembrar, regar, cortar, mover y ampliar el estanque, ampliar, cavar y mover maceta en ${views.length * themes.length} combinaciones`);
+console.log(`Jardín OK: clima, destello, sembrar, regar, cortar, mover y ampliar el estanque, ampliar, cavar, mover maceta y jardín 8×8 en ${views.length * themes.length} combinaciones`);

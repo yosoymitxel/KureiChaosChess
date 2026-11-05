@@ -797,6 +797,9 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 /* Tierra húmeda tras regar, hasta que la flor abre. */
 .zen-pot.wet .zn-soil { fill: oklch(0.22 0.035 45); }
 /* La regadera aparece sobre la maceta, se inclina, riega y se va. */
+.zn-at { position: absolute; z-index: 6; width: 0; height: 0; pointer-events: none; scale: var(--zs, 1); transform-origin: 0 0; }
+.zn-at-can { z-index: 4; }
+.zn-at > * { left: 0; top: 0; }
 .zn-canfx { position: absolute; z-index: 4; width: 54px; height: 41px; margin-left: -10px; pointer-events: none; transform-origin: 30% 70%; animation: zn-pour 1.4s var(--ease-out) both; filter: drop-shadow(0 4px 3px oklch(0 0 0 / 0.3)); }
 .zn-canfx svg { width: 100%; height: 100%; }
 @keyframes zn-pour {
@@ -824,8 +827,12 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 .zn-seed { fill: oklch(0.5 0.08 60); }
 .zn-blade { transform-box: view-box; transform-origin: 12px 12px; }
 /* La mano: la herramienta elegida acompaña al ratón sobre el jardín, con su punta en el puntero. */
-.zn-hand { position: absolute; left: 0; top: 0; z-index: 6; pointer-events: none; opacity: 0; transition: opacity 0.15s; filter: drop-shadow(0 6px 4px oklch(0 0 0 / 0.3)); }
+.zn-hand { position: absolute; left: 0; top: 0; z-index: 6; pointer-events: none; scale: var(--zs, 1); opacity: 0; transition: opacity 0.15s; filter: drop-shadow(0 6px 4px oklch(0 0 0 / 0.3)); }
 .zn-hand[data-on] { opacity: 1; }
+/* La mano escala desde la punta de la herramienta (el puntero): el origen es su margen al revés. */
+.zn-hand.t-hammer { transform-origin: 20px 36px; } .zn-hand.t-cut { transform-origin: 47px 25px; } .zn-hand.t-water { transform-origin: 40px 9px; }
+.zn-hand.t-dig { transform-origin: 9px 40px; } .zn-hand:is(.t-sow, .t-store) { transform-origin: -6px -6px; } .zn-hand.t-move { transform-origin: 15px 15px; }
+
 /* Mazo y bolsa van con su icono, en tinta para leerse sobre la arena. */
 :is(.zn-hand, .zn-toolfx) > .icon { color: var(--ink); }
 .zn-hand.t-hammer { width: 40px; height: 40px; margin: -36px 0 0 -20px; rotate: -30deg; }

@@ -74,6 +74,12 @@ export function ZenScreen({ onBack, onShop }) {
   const [gain, setGain] = useState(null); // último regalo, para el aviso
   const [help, setHelp] = useState(false);
   const [pour, setPour] = useState(null); // regadera en el aire: { x, y, id }
+  // Herramientas, regadera y mano a escala de la casilla: un 8×8 en el móvil no lleva una regadera gigante.
+  const [zs, setZs] = useState(1);
+  useEffect(() => {
+    const fit = () => { const w = yardRef.current?.querySelector('.bm-cell[data-k]')?.getBoundingClientRect().width; if (w) setZs(Math.min(1.6, Math.max(0.45, w / 64))); };
+    fit(); addEventListener('resize', fit); return () => removeEventListener('resize', fit);
+  }, [z.size]);
   const [act, setAct] = useState(null); // tijeras o pala haciendo su gesto: { tool, x, y, id }
   const handRef = useRef(null);
   const [fly, setFly] = useState(null); // mariposa: { key, id }
@@ -118,7 +124,12 @@ export function ZenScreen({ onBack, onShop }) {
   // Posiciones en la capa de efectos (la del patio) y piezas de cada maceta.
   const cellOf = (key) => yardRef.current?.querySelector(`[data-k="${key}"]`);
   const at = (el, bias = 0.5) => fxRef.current.pointOf(el, bias);
-  const pfx = (name, el, bias, o) => { if (!el) return; const p = at(el, bias); fxRef.current.pfx(name, p.x, p.y, o); };
+  // El tamaño sigue al de lo tocado (casilla, estanque o cantero), sea cual sea el tamaño del jardín y la pantalla.
+  const pfx = (name, el, bias, { f = 1, ...o } = {}) => {
+    if (!el) return;
+    const p = at(el, bias), k = Math.min(1.2, Math.max(0.2, (f * el.getBoundingClientRect().width) / 120));
+    fxRef.current.pfx(name, p.x, p.y, { k, ...o });
+  };
   // Anima la planta de un tiesto. Motion recuerda el último fotograma (tras cortar: subida, giro y
   // escala 0), así que se vuelve a cero antes de cada animación o la siguiente planta nacería desplazada.
   const growFx = (key, frames, opts) => {
@@ -155,7 +166,8 @@ export function ZenScreen({ onBack, onShop }) {
   const seedTo = (from, kind) => popSeed(from, POUCH, document.querySelector('.zn-k-' + kind)?.getBoundingClientRect());
   const flyCoins = (from, n, amount) => {
     const y = fxRef.current?.canvas.getBoundingClientRect();
-    if (y && from) fxRef.current?.coinBurst(from.left + from.width / 2 - y.left, from.top + from.height / 2 - y.top);
+    const cell = yardRef.current?.querySelector('.bm-cell[data-k]')?.getBoundingClientRect().width || 60;
+    if (y && from) fxRef.current?.coinBurst(from.left + from.width / 2 - y.left, from.top + from.height / 2 - y.top, Math.min(1, Math.max(0.25, cell / 120)));
     coinsTo(from, coinRef.current, n, () => setCoins(addCoins(amount)));
   };
 
@@ -167,19 +179,17 @@ export function ZenScreen({ onBack, onShop }) {
     const p = at(cell, 0.66);
     fxRef.current.burst(p.x, p.y, { count: 10, color: SOIL_COLORS, speed: [40, 140], life: [0.3, 0.6], size: [2, 4], gravity: 500, shape: 'chunk', spread: Math.PI, angle: -Math.PI / 2 });
     growFx(key, { scale: [0, 1.25, 1] }, { duration: 0.6, ease: OUT });
-    pfx('healingBloom', cell, 0.66);
   });
   const fxWater = (key) => {
     const cell = cellOf(key), yard = yardRef.current;
     if (!cell || reduced()) return;
     const c = cell.getBoundingClientRect(), y = yard.getBoundingClientRect();
     // El pico (a 39 px del borde de la regadera) queda sobre el centro de la maceta: el chorro cae en la planta.
-    setPour({ x: c.left - y.left + c.width * 0.5 - 39, y: c.top - y.top - c.height * 0.38, id: Date.now() });
+    setPour({ x: c.left - y.left + c.width * 0.5 - 39 * zs, y: c.top - y.top - c.height * 0.38, id: Date.now() });
     setTimeout(() => {
       playSfx('water');
       growFx(key, { rotate: [0, -6, 4, 0], scaleY: [1, 0.94, 1.05, 1] }, { duration: 0.9, ease: 'easeInOut' }); // la planta agradece el agua
       const p = at(cell, 0.42);
-      pfx('splash', cell, 0.62, { stone: false });
       for (let i = 0; i < 3; i++) setTimeout(() => fxRef.current.burst(p.x + 6, p.y - 8, { count: 8, color: ['#9fd3ff', '#5aa9e6', '#e6f6ff'], speed: [30, 90], life: [0.35, 0.6], size: [1.5, 3], gravity: 900, spread: 0.7, angle: Math.PI / 2 + 0.3 }), i * 140);
     }, 420);
     setTimeout(() => setPour(null), 1500);
@@ -239,7 +249,6 @@ export function ZenScreen({ onBack, onShop }) {
     if (!cell || reduced()) return;
     const p = at(cell, 0.25), fl = getComputedStyle(cell.querySelector('.zn-plant')).getPropertyValue('--fl').trim() || '#ffcf6b';
     fxRef.current.sparkle(p.x, p.y, fl, 8);
-    pfx('healingBloom', cell, 0.4);
     growFx(key, { scale: [1, 1.18, 0.96, 1] }, { duration: 0.6, ease: OUT });
   };
 
@@ -481,7 +490,7 @@ export function ZenScreen({ onBack, onShop }) {
     setCoins(loadShop().coins);
     apply(zenExpand(z));
     playSfx('coin');
-    later(() => pfx('groundSlam', yardRef.current?.querySelector('.zn-tray'), 0.75, { palette: SAND_RAMP, stone: '#8a7a62', k: 0.8 }), 80);
+    later(() => pfx('groundSlam', yardRef.current?.querySelector('.zn-tray'), 0.75, { palette: SAND_RAMP, stone: '#8a7a62', f: 0.3 }), 80);
     award('zen_ring');
     if (z.size + 1 >= ZEN_MAX) award('zen_max');
     say(t('zen.expanded', 'El cantero crece a {size}: la tierra nueva pide cava.', { size: `${z.size + 1}×${z.size + 1}` }));
@@ -565,7 +574,7 @@ export function ZenScreen({ onBack, onShop }) {
     setCoins(loadShop().coins);
     apply(next);
     playSfx('splash');
-    later(() => pfx('splash', yardRef.current?.querySelector('.zen-pond'), 0.55, { stone: false, k: 0.8 }), 80);
+    later(() => pfx('splash', yardRef.current?.querySelector('.zen-pond'), 0.55, { stone: false, f: 0.45 }), 80);
     if (n + 1 >= LAKE_MAX) award('pond_max');
     say(t('zen.pondGrown', 'El estanque crece a {size}.', { size: `${n + 1}×${n + 1}` }));
   };
@@ -581,7 +590,7 @@ export function ZenScreen({ onBack, onShop }) {
       <div class="zen-main">
         <div class="zen-scene">
           <div class="mini-stage">
-            <div class=${'zn-yard' + (tool === 'dig' ? ' dig' : '') + (act || pour ? ' acting' : '')} data-sky=${sky} ref=${yardRef} onPointerMove=${hover} onPointerLeave=${unhover}>
+            <div class=${'zn-yard' + (tool === 'dig' ? ' dig' : '') + (act || pour ? ' acting' : '')} data-sky=${sky} style=${{ '--zs': zs }} ref=${yardRef} onPointerMove=${hover} onPointerLeave=${unhover}>
               <div class="bm zn-tray" style=${{ '--n': z.size }} role="group" aria-label=${t('zen.bed', 'Cantero del jardín')}>
                 ${rakeArt(z.size, objs, raw)}
                 ${glows}
@@ -590,9 +599,9 @@ export function ZenScreen({ onBack, onShop }) {
                   aria-label=${t('zen.leafAria', 'Hoja caída: tócala para barrerla')} onClick=${(e) => sweep(l, e.currentTarget)}>${mapleLeaf}</button>`)}
               </div>
               ${BRANCH}
-              ${pour && html`<span key=${pour.id} class="zn-canfx" style=${{ left: pour.x + 'px', top: pour.y + 'px' }} aria-hidden="true">${CAN}<i class="zn-stream"></i></span>`}
+              ${pour && html`<span key=${pour.id} class="zn-at zn-at-can" style=${{ left: pour.x + 'px', top: pour.y + 'px' }} aria-hidden="true"><span class="zn-canfx">${CAN}<i class="zn-stream"></i></span></span>`}
               ${tip && html`<span key=${tip.id} class="tile-tip" style=${{ left: tip.x + 'px', top: tip.y + 'px' }}><b>${tip.title}</b>${tip.text}</span>`}
-              ${act && html`<span key=${act.id} class=${'zn-toolfx t-' + act.tool} style=${{ left: act.x + 'px', top: act.y + 'px' }} aria-hidden="true">${TOOL_ART[act.tool]}</span>`}
+              ${act && html`<span key=${act.id} class="zn-at" style=${{ left: act.x + 'px', top: act.y + 'px' }} aria-hidden="true"><span class=${'zn-toolfx t-' + act.tool}>${TOOL_ART[act.tool]}</span></span>`}
               <span class=${'zn-hand t-' + (feeding ? 'sow' : tool)} ref=${handRef} aria-hidden="true">${feeding ? POUCH : TOOL_ART[tool]}</span>
               ${fly && html`<button key=${fly.id} ref=${flyRef} class="zn-fly" data-pad="x" aria-label=${t('zen.flyAria', 'Mariposa: tócala')} onClick=${catchFly}>${BUTTERFLY}</button>`}
             </div>

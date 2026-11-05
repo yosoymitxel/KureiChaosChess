@@ -221,7 +221,7 @@ export class Fx {
       this.sf.push(Object.assign(lib.createFx(lib[name], { x: x / SF_PX, y: y / SF_PX, seed: (Math.random() * 1e9) | 0, light: 0.6, ...rest }), { k, kx: x, ky: y }));
       this.kick();
     });
-  }  coinBurst(x, y) { this.pfx('collectBurst', x, y, { palette: COIN_RAMP }); }
+  }  coinBurst(x, y, k = 0.5) { this.pfx('collectBurst', x, y, { palette: COIN_RAMP, k }); }
 
   // Veneno: nube verde que se abre y burbujas que suben y revientan.
   poison(x, y, w) {

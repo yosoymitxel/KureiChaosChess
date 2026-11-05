@@ -1,4 +1,4 @@
-// pixelfx (https://github.com/patch-gg/pixelfx): núcleo y 7 efectos empaquetados con esbuild, sin otros cambios.
+// pixelfx (https://github.com/patch-gg/pixelfx): núcleo y 6 efectos empaquetados con esbuild, sin otros cambios.
 // MIT License. Copyright (c) 2026 Patch. Partes adaptan Sprite Fusion Pixel Art VFX, Copyright (c) 2026 Hugo Duprez, MIT.
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {
@@ -698,16 +698,16 @@ function painterFor(frame2) {
   return p || painters.set(frame2, p = new Painter(frame2)), p.reset();
 }
 var FADE = 0.3, isRamp = (v) => Array.isArray(v) && v.length > 0 && v.every((c) => typeof c == "number" || /^#[0-9a-f]{3,8}$/i.test(c));
-function resolveOptions(meta8, o = {}) {
-  let opts = { ...meta8.options ?? {}, ...o };
-  for (let [k, def] of Object.entries(meta8.options ?? {}))
+function resolveOptions(meta7, o = {}) {
+  let opts = { ...meta7.options ?? {}, ...o };
+  for (let [k, def] of Object.entries(meta7.options ?? {}))
     isRamp(def) && isRamp(o[k]) && o[k].length !== def.length && (opts[k] = fit(o[k], def.length).map(toHex));
-  return meta8.actor && !opts.actor && (opts.actor = stockActor(meta8.actor === 2 ? 2 : 1)), opts;
+  return meta7.actor && !opts.actor && (opts.actor = stockActor(meta7.actor === 2 ? 2 : 1)), opts;
 }
 function createFx(mod, o = {}) {
-  let meta8 = mod.meta ?? {}, opts = resolveOptions(meta8, o), impl = mod.create ? mod.create(opts) : mod, D = meta8.duration ?? 1, t = 0, stopAt = 1 / 0;
+  let meta7 = mod.meta ?? {}, opts = resolveOptions(meta7, o), impl = mod.create ? mod.create(opts) : mod, D = meta7.duration ?? 1, t = 0, stopAt = 1 / 0;
   return {
-    meta: meta8,
+    meta: meta7,
     options: opts,
     get t() {
       return t;
@@ -720,7 +720,7 @@ function createFx(mod, o = {}) {
     draw(frame2, layer) {
       let p = painterFor(frame2);
       p.place(opts.x ?? 0, opts.y ?? 0, !!opts.flip, opts.angle ?? 0), p.fade = stopAt === 1 / 0 ? 1 : clamp(1 - (t - stopAt) / FADE), p.lightK = opts.light ?? 1;
-      let tt = meta8.loop ? t % D : Math.min(t, D);
+      let tt = meta7.loop ? t % D : Math.min(t, D);
       layer !== "front" && impl.drawBack && (p.layer = "back", impl.drawBack(p, tt, opts)), layer !== "back" && (p.layer = "front", impl.draw(p, tt, opts));
     },
     /** Let it end: loops fade out, one-shots cut short. */
@@ -728,7 +728,7 @@ function createFx(mod, o = {}) {
       stopAt === 1 / 0 && (stopAt = t);
     },
     done() {
-      return t - stopAt >= FADE || !meta8.loop && t >= D;
+      return t - stopAt >= FADE || !meta7.loop && t >= D;
     }
   };
 }
@@ -1474,165 +1474,11 @@ function create3(o) {
   };
 }
 
-// pixelfx/src/fx/nature/healing-bloom.js
-var healing_bloom_exports = {};
-__export(healing_bloom_exports, {
-  create: () => create4,
-  meta: () => meta4
-});
-
-// pixelfx/src/fx/nature/_lib.js
-var MASK = new Uint8Array(64 * 64), FACE = new Int8Array(64 * 64), ROWS = 400, RL = new Float32Array(ROWS), RR = new Float32Array(ROWS), RU = new Float32Array(ROWS);
-function drawLeaf(p, x, y, len2, wid, ang, fl, pal, alpha = 1) {
-  let ca = Math.cos(ang), sa = Math.sin(ang), sq = Math.cos(fl), w = Math.max(0.55, Math.abs(sq) * wid), under = sq < 0, R = Math.ceil(len2 / 2 + 2), X = Math.round(x), Y = Math.round(y), inside = (i, j) => {
-    let u = (i + 0.5) * ca + (j + 0.5) * sa + len2 / 2, v = -(i + 0.5) * sa + (j + 0.5) * ca;
-    if (u < 0 || u > len2) return 0;
-    let half = w * Math.pow(Math.sin(Math.PI * u / len2), 0.75);
-    return Math.abs(v) <= half ? v < 0 ? 1 : 2 : 0;
-  };
-  for (let j = -R; j <= R; j++)
-    for (let i = -R; i <= R; i++) {
-      let s = inside(i, j);
-      if (!s) {
-        (inside(i - 1, j) || inside(i + 1, j) || inside(i, j - 1) || inside(i, j + 1)) && p.dot(X + i, Y + j, pal[0], alpha);
-        continue;
-      }
-      let u = (i + 0.5) * ca + (j + 0.5) * sa + len2 / 2, v = -(i + 0.5) * sa + (j + 0.5) * ca, rib = Math.abs(v) < 0.5 && u > len2 * 0.12 && u < len2 * 0.88 && w > 1.2;
-      p.dot(X + i, Y + j, rib ? pal[1] : s === 1 !== under ? pal[3] : pal[2], alpha);
-    }
-  p.dot(X - ca * (len2 / 2 + 1), Y - sa * (len2 / 2 + 1), pal[1], alpha);
-}
-
-// pixelfx/src/fx/nature/healing-bloom.js
-var meta4 = {
-  name: "Healing bloom",
-  desc: "A sprout pushes up and unfurls, a bud swells and opens round a glowing golden heart in a flare of healing light; its petals lift away one by one as motes.",
-  tags: ["nature", "heal", "flower", "plant", "buff", "ground", "one-shot"],
-  size: [124, 120],
-  origin: [62, 108],
-  duration: 3.3,
-  loop: !1,
-  fps: 30,
-  bg: "ground",
-  options: {
-    palette: ["#0c1a10", "#173a1a", "#24582a", "#357a34", "#52a03e", "#86c84e", "#c4ec7a", "#f4ffd0"],
-    petal: ["#4a1a3a", "#a8406e", "#ec8ab0", "#ffd8e8"],
-    heart: ["#a8641a", "#f0b42e", "#ffe680", "#fffbe0"],
-    seed: 4
-  }
-}, STEM = 0.42, BUD = 0.75, OPEN = 1.05, LIFT = 1.7, WILT = 2.4, H = 36, NPET = 6;
-function cross2(p, x, y, L, C, a, glint2) {
-  let X = Math.round(x), Y = Math.round(y), ins = (dx, dy) => dx === 0 && Math.abs(dy) <= L || dy === 0 && Math.abs(dx) <= L;
-  for (let dy = -L - 1; dy <= L + 1; dy++)
-    for (let dx = -L - 1; dx <= L + 1; dx++)
-      ins(dx, dy) ? p.dot(X + dx, Y + dy, glint2 && !dx && !dy ? WHITE : dy < 0 || dx < 0 ? C[6] : C[5], a) : L > 1 && (ins(dx - 1, dy) || ins(dx + 1, dy) || ins(dx, dy - 1) || ins(dx, dy + 1)) && p.dot(X + dx, Y + dy, C[2], a * 0.8);
-  p.glow(x, y, 5 + L * 2, C[6], 0.35 * a);
-}
-function create4(o) {
-  let C = fit(o.palette, 8), Pt = fit(o.petal, 4), Ht = fit(o.heart, 4), R = new Rng(o.seed), floor = () => 0, ps = new Particles({ rng: R, ground: floor, sparks: [Ht[3], Ht[2], Ht[1], Ht[0]] }), lights = new Lights(), flying = [], glyphs = [], petals = Array.from({ length: NPET }, (_, i) => ({ az: i / NPET * TAU + 0.3, off: i * 0.7 % 1, gone: !1, at: LIFT + i * 0.37 % 1 * 0.55 })), t = 0, popped = !1, sprouted = !1, grow = () => ease.outCubic(clamp(t / STEM)) * (1 - ease.inCubic(clamp((t - WILT) / 0.6))), sway = () => Math.sin(t * 2.6) * 1.4 * smooth(0.2, 0.6, t), stem = () => {
-    let g = grow(), pts = [];
-    for (let i = 0; i <= 12; i++) {
-      let s = i / 12;
-      pts.push([Math.sin(s * 3.2) * 2.2 * s + sway() * s * s, (1 - g) * H * 1.1 - s * H]);
-    }
-    return pts;
-  }, open = () => ease.outBack(clamp((t - BUD) / (OPEN - BUD)), 1.4);
-  return {
-    update(dt) {
-      t += dt;
-      let f = Math.min(1, dt * 120), top = stem()[12];
-      if (!sprouted) {
-        sprouted = !0;
-        for (let i = 0; i < 8; i++) ps.spawn(P.GRIT, R.range(-3, 3), -1, R.range(-40, 40), -R.range(40, 100), R.range(0.5, 0.8), R.pick([C[2], C[3]]), 1);
-        for (let i = 0; i < 3; i++) ps.spawn(P.DUST, R.range(-3, 3), -1, R.sign() * R.range(10, 30), -R.range(4, 10), R.range(0.4, 0.6), C[3], R.range(1.5, 2.5));
-      }
-      if (t > STEM && t < BUD && R.chance(0.3 * f)) {
-        let a = R.range(0, TAU), d = R.range(14, 26), x = top[0] + Math.cos(a) * d, y = top[1] - 3 + Math.sin(a) * d * 0.8;
-        ps.spawn(P.STREAK, x, y, (top[0] - x) * 3.4, (top[1] - 3 - y) * 3.4, R.range(0.18, 0.26), R.chance(0.5) ? Ht[2] : C[6]);
-      }
-      if (!popped && t >= OPEN - 0.12) {
-        popped = !0, lights.add(top[0], top[1] - 3, 22, WHITE, 0.45, 0.08), lights.add(top[0], top[1] - 3, 70, Ht[2], 0.5, 0.8);
-        for (let i = 0; i < 16; i++) {
-          let a = R.range(0, TAU), sp = R.range(40, 120);
-          ps.spawn(P.MOTE, top[0], top[1] - 3, Math.cos(a) * sp, Math.sin(a) * sp - 20, R.range(0.4, 0.8), R.chance(0.5) ? Ht[3] : C[7], 0.7);
-        }
-        for (let i = 0; i < 5; i++) ps.spawn(P.STAR, top[0] + R.range(-10, 10), top[1] - R.range(0, 14), 0, -6, R.range(0.3, 0.6), Ht[3], R.range(1, 2.4), R.range(0, 0.3));
-      }
-      t > OPEN && t < WILT && R.chance(0.13 * f) && glyphs.push({ x: R.range(-22, 22), y: -R.range(2, 36), t0: t, life: Math.min(R.range(0.7, 1.1), meta4.duration - 0.05 - t), L: R.chance(0.35) ? 3 : 2, seed: R.next() * 9 }), t > OPEN - 0.1 && t < WILT && R.chance(0.35 * f) && ps.spawn(P.EMBER, R.range(-20, 20), -R.range(0, 8), R.range(-6, 6), -R.range(25, 55), Math.min(R.range(0.6, 1.1), meta4.duration - 0.05 - t), R.chance(0.6) ? C[6] : Ht[2], R.chance(0.3) ? 2 : 1);
-      for (let i = glyphs.length - 1; i >= 0; i--) t - glyphs[i].t0 > glyphs[i].life && glyphs.splice(i, 1);
-      for (let q of petals)
-        if (!q.gone && t >= q.at) {
-          q.gone = !0;
-          let e = Math.PI / 2 - 0.15, dx = Math.sin(e) * Math.cos(q.az), L = 10;
-          flying.push({ x: top[0] + dx * L * 0.6, y: top[1] - 3 - Math.cos(e) * L * 0.6, vx: dx * 30 + R.range(-10, 10), vy: -R.range(25, 45), a: Math.atan2(-Math.cos(e), dx), va: R.range(-5, 5), fl: 0, vf: R.range(5, 9), life: Math.min(R.range(0.75, 1), meta4.duration - 0.45 - t), max: 0 }), flying[flying.length - 1].max = flying[flying.length - 1].life;
-        }
-      for (let i = flying.length - 1; i >= 0; i--) {
-        let q = flying[i];
-        if ((q.life -= dt) <= 0) {
-          ps.spawn(P.STAR, q.x, q.y, 0, -8, Math.min(0.35, meta4.duration - 0.05 - t), Pt[3], 1.8), flying.splice(i, 1);
-          continue;
-        }
-        q.vx -= q.vx * 1.5 * dt, q.vy -= q.vy * 0.8 * dt + 10 * dt, q.x += q.vx * dt + Math.sin(q.fl) * 12 * dt, q.y += q.vy * dt, q.a += q.va * dt, q.fl += q.vf * dt;
-      }
-      ps.update(dt), lights.update(dt);
-    },
-    drawBack(p) {
-      let bloom = smooth(OPEN - 0.15, OPEN + 0.2, t) * (1 - smooth(WILT - 0.2, WILT + 0.5, t)), top = stem()[12];
-      for (let h = 0; h < 70; h += 7) p.glow(0, -h, 22, C[5], 0.12 * bloom * (1 - h / 80));
-      let k = clamp((t - OPEN + 0.12) / 0.6);
-      k > 0 && k < 1 && band(p, 0, 0.5, 6 + 30 * ease.outCubic(k), 0.18, Math.max(1, 3 * (1 - k)), 1.1 - k, [C[3], C[5], Ht[2], Ht[3]], (g) => Math.sin(g) < 0);
-      let fw = 6 + 16 * smooth(0, 0.8, t);
-      for (let x = Math.floor(-fw); x <= fw; x++) {
-        let u = Math.abs(x) / fw, a = Math.sqrt(1 - u) * smooth(0, 0.4, t) * (1 - smooth(WILT, WILT + 0.6, t));
-        p.dot(x, 0, u < 0.3 ? C[6] : u < 0.65 ? C[5] : C[4], a), x % 5 === 0 && p.glow(x, 0, 8, C[5], 0.2 * a * (1 - u));
-      }
-      if (t > BUD - 0.05) for (let q of petals) Math.sin(q.az) < 0 && !q.gone && petal(p, q, top);
-      ps.draw(p, "back");
-    },
-    draw(p) {
-      let pts = stem(), top = pts[12];
-      if (grow() > 0.02) {
-        for (let i = 1; i < pts.length; i++) {
-          let [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
-          y1 > 0 || (p.line(x0, y0, x1, y1, C[5]), p.line(x0 + 1, y0, x1 + 1, y1, C[3]));
-        }
-        for (let [i, sd, d] of [[4, -1, 0.1], [7, 1, 0.22]]) {
-          let lk = ease.outBack(clamp((t - d - 0.12) / 0.3), 1.6) * (1 - smooth(WILT, WILT + 0.5, t) * 0.4), [x, y] = pts[i];
-          if (lk <= 0 || y > -1) continue;
-          let la = sd < 0 ? -2.6 + 0.4 * (1 - lk) : -0.55 - 0.4 * (1 - lk);
-          drawLeaf(p, x + Math.cos(la) * 6 * lk, y + Math.sin(la) * 6 * lk, 12 * lk, 3.4, la, 0.25, [C[1], C[3], C[5], C[6]]);
-        }
-        if (t > STEM - 0.1 && t < OPEN - 0.1) {
-          let b = clamp((t - STEM + 0.1) / (BUD - STEM)), w = 2 + 2.5 * b, h = 3.5 + 5 * b;
-          p.ellipse(top[0], top[1] - h * 0.6, w, h, (d, a) => Math.cos(a) < -0.2 ? Pt[2] : d > 0.7 ? Pt[0] : Pt[1]), p.glow(top[0], top[1] - h * 0.6, 8 + 8 * b, Ht[2], 0.25 * b);
-        }
-      }
-      for (let q of petals) Math.sin(q.az) >= 0 && !q.gone && t > BUD - 0.05 && petal(p, q, top);
-      if (t > OPEN - 0.12 && t < WILT + 0.3) {
-        let pulse = 0.85 + 0.15 * Math.sin(t * 9), k = 1 - smooth(WILT - 0.3, WILT + 0.3, t), cy = top[1] - 4;
-        p.circle(top[0], cy, 3.3 * k, Ht[1]), p.circle(top[0] - 0.5, cy - 0.5, 2.2 * k, Ht[2]), p.px(top[0] - 1, cy - 1, Ht[3]), p.glow(top[0], cy, 16 * pulse, Ht[2], 0.5 * k), p.glow(top[0], cy, 34, C[5], 0.2 * k);
-      }
-      let e = t - OPEN + 0.12;
-      e > 0 && e < 0.16 && sparkle(p, top[0], top[1] - 3, 10 * (1 - e / 0.16), Ht[3], Ht[2], 0.6);
-      for (let q of flying) drawLeaf(p, q.x, q.y, 6, 2.2, q.a, q.fl, [Pt[0], Pt[1], Pt[2], Pt[3]], Math.min(1, q.life / 0.3));
-      for (let q of glyphs) {
-        let k = (t - q.t0) / q.life;
-        cross2(p, q.x + Math.sin(k * 5 + q.seed) * 2, q.y - k * 24, q.L, C, Math.sin(Math.PI * k), Math.sin(k * 14 + q.seed) > 0.8);
-      }
-      ps.draw(p, "front"), lights.draw(p);
-    }
-  };
-  function petal(p, q, top) {
-    let op = open(), e = lerp(0.15, Math.PI / 2 - 0.2, op), dx = Math.sin(e) * Math.cos(q.az), dz = Math.sin(e) * Math.sin(q.az), dy = -Math.cos(e), L = lerp(8, 12, op), len2 = L * Math.hypot(dx, dy), ang = Math.atan2(dy, dx), back = dz < 0, cy = top[1] - 3;
-    len2 < 1.5 || drawLeaf(p, top[0] + dx * L * 0.5, cy + dy * L * 0.5, len2 + 1, 3 + (1 - Math.abs(dz)) * 0.8, ang, back ? 0.9 : 0.2, back ? [Pt[0], Pt[0], Pt[1], Pt[2]] : [Pt[0], Pt[1], Pt[2], Pt[3]]);
-  }
-}
-
 // pixelfx/src/fx/water/splash.js
 var splash_exports = {};
 __export(splash_exports, {
-  create: () => create5,
-  meta: () => meta5
+  create: () => create4,
+  meta: () => meta4
 });
 
 // pixelfx/src/fx/water/_lib.js
@@ -1774,7 +1620,7 @@ function pebble(p, x, y, r, ST) {
 var rock = () => ROCK.map(hex);
 
 // pixelfx/src/fx/water/splash.js
-var meta5 = {
+var meta4 = {
   name: "Splash",
   desc: "A stone drops into still water: a white hit, a crown that tears into droplets arcing out to plink down with rings, a jet that bounces back, foam and drifting mist.",
   tags: ["water", "splash", "impact", "drop", "liquid", "one-shot"],
@@ -1786,7 +1632,7 @@ var meta5 = {
   bg: "ground",
   options: { palette: WATER, stone: !0, seed: 3 }
 }, SY = 0.22, HIT = 0.16, G = 820, FINGERS = 12, JET = 0.3, TEAR = 0.11, height = (u) => 19 * ease.outCubic(clamp(u / 0.09)) * (1 - ease.inQuad(clamp((u - 0.12) / 0.3))), foot = (u) => 3 + 7.5 * ease.outCubic(clamp(u / 0.45)), lip = (u) => foot(u) + height(u) * 0.42 + 3 * ease.outCubic(clamp(u / 0.25)), jetH = (u) => 26 * (ease.outCubic(clamp(u / 0.12)) - ease.inQuad(clamp((u - 0.15) / 0.28)));
-function create5(o) {
+function create4(o) {
   let C = fit(o.palette, 8), R = new Rng(o.seed), ST = rock(), phi = R.range(0, TAU), ps = new Particles({ rng: R }), mist = new Mist(), lights = new Lights(), rings = new Ripples({ sy: SY }), plinks = [], bubbles = [], spikes = Array.from({ length: FINGERS }, (_, k) => ({ a: (k * TAU / FINGERS + phi) % TAU, L: R.range(0.2, 0.36) })), drops = new Drops({
     sy: SY,
     g: G,
@@ -1808,13 +1654,13 @@ function create5(o) {
     for (let i = 0; i < n; i++) {
       let a = i / n * TAU, s = Math.sin(a), c = Math.cos(a);
       if (s < 0 !== back) continue;
-      let lane = Math.floor((a + phi) * rt / 2.2), streak = rand(lane, 31) < 0.3, H2 = scallop(a, h), keep = 1 - clamp((u - 0.13 - 0.14 * rand(lane, 7)) / 0.1), steps = Math.ceil(H2 * 1.4) + 2;
+      let lane = Math.floor((a + phi) * rt / 2.2), streak = rand(lane, 31) < 0.3, H = scallop(a, h), keep = 1 - clamp((u - 0.13 - 0.14 * rand(lane, 7)) / 0.1), steps = Math.ceil(H * 1.4) + 2;
       for (let k = 0; k <= steps * keep; k++) {
-        let v = k / steps, r = r0 + (rt - r0) * Math.pow(v, 2.2), x = c * r, y = s * r * SY - H2 * v;
+        let v = k / steps, r = r0 + (rt - r0) * Math.pow(v, 2.2), x = c * r, y = s * r * SY - H * v;
         white ? put(x, y, WHITE, 1, 3) : back ? put(x, y, v > 0.72 ? streak ? C[5] : C[4] : streak ? C[3] : C[2], 1, 1) : Math.abs(c) > 0.9 ? put(x, y, c < 0 ? Math.abs(c) > 0.97 ? WHITE : C[6] : C[4], 1, 2) : v < 0.1 ? put(x, y, v < 0.05 ? WHITE : C[6], 1, 2) : streak ? put(x, y, c < -0.2 ? C[6] : C[5], 1, 1) : put(x, y, c < 0 ? C[5] : C[4], 0.22, 0);
       }
       if (!white && keep >= 1) {
-        let x = c * rt, y = s * rt * SY - H2;
+        let x = c * rt, y = s * rt * SY - H;
         put(x, y, back ? C[5] : c < 0.45 ? WHITE : C[6], 1, 3), !back && c < 0.2 && put(x, y + 1, C[6], 1, 2);
       }
     }
@@ -1823,7 +1669,7 @@ function create5(o) {
     let reach = 1 - smooth(TEAR, TEAR + 0.1, u);
     for (let f of spikes) {
       if (Math.sin(f.a) < 0 !== back || reach <= 0) continue;
-      let H2 = scallop(f.a, h), L = h * f.L * reach, x0 = Math.cos(f.a) * rt, y0 = Math.sin(f.a) * rt * SY - H2, x1 = x0 + Math.cos(f.a) * L * 0.45, y1 = y0 - L;
+      let H = scallop(f.a, h), L = h * f.L * reach, x0 = Math.cos(f.a) * rt, y0 = Math.sin(f.a) * rt * SY - H, x1 = x0 + Math.cos(f.a) * L * 0.45, y1 = y0 - L;
       L >= 1 && p.line(x0, y0, x1, y1, white ? WHITE : back ? C[4] : C[6]), u > 0.04 && u < TEAR && bead(p, x1 - (back ? 0 : 0.5), y1 - 1, 0, -1, back ? 1 : 2, C), !back && Math.sin(f.a) > 0.3 && p.glow(x0, y0, 6, C[5], 0.22 * reach);
     }
   }
@@ -1929,8 +1775,8 @@ function create5(o) {
 // pixelfx/src/fx/impacts/blunt-hit.js
 var blunt_hit_exports = {};
 __export(blunt_hit_exports, {
-  create: () => create6,
-  meta: () => meta6
+  create: () => create5,
+  meta: () => meta5
 });
 
 // pixelfx/src/fx/impacts/_lib.js
@@ -2017,7 +1863,7 @@ function rock2(p, b, st) {
 }
 
 // pixelfx/src/fx/impacts/blunt-hit.js
-var meta6 = {
+var meta5 = {
   name: "Blunt hit",
   desc: "A heavy, soft thud: a white-hot lumpy blob cools to cream in a warm pool of light, inked wedges jab out and snap back, a squashed ring of dust puffs swells and drifts, clods drop.",
   tags: ["impact", "hit", "blunt", "punch", "club", "thump", "dust", "comic", "one-shot"],
@@ -2029,7 +1875,7 @@ var meta6 = {
   bg: "ground",
   options: { palette: ["#1d1620", "#4a3a3c", "#7d6a66", "#b09c90", "#dccab4", "#f6ead2", "#ffffff"], warm: "#ffc98a", dust: "#b7a8a6", clod: "#6e5a5a", height: 22, seed: 9 }
 }, lump = (r, a, ph) => r * (1 + 0.15 * Math.sin(5 * a + ph) + 0.08 * Math.sin(9 * a + ph * 2.3));
-function create6(o) {
+function create5(o) {
   let C = fit(o.palette, 7), R = new Rng(o.seed), X = 0, Y = -o.height, PH = R.range(0, TAU), floor = () => 0, WARM = hex(o.warm), DUST2 = hex(o.dust), st = stone(o.clod), lights = new Lights(), bits = new Bits({ ground: floor });
   lights.add(X, Y, 48, WARM, 0.6, 0.4), lights.add(X, Y, 16, WHITE, 0.6, 0.07), lights.add(X, -2, 36, WARM, 0.25, 0.4);
   let wedges = Array.from({ length: 9 }, (_, i) => ({ a: i / 9 * TAU + R.range(-0.2, 0.2), len: R.range(6, 15), w: R.range(3.2, 5), r0: R.range(13, 16), t0: R.range(0.015, 0.04), out: R.range(0.04, 0.06), back: R.range(0.09, 0.14) })), puffs = Array.from({ length: 30 }, (_, i) => {
@@ -2094,10 +1940,10 @@ function create6(o) {
 // pixelfx/src/fx/impacts/ground-slam.js
 var ground_slam_exports = {};
 __export(ground_slam_exports, {
-  create: () => create7,
-  meta: () => meta7
+  create: () => create6,
+  meta: () => meta6
 });
-var meta7 = {
+var meta6 = {
   name: "Ground slam",
   desc: "Something lands hard: the floor flashes and cracks, two crescent shock waves race out along it, a dust wave and a tall dust cloud rise, rocks erupt, bounce and settle.",
   tags: ["impact", "ground", "slam", "shockwave", "quake", "rocks", "dust", "one-shot"],
@@ -2119,8 +1965,8 @@ function crater(p, st, hot, C, k) {
       p.dot(x, -1, q > 0.93 ? st.light : st.lip, k), q < 0.9 && p.dot(x, -2, st.light, k * 0.8);
   }
 }
-function create7(o) {
-  let C = fit(o.palette, 7), st = stone(o.stone), REACH = o.reach, R = new Rng(o.seed), floor = () => 0, D = meta7.duration, ps = new Particles({ rng: R, ground: floor, sparks: [C[6], C[5], C[4], C[3]] }), bits = new Bits({ ground: floor }), lights = new Lights(), HOT2 = [WHITE, C[5], C[4], C[3]], dustLit = mix(st.dust, WHITE, 0.2), cracks = makeCracks(R, 10, { len: [22, 58], dive: 0.55, maxY: 22, forks: 0.7, x0: [2, 9] }), front = (t2) => 7 + (REACH - 7) * ease.outCubic(clamp((t2 - 0.015) / WAVE)), heat = (t2) => Math.pow(clamp(1 - t2 / 0.8), 1.4), crest = (u) => [6 + 28 * Math.pow(1 - u, 0.75), 1.5 + 5 * Math.pow(1 - u, 0.9)], burst = [
+function create6(o) {
+  let C = fit(o.palette, 7), st = stone(o.stone), REACH = o.reach, R = new Rng(o.seed), floor = () => 0, D = meta6.duration, ps = new Particles({ rng: R, ground: floor, sparks: [C[6], C[5], C[4], C[3]] }), bits = new Bits({ ground: floor }), lights = new Lights(), HOT2 = [WHITE, C[5], C[4], C[3]], dustLit = mix(st.dust, WHITE, 0.2), cracks = makeCracks(R, 10, { len: [22, 58], dive: 0.55, maxY: 22, forks: 0.7, x0: [2, 9] }), front = (t2) => 7 + (REACH - 7) * ease.outCubic(clamp((t2 - 0.015) / WAVE)), heat = (t2) => Math.pow(clamp(1 - t2 / 0.8), 1.4), crest = (u) => [6 + 28 * Math.pow(1 - u, 0.75), 1.5 + 5 * Math.pow(1 - u, 0.9)], burst = [
     { a: -0.07, len: R.range(34, 40), w: 1.9 },
     { a: Math.PI + 0.07, len: R.range(34, 40), w: 1.9 },
     { a: -0.42 + R.range(-0.08, 0.08), len: R.range(15, 20), w: 1.5 },
@@ -2198,8 +2044,8 @@ function create7(o) {
       ps.update(dt), lights.update(dt);
     },
     drawBack(p) {
-      let fade = 1 - smooth(D - 0.9, D - 0.15, t), H2 = heat(t);
-      t > 0.02 && crater(p, st, H2, C, fade), drawCracks(p, cracks, (c) => c.len * ease.outCubic(clamp((t - c.t0) / 0.1)), (d) => H2 * clamp(1.2 - d / 40), HOT2, SOOT, st.light, fade);
+      let fade = 1 - smooth(D - 0.9, D - 0.15, t), H = heat(t);
+      t > 0.02 && crater(p, st, H, C, fade), drawCracks(p, cracks, (c) => c.len * ease.outCubic(clamp((t - c.t0) / 0.1)), (d) => H * clamp(1.2 - d / 40), HOT2, SOOT, st.light, fade);
       for (let e of embers) {
         let k = 1 - (t - 0.1) / e.life;
         if (t < 0.1 || k <= 0) continue;
@@ -2212,8 +2058,8 @@ function create7(o) {
       ring2(p, !1), fronts(p);
       for (let b of bits.list) rock2(p, b, st);
       ps.draw(p, "front"), t < 0.035 ? (p.ellipse(0, 0, 30, 4.5, (d) => d > 0.8 ? C[4] : d > 0.5 ? C[6] : WHITE), star(p, 0, -1, burst, 1, 1, [C[4], C[6], WHITE, WHITE])) : t < 0.07 && star(p, 0, -1, burst, 1.25, 0.5, [C[3], C[5], C[6], WHITE]), t < 0.14 && p.glowLine(-80, 0, 80, 0, 10, C[5], 0.55 * (1 - t / 0.14));
-      let H2 = heat(t);
-      H2 > 0 && p.glow(0, 1, 46, C[4], 0.35 * H2), lights.draw(p);
+      let H = heat(t);
+      H > 0 && p.glow(0, 1, 46, C[4], 0.35 * H), lights.draw(p);
     }
   };
 }
@@ -2222,7 +2068,6 @@ export {
   collect_burst_exports as collectBurst,
   createFx,
   ground_slam_exports as groundSlam,
-  healing_bloom_exports as healingBloom,
   hit_spark_exports as hitSpark,
   poof_exports as poof,
   splash_exports as splash
