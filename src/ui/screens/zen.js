@@ -179,8 +179,9 @@ export function ZenScreen({ onBack, onShop }) {
     const p = at(cell, 0.66);
     fxRef.current.burst(p.x, p.y, { count: 10, color: SOIL_COLORS, speed: [40, 140], life: [0.3, 0.6], size: [2, 4], gravity: 500, shape: 'chunk', spread: Math.PI, angle: -Math.PI / 2 });
     growFx(key, { scale: [0, 1.25, 1] }, { duration: 0.6, ease: OUT });
+    pfx('heavyLanding', cell, 0.7, { palette: SOIL_RAMP, stone: '#4a3220', f: 0.5 }); // la semilla cae en la tierra
   });
-  const fxWater = (key) => {
+  const fxWater = (key, wet = [key], wide = false) => {
     const cell = cellOf(key), yard = yardRef.current;
     if (!cell || reduced()) return;
     const c = cell.getBoundingClientRect(), y = yard.getBoundingClientRect();
@@ -191,6 +192,9 @@ export function ZenScreen({ onBack, onShop }) {
       growFx(key, { rotate: [0, -6, 4, 0], scaleY: [1, 0.94, 1.05, 1] }, { duration: 0.9, ease: 'easeInOut' }); // la planta agradece el agua
       const p = at(cell, 0.42);
       for (let i = 0; i < 3; i++) setTimeout(() => fxRef.current.burst(p.x + 6, p.y - 8, { count: 8, color: ['#9fd3ff', '#5aa9e6', '#e6f6ff'], speed: [30, 90], life: [0.35, 0.6], size: [1.5, 3], gravity: 900, spread: 0.7, angle: Math.PI / 2 + 0.3 }), i * 140);
+      // Con la regadera grande: un aro marca el alcance y cada tiesto mojado salpica, no más ancho que la maceta.
+      if (wide) { const c0 = at(cell, 0.55); fxRef.current.ring(c0.x, c0.y, { color: '#bfe6ff', radius: c.width * 1.6, width: 2, life: 0.9 }); }
+      wet.forEach((k, i) => setTimeout(() => pfx('splash', cellOf(k), 0.62, { stone: false, f: 0.45 }), 120 + i * 60));
     }, 420);
     setTimeout(() => setPour(null), 1500);
   };
@@ -359,7 +363,7 @@ export function ZenScreen({ onBack, onShop }) {
       else {
         const next = z.items.can ? zenWaterAround(z, key, now) : zenWater(z, key, now);
         apply(next);
-        fxWater(key);
+        fxWater(key, Object.keys(next.pots).filter((k) => next.pots[k] !== z.pots[k]), !!z.items.can);
         { const n = zenStage(next, key, now); say(n.stepLeft >= n.msLeft - 1 ? t('zen.wateredLast', 'Regaste {kind}: flor en {time}.', { kind: the(st.kind), time: secs(n.msLeft) }) : t('zen.wateredStep', 'Regaste {kind}: crece {time} y volverá a pedir agua ({step} de {steps}).', { kind: the(st.kind), time: secs(n.stepLeft), step: n.step + 1, steps: WATER_STEPS })); }
       }
     } else if (tool === 'dig') {
@@ -602,7 +606,7 @@ export function ZenScreen({ onBack, onShop }) {
               ${pour && html`<span key=${pour.id} class="zn-at zn-at-can" style=${{ left: pour.x + 'px', top: pour.y + 'px' }} aria-hidden="true"><span class="zn-canfx">${CAN}<i class="zn-stream"></i></span></span>`}
               ${tip && html`<span key=${tip.id} class="tile-tip" style=${{ left: tip.x + 'px', top: tip.y + 'px' }}><b>${tip.title}</b>${tip.text}</span>`}
               ${act && html`<span key=${act.id} class="zn-at" style=${{ left: act.x + 'px', top: act.y + 'px' }} aria-hidden="true"><span class=${'zn-toolfx t-' + act.tool}>${TOOL_ART[act.tool]}</span></span>`}
-              <span class=${'zn-hand t-' + (feeding ? 'sow' : tool)} ref=${handRef} aria-hidden="true">${feeding ? POUCH : TOOL_ART[tool]}</span>
+              <span class=${'zn-hand t-' + (feeding ? 'sow' : tool) + (tool === 'water' && z.items.can ? ' wide' : '')} ref=${handRef} aria-hidden="true">${feeding ? POUCH : TOOL_ART[tool]}</span>
               ${fly && html`<button key=${fly.id} ref=${flyRef} class="zn-fly" data-pad="x" aria-label=${t('zen.flyAria', 'Mariposa: tócala')} onClick=${catchFly}>${BUTTERFLY}</button>`}
             </div>
           </div>

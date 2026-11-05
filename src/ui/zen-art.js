@@ -175,10 +175,13 @@ export const BUTTERFLY = html`<svg viewBox="-6 -6 12 12" aria-hidden="true">
 
 // Regadera de latón para el gesto de regar: cuerpo, asa y pico con su roseta.
 export const CAN = html`<svg viewBox="0 0 24 18" aria-hidden="true">${px('can', 24, 18)}<g class="zn-vec">
-  <path class="zn-can" d="M6 6h9l1 9c0 1-.6 1.6-1.6 1.6H6.6C5.6 16.6 5 16 5 15z"/>
-  <path class="zn-can-handle" d="M7.2 6C7 3 13.8 3 13.8 6"/>
-  <path class="zn-can" d="M15.4 9.4 21 4.6l1 1.2-5.4 5.4z"/>
-  <ellipse class="zn-can" cx="21.6" cy="5" rx="1.3" ry="1.8" transform="rotate(-40 21.6 5)"/>
+  <path class="zn-can-handle" d="M6.6 7C6.4 2.4 14.4 2.4 14.2 7"/>
+  <path class="zn-can" d="M15.2 12.4 20.4 6.1l1.2 1-4.6 6.6z"/>
+  <path class="zn-can" d="M4.8 7.6h11.2l.8 7.5c.1 1-.6 1.8-1.6 1.8H5.6c-1 0-1.7-.8-1.6-1.8z"/>
+  <rect class="zn-can-rim" x="4.3" y="6.4" width="12.2" height="1.8" rx=".9"/>
+  <path class="zn-can-band" d="M4.5 12.6h11.9"/>
+  <path class="zn-can-shine" d="M6.6 9.4v5.4"/>
+  <ellipse class="zn-can-rose" cx="21.3" cy="6.3" rx="1.3" ry="2.1" transform="rotate(-40 21.3 6.3)"/>
 </g></svg>`;
 
 // Tijeras de podar: dos hojas que giran sobre el perno (12,12); el CSS las abre y las cierra.

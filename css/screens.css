@@ -810,7 +810,13 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
   100% { opacity: 0; translate: 10px -10px; rotate: 0deg; }
 }
 .zn-can { fill: oklch(0.72 0.11 78); stroke: var(--ink); stroke-width: .8; stroke-linejoin: round; }
-.zn-can-handle { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; }
+.zn-can-handle { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }
+.zn-can-rim { fill: oklch(0.8 0.1 82); stroke: var(--ink); stroke-width: .7; }
+.zn-can-band { fill: none; stroke: oklch(0.56 0.1 70); stroke-width: 1.1; }
+.zn-can-shine { fill: none; stroke: oklch(0.93 0.06 90 / 0.85); stroke-width: 1; stroke-linecap: round; }
+.zn-can-rose { fill: oklch(0.66 0.1 74); stroke: var(--ink); stroke-width: .7; }
+/* Regadera grande con ratón: el aro de lo que alcanza (3×3 casillas) bajo el pico. */
+.zn-hand.t-water.wide::after { content: ''; position: absolute; left: 40px; top: 9px; width: 200px; height: 190px; translate: -50% -30%; border: 2px dashed oklch(0.85 0.08 230 / 0.9); border-radius: 50%; pointer-events: none; }
 /* El chorro sale del pico mientras la regadera está inclinada; se contrarrota para caer recto. */
 .zn-stream { position: absolute; left: 90%; top: 27%; width: 3px; height: 40px; transform-origin: top; rotate: -32deg; opacity: 0;
   background: linear-gradient(oklch(0.8 0.09 230) 0 5px, transparent 5px) 0 0 / 3px 8px; animation: zn-stream 1.4s linear both, zn-flow 0.25s linear infinite; }
