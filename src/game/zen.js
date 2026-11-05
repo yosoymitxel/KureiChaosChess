@@ -301,6 +301,20 @@ export function zenLeaves(z, now = Date.now(), rng = Math.random) {
 }
 export const zenSweep = (z, leaf) => ({ ...z, leaves: (z.leaves || []).filter((l) => l !== leaf) });
 
+// Clima del jardín: casi siempre despejado; uno especial dura un rato o unas partidas, lo que pase antes.
+const SKY_KEY = 'zugzwang.zensky.v1';
+export const ZEN_SKIES = [[null, 80], ['fireflies', 8], ['rain', 7], ['snow', 5]];
+export const SKY_SPAN = { ms: 15 * 60_000, matches: 3 };
+export function zenSky(now = Date.now(), rng = Math.random) {
+  const cur = read(SKY_KEY);
+  if (cur && now < cur.until && cur.left > 0) return cur.sky;
+  let roll = rng() * 100, sky = null;
+  for (const [id, w] of ZEN_SKIES) if ((roll -= w) < 0) { sky = id; break; }
+  write(SKY_KEY, { sky, until: now + SKY_SPAN.ms, left: SKY_SPAN.matches });
+  return sky;
+}
+export const zenSkyMatch = () => { const cur = read(SKY_KEY); if (cur) write(SKY_KEY, { ...cur, left: cur.left - 1 }); };
+
 // Mariposas: visitan una flor abierta mientras miras el jardín; si la tocas deja un regalo.
 export const BUTTERFLY_MS = [70_000, 150_000]; // espera entre visitas
 export function butterflyGift(rng = Math.random) {

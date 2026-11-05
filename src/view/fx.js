@@ -40,7 +40,7 @@ export class Fx {
 
   // Center of an element in this layer's coordinates.
   pointOf(el, yBias = 0.5) {
-    const a = el.getBoundingClientRect(), b = this.host.getBoundingClientRect();
+    const a = el.getBoundingClientRect(), b = this.canvas.getBoundingClientRect(); // la capa puede salirse del anfitrión
     return { x: a.left - b.left + a.width / 2, y: a.top - b.top + a.height * yBias };
   }
 

@@ -28,7 +28,7 @@ import { PICKUPS, PICKUPS_EVERY, PICKUPS_MAX, dropPickups } from '../../data/pic
 import { PICKUP_ART } from '../zen-art.js';
 import { isShopCard, addCoins, loadShop } from '../../game/shop.js';
 import { flyCoins, popSeed } from '../coins.js';
-import { addZenSeeds, pickSeed, butterflyGift, ZEN_NAMES, loadZen, saveZen, koiHungry, feedKoi } from '../../game/zen.js';
+import { addZenSeeds, pickSeed, butterflyGift, ZEN_NAMES, loadZen, saveZen, koiHungry, feedKoi, zenSkyMatch } from '../../game/zen.js';
 import { t, tp } from '../../i18n/index.js';
 
 const SIDE_NAME = { light: t('side.lightLower', 'marfil'), dark: t('side.darkLower', 'carmesí'), wild: t('side.wildLower', 'jade') };
@@ -298,6 +298,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     };
 
     const finish = async () => {
+      zenSkyMatch();
       const r = match.over;
       if (onRound) r.note = onRound(r);
       // Jingle de fin: el del piso, o el de la run en el piso final (ganarlo la cierra; perderlo la pierde).

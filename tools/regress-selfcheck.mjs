@@ -115,5 +115,16 @@ const cells = (p, pieces, b = board()) => new Set(legalMoves(p, pieces, b).map((
   check(maxX < 0 || maxX - minX + 1 <= 20, `maceta píxel: demasiado ancha (${maxX - minX + 1} px)`);
 }
 
+// Clima del jardín: se mantiene hasta que pasa el tiempo o las partidas, y casi siempre sale despejado.
+{
+  const { zenSky, zenSkyMatch, SKY_SPAN } = await import('../src/game/zen.js');
+  localStorage.clear();
+  const a = zenSky(0, () => 0.95);
+  check(a === 'snow' && zenSky(1000, () => 0) === 'snow', 'clima zen: se mantiene');
+  for (let i = 0; i < SKY_SPAN.matches; i++) zenSkyMatch();
+  check(zenSky(2000, () => 0) === null, 'clima zen: cambia al agotar partidas');
+  check(zenSky(SKY_SPAN.ms + 3000, () => 0.85) === 'fireflies', 'clima zen: cambia al pasar el tiempo');
+}
+
 if (fails.length) { console.log('Regresiones:\n' + fails.join('\n')); process.exit(1); }
-console.log('Regresiones OK: guardia, coronación, enroque, cartas, manos, ranuras, copias y maceta');
+console.log('Regresiones OK: guardia, coronación, enroque, cartas, manos, ranuras, copias, maceta y clima del jardín');

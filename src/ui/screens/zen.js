@@ -8,7 +8,7 @@ import { Icon } from '../icons.js';
 import { Fx } from '../../view/fx.js';
 import { Pond, runPond } from '../../view/pond.js';
 import { chipArt, POT, SOIL, plantArt, pondArt, pondInside, MOSS, STEP, LANTERN, BRANCH, mapleLeaf, rakeArt, BUTTERFLY, CAN, SHEARS, SHOVEL, POUCH, GLOVE, px, stoneArt, ITEM_ART, KOI_ART } from '../zen-art.js';
-import { ZEN_KINDS, ZEN_NAMES, ZEN_MAX, cellKey, cellType, lakeRect, expandCost, zenStage, zenSow, zenWater, zenWaterAround, zenDig, digWait, zenBreak, zenHarvest, zenExpand, zenLake, zenPlace, zenClear, zenStore, zenMove, zenMovePond, moveWait, zenLeaves, zenSweep, koiHungry, feedKoi, LEAF_COINS, BUTTERFLY_MS, butterflyGift, loadZen, saveZen } from '../../game/zen.js';
+import { ZEN_KINDS, ZEN_NAMES, ZEN_MAX, cellKey, cellType, lakeRect, expandCost, zenStage, zenSow, zenWater, zenWaterAround, zenDig, digWait, zenBreak, zenHarvest, zenExpand, zenLake, zenPlace, zenClear, zenStore, zenMove, zenMovePond, moveWait, zenLeaves, zenSweep, koiHungry, feedKoi, zenSky, LEAF_COINS, BUTTERFLY_MS, butterflyGift, loadZen, saveZen } from '../../game/zen.js';
 import { SEEDS, GARDEN_ITEMS, LAKE_MAX, lakeCost, DIG_COOLDOWN, MOVE_COOLDOWN, WATER_STEPS } from '../../data/garden.js';
 import { award } from '../../game/achievements.js';
 import { addCoins, charge, loadShop } from '../../game/shop.js';
@@ -90,8 +90,7 @@ export function ZenScreen({ onBack, onShop }) {
   }, []);
   useEffect(() => { if (!gain) return; const t = setTimeout(() => setGain(null), 3200); return () => clearTimeout(t); }, [gain]);
   useEffect(() => { if (!msg) return; const t = setTimeout(() => { setMsg(null); setArmed(false); }, 5000); return () => clearTimeout(t); }, [msg]);
-  // Clima al azar al entrar; solo los que leen claro sobre el jardín (hojas o niebla se confunden).
-  const [sky] = useState(() => [null, null, 'fireflies', 'fireflies', 'rain', 'snow'][Math.floor(Math.random() * 6)]);
+  const [sky] = useState(() => zenSky());
   useEffect(() => { const fx = fxRef.current = new Fx(yardRef.current); fx.vfx = true; fx.setWeather(sky); return () => fx.destroy(); }, []);
 
   const now = Date.now();
@@ -155,7 +154,7 @@ export function ZenScreen({ onBack, onShop }) {
   // La semilla ganada vuela a su sobre.
   const seedTo = (from, kind) => popSeed(from, POUCH, document.querySelector('.zn-k-' + kind)?.getBoundingClientRect());
   const flyCoins = (from, n, amount) => {
-    const y = yardRef.current?.getBoundingClientRect();
+    const y = fxRef.current?.canvas.getBoundingClientRect();
     if (y && from) fxRef.current?.coinBurst(from.left + from.width / 2 - y.left, from.top + from.height / 2 - y.top);
     coinsTo(from, coinRef.current, n, () => setCoins(addCoins(amount)));
   };
@@ -562,7 +561,7 @@ export function ZenScreen({ onBack, onShop }) {
   const owned = Object.entries(GARDEN_ITEMS).filter(([id, it]) => it.stack && z.items[id] > 0);
   const feeding = overPond && tool !== 'move';
 
-  return html`<div class="screen mini zen-screen" ref=${ref}>
+  return html`<div class="screen mini zen-screen" data-weather=${sky} ref=${ref}>
     <${Topbar} title=${t('menu.zen', 'Jardín Zen')} sub=${t('zen.sub', 'Un rincón tranquilo entre runs')} onBack=${onBack}>
       <button class="btn ghost sm icon-only" data-pad="select" aria-label=${t('zen.help', 'Cómo se cuida el jardín')} title=${t('zen.help', 'Cómo se cuida el jardín')} onClick=${() => setHelp(true)}><${Icon} name="book" size=${16} /></button>
       <button class="coin-chip" data-pad="y" ref=${coinRef} title=${t('zen.shop', 'Tienda del jardín')} aria-label=${t('zen.coinsShop', '{n} monedas: abrir la tienda', { n: coins })} onClick=${onShop}><${Icon} name="coin" size=${16} /><b>${coins}</b></button>
