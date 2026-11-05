@@ -109,7 +109,7 @@ export function ZenScreen({ onBack, onShop }) {
   };
   const pickTool = (id) => { setTool(id); setArmed(false); setMsg(null); setMoving(null); };
   const [moving, setMoving] = useState(null); // con el guante: la casilla (o 'pond') que se lleva
-  useEffect(() => { const el = moving && moving !== 'pond' && cellOf(moving); el?.classList.add('zn-moving'); return () => el?.classList.remove('zn-moving'); });
+  useEffect(() => { const el = moving && moving !== 'pond' ? cellOf(moving) : null; el?.classList.add('zn-moving'); return () => el?.classList.remove('zn-moving'); });
   const secs = (ms) => { const s = Math.ceil(ms / 1000); return s >= 60 ? `${Math.floor(s / 60)} min ${String(s % 60).padStart(2, '0')} s` : `${s} s`; };
   // Reloj del icono: fracción del descanso que queda (1 al usarla, 0 cuando ya se puede volver a usar).
   const cooling = (wait, total) => (wait > 0 ? { cls: ' zn-cool', style: { '--zn-rest': (wait / total).toFixed(4) } } : { cls: '', style: null });
@@ -292,7 +292,7 @@ export function ZenScreen({ onBack, onShop }) {
         setMoving(null); apply(next); playSfx('dig');
         later(() => {
           const el = moving === 'pond' ? yardRef.current?.querySelector('.zen-pond') : cellOf(key), art = el?.querySelector('svg, .zn-pondbox');
-          if (art && !reduced()) motion(art, { y: [-22, 0, -4, 0], scaleY: [1.08, 0.86, 1.04, 1] }, { duration: 0.45, ease: OUT });
+          if (art && !reduced()) motion(art, { y: [-22, 0, -4, 0], scale: [1.04, 1, 1, 1], scaleY: [1.08, 0.86, 1.04, 1] }, { duration: 0.45, ease: OUT });
           setTimeout(() => { if (!el) return; const p = at(el, 0.75); pfx('bluntHit', el, 0.7, { palette: SAND_RAMP }); fxRef.current.dust(p.x, p.y, 0.7); }, 150);
         }, 80);
         return say(t('zen.moved', 'Movido.'));

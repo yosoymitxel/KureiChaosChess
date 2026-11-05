@@ -28,7 +28,7 @@ const VENDOR = [['hooks', 'preact-hooks.module.js'], ['preact', 'preact.module.j
 // Píxeles con tinta en la capa de efectos del jardín (o solo alrededor de `sel`): así se ve si un efecto se pintó.
 const ink = (page, sel) => page.evaluate((sel) => {
   const c = document.querySelector('.zn-yard > .fx-layer'), r = c.getBoundingClientRect(), k = c.width / r.width;
-  const e = sel ? document.querySelector(sel).getBoundingClientRect() : r, pad = sel ? e.width * 0.6 : 0;
+  const e = !sel ? r : typeof sel === 'string' ? document.querySelector(sel).getBoundingClientRect() : sel, pad = sel ? e.width * 0.6 : 0;
   const x = Math.max(0, (e.left - pad - r.left) * k), y = Math.max(0, (e.top - pad - r.top) * k);
   const w = Math.min(c.width - x, (e.width + pad * 2) * k), h = Math.min(c.height - y, (e.height + pad * 2) * k);
   const d = c.getContext('2d').getImageData(x, y, Math.max(1, w), Math.max(1, h)).data;
@@ -55,7 +55,7 @@ for (const view of views) for (const theme of themes) {
     localStorage.setItem('zugzwang.shop.v1', JSON.stringify({ coins: 999 }));
     localStorage.setItem('zugzwang.zensky.v1', JSON.stringify({ sky: 'snow', until: Date.now() + 1e7, left: 3 }));
     // Cantero a medida: tiestos y un arbusto arriba, tierra libre donde crece el estanque.
-    localStorage.setItem('zugzwang.zen.v1', JSON.stringify({ v: 3, size: 4, lake: 2, pots: { r0c0: null, r0c1: null }, tiles: { r0c2: 'bush' }, lanterns: [], seeds: { romero: 1 },
+    localStorage.setItem('zugzwang.zen.v1', JSON.stringify({ v: 3, size: 4, lake: 2, pots: { r0c0: null, r0c1: null }, tiles: { r0c2: 'bush' }, lanterns: [], seeds: { romero: 1 }, items: { glove: true },
       leafT: Date.now(), leaves: [{ x: 0.5, y: 3.5, r: 40 }] }));
   }, theme);
   await page.goto(base + '/');
@@ -96,6 +96,20 @@ for (const view of views) for (const theme of themes) {
   await painted('sembrar', '[data-k="r0c0"]', () => cell('r0c0').click());
   await painted('regar', '[data-k="r0c0"]', async () => { await page.getByRole('button', { name: /^Regar/ }).click(); await cell('r0c0').click(); }, 1800);
   await painted('cortar', '[data-k="r0c2"]', async () => { await page.getByRole('button', { name: /^Cortar/ }).click(); await cell('r0c2').click(); }, 1800);
+  // Mover el estanque con los guantes: arriba a la derecha (donde estaba el arbusto) y de vuelta.
+  const pondAt = () => page.locator('.zen-pond').evaluate((el) => { const r = el.getBoundingClientRect(), t = el.closest('.zn-tray').getBoundingClientRect(); return [Math.round(r.left - t.left), Math.round(r.top - t.top)]; });
+  const home = await pondAt();
+  await page.getByRole('button', { name: /^Guante/ }).click();
+  for (const [to, back] of [['r0c2', false], ['r1c1', true]]) {
+    at = 'mover estanque a ' + to;
+    await page.locator('.zen-pond').click();
+    if (!(await said(/esquina de arriba a la izquierda/))) bad(at + ': no se levantó');
+    const box = await cell(to).evaluate((el) => { const { left, top, width, height } = el.getBoundingClientRect(); return { left, top, width, height }; });
+    await painted(at, box, () => cell(to).click()); // se mide donde estaba la casilla: ahora es agua
+    if (!(await said(/Movido/))) bad(at + ': no se dejó');
+    const now = await pondAt();
+    if (back ? now.join() !== home.join() : now[0] <= home[0] || now[1] >= home[1]) bad(`${at}: quedó en ${now} (salió de ${home})`);
+  }
   await painted('estanque', '.zen-pond', async () => { await page.getByRole('button', { name: /Estanque a/ }).click(); await page.getByRole('button', { name: /Confirmar|Estanque a/ }).first().click(); });
   if (await page.locator('.zen-pond').evaluate((el) => el.style.gridRow) !== 'span 3') bad('estanque: no creció a 3×3');
   await shot('acciones');
@@ -121,7 +135,7 @@ for (const view of views) for (const theme of themes) {
   await page.waitForTimeout(400);
   if (!(await said(/Movido/))) bad('mover: no se dejó en la tierra cavada');
   await shot('movido');
-  } catch (e) { bad(`${at}: ${e.message.split('\n').filter((l) => /intercepts|Timeout|waiting for/.test(l)).slice(0, 3).join(' · ')}`); }
+  } catch (e) { bad(`${at}: ${e.message.split('\n').filter((l, i) => !i || /intercepts|waiting for/.test(l)).slice(0, 3).join(' · ')}`); }
 
   if (errors.length) bad('errores de página: ' + errors.slice(0, 3).join(' | '));
   await ctx.close();
@@ -129,4 +143,4 @@ for (const view of views) for (const theme of themes) {
 await browser.close();
 server.close();
 if (fails.length) { console.log('Jardín con fallos:\n' + fails.join('\n')); process.exit(1); }
-console.log(`Jardín OK: clima, destello, sembrar, regar, cortar, estanque, ampliar, cavar y mover en ${views.length * themes.length} combinaciones`);
+console.log(`Jardín OK: clima, destello, sembrar, regar, cortar, mover y ampliar el estanque, ampliar, cavar y mover maceta en ${views.length * themes.length} combinaciones`);
