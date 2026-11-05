@@ -745,171 +745,294 @@ THEMES['fast-food'] = {
 }
 
 # ---------- Niveles liminales: agentes y anomalías ----------
-def agent(s, cx, gy=35, h=24, extra=None):
-    """Agente con traje del bando y casco con visor."""
-    s.stroke([(cx - 3, gy - 7), (cx - 3.5, gy - 0.5)], 2.2, 2.4).stroke([(cx + 3, gy - 7), (cx + 3.5, gy - 0.5)], 2.2, 2.4)
-    s.ell(cx, gy - h * 0.45, 6.5, h * 0.3)
-    s.stroke([(cx - 6, gy - h * 0.55), (cx - 7.5, gy - h * 0.3)], 1.8)
-    s.ell(cx, gy - h * 0.82, 5.5, 5.2)
-    s.ell(cx + 1.2, gy - h * 0.82, 3.6, 2.4, mat='vis')
-    s.dot(cx + 2.5, gy - h * 0.82 - 1, 'w')
-    if extra: extra(s, cx, gy, h)
+def agent(s, cx, gy=35, tall=1.0, face=1, tank=True, prop=None):
+    """Agente de contención: botas, traje del bando con franja de peligro, cinturón, guantes, casco y tanque."""
+    u = tall
+    hy, ty = gy - 22 * u, gy - 13 * u
+    if tank:
+        s.stroke([(cx - face * 5.5, ty - 5), (cx - face * 5.5, ty + 4)], 2.6, 2.6, mat='metal')
+        s.stroke([(cx - face * 5, ty - 7), (cx - face * 1, hy + 3)], 0.6, mat='hose')
+    for dx in (-2.6, 2.6):
+        s.stroke([(cx + dx, ty + 3), (cx + dx * 1.1, gy - 3)], 2.3, 2.1)
+        s.ell(cx + dx * 1.15 + face * 0.8, gy - 1.6, 2.8, 1.8, mat='boot')
+    s.ell(cx, ty, 6.2, 6.6 * u)
+    s.line([(cx + face * 0.5, ty - 5.5), (cx + face * 0.5, ty + 4)], 3)
+    s.stroke([(cx - 5.6, ty + 2.2), (cx + 5.6, ty + 2.2)], 0.9, mat='belt')
+    s.ell(cx + face * 3.5, ty + 3.6, 1.6, 1.3, mat='belt')
+    for i in range(-5, 6, 2):
+        s.dot(cx + i, ty - 2, 'haz')
+    s.ell(cx, hy, 5.2, 5)
+    s.ell(cx + face * 1.4, hy + 0.4, 3.4, 2.6, mat='vis')
+    s.dot(cx + face * 2.4, hy - 0.8, 'w').dot(cx + face * 1.4, hy - 1.2, 'w')
+    s.stroke([(cx - face * 3, hy - 4), (cx - face * 1, hy - 5.2)], 0.5, mat='light')
+    if prop: prop(s, cx, gy, hy, ty, face)
+    else:
+        s.stroke([(cx + face * 5.5, ty - 3), (cx + face * 7, ty + 3)], 1.5)
+    s.ell(cx + face * 7, ty + 4, 1.4, 1.3, mat='glove')
+    s.stroke([(cx - face * 5.5, ty - 3), (cx - face * 6.5, ty + 3)], 1.5)
+    s.ell(cx - face * 6.5, ty + 4, 1.4, 1.3, mat='glove')
 
-def li_pawn(s):
-    agent(s, 18, h=22, extra=lambda s, cx, gy, h: s.stroke([(cx + 6, gy - 12), (cx + 9, gy - 14)], 1.5, mat='torch')
-          .ell(cx + 10.5, gy - 15, 1.6, 1.6, mat='light'))
+def li_pawn(s):  # agente con linterna
+    def torch(s, cx, gy, hy, ty, f):
+        s.stroke([(cx + 5.5, ty - 3), (cx + 8, ty - 1)], 1.5)
+        s.stroke([(cx + 8, ty - 1.5), (cx + 11, ty - 3)], 1.2, mat='torch')
+        s.ell(cx + 12.2, ty - 3.5, 1.4, 1.6, mat='light')
+        for k in range(3):
+            s.dot(cx + 14 + k, ty - 4 - k * 0.6, 'light')
+    agent(s, 15, tall=0.95, prop=torch)
 
-def li_rook(s):  # cápsula de contención con ventanilla
-    s.ell(18, 33, 11, 2.6, mat='metal')
-    s.stroke([(18, 31), (18, 9)], 9.5, 9)
-    s.ell(18, 17, 5.5, 6.5, mat='glass')
-    s.dot(17, 15, 'o').dot(20, 15, 'o').dot(18.5, 19, 'o')
-    s.ell(18, 3.5, 4, 1.6, mat='light')
-    for y in (8, 27):
-        s.line([(10, y), (18, y + 1), (26, y)], 4)
-
-def li_knight(s):  # cuadrúpedo flaco de patas largas
-    for x0, x1 in ((10, 6), (14, 13), (22, 24), (25, 30)):
-        s.stroke([(x0, 18), ((x0 + x1) / 2 + 1, 26), (x1, 35)], 0.9, 0.6)
-    s.ell(17, 17, 10, 4, rot=-10)
-    s.stroke([(25, 14), (28, 8), (31, 6)], 2.4, 1.8)
-    s.ell(31, 6, 4, 3, rot=20)
-    s.dot(33, 5, 'w').dot(31, 5, 'w')
-    for x in (12, 16, 20):
-        s.line([(x, 15), (x + 1, 19)], 4)
-
-def li_bishop(s):  # sombra alta sin ojos con sonrisa
-    s.stroke([(16, 35), (17, 24)], 1.3).stroke([(20, 35), (19, 24)], 1.3)
-    s.stroke([(18, 26), (18, 12)], 4.5, 3.5)
-    s.stroke([(15, 15), (11, 22), (10, 30)], 1, 0.6).stroke([(21, 15), (25, 22), (26, 30)], 1, 0.6)
-    s.ell(18, 8, 5, 6)
-    s.line([(14.5, 9), (16, 11), (18, 11.6), (20, 11), (21.5, 9)], 'w')
-
-def li_queen(s):  # ojo flotante con tentáculos
-    for x0, x1 in ((12, 8), (16, 15), (20, 21), (24, 28)):
-        s.stroke([(x0, 20), (x0 + (x1 - x0) * 0.5 - 1.5, 27), (x1, 35)], 1.2, 0.5)
-    s.ell(18, 14, 10, 9)
-    s.ell(18, 14, 6, 5, mat='eye')
-    s.ell(19, 14, 2.6, 3.2, mat='o')
-    s.dot(17, 12, 'w')
-    s.ell(18, 3, 4.5, 1.6, mat='gold')
-    for x in (14.5, 18, 21.5):
-        s.ell(x, 1.2, 0.9, 1.6, mat='gold')
-
-def li_king(s):  # director: traje largo, tubo fluorescente de halo
-    s.stroke([(15, 33), (15, 35)], 2.2).stroke([(21, 33), (21, 35)], 2.2)
-    s.stroke([(18, 32), (18, 14)], 7.5, 5.5)
-    s.ell(18, 10, 4.6, 5, mat='skin')
-    s.ell(19, 10, 3, 1.6, mat='o')
-    s.stroke([(18, 15), (18, 26)], 0.6, mat='w')
-    s.stroke([(12, 3.5), (24, 3.5)], 1.4, mat='light')
-    s.ell(18, 1.2, 3.6, 1.2, mat='gold')
-
-def li_guard(s):  # guardia con escudo antidisturbios
-    agent(s, 15, h=25)
-    s.stroke([(24, 31), (24, 13)], 4.5, 4.5, mat='shield')
-    s.line([(22.5, 18), (25.5, 18)], 'shd')
-
-def li_advisor(s):  # investigador con carpeta
-    agent(s, 16, h=24)
-    s.ell(23, 22, 3.2, 4.4, mat='paper')
-    s.line([(21.5, 20), (24.5, 20)], 'shd').line([(21.5, 22.5), (24.5, 22.5)], 'shd')
-
-def li_elephant(s):  # masa amorfa de ojos
-    s.ell(18, 26, 13, 9)
-    s.ell(10, 31, 5, 4).ell(27, 31, 5, 4).ell(18, 18, 8, 7)
-    for x, y, r in ((12, 23, 2.4), (19, 17, 3), (25, 25, 2.2), (17, 28, 1.8), (8, 30, 1.6), (28, 31, 1.6)):
-        s.ell(x, y, r, r, mat='eye')
-        s.dot(x + 0.5, y, 'o')
-
-def li_camel(s):  # lámpara de pie viva
-    s.stroke([(12, 35), (16, 30)], 1).stroke([(24, 35), (20, 30)], 1)
-    s.stroke([(18, 31), (17, 22), (20, 14), (24, 9)], 1.4)
-    s.ell(25, 7, 7, 4.5, rot=20)
-    s.ell(27, 10, 4.5, 1.6, mat='light', rot=20)
-    s.dot(23, 6, 'o').dot(26.5, 5, 'o')
-
-def li_cannon(s):  # entidad con cabeza de tele que dispara estática
-    s.stroke([(14, 35), (15, 28)], 1.6).stroke([(20, 35), (19, 28)], 1.6)
-    s.ell(17, 25, 6, 5)
-    s.ell(17, 14, 9, 7.5, mat='metal')
-    s.ell(17.5, 14, 6.5, 5, mat='static')
-    for x, y in ((15, 12), (19, 15), (16, 16), (20, 12)):
+def li_rook(s):  # cápsula de contención con algo dentro
+    s.ell(18, 33.5, 12, 2.4, mat='haz2')
+    for x in range(8, 29, 3):
+        s.dot(x, 33, 'o')
+    s.stroke([(18, 31), (18, 9)], 9.8, 9.2, mat='metal')
+    s.stroke([(18, 29), (18, 11)], 7.6, 7.2)
+    s.ell(18, 18, 5.4, 7.2, mat='glass')
+    s.ell(18, 20, 2.6, 4.6, mat='o').ell(18, 15, 2.2, 2.2, mat='o')
+    s.dot(17, 14.5, 'red').dot(19, 14.5, 'red')
+    s.dot(15, 13, 'w').dot(15, 14, 'w').dot(16, 12, 'w')
+    for x, y in ((11, 9), (25, 9), (11, 29), (25, 29)):
         s.dot(x, y, 'w')
-    for x, r in ((28, 2.4), (32, 1.8)):
-        s.ell(x, 14, r * 0.6, r * 2, mat='static')
+    s.ell(18, 2.6, 2.6, 2, mat='red')
+    s.dot(17.5, 2, 'w')
+    s.ell(18, 27.5, 3.4, 1.2, mat='paper')
 
-def lib_titan(s):  # sabueso enorme
-    for x0, x1 in ((10, 8), (16, 17), (30, 31), (36, 39)):
-        s.stroke([(x0, 28), (x1, 44)], 2.2, 1.6)
-    s.ell(23, 26, 17, 8)
-    s.stroke([(36, 24), (40, 16)], 4, 3)
-    s.ell(39.5, 14, 5.5, 4.5, rot=15)
-    s.line([(37, 16), (40, 17.5), (43, 17), (45, 15)], 'w')
-    s.stroke([(7, 24), (4, 18)], 1.6, 0.6)
-    for x in (14, 20, 26, 32):
-        s.line([(x, 19), (x + 1, 24)], 4)
+def li_knight(s):  # corredor famélico de cuatro patas
+    for x0, xm, x1, ph in ((9, 6, 4, 1), (13, 12, 11, 0), (22, 25, 24, 0), (25, 30, 31, 1)):
+        s.stroke([(x0, 19), (xm, 26), (x1, 33)], 1.1, 0.7)
+        s.stroke([(x1, 33), (x1 + 1.6, 35)], 0.6, mat='claw')
+    s.stroke([(6, 18), (2, 14), (1, 10)], 0.9, 0.4)
+    s.ell(16, 18, 10, 3.8, rot=-8)
+    for x in (11, 14, 17, 20):
+        s.line([(x, 15.5), (x + 0.8, 20.5)], 4)
+    s.line([(8, 17), (24, 15)], 0)
+    s.stroke([(24, 15), (27, 9), (30, 6)], 2.3, 1.6)
+    s.ell(31.5, 6, 4.4, 2.7, rot=18)
+    s.ell(31, 5.4, 1.2, 1, mat='o').dot(31, 5, 'red')
+    s.line([(32, 7.5), (34, 8), (35.5, 7.4)], 'w')
+
+def li_bishop(s):  # sonriente: alto, brazos larguísimos, sonrisa
+    s.stroke([(15, 35), (16, 29), (16.5, 23)], 1.4, 1.2).stroke([(21, 35), (20, 29), (19.5, 23)], 1.4, 1.2)
+    s.stroke([(18, 24), (18, 12)], 4.2, 3)
+    s.line([(16.5, 15), (19.5, 15)], 3).line([(16.5, 18), (19.5, 18)], 3).line([(17, 21), (19, 21)], 3)
+    for d in (-1, 1):
+        s.stroke([(18 + d * 3, 13), (18 + d * 7, 20), (18 + d * 8, 30)], 1, 0.7)
+        for k in (-1, 0, 1):
+            s.stroke([(18 + d * 8, 30), (18 + d * (8 + k * 0.8), 33)], 0.4, mat='claw')
+    s.ell(18, 7, 5.6, 6)
+    s.ell(15.8, 5.5, 1.3, 1.6, mat='o').ell(20.2, 5.5, 1.3, 1.6, mat='o')
+    s.stroke([(13.5, 8.5), (16, 11), (20, 11), (22.5, 8.5)], 1, mat='o')
+    for x in (14.5, 16, 17.5, 19, 20.5, 22):
+        s.dot(x, 9.6 + (0.6 if 15 < x < 21 else 0), 'w')
+
+def li_queen(s):  # gran ojo con venas y tentáculos, coronado
+    for x0, x1, c in ((11, 6, -2), (15, 13, 1), (21, 23, -1), (25, 30, 2)):
+        s.stroke([(x0, 19), ((x0 + x1) / 2 + c, 27), (x1, 33), (x1 + c * 0.6, 35)], 1.4, 0.4)
+    s.ell(18, 14, 10.5, 9.5)
+    s.ell(18, 14, 7.6, 6.4, mat='eye')
+    for pts in ([(11, 12), (13, 13), (14, 15)], [(24.5, 11), (23, 13)], [(12, 17.5), (14, 17)], [(24, 17), (22.5, 16)]):
+        s.line(pts, 'vein')
+    s.ell(19, 14, 3.6, 3.8, mat='iris')
+    s.ell(19, 14, 1.5, 2.6, mat='o')
+    s.dot(17.5, 12, 'w').dot(18, 12, 'w')
+    s.ell(18, 3.4, 5, 1.6, mat='gold')
+    for x in (14, 18, 22):
+        s.ell(x, 1.4, 1, 1.8, mat='gold')
+    s.dot(18, 1, 'red')
+
+def li_king(s):  # director con máscara de gas, gabardina, corona y halo
+    s.ell(15.5, 34, 2.4, 1.4, mat='boot').ell(21, 34, 2.4, 1.4, mat='boot')
+    s.stroke([(18, 32), (18, 14)], 7.6, 5.4)
+    s.line([(18, 15), (18, 31)], 4)
+    s.stroke([(14, 15), (17, 21)], 0.7, mat='coatl').stroke([(22, 15), (19, 21)], 0.7, mat='coatl')
+    s.stroke([(18, 15.5), (18, 22)], 0.6, mat='red')
+    s.ell(21.5, 23, 1.2, 1.5, mat='gold')
+    s.stroke([(12, 17), (11, 27)], 1.6).stroke([(24, 17), (25, 27)], 1.6)
+    s.ell(11, 28, 1.4, 1.3, mat='glove').ell(25, 28, 1.4, 1.3, mat='glove')
+    s.ell(18, 10, 4.6, 5, mat='mask')
+    s.ell(16.4, 9, 1.4, 1.3, mat='vis').ell(19.8, 9, 1.4, 1.3, mat='vis')
+    s.ell(18, 13, 2.2, 1.8, mat='metal')
+    s.dot(18, 13, 'o')
+    s.stroke([(11, 4.2), (25, 4.2)], 1.1, mat='light')
+    s.ell(18, 1.8, 3.6, 1.1, mat='gold')
+    for x in (15.5, 18, 20.5):
+        s.ell(x, 0.6, 0.7, 1.2, mat='gold')
+
+def li_guard(s):  # guardia con escudo antidisturbios y porra
+    def shield(s, cx, gy, hy, ty, f):
+        s.stroke([(cx + 8, gy - 4), (cx + 8, ty - 9)], 4.6, 4.4, mat='shield')
+        s.line([(cx + 6.5, ty - 6), (cx + 9.5, ty - 6)], 'shd')
+        s.line([(cx + 6.5, ty - 4), (cx + 9.5, ty - 4)], 'shd')
+        s.dot(cx + 6.5, ty - 10, 'w').dot(cx + 6.5, ty - 9, 'w')
+    agent(s, 14, tall=1.05, tank=False, prop=shield)
+
+def li_advisor(s):  # investigador con bata, gafas y carpeta
+    s.ell(15, 34, 2.4, 1.4, mat='boot').ell(20.5, 34, 2.4, 1.4, mat='boot')
+    s.stroke([(15.5, 33), (15.5, 26)], 1.8, mat='pants').stroke([(20, 33), (20, 26)], 1.8, mat='pants')
+    s.stroke([(18, 27), (18, 15)], 6.6, 5)
+    s.stroke([(18, 16), (18, 27)], 3.2, 2.6, mat='coat')
+    s.line([(18, 16), (18, 27)], 'shd')
+    s.stroke([(13, 16), (12, 25)], 1.5)
+    s.ell(12, 26, 1.3, 1.2, mat='skin')
+    s.ell(18, 10, 4.4, 4.8, mat='skin')
+    s.stroke([(13.6, 8), (18, 5.2), (22.4, 8)], 1.4, mat='hair')
+    s.ell(16.6, 10.4, 1.4, 1.2, mat='vis').ell(20, 10.4, 1.4, 1.2, mat='vis')
+    s.line([(15, 10.4), (21.4, 10.4)], 'o')
+    s.dot(18.5, 13, 'shd')
+    s.stroke([(23, 16), (25, 22)], 1.4)
+    s.ell(25.5, 23, 3.4, 4.6, mat='board')
+    s.ell(25.5, 23.4, 2.6, 3.6, mat='paper')
+    for y in (21.5, 23, 24.5):
+        s.line([(24, y), (27, y)], 'shd')
+    s.ell(21.5, 17, 1.2, 1.5, mat='badge')
+
+def li_elephant(s):  # masa de carne con ojos y bocas
+    s.ell(18, 27, 14, 8)
+    s.ell(9, 30, 6, 5).ell(27, 30, 6, 5).ell(18, 18, 9, 8).ell(25, 21, 5, 5).ell(11, 21, 5, 5)
+    for x, y in ((6, 34), (14, 35), (23, 35), (30, 34)):
+        s.stroke([(x, 33), (x + 0.3, 35)], 0.8)
+    eyes = ((12, 21, 2.6), (19, 16, 3.4), (26, 22, 2.2), (16, 27, 2), (8, 29, 1.6), (28, 30, 1.8), (22, 25, 1.4))
+    for x, y, r in eyes:
+        s.ell(x, y, r, r * 0.9, mat='eye')
+        s.ell(x + 0.4, y, r * 0.45, r * 0.6, mat='o')
+        s.dot(x - r * 0.4, y - r * 0.4, 'w')
+    s.stroke([(20, 31), (24, 32), (27, 31)], 0.7, mat='o')
+    s.dot(21, 31.5, 'w').dot(23, 32, 'w').dot(25, 32, 'w')
+
+def li_camel(s):  # lámpara de pie viva con raíces
+    for x0, x1 in ((17, 10), (18, 15), (19, 23), (20, 27)):
+        s.stroke([(18.5, 29), ((x0 + x1) / 2, 32), (x1, 35)], 0.8, 0.5, mat='root')
+    s.stroke([(18.5, 30), (17, 22), (19, 15), (23, 11)], 1.2, mat='metal')
+    s.ell(18.5, 28, 2.6, 1.4, mat='metal')
+    s.ell(26, 9, 7.6, 5, rot=22)
+    s.ell(28, 12.4, 5, 1.4, rot=22, mat='light')
+    for k in range(5):
+        s.dot(23 + k * 2, 14.5 + k * 0.8, 'light')
+    for x in range(20, 33, 2):
+        s.stroke([(x, 11 + (x - 20) * 0.35), (x, 13 + (x - 20) * 0.35)], 0.35, mat='fringe')
+    s.ell(25, 7.5, 2.2, 1.8, mat='eye').dot(25.5, 7.5, 'o')
+
+def li_cannon(s):  # cabeza de tele que dispara estática
+    s.stroke([(15, 35), (15.5, 27)], 1.8, mat='pants').stroke([(20, 35), (19.5, 27)], 1.8, mat='pants')
+    s.ell(15, 34.5, 2.3, 1.3, mat='boot').ell(20.5, 34.5, 2.3, 1.3, mat='boot')
+    s.ell(17.5, 24, 5.6, 5.4)
+    s.stroke([(13, 21), (11, 27)], 1.4).stroke([(22, 21), (26, 18)], 1.4)
+    s.stroke([(14, 6), (11, 1)], 0.4, mat='metal').stroke([(20, 6), (23, 1)], 0.4, mat='metal')
+    s.ell(17.5, 12, 9, 7, mat='metal')
+    s.ell(16.5, 12, 6.6, 5, mat='static')
+    for x, y in ((14, 10), (18, 13), (15, 14), (19, 10), (13, 12), (20, 15)):
+        s.dot(x, y, 'w')
+    s.ell(24.5, 10, 1, 1, mat='red').ell(24.5, 14, 1, 1, mat='o')
+    for x, r in ((29, 3), (32.5, 4.2)):
+        s.stroke([(x, 12 - r), (x + 1.2, 12), (x, 12 + r)], 0.5, mat='static')
+
+def lib_titan(s):  # sabueso enorme con costillas
+    for x0, xm, x1 in ((11, 7, 8), (16, 18, 15), (30, 28, 31), (35, 39, 38)):
+        s.stroke([(x0, 28), (xm, 36), (x1, 42)], 2.4, 1.6)
+        s.stroke([(x1 - 1, 43), (x1 + 2, 44)], 0.6, mat='claw')
+    s.stroke([(7, 25), (3, 18), (5, 12)], 1.6, 0.5)
+    s.ell(23, 26, 17, 8.5)
+    for x in range(12, 34, 3):
+        s.line([(x, 20), (x + 1.4, 30)], 4)
+    s.line([(8, 22), (38, 19)], 0)
+    s.stroke([(36, 23), (39, 16)], 4, 3)
+    s.ell(40, 13, 6.4, 5, rot=12)
+    s.ell(40.5, 12.6, 1.6, 1.4, mat='o').dot(40.5, 12.3, 'red')
+    s.stroke([(37, 17), (41, 18.5), (45, 16)], 1, mat='o')
+    for x in (38.5, 40.5, 42.5):
+        s.dot(x, 17.6, 'w')
 
 def lib_ram(s):  # masa de carne que embiste
-    for x in (12, 20, 28):
-        s.stroke([(x, 36), (x - 2, 44)], 2).stroke([(x + 3, 36), (x + 5, 44)], 2)
-    s.ell(22, 28, 17, 10)
-    s.ell(38, 27, 8, 8)
-    s.ell(42, 26, 3.6, 4.4, mat='o')
-    for x in (40, 43):
-        s.stroke([(x, 23), (x, 25)], 0.5, mat='w').stroke([(x + 0.5, 29), (x + 0.5, 27)], 0.5, mat='w')
-    for x, y in ((14, 24), (24, 22), (20, 30)):
-        s.ell(x, y, 1.8, 1.8, mat='eye')
+    for x in (10, 18, 26):
+        s.stroke([(x, 36), (x - 2, 43)], 2.2).stroke([(x + 4, 36), (x + 6, 43)], 2.2)
+    s.ell(21, 28, 17, 10)
+    s.ell(12, 22, 7, 6).ell(24, 20, 8, 6)
+    s.ell(37, 28, 8.5, 8.5)
+    s.ell(41, 28, 3.8, 5, mat='o')
+    for y in (24.5, 27, 29.5, 32):
+        s.dot(39.5, y, 'w').dot(42.6, y, 'w')
+    for x, y, r in ((12, 21, 2.2), (24, 19, 2.6), (18, 30, 1.8), (30, 25, 1.6)):
+        s.ell(x, y, r, r, mat='eye').ell(x + 0.4, y, r * 0.45, r * 0.6, mat='o')
+    for x in (8, 15, 28):
+        s.stroke([(x, 37), (x + 0.3, 39)], 0.6, mat='drip')
 
-def lib_hydra(s):  # tres tallos con ojo
-    s.ell(24, 40, 18, 4.5)
-    for pts in ([(16, 38), (10, 26), (6, 14)], [(24, 37), (25, 22), (23, 8)], [(32, 38), (38, 26), (42, 14)]):
-        s.stroke(pts, 2.8, 1.8)
+def lib_hydra(s):  # tres tallos con ojo que salen de una grieta
+    s.ell(24, 40.5, 19, 3.5, mat='carpet')
+    s.ell(24, 40, 11, 2, mat='o')
+    for pts, d in (([(17, 39), (10, 30), (8, 21), (6, 13)], -1), ([(24, 38), (25, 26), (22, 16), (24, 8)], 0),
+                   ([(31, 39), (38, 30), (40, 21), (42, 13)], 1)):
+        s.stroke(pts, 3, 1.8)
+        for x, y in pts[1:3]:
+            s.line([(x - 2, y + 0.5), (x + 2, y - 0.5)], 4)
         x, y = pts[-1]
         s.ell(x, y, 4.6, 4)
-        s.ell(x, y, 3, 2.6, mat='eye')
-        s.dot(x, y, 'o')
+        s.ell(x + d * 0.5, y, 3, 2.7, mat='eye')
+        s.ell(x + d * 0.8, y, 1.1, 1.8, mat='o')
+        s.dot(x - 1, y - 1, 'w')
 
-def lib_golem(s):  # pared de papel pintado que camina
-    s.stroke([(16, 36), (14, 44)], 3).stroke([(32, 36), (34, 44)], 3)
-    s.ell(24, 22, 16, 16, mat='wall')
-    s.cut(24, 2, 30, 4)
-    for x in (12, 18, 24, 30, 36):
-        s.line([(x, 8), (x + 0.5, 36)], 'walld')
-    s.ell(18, 18, 3, 3, mat='o').ell(30, 18, 3, 3, mat='o')
-    s.dot(18, 18, 'light').dot(30, 18, 'light')
-    s.ell(24, 28, 6, 2, mat='o')
-    s.ell(4, 22, 3, 6).ell(44, 22, 3, 6)
+def lib_golem(s):  # pared de papel pintado que camina, con enchufe y cara
+    s.stroke([(16, 35), (14, 43)], 3.2).stroke([(32, 35), (34, 43)], 3.2)
+    s.ell(14, 43, 4, 1.6, mat='boot').ell(34, 43, 4, 1.6, mat='boot')
+    s.stroke([(9, 16), (3, 26), (4, 33)], 2.6, 2).stroke([(39, 16), (45, 26), (44, 33)], 2.6, 2)
+    s.stroke([(24, 34), (24, 8)], 15, 14, mat='wall')
+    for x in (13, 19, 25, 31, 37):
+        s.line([(x, 6), (x + 0.4, 37)], 'walld')
+    for x, y in ((15, 12), (21, 28), (33, 12), (29, 30)):
+        s.ell(x, y, 1.4, 1.1, mat='stain')
+    s.ell(18, 17, 3, 3, mat='o').ell(30, 17, 3, 3, mat='o')
+    s.dot(18, 17, 'light').dot(30, 17, 'light')
+    s.ell(24, 26, 5.5, 2.4, mat='o')
+    for x in (20.5, 23, 25.5, 28):
+        s.dot(x, 25, 'w')
+    s.ell(24, 33, 2, 1.6, mat='plug').dot(23.4, 33, 'o').dot(24.6, 33, 'o')
+    s.stroke([(10, 6.5), (38, 6.5)], 1.1)
 
-def lib_rider(s):  # entidad alta encorvada sobre un carrito
+def lib_rider(s):  # entidad encorvada sobre un carrito de supermercado
     s.ell(14, 42, 2, 2, mat='o').ell(32, 42, 2, 2, mat='o')
-    s.stroke([(10, 30), (12, 38), (34, 38), (38, 30)], 1, mat='metal')
-    s.ell(24, 34, 12, 4, mat='metal')
-    s.stroke([(22, 32), (24, 18), (28, 10)], 3.5, 2.5)
-    s.stroke([(25, 22), (34, 26), (38, 30)], 1, 0.6).stroke([(25, 22), (16, 27), (11, 30)], 1, 0.6)
-    s.ell(30, 7, 5, 6)
-    s.line([(27, 8), (29, 10), (32, 10), (34, 8)], 'w')
+    s.ell(14, 42, 0.8, 0.8, mat='metal').ell(32, 42, 0.8, 0.8, mat='metal')
+    s.stroke([(10, 29), (12, 39), (34, 39), (38, 29)], 0.9, mat='metal')
+    s.stroke([(10, 29), (38, 29)], 0.8, mat='metal')
+    for x in range(13, 36, 3):
+        s.line([(x, 30), (x + 0.5, 38)], 'metal')
+    s.stroke([(38, 29), (42, 26)], 0.8, mat='metal')
+    s.stroke([(22, 30), (24, 19), (28, 11)], 3.6, 2.4)
+    for y in (21, 24, 27):
+        s.line([(21.5, y), (25.5, y - 0.6)], 4)
+    s.stroke([(25, 20), (34, 24), (41, 26)], 1, 0.6).stroke([(25, 20), (17, 25), (12, 28)], 1, 0.6)
+    s.ell(30, 7, 5.2, 6)
+    s.ell(28, 6, 1.2, 1.5, mat='o').ell(32, 6, 1.2, 1.5, mat='o')
+    s.stroke([(26.5, 9), (28.5, 11), (32, 11), (34, 9)], 0.9, mat='o')
+    for x in (27.5, 29.5, 31.5, 33):
+        s.dot(x, 10, 'w')
 
-def lib_wall(s):  # tramo de pasillo con puerta y ojos
-    s.ell(24, 30, 23, 12, mat='wall')
-    s.cut(24, 47, 30, 3).cut(24, 15, 30, 3.5)
-    for x in (6, 14, 34, 42):
-        s.line([(x, 20), (x, 42)], 'walld')
-    s.ell(24, 33, 5, 9)
-    s.dot(27, 33, 'gold')
-    s.ell(12, 27, 2, 1.6, mat='eye').ell(37, 25, 2, 1.6, mat='eye')
-    s.dot(12, 27, 'o').dot(37, 25, 'o')
-    s.stroke([(10, 17.5), (38, 17.5)], 1, mat='light')
+def lib_wall(s):  # tramo de pasillo vivo con puerta y ojos
+    s.stroke([(3, 32), (45, 32)], 11, mat='wall')
+    s.ell(24, 21.5, 22, 1.6, mat='light')
+    for x in (5, 12, 36, 43):
+        s.line([(x, 23), (x, 42)], 'walld')
+    s.stroke([(24, 42), (24, 26)], 5.5, 5)
+    s.ell(24, 34, 3.6, 7.2, mat='o')
+    s.ell(27, 34, 0.9, 0.9, mat='gold')
+    s.ell(14, 28, 2.4, 1.8, mat='eye').ell(34, 27, 2.4, 1.8, mat='eye')
+    s.dot(14.5, 28, 'o').dot(34.5, 27, 'o')
+    s.ell(8, 38, 1.6, 1.3, mat='stain').ell(40, 37, 1.4, 1.1, mat='stain')
+    s.ell(24, 43, 23, 1.5, mat='carpet')
 
-def lib_devourer(s):  # boca en la moqueta
-    s.ell(24, 36, 23, 8, mat='carpet')
-    s.ell(24, 34, 15, 6)
-    s.ell(24, 33, 11, 3.6, mat='o')
+def lib_devourer(s):  # boca abierta en la moqueta
+    s.ell(24, 37, 23.5, 7, mat='carpet')
+    s.ell(24, 34.5, 16, 7)
+    s.ell(24, 34, 12, 4.4, mat='o')
+    s.ell(24, 35.5, 5, 2, mat='tongue')
     for x in range(14, 35, 3):
-        s.stroke([(x, 29.5), (x + 0.5, 32)], 0.7, 0.3, mat='w').stroke([(x + 1.5, 37), (x + 1, 34.5)], 0.7, 0.3, mat='w')
-    for pts in ([(8, 32), (4, 20), (8, 10)], [(40, 32), (44, 20), (40, 10)]):
-        s.stroke(pts, 2.2, 1)
-    s.ell(24, 16, 6, 5, mat='eye').ell(24, 16, 2.4, 3, mat='o')
+        s.stroke([(x, 30), (x + 0.6, 32.6)], 0.8, 0.3, mat='w').stroke([(x + 1.5, 38), (x + 1, 35.4)], 0.8, 0.3, mat='w')
+    for pts in ([(9, 33), (4, 22), (8, 12), (6, 7)], [(39, 33), (44, 22), (40, 12), (42, 7)]):
+        s.stroke(pts, 2.4, 0.6)
+    s.ell(24, 17, 6.5, 5.5)
+    s.ell(24, 17, 4.4, 3.6, mat='eye')
+    s.ell(24, 17, 1.6, 2.8, mat='o')
+    s.dot(22.6, 15.6, 'w')
+    for x in (12, 36):
+        s.ell(x, 40, 1.6, 1, mat='stain')
 
 THEMES['liminal'] = {
     'outline': '#15130d',
@@ -920,7 +1043,15 @@ THEMES['liminal'] = {
               'shield': ['#a9c4d6', '#7f9fb6', '#5e7c94'], 'shd': ['#3a4752'], 'paper': ['#f4f0e2', '#d8d1bc'],
               'static': ['#c9ced2', '#8e959b', '#5d646b'], 'wall': ['#e3d38c', '#cbb76a', '#a9944c', '#7d6c35'],
               'walld': ['#a9944c'], 'door': ['#8a6a44', '#6c5034', '#4e3925'],
-              'carpet': ['#b5a05a', '#978348', '#776636']},
+              'carpet': ['#b5a05a', '#978348', '#776636'], 'haz': ['#f2d23c'], 'haz2': ['#f2d23c', '#cfae22', '#9a7f17'],
+              'hose': ['#4a4d52', '#34373b'], 'boot': ['#4d4a44', '#3a3833', '#2a2925'], 'belt': ['#5a4b36', '#433727'],
+              'glove': ['#3e4a52', '#2c353b'], 'red': ['#ff5a4a', '#c8352f'], 'claw': ['#e8e2cf', '#bdb59c'],
+              'vein': ['#d0504a'], 'iris': ['#6fc2b0', '#3f8f80', '#2b6358'], 'coatl': ['#2a2e33'],
+              'mask': ['#6d7378', '#555b60', '#3f4448'], 'pants': ['#5c5a53', '#46443e'], 'coat': ['#f1efe7', '#d6d3c7', '#b3b0a3'],
+              'hair': ['#5a4130', '#3f2d21'], 'board': ['#9a7550', '#7a5a3c'], 'badge': ['#f0cf62'],
+              'root': ['#6c5a3c', '#4f4029'], 'fringe': ['#d9b65a'], 'drip': ['#b04848'], 'stain': ['#9a8644'],
+              'plug': ['#f1efe7', '#cfcbbb'], 'tongue': ['#c4505a', '#963a44']},
+    'fine': True,
     'sprites': {'pawn': li_pawn, 'rook': li_rook, 'knight': li_knight, 'bishop': li_bishop, 'queen': li_queen,
                 'king': li_king, 'guard': li_guard, 'advisor': li_advisor, 'elephant': li_elephant,
                 'camel': li_camel, 'cannon': li_cannon, 'boss-titan': lib_titan, 'boss-ram': lib_ram,

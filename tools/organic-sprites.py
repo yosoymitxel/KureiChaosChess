@@ -18,6 +18,7 @@ class Sprite:
         s.mat = []
         s.n = 0
         s.marks = []
+        s.fine = False
 
     def _put(s, m, mat):
         s.part[m] = s.n
@@ -69,28 +70,45 @@ class Sprite:
         lit = -(gx * LIGHT[0] + gy * LIGHT[1]) / nrm
         flat = nrm < 0.05
         lit[flat] = 0.15
+        K = np.full((h, w), -1)
+        dark = {}
         for y in range(h):
             for x in range(w):
                 p = s.part[y, x]
                 if p < 0: continue
                 mat = s.mat[p]
+                pal = ramp if mat == 'b' else fixed[mat]
+                dark[(y, x)] = pal[-1]
                 l = lit[y, x] * 0.8 + min(H[y, x], 4) / 4 * 0.35 - (y / h) * 0.25
-                k = 0 if l > 0.55 else 1 if l > 0.2 else 2 if l > -0.2 else 3
-                # parte de atrás tapada: línea oscura donde toca una parte de encima
+                t = min(3.0, max(0.0, (0.75 - l) / 0.38))
+                k = int(t)
+                if s.fine and 0.35 < t - k < 0.65 and (x + y) % 2 and k < 3: k += 1
+                # sombra de contacto: bajo una parte de delante se oscurece
+                if s.fine:
+                    for dy in (1, 2):
+                        q = s.part[y - dy, x] if y - dy >= 0 else -1
+                        if q > p and s.mat[q] != mat: k = min(3, k + 1); break
                 for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
                     q = s.part[y + dy, x + dx] if 0 <= y + dy < h and 0 <= x + dx < w else -1
                     if q > p and s.mat[q] == mat: k = 4; break
-                col = ramp[k] if mat == 'b' else fixed[mat][min(k, len(fixed[mat]) - 1)]
+                K[y, x] = k
+                col = pal[min(k, len(pal) - 1)]
                 img[y, x] = (*col, 255)
         for x, y, col in s.marks:
             if 0 <= x < w and 0 <= y < h and inside[y, x]:
                 c = ramp[col] if isinstance(col, int) else fixed[col][0]
                 img[y, x] = (*c, 255)
-        # contorno de 1 píxel por fuera
+        # contorno de 1 píxel por fuera; con fine, del color oscuro de la parte en el lado iluminado (selout)
         o = np.zeros((h, w), bool)
         o[1:] |= inside[:-1]; o[:-1] |= inside[1:]; o[:, 1:] |= inside[:, :-1]; o[:, :-1] |= inside[:, 1:]
         o &= ~inside
         img[o] = (*out, 255)
+        if s.fine:
+            for y, x in zip(*np.nonzero(o)):
+                for dx, dy in ((1, 0), (0, 1)):
+                    yy, xx = y + dy, x + dx
+                    if yy < h and xx < w and inside[yy, xx] and K[yy, xx] <= 1 and (yy, xx) in dark:
+                        img[y, x] = (*dark[(yy, xx)], 255); break
         im = Image.fromarray(img, 'RGBA')
         return im
 
@@ -140,6 +158,7 @@ for th, spec in THEMES.items():
     for name, fn in spec['sprites'].items():
         boss = name.startswith('boss')
         s = Sprite(48, 44) if boss else Sprite(36, 36)
+        s.fine = spec.get('fine', False)
         fn(s)
         save(s.render(ramp, out, fixed), f"art/temas/{th}/dibujos/{'jefes' if boss else 'piezas'}/{name}_l.png")
         print(th, name)
