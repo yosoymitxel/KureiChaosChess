@@ -6,3 +6,4 @@ dist/
 publicar.ps1
 publicar.cmd
 artifacts/
+__pycache__/
