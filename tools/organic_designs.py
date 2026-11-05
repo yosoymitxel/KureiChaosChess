@@ -256,16 +256,18 @@ def tb_ram(s):  # ciervo volante embistiendo
     s.stroke([(38, 33), (44, 35), (47, 31), (44, 30)], 1.6, 0.8)
     s.dot(35, 28, 'e')
 
-def tb_hydra(s):  # tres ciempiés de un nido
-    for pts in ([(14, 36), (8, 26), (10, 16), (6, 9)], [(24, 36), (24, 22), (22, 12), (25, 4)],
-                [(34, 36), (40, 26), (38, 16), (43, 10)]):
+def tb_hydra(s):  # tres ciempiés que se arquean hacia fuera desde el nido
+    for pts, d in (([(14, 38), (10, 29), (9, 21), (5, 16)], -1), ([(34, 38), (38, 29), (39, 21), (43, 16)], 1),
+                   ([(24, 38), (22, 26), (26, 15), (32, 9)], 1)):
         s.stroke(pts, 3.6, 2.6)
-        for i in range(1, 3):
-            x, y = pts[i]
+        for x, y in pts[1:3]:
+            s.stroke([(x - 3.5, y), (x - 5.5, y + 1.5)], 0.5).stroke([(x + 3.5, y), (x + 5.5, y + 1.5)], 0.5)
             s.line([(x - 3, y), (x + 3, y)], 4)
         x, y = pts[-1]
-        s.ell(x, y, 4, 3.4).dot(x - 1.5, y - 1, 'e').dot(x + 1.5, y - 1, 'e')
-        s.stroke([(x - 2, y + 2.5), (x - 3.5, y + 5)], 0.6).stroke([(x + 2, y + 2.5), (x + 3.5, y + 5)], 0.6)
+        s.ell(x + d * 1.5, y, 3.8, 2.8, rot=-15 * d, mat='k')
+        s.stroke([(x + d * 5.5, y + 1), (x + d * 7.5, y + 3)], 0.7, 0.4).stroke([(x + d * 5, y + 2.5), (x + d * 6, y + 4.5)], 0.6, 0.4)
+        s.dot(x + d * 2.5, y - 0.8, 'e')
+        s.stroke([(x, y - 2.5), (x - d * 2, y - 6)], 0.5)
     s.ell(24, 40, 20, 5, mat='k')
 
 def tb_golem(s):  # termitero con ojos
@@ -332,13 +334,16 @@ def pb_ram(s):  # paquicefalosaurio
     for x in (10, 15, 20, 25):
         s.line([(x, 24), (x + 0.5, 35)], 3)
 
-def pb_hydra(s):  # plesiosaurio de tres cuellos
+def pb_hydra(s):  # plesiosaurio de tres cuellos curvos con cráneos alargados
     s.ell(24, 37, 16, 6.5)
-    for pts in ([(16, 34), (8, 22), (6, 10)], [(24, 33), (25, 18), (22, 5)], [(32, 34), (40, 22), (42, 11)]):
-        s.stroke(pts, 2.6, 1.5)
+    for pts, d in (([(16, 34), (10, 27), (10, 19), (8, 14)], -1), ([(32, 34), (38, 27), (38, 19), (40, 14)], 1),
+                   ([(24, 33), (23, 20), (27, 11), (32, 7)], 1)):
+        s.stroke(pts, 2.6, 1.6)
         x, y = pts[-1]
-        s.ell(x + 1.5, y, 4, 2.6)
-        s.cut(x + 1, y - 0.5, 0.9, 0.9)
+        s.ell(x + d * 3, y, 5, 2.4, rot=-8 * d)
+        s.cut(x + d * 1.5, y - 0.6, 0.9, 0.9)
+        for k in (2, 4):
+            s.dot(x + d * (k + 2), y + 2, 'w')
     s.ell(9, 42, 6, 2, rot=-20).ell(39, 42, 6, 2, rot=20)
     for x in (14, 19, 24, 29, 34):
         s.line([(x, 32), (x, 42)], 3)
