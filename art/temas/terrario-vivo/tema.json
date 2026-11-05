@@ -1,0 +1,48 @@
+{
+  "nombre": "Terrario vivo",
+  "precio": 220,
+  "descripcion": "Un terrario de suelo húmedo bajo cristal: isópodos acorazados, arañas saltarinas, musgo, madera y gotas de rocío.",
+  "colores": {
+    "table": "#17251a",
+    "table-2": "#243329",
+    "tile-a": "#b59a70",
+    "tile-b": "#40573c",
+    "tile-side": "#253b2c",
+    "side-light": "#cce6a0",
+    "side-dark": "#b8a5db",
+    "side-wild": "#ddb05b",
+    "paper": "#e9edda",
+    "paper-2": "#d5dfc3",
+    "paper-3": "#afc39a",
+    "ink": "#1b2b20",
+    "ink-2": "#3f5a45",
+    "accent": "#557d48",
+    "accent-ink": "#263f2b",
+    "brass": "#d9b66d",
+    "muted": "#687766"
+  },
+  "interfaz": {},
+  "bandos": {
+    "claro": [
+      "#cce6a0",
+      "#a2c77b",
+      "#729b56",
+      "#466b3b",
+      "#2d4829"
+    ],
+    "oscuro": [
+      "#d6c8ef",
+      "#b8a5db",
+      "#8c79b7",
+      "#66558e",
+      "#3f315f"
+    ],
+    "salvaje": [
+      "#f2d18a",
+      "#ddb05b",
+      "#b7833d",
+      "#81592c",
+      "#50351d"
+    ]
+  }
+}

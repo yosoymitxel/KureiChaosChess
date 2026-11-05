@@ -500,6 +500,38 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "scifi"
   },
+  "terrario-vivo": {
+    "id": "terrario-vivo",
+    "name": "Terrario vivo",
+    "price": 220,
+    "swatch": [
+      "#17251a",
+      "#b59a70",
+      "#b8a5db",
+      "#ddb05b"
+    ],
+    "vars": {
+      "table": "#17251a",
+      "table-2": "#243329",
+      "tile-a": "#b59a70",
+      "tile-b": "#40573c",
+      "tile-side": "#253b2c",
+      "side-light": "#cce6a0",
+      "side-dark": "#b8a5db",
+      "side-wild": "#ddb05b",
+      "paper": "#e9edda",
+      "paper-2": "#d5dfc3",
+      "paper-3": "#afc39a",
+      "ink": "#1b2b20",
+      "ink-2": "#3f5a45",
+      "accent": "#557d48",
+      "accent-ink": "#263f2b",
+      "brass": "#d9b66d",
+      "muted": "#687766"
+    },
+    "art": "pixel",
+    "pack": "terrario-vivo"
+  },
   "vesper": {
     "id": "vesper",
     "name": "Vesper",
