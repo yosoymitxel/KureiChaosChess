@@ -207,7 +207,6 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       d.feats.cards++;
       if (card.lilac) award('lilac');
       if (card.id === 'ascend' && res.piece.type !== 'queen') award('crown_minor');
-      if (card.id === 'invoke' && res.spawned?.type === 'rook') award('invoke_rook');
       // Organizar se juega sola al empezar: no cuenta para la baraja.
       if (collect('cardsPlayed', id) >= CARD_IDS.filter((c) => !CARDS[c].preMatch).length) award('all_cards');
       d.onUseCard(i, match.player.color);

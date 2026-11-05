@@ -1235,7 +1235,6 @@ export default {
     all_mutations: { name: 'Walking laboratory', desc: 'Get every mutation at least once.' },
     crown_minor: { name: 'Field promotion', desc: 'Promote a guard or an advisor.' },
     lilac: { name: 'Lilac wink', desc: 'Play a lilac card.' },
-    invoke_rook: { name: 'Tower from the sky', desc: 'Summon a rook with the Summoning card (the rarest piece).' },
     all_cards: { name: 'Full deck', desc: 'Play every tactic card at least once.' },
     witch_ally: { name: 'Pact', desc: 'Your allied witch hunts down an enemy piece.' },
     ach_all: { name: 'Completionist', desc: 'Earn every other achievement.' },

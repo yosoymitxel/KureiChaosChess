@@ -86,7 +86,6 @@ export function ZenScreen({ onBack, onShop }) {
   }, []);
   useEffect(() => { if (!gain) return; const t = setTimeout(() => setGain(null), 3200); return () => clearTimeout(t); }, [gain]);
   useEffect(() => { if (!msg) return; const t = setTimeout(() => { setMsg(null); setArmed(false); }, 5000); return () => clearTimeout(t); }, [msg]);
-  // Luciérnagas del clima (weather-fx.js) sobre el cantero: vida quieta mientras miras el jardín.
   useEffect(() => { const fx = fxRef.current = new Fx(yardRef.current); fx.vfx = true; fx.setWeather('fireflies'); return () => fx.destroy(); }, []);
 
   const now = Date.now();
