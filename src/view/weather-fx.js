@@ -376,7 +376,7 @@ const pond = {
 };
 
 // Menú despejado: una lámpara colgada se mece despacio sobre la mesa y el polvo brilla al cruzar su luz.
-const lampX = (T) => 0.55 + 0.13 * Math.sin((T * Math.PI * 2) / 11);
+const lampX = (T) => 0.45 + 0.08 * Math.sin((T * Math.PI * 2) / 11);
 const dust = {
   count: (w) => ({ mote: Math.round(w / 12) }),
   spawn: (kind, w, h, any) => ({ x: rnd(w * 0.1, w * 0.98), y: any ? rnd(0, h) : h + 6, vx: rnd(-6, 6), vy: rnd(-14, -5), life: rnd(10, 20), max: 1, seed: Math.random() * 100, size: rnd(1, 2.4) }),
@@ -391,7 +391,7 @@ const dust = {
 export const LAMP = {
   draw(ctx, T, w, h) {
     const x = lampX(T) * w, g = ctx.createRadialGradient(x, h * 0.3, 0, x, h * 0.3, Math.max(w, h) * 0.5);
-    g.addColorStop(0, 'rgba(255,236,190,0.3)'); g.addColorStop(0.45, 'rgba(255,236,190,0.12)'); g.addColorStop(1, 'rgba(255,236,190,0)');
+    g.addColorStop(0, 'rgba(255,236,190,0.17)'); g.addColorStop(0.45, 'rgba(255,236,190,0.06)'); g.addColorStop(1, 'rgba(255,236,190,0)');
     ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
   },
 };
