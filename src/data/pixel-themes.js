@@ -309,6 +309,38 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "marcianitos"
   },
+  "paleontologia": {
+    "id": "paleontologia",
+    "name": "Paleontología",
+    "price": 240,
+    "swatch": [
+      "#211a16",
+      "#c9b28c",
+      "#d9866b",
+      "#95b77e"
+    ],
+    "vars": {
+      "table": "#211a16",
+      "table-2": "#342820",
+      "tile-a": "#c9b28c",
+      "tile-b": "#8b755d",
+      "tile-side": "#514236",
+      "side-light": "#e7c78a",
+      "side-dark": "#d9866b",
+      "side-wild": "#95b77e",
+      "paper": "#f1e6cf",
+      "paper-2": "#dfcfaf",
+      "paper-3": "#c8b68e",
+      "ink": "#251b15",
+      "ink-2": "#514132",
+      "accent": "#a85d35",
+      "accent-ink": "#58301f",
+      "brass": "#f0bb53",
+      "muted": "#75624d"
+    },
+    "art": "pixel",
+    "pack": "paleontologia"
+  },
   "pandas-mapaches": {
     "id": "pandas-mapaches",
     "name": "Pandas",
