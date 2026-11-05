@@ -64,6 +64,7 @@ export const ACHIEVEMENTS = localize('achievements', [
   { id: 'humble_mate', group: 'Partida', name: 'Humildad', desc: 'Captura al rey enemigo con un peón.', icon: 'pawn' },
   { id: 'crown_minor', group: 'Partida', name: 'Ascenso de oficio', desc: 'Corona a un guardia o a un consejero.', icon: 'crown' },
   { id: 'lilac', group: 'Travesía', name: 'Guiño lila', desc: 'Juega una carta lila.', icon: 'scroll' },
+  { id: 'invoke_rook', group: 'Partida', name: 'Torre del cielo', desc: 'Invoca una torre con la carta Invocación (la pieza más rara).', icon: 'rook' },
   { id: 'all_cards', group: 'Largo plazo', name: 'Baraja completa', desc: 'Juega alguna vez cada una de las cartas tácticas.', icon: 'scroll' },
   { id: 'witch_ally', group: 'Secretos', name: 'Pacto', desc: 'Tu bruja aliada caza una pieza rival.', icon: 'hunt', secret: true },
   { id: 'castle', group: 'Partida', name: 'A resguardo', desc: 'Enroca durante una partida.', icon: 'rook' },

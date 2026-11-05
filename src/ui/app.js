@@ -17,7 +17,7 @@ import { AchievementsScreen } from './screens/achievements.js';
 import { MODIFIERS, DUO_MECHANICS } from '../data/modifiers.js';
 import { MINIGAMES } from '../data/minigame-catalog.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, enterLevel, resetLevel, dropLevel, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs, takeNewDemos } from '../game/run.js';
-import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard } from '../game/shop.js';
+import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard, seeCards } from '../game/shop.js';
 import { ZEN_NAMES, addZenSeeds, pickSeed } from '../game/zen.js';
 import { popSeed } from './coins.js';
 import { PICKUP_ART } from './zen-art.js';
@@ -213,7 +213,8 @@ export function App() {
   };
   const cardReward = (coins = 0, seed = null) => {
     if (seed) seedPop();
-    setReward({ kind: 'tactic', coins, seed, cards: pickCardChoices(Date.now()).map((id) => ({ ...CARDS[id], kind: 'tactic' })) });
+    const ids = pickCardChoices(Date.now()); seeCards(ids);
+    setReward({ kind: 'tactic', coins, seed, cards: ids.map((id) => ({ ...CARDS[id], kind: 'tactic' })) });
     goTo('reward');
   };
 
@@ -291,7 +292,8 @@ export function App() {
       if (card.id === 'extra_rook') bonuses.extraRook = true;
       if (card.id === 'fury' && mutations.filter((m) => m === 'fury').length < 3) mutations = [...mutations, 'fury'];
       if (drunk) mutations = [...mutations, drunk];
-      const withCards = card.id === 'deck' ? addToHand(r, pickCardChoices(Date.now(), 2)) : r;
+      const deck = card.id === 'deck' && pickCardChoices(Date.now(), 2); if (deck) seeCards(deck);
+      const withCards = deck ? addToHand(r, deck) : r;
       return completeNode(withCards, node, { mutations, bonuses });
     });
     if (drunk) setReveal(drunk);

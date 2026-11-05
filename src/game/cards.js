@@ -62,6 +62,16 @@ export const CARDS = localize('cards', {
     },
     apply: (m, r, c) => { const p = makePiece('pawn', m.player.color, r, c); m.pieces.push(p); return p; },
   },
+  // Pieza al azar por rareza: más peones que torres. Nunca reina ni rey.
+  invoke: {
+    id: 'invoke', aim: 'Elige una casilla vacía de tus dos últimas filas.', name: 'Invocación', rarity: 'rare', icon: 'scroll', target: 'tile',
+    desc: 'Entra una pieza al azar en tus dos últimas filas: peón (lo más común), caballo, alfil o torre (lo más raro).',
+    can: (m, r, c) => (m.player.color === 'light' ? r >= m.board.rows - 2 : r <= 1) && freeTile(m, r, c),
+    apply: (m, r, c, rng = Math.random) => {
+      const roll = rng(), type = roll < 0.45 ? 'pawn' : roll < 0.7 ? 'knight' : roll < 0.9 ? 'bishop' : 'rook';
+      const p = makePiece(type, m.player.color, r, c); m.pieces.push(p); return p;
+    },
+  },
   haste: {
     id: 'haste', name: 'Paso doble', rarity: 'rare', icon: 'boot', target: 'none',
     desc: 'Este turno haces un movimiento más, pero ese no puede capturar.',

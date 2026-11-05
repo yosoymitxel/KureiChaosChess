@@ -26,7 +26,7 @@ export const PIXEL_THEMES = {
   "calaveras-ataudes": {
     "id": "calaveras-ataudes",
     "name": "Osario",
-    "price": 160,
+    "price": 140,
     "swatch": [
       "#19151a",
       "#a8a29a",
@@ -58,7 +58,7 @@ export const PIXEL_THEMES = {
   "colibries-flores-lilas": {
     "id": "colibries-flores-lilas",
     "name": "Colibríes",
-    "price": 160,
+    "price": 120,
     "swatch": [
       "#211a31",
       "#e8d8f2",
@@ -90,7 +90,7 @@ export const PIXEL_THEMES = {
   "crisis": {
     "id": "crisis",
     "name": "Crisis Financiera",
-    "price": 180,
+    "price": 250,
     "swatch": [
       "#121614",
       "#b9c2bd",
@@ -122,7 +122,7 @@ export const PIXEL_THEMES = {
   "gatos": {
     "id": "gatos",
     "name": "Michis",
-    "price": 160,
+    "price": 110,
     "swatch": [
       "#2a1b24",
       "#e8c592",
@@ -154,7 +154,7 @@ export const PIXEL_THEMES = {
   "gatos-negros-naranjosos": {
     "id": "gatos-negros-naranjosos",
     "name": "Gatos negros",
-    "price": 160,
+    "price": 150,
     "swatch": [
       "#171923",
       "#e8d8b9",
@@ -248,7 +248,7 @@ export const PIXEL_THEMES = {
   "halloween": {
     "id": "halloween",
     "name": "Halloween",
-    "price": 160,
+    "price": 170,
     "swatch": [
       "#231a2d",
       "#aba7b6",
@@ -280,7 +280,7 @@ export const PIXEL_THEMES = {
   "marcianitos": {
     "id": "marcianitos",
     "name": "Marcianitos",
-    "price": 160,
+    "price": 130,
     "swatch": [
       "#0e0a1e",
       "#d99a76",
@@ -312,7 +312,7 @@ export const PIXEL_THEMES = {
   "pandas-mapaches": {
     "id": "pandas-mapaches",
     "name": "Pandas",
-    "price": 160,
+    "price": 140,
     "swatch": [
       "#182622",
       "#e6e0cf",
@@ -375,7 +375,7 @@ export const PIXEL_THEMES = {
   "piratas": {
     "id": "piratas",
     "name": "Piratas",
-    "price": 160,
+    "price": 190,
     "swatch": [
       "#13223a",
       "#d6ae7a",
@@ -407,7 +407,7 @@ export const PIXEL_THEMES = {
   "reino-hongos": {
     "id": "reino-hongos",
     "name": "Hongos",
-    "price": 180,
+    "price": 210,
     "swatch": [
       "#18241f",
       "#c5d99a",
@@ -439,7 +439,7 @@ export const PIXEL_THEMES = {
   "scifi": {
     "id": "scifi",
     "name": "Galaxia",
-    "price": 160,
+    "price": 200,
     "swatch": [
       "#0c1226",
       "#8f9db4",
@@ -502,7 +502,7 @@ export const PIXEL_THEMES = {
   "vocaloid-miku": {
     "id": "vocaloid-miku",
     "name": "Miku",
-    "price": 160,
+    "price": 230,
     "swatch": [
       "#09252c",
       "#b8f4e9",

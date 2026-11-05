@@ -1,0 +1,20 @@
+{
+  "cfg": {
+    "settings": { "fx": true },
+    "node": { "modifier": "none" },
+    "run": { "cards": ["haste", "ascend", "fortify", "invoke", "quake", "disco", "skies", "fuse"] },
+    "pieces": ["king light 7 4", "rook light 7 0", "pawn light 6 2", "king dark 0 4", "pawn dark 1 7"]
+  },
+  "themes": ["walnut", "pixelada"],
+  "steps": [
+    { "wait": 800 },
+    { "shot": "mano-llena" },
+    { "card": "Invocación" },
+    { "tap": "6,5" },
+    { "tap": "6,5" },
+    { "wait": 1500 },
+    { "shot": "invocada" },
+    { "expect": { "noErrors": true, "eval": "['pawn','knight','bishop','rook'].includes(bench.match.pieces.find(p => p.row === 6 && p.col === 5)?.type)" } }
+  ],
+  "viewports": ["mobile", "pc"]
+}

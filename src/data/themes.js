@@ -35,7 +35,7 @@ export const THEMES = localize('themes', {
     },
   },
   pergamino: {
-    id: 'pergamino', name: 'Pergamino', price: 160,
+    id: 'pergamino', name: 'Pergamino', price: 170,
     swatch: ['oklch(0.33 0.045 48)', 'oklch(0.94 0.035 92)', 'oklch(0.55 0.17 30)', 'oklch(0.68 0.11 165)'],
     vars: {
       'table': 'oklch(0.33 0.045 48)', 'table-2': 'oklch(0.4 0.05 48)',
@@ -44,7 +44,7 @@ export const THEMES = localize('themes', {
     },
   },
   corinto: {
-    id: 'corinto', name: 'Corinto', price: 160,
+    id: 'corinto', name: 'Corinto', price: 150,
     swatch: ['oklch(0.24 0.055 340)', 'oklch(0.9 0.03 55)', 'oklch(0.55 0.19 22)', 'oklch(0.73 0.13 88)'],
     vars: {
       'table': 'oklch(0.24 0.055 340)', 'table-2': 'oklch(0.31 0.065 340)',
@@ -53,7 +53,7 @@ export const THEMES = localize('themes', {
     },
   },
   noche: {
-    id: 'noche', name: 'Noche', price: 160,
+    id: 'noche', name: 'Noche', price: 190,
     swatch: ['oklch(0.18 0.05 270)', 'oklch(0.84 0.035 250)', 'oklch(0.58 0.2 18)', 'oklch(0.72 0.13 200)'],
     vars: {
       'table': 'oklch(0.18 0.05 270)', 'table-2': 'oklch(0.25 0.06 270)',
@@ -71,7 +71,7 @@ export const THEMES = localize('themes', {
     },
   },
   arcilla: {
-    id: 'arcilla', name: 'Arcilla', price: 60,
+    id: 'arcilla', name: 'Arcilla', price: 80,
     swatch: ['rgb(85, 54, 29)', 'rgb(247, 98, 20)', 'rgb(211, 169, 33)', 'rgb(241, 196, 89)', 'rgb(96, 152, 83)'],
     vars: {
       'table': 'rgb(85, 54, 29)', 'table-2': 'rgb(110, 75, 45)',
@@ -80,7 +80,7 @@ export const THEMES = localize('themes', {
     },
   },
   cosecha: {
-    id: 'cosecha', name: 'Cosecha', price: 60,
+    id: 'cosecha', name: 'Cosecha', price: 100,
     swatch: ['rgb(179, 168, 47)', 'rgb(236, 197, 70)', 'rgb(255, 156, 35)', 'rgb(239, 95, 60)', 'rgb(171, 51, 49)'],
     vars: {
       'table': 'rgb(171, 51, 49)', 'table-2': 'rgb(200, 80, 75)',

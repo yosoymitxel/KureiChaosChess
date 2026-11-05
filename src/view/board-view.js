@@ -946,7 +946,7 @@ export class BoardView {
       await animate(this.els.get(p).querySelector('.pc-fig'), { y: [0, -this.sq * 0.4, 0], duration: this.d(420), ease: 'outQuad' });
     } else if (id === 'quake') {
       await this.collapse([[res.cell.row, res.cell.col]]);
-    } else if (id === 'reinforce' || id === 'summon') {
+    } else if (['reinforce', 'summon', 'invoke'].includes(id)) {
       await this.dropIn(res.spawned);
     } else if (id === 'bridge' || id === 'frost') {
       this.refreshTile(res.cell.row, res.cell.col);

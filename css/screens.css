@@ -391,6 +391,10 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
   transition: transform 0.22s var(--ease-out);
 }
 .hand-card:first-child { margin-left: 0; }
+/* Con lilas la mano llega a 8: el abanico se cierra para caber en 360 px. */
+.hand:has(.hand-card:nth-child(6)) .hand-card:not(:first-child) { margin-left: calc(-44px * var(--hs)); }
+.hand:has(.hand-card:nth-child(7)) .hand-card:not(:first-child) { margin-left: calc(-58px * var(--hs)); }
+.hand:has(.hand-card:nth-child(8)) .hand-card:not(:first-child) { margin-left: calc(-68px * var(--hs)); }
 .hand-card .face { position: absolute; left: 0; top: 0; width: 120px; height: 177.6px; transform: scale(var(--hs)); transform-origin: 0 0; border-radius: 12px; border: 2px solid var(--ink); overflow: hidden; display: flex; flex-direction: column; gap: 6px; padding: 7px; background: var(--frame); background-image: var(--grain); box-shadow: var(--lift); }
 .hand-card .plate { font-size: 14px; padding: 4px 7px; border-radius: 6px; }
 .hand-card .art { border-radius: 6px; }
@@ -667,7 +671,7 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 /* Luz del farol: las nueve casillas que acelera, recortada por el borde del cantero. */
 .zn-glow { position: absolute; z-index: 0; pointer-events: none;
   background: radial-gradient(ellipse var(--grx) var(--gry) at var(--gx) var(--gy), oklch(0.93 0.14 85 / 0.75), oklch(0.93 0.14 85 / 0.3) 70%, transparent); }
-.bm-cell.zen-pond { grid-column: span 2; grid-row: span 2; width: auto; height: auto; cursor: pointer; position: relative; display: grid; place-items: center; }
+.bm-cell.zen-pond { z-index: 2; grid-column: span 2; grid-row: span 2; width: auto; height: auto; cursor: pointer; position: relative; display: grid; place-items: center; }
 /* Las plantas se mecen despacio, cada una a su ritmo (--d). */
 .zn-sway { transform-origin: 12px 15.4px; animation: sway 3.6s ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
 @keyframes sway { from { rotate: -3deg; } to { rotate: 3deg; } }
@@ -767,9 +771,11 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 .zn-maple-b path:first-child { fill: oklch(0.72 0.15 58); }
 .zn-maple-c path:first-child { fill: oklch(0.5 0.17 22); }
 /* Hojas caídas sobre la arena: se tocan para barrerlas. */
-.zn-fallen { position: absolute; z-index: 2; width: calc(var(--cell) * 0.3); height: calc(var(--cell) * 0.3); margin: calc(var(--cell) * -0.15) 0 0 calc(var(--cell) * -0.15); padding: 0; border: 0; background: none; cursor: pointer; rotate: var(--r); filter: drop-shadow(0 2px 1px oklch(0 0 0 / 0.3)); }
+.zn-fallen { --s: 0.36; --t: 0; position: absolute; z-index: 2; width: calc(var(--cell) * var(--s)); height: calc(var(--cell) * var(--s)); margin: calc(var(--cell) * var(--s) / -2) 0 0 calc(var(--cell) * var(--s) / -2); padding: 0; border: 0; background: none; cursor: pointer; rotate: var(--r); filter: drop-shadow(0 2px 1px oklch(0 0 0 / 0.3)); }
 .zn-fallen svg { width: 100%; height: 100%; }
-.zn-fallen .zn-maple path:first-child { fill: oklch(0.6 0.19 32); }
+/* Tonos de otoño rojizos (los amarillos se confunden con monedas); en píxel el mismo giro al sprite. */
+.zn-fallen .zn-maple path:first-child { fill: oklch(calc(0.5 + var(--t) * 0.05) 0.18 calc(22 + var(--t) * 7)); }
+[data-art="pixel"] .zn-fallen svg { filter: hue-rotate(calc(var(--t) * 6deg - 4deg)) brightness(calc(0.85 + var(--t) * 0.08)); }
 .zn-fallen:hover { scale: 1.15; }
 /* Asa de las animaciones de la planta: escala desde donde nace el tallo. */
 .zn-grow { transform-box: view-box; transform-origin: 12px 15.3px; }
@@ -838,7 +844,7 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
   100% { opacity: 0; translate: 0 -40px; rotate: 0deg; }
 }
 /* Mariposa: vuela hasta la flor, bate las alas y se posa. */
-.zn-fly { position: absolute; z-index: 5; width: 46px; height: 46px; margin: -23px 0 0 -23px; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 4px 3px oklch(0 0 0 / 0.3)); }
+.zn-fly { position: absolute; z-index: 5; width: 34px; height: 34px; margin: -17px 0 0 -17px; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 4px 3px oklch(0 0 0 / 0.3)); }
 .zn-fly svg { width: 100%; height: 100%; overflow: visible; }
 .zn-wing path { fill: oklch(0.82 0.13 85); stroke: var(--ink); stroke-width: .35; stroke-linejoin: round; }
 .zn-wing path:nth-child(2) { fill: oklch(0.7 0.15 55); }

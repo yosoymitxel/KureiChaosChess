@@ -5,7 +5,7 @@ import { Icon } from '../icons.js';
 import { CARDS, HAND_LIMIT, handFull } from '../../game/cards.js';
 import { THEMES } from '../../data/themes.js';
 import { award } from '../../game/achievements.js';
-import { CARD_PRICE, COINS_PER_NODE, PENDING_LIMIT, THEME_SHOP, addPending, addToHand, consumeCard, charge, grantTheme, isShopCard, loadShop, themeOwned } from '../../game/shop.js';
+import { CARD_PRICE, COINS_PER_NODE, PENDING_LIMIT, THEME_SHOP, addPending, addToHand, consumeCard, charge, grantTheme, isShopCard, loadShop, seenCards, themeOwned } from '../../game/shop.js';
 import { ZEN_KINDS, ZEN_NAMES, addZenSeeds, addZenItem, loadZen } from '../../game/zen.js';
 import { SEEDS, GARDEN_ITEMS } from '../../data/garden.js';
 import { chipArt, ITEM_ART } from '../zen-art.js';
@@ -21,6 +21,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
   const [seeds, setSeeds] = useState(() => loadZen().seeds);
   const [items, setItems] = useState(() => loadZen().items);
   const refresh = () => setShop(loadShop());
+  const [seen] = useState(() => new Set([...seenCards()].filter((id) => CARDS[id])));
 
   const [swap, setSwap] = useState(null); // carta por comprar con la mano llena: antes se elige cuál sale
   // `drop`: la carta de la mano que sale para hacerle sitio.
@@ -84,7 +85,8 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
 
         <section class="panel shop-card shop-pane-cards" data-enter>
           <h2>${t('shop.cards', 'Cartas tácticas')}</h2>
-          ${CARD_LIST.map((c) => {
+          ${seen.size < CARD_LIST.length && html`<p class="shop-note">${t('shop.cardsLocked', 'Faltan {n} cartas por descubrir: aparecen aquí cuando las ves en la travesía.', { n: CARD_LIST.length - seen.size })}</p>`}
+          ${CARD_LIST.filter((c) => seen.has(c.id)).map((c) => {
             const price = CARD_PRICE[c.rarity || 'common'];
             const packed = !run && pending.length >= PENDING_LIMIT;
             const can = shop.coins >= price && !packed;

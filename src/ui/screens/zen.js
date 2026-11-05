@@ -86,7 +86,8 @@ export function ZenScreen({ onBack, onShop }) {
   }, []);
   useEffect(() => { if (!gain) return; const t = setTimeout(() => setGain(null), 3200); return () => clearTimeout(t); }, [gain]);
   useEffect(() => { if (!msg) return; const t = setTimeout(() => { setMsg(null); setArmed(false); }, 5000); return () => clearTimeout(t); }, [msg]);
-  useEffect(() => { fxRef.current = new Fx(yardRef.current); return () => fxRef.current.destroy(); }, []);
+  // Luciérnagas del clima (weather-fx.js) sobre el cantero: vida quieta mientras miras el jardín.
+  useEffect(() => { const fx = fxRef.current = new Fx(yardRef.current); fx.vfx = true; fx.setWeather('fireflies'); return () => fx.destroy(); }, []);
 
   const now = Date.now();
   const digRest = digWait(z, now), moveRest = moveWait(z, now);
@@ -558,7 +559,7 @@ export function ZenScreen({ onBack, onShop }) {
                 ${rakeArt(z.size, objs, raw)}
                 ${glows}
                 ${cells}
-                ${z.leaves.map((l) => html`<button key=${`leaf-${l.x}-${l.y}`} class="zn-fallen" data-pad="x" style=${{ left: (l.x / z.size) * 100 + '%', top: (l.y / z.size) * 100 + '%', '--r': l.r + 'deg' }}
+                ${z.leaves.map((l) => html`<button key=${`leaf-${l.x}-${l.y}`} class="zn-fallen" data-pad="x" style=${{ left: (l.x / z.size) * 100 + '%', top: (l.y / z.size) * 100 + '%', '--r': l.r + 'deg', '--s': 0.36 + (l.r * 7 % 25) / 100, '--t': l.r % 4 }}
                   aria-label=${t('zen.leafAria', 'Hoja caída: tócala para barrerla')} onClick=${(e) => sweep(l, e.currentTarget)}>${mapleLeaf}</button>`)}
               </div>
               ${BRANCH}
