@@ -24,8 +24,8 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
       makePiece('rook', 'light', 5, 0), makePiece('pawn', 'dark', 2, 3),
     ];
     titan.current.id = pieces[0].id;
-    // Casi siempre la mesa despejada, con su lámpara y su polvo; una de cada diez, cualquiera de los climas.
-    Object.assign(v.fx, { vfx: true, noShade: true });
+    // La lámpara va siempre. Casi siempre despejado, con polvo en su luz; una de cada diez, cualquiera de los climas.
+    Object.assign(v.fx, { vfx: true, noShade: true, lamp: true });
     const skies = Object.keys(WEATHER), sky = Math.random() < 0.1 ? skies[Math.floor(Math.random() * skies.length)] : null;
     v.setWeather(sky || 'dust');
     if (!sky) delete host.current.closest('.screen')?.dataset.weather;

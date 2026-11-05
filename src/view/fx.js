@@ -4,7 +4,7 @@
 import { playSfx } from '../ui/sfx.js';
 import sfShield from '../../vendor/sprite-fusion/shield.js';
 import sfFire from '../../vendor/sprite-fusion/fire.js';
-import { WEATHER_FX } from './weather-fx.js';
+import { WEATHER_FX, LAMP } from './weather-fx.js';
 
 let pfxLib = null;
 const COIN_RAMP = ['#2a1a05', '#4d3008', '#7a4d0c', '#b07a14', '#e0a92a', '#ffd25a', '#fff0a8', '#ffffff'];
@@ -281,6 +281,7 @@ export class Fx {
     // Borra el lienzo entero (no solo w×h): si el tamaño cambió a mitad, no quedan estelas pegadas.
     ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); ctx.restore();
     const T = now / 1000, W = this.weather?.W;
+    if (this.lamp) { ctx.save(); LAMP.draw(ctx, T, this.w, this.h); ctx.restore(); }
     if (W && this.h > 40) {
       // Cada tipo mantiene sus partículas vivas; al empezar nacen repartidas por toda la capa.
       for (const [wk, target] of Object.entries(W.count(this.w, this.h))) {
@@ -288,7 +289,6 @@ export class Fx {
         this.weather.n[wk] = Math.max(this.weather.n[wk] || 0, Math.ceil(target));
       }
       this.weather.warm = true;
-      if (W.lamp) { ctx.save(); W.lamp(ctx, T, pixel, this.w, this.h); ctx.restore(); }
       if (W.under && !this.noShade) { ctx.save(); W.under(ctx, T, pixel, this.w, this.h); ctx.restore(); } // capas que no cubren la pantalla (menú, jardín): sin sombra de noche, que dejaría un borde
     } else if (this.weather && !this.weather.warm && this.h > 40) { this.weather.warm = true; this.prewarm(this.weather.kind); }
     if (this.weather && !W) {
@@ -346,7 +346,7 @@ export class Fx {
       }
     }
     ctx.globalAlpha = 1;
-    this.raf = this.parts.length || this.weather || this.sf.length ? requestAnimationFrame((t) => this.loop(t)) : 0;
+    this.raf = this.parts.length || this.weather || this.lamp || this.sf.length ? requestAnimationFrame((t) => this.loop(t)) : 0;
     if (!this.raf) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); ctx.restore(); }
   }
 }

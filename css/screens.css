@@ -11,6 +11,23 @@
 
 /* Menu: asymmetric, the diorama is the focal point and the title sits beside it. */
 .menu { flex-direction: row; align-items: center; overflow: hidden; }
+/* Sin clima, nubes muy tenues pasan por detrás de la mesa: luz y sombra que se mueven sobre el fondo del tema. */
+.menu:not([data-weather]) { isolation: isolate; }
+.menu:not([data-weather])::before {
+  content: ''; position: absolute; inset: -20% -40%; z-index: -1; pointer-events: none; opacity: 0.5;
+  background:
+    radial-gradient(22% 14% at 20% 30%, oklch(1 0 0 / 0.06), transparent 70%),
+    radial-gradient(30% 18% at 70% 60%, oklch(0 0 0 / 0.14), transparent 70%),
+    radial-gradient(18% 11% at 45% 85%, oklch(1 0 0 / 0.05), transparent 70%),
+    radial-gradient(26% 16% at 90% 20%, oklch(0 0 0 / 0.12), transparent 70%);
+  animation: menu-clouds 90s linear infinite alternate;
+}
+[data-art="pixel"] .menu:not([data-weather])::before {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='120' shape-rendering='crispEdges'%3E%3Cg fill='%23000' opacity='.16'%3E%3Crect x='40' y='40' width='64' height='12'/%3E%3Crect x='28' y='52' width='96' height='12'/%3E%3Crect x='52' y='28' width='36' height='12'/%3E%3C/g%3E%3Cg fill='%23fff' opacity='.06'%3E%3Crect x='150' y='80' width='56' height='10'/%3E%3Crect x='140' y='90' width='80' height='10'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 720px auto;
+  image-rendering: pixelated;
+}
+@keyframes menu-clouds { to { translate: 18% 4%; } }
+@media (prefers-reduced-motion: reduce) { .menu:not([data-weather])::before { animation: none; } }
 .diorama-wrap { position: absolute; inset: 0 0 0 30%; }
 .diorama { position: absolute; inset: 0; transform: perspective(1400px) rotateY(calc(var(--px, 0) * 4deg)) rotateX(calc(var(--py, 0) * -3deg)); transition: transform 0.6s var(--ease-out); }
 @media (prefers-reduced-motion: reduce) { .diorama { transform: none; } }

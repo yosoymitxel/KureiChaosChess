@@ -386,7 +386,10 @@ const dust = {
     ctx.globalAlpha = a; ctx.fillStyle = '#fff1cf'; dot(ctx, p.x, p.y, p.size, pixel);
     if (lit > 0.4) glow(ctx, p.x, p.y, p.size * 5, '#ffe7b0', 0.25 * lit);
   },
-  lamp(ctx, T, pixel, w, h) {
+};
+// La lámpara del menú: va siempre, haga el clima que haga.
+export const LAMP = {
+  draw(ctx, T, w, h) {
     const x = lampX(T) * w, g = ctx.createRadialGradient(x, h * 0.3, 0, x, h * 0.3, Math.max(w, h) * 0.5);
     g.addColorStop(0, 'rgba(255,236,190,0.3)'); g.addColorStop(0.45, 'rgba(255,236,190,0.12)'); g.addColorStop(1, 'rgba(255,236,190,0)');
     ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
