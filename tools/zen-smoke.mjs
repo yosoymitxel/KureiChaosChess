@@ -25,12 +25,16 @@ const server = createServer(async (req, res) => {
 const base = `http://127.0.0.1:${server.address().port}`;
 const VENDOR = [['hooks', 'preact-hooks.module.js'], ['preact', 'preact.module.js'], ['htm', 'htm.module.js'], ['anime', 'anime.esm.min.js'], ['motion', 'motion.esm.js']];
 
-// Píxeles con tinta en la capa de efectos del jardín: así se ve si un efecto llegó a pintarse.
-const ink = (page) => page.evaluate(() => {
-  const c = document.querySelector('.zn-yard > .fx-layer'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+// Píxeles con tinta en la capa de efectos del jardín (o solo alrededor de `sel`): así se ve si un efecto se pintó.
+const ink = (page, sel) => page.evaluate((sel) => {
+  const c = document.querySelector('.zn-yard > .fx-layer'), r = c.getBoundingClientRect(), k = c.width / r.width;
+  const e = sel ? document.querySelector(sel).getBoundingClientRect() : r, pad = sel ? e.width * 0.6 : 0;
+  const x = Math.max(0, (e.left - pad - r.left) * k), y = Math.max(0, (e.top - pad - r.top) * k);
+  const w = Math.min(c.width - x, (e.width + pad * 2) * k), h = Math.min(c.height - y, (e.height + pad * 2) * k);
+  const d = c.getContext('2d').getImageData(x, y, Math.max(1, w), Math.max(1, h)).data;
   let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 40) n++;
   return n;
-});
+}, sel);
 
 const browser = await chromium.launch(), fails = [];
 for (const view of views) for (const theme of themes) {
@@ -50,7 +54,9 @@ for (const view of views) for (const theme of themes) {
     localStorage.setItem('zugzwang.achievements.v1', JSON.stringify(['zen_open']));
     localStorage.setItem('zugzwang.shop.v1', JSON.stringify({ coins: 999 }));
     localStorage.setItem('zugzwang.zensky.v1', JSON.stringify({ sky: 'snow', until: Date.now() + 1e7, left: 3 }));
-    localStorage.setItem('zugzwang.zen.v1', JSON.stringify({ leafT: Date.now(), leaves: [{ x: 0.5, y: 3.5, r: 40 }] }));
+    // Cantero a medida: tiestos y un arbusto arriba, tierra libre donde crece el estanque.
+    localStorage.setItem('zugzwang.zen.v1', JSON.stringify({ v: 3, size: 4, lake: 2, pots: { r0c0: null, r0c1: null }, tiles: { r0c2: 'bush' }, lanterns: [], seeds: { romero: 1 },
+      leafT: Date.now(), leaves: [{ x: 0.5, y: 3.5, r: 40 }] }));
   }, theme);
   await page.goto(base + '/');
   await page.getByText(/Jardín Zen/).first().click({ force: true });
@@ -74,6 +80,25 @@ for (const view of views) for (const theme of themes) {
   const after = await ink(page);
   if (after <= before + 50) bad(`destello al cobrar: no se pintó (${before} → ${after} px)`);
   await shot('moneda');
+
+  // Sembrar, regar, cortar y ampliar el estanque: cada uno pinta su efecto.
+  // Mira la zona de la acción varias veces: el efecto tiene que asomar en alguna.
+  const painted = async (name, sel, act, wait = 1200) => {
+    at = name;
+    await page.waitForTimeout(1600); // que se apague lo anterior
+    const a = await ink(page, sel);
+    await act();
+    let b = 0;
+    for (let t = 0; t < wait; t += 150) { await page.waitForTimeout(150); b = Math.max(b, await ink(page, sel)); }
+    if (b <= a + 40) bad(`${name}: sin efecto (${a} → ${b} px)`);
+  };
+  const cell = (k) => page.locator(`[data-k="${k}"]`);
+  await painted('sembrar', '[data-k="r0c0"]', () => cell('r0c0').click());
+  await painted('regar', '[data-k="r0c0"]', async () => { await page.getByRole('button', { name: /^Regar/ }).click(); await cell('r0c0').click(); }, 1800);
+  await painted('cortar', '[data-k="r0c2"]', async () => { await page.getByRole('button', { name: /^Cortar/ }).click(); await cell('r0c2').click(); }, 1800);
+  await painted('estanque', '.zen-pond', async () => { await page.getByRole('button', { name: /Estanque a/ }).click(); await page.getByRole('button', { name: /Confirmar|Estanque a/ }).first().click(); });
+  if (await page.locator('.zen-pond').evaluate((el) => el.style.gridRow) !== 'span 3') bad('estanque: no creció a 3×3');
+  await shot('acciones');
 
   // Ampliar, cavar y mover una maceta a la tierra cavada.
   at = 'ampliar';
@@ -104,4 +129,4 @@ for (const view of views) for (const theme of themes) {
 await browser.close();
 server.close();
 if (fails.length) { console.log('Jardín con fallos:\n' + fails.join('\n')); process.exit(1); }
-console.log(`Jardín OK: clima, destello, ampliar, cavar y mover en ${views.length * themes.length} combinaciones`);
+console.log(`Jardín OK: clima, destello, sembrar, regar, cortar, estanque, ampliar, cavar y mover en ${views.length * themes.length} combinaciones`);
