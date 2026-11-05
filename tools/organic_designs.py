@@ -507,11 +507,17 @@ def qb_ram(s):  # caimán con mandíbula abierta, embistiendo
     s.stroke([(40, 34), (46, 38), (45, 40)], 1.6, 0.8, mat='s').stroke([(40, 30), (47, 30), (46, 33)], 1.4, 0.7, mat='k')
     s.ell(42, 35, 2.5, 1.4, mat='m')
 
-def qb_hydra(s):  # tres cuellos
-    tort(s, 18, 44, 15, 11, head=(40, 13), neck=[(28, 38), (36, 26), (39, 16)], hr=3.2)
-    for neck, hd in (([(14, 30), (10, 18), (6, 10)], (6, 8)), ([(22, 30), (24, 14), (25, 6)], (26, 4))):
-        s.stroke(neck, 2.2, 1.8, mat='s')
-        s.ell(*hd, 3.8, 3, mat='s').dot(hd[0] + 1.4, hd[1] - 1, 'o')
+def head(s, x, y, dirx=1, r=3.2, open_=False):  # cabeza de tortuga: alargada, con pico y ojo
+    s.ell(x, y, r * 1.6, r, rot=-10 * dirx, mat='s')
+    s.stroke([(x + dirx * r * 1.3, y + r * 0.2), (x + dirx * r * 2, y + r * 0.7)], 1, 0.5, mat='k')
+    s.dot(x + dirx * r * 0.5, y - r * 0.4, 'o')
+    if open_: s.stroke([(x + dirx * r * 0.6, y + r * 0.6), (x + dirx * r * 1.7, y + r * 0.6)], 0.6, mat='m')
+
+def qb_hydra(s):  # tres cuellos que se abren en abanico, cabezas mirando afuera
+    tort(s, 20, 44, 16, 11, head=(0, 0), neck=None, hr=0.01, scutes=True)
+    s.stroke([(30, 37), (37, 31), (40, 24)], 3.4, 2.4, mat='s'); head(s, 42, 21, 1, open_=True)
+    s.stroke([(10, 37), (5, 30), (5, 22)], 3.4, 2.4, mat='s'); head(s, 5, 19, -1, open_=True)
+    s.stroke([(20, 31), (22, 22), (21, 13)], 3.4, 2.4, mat='s'); head(s, 23, 10, 1)
 
 def qb_golem(s):  # tortuga pétrea con musgo y cristales
     tort(s, 22, 44, 19, 14, head=(43, 36), neck=[(38, 40), (41, 37)], hr=3.6, scutes=False)
@@ -521,8 +527,10 @@ def qb_golem(s):  # tortuga pétrea con musgo y cristales
         s.stroke([(x, 22), (x + 1, 22 - h)], 1.8, 0.6, mat='c')
     s.ell(8, 30, 3, 1.4, mat='g').ell(36, 30, 3.5, 1.4, mat='g')
 
-def qb_rider(s):  # cuello de serpiente muy alto
-    tort(s, 18, 44, 13, 9, head=(36, 6), neck=[(28, 38), (34, 30), (30, 20), (35, 9)], hr=3.2)
+def qb_rider(s):  # cuello de serpiente en S, cabeza horizontal
+    tort(s, 17, 44, 14, 9, head=(0, 0), neck=None, hr=0.01)
+    s.stroke([(28, 38), (36, 33), (35, 24), (29, 18), (32, 11)], 3.4, 2.2, mat='s')
+    head(s, 36, 9, 1)
 
 def qb_wall(s):  # caparazón como escudo monumental, ancho y bajo
     tort(s, 24, 44, 23, 10, head=(46, 39), neck=[(44, 41), (45, 40)], hr=2.4)
