@@ -375,4 +375,21 @@ const pond = {
   },
 };
 
-export const WEATHER_FX = { snow, fog, embers, fireflies, leaves, bubbles, pond };
+// Menú despejado: una lámpara colgada se mece despacio sobre la mesa y el polvo brilla al cruzar su luz.
+const lampX = (T) => 0.55 + 0.13 * Math.sin((T * Math.PI * 2) / 11);
+const dust = {
+  count: (w) => ({ mote: Math.round(w / 12) }),
+  spawn: (kind, w, h, any) => ({ x: rnd(w * 0.1, w * 0.98), y: any ? rnd(0, h) : h + 6, vx: rnd(-6, 6), vy: rnd(-14, -5), life: rnd(10, 20), max: 1, seed: Math.random() * 100, size: rnd(1, 2.4) }),
+  tick(p, dt, T, w) { p.vx += Math.sin(T * 0.6 + p.seed) * 4 * dt; return p.y > -8 && p.x > -8 && p.x < w + 8; },
+  draw(ctx, p, T, pixel, w) {
+    const lit = Math.max(0, 1 - Math.abs(p.x / w - lampX(T)) * 2.6), a = 0.15 + 0.65 * lit * (0.7 + 0.3 * Math.sin(T * 1.7 + p.seed));
+    ctx.globalAlpha = a; ctx.fillStyle = '#fff1cf'; dot(ctx, p.x, p.y, p.size, pixel);
+    if (lit > 0.4) glow(ctx, p.x, p.y, p.size * 5, '#ffe7b0', 0.25 * lit);
+  },
+  lamp(ctx, T, pixel, w, h) {
+    const x = lampX(T) * w, g = ctx.createRadialGradient(x, h * 0.3, 0, x, h * 0.3, Math.max(w, h) * 0.5);
+    g.addColorStop(0, 'rgba(255,236,190,0.3)'); g.addColorStop(0.45, 'rgba(255,236,190,0.12)'); g.addColorStop(1, 'rgba(255,236,190,0)');
+    ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  },
+};
+export const WEATHER_FX = { snow, fog, embers, fireflies, leaves, bubbles, pond, dust };
