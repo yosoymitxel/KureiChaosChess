@@ -214,6 +214,12 @@ export function ZenScreen({ onBack, onShop }) {
       setTimeout(() => done?.(), 300);
     }, tool === 'cut' ? 560 : 380);
   });
+  const pickFx = (el) => {
+    const art = el?.querySelector('svg, .zn-pondbox');
+    if (!art || reduced()) return;
+    motion(art, { y: [0, -10, -6], scale: [1, 1.08, 1.04] }, { duration: 0.3, ease: OUT });
+    pfx('poof', el, 0.75, { palette: SAND_RAMP });
+  };
   const fxLift = (key, done) => {
     const art = cellOf(key)?.querySelector('svg');
     playSfx('pop');
@@ -279,21 +285,26 @@ export function ZenScreen({ onBack, onShop }) {
     // Guante: un toque coge la maceta, el farol o el estanque y otro lo deja.
     if (tool === 'move') {
       if (moving) {
-        if (moving === key) { setMoving(null); return say(t('zen.moveCancel', 'Lo dejas donde estaba.')); }
+        if (moving === key) { const art = cellOf(key)?.querySelector('svg'); if (art) motion(art, { y: 0, scale: 1 }, { duration: 0.25, ease: OUT }); setMoving(null); return say(t('zen.moveCancel', 'Lo dejas donde estaba.')); }
         const next = moving === 'pond' ? zenMovePond(z, key) : zenMove(z, moving, key, now);
         if (next === z) return say(moving === 'pond' ? t('zen.pondNoFit', 'El estanque no cabe ahí: necesita tierra libre.')
           : cellType(z, moving) === 'pot' ? t('zen.potWhere', 'La maceta va en tierra cavada: usa la pala primero.') : t('zen.lanternWhere', 'El farol va en tierra libre.'));
-        setMoving(null); apply(next); playSfx('dig'); later(() => pfx('bluntHit', moving === 'pond' ? yardRef.current?.querySelector('.zen-pond') : cellOf(key), 0.7, { palette: SAND_RAMP }), 80);
+        setMoving(null); apply(next); playSfx('dig');
+        later(() => {
+          const el = moving === 'pond' ? yardRef.current?.querySelector('.zen-pond') : cellOf(key), art = el?.querySelector('svg, .zn-pondbox');
+          if (art && !reduced()) motion(art, { y: [-22, 0, -4, 0], scaleY: [1.08, 0.86, 1.04, 1] }, { duration: 0.45, ease: OUT });
+          setTimeout(() => { if (!el) return; const p = at(el, 0.75); pfx('bluntHit', el, 0.7, { palette: SAND_RAMP }); fxRef.current.dust(p.x, p.y, 0.7); }, 150);
+        }, 80);
         return say(t('zen.moved', 'Movido.'));
       }
       if (type === 'pond') {
         if (!z.items.glove) return say(t('zen.pondGlove', 'El estanque solo se mueve con los guantes de jardinero de la tienda.'));
-        setMoving('pond'); return say(t('zen.pondPick', 'Toca dónde va su esquina de arriba a la izquierda.'));
+        setMoving('pond'); pickFx(yardRef.current?.querySelector('.zen-pond')); return say(t('zen.pondPick', 'Toca dónde va su esquina de arriba a la izquierda.'));
       }
       if (type !== 'pot' && type !== 'lantern') return say(t('zen.moveWhat', 'El guante lleva macetas (con su planta) y faroles a otro sitio.'));
       const wait = moveWait(z, now);
       if (wait) return say(t('zen.gloveRest', 'El guante descansa: {time}. Los guantes de jardinero no esperan.', { time: secs(wait) }));
-      playSfx('pop'); setMoving(key);
+      playSfx('pop'); setMoving(key); pickFx(cellOf(key));
       return say(t('zen.movePick', 'Toca dónde lo llevas.'));
     }
     if (GARDEN_ITEMS[tool]) {
