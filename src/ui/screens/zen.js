@@ -30,7 +30,6 @@ const STORE = { id: 'store', icon: 'bag', name: t('zen.store', 'Guardar') };
 // Lo que se lleva en la mano: sigue al puntero sobre el jardín y hace el gesto al tocar.
 const TOOL_ART = { sow: POUCH, water: CAN, dig: SHOVEL, cut: SHEARS, hammer: html`<${Icon} name="hammer" size=${40} />`, store: html`<${Icon} name="bag" size=${30} />`, move: GLOVE, lantern: ITEM_ART.lantern, pot: ITEM_ART.pot };
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-const COIN_RAMP = ['#2a1a05', '#4d3008', '#7a4d0c', '#b07a14', '#e0a92a', '#ffd25a', '#fff0a8', '#ffffff'];
 const later = (fn, ms = 40) => setTimeout(fn, ms); // tras el repintado de Preact
 // "el romero", "la salvia": el artículo que pide cada especie, para los avisos.
 const the = (k) => t('zen.the.' + k, (k === 'romero' ? 'el ' : 'la ') + ZEN_NAMES[k].toLowerCase());
@@ -148,8 +147,11 @@ export function ZenScreen({ onBack, onShop }) {
 
   // La semilla ganada vuela a su sobre.
   const seedTo = (from, kind) => popSeed(from, POUCH, document.querySelector('.zn-k-' + kind)?.getBoundingClientRect());
-  const pfxAt = (name, r, o) => { const y = yardRef.current?.getBoundingClientRect(); if (y && r) fxRef.current?.pfx(name, r.left + r.width / 2 - y.left, r.top + r.height / 2 - y.top, o); };
-  const flyCoins = (from, n, amount) => { pfxAt('collectBurst', from, { palette: COIN_RAMP }); coinsTo(from, coinRef.current, n, () => setCoins(addCoins(amount))); };
+  const flyCoins = (from, n, amount) => {
+    const y = yardRef.current?.getBoundingClientRect();
+    if (y && from) fxRef.current?.coinBurst(from.left + from.width / 2 - y.left, from.top + from.height / 2 - y.top);
+    coinsTo(from, coinRef.current, n, () => setCoins(addCoins(amount)));
+  };
 
   // Gestos de cada acción.
   const fxSow = (key) => later(() => {
@@ -299,7 +301,7 @@ export function ZenScreen({ onBack, onShop }) {
     if (type === 'rock') {
       if (tool !== 'hammer') return info(key, 'rock');
       const { z: next, broke } = zenBreak(z, key);
-      fxClear(key, 'hammer', () => { pfxAt(broke ? 'poof' : 'hitSpark', cellOf(key)?.getBoundingClientRect()); apply(next); });
+      fxClear(key, 'hammer', () => { const c = cellOf(key) && fxRef.current?.pointOf(cellOf(key)); if (c) fxRef.current.pfx(broke ? 'poof' : 'hitSpark', c.x, c.y); apply(next); });
       return say(broke ? t('zen.rockBreaks', 'La piedra se parte: queda tierra virgen.') : t('zen.rockCracks', 'La piedra se agrieta: otro golpe.'));
     }
     if (type === 'raw') {

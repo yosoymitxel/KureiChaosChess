@@ -7,6 +7,7 @@ import sfFire from '../../vendor/sprite-fusion/fire.js';
 import { WEATHER_FX } from './weather-fx.js';
 
 let pfxLib = null;
+const COIN_RAMP = ['#2a1a05', '#4d3008', '#7a4d0c', '#b07a14', '#e0a92a', '#ffd25a', '#fff0a8', '#ffffff'];
 const WEATHER_RATE = { rain: 70 }; // los demás climas, en weather-fx.js
 const SF_PX = 2; // cada píxel de los efectos de Sprite Fusion ocupa 2 px de pantalla // partículas por segundo cada 360 px de ancho
 
@@ -212,14 +213,15 @@ export class Fx {
     this.sf.push(sfFire({ box: [x, y, w, h], duration: secs, size: Math.max(0.6, w / 40), seed: (Math.random() * 1e9) | 0 }));
     this.kick();
   }
-  // pixelfx (vendor, MIT), solo en el Jardín Zen: se carga al primer uso y se vuelca como Sprite Fusion.
+  // pixelfx (vendor, MIT), para lo que comparten jardín y tablero: se carga al primer uso y se vuelca como Sprite Fusion.
   pfx(name, x, y, o = {}) {
     if (!this.vfx || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     (pfxLib ||= import('../../vendor/pixelfx/pixelfx.js')).then((lib) => {
       this.sf.push(lib.createFx(lib[name], { x: x / SF_PX, y: y / SF_PX, seed: (Math.random() * 1e9) | 0, ...o }));
       this.kick();
     });
-  }
+  }  coinBurst(x, y) { this.pfx('collectBurst', x, y, { palette: COIN_RAMP }); }
+
   // Veneno: nube verde que se abre y burbujas que suben y revientan.
   poison(x, y, w) {
     if (!this.vfx) return;

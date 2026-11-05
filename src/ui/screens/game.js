@@ -464,14 +464,14 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       }
     };
     const take = (it, el, hand, piece) => {
-      const from = el.getBoundingClientRect();
+      const from = el.getBoundingClientRect(), at = d.view.fx.pointOf(el);
       d.view.takeProp(el, true, hand);
       playSfx(it.gift ? 'flower' : hand ? 'leaf' : it.coins ? 'pop' : 'coin');
       if (it.id === 'leaf') award('leaf_hand');
       it.effect?.({ match, piece, view: d.view, log: addLog });
       // La mariposa deja lo mismo que en el jardín: 2 monedas o una semilla de una especie al azar.
       const gift = it.gift ? butterflyGift() : {}, coins = gift.coins || it.coins, seed = gift.seed || (it.seed && pickSeed());
-      if (coins) { flyCoins(from, coinRef.current, Math.min(3, coins), () => setCoins(addCoins(coins))); addLog(`${it.name}: +` + tp('game.coins', coins, '{n} moneda', '{n} monedas')); }
+      if (coins) { d.view.fx.coinBurst(at.x, at.y); flyCoins(from, coinRef.current, Math.min(3, coins), () => setCoins(addCoins(coins))); addLog(`${it.name}: +` + tp('game.coins', coins, '{n} moneda', '{n} monedas')); }
       if (seed) popSeed(from, PICKUP_ART.seed);
       if (seed) { const kind = seed; addZenSeeds(kind, it.seed || 1); addLog(t('game.seedLog', 'Semilla de {kind} para el jardín', { kind: ZEN_NAMES[kind].toLowerCase() })); }
     };
