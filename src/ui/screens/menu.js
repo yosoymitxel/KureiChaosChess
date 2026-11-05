@@ -7,7 +7,7 @@ import { BOSSES } from '../../data/bosses.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
 import { award } from '../../game/achievements.js';
 import { playSfx } from '../sfx.js';
-import { weatherFor } from '../../data/weather.js';
+import { WEATHER } from '../../data/weather.js';
 import { t } from '../../i18n/index.js';
 
 // Decorative diorama: a small board with a boss facing a few pieces, gently swaying.
@@ -17,11 +17,11 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
   const open = { 'x-zen': onZen, 'x-tienda': onShop, 'x-galeria': onGallery, 'x-logros': onAchievements, 'x-tutorial': onTutorial };
   useEffect(() => {
     const v = new BoardView(host.current, { camera: 'epic' });
-    // El clima del tablero, como en partida; si sale despejado, el polvo bajo la lámpara (la luz va en css).
+    // Siempre con uno de los climas del tablero (por su peso), como una partida que nunca sale despejada.
     Object.assign(v.fx, { vfx: true, noShade: true });
-    const sky = weatherFor({ modifier: 'none' });
-    v.setWeather(sky || 'dust');
-    if (!sky) delete host.current.closest('.screen')?.dataset.weather;
+    const pool = Object.values(WEATHER).filter((w) => w.weight && w.id !== 'pond');
+    let roll = Math.random() * pool.reduce((a, w) => a + w.weight, 0);
+    v.setWeather(pool.find((w) => (roll -= w.weight) < 0)?.id || 'rain');
     const board = { rows: 6, cols: 6, holes: new Set(['2,0', '3,5', '2,5']) };
     const pieces = [
       makePiece('king', 'dark', 0, 2, { boss: 'titan', h: 2, w: 2, hp: 3, maxHp: 3, name: BOSSES.titan.name }),
