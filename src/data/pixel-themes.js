@@ -309,6 +309,38 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "halloween"
   },
+  "liminal": {
+    "id": "liminal",
+    "name": "Niveles liminales",
+    "price": 240,
+    "swatch": [
+      "#1c1a12",
+      "#d9c98a",
+      "#8aa0b4",
+      "#b98ad3"
+    ],
+    "vars": {
+      "table": "#1c1a12",
+      "table-2": "#2b281b",
+      "tile-a": "#d9c98a",
+      "tile-b": "#a8934f",
+      "tile-side": "#5c5130",
+      "side-light": "#f5a65b",
+      "side-dark": "#8aa0b4",
+      "side-wild": "#b98ad3",
+      "paper": "#eee6c4",
+      "paper-2": "#ddd2a6",
+      "paper-3": "#c2b47f",
+      "ink": "#22201a",
+      "ink-2": "#4d4733",
+      "accent": "#8a7a3a",
+      "accent-ink": "#3a3218",
+      "brass": "#e8d36a",
+      "muted": "#77704f"
+    },
+    "art": "pixel",
+    "pack": "liminal"
+  },
   "marcianitos": {
     "id": "marcianitos",
     "name": "Marcianitos",

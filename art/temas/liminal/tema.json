@@ -1,0 +1,49 @@
+{
+  "nombre": "Niveles liminales",
+  "precio": 240,
+  "descripcion": "Pasillos amarillos que no terminan, luz de tubo que zumba y anomalías contenidas a medias por agentes con traje.",
+  "colores": {
+    "table": "#1c1a12",
+    "table-2": "#2b281b",
+    "tile-a": "#d9c98a",
+    "tile-b": "#a8934f",
+    "tile-side": "#5c5130",
+    "side-light": "#f5a65b",
+    "side-dark": "#8aa0b4",
+    "side-wild": "#b98ad3"
+  },
+  "interfaz": {
+    "paper": "#eee6c4",
+    "paper-2": "#ddd2a6",
+    "paper-3": "#c2b47f",
+    "ink": "#22201a",
+    "ink-2": "#4d4733",
+    "accent": "#8a7a3a",
+    "accent-ink": "#3a3218",
+    "brass": "#e8d36a",
+    "muted": "#77704f"
+  },
+  "bandos": {
+    "claro": [
+      "#ffd7a6",
+      "#f5a65b",
+      "#d9772f",
+      "#9c4f22",
+      "#5e2f17"
+    ],
+    "oscuro": [
+      "#cbd8e3",
+      "#9fb3c5",
+      "#71889e",
+      "#4c6075",
+      "#2f3c4b"
+    ],
+    "salvaje": [
+      "#e3c6ef",
+      "#b98ad3",
+      "#8a5bab",
+      "#5f3c7c",
+      "#3a2550"
+    ]
+  }
+}
