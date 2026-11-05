@@ -47,6 +47,7 @@ const SOIL_COLORS = ['#4a3220', '#6b4a30', '#8a6a48'];
 // Rampas de pixelfx (de oscuro a claro) para que sus efectos vistan los colores del jardín.
 const SOIL_RAMP = ['#24170e', '#4a3220', '#6b4a30', '#8a6a48', '#b39272', '#e0cbb0'];
 const LEAF_RAMP = ['#14261a', '#2a4d2a', '#3f7a35', '#5a9b45', '#7fbf5a', '#c4ec7a'];
+const STONE_RAMP = ['#2c2a27', '#4f4b45', '#6e6a63', '#9a958c', '#c9c4ba', '#ece8e0'];
 const SAND_RAMP = ['#3a2e22', '#6b5a44', '#a08a6a', '#cbb89a', '#e8dcc4', '#fff8ea', '#ffffff'];
 const OUT = [0.16, 1, 0.3, 1];
 
@@ -223,7 +224,8 @@ export function ZenScreen({ onBack, onShop }) {
         ? { count: 16, color: ['#5a9b45', '#7fbf5a', '#3f7a35'], speed: [60, 200], life: [0.6, 1.1], size: [2, 4], gravity: 220, drag: 0.9, shape: 'chunk' }
         : { count: 18, color: ['#9a958c', '#c9c4ba', '#6e6a63'], speed: [90, 280], life: [0.4, 0.8], size: [2.5, 5], gravity: 700, shape: 'chunk', spread: Math.PI * 0.9, angle: -Math.PI / 2 });
       fxRef.current.dust(p.x, p.y, 0.8);
-      pfx(tool === 'cut' ? 'poof' : 'hitSpark', cell, 0.6, tool === 'cut' ? { palette: LEAF_RAMP } : undefined);
+      if (tool === 'cut') pfx('poof', cell, 0.6, { palette: LEAF_RAMP });
+      else { pfx('hitSpark', cell, 0.45, { f: 1.6 }); pfx('poof', cell, 0.65, { palette: STONE_RAMP, f: 1.2 }); } // golpe y polvo de piedra
       if (tool === 'cut') fxRef.current.burst(p.x, p.y - 8, { count: 10, color: ['#7fbf5a', '#a6d77a'], speed: [30, 110], life: [1, 1.6], size: [3, 5], gravity: 60, drag: 0.85, shape: 'chunk' });
       setTimeout(() => done?.(), 300);
     }, tool === 'cut' ? 560 : 380);
@@ -336,7 +338,7 @@ export function ZenScreen({ onBack, onShop }) {
     if (type === 'rock') {
       if (tool !== 'hammer') return info(key, 'rock');
       const { z: next, broke } = zenBreak(z, key);
-      fxClear(key, 'hammer', () => { if (broke) pfx('poof', cellOf(key), 0.6); apply(next); });
+      fxClear(key, 'hammer', () => apply(next));
       return say(broke ? t('zen.rockBreaks', 'La piedra se parte: queda tierra virgen.') : t('zen.rockCracks', 'La piedra se agrieta: otro golpe.'));
     }
     if (type === 'raw') {
