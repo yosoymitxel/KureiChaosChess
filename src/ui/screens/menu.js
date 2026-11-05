@@ -7,7 +7,6 @@ import { BOSSES } from '../../data/bosses.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
 import { award } from '../../game/achievements.js';
 import { playSfx } from '../sfx.js';
-import { WEATHER } from '../../data/weather.js';
 import { t } from '../../i18n/index.js';
 
 // Decorative diorama: a small board with a boss facing a few pieces, gently swaying.
@@ -17,11 +16,6 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
   const open = { 'x-zen': onZen, 'x-tienda': onShop, 'x-galeria': onGallery, 'x-logros': onAchievements, 'x-tutorial': onTutorial };
   useEffect(() => {
     const v = new BoardView(host.current, { camera: 'epic' });
-    // Siempre con uno de los climas del tablero (por su peso), como una partida que nunca sale despejada.
-    Object.assign(v.fx, { vfx: true, noShade: true });
-    const pool = Object.values(WEATHER).filter((w) => w.weight && w.id !== 'pond');
-    let roll = Math.random() * pool.reduce((a, w) => a + w.weight, 0);
-    v.setWeather(pool.find((w) => (roll -= w.weight) < 0)?.id || 'rain');
     const board = { rows: 6, cols: 6, holes: new Set(['2,0', '3,5', '2,5']) };
     const pieces = [
       makePiece('king', 'dark', 0, 2, { boss: 'titan', h: 2, w: 2, hp: 3, maxHp: 3, name: BOSSES.titan.name }),
@@ -76,13 +70,14 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
     follow();
     // 1.7 s tras el reparto: lo que queda del giro del tablero (settle, 1.6 s).
     v.intro(pieces).finally(() => { until = 0; kick(1700); later(); });
-    // Vida en la mesa cada pocos segundos: una pieza da un saltito y levanta polvo, o el Titán pisa fuerte.
+    // Vida en la mesa cada pocos segundos, con las partículas del tablero de partida: una pieza salta y
+    // levanta polvo al caer, o el Titán pisa fuerte.
     let life = 0;
     const later = () => { if (!gone && !matchMedia('(prefers-reduced-motion: reduce)').matches) life = setTimeout(beat, 4500 + Math.random() * 4500); };
     const beat = () => {
       const p = pieces[Math.random() < 0.3 ? 0 : 1 + Math.floor(Math.random() * (pieces.length - 1))], c = v.centerOf(p);
-      if (p === pieces[0]) { v.squash(p, 0.7); v.shake(5, 300); v.fx.pfx('groundSlam', c.x, c.y, { k: v.sq / 260, palette: ['#2a1f16', '#4d3a28', '#7a604a', '#a88a6c', '#d6c1a2', '#f2e6d0', '#ffffff'] }); }
-      else { v.squash(p, 0.85); v.fx.pfx('poof', c.x, c.y, { k: v.sq / 200 }); }
+      if (p === pieces[0]) { v.squash(p, 0.7); v.shake(5, 300); v.fx.dust(c.x, c.y, 2); }
+      else { v.squash(p, 0.85); v.fx.dust(c.x, c.y, 0.8); }
       later();
     };
     const ro = new ResizeObserver(() => kick(800)); // el tablero se reajusta con transición de 0.6 s
