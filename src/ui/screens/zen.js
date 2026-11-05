@@ -90,7 +90,9 @@ export function ZenScreen({ onBack, onShop }) {
   }, []);
   useEffect(() => { if (!gain) return; const t = setTimeout(() => setGain(null), 3200); return () => clearTimeout(t); }, [gain]);
   useEffect(() => { if (!msg) return; const t = setTimeout(() => { setMsg(null); setArmed(false); }, 5000); return () => clearTimeout(t); }, [msg]);
-  useEffect(() => { const fx = fxRef.current = new Fx(yardRef.current); fx.vfx = true; fx.setWeather('fireflies'); return () => fx.destroy(); }, []);
+  // Clima al azar al entrar; solo los que leen claro sobre el jardín (hojas o niebla se confunden).
+  const [sky] = useState(() => [null, null, 'fireflies', 'fireflies', 'rain', 'snow'][Math.floor(Math.random() * 6)]);
+  useEffect(() => { const fx = fxRef.current = new Fx(yardRef.current); fx.vfx = true; fx.setWeather(sky); return () => fx.destroy(); }, []);
 
   const now = Date.now();
   const digRest = digWait(z, now), moveRest = moveWait(z, now);
@@ -469,7 +471,7 @@ export function ZenScreen({ onBack, onShop }) {
     setCoins(loadShop().coins);
     apply(zenExpand(z));
     playSfx('coin');
-    later(() => pfx('groundSlam', yardRef.current?.querySelector('.zn-tray'), 0.75, { palette: SAND_RAMP, stone: '#8a7a62' }), 80);
+    later(() => pfx('groundSlam', yardRef.current?.querySelector('.zn-tray'), 0.75, { palette: SAND_RAMP, stone: '#8a7a62', k: 0.8 }), 80);
     award('zen_ring');
     if (z.size + 1 >= ZEN_MAX) award('zen_max');
     say(t('zen.expanded', 'El cantero crece a {size}: la tierra nueva pide cava.', { size: `${z.size + 1}×${z.size + 1}` }));
@@ -553,7 +555,7 @@ export function ZenScreen({ onBack, onShop }) {
     setCoins(loadShop().coins);
     apply(next);
     playSfx('splash');
-    later(() => pfx('splash', yardRef.current?.querySelector('.zen-pond'), 0.55, { stone: false }), 80);
+    later(() => pfx('splash', yardRef.current?.querySelector('.zen-pond'), 0.55, { stone: false, k: 0.8 }), 80);
     if (n + 1 >= LAKE_MAX) award('pond_max');
     say(t('zen.pondGrown', 'El estanque crece a {size}.', { size: `${n + 1}×${n + 1}` }));
   };
@@ -569,7 +571,7 @@ export function ZenScreen({ onBack, onShop }) {
       <div class="zen-main">
         <div class="zen-scene">
           <div class="mini-stage">
-            <div class=${'zn-yard' + (tool === 'dig' ? ' dig' : '') + (act || pour ? ' acting' : '')} ref=${yardRef} onPointerMove=${hover} onPointerLeave=${unhover}>
+            <div class=${'zn-yard' + (tool === 'dig' ? ' dig' : '') + (act || pour ? ' acting' : '')} data-sky=${sky} ref=${yardRef} onPointerMove=${hover} onPointerLeave=${unhover}>
               <div class="bm zn-tray" style=${{ '--n': z.size }} role="group" aria-label=${t('zen.bed', 'Cantero del jardín')}>
                 ${rakeArt(z.size, objs, raw)}
                 ${glows}

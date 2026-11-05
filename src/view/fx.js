@@ -217,7 +217,8 @@ export class Fx {
   pfx(name, x, y, o = {}) {
     if (!this.vfx || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     (pfxLib ||= import('../../vendor/pixelfx/pixelfx.js')).then((lib) => {
-      this.sf.push(lib.createFx(lib[name], { x: x / SF_PX, y: y / SF_PX, seed: (Math.random() * 1e9) | 0, ...o }));
+      const { k = 0.5, ...rest } = o; // pixelfx dibuja para pantallas de 320 px: a la mitad encaja en una casilla
+      this.sf.push(Object.assign(lib.createFx(lib[name], { x: x / SF_PX, y: y / SF_PX, seed: (Math.random() * 1e9) | 0, light: 0.6, ...rest }), { k, kx: x, ky: y }));
       this.kick();
     });
   }  coinBurst(x, y) { this.pfx('collectBurst', x, y, { palette: COIN_RAMP }); }
@@ -242,18 +243,20 @@ export class Fx {
     }
     for (const fx of list) fx.update(dt);
     // Los que van a escala 1 comparten pasada; los estirados (escudo alto) van cada uno en la suya.
-    const flat = list.filter((fx) => !(fx.sy > 1));
+    const flat = list.filter((fx) => !(fx.sy > 1) && !fx.k);
     if (flat.length) this.blitSf(f, flat, 1, 0);
     for (const fx of list) if (fx.sy > 1) this.blitSf(f, [fx], fx.sy, fx.by);
+    for (const fx of list) if (fx.k) this.blitSf(f, [fx], fx.k, fx.ky, fx.kx);
     this.sf = this.sf.filter((fx) => !fx.done());
   }
-  blitSf(f, list, sy, by) {
+  blitSf(f, list, sy, by, bx) {
     const { w, h } = f;
     f.color.fill(0); f.light.fill(0);
     for (const fx of list) { fx.draw(f, 'back'); fx.draw(f, 'front'); }
     const { ctx } = this, c2 = f.canvas.getContext('2d'), px = new Uint32Array(f.img.data.buffer);
     ctx.save(); ctx.imageSmoothingEnabled = false; ctx.globalAlpha = 1;
-    if (sy !== 1) { ctx.translate(0, by); ctx.scale(1, sy); ctx.translate(0, -by); }
+    if (bx != null) { ctx.translate(bx, by); ctx.scale(sy, sy); ctx.translate(-bx, -by); }
+    else if (sy !== 1) { ctx.translate(0, by); ctx.scale(1, sy); ctx.translate(0, -by); }
     px.set(f.color); c2.putImageData(f.img, 0, 0);
     ctx.drawImage(f.canvas, 0, 0, w * SF_PX, h * SF_PX);
     // La capa es transparente: sumar luz ahí la oscurecería. Cada píxel de luz pasa a su color a
