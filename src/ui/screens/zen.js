@@ -282,6 +282,7 @@ export function ZenScreen({ onBack, onShop }) {
     setTimeout(() => {
       busyCut.current = false;
       const p = at(cell, 0.25), fl = getComputedStyle(cell.querySelector('.zn-plant')).getPropertyValue('--fl').trim() || '#ffcf6b';
+      pfx('poof', cell, 0.3, { palette: LEAF_RAMP, f: 0.8 }); // el mismo tijeretazo que al podar
       fxRef.current.burst(p.x, p.y, { count: 18, color: [fl, fl, '#fff'], speed: [60, 220], life: [0.6, 1.1], size: [2, 4], gravity: 160, drag: 0.9, shape: 'chunk' });
       growFx(key, { scale: [1, 1.15, 0], y: [0, -4, -10], rotate: [0, 0, 40] }, { duration: 0.35, ease: [0.7, 0, 0.84, 0], onComplete: done });
     }, 560);
