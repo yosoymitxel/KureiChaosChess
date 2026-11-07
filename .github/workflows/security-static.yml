@@ -26,6 +26,12 @@ jobs:
       - name: Test local backup import validation
         run: node tools/backup-security-selfcheck.mjs
 
+      - name: Run vector import through the SVG allowlist
+        run: node tools/vector-art.mjs
+
+      - name: Test SVG sanitization
+        run: node tools/svg-sanitizer-selfcheck.mjs
+
       - name: Build and verify the itch.io ZIP
         run: |
           node tools/build-itch.mjs

@@ -722,5 +722,37 @@ export const PIXEL_THEMES = {
     },
     "art": "pixel",
     "pack": "zombis"
+  },
+  "marino": {
+    "id": "marino",
+    "name": "Marino",
+    "price": 250,
+    "swatch": [
+      "#123a43",
+      "#d8cda9",
+      "#717bb0",
+      "#a85f49"
+    ],
+    "vars": {
+      "table": "#123a43",
+      "table-2": "#1b4b53",
+      "tile-a": "#d8cda9",
+      "tile-b": "#39706e",
+      "tile-side": "#244e55",
+      "side-light": "#83bcb4",
+      "side-dark": "#717bb0",
+      "side-wild": "#a85f49",
+      "paper": "#e8e2ca",
+      "paper-2": "#d8d2b8",
+      "paper-3": "#b9bba2",
+      "ink": "#142e36",
+      "ink-2": "#3a5b60",
+      "accent": "#bd594d",
+      "accent-ink": "#612b2d",
+      "brass": "#dcb46a",
+      "muted": "#687f7a"
+    },
+    "art": "pixel",
+    "pack": "marino"
   }
 };

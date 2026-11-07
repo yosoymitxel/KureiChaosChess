@@ -1,0 +1,18 @@
+GIMP Palette
+Name: Marino
+Columns: 8
+#
+# Bando claro (cinco tonos, de claro a oscuro)
+183 226 217	Claro 1
+131 188 180	Claro 2
+74 142 141	Claro 3
+45 99 108	Claro 4
+25 65 78	Claro 5
+# Materiales compartidos
+18 58 67	Agua profunda
+216 205 169	Arena
+57 112 110	Piedra sumergida
+189 89 77	Coral
+220 180 106	Latón
+20 46 54	Contorno
+232 226 202	Marfil interfaz

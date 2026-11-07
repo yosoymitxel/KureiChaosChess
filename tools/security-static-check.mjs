@@ -91,4 +91,13 @@ for (const version of ['preact 10.29.8', 'htm 3.1.1', 'animejs 4.5.0', 'motion 1
   assert.ok(licenses.includes(version), 'Vendor license inventory is missing ' + version);
 }
 
-console.log('Security static checks passed: local runtime assets, vendored dependencies, font and direct-dependency SBOM.');
+const legacyHtml = read('legacy/index.v1.4.html');
+assert.ok(/http-equiv="refresh"/i.test(legacyHtml), 'The old v1.4 URL must redirect to the current game');
+assert.ok(!legacyHtml.includes('<script'), 'The archived v1.4 URL must not execute scripts');
+assert.ok(existsSync(join(rootPath, 'legacy/index.v1.4.source.html.txt')), 'The historical source must remain available as inert text');
+
+const vectorTool = read('tools/vector-art.mjs');
+assert.ok(vectorTool.includes('sanitizeSvgFragment'), 'Vector SVG import must pass through the allowlist sanitizer');
+assert.ok(!vectorTool.includes('existsSync(file)'), 'Vector export must not use a check-then-write sequence');
+
+console.log('Security static checks passed: local runtime assets, SBOM, inert legacy archive and hardened SVG importer.');

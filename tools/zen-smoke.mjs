@@ -23,7 +23,7 @@ const server = createServer(async (req, res) => {
   catch { res.writeHead(404); res.end(); }
 }).listen(0);
 const base = `http://127.0.0.1:${server.address().port}`;
-const VENDOR = [['hooks', 'preact-hooks.module.js'], ['preact', 'preact.module.js'], ['htm', 'htm.module.js'], ['anime', 'anime.esm.min.js'], ['motion', 'motion.esm.js']];
+const VENDOR = [['hooks', 'preact-hooks.module.js'], ['preact', 'preact.module.js'], ['htm', 'htm.module.js'], ['animejs', 'anime.esm.min.js'], ['motion', 'motion.esm.js']];
 
 // Píxeles con tinta en la capa de efectos del jardín (o solo alrededor de `sel`): así se ve si un efecto se pintó.
 const ink = (page, sel) => page.evaluate((sel) => {
@@ -42,8 +42,17 @@ for (const view of views) for (const theme of themes) {
   const ctx = await browser.newContext({ viewport: VIEWPORTS[view], hasTouch: VIEWPORTS[view].hasTouch, isMobile: VIEWPORTS[view].isMobile });
   const page = await ctx.newPage(), errors = [];
   page.setDefaultTimeout(8000);
-  await page.route(/cdn\.jsdelivr\.net/, (r) => { const u = r.request().url(); r.fulfill({ path: 'vendor/' + VENDOR.find(([k]) => u.includes(k))[1], contentType: 'text/javascript' }); });
-  await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.fulfill({ body: '', contentType: 'text/css' }));
+  await page.route((url) => url.hostname.toLowerCase() === 'cdn.jsdelivr.net', (route) => {
+    const requestUrl = new URL(route.request().url());
+    const segments = requestUrl.pathname.toLowerCase().split('/');
+    const vendor = VENDOR.find(([name]) => segments.some((part) => part === name || part.startsWith(name + '@')));
+    if (!vendor) return route.abort();
+    return route.fulfill({ path: 'vendor/' + vendor[1], contentType: 'text/javascript' });
+  });
+  await page.route((url) => {
+    const host = url.hostname.toLowerCase();
+    return host === 'fonts.googleapis.com' || host === 'fonts.gstatic.com';
+  }, (route) => route.fulfill({ body: '', contentType: 'text/css' }));
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => m.type() === 'error' && !/favicon|404/.test(m.text()) && errors.push(m.text()));
   await page.addInitScript((theme) => {

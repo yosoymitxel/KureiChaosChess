@@ -15,6 +15,8 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 22
+      - name: Build itch.io package required by its self-check
+        run: node tools/build-itch.mjs
       - name: Comprobar
         run: |
           awk '/Comprobar:/,/Lentas:/' CLAUDE.md | grep -v 'Lentas:' | grep -o 'tools/[a-z0-9-]*\.mjs' > checks.txt

@@ -16,7 +16,7 @@ const board = () => ({ rows: 7, cols: 7, holes: new Set([key(3, 0), key(3, 6)]),
 
 // Each scene builds a tiny position and returns an async "play" function.
 // Foreground moments, played over the lab stage without a match.
-const MOMENTS = {
+const MOMENTS = new Map(Object.entries({
   'Momento: jaque': (m) => m.callout({ text: '¡Jaque!', sub: 'Tu turno: protege al rey', tone: 'danger', piece: { type: 'king', side: 'light' }, anim: 'tremble', tier: 'major' }),
   'Momento: reina caída': (m) => m.callout({ text: '¡Reina caída!', tone: 'brass', piece: { type: 'queen', side: 'dark' }, anim: 'fall', tier: 'major' }),
   'Momento: rey caído': (m) => m.callout({ text: '¡Rey caído!', sub: 'Cae el bando carmesí', tone: 'brass', piece: { type: 'king', side: 'dark' }, anim: 'explode', tier: 'major' }),
@@ -29,9 +29,9 @@ const MOMENTS = {
   'Momento: jefe derribado': (m) => m.cinematic({ title: '¡Titán derribado!', sub: 'El coloso cae y la torre es tuya.', piece: { type: 'king', side: 'dark' }, tone: 'brass', anim: 'down' }),
   'Demo: mutación': (m) => m.demo({ title: 'Caballo loco', sub: 'Tus caballos también se mueven como alfiles.', piece: { type: 'knight', side: 'light' }, ...reachPreview({ type: 'knight', extra: ['bishop'] }) }),
   'Demo: jefe': (m) => m.demo({ title: 'Así se mueve el Ariete', sub: BOSSES.ram.desc, piece: { type: 'boss-ram', side: 'dark' }, ...reachPreview({ type: 'king', moves: BOSSES.ram.moves, size: BOSSES.ram.size }, 8), n: 8, tone: 'danger' }),
-};
+}));
 
-const SCENES = {
+const SCENES = new Map(Object.entries({
   'Piezas': () => {
     const b = { rows: 4, cols: 6, holes: new Set(), protectRows: 0 };
     const types = ['pawn', 'rook', 'knight', 'bishop', 'queen', 'king', 'guard', 'advisor', 'elephant', 'camel', 'cannon', 'pawn'];
@@ -77,17 +77,17 @@ const SCENES = {
     const b = board(), pieces = [makePiece('queen', 'light', 4, 3), makePiece('king', 'light', 6, 3), ...[1, 2, 4, 5].map((c) => makePiece('pawn', 'dark', 1, c)), makePiece('king', 'dark', 0, 3)];
     return { b, pieces, victory: true };
   },
-};
+}));
 
 // Efectos extra (Ajustes › Efectos extra): en el lab van siempre encendidos.
-const FX = {
+const FX = new Map(Object.entries({
   ...Object.fromEntries(Object.values(WEATHER).map((w) => [`Clima: ${w.name}`, () => ({ b: board(), pieces: [makePiece('king', 'light', 6, 3), makePiece('queen', 'light', 5, 3), makePiece('king', 'dark', 0, 3), makePiece('knight', 'dark', 1, 1)], weather: w.id })])),
   'Estanque central con koi': () => {
     const b = { rows: 7, cols: 7, holes: new Set([key(3, 3), key(3, 4), key(4, 3), key(4, 4)]), protectRows: 2 };
     return { b, pond: true, pieces: [makePiece('king', 'light', 6, 3), makePiece('rook', 'light', 6, 0), makePiece('king', 'dark', 0, 3), makePiece('knight', 'dark', 1, 1)],
       after: (v) => { const t = document.querySelector('.pond-tile'); if (t) { const r = t.getBoundingClientRect(); v.feed(t, r.left + r.width / 2, r.top + r.height / 2); } } };
   },
-  'Escudo: golpe al jefe': SCENES['Golpe al jefe'],
+  'Escudo: golpe al jefe': SCENES.get('Golpe al jefe'),
   'Escudo: se rompe': () => {
     const b = board(), pieces = [makePiece('rook', 'light', 5, 3), makePiece('king', 'light', 6, 6)];
     const boss = placeBoss(pieces, b, 'ram'); boss.row = 1; boss.hp = 2;
@@ -117,11 +117,11 @@ const FX = {
     const b = board(), pieces = [makePiece('king', 'light', 6, 6), makePiece('king', 'dark', 0, 0)];
     return { b, pieces, after: (v) => { const t = v.tiles.get('3,3'), p = v.fx.pointOf(t); v.fx.explosion(p.x, p.y, v.sq / 50); v.shake(18, 520); } };
   },
-};
+}));
 
 // Prototipos visuales inspirados en patrones del APK. No importan su código: usan BoardView/Fx
 // ya presentes en el proyecto y solo se ejecutan en lab.html.
-const APK_FX = {
+const APK_FX = new Map(Object.entries({
   'APK · Estela pixelada (movimiento)': () => {
     const b = board();
     const runner = makePiece('knight', 'light', 5, 2);
@@ -482,7 +482,7 @@ const APK_FX = {
     return {b,pieces,apkPlay:async v=>{await lungeAPKLabPiece(v,attacker,cell,260);await playAPKDamage(stage,v,cell);},skipDeal:true};
   },
 
-};
+}));
 
 
 
@@ -535,10 +535,22 @@ async function slideAPKLabPiece(v, piece, to, duration=420) {
   piece.row=to.row;piece.col=to.col;st.r=to.row;st.c=to.col;st.z=0;v.apply(piece);
 }
 
+function getRegisteredAction(registry, name) {
+  if (registry.has(name)) {
+    const action = registry.get(name);
+    if (typeof action === 'function') return action;
+  }
+  return null;
+}
+
 async function run(name) {
+  const createScene = getRegisteredAction(SCENES, name)
+    ?? getRegisteredAction(FX, name)
+    ?? getRegisteredAction(APK_FX, name);
+  if (!createScene) return;
   clearAPKEffects(stage);
   view?.destroy();
-  const s = (SCENES[name] || FX[name] || APK_FX[name])();
+  const s = createScene();
   stage.classList.toggle('apk-ref-mode', Boolean(s.apkPlay));
   view = new BoardView(document.getElementById('board'), { camera, vfx: !s.apkPlay, shake: !s.apkPlay, pond: !!s.pond });
   view.setBoard(s.b);
@@ -563,10 +575,11 @@ async function run(name) {
 const stage = document.getElementById('stage');
 const moments = new Moments(stage);
 async function play(name) {
-  if (MOMENTS[name]) {
+  const playMoment = getRegisteredAction(MOMENTS, name);
+  if (playMoment) {
     stage.classList.remove('apk-ref-mode');
     if (!view) await run('Piezas');
-    return MOMENTS[name](moments);
+    return playMoment(moments);
   }
   return run(name);
 }
@@ -580,14 +593,14 @@ const play2 = (name) => {
   }
   return play(name);
 };
-for (const [id, names] of [['scenes', [...Object.keys(SCENES), ...Object.keys(MOMENTS)]], ['fx', Object.keys(FX)]]) {
+for (const [id, names] of [['scenes', [...SCENES.keys(), ...MOMENTS.keys()]], ['fx', [...FX.keys()]]]) {
   for (const name of names) {
     const b = document.createElement('button');
     b.className = 'btn sm'; b.textContent = name; b.onclick = () => play2(name);
     document.getElementById(id).appendChild(b);
   }
 }
-for (const name of Object.keys(APK_FX)) {
+for (const name of APK_FX.keys()) {
   const b = document.createElement('button');
   b.type = 'button';
   b.className = 'btn sm';
@@ -602,7 +615,7 @@ const arts = document.getElementById('arts');
 for (const [id, label] of [['walnut', 'Normal'], ['pixelada', 'Píxel'], ['paraguay', 'Ñandutí'], ['crisis', 'Crisis']]) {
   const b = document.createElement('button');
   b.textContent = label; b.className = id === theme ? 'on' : '';
-  b.onclick = () => { theme = id; applyTheme(id); [...arts.children].forEach((x) => x.classList.toggle('on', x === b)); if (current && !MOMENTS[current]) run(current); };
+  b.onclick = () => { theme = id; applyTheme(id); [...arts.children].forEach((x) => x.classList.toggle('on', x === b)); if (current && !MOMENTS.has(current)) run(current); };
   arts.appendChild(b);
 }
 // Clima sobre la escena que esté puesta (src/data/weather.js); se mantiene al cambiar de escena.

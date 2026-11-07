@@ -6,8 +6,10 @@
 // Uso:  node tools/vector-art.mjs              importar art/vector/ → juego
 //       node tools/vector-art.mjs --exportar   escribir art/vector/ desde el juego (solo los que falten;
 //                                              --forzar los rehace todos, pisando lo editado)
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { constants, closeSync, fstatSync, mkdirSync, openSync, readFileSync, readdirSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { sanitizeSvgFragment } from './svg-sanitizer.mjs';
 
 globalThis.document = { documentElement: { dataset: {} } };
 const { PIECE_TYPES, PIECES } = await import('../src/data/pieces.js');
@@ -20,6 +22,61 @@ const OUT = root + 'src/view/piece-bodies.js';
 const COLORS = [['#f3ead8', 'var(--pc)'], ['#8a7a66', 'var(--pc-2)'], ['#2a2233', 'var(--ink)'], ['#d9a441', 'var(--brass)']];
 const FIGURES = [...PIECE_TYPES.map((t) => ['piezas', t, PIECES[t].name]), ...BOSS_IDS.map((b) => ['jefes', 'boss-' + b, BOSSES[b].name])];
 const STROKE = 1.6;
+
+const CREATE_EXCLUSIVE = constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | (constants.O_NOFOLLOW ?? 0);
+
+function writeFileExclusively(file, content) {
+  let descriptor;
+  try {
+    descriptor = openSync(file, CREATE_EXCLUSIVE, 0o600);
+  } catch (error) {
+    if (error.code === 'EEXIST') return false;
+    throw error;
+  }
+  try {
+    writeFileSync(descriptor, content, 'utf8');
+  } finally {
+    closeSync(descriptor);
+  }
+  return true;
+}
+
+function writeFileAtomically(file, content) {
+  const temporary = file + '.' + randomUUID() + '.tmp';
+  let descriptor;
+  try {
+    descriptor = openSync(temporary, CREATE_EXCLUSIVE, 0o600);
+    writeFileSync(descriptor, content, 'utf8');
+    closeSync(descriptor);
+    descriptor = undefined;
+    renameSync(temporary, file);
+  } finally {
+    if (descriptor !== undefined) closeSync(descriptor);
+    try {
+      unlinkSync(temporary);
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+  }
+}
+
+function readSvgFile(file) {
+  let descriptor;
+  try {
+    descriptor = openSync(file, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      throw new Error('falta ' + file + ' (node tools/vector-art.mjs --exportar lo crea)', { cause: error });
+    }
+    throw error;
+  }
+  try {
+    if (!fstatSync(descriptor).isFile()) throw new Error(file + ': se esperaba un archivo SVG regular');
+    return readFileSync(descriptor, 'utf8');
+  } finally {
+    closeSync(descriptor);
+  }
+}
 
 const toFile = (s) => COLORS.reduce((a, [hex, v]) => a.replaceAll(v, hex), s);
 // Los editores guardan variantes casi iguales de los cuatro colores (#f3ead9, #cd9942…). Se lleva
@@ -47,17 +104,17 @@ if (process.argv.includes('--exportar')) {
   let n = 0;
   for (const [group, id, name] of FIGURES) {
     const file = `${DIR}${group}/${id}.svg`;
-    if (existsSync(file) && !force) continue;
     mkdirSync(DIR + group, { recursive: true });
-    writeFileSync(file, `<?xml version="1.0" encoding="UTF-8"?>
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <!-- Zugzwang · ${name} (${id}). Dibuja solo dentro del grupo "pieza"; la capa "guia" no entra al juego.
      Colores: cuerpo #f3ead8, detalle #8a7a66, contorno #2a2233, ojos y luces #d9a441 (ver art/vector/LEEME.md). -->
 <svg xmlns="http://www.w3.org/2000/svg" width="450" height="410" viewBox="0 0 45 41">
   <g id="guia" opacity="0.4"><rect width="45" height="41" fill="none" stroke="#9fb7d8" stroke-width="0.1"/></g>
   <g id="pieza" fill="#f3ead8" stroke="#2a2233" stroke-width="${STROKE}" stroke-linecap="round" stroke-linejoin="round">${toFile(RAW_BODIES[id])}</g>
 </svg>
-`);
-    n++;
+`;
+    const written = force ? (writeFileAtomically(file, svg), true) : writeFileExclusively(file, svg);
+    if (written) n++;
   }
   console.log(`exportadas ${n} figuras a art/vector/`);
   process.exit(0);
@@ -77,12 +134,6 @@ function groupBody(svg, file) {
   }
   throw new Error(`${file}: el grupo "pieza" no cierra`);
 }
-// Lo que añaden los editores y el juego no necesita (ids que chocarían entre piezas, metadatos).
-const clean = (s) => s
-  .replace(/<!--[\s\S]*?-->/g, '')
-  .replace(/\s(?:inkscape|sodipodi|xml|data-name|serif):[\w-]+="[^"]*"/g, '')
-  .replace(/\s(?:id|class|data-name)="[^"]*"/g, '')
-  .replace(/\s+/g, ' ').replace(/>\s+</g, '><').trim();
 // Los calcos traen un estilo fill por trazo: sin aislar el grupo heredan el contorno del juego y
 // cada detalle sale rebordeado. El editor pierde ese stroke="none" al guardar, así que se repone.
 const noInherit = (s) =>
@@ -91,14 +142,24 @@ const noInherit = (s) =>
 const bodies = {};
 for (const [group, id] of FIGURES) {
   const file = `${DIR}${group}/${id}.svg`;
-  if (!existsSync(file)) throw new Error(`falta ${file} (node tools/vector-art.mjs --exportar lo crea)`);
-  bodies[id] = toGame(noInherit(clean(groupBody(readFileSync(file, 'utf8'), file))));
+  const svg = readSvgFile(file);
+  bodies[id] = toGame(noInherit(sanitizeSvgFragment(groupBody(svg, file))));
 }
-for (const group of ['piezas', 'jefes']) for (const f of existsSync(DIR + group) ? readdirSync(DIR + group) : []) {
-  if (f.endsWith('.svg') && !FIGURES.some(([g, id]) => g === group && id + '.svg' === f)) console.warn(`  aviso: ${group}/${f}: el juego no tiene esa figura, se ignora`);
+for (const group of ['piezas', 'jefes']) {
+  let files = [];
+  try {
+    files = readdirSync(DIR + group);
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+  for (const f of files) {
+    if (f.endsWith('.svg') && !FIGURES.some(([g, id]) => g === group && id + '.svg' === f)) {
+      console.warn(`  aviso: ${group}/${f}: el juego no tiene esa figura, se ignora`);
+    }
+  }
 }
 if (unmapped.size) console.warn(`  aviso: colores fuera de la paleta: ${[...unmapped].join(', ')}`);
-writeFileSync(OUT, `// Generado por tools/vector-art.mjs desde art/vector/: no editar a mano.
+writeFileAtomically(OUT, `// Generado por tools/vector-art.mjs desde art/vector/: no editar a mano.
 // Cuerpo de cada pieza y jefe en sus coordenadas de dibujo; piece-art.js lo mide, lo escala y lo centra.
 export const BODIES = ${JSON.stringify(bodies, null, 2)};
 `);
