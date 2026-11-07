@@ -126,6 +126,23 @@ const cells = (p, pieces, b = board()) => new Set(legalMoves(p, pieces, b).map((
   check(zenSky(SKY_SPAN.ms + 3000, () => 0.85) === 'fireflies', 'clima zen: cambia al pasar el tiempo');
 }
 
+// Poderes de jefe: la regeneración se cancela si lo golpean; el escudero no pasa de dos.
+{
+  const { bossPower } = await import('../src/game/boss-powers.js');
+  const { makePiece } = await import('../src/game/generate.js');
+  const board = { rows: 8, cols: 8, holes: new Set(), terrain: new Map(), portals: new Map() };
+  const hydra = makePiece('boss-hydra', 'dark', 0, 3, { boss: 'hydra', h: 2, w: 2, hp: 2, maxHp: 4, royal: true });
+  const m = { board, pieces: [hydra, makePiece('king', 'light', 7, 4, { royal: true })], eliminated: {}, bossTurns: 3 };
+  bossPower(m, 'dark'); hydra.hp = 1; bossPower(m, 'dark');
+  check(hydra.hp === 1, 'jefe: regeneración cancelada al golpearlo');
+  m.bossTurns = 3; bossPower(m, 'dark'); bossPower(m, 'dark');
+  check(hydra.hp === 2, 'jefe: regenera si no lo golpean');
+  const rider = makePiece('boss-rider', 'dark', 0, 3, { boss: 'rider', h: 2, w: 1, hp: 2, maxHp: 2, royal: true });
+  const r = { board, pieces: [rider], eliminated: {} };
+  for (let i = 0; i < 40; i++) bossPower(r, 'dark');
+  check(r.pieces.filter((p) => p.escortOf).length === 2, 'jefe: escudero tope dos');
+}
+
 // Jardín: la maceta se agrieta tras POT_LIFE flores y el mazo la arregla; mover pide descalzar con la pala;
 // los arbustos brotan solos hasta su tope.
 {
