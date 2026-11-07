@@ -111,7 +111,8 @@ export function generateBoard(seed, floor, totalFloors, modifier, opts = {}) {
   const rows = Math.max(modifier === 'contagion' ? 10 : 0, size || (small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0)))));
   const cols = size || (small ? 8 : Math.max(9, Math.min(12, base + (rng() < 0.5 ? 1 : 0))));
   const safe = rows <= 9 ? 2 : rows <= 10 ? 3 : 4;
-  const shape = opts.shape || pickFrom(rng, SHAPES);
+  // Contra un jefe el centro queda abierto: un lago o un cañón en medio lo dejaban fuera de alcance.
+  const shape = opts.shape || pickFrom(rng, modifier === 'boss' ? SHAPES.filter((x) => !['lake', 'canyon', 'islands', 'bridges', 'ring'].includes(x)) : SHAPES);
   const holes = new Set();
   const addSym = (r, c) => {
     for (const [rr, cc] of [[r, c], [rows - 1 - r, c], [r, cols - 1 - c], [rows - 1 - r, cols - 1 - c]])
@@ -368,6 +369,9 @@ function placeOnce(board, { modifier, playerCount, isBoss, isMiniBoss, elite, se
   if (isBoss || isMiniBoss) {
     // El rey oscuro deja su sitio al jefe multi-casilla: menores custodian, mayores cierran.
     placeBoss(pieces, board, pickFrom(rng, isMiniBoss ? MINI_BOSSES : FINAL_BOSSES));
+    // El jefe ya es la amenaza: con el ejército entero delante no se llegaba a tocarlo. Se van dos de cada cinco peones.
+    const pawns = pieces.filter((p) => p.color === 'dark' && p.type === 'pawn').sort(() => rng() - 0.5);
+    for (const p of pawns.slice(0, Math.max(0, Math.min(Math.round(pawns.length * 0.4), pawns.length - 3)))) pieces.splice(pieces.indexOf(p), 1);
     // Los oficiales que sobreviven aprenden movimientos prestados: el minijefe enseña la mecánica
     // con dos de ellos, el jefe final la reparte entre todos.
     const extras = ['knight', 'bishop', 'rook', 'queen', 'king', 'camel', 'elephant'];

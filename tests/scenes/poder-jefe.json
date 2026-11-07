@@ -1,0 +1,22 @@
+{
+ "cfg": {
+  "settings": { "fx": true, "moments": true },
+  "node": { "modifier": "boss" },
+  "pieces": [
+   "king light 7 7", "rook light 7 0", "pawn light 3 3", "pawn light 3 6",
+   { "type": "boss-titan", "color": "dark", "row": 1, "col": 3, "boss": "titan", "h": 2, "w": 2, "hp": 3, "maxHp": 3, "name": "Titán", "royal": true, "moves": ["king"] }
+  ]
+ },
+ "viewports": ["mobile", "pc"],
+ "themes": ["walnut", "pixelada"],
+ "steps": [
+  { "move": "7,0>6,0" }, { "bot": true },
+  { "move": "6,0>7,0" }, { "bot": true },
+  { "move": "7,0>6,0" }, { "bot": true },
+  { "shot": "aviso" },
+  { "expect": { "noErrors": true, "eval": "!!bench.match.bossPlan && document.querySelectorAll('.doom').length > 0" } },
+  { "move": "6,0>7,0" }, { "bot": true },
+  { "shot": "cumplido" },
+  { "expect": { "noErrors": true, "eval": "!bench.match.bossPlan && document.querySelectorAll('.doom').length === 0" } }
+ ]
+}

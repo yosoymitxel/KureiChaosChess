@@ -197,6 +197,7 @@ export default {
     'rarity.epic': 'epic',
     'howto.ok': 'Got it',
     // src/ui/screens/game.js
+    "boss.warn": "{name} is readying {power}",
     "side.lightLower": "ivory",
     "side.wildLower": "jade",
     "game.tip1": "Tap an enemy piece to see its reach in red.",
@@ -556,6 +557,14 @@ export default {
     "zen.pondGlove": "The pond can only be moved with the gardener's gloves from the shop.",
     "zen.pondPick": "Tap where its top-left corner goes.",
     "zen.moveWhat": "The glove carries pots (plant included) and lanterns elsewhere.",
+    "zen.loosenFirst": "Loosen it with the shovel first; then it can be moved or stored.",
+    "zen.alreadyLoose": "Already loosened: move it with the glove or store it.",
+    "zen.loosened": "Loosened: now the glove can move it, or you can store it.",
+    "zen.crackedStore": "Cracked pot: fix it with the mallet before storing it.",
+    "zen.potFine": "The pot is sound: it cracks after {n} flowers.",
+    "zen.potFixed": "Pot fixed: it holds another {n} flowers.",
+    "zen.potCracked": "Cracked pot: fix it with the mallet to sow again.",
+    "zen.crackedAria": ", cracked",
     "zen.gloveRest": "The glove is resting: {time}. Gardener's gloves don't wait.",
     "zen.movePick": "Tap where you take it.",
     "zen.glove": "Glove",
@@ -578,7 +587,7 @@ export default {
     "zen.shop": "Garden shop",
     "zen.help1": "Seeds drop when you win a node and can be bought in the shop. Pick a packet and tap a pot to sow. Each plant asks for water {steps} times: with water it grows one stretch and stops until you water it again. When the flower opens, cut it with the shears: each flower pays by kind: {pays}. Sage regrows once and lavender, the rare one, sometimes drops its seed.",
     "zen.help2": "Maple leaves fall on the sand, even while you're away: tap them to sweep them (one coin each). If a butterfly lands on a flower, tap it and it leaves you a gift. Tap the pond water to feed the koi.",
-    "zen.help3": "With coins the bed grows up to 8×8, one ring at the bottom right and the next at the top left. New soil is dug with the shovel (it rests between digs) and a pot from the Bag goes on dug soil and sometimes comes with rocks and slabs (break them with the mallet) or bushes (cut them with the shears). Store puts empty pots and lanterns in your bag; the Glove moves pots (plant included) and lanterns without storing them. The pond grows up to 4×4 if there is free soil around it. The shop has a steel shovel, an iron mallet, gardener's gloves (they also move the pond), a big watering can, lanterns that speed up whatever grows beside them, and pots.",
+    "zen.help3": "With coins the bed grows up to 8×8, one ring at the bottom right and the next at the top left. New soil is dug with the shovel (it rests between digs) and a pot from the Bag goes on dug soil and sometimes comes with rocks and slabs (break them with the mallet) or bushes (cut them with the shears). Bushes sprout on their own in free soil. To store (empty pots and lanterns) or move with the Glove (pots with their plant and lanterns), loosen them with the shovel first. Each pot holds {n} flowers and then cracks: the mallet fixes it. The pond grows up to 4×4 if there is free soil around it. The shop has a steel shovel, an iron mallet, gardener's gloves (they also move the pond), a big watering can, lanterns that speed up whatever grows beside them, and pots.",
     // src/ui/app.js
     "boon.extra_mut": "Meditate",
     "boon.extra_mut.desc": "Pick one mutation out of three.",
@@ -1045,13 +1054,13 @@ export default {
   patterns: { pawnBack: 'step back', rook2: 'short rook', bishop2: 'short bishop' },
 
   bosses: {
-    titan: { name: 'Titan', desc: 'Takes 2×2. Advances 1 square and crushes everything it steps on. 3 lives.' },
-    ram: { name: 'Ram', desc: 'Takes 2×2. Charges in a straight line while the lane is clear. 2 lives.' },
-    hydra: { name: 'Hydra', desc: 'Takes 2×2. Crawls diagonally or jumps in an L. 4 lives.' },
-    golem: { name: 'Golem', desc: 'Takes 3×3. Slow: only moves 1 or 2 in a straight line, but whatever it steps on is gone. 5 lives.' },
-    rider: { name: 'Rider', desc: 'Takes 2×1 vertically. Jumps in an L or takes a step. 2 lives.' },
-    wall: { name: 'Wall', desc: 'Takes 1×2 horizontally. Blocks lanes: 2 in a line or 1 diagonally. 3 lives.' },
-    devourer: { name: 'Devourer', desc: 'Takes 2×2. Starts slow, but learns the move of every piece it crushes. 3 lives.' },
+    titan: { name: 'Titan', powerName: 'Stomp', desc: 'Takes 2×2. Advances 1 square and crushes everything it steps on. Stomp: shoves away whatever is next to it. 3 lives.' },
+    ram: { name: 'Ram', powerName: 'Charge', desc: 'Takes 2×2. Charges in a straight line while the lane is clear. Charge: knocks aside whatever is in front of it. 2 lives.' },
+    hydra: { name: 'Hydra', powerName: 'Regrowth', desc: 'Takes 2×2. Crawls diagonally or jumps in an L. Regrowth: gets a life back unless you hit it first. 4 lives.' },
+    golem: { name: 'Golem', powerName: 'Rockfall', desc: 'Takes 3×3. Slow: only moves 1 or 2 in a straight line, but whatever it steps on is gone. Rockfall: sinks a cross on your best piece. 5 lives.' },
+    rider: { name: 'Rider', powerName: 'Squire', desc: 'Takes 2×1 vertically. Jumps in an L or takes a step. Squire: calls a knight to its side (two at most). 2 lives.' },
+    wall: { name: 'Wall', powerName: 'Shove', desc: 'Takes 1×2 horizontally. Blocks lanes: 2 in a line or 1 diagonally. Shove: pushes back whatever is beside and in front of it. 3 lives.' },
+    devourer: { name: 'Devourer', powerName: 'Suction', desc: 'Takes 2×2. Starts slow, but learns the move of every piece it crushes. Suction: pulls in whatever is two squares away. 3 lives.' },
   },
 
   mutations: {
