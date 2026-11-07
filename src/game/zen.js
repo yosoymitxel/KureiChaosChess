@@ -247,6 +247,7 @@ export function zenStore(z, key) {
   if (z.pots[key] === null && !potCracked(z, key)) {
     const pots = { ...z.pots }; delete pots[key];
     items.pot = (items.pot || 0) + 1;
+    items.potWear = [...(items.potWear || []), z.wear?.[key] || 0]; // la maceta se lleva su desgaste a la bolsa
     return { ...z, items, pots, ...relocate(z, key), dug: { ...(z.dug || {}), [key]: true } };
   }
   return z;
@@ -294,7 +295,10 @@ export function zenPlace(z, item, key) {
   const type = cellType(z, key);
   const dug = { ...(z.dug || {}) }; delete dug[key];
   if (item === 'lantern' && (type === 'raw' || type === 'dug')) return { ...z, items, dug, lanterns: [...(z.lanterns || []), key] };
-  if (item === 'pot' && type === 'dug') return { ...z, items, dug, pots: { ...z.pots, [key]: null } };
+  if (item === 'pot' && type === 'dug') {
+    const [w = 0, ...rest] = z.items.potWear || [];
+    return { ...z, items: { ...items, potWear: rest }, dug, pots: { ...z.pots, [key]: null }, wear: { ...(z.wear || {}), ...(w ? { [key]: w } : {}) } };
+  }
   return z;
 }
 
