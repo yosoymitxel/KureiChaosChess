@@ -245,9 +245,16 @@ export class BoardView {
     const mid = [...holes].map((k) => k.split(',').map(Number)).filter(([r, c]) => Math.abs(r - (rows - 1) / 2) <= rows * 0.2 && Math.abs(c - (cols - 1) / 2) <= cols * 0.2);
     if (mid.length < 2) return;
     const rs = mid.map(([r]) => r), cs = mid.map(([, c]) => c);
-    const [r0, r1, c0, c1] = [Math.min(...rs), Math.max(...rs), Math.min(...cs), Math.max(...cs)];
+    let [r0, r1, c0, c1] = [Math.min(...rs), Math.max(...rs), Math.min(...cs), Math.max(...cs)];
     if (mid.length < (r1 - r0 + 1) * (c1 - c0 + 1) * 0.7) return;
-    for (const [r, c] of mid) {
+    // El agua no puede tapar casillas jugables: se recorta el borde con más casillas hasta que solo quede hueco.
+    const solid = (a, b, d, e) => { let n = 0; for (let r = a; r <= b; r++) for (let c = d; c <= e; c++) if (!holes.has(key(r, c))) n++; return n; };
+    while (r0 <= r1 && c0 <= c1 && solid(r0, r1, c0, c1)) {
+      const cut = [[solid(r0, r0, c0, c1), 0], [solid(r1, r1, c0, c1), 1], [solid(r0, r1, c0, c0), 2], [solid(r0, r1, c1, c1), 3]].sort((a, b) => b[0] - a[0])[0][1];
+      if (cut === 0) r0++; else if (cut === 1) r1--; else if (cut === 2) c0++; else c1--;
+    }
+    if (r1 - r0 < 1 || c1 - c0 < 1) return;
+    for (const [r, c] of mid.filter(([r, c]) => r >= r0 && r <= r1 && c >= c0 && c <= c1)) {
       const w = document.createElement('div');
       w.className = 'pond-tile';
       w.dataset.r = r; w.dataset.c = c;
