@@ -27,7 +27,12 @@ export const SEED_BACK = 0.3;
 export const DIG_COOLDOWN = 40_000; // la pala de siempre descansa entre cava y cava
 export const MOVE_COOLDOWN = 30_000; // el guante de siempre, entre mudanza y mudanza
 // Tierra nueva que sale con estorbo: piedra (mazo, varios golpes), arbusto (tijeras) o losa (mazo).
-export const OBSTACLE_CHANCE = { rock: 0.16, bush: 0.1, stone: 0.08 };
+export const OBSTACLE_CHANCE = { rock: 0.22, bush: 0.18, stone: 0.14 };
+// Arbustos que brotan solos en tierra libre (uno cada BUSH_MS, hasta BUSH_MAX a la vez): trabajo para las tijeras.
+export const BUSH_MS = 20 * 60_000;
+export const BUSH_MAX = 4;
+// Una maceta aguanta POT_LIFE flores cortadas y se agrieta: no se siembra hasta arreglarla con el mazo.
+export const POT_LIFE = 4;
 export const ROCK_HP = [2, 3];      // golpes de mazo para partirla
 export const LANTERN_BOOST = 1.25;  // crecimiento al lado de un farol
 // Cada planta pide agua WATER_STEPS veces: con agua crece hasta el siguiente tramo y ahí se para hasta

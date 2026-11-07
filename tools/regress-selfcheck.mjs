@@ -126,5 +126,22 @@ const cells = (p, pieces, b = board()) => new Set(legalMoves(p, pieces, b).map((
   check(zenSky(SKY_SPAN.ms + 3000, () => 0.85) === 'fireflies', 'clima zen: cambia al pasar el tiempo');
 }
 
+// Jardín: la maceta se agrieta tras POT_LIFE flores y el mazo la arregla; mover pide descalzar con la pala;
+// los arbustos brotan solos hasta su tope.
+{
+  const { blankZen, zenDig, zenMove, zenFix, zenSow, potCracked, zenBushes } = await import('../src/game/zen.js');
+  const { POT_LIFE, BUSH_MS, BUSH_MAX } = await import('../src/data/garden.js');
+  let z = { ...blankZen(), items: { shovel: true, glove: true }, seeds: { ...blankZen().seeds, romero: 3 } };
+  z = { ...z, wear: { r0c0: POT_LIFE } };
+  check(potCracked(z, 'r0c0') && zenSow(z, 'r0c0', 'romero') === z, 'jardín: en maceta agrietada no se siembra');
+  check(!potCracked(zenFix(z, 'r0c0'), 'r0c0'), 'jardín: el mazo arregla la maceta');
+  z = { ...z, dug: { r5c5: true } };
+  check(zenMove(z, 'r0c0', 'r5c5', 0) === z, 'jardín: sin pala no se mueve');
+  const moved = zenMove(zenDig(z, 'r0c0', 0), 'r0c0', 'r5c5', 0);
+  check(moved.pots.r5c5 === null && moved.wear.r5c5 === POT_LIFE && !moved.loose.r0c0, 'jardín: se mueve con su desgaste');
+  const grown = zenBushes({ ...blankZen(), size: 8, bushT: 0 }, BUSH_MS * 10, () => 0.5);
+  check(Object.values(grown.tiles).filter((t) => t === 'bush').length === BUSH_MAX, 'jardín: brotan arbustos hasta el tope');
+}
+
 if (fails.length) { console.log('Regresiones:\n' + fails.join('\n')); process.exit(1); }
 console.log('Regresiones OK: guardia, coronación, enroque, cartas, manos, ranuras, copias, maceta y clima del jardín');

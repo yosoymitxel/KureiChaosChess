@@ -55,7 +55,7 @@ for (const view of views) for (const theme of themes) {
     localStorage.setItem('zugzwang.shop.v1', JSON.stringify({ coins: 999 }));
     localStorage.setItem('zugzwang.zensky.v1', JSON.stringify({ sky: 'snow', until: Date.now() + 1e7, left: 3 }));
     // Cantero a medida: tiestos y un arbusto arriba, tierra libre donde crece el estanque.
-    localStorage.setItem('zugzwang.zen.v1', JSON.stringify({ v: 3, size: 4, lake: 2, pots: { r0c0: null, r0c1: null }, tiles: { r0c2: 'bush' }, lanterns: [], seeds: { romero: 1 }, items: { glove: true },
+    localStorage.setItem('zugzwang.zen.v1', JSON.stringify({ v: 3, size: 4, lake: 2, pots: { r0c0: null, r0c1: null }, tiles: { r0c2: 'bush' }, lanterns: [], seeds: { romero: 1 }, items: { glove: true, shovel: true },
       leafT: Date.now(), leaves: [{ x: 0.5, y: 3.5, r: 40 }] }));
   }, theme);
   await page.goto(base + '/');
@@ -128,6 +128,10 @@ for (const view of views) for (const theme of themes) {
   await page.locator('.zn-raw:not(.zn-dug)').last().click();
   await page.waitForTimeout(1500);
   if (await page.locator('.zn-dug').count() === 0) bad('cavar: no quedó tierra cavada');
+  at = 'descalzar';
+  await page.getByRole('button', { name: 'Tiesto vacío' }).first().click();
+  await page.waitForTimeout(400);
+  if (!(await said(/Descalzado/))) bad('descalzar: la pala no soltó la maceta');
   at = 'coger';
   await page.getByRole('button', { name: /^Guante/ }).click();
   await page.getByRole('button', { name: 'Tiesto vacío' }).first().click();

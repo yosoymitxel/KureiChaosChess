@@ -3,7 +3,7 @@
 // los anillos nuevos se suman alternando abajo a la derecha y arriba a la izquierda, como tierra
 // virgen por cavar (a veces con piedras). Las claves de casilla son absolutas: el 4×4 base va de
 // r0c0 a r3c3 y los anillos de arriba o de la izquierda tienen coordenadas negativas.
-import { SEEDS, GARDEN_ITEMS, SEED_BACK, DIG_COOLDOWN, MOVE_COOLDOWN, OBSTACLE_CHANCE, ROCK_HP, LANTERN_BOOST, LAKE_MAX, WATER_STEPS, KOI_HUNGER_MS, KOI_COINS } from '../data/garden.js';
+import { SEEDS, GARDEN_ITEMS, SEED_BACK, DIG_COOLDOWN, MOVE_COOLDOWN, OBSTACLE_CHANCE, ROCK_HP, LANTERN_BOOST, LAKE_MAX, WATER_STEPS, KOI_HUNGER_MS, KOI_COINS, BUSH_MS, BUSH_MAX, POT_LIFE } from '../data/garden.js';
 
 const KEY = 'zugzwang.zen.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
@@ -69,7 +69,8 @@ export function loadZen() {
   if (!z.v) for (const k of ['r1c1', 'r2c1']) if (k in pots) { pots[movedPot(k)] = pots[k]; delete pots[k]; }
   const size = Math.min(ZEN_MAX, Math.max(ZEN_BASE, z.size || ZEN_BASE));
   const out = { ...blankZen(), size, off: z.off || 0, lake: z.lake || 2, pots, rocks: z.rocks || {}, tiles: z.tiles || {}, dug: z.dug || {}, lanterns: z.lanterns || [], lakeAt: z.lakeAt, moveT: z.moveT, items: z.items || {},
-    seeds: seedsOf(z.seeds), flores, planted, leaves: z.leaves || [], leafT: z.leafT, digT: z.digT, koiT: z.koiT };
+    seeds: seedsOf(z.seeds), flores, planted, leaves: z.leaves || [], leafT: z.leafT, digT: z.digT, koiT: z.koiT,
+    wear: z.wear || {}, loose: z.loose || {}, bushT: z.bushT };
   return (z.v || 0) < 3 ? withBase(out) : out;
 }
 const movedPot = (k) => ({ r1c1: 'r1c3', r2c1: 'r2c3' })[k] || k;
@@ -133,9 +134,17 @@ export function zenStage(z, key, now = Date.now()) {
   return { ...out, stage: g >= full * 0.4 ? 'bud' : 'sprout', msLeft: (full - g) / boost, stepLeft: g < cap ? (cap - g) / boost : 0 };
 }
 
-// Sembrar gasta una semilla de verdad: sin semillas no hay planta.
+export const potCracked = (z, key) => (z.wear?.[key] || 0) >= POT_LIFE;
+// El mazo arregla la maceta agrietada: vuelve a aguantar POT_LIFE flores.
+export function zenFix(z, key) {
+  if (!potCracked(z, key)) return z;
+  const wear = { ...z.wear }; delete wear[key];
+  return { ...z, wear };
+}
+
+// Sembrar gasta una semilla de verdad: sin semillas no hay planta. En maceta agrietada no se siembra.
 export function zenSow(z, key, kind, now = Date.now()) {
-  if (z.pots[key] || !(z.seeds[kind] > 0)) return z;
+  if (z.pots[key] || !(z.seeds[kind] > 0) || potCracked(z, key)) return z;
   return {
     ...z,
     pots: { ...z.pots, [key]: { kind, t: now, g: 0 } },
@@ -163,11 +172,21 @@ export function zenWaterAround(z, key, now = Date.now()) {
 // La pala de siempre descansa entre cava y cava; la de acero no.
 export const digWait = (z, now = Date.now()) => (z.items?.shovel || z.digT == null ? 0 : Math.max(0, z.digT + DIG_COOLDOWN - now));
 
-// Cavar prepara la tierra virgen; la maceta se pone después desde la bolsa.
+// Cavar prepara la tierra virgen (la maceta se pone después desde la bolsa) o descalza una maceta o un
+// farol para poder moverlo o guardarlo.
 export function zenDig(z, key, now = Date.now()) {
-  if (cellType(z, key) !== 'raw' || digWait(z, now)) return z;
+  const type = cellType(z, key);
+  if (digWait(z, now) || (type !== 'raw' && type !== 'pot' && type !== 'lantern') || z.loose?.[key]) return z;
+  if (type !== 'raw') return { ...z, loose: { ...(z.loose || {}), [key]: true }, digT: now };
   return { ...z, dug: { ...(z.dug || {}), [key]: true }, digT: now };
 }
+// Lo que cambia de sitio se lleva su desgaste y deja de estar descalzado.
+const relocate = (z, from, to) => {
+  const wear = { ...(z.wear || {}) }, loose = { ...(z.loose || {}) };
+  if (from in wear) { if (to) wear[to] = wear[from]; delete wear[from]; }
+  delete loose[from];
+  return { wear, loose };
+};
 // Un golpe de mazo a una piedra (el de hierro la parte de una vez). Devuelve el jardín y si se partió.
 export function zenBreak(z, key) {
   const hp = z.rocks?.[key];
@@ -187,6 +206,7 @@ export function zenHarvest(z, key, now = Date.now(), rng = Math.random) {
     ...z,
     pots: { ...z.pots, [key]: again ? { kind, t: now, g: 0, regrown: (pot.regrown || 0) + 1 } : null },
     flores: { ...z.flores, [kind]: (z.flores[kind] || 0) + 1 },
+    wear: { ...(z.wear || {}), [key]: (z.wear?.[key] || 0) + 1 },
     seeds: back ? { ...z.seeds, [kind]: (z.seeds[kind] || 0) + 1 } : z.seeds,
     gift: back ? kind : null,
   };
@@ -216,17 +236,18 @@ export function zenClear(z, key) {
   return { ...z, tiles };
 }
 
-// Guardar en la bolsa un tiesto vacío o un farol; la casilla queda como tierra virgen.
+// Guardar en la bolsa un tiesto vacío y sano o un farol, ya descalzados con la pala; queda tierra cavada.
 export function zenStore(z, key) {
+  if (!z.loose?.[key]) return z;
   const items = { ...z.items };
   if ((z.lanterns || []).includes(key)) {
     items.lantern = (items.lantern || 0) + 1;
-    return { ...z, items, lanterns: z.lanterns.filter((k) => k !== key), dug: { ...(z.dug || {}), [key]: true } };
+    return { ...z, items, ...relocate(z, key), lanterns: z.lanterns.filter((k) => k !== key), dug: { ...(z.dug || {}), [key]: true } };
   }
-  if (z.pots[key] === null) {
+  if (z.pots[key] === null && !potCracked(z, key)) {
     const pots = { ...z.pots }; delete pots[key];
     items.pot = (items.pot || 0) + 1;
-    return { ...z, items, pots, dug: { ...(z.dug || {}), [key]: true } };
+    return { ...z, items, pots, ...relocate(z, key), dug: { ...(z.dug || {}), [key]: true } };
   }
   return z;
 }
@@ -248,14 +269,14 @@ const clearDug = (z) => ({ ...z, dug: Object.fromEntries(Object.entries(z.dug ||
 // mudanza y mudanza; el de jardinero no.
 export const moveWait = (z, now = Date.now()) => (z.items?.glove || z.moveT == null ? 0 : Math.max(0, z.moveT + MOVE_COOLDOWN - now));
 export function zenMove(z, from, to, now = Date.now()) {
-  if (from === to || moveWait(z, now)) return z;
+  if (from === to || moveWait(z, now) || !z.loose?.[from]) return z;
   const what = cellType(z, from), dest = cellType(z, to), dug = { ...(z.dug || {}), [from]: true };
   delete dug[to];
   if (what === 'pot' && dest === 'dug') {
     const pots = { ...z.pots, [to]: z.pots[from] }; delete pots[from];
-    return { ...z, pots, dug, moveT: now };
+    return { ...z, pots, dug, ...relocate(z, from, to), moveT: now };
   }
-  if (what === 'lantern' && (dest === 'raw' || dest === 'dug')) return { ...z, lanterns: z.lanterns.map((k) => (k === from ? to : k)), dug, moveT: now };
+  if (what === 'lantern' && (dest === 'raw' || dest === 'dug')) return { ...z, lanterns: z.lanterns.map((k) => (k === from ? to : k)), dug, ...relocate(z, from, to), moveT: now };
   return z;
 }
 // Con los guantes de jardinero también se mueve el estanque: su esquina de arriba a la izquierda va a
@@ -299,7 +320,25 @@ export function zenLeaves(z, now = Date.now(), rng = Math.random) {
   const fresh = Array.from({ length: Math.min(due, room) }, () => ({ x: 0.3 + rng() * (z.size - 0.6), y: 0.3 + rng() * (z.size - 0.6), r: Math.floor(rng() * 360) }));
   return { ...z, leaves: [...leaves, ...fresh], leafT: z.leafT + due * LEAF_MS };
 }
-export const zenSweep = (z, leaf) => ({ ...z, leaves: (z.leaves || []).filter((l) => l !== leaf) });
+// Arbustos: brotan solos en tierra libre (virgen o cavada) uno cada BUSH_MS, hasta BUSH_MAX a la vez.
+export function zenBushes(z, now = Date.now(), rng = Math.random) {
+  if (z.bushT == null) return { ...z, bushT: now };
+  const due = Math.floor((now - z.bushT) / BUSH_MS);
+  if (due <= 0) return z;
+  const tiles = { ...(z.tiles || {}) }, dug = { ...(z.dug || {}) }, off = z.off || 0;
+  const free = [];
+  for (let r = -off; r < z.size - off; r++) for (let c = -off; c < z.size - off; c++) {
+    const k = cellKey(r, c), t = cellType(z, k);
+    if (t === 'raw' || t === 'dug') free.push(k);
+  }
+  let room = BUSH_MAX - Object.values(tiles).filter((t) => t === 'bush').length;
+  for (let i = 0; i < due && room > 0 && free.length; i++, room--) {
+    const k = free.splice(Math.floor(rng() * free.length), 1)[0];
+    tiles[k] = 'bush'; delete dug[k];
+  }
+  return { ...z, tiles, dug, bushT: z.bushT + due * BUSH_MS };
+}
+export const zenSweep = (z, leaf) =>({ ...z, leaves: (z.leaves || []).filter((l) => l !== leaf) });
 
 // Clima del jardín: casi siempre despejado; uno especial dura un rato o unas partidas, lo que pase antes.
 const SKY_KEY = 'zugzwang.zensky.v1';

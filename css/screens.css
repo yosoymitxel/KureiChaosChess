@@ -739,6 +739,10 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
   translate: -50% 0; transform-origin: 50% 100%; overflow: visible;
   filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.32));
 }
+/* Descalzado con la pala: se levanta un poco, listo para el guante. */
+.zn-loose > svg { translate: -50% -8%; }
+.zn-lit.zn-loose > svg { translate: 0 -8%; }
+.zn-cracked .zn-plant { filter: drop-shadow(0 3px 2px oklch(0.15 0.03 55 / 0.32)) saturate(0.6); }
 .zen-pot::after { content: ''; position: absolute; left: 22%; right: 22%; bottom: 2%; height: 12%; border-radius: 50%; background: radial-gradient(closest-side, oklch(0.15 0.03 55 / 0.45), transparent); }
 /* Esmalte de la maceta y color de la flor por especie; la vacía es barro sin esmaltar. */
 .zn-k-romero { --glaze: oklch(0.72 0.06 172); --fl: oklch(0.76 0.09 278); }

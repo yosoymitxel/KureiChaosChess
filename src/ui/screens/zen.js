@@ -8,8 +8,8 @@ import { Icon } from '../icons.js';
 import { Fx } from '../../view/fx.js';
 import { Pond, runPond } from '../../view/pond.js';
 import { chipArt, POT, SOIL, plantArt, pondArt, pondInside, MOSS, STEP, LANTERN, BRANCH, mapleLeaf, rakeArt, BUTTERFLY, CAN, SHEARS, SHOVEL, POUCH, GLOVE, px, stoneArt, ITEM_ART, KOI_ART } from '../zen-art.js';
-import { ZEN_KINDS, ZEN_NAMES, ZEN_MAX, cellKey, cellType, lakeRect, expandCost, zenStage, zenSow, zenWater, zenWaterAround, zenDig, digWait, zenBreak, zenHarvest, zenExpand, zenLake, zenPlace, zenClear, zenStore, zenMove, zenMovePond, moveWait, zenLeaves, zenSweep, koiHungry, feedKoi, zenSky, LEAF_COINS, BUTTERFLY_MS, butterflyGift, loadZen, saveZen } from '../../game/zen.js';
-import { SEEDS, GARDEN_ITEMS, LAKE_MAX, lakeCost, DIG_COOLDOWN, MOVE_COOLDOWN, WATER_STEPS } from '../../data/garden.js';
+import { ZEN_KINDS, ZEN_NAMES, ZEN_MAX, cellKey, cellType, lakeRect, expandCost, zenStage, zenSow, zenWater, zenWaterAround, zenDig, digWait, zenBreak, zenHarvest, zenExpand, zenLake, zenPlace, zenClear, zenStore, zenMove, zenMovePond, moveWait, zenLeaves, zenBushes, zenFix, potCracked, zenSweep, koiHungry, feedKoi, zenSky, LEAF_COINS, BUTTERFLY_MS, butterflyGift, loadZen, saveZen } from '../../game/zen.js';
+import { SEEDS, GARDEN_ITEMS, LAKE_MAX, lakeCost, DIG_COOLDOWN, MOVE_COOLDOWN, WATER_STEPS, POT_LIFE } from '../../data/garden.js';
 import { award } from '../../game/achievements.js';
 import { addCoins, charge, loadShop } from '../../game/shop.js';
 import { playSfx } from '../sfx.js';
@@ -53,19 +53,20 @@ const OUT = [0.16, 1, 0.3, 1];
 
 // Una maceta completa: el tiesto quieto y la planta encima según su etapa, meciéndose a su ritmo.
 // `.zn-grow` es el asa de las animaciones (brotar, estirón, cortar) sin pisar el balanceo.
-function potArt(kind, stage, d = 0) {
+function potArt(kind, stage, d = 0, cracked = false) {
   const sprite = kind && ['sprout', 'bud', 'bloom'].includes(stage);
   return html`<svg class=${'zn-plant' + (kind ? ' zn-k-' + kind : ' zn-empty')} viewBox="0 0 24 24" aria-hidden="true">
     <g class="zn-vec">${POT}</g>${px('pot', 24, 24)}
     <g class="zn-sway" style=${{ '--d': `-${d}s` }}><g class="zn-grow"><g class="zn-vec" transform="translate(12 15.3) scale(1.28) translate(-12 -15.3)">${kind && plantArt(kind, stage)}</g>${sprite && px(`${kind}-${stage}`, 24, 24)}</g></g>
     <g class="zn-vec">${SOIL}</g>
+    ${cracked && html`<path class="zn-crack" d="M9.4 15.4 10.6 17.6 9.4 19.8 10.4 21.2"/><path class="zn-crack" d="M15.2 16.4 14.2 18.4 15.4 20.2"/>`}
   </svg>`;
 }
 
 export function ZenScreen({ onBack, onShop }) {
   const ref = useRef(null);
   useEnter(ref);
-  const [z, setZ] = useState(() => { const n = zenLeaves(loadZen(), Date.now()); saveZen(n); return n; });
+  const [z, setZ] = useState(() => { const n = zenBushes(zenLeaves(loadZen(), Date.now()), Date.now()); saveZen(n); return n; });
   const [, tick] = useState(0);
   const [seed, setSeed] = useState(0); // especie elegida para sembrar
   const [tool, setTool] = useState('sow');
@@ -91,7 +92,7 @@ export function ZenScreen({ onBack, onShop }) {
   useEffect(() => {
     const id = setInterval(() => {
       tick((n) => n + 1);
-      setZ((cur) => { const n = zenLeaves(cur, Date.now()); if (n !== cur) saveZen(n); return n; });
+      setZ((cur) => { const n = zenBushes(zenLeaves(cur, Date.now()), Date.now()); if (n !== cur) saveZen(n); return n; });
     }, 1000);
     return () => clearInterval(id);
   }, []);
@@ -105,6 +106,7 @@ export function ZenScreen({ onBack, onShop }) {
   const seedKind = ZEN_KINDS[seed];
   const apply = (next) => { if (next !== z) { saveZen(next); setZ(next); } };
   const say = (s) => { setArmed(false); setMsg(s); };
+  const LOOSEN = t('zen.loosenFirst', 'Primero descálzalo con la pala; luego se mueve o se guarda.');
   // Ficha sobre la cosa tocada, como las de las casillas del tablero.
   const [tip, setTip] = useState(null);
   const info = (key, type) => {
@@ -294,6 +296,8 @@ export function ZenScreen({ onBack, onShop }) {
     setTip(null);
     if (tool === 'store') {
       const next = zenStore(z, key);
+      if (next === z && (type === 'pot' || type === 'lantern') && !z.loose?.[key]) return say(LOOSEN);
+      if (next === z && potCracked(z, key)) return say(t('zen.crackedStore', 'Maceta agrietada: arréglala con el mazo antes de guardarla.'));
       if (next === z) return say(type === 'pot' ? t('zen.storePlant', 'Con planta no se guarda: muévela con el guante.') : t('zen.storeWhat', 'Con Guardar se llevan a la bolsa los tiestos vacíos y los faroles.'));
       fxLift(key, () => apply(next));
       return say(type === 'lantern' ? t('zen.lanternStored', 'Farol a la bolsa: elígelo abajo y ponlo donde quieras.') : t('zen.potStored', 'Maceta a la bolsa: elígela abajo y ponla donde quieras.'));
@@ -318,6 +322,7 @@ export function ZenScreen({ onBack, onShop }) {
         setMoving('pond'); pickFx(yardRef.current?.querySelector('.zen-pond')); return say(t('zen.pondPick', 'Toca dónde va su esquina de arriba a la izquierda.'));
       }
       if (type !== 'pot' && type !== 'lantern') return say(t('zen.moveWhat', 'El guante lleva macetas (con su planta) y faroles a otro sitio.'));
+      if (!z.loose?.[key]) return say(LOOSEN);
       const wait = moveWait(z, now);
       if (wait) return say(t('zen.gloveRest', 'El guante descansa: {time}. Los guantes de jardinero no esperan.', { time: secs(wait) }));
       playSfx('pop'); setMoving(key); pickFx(cellOf(key));
@@ -329,6 +334,19 @@ export function ZenScreen({ onBack, onShop }) {
       apply(next); playSfx('dig'); later(() => pfx('bluntHit', cellOf(key), 0.7, { palette: SAND_RAMP }), 80);
       if (!next.items[tool]) setTool('sow');
       return say(tool === 'lantern' ? t('zen.lanternSet', 'Farol puesto: lo que crece a su lado abre antes.') : t('zen.potSet', 'Maceta puesta: ya se puede sembrar.'));
+    }
+    // Pala sobre maceta o farol: lo descalza para poder moverlo o guardarlo.
+    if (tool === 'dig' && (type === 'pot' || type === 'lantern')) {
+      if (z.loose?.[key]) return say(t('zen.alreadyLoose', 'Ya está descalzado: muévelo con el guante o guárdalo.'));
+      const wait = digWait(z, now);
+      if (wait) return say(t('zen.shovelRest', 'La pala descansa: {time}. La de acero de la tienda no espera.', { time: secs(wait) }));
+      apply(zenDig(z, key, now)); fxDig(key);
+      return say(t('zen.loosened', 'Descalzado: ya se puede mover con el guante o guardar.'));
+    }
+    if (type === 'pot' && tool === 'hammer') {
+      if (!potCracked(z, key)) return say(t('zen.potFine', 'La maceta está sana: se agrieta tras {n} flores.', { n: POT_LIFE }));
+      fxClear(key, 'hammer', () => apply(zenFix(z, key)));
+      return say(t('zen.potFixed', 'Maceta arreglada: aguanta otras {n} flores.', { n: POT_LIFE }));
     }
     if (type === 'lantern') return info(key, 'lantern');
     if (type === 'bush' || type === 'stone') {
@@ -353,6 +371,7 @@ export function ZenScreen({ onBack, onShop }) {
     const st = zenStage(z, key, now);
     if (tool === 'sow') {
       if (st.stage === 'empty') {
+        if (potCracked(z, key)) return say(t('zen.potCracked', 'Maceta agrietada: arréglala con el mazo para volver a sembrar.'));
         if (!(z.seeds[seedKind] > 0)) return say(t('zen.noSeeds', 'Sin semillas de {kind}: caen al ganar nodos y se venden en la tienda.', { kind: ZEN_NAMES[seedKind] }));
         apply(zenSow(z, key, seedKind, now));
         fxSow(key);
@@ -519,8 +538,9 @@ export function ZenScreen({ onBack, onShop }) {
     const need = st.stage === 'bloom' ? 'cut' : st.kind && !st.watered ? 'water' : null;
     const d = (key.charCodeAt(1) * 7 + key.charCodeAt(3) * 3) % 10 / 3;
     const wet = st.watered && st.stage !== 'bloom';
-    return html`<button key=${key} data-k=${key} class=${'bm-cell zen-pot' + (st.stage === 'bloom' ? ' ready' : '') + (wet ? ' wet' : '')} aria-label=${label} onClick=${() => tap('pot', key)}>
-      ${potArt(st.kind, st.stage, d)}
+    const cracked = potCracked(z, key);
+    return html`<button key=${key} data-k=${key} class=${'bm-cell zen-pot' + (st.stage === 'bloom' ? ' ready' : '') + (wet ? ' wet' : '') + (cracked ? ' zn-cracked' : '') + (z.loose?.[key] ? ' zn-loose' : '')} aria-label=${label + (cracked ? t('zen.crackedAria', ', agrietada') : '')} onClick=${() => tap('pot', key)}>
+      ${potArt(st.kind, st.stage, d, cracked)}
       ${need && html`<span class=${'zn-need ' + need}><${Icon} name=${need === 'cut' ? 'shears' : 'drop'} size=${14} /></span>`}
     </button>`;
   };
@@ -547,7 +567,7 @@ export function ZenScreen({ onBack, onShop }) {
         continue;
       }
       if (ct === 'lantern') {
-        cells.push(html`<button key=${key} data-k=${key} class="bm-cell zn-deco zn-tall zn-lit" aria-label=${t('zen.lanternLit', 'Farol encendido')} onClick=${() => tap('lantern', key)}>${LANTERN}</button>`);
+        cells.push(html`<button key=${key} data-k=${key} class=${'bm-cell zn-deco zn-tall zn-lit' + (z.loose?.[key] ? ' zn-loose' : '')} aria-label=${t('zen.lanternLit', 'Farol encendido')} onClick=${() => tap('lantern', key)}>${LANTERN}</button>`);
         keep(r, c, ROOM.lantern);
         // Su luz cubre justo lo que acelera: la casilla y sus ocho vecinas, sin salirse del cantero.
         const [x0, x1, y0, y1] = [Math.max(0, c + off - 1), Math.min(z.size, c + off + 2), Math.max(0, r + off - 1), Math.min(z.size, r + off + 2)];
@@ -668,7 +688,7 @@ export function ZenScreen({ onBack, onShop }) {
         <h2>${t('zen.help', 'Cómo se cuida el jardín')}</h2>
         <p>${t('zen.help1', 'Las semillas caen al ganar un nodo y se compran en la tienda. Elige un sobre y toca un tiesto para sembrar. Cada planta pide agua {steps} veces: con agua crece un tramo y se para hasta que la vuelvas a regar. Cuando la flor abre, córtala con las tijeras: cada flor paga según su especie: {pays}. La salvia rebrota una vez y la lavanda, rara, a veces suelta su semilla.', { steps: WATER_STEPS, pays: ZEN_KINDS.map((k) => `${ZEN_NAMES[k].toLowerCase()} ${SEEDS[k].pays}`).join(', ') })}</p>
         <p>${t('zen.help2', 'Del arce caen hojas a la arena, también mientras no estás: tócalas para barrerlas (una moneda cada una). Si una mariposa se posa en una flor, tócala y te deja un regalo. Toca el agua del estanque para dar de comer a los koi.')}</p>
-        <p>${t('zen.help3', 'Con monedas el cantero crece hasta 8×8, un anillo abajo a la derecha y el siguiente arriba a la izquierda. La tierra nueva se cava con la pala (descansa entre cava y cava) y en la tierra cavada se pone una maceta de la Bolsa y a veces sale con piedras y losas (se parten con el mazo) o arbustos (se cortan con las tijeras). Con Guardar te llevas a la bolsa tiestos vacíos y faroles; con el Guante mueves macetas (con planta) y faroles sin guardarlos. El estanque crece hasta 4×4 si tiene tierra libre alrededor. En la tienda hay pala de acero, mazo de hierro, guantes de jardinero (también mueven el estanque), regadera grande, faroles que aceleran lo que crece a su lado y macetas.')}</p>
+        <p>${t('zen.help3', 'Con monedas el cantero crece hasta 8×8, un anillo abajo a la derecha y el siguiente arriba a la izquierda. La tierra nueva se cava con la pala (descansa entre cava y cava) y en la tierra cavada se pone una maceta de la Bolsa y a veces sale con piedras y losas (se parten con el mazo) o arbustos (se cortan con las tijeras). Los arbustos brotan solos en la tierra libre. Para guardar (tiestos vacíos y faroles) o mover con el Guante (macetas con planta y faroles) primero se descalzan con la pala. Cada maceta aguanta {n} flores y se agrieta: el mazo la arregla. El estanque crece hasta 4×4 si tiene tierra libre alrededor. En la tienda hay pala de acero, mazo de hierro, guantes de jardinero (también mueven el estanque), regadera grande, faroles que aceleran lo que crece a su lado y macetas.', { n: POT_LIFE })}</p>
         <button class="btn primary" autofocus onClick=${() => setHelp(false)}>${t('howto.ok', 'Entendido')}</button>
       </div>
     </div>`}
