@@ -38,7 +38,9 @@ const AIM = {
   rockfall(m, b) {
     const foes = m.pieces.filter((p) => p.color !== b.color && !p.royal);
     const p = foes.sort((x, y) => (PIECE_VALUE[y.type] || 20) - (PIECE_VALUE[x.type] || 20) || Math.random() - 0.5)[0];
-    return p ? [[p.row, p.col], [p.row - 1, p.col], [p.row + 1, p.col], [p.row, p.col - 1], [p.row, p.col + 1]].filter(inBoard(m)) : [];
+    const royal = m.pieces.filter((x) => x.royal && !x.boss);
+    return p ? [[p.row, p.col], [p.row - 1, p.col], [p.row + 1, p.col], [p.row, p.col - 1], [p.row, p.col + 1]].filter(inBoard(m))
+      .filter(([r, c]) => !royal.some((k) => k.row === r && k.col === c)) : [];
   },
   summon: (m, b) => ring(b).filter(([r, c]) => walkable(m.board, r, c) && !buildOccupancy(m.pieces).get(key(r, c))).slice(0, 1),
   push: (m, b) => { const out = []; for (let c = b.col - 3; c < b.col + b.w + 3; c++) for (let r = b.row; r < b.row + b.h + 1; r++) if (c < b.col || c >= b.col + b.w || r >= b.row + b.h) out.push([r, c]); return out.filter(inBoard(m)); },
@@ -54,7 +56,9 @@ const DO = {
     b.hp++;
     out.fx.push({ power: b.id, color: '#7dffb0' }, { float: [b.row, b.col, '+1'] });
   },
-  rockfall(m, b, cells, out) {
+  rockfall(m, b, all, out) {
+    // Nunca bajo un jefe: se quedaría sobre el vacío.
+    const cells = all.filter(([r, c]) => !m.pieces.some((p) => p.boss && cellsOf(p).some(([a, d]) => a === r && d === c)));
     out.fx.push({ blast: cells });
     for (const [r, c] of cells) m.board.holes.add(key(r, c));
     for (const p of m.pieces.filter((x) => !x.boss && cellsOf(x).some(([r, c]) => cells.some(([a, d]) => a === r && d === c)))) {
