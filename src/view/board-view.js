@@ -452,7 +452,7 @@ export class BoardView {
 
 
   clearMarks() {
-    for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger', 'target', 'gain', 'foot', 'hot', 'block', 'veil');
+    for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger', 'castle', 'target', 'gain', 'foot', 'hot', 'block', 'veil');
     for (const el of this.els.values()) el.classList.remove('eligible');
     for (const el of this.tilesEl.querySelectorAll('.prop.reach')) el.classList.remove('reach');
     this.host.classList.remove('aiming');
