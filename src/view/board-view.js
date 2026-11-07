@@ -86,6 +86,7 @@ export class BoardView {
     this.piecesEl = host.querySelector('.pieces');
     this.fx = new Fx(host); this.fx.vfx = vfx;
     this.tiles = new Map();
+    this.doomCells = new Set();
     this.els = new Map(); // piece -> element
     this.state = new Map(); // piece -> {r,c,z}
     this.ro = new ResizeObserver(() => this.layout());
@@ -210,9 +211,24 @@ export class BoardView {
   refreshTile(r, c) {
     const k = key(r, c), old = this.tiles.get(k);
     if (this.board.holes.has(k) && !this.iceHole(k)) { old?.remove(); this.tiles.delete(k); return; }
-    const t = this.tileEl(this.board, r, c);
-    if (old) old.replaceWith(t); else this.tilesEl.appendChild(t);
-    this.tiles.set(k, t);
+    if (old) {
+      const terrain = this.board.terrain?.get(k);
+      const pair = terrain === 'portal' ? portalAt(this.board, r, c)?.pair : null;
+      old.classList.toggle('ice', terrain === 'ice' && !this.board.holes.has(k));
+      old.classList.toggle('icehole', terrain === 'ice' && this.board.holes.has(k));
+      old.classList.toggle('portal', terrain === 'portal');
+      old.classList.toggle('pair-a', pair === 'pair-a');
+      old.classList.toggle('pair-b', pair === 'pair-b');
+    } else {
+      const t = this.tileEl(this.board, r, c);
+      if (this.doomCells.has(k)) {
+        t.classList.add('doom');
+        if (this.fx.vfx) t.append(Object.assign(document.createElement('i'), { className: 'doom-fx' }));
+      }
+      if (this.cursor?.row === r && this.cursor?.col === c && this.host.matches(':focus-visible')) t.classList.add('cursor');
+      this.tilesEl.appendChild(t);
+      this.tiles.set(k, t);
+    }
     this.refreshEdges();
   }
 
@@ -1146,6 +1162,7 @@ export class BoardView {
 
   // Meteorito avisado: las casillas de la cruz laten en rojo hasta que cae.
   setDoom(cells = [], sound = true) {
+    this.doomCells = new Set(cells.map(([r, c]) => key(r, c)));
     if (cells.length && sound) playSfx('alarm');
     for (const t of this.tiles.values()) { t.classList.remove('doom'); t.querySelector('.doom-fx')?.remove(); }
     for (const [r, c] of cells) {

@@ -105,6 +105,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     // Alcance de un bando (toque en su fila del panel): las casillas a las que podría ir en su
     // próxima jugada. Con niebla solo el propio. Se apaga al volver a tocar, al tocar el tablero o al cambiar de turno.
     d.showReach = (color) => {
+      if (color && d.cardSel != null) cancelCard();
       const humans = seats.filter((s) => s.kind === 'human').map((s) => s.color);
       if (!color || d.reach === color || (node.modifier === 'fog' && !humans.includes(color))) {
         d.reach = null; setReach(null); return d.view.setReach(null);
@@ -128,7 +129,9 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       }
       if (scenario?.labels) d.view.setLabels(scenario.labels(match));
       if (scenario?.goals) d.view.setGoals(scenario.goals(match));
-      if (scenario?.doom && !match.turn) d.view.setDoom(scenario.doom());
+      if (scenario?.doom) {
+        if (!match.turn) d.view.setDoom(scenario.doom());
+      } else d.view.setDoom(match.doom || [], false);
       // Ajedrez invisible: lo rival desaparece; lo tuyo, en transparencia.
       if (node.modifier === 'potato') {
         const heirs = Object.values(match.mech?.heirs || {});
@@ -171,6 +174,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (!humanTurn() || (match.cardUsed && !CARDS[d.hand[i]]?.lilac)) return;
       if (CARDS[d.hand[i]]?.preMatch) { addLog(t('game.organizeLater', 'Organizar: se juega al empezar la partida')); return; }
       if (d.cardSel === i) return cancelCard();
+      if (d.reach) d.showReach(null);
       clearSel();
       d.cardSel = i; d.cardPick = null; setCardSel(i); setCardTip(null);
       const { card, keys, pieces } = aim();
