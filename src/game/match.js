@@ -7,6 +7,7 @@ import { PIECE_VALUE, MINOR_TYPES } from '../data/pieces.js';
 import { RIVALS } from './difficulty.js';
 import { reserveIds } from './generate.js';
 import { mechOf } from './mechanics.js';
+import { bossPower } from './boss-powers.js';
 
 // Turns per player without a capture before the game is decided on piece count.
 export const QUIET_LIMIT = 20;
@@ -260,7 +261,7 @@ export class Match {
     this.current = next;
     this.turnBonus = this.bonus?.(this) || 0;
     const tick = this.tick?.(this) || null;
-    const mech = this.rule?.turn?.(this) || null;
+    const mech = this.rule?.turn?.(this) || bossPower(this, mover);
     const witch = this.witchStep(mover);
     if (this.checkOver()) return { ended: true, collapse, meteor, tick, mech, witch, over: this.over };
     return { ended: true, collapse, meteor, tick, mech, witch };
@@ -350,7 +351,7 @@ function cheapestAttacker(match, mover, row, col, hits) {
 // Greedy bot: captures by value, centralisation, pressure on the enemy royal. The rival profile
 // (difficulty.js) dials what it sees, what it protects and how often it blunders.
 // Partida a medias, guardable en localStorage (salir al mapa o al menú y volver a entrar).
-const STATE = ['current', 'movesThisTurn', 'turn', 'eliminated', 'quietTurns', 'bonusMoves', 'turnBonus', 'cardUsed', 'doom', 'mech'];
+const STATE = ['current', 'movesThisTurn', 'turn', 'eliminated', 'quietTurns', 'bonusMoves', 'turnBonus', 'cardUsed', 'doom', 'mech', 'bossPlan', 'bossTurns'];
 const toJSON = (v) => JSON.stringify(v, (_, x) => (x instanceof Set ? { $set: [...x] } : x instanceof Map ? { $map: [...x] } : x));
 const fromJSON = (s) => JSON.parse(s, (_, x) => (x?.$set ? new Set(x.$set) : x?.$map ? new Map(x.$map) : x));
 export function freezeMatch(match, dealt) {
@@ -374,13 +375,15 @@ export function thawMatch(saved) {
 }
 
 export function botChooseMove(match) {
-  const doomed = match.doom && ((r, c) => match.doom.some(([a, b]) => a === r && b === c));
+  const marked = [...(match.doom || []), ...(match.bossPlan?.cells || [])];
+  const doomed = marked.length && ((r, c) => marked.some(([a, b]) => a === r && b === c));
   const { pieces, board } = match;
   const R = match.rivals?.[match.player.color] || match.rival || RIVALS.oficial;
   const color = match.player.color;
   const mine = pieces.filter((p) => p.color === color && !p.witch); // la bruja va por su cuenta (witchStep)
   const royal = pieces.find((p) => p.royal && p.color !== color);
   const options = [];
+  const memo = ((match.botMemo ||= {})[match.player.color] ||= { back: new Map(), last: null, streak: 0 });
   // Lo que vale perder la pieza: el jefe pierde una vida por golpe, no la partida de una vez,
   // pero cada golpe pesa más cuantas menos le quedan (con la última vale lo que un rey).
   const worth = (p) => (p.boss ? 60 + 400 / (p.hp || 1) : p.royal ? 400 : PIECE_VALUE[p.type] || 20);
@@ -420,6 +423,11 @@ export function botChooseMove(match) {
       // Peón que quiere coronar (La cacería): cuanto más cerca del fondo, mejor.
       if (R.advance && p.type === 'pawn') score += R.advance * (p.color === 'light' ? board.rows - 1 - m.row : m.row);
       if (match.rule?.bot) score += match.rule.bot(match, p, m);
+      // Sin esto el bot deshacía su jugada anterior (ida y vuelta) casi una de cada cinco veces.
+      if (!m.hits.length) {
+        if (memo.back.get(p.id) === m.row + ',' + m.col) score -= 30;
+        if (memo.last === p.id && memo.streak > 2) score -= 4 * memo.streak;
+      }
       if (care) {
         const attacker = cheapestAttacker(match, p, m.row, m.col, m.hits);
         if (attacker != null) score -= care * Math.max(0, worth(p) - attacker);
@@ -428,7 +436,11 @@ export function botChooseMove(match) {
     }
   }
   if (!options.length) return null;
-  if (R.blunder && Math.random() < R.blunder) return options[Math.floor(Math.random() * options.length)];
-  return options.reduce((best, o) => (o.score > best.score ? o : best));
+  const pick = R.blunder && Math.random() < R.blunder ? options[Math.floor(Math.random() * options.length)]
+    : options.reduce((best, o) => (o.score > best.score ? o : best));
+  memo.back.set(pick.piece.id, pick.piece.row + ',' + pick.piece.col);
+  memo.streak = memo.last === pick.piece.id ? memo.streak + 1 : 1;
+  memo.last = pick.piece.id;
+  return pick;
 }
 

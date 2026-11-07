@@ -460,7 +460,7 @@ Object.assign(SCENARIOS, {
     levels: {
       facil: { coins: 4, time: 6, every: 4, foes: ['pawn', 'pawn', 'knight'], rival: 'aprendiz', piece: ['queen', 'rook'] },
       normal: { coins: 4, time: 6, every: 4, foes: ['pawn', 'knight', 'bishop'], rival: 'oficial', piece: ['rook', 'bishop', 'knight'] },
-      dificil: { coins: 5, time: 6, every: 3, foes: ['knight', 'bishop', 'rook'], rival: 'oficial', piece: ['knight', 'bishop'] },
+      dificil: { coins: 5, time: 7, every: 3, foes: ['knight', 'bishop', 'rook'], rival: 'oficial', piece: ['knight', 'bishop'] },
     },
     setup(lv, rng) {
       const b = board(), runner = makePiece(pickFrom(rng, lv.piece), 'light', N - 1, Math.floor(rng() * N), { royal: true }), pieces = [runner];
