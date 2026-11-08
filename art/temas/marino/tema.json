@@ -8,7 +8,7 @@
     "tile-a": "#d8cda9",
     "tile-b": "#39706e",
     "tile-side": "#244e55",
-    "side-light": "#83bcb4",
+    "side-light": "#f4a08c",
     "side-dark": "#717bb0",
     "side-wild": "#a85f49",
     "paper": "#e8e2ca",
@@ -34,11 +34,11 @@
   },
   "bandos": {
     "claro": [
-      "#b7e2d9",
-      "#83bcb4",
-      "#4a8e8d",
-      "#2d636c",
-      "#19414e"
+      "#ffd6c8",
+      "#f4a08c",
+      "#d46e62",
+      "#9c4a4a",
+      "#5f2c34"
     ],
     "oscuro": [
       "#d5d7ef",
