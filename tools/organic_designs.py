@@ -1058,3 +1058,185 @@ THEMES['liminal'] = {
                 'boss-hydra': lib_hydra, 'boss-golem': lib_golem, 'boss-rider': lib_rider, 'boss-wall': lib_wall,
                 'boss-devourer': lib_devourer},
 }
+
+# ---------- Marino: arrecife y abismo ----------
+def fish(s, cx, cy, rx, ry, tail=True, d=1, eye=True):
+    if tail: s.stroke([(cx - d * rx * 0.8, cy), (cx - d * (rx + 3), cy - 3)], 1.6, 0.6).stroke([(cx - d * rx * 0.8, cy), (cx - d * (rx + 3), cy + 3)], 1.6, 0.6)
+    s.ell(cx, cy, rx, ry)
+    s.ell(cx + d * rx * 0.2, cy + ry * 0.45, rx * 0.7, ry * 0.4, mat='belly')
+    if eye: s.ell(cx + d * rx * 0.6, cy - ry * 0.25, 1.3, 1.3, mat='eye').dot(cx + d * rx * 0.65, cy - ry * 0.25, 'o')
+
+def m_pawn(s):  # pez payaso
+    fish(s, 18, 27, 8, 6)
+    for x in (15, 20):
+        s.stroke([(x, 21.5), (x + 0.5, 32.5)], 1, mat='w')
+    s.stroke([(16, 21.5), (19, 18.5), (22, 21.5)], 1.2)
+
+def m_rook(s):  # coral cerebro
+    s.ell(18, 26, 13, 9)
+    s.cut(18, 37, 16, 3)
+    for y in (21, 25, 29):
+        s.line([(7, y), (10, y - 1.5), (13, y + 1), (16, y - 1.5), (19, y + 1), (22, y - 1.5), (25, y + 1), (28, y - 1)], 4)
+
+def m_knight(s):  # pez espada
+    s.stroke([(25, 24), (35, 17)], 0.8, 0.4, mat='w')
+    s.stroke([(15, 26), (12, 18), (17, 24)], 1.5, 0.6)
+    fish(s, 17, 30, 9, 5, d=1)
+
+def m_bishop(s):  # caballito de mar
+    s.stroke([(17, 33), (13, 30), (14, 26), (17, 27)], 1.6, 1)
+    s.stroke([(18, 31), (19, 22), (16, 15), (17, 9)], 3.6, 2.6)
+    s.ell(18.5, 7, 3.4, 3)
+    s.stroke([(20, 7.5), (25, 9)], 1, 0.7)
+    s.dot(19, 6, 'o')
+    for y in (14, 18, 22, 26):
+        s.line([(16, y), (20, y - 0.5)], 3)
+    s.stroke([(15, 4), (16, 2)], 0.6).stroke([(18, 4), (18.5, 1.5)], 0.6)
+
+def m_queen(s):  # pulpo con corona
+    for x0, x1, c in ((12, 4, 2), (15, 10, -2), (21, 26, 2), (24, 32, -2)):
+        s.stroke([(x0, 22), ((x0 + x1) / 2 + c, 29), (x1, 34)], 1.8, 0.6)
+    s.ell(18, 15, 8, 9)
+    s.ell(15, 17, 1.6, 1.8, mat='eye').ell(21, 17, 1.6, 1.8, mat='eye')
+    s.dot(15.5, 17.5, 'o').dot(21.5, 17.5, 'o')
+    s.ell(18, 5, 4.5, 1.6, mat='gold')
+    for x in (14.5, 18, 21.5):
+        s.ell(x, 3, 0.9, 1.8, mat='gold')
+
+def m_king(s):  # tiburón blanco con corona
+    s.stroke([(18, 22), (16, 12), (21, 20)], 2, 0.6)
+    fish(s, 18, 26, 12, 6)
+    s.line([(25, 29), (27, 30), (29, 29.5)], 'o')
+    for x in (26, 28):
+        s.dot(x, 30, 'w')
+    s.stroke([(15, 30), (13, 35)], 1.4)
+    s.ell(16, 8, 3.6, 1.4, mat='gold')
+    for x in (13.5, 16, 18.5):
+        s.ell(x, 6.4, 0.8, 1.5, mat='gold')
+
+def m_guard(s):  # manta
+    s.ell(18, 24, 15, 6, rot=-4)
+    s.ell(18, 26, 11, 3, mat='belly')
+    s.stroke([(13, 20), (11, 16)], 1, 0.5).stroke([(23, 20), (25, 16)], 1, 0.5)
+    s.stroke([(18, 29), (18, 35)], 0.6)
+    s.dot(13, 21, 'o').dot(23, 21, 'o')
+
+def m_advisor(s):  # medusa luna
+    s.ell(18, 17, 11, 8)
+    s.cut(18, 27, 14, 3.5)
+    for x in (12, 15, 18, 21, 24):
+        s.stroke([(x, 22.5), (x + 1.5, 28), (x - 0.5, 35)], 0.5, mat='tent')
+    for x, y in ((14, 16), (22, 16), (16, 13), (20, 13)):
+        s.ell(x, y, 1.6, 1.4, mat='gold')
+
+def m_elephant(s):  # tortuga verde
+    s.stroke([(10, 30), (3, 35)], 2, 0.8, mat='skin').stroke([(23, 30), (31, 35)], 2, 0.8, mat='skin')
+    s.ell(30, 25, 3.5, 2.8, mat='skin').dot(31, 24, 'o')
+    s.ell(17, 28, 11, 7)
+    for x in (12, 17, 22):
+        s.line([(x - 2, 25), (x, 23), (x + 2, 25), (x + 2, 30), (x - 2, 30), (x - 2, 25)], 4)
+
+def m_camel(s):  # pez luna
+    s.stroke([(17, 12), (19, 2)], 2.4, 1).stroke([(17, 30), (19, 35)], 2.4, 1)
+    s.ell(18, 21, 9, 10)
+    s.ell(19, 24, 7, 4.5, mat='belly')
+    s.ell(23, 17, 1.6, 1.6, mat='eye').dot(23.5, 17, 'o')
+    s.ell(9, 21, 1.6, 4)
+
+def m_cannon(s):  # nautilus
+    for y in (26, 29, 32):
+        s.stroke([(26, 26), (31, y), (34, y + 2)], 0.6, mat='tent')
+    s.ell(17, 22, 11, 11)
+    s.line([(17, 22), (19, 20), (20.5, 23), (17, 26), (13, 22.5), (16, 17), (22, 18), (24, 25), (18, 30.5), (10, 27), (9, 18), (16, 12)], 4)
+    for a in (40, 80, 120, 160, 200):
+        import math as mm
+        s.line([(17 + 5 * mm.cos(mm.radians(a)), 22 - 5 * mm.sin(mm.radians(a))), (17 + 10 * mm.cos(mm.radians(a)), 22 - 10 * mm.sin(mm.radians(a)))], 2)
+    s.ell(26, 25, 3, 2.5, mat='skin').dot(26.5, 24.5, 'o')
+
+def mb_titan(s):  # ballena
+    s.stroke([(6, 26), (1, 20)], 2.4, 1).stroke([(6, 26), (1, 32)], 2.4, 1)
+    s.ell(25, 28, 19, 10)
+    s.ell(28, 33, 14, 4.5, mat='belly')
+    for x in range(18, 42, 3):
+        s.line([(x, 31), (x + 1, 36)], 'shd')
+    s.ell(38, 25, 1.6, 1.6, mat='eye').dot(38.5, 25, 'o')
+    for x, y in ((31, 14), (29, 10), (33, 9), (31, 6)):
+        s.ell(x, y, 1.2, 1.2, mat='foam')
+    s.stroke([(24, 36), (20, 43)], 2, 1)
+
+def mb_ram(s):  # tiburón martillo
+    s.stroke([(10, 26), (4, 21)], 1.6, 0.6).stroke([(10, 26), (4, 31)], 1.6, 0.6)
+    s.stroke([(22, 20), (20, 11), (26, 19)], 2.4, 0.6)
+    s.ell(23, 26, 13, 6)
+    s.ell(23, 29, 10, 2.5, mat='belly')
+    s.stroke([(37, 20), (37, 32)], 2.6)
+    s.ell(37, 19, 1.6, 1.6, mat='eye').ell(37, 33, 1.6, 1.6, mat='eye')
+    s.dot(37, 19, 'o').dot(37, 33, 'o')
+    s.stroke([(20, 31), (18, 42)], 1.4)
+
+def mb_hydra(s):  # dragón marino de tres cabezas
+    s.ell(24, 38, 15, 5)
+    for pts, d in (([(17, 36), (11, 28), (10, 19), (7, 14)], -1), ([(24, 35), (24, 22), (26, 12), (29, 7)], 1), ([(31, 36), (37, 28), (38, 19), (40, 14)], 1)):
+        s.stroke(pts, 2.6, 1.8)
+        x, y = pts[-1]
+        s.ell(x, y, 4, 2.6, rot=-10 * d)
+        s.stroke([(x + d * 3, y + 1), (x + d * 5.5, y + 2)], 0.8, 0.4)
+        s.dot(x + d * 0.8, y - 0.8, 'o')
+        s.stroke([(x - d * 2, y - 2), (x - d * 4, y - 4)], 0.5, mat='fin')
+    s.stroke([(9, 40), (2, 43)], 1.6, 0.6).stroke([(39, 40), (46, 43)], 1.6, 0.6)
+
+def mb_golem(s):  # guardián de coral ramificado
+    s.stroke([(16, 36), (14, 44)], 3).stroke([(32, 36), (34, 44)], 3)
+    s.ell(24, 28, 13, 11, mat='rock')
+    for pts in ([(15, 22), (9, 12), (6, 4)], [(9, 12), (14, 6)], [(33, 22), (39, 12), (42, 4)], [(39, 12), (34, 6)], [(24, 18), (24, 6)]):
+        s.stroke(pts, 1.8, 1.2)
+    s.ell(19, 26, 2.4, 2, mat='eye').ell(29, 26, 2.4, 2, mat='eye')
+    s.dot(19, 26, 'o').dot(29, 26, 'o')
+    for x, y in ((16, 33), (24, 35), (31, 32)):
+        s.ell(x, y, 1.6, 1.3, mat='polyp')
+    s.stroke([(11, 28), (5, 34)], 2.2).stroke([(37, 28), (43, 34)], 2.2)
+
+def mb_rider(s):  # caballito abisal alto
+    s.stroke([(24, 42), (19, 40), (19, 35), (23, 36)], 2, 1.2)
+    s.stroke([(25, 40), (27, 28), (22, 18), (24, 9)], 5.5, 3.6)
+    s.ell(25.5, 6, 5, 4)
+    s.stroke([(29, 7), (36, 9)], 1.4, 0.9)
+    s.dot(27, 5, 'glow')
+    for y in (16, 21, 26, 31, 36):
+        s.line([(22, y), (28, y - 0.5)], 3)
+    s.stroke([(21, 3), (19, 0.5)], 0.6).stroke([(24, 2), (24, 0)], 0.6)
+    s.stroke([(21, 20), (16, 22)], 1.4, 0.6, mat='fin')
+
+def mb_wall(s):  # almeja gigante abierta
+    s.ell(24, 36, 21, 7)
+    s.ell(24, 26, 19, 9)
+    s.cut(24, 33, 16, 4)
+    s.ell(24, 33, 14, 3.4, mat='flesh')
+    s.ell(24, 32, 3.4, 2.8, mat='pearl')
+    for x in (10, 17, 24, 31, 38):
+        s.line([(x, 19), (24 + (x - 24) * 1.2, 29)], 4)
+        s.line([(x, 39), (24 + (x - 24) * 1.2, 42)], 4)
+
+def mb_devourer(s):  # rape abisal
+    s.stroke([(30, 14), (36, 5), (41, 6)], 0.8, 0.5)
+    s.ell(42, 7, 2.4, 2.4, mat='glow')
+    s.stroke([(8, 30), (2, 25)], 1.8, 0.6).stroke([(8, 30), (2, 35)], 1.8, 0.6)
+    s.ell(24, 28, 16, 13)
+    s.ell(32, 32, 9, 6, mat='o')
+    for x in range(25, 40, 3):
+        s.stroke([(x, 26.5), (x + 0.5, 29.5)], 0.7, 0.3, mat='w').stroke([(x + 1.5, 37.5), (x + 1, 34.5)], 0.7, 0.3, mat='w')
+    s.ell(27, 19, 2.2, 2.2, mat='eye').dot(27.5, 19, 'o')
+    s.stroke([(20, 40), (17, 44)], 1.8, 0.8)
+
+THEMES['marino'] = {
+    'outline': '#0e2a33', 'fine': True,
+    'fixed': {'o': ['#0b1c22'], 'w': ['#f4f6ef'], 'eye': ['#f4f6ef', '#d6dcd4'], 'belly': ['#eef2e4', '#d3dccc', '#b4c1b2'],
+              'sand': ['#d8cda9', '#b8ab84'], 'gold': ['#f2cf62', '#d4a63a', '#a57b26'], 'tent': ['#f2b6c8', '#d48aa4'],
+              'skin': ['#c9b98a', '#a8986b', '#857750'], 'foam': ['#e8f6fb', '#bfe0ea'], 'fin': ['#e86a5a', '#b9473f'],
+              'rock': ['#e48e7a', '#c66f61', '#9e5049', '#723637'], 'polyp': ['#ffd47a', '#e3a64a'],
+              'glow': ['#fff3a0', '#ffd75a'], 'flesh': ['#f0a0a8', '#cf7884'], 'pearl': ['#fbf7ea', '#dcd6c4'], 'shd': ['#4a8e8d']},
+    'sprites': {'pawn': m_pawn, 'rook': m_rook, 'knight': m_knight, 'bishop': m_bishop, 'queen': m_queen, 'king': m_king,
+                'guard': m_guard, 'advisor': m_advisor, 'elephant': m_elephant, 'camel': m_camel, 'cannon': m_cannon,
+                'boss-titan': mb_titan, 'boss-ram': mb_ram, 'boss-hydra': mb_hydra, 'boss-golem': mb_golem,
+                'boss-rider': mb_rider, 'boss-wall': mb_wall, 'boss-devourer': mb_devourer},
+}

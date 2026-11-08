@@ -373,6 +373,38 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "marcianitos"
   },
+  "marino": {
+    "id": "marino",
+    "name": "Marino",
+    "price": 250,
+    "swatch": [
+      "#123a43",
+      "#d8cda9",
+      "#717bb0",
+      "#a85f49"
+    ],
+    "vars": {
+      "table": "#123a43",
+      "table-2": "#1b4b53",
+      "tile-a": "#d8cda9",
+      "tile-b": "#39706e",
+      "tile-side": "#244e55",
+      "side-light": "#f4a08c",
+      "side-dark": "#717bb0",
+      "side-wild": "#a85f49",
+      "paper": "#e8e2ca",
+      "paper-2": "#d8d2b8",
+      "paper-3": "#b9bba2",
+      "ink": "#142e36",
+      "ink-2": "#3a5b60",
+      "accent": "#bd594d",
+      "accent-ink": "#612b2d",
+      "brass": "#dcb46a",
+      "muted": "#687f7a"
+    },
+    "art": "pixel",
+    "pack": "marino"
+  },
   "paleontologia": {
     "id": "paleontologia",
     "name": "Paleontología",
@@ -723,36 +755,36 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "zombis"
   },
-  "marino": {
-    "id": "marino",
-    "name": "Marino",
-    "price": 250,
+  "naturaleza": {
+    "id": "naturaleza",
+    "name": "Naturaleza elemental",
+    "price": 260,
     "swatch": [
-      "#123a43",
-      "#d8cda9",
-      "#717bb0",
-      "#a85f49"
+      "#17231f",
+      "#c7c49a",
+      "#8c7eb7",
+      "#b67b35"
     ],
     "vars": {
-      "table": "#123a43",
-      "table-2": "#1b4b53",
-      "tile-a": "#d8cda9",
-      "tile-b": "#39706e",
-      "tile-side": "#244e55",
-      "side-light": "#83bcb4",
-      "side-dark": "#717bb0",
-      "side-wild": "#a85f49",
-      "paper": "#e8e2ca",
-      "paper-2": "#d8d2b8",
-      "paper-3": "#b9bba2",
-      "ink": "#142e36",
-      "ink-2": "#3a5b60",
-      "accent": "#bd594d",
-      "accent-ink": "#612b2d",
-      "brass": "#dcb46a",
-      "muted": "#687f7a"
+      "table": "#17231f",
+      "table-2": "#25352a",
+      "tile-a": "#c7c49a",
+      "tile-b": "#59674a",
+      "tile-side": "#334432",
+      "side-light": "#a9cc78",
+      "side-dark": "#8c7eb7",
+      "side-wild": "#b67b35",
+      "paper": "#e9e7d1",
+      "paper-2": "#d8d9bd",
+      "paper-3": "#b9c19c",
+      "ink": "#202a23",
+      "ink-2": "#455544",
+      "accent": "#758f45",
+      "accent-ink": "#2c432d",
+      "brass": "#d6b65e",
+      "muted": "#697b67"
     },
     "art": "pixel",
-    "pack": "marino"
+    "pack": "naturaleza"
   }
 };
