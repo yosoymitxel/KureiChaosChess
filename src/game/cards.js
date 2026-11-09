@@ -5,7 +5,7 @@ import { mulberry32 } from '../core/rng.js';
 import { cellsOf, key, walkable, legalMoves, moveCells } from './rules.js';
 import { makePiece } from './generate.js';
 import { crownable, crown } from './crown.js';
-import { localize } from '../i18n/index.js';
+import { t, localize } from '../i18n/index.js';
 
 const behind = (p) => (p.color === 'light' ? 1 : -1);
 const occupiedBy = (m, r, c) => m.pieces.find((p) => cellsOf(p).some(([a, b]) => a === r && b === c));
@@ -115,6 +115,15 @@ export const CARDS = localize('cards', {
     id: 'skies', name: 'Cambio de clima', rarity: 'lilac', lilac: true, icon: 'drop', target: 'none',
     desc: 'Cambia el clima de la mesa por otro al azar. No gasta tu carta del turno.',
     apply: () => ({ visual: 'weather' }),
+  },
+  summon: {
+    id: 'summon', aim: 'Elige una casilla vacía del centro.', name: 'Bruja aliada', rarity: 'lilac', lilac: true, icon: 'hunt', target: 'tile',
+    desc: 'Una bruja dormida de tu bando: si una pieza rival la apunta, despierta y la caza.',
+    can: (m, r, c) => r >= 2 && r < m.board.rows - 2 && freeTile(m, r, c) && !m.pieces.some((p) => p.witch && p.color === m.player.color),
+    apply: (m, r, c) => {
+      // Aliada más lenta que la rival (solo paso de rey): gratis no puede ser decisiva.
+      const p = makePiece('queen', m.player.color, r, c, { witch: true, name: t('piece.witch', 'Bruja'), moves: ['king'] }); m.pieces.push(p); return p;
+    },
   },
   fuse: {
     id: 'fuse', aim: 'Elige una torre con un guardia tuyo al lado.', name: 'Escolta', rarity: 'lilac', lilac: true, icon: 'rook', target: 'piece',

@@ -417,7 +417,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       await d.view.meteor(m.cells, m.lost);
     };
     // Mecánicas de piso (src/game/mechanics.js): rótulo, registro y su animación.
-    const witchMech = (w) => w && ({ ...w, log: w.kills.length ? t('game.witchKills', 'La bruja caza: {list}', { list: w.kills.map((p) => pieceName(p).toLowerCase()).join(', ') }) : t('game.witchMoves', 'La bruja va tras su presa') });
+    const witchMech = (w) => w && (w.kills.length && w.moved[0]?.piece.color === d.feats.human && award('witch_ally'), { ...w, log: w.kills.length ? t('game.witchKills', 'La bruja caza: {list}', { list: w.kills.map((p) => pieceName(p).toLowerCase()).join(', ') }) : t('game.witchMoves', 'La bruja va tras su presa') });
     const showMech = async (m) => {
       if (!m) return;
       if (m.log) addLog(m.log);
