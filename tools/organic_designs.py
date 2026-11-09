@@ -1740,3 +1740,60 @@ def vb_golem(s):
 THEMES['toxico']['sprites'].update({'pawn': x_pawn, 'king': x_king, 'boss-titan': xb_titan, 'rook': x_rook, 'elephant': x_elephant})
 THEMES['toxico']['fixed']['belly'] = ['#e8f0c8', '#c8d4a0']
 THEMES['volcan']['sprites'].update({'king': v_king, 'guard': v_guard, 'boss-titan': vb_titan, 'boss-golem': vb_golem})
+
+# ---------- Siluetas: paleontología y liminal sin óvalos limpios ----------
+def p_pawn(s):  # huevo roto en su nido con la cría asomando
+    s.ell(18, 33, 10, 2.4, mat='r')
+    for x in (9, 13, 23, 27):
+        s.stroke([(x, 33), (x + (2 if x < 18 else -2), 30.5)], 0.6, mat='r')
+    s.ell(18, 27, 7, 6.5)
+    s.cut(18, 19, 9, 3.4)
+    s.line([(11.5, 22.5), (14, 24.5), (16.5, 22), (19, 24.5), (21.5, 22), (24.5, 24)], 3)
+    s.stroke([(17, 23), (18, 17), (21.5, 13.5)], 2, 1.6)
+    s.ell(23, 12.5, 3.2, 2.2, rot=-15)
+    s.cut(23.6, 12, 0.8, 0.8)
+
+def p_bishop(s):  # amonite asomando los tentáculos sobre su roca
+    s.ell(16, 33.5, 10, 2, mat='r')
+    for y in (27, 29.5, 32):
+        s.stroke([(23, 27), (28, y), (31, y + 1.5)], 0.6, 0.35)
+    s.ell(16, 20, 10, 11)
+    s.ell(24, 26.5, 3.2, 2.6)
+    s.line([(16, 20), (18, 18.5), (19, 21), (16, 23.5), (12.5, 20.5), (15, 15.5), (21, 15.5), (23.5, 22), (18.5, 28.5), (10, 26), (8, 17), (13, 10.5), (21, 10)], 4)
+    s.stroke([(15, 9), (17, 5)], 1.2, 0.5)
+
+def p_advisor(s):  # mosquito en ámbar sujeto por garras de hueso
+    s.stroke([(10, 35), (12, 29), (14, 25)], 1.4, 0.8).stroke([(26, 35), (24, 29), (22, 25)], 1.4, 0.8)
+    s.stroke([(18, 31), (18, 8)], 7, 4, mat='a')
+    s.ell(18, 26, 7, 6, mat='a')
+    s.stroke([(15, 18), (11, 14), (9.5, 15)], 0.7, 0.4, mat='ad').stroke([(21, 18), (25, 14), (26.5, 15)], 0.7, 0.4, mat='ad')
+    s.line([(18, 16), (18, 23)], 'ad').line([(16, 23), (14, 26)], 'ad').line([(20, 23), (22, 26)], 'ad')
+    s.dot(16, 12, 'w').dot(16, 13, 'w')
+    for x in (12, 24):
+        s.stroke([(x, 25), (x + (2 if x < 18 else -2), 21)], 0.6)
+
+def p_guard(s):  # trilobite de perfil sobre sus patas, antenas al frente
+    for x in range(8, 27, 3):
+        s.stroke([(x, 29), (x - 1, 34.5)], 0.45)
+    s.stroke([(6, 28), (14, 23), (24, 22), (30, 25)], 4, 3)
+    s.ell(29, 24.5, 4, 3.6)
+    for x in range(9, 26, 3):
+        s.line([(x, 20.5), (x + 0.8, 28.5)], 3)
+    s.stroke([(32, 23), (35, 18)], 0.5).stroke([(32, 25), (35, 27)], 0.5)
+    s.cut(30, 23.5, 0.8, 0.8)
+    s.stroke([(6, 28), (2, 30)], 1.2, 0.5)
+
+def li_rook(s):  # cápsula de contención sobre patas, con tubos y luz de alarma
+    for x in (11, 25):
+        s.stroke([(x, 30), (x + (-3 if x < 18 else 3), 35)], 1.2, mat='metal')
+    s.stroke([(18, 31), (18, 12)], 8.6, 7.4, mat='metal')
+    s.stroke([(18, 29.5), (18, 13)], 6.6, 5.8)
+    s.ell(18, 19.5, 4.4, 5.6, mat='glass')
+    s.ell(18, 21, 2.2, 3.4, mat='o').ell(18, 17, 1.8, 1.8, mat='o')
+    s.dot(17.3, 16.6, 'red').dot(18.7, 16.6, 'red')
+    s.stroke([(10, 24), (6, 24), (5, 30)], 0.9, mat='hose').stroke([(26, 15), (30, 13), (31, 8)], 0.9, mat='hose')
+    s.stroke([(18, 5), (18, 2.5)], 1.6, 1.2, mat='metal')
+    s.ell(18, 1.6, 1.8, 1.2, mat='red')
+
+THEMES['paleontologia']['sprites'].update({'pawn': p_pawn, 'bishop': p_bishop, 'advisor': p_advisor, 'guard': p_guard})
+THEMES['liminal']['sprites'].update({'rook': li_rook})
