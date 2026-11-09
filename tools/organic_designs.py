@@ -1240,3 +1240,20 @@ THEMES['marino'] = {
                 'boss-titan': mb_titan, 'boss-ram': mb_ram, 'boss-hydra': mb_hydra, 'boss-golem': mb_golem,
                 'boss-rider': mb_rider, 'boss-wall': mb_wall, 'boss-devourer': mb_devourer},
 }
+
+# ---------- Naturaleza: solo el jinete (el PNG original venía roto) ----------
+def nb_rider(s):  # ciervo del bosque, alto y estrecho
+    for x0, x1 in ((19, 18), (23, 24), (27, 28)):
+        s.stroke([(x0, 30), (x1, 43)], 1.2, 1)
+    s.ell(23, 27, 7, 5)
+    s.stroke([(27, 24), (29, 14)], 2.6, 2)
+    s.ell(30.5, 12, 3.6, 2.6, rot=20)
+    s.dot(31, 11, 'o')
+    for d in (-1, 1):
+        s.stroke([(29 + d, 10), (29 + d * 4, 4), (29 + d * 3, 0.8)], 0.7, mat='wood')
+        s.stroke([(29 + d * 3, 6), (29 + d * 6, 5)], 0.5, mat='wood')
+    s.ell(22, 25, 2, 1.4, mat='leaf').ell(25, 28, 1.6, 1.2, mat='leaf')
+
+THEMES['naturaleza'] = {'outline': '#1f2a1c', 'fine': True,
+    'fixed': {'o': ['#14140f'], 'wood': ['#9a7046', '#74512f'], 'leaf': ['#f2d46a', '#d1a63c']},
+    'sprites': {'boss-rider': nb_rider}}

@@ -405,6 +405,38 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "marino"
   },
+  "naturaleza": {
+    "id": "naturaleza",
+    "name": "Naturaleza elemental",
+    "price": 260,
+    "swatch": [
+      "#17231f",
+      "#c7c49a",
+      "#8c7eb7",
+      "#b67b35"
+    ],
+    "vars": {
+      "table": "#17231f",
+      "table-2": "#25352a",
+      "tile-a": "#c7c49a",
+      "tile-b": "#59674a",
+      "tile-side": "#334432",
+      "side-light": "#a9cc78",
+      "side-dark": "#8c7eb7",
+      "side-wild": "#b67b35",
+      "paper": "#e9e7d1",
+      "paper-2": "#d8d9bd",
+      "paper-3": "#b9c19c",
+      "ink": "#202a23",
+      "ink-2": "#455544",
+      "accent": "#758f45",
+      "accent-ink": "#2c432d",
+      "brass": "#d6b65e",
+      "muted": "#697b67"
+    },
+    "art": "pixel",
+    "pack": "naturaleza"
+  },
   "paleontologia": {
     "id": "paleontologia",
     "name": "Paleontología",
@@ -754,37 +786,5 @@ export const PIXEL_THEMES = {
     },
     "art": "pixel",
     "pack": "zombis"
-  },
-  "naturaleza": {
-    "id": "naturaleza",
-    "name": "Naturaleza elemental",
-    "price": 260,
-    "swatch": [
-      "#17231f",
-      "#c7c49a",
-      "#8c7eb7",
-      "#b67b35"
-    ],
-    "vars": {
-      "table": "#17231f",
-      "table-2": "#25352a",
-      "tile-a": "#c7c49a",
-      "tile-b": "#59674a",
-      "tile-side": "#334432",
-      "side-light": "#a9cc78",
-      "side-dark": "#8c7eb7",
-      "side-wild": "#b67b35",
-      "paper": "#e9e7d1",
-      "paper-2": "#d8d9bd",
-      "paper-3": "#b9c19c",
-      "ink": "#202a23",
-      "ink-2": "#455544",
-      "accent": "#758f45",
-      "accent-ink": "#2c432d",
-      "brass": "#d6b65e",
-      "muted": "#697b67"
-    },
-    "art": "pixel",
-    "pack": "naturaleza"
   }
 };
