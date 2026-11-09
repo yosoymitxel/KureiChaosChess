@@ -165,8 +165,10 @@ export class Match {
   witchStep(color) {
     const out = { fx: [], kills: [], moved: [], spawned: [], art: [] };
     const R = this.rivals?.[color] || this.rival || RIVALS.oficial;
-    if ((R.blunder || 0) >= 0.1 && Math.floor(this.turn / this.players.length) % 2) return null;
-    for (const w of this.pieces.filter((p) => p.witch && p.awake && p.color === color)) {
+    const lazy = (R.blunder || 0) >= 0.1 && Math.floor(this.turn / this.players.length) % 2;
+    // La recién despertada salta en el acto, sea del bando que sea; el resto, tras el turno de su bando.
+    for (const w of this.pieces.filter((p) => p.witch && p.awake && (p.pounce || (p.color === color && !lazy)))) {
+      const color = w.color;
       const foes = this.pieces.filter((p) => p.color !== color && !p.chicken);
       const dist = (p, r = w.row, c = w.col) => Math.max(Math.abs(p.row - r), Math.abs(p.col - c));
       let target = foes.find((p) => p.id === w.target);
