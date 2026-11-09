@@ -1799,17 +1799,6 @@ THEMES['paleontologia']['sprites'].update({'pawn': p_pawn, 'bishop': p_bishop, '
 THEMES['liminal']['sprites'].update({'rook': li_rook})
 
 # ---------- Siluetas reemplazadas en temas de otro autor (solo las que eran caja u óvalo) ----------
-def ve_rook(s):  # trono gótico vacío: respaldo de agujas, brazos curvos y patas
-    for x in (11, 25):
-        s.stroke([(x, 27), (x + (-1 if x < 18 else 1), 35)], 1)
-    s.stroke([(18, 26), (18, 10)], 6.2, 5.4)
-    for x, h in ((12, 6), (15, 2.5), (18, 0.6), (21, 2.5), (24, 6)):
-        s.stroke([(x, 12), (x, h)], 1.2, 0.3)
-    s.ell(18, 26, 9, 2.4)
-    s.stroke([(9, 26), (8, 21), (10, 19)], 1.3, 0.8).stroke([(27, 26), (28, 21), (26, 19)], 1.3, 0.8)
-    s.ell(18, 17, 3.6, 5.2, mat='velvet')
-    s.dot(18, 12, 'gem')
-
 def go_rook(s):  # torre gótica: aguja, contrafuertes y rosetón
     s.stroke([(18, 34), (18, 12)], 6.4, 5)
     s.stroke([(18, 12), (18, 0.6)], 4.6, 0.4)
@@ -1831,9 +1820,8 @@ def ma_rook(s):  # coral cerebro sobre roca, con abanico de mar a un lado
     for y in (22, 25.5, 29):
         s.line([(8, y + 1), (11, y - 1), (14, y + 1), (17, y - 1), (20, y + 1), (23, y - 0.5)], 4)
 
-for th, extra in (('vesper', {'rook': ve_rook}), ('goticas', {'rook': go_rook}), ('marino', {'rook': ma_rook})):
+for th, extra in (('goticas', {'rook': go_rook}), ('marino', {'rook': ma_rook})):
     THEMES.setdefault(th, {'outline': '#141218', 'fine': True, 'fixed': {}, 'sprites': {}})['sprites'].update(extra)
-THEMES['vesper']['fixed'].update({'velvet': ['#a8203a', '#7e1428'], 'gem': ['#ff5a7a']})
 THEMES['goticas']['fixed'].update({'o': ['#141218'], 'rose': ['#5a8ae0', '#3a5ab0'], 'door': ['#3a2a24', '#2a1e1a'], 'win': ['#e8c46a']})
 THEMES['marino']['fixed'].update({'rockm': ['#7a8a8a', '#5a6a6a'], 'fan': ['#f2a0b8', '#c87894']})
 THEMES['marino']['outline'] = '#0e2a33'
