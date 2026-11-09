@@ -162,26 +162,33 @@ export class Match {
   // La bruja despierta no la mueve su bando: es un ente aparte que, tras el turno de su bando, caza a la
   // pieza que la despertó (si cae, a la rival más cercana). Contra el rival novato solo actúa una ronda
   // de cada dos. Devuelve lo que pasó con la forma de un `mech` para que el tablero lo anime.
-  witchStep(color) {
+  witchStep(mover) {
     const out = { fx: [], kills: [], moved: [], spawned: [], art: [] };
-    const R = this.rivals?.[color] || this.rival || RIVALS.oficial;
+    const R = this.rivals?.[mover] || this.rival || RIVALS.oficial;
     const lazy = (R.blunder || 0) >= 0.1 && Math.floor(this.turn / this.players.length) % 2;
-    // La recién despertada salta en el acto, sea del bando que sea; el resto, tras el turno de su bando.
-    for (const w of this.pieces.filter((p) => p.witch && p.awake && (p.pounce || (p.color === color && !lazy)))) {
+    for (const w of this.pieces.filter((p) => p.witch)) {
       const color = w.color;
       const foes = this.pieces.filter((p) => p.color !== color && !p.chicken);
-      const dist = (p, r = w.row, c = w.col) => Math.max(Math.abs(p.row - r), Math.abs(p.col - c));
-      let target = foes.find((p) => p.id === w.target);
-      if (!target) { target = foes.reduce((a, b) => (!a || dist(b) < dist(a) ? b : a), null); w.target = target?.id; }
-      if (!target) continue;
-      // Primer zarpazo: cae sobre la pieza que la despertó, esté donde esté.
-      const pounce = w.pounce && target.id === w.target; delete w.pounce;
-      const moves = pounce ? [] : legalMoves(w, this.pieces, this.board);
-      const m = pounce ? { row: target.row, col: target.col, hits: [target] } : moves.find((x) => x.hits.includes(target)) || moves.filter((x) => !x.hits.length).reduce((a, b) => (!a || dist(target, b.row, b.col) < dist(target, a.row, a.col) ? b : a), null);
+      const ctx = ctxOf(this.pieces, this.board);
+      // Quien la apunta (aunque acabe de aparecer) cae en el acto, sea el turno que sea, y no hay vida que valga.
+      const aimer = foes.find((p) => canHit(p, w, ctx));
+      let m = null;
+      if (aimer) {
+        Object.assign(w, { awake: true, target: aimer.id });
+        m = { row: aimer.row, col: aimer.col, hits: [aimer], kill: true };
+      } else if (w.awake && w.color === color && !w.ally && color === mover && !lazy) {
+        // La del Aquelarre, ya despierta, persigue a su presa (si cae, a la rival más cercana).
+        const dist = (p, r = w.row, c = w.col) => Math.max(Math.abs(p.row - r), Math.abs(p.col - c));
+        let target = foes.find((p) => p.id === w.target);
+        if (!target) { target = foes.reduce((x, y) => (!x || dist(y) < dist(x) ? y : x), null); w.target = target?.id; }
+        if (!target) continue;
+        const moves = legalMoves(w, this.pieces, this.board);
+        m = moves.find((x) => x.hits.includes(target)) || moves.filter((x) => !x.hits.length).reduce((x, y) => (!x || dist(target, y.row, y.col) < dist(target, x.row, x.col) ? y : x), null);
+      }
       if (!m) continue;
       out.moved.push({ piece: w, from: { row: w.row, col: w.col }, to: { row: m.row, col: m.col }, how: 'hop' });
       for (const v of m.hits) {
-        v.hp = (v.hp ?? 1) - 1;
+        v.hp = m.kill ? 0 : (v.hp ?? 1) - 1;
         if (v.hp > 0) continue;
         this.pieces.splice(this.pieces.indexOf(v), 1); out.kills.push(v);
         if (v.royal && !this.pieces.some((q) => q.royal && q.color === v.color)) this.eliminated[v.color] = true;

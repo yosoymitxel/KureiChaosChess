@@ -1,0 +1,12 @@
+{
+ "cfg": { "board": { "rows": 8, "cols": 8 }, "pieces": ["king light 7 4", "pawn light 6 0", "king dark 0 0", "rook dark 0 3", "pawn dark 1 7",
+   { "type": "queen", "color": "light", "row": 3, "col": 3, "witch": true, "ally": true, "name": "Bruja", "moves": ["rook2", "bishop2", "knight"] }] },
+ "viewports": ["mobile"], "themes": ["walnut", "pixelada"],
+ "steps": [
+  { "wait": 1500 },
+  { "tap": "3,3" }, { "wait": 400 }, { "shot": "inspect" },
+  { "expect": { "eval": "!!document.querySelector('.insp-witch svg')" } },
+  { "move": "6,0>5,0" }, { "wait": 1500 },
+  { "expect": { "noErrors": true, "eval": "!bench.match.pieces.some(p => p.type === 'rook') && bench.match.pieces.find(p => p.witch).row === 0" } }
+ ]
+}

@@ -279,7 +279,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       else if ((p.maxHp || 1) > 1 && !p.boss) cards.push('fortify');
       if (p.ascended) cards.push('ascend');
       return {
-        type: p.type, side: p.color, name: pieceName(p), color: SIDE_NAME[p.color], moves: count, threat,
+        type: p.type, witch: p.witch, side: p.color, name: pieceName(p), color: SIDE_NAME[p.color], moves: count, threat,
         // Demo de cómo se mueve (toque en el icono): el jefe con la suya; el resto con sus patrones de verdad.
         demo: demoOf(p, mut, cards),
         boss: p.boss && BOSSES[p.boss].desc,
@@ -867,7 +867,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       </div>
       ${chipInfo && html`<p class="chip-info" role="status"><strong>${chipInfo.title}</strong> ${chipInfo.text}</p>`}
       ${inspect && html`<section class=${'inspector' + (inspect.threat ? ' threat' : '')}>
-        <button class="insp-demo" title=${t('game.howMoves', 'Ver cómo se mueve')} aria-label=${t('game.howMoves', 'Ver cómo se mueve')} onClick=${() => ref.current.moments && playDemo(ref.current.moments, { ...inspect.demo, force: true })}><${PieceIcon} type=${inspect.type} side=${inspect.side} size=${44} /></button>
+        <button class="insp-demo" title=${t('game.howMoves', 'Ver cómo se mueve')} aria-label=${t('game.howMoves', 'Ver cómo se mueve')} onClick=${() => ref.current.moments && playDemo(ref.current.moments, { ...inspect.demo, force: true })}>${inspect.witch ? html`<span class="insp-witch" style="display:inline-block;width:44px;height:44px" dangerouslySetInnerHTML=${{ __html: WITCH }} />` : html`<${PieceIcon} type=${inspect.type} side=${inspect.side} size=${44} />`}</button>
         <div>
           <strong>${inspect.name} <small>${inspect.color}</small></strong>
           <p>${inspect.boss || tp('game.reach', inspect.moves, 'Alcanza {n} casilla', 'Alcanza {n} casillas')}</p>

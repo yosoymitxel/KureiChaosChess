@@ -121,7 +121,7 @@ export const CARDS = localize('cards', {
     desc: 'Una bruja dormida de tu bando: si una pieza rival la apunta, despierta y la caza.',
     can: (m, r, c) => r >= 2 && r < m.board.rows - 2 && freeTile(m, r, c) && !m.pieces.some((p) => p.witch && p.color === m.player.color),
     apply: (m, r, c) => {
-      const p = makePiece('queen', m.player.color, r, c, { witch: true, name: t('piece.witch', 'Bruja'), moves: ['rook2', 'bishop2', 'knight'] }); m.pieces.push(p); return p;
+      const p = makePiece('queen', m.player.color, r, c, { witch: true, ally: true, name: t('piece.witch', 'Bruja'), moves: ['rook2', 'bishop2', 'knight'] }); m.pieces.push(p); return p;
     },
   },
   fuse: {
