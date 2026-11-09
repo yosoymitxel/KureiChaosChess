@@ -1799,32 +1799,6 @@ THEMES['paleontologia']['sprites'].update({'pawn': p_pawn, 'bishop': p_bishop, '
 THEMES['liminal']['sprites'].update({'rook': li_rook})
 
 # ---------- Siluetas reemplazadas en temas de otro autor (solo las que eran caja u óvalo) ----------
-def cr_rook(s):  # rascacielos que se tuerce y se agrieta, con la flecha de la bolsa cayendo
-    s.ell(17, 34, 9, 1.6, mat='rubble')
-    s.stroke([(15, 34), (16, 20), (19, 6)], 6.5, 4.4)
-    s.stroke([(19, 6), (19.5, 2)], 0.5, mat='metal')
-    for y in range(9, 32, 4):
-        for dx in (-2.2, 0, 2.2):
-            s.dot(15.6 + (34 - y) * 0.13 + dx, y, 'win')
-    s.line([(13, 26), (16, 23), (14.5, 20), (17, 17)], 'o')
-    s.stroke([(24, 8), (27, 14), (29, 12), (32, 22)], 0.9, mat='red')
-    s.stroke([(32, 22), (30, 21), (33.5, 19.5)], 0.6, mat='red')
-    s.ell(9, 33, 2, 1.2, mat='rubble').ell(25, 33.5, 1.6, 1, mat='rubble')
-
-def cr_king(s):  # magnate: abrigo ancho, chistera con corona, bastón y saco de dinero
-    s.stroke([(15, 33), (14, 35)], 1.6, mat='o').stroke([(21, 33), (22, 35)], 1.6, mat='o')
-    s.stroke([(18, 33), (18, 17)], 8, 6)
-    s.stroke([(18, 17), (18, 32)], 1.4, 1.8, mat='shirt')
-    s.ell(18, 13.5, 3.8, 3.8, mat='skin')
-    s.stroke([(14, 9.6), (22, 9.6)], 0.8, mat='hat').stroke([(18, 8.4), (18, 5.4)], 2.2, 2, mat='hat')
-    s.ell(18, 3.2, 3.4, 1.1, mat='gold')
-    for x in (15.5, 18, 20.5):
-        s.ell(x, 1.6, 0.7, 1.3, mat='gold')
-    s.dot(16.6, 13, 'o').dot(19.4, 13, 'o')
-    s.stroke([(25, 21), (27, 35)], 0.5, mat='metal')
-    s.ell(9, 29, 3.6, 4, mat='sack')
-    s.dot(9, 29, 'gold')
-
 def ve_rook(s):  # trono gótico vacío: respaldo de agujas, brazos curvos y patas
     for x in (11, 25):
         s.stroke([(x, 27), (x + (-1 if x < 18 else 1), 35)], 1)
@@ -1857,10 +1831,8 @@ def ma_rook(s):  # coral cerebro sobre roca, con abanico de mar a un lado
     for y in (22, 25.5, 29):
         s.line([(8, y + 1), (11, y - 1), (14, y + 1), (17, y - 1), (20, y + 1), (23, y - 0.5)], 4)
 
-for th, extra in (('crisis', {'rook': cr_rook, 'king': cr_king}), ('vesper', {'rook': ve_rook}), ('goticas', {'rook': go_rook}), ('marino', {'rook': ma_rook})):
+for th, extra in (('vesper', {'rook': ve_rook}), ('goticas', {'rook': go_rook}), ('marino', {'rook': ma_rook})):
     THEMES.setdefault(th, {'outline': '#141218', 'fine': True, 'fixed': {}, 'sprites': {}})['sprites'].update(extra)
-THEMES['crisis']['fixed'].update({'o': ['#101412'], 'win': ['#f6e27a'], 'red': ['#e8463c'], 'metal': ['#8a908c'], 'rubble': ['#6a6e6a', '#4c504c'],
-    'shirt': ['#f4f6f2'], 'skin': ['#e2c4a4', '#c4a080'], 'hat': ['#2a2c2c', '#1c1e1e'], 'gold': ['#f2cf62', '#d4a63a'], 'sack': ['#c8a46a', '#a07e4a']})
 THEMES['vesper']['fixed'].update({'velvet': ['#a8203a', '#7e1428'], 'gem': ['#ff5a7a']})
 THEMES['goticas']['fixed'].update({'o': ['#141218'], 'rose': ['#5a8ae0', '#3a5ab0'], 'door': ['#3a2a24', '#2a1e1a'], 'win': ['#e8c46a']})
 THEMES['marino']['fixed'].update({'rockm': ['#7a8a8a', '#5a6a6a'], 'fan': ['#f2a0b8', '#c87894']})
