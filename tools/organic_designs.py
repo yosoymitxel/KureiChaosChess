@@ -2034,3 +2034,13 @@ THEMES['naturaleza']['fixed'].update({'w': ['#f4f0dc'], 'red': ['#d84a3a'], 'pea
     'stone': ['#a49c90', '#847c72', '#665f58', '#4a4440'], 'mouth': ['#b8384a', '#8a2436']})
 THEMES['naturaleza']['sprites'].update({'knight': n2_knight, 'cannon': n2_cannon, 'elephant': n2_elephant,
     'boss-ram': n2_ram, 'boss-golem': n2_golem, 'boss-devourer': n2_devourer})
+
+# Guías de pixel art (rampas con hue shifting, sin tramado ni pillow shading, sin huérfanos)
+for _th in ('volcan', 'toxico', 'naturaleza'):
+    THEMES[_th]['clean'] = True
+THEMES['volcan']['fixed'].update({'rock': ['#5c4c54', '#44383e', '#30262e', '#1e1820'],
+    'fire': ['#fff4a0', '#ffc840', '#ff7a2a', '#d0381e'], 'lava': ['#ffd650', '#ff8a2a', '#c8381e'],
+    'smoke': ['#9a929a', '#6c6470']})
+THEMES['toxico']['fixed'].update({'metal': ['#9aa4a0', '#6c7874', '#4a5654', '#2e3838'], 'goo': ['#dcff6a', '#9ee02a', '#4e9a2a']})
+THEMES['naturaleza']['fixed'].update({'stone': ['#b0aa9c', '#847e7a', '#5e5a60', '#3e3c46'],
+    'wood': ['#b07c4a', '#7a4e34', '#4e3028'], 'leaf2': ['#7aa848', '#4e7e3a', '#2e5434']})

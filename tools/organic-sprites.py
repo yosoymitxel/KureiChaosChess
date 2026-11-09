@@ -19,6 +19,7 @@ class Sprite:
         s.n = 0
         s.marks = []
         s.fine = False
+        s.clean = False  # guías: sin tramado, sin pillow shading y sin píxeles sueltos
 
     def _put(s, m, mat):
         s.part[m] = s.n
@@ -79,10 +80,10 @@ class Sprite:
                 mat = s.mat[p]
                 pal = ramp if mat == 'b' else fixed[mat]
                 dark[(y, x)] = pal[-1]
-                l = lit[y, x] * 0.8 + min(H[y, x], 4) / 4 * 0.35 - (y / h) * 0.25
+                l = (lit[y, x] * 0.95 + min(H[y, x], 3) / 3 * 0.12 - (y / h) * 0.18) if s.clean else lit[y, x] * 0.8 + min(H[y, x], 4) / 4 * 0.35 - (y / h) * 0.25
                 t = min(3.0, max(0.0, (0.75 - l) / 0.38))
                 k = int(t)
-                if s.fine and 0.35 < t - k < 0.65 and (x + y) % 2 and k < 3: k += 1
+                if s.fine and not s.clean and 0.35 < t - k < 0.65 and (x + y) % 2 and k < 3: k += 1
                 # sombra de contacto: bajo una parte de delante se oscurece
                 if s.fine:
                     for dy in (1, 2):
@@ -109,6 +110,14 @@ class Sprite:
                     yy, xx = y + dy, x + dx
                     if yy < h and xx < w and inside[yy, xx] and K[yy, xx] <= 1 and (yy, xx) in dark:
                         img[y, x] = (*dark[(yy, xx)], 255); break
+        if s.clean:  # píxel huérfano (ningún vecino de su color) -> el color más repetido alrededor
+            src = img.copy(); keep = {(int(a), int(b)) for a, b, _ in s.marks}
+            for y in range(1, h - 1):
+                for x in range(1, w - 1):
+                    if src[y, x, 3] == 0 or (x, y) in keep: continue
+                    nb = [tuple(src[y + dy, x + dx]) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))]
+                    if all(n[3] for n in nb) and tuple(src[y, x]) not in nb:
+                        img[y, x] = max(set(nb), key=nb.count)
         im = Image.fromarray(img, 'RGBA')
         return im
 
@@ -162,6 +171,7 @@ for th, spec in THEMES.items():
         boss = name.startswith('boss')
         s = Sprite(48, 44) if boss else Sprite(36, 36)
         s.fine = spec.get('fine', False)
+        s.clean = spec.get('clean', False)
         fn(s)
         save(s.render(ramp, out, fixed), f"art/temas/{th}/dibujos/{'jefes' if boss else 'piezas'}/{name}_l.png")
         print(th, name)
