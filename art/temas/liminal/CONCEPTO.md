@@ -5,4 +5,4 @@ anómalas que vagan por ellas. Todo original: ninguna entidad copia una criatura
 
 - Agentes (peón, guardia, consejero, rey) con traje del color del bando; anomalías (caballo, alfil,
   reina, elefante, camello, cañón, jefes) con la piel o el cuerpo del bando y ojos/sonrisas fijos.
-- Generado con `python3 tools/organic-sprites.py liminal`; casillas y mesa con `tools/liminal-tiles.py`.
+- Generado con `python3 tools/organic-sprites.py liminal`; casillas y mesa con `tools/theme-tiles.py liminal`.

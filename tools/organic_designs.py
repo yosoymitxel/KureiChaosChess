@@ -1264,3 +1264,374 @@ def nb_rider(s):  # ciervo del bosque, alto y estrecho
 THEMES['naturaleza'] = {'outline': '#1f2a1c', 'fine': True,
     'fixed': {'o': ['#14140f'], 'wood': ['#9a7046', '#74512f'], 'leaf': ['#f2d46a', '#d1a63c']},
     'sprites': {'boss-rider': nb_rider}}
+
+# ---------- Forja volcánica: criaturas de fuego ----------
+def eyes(s, x, y, gap=3, col='eye'):
+    s.ell(x - gap / 2, y, 1.2, 1.4, mat=col).ell(x + gap / 2, y, 1.2, 1.4, mat=col)
+    s.dot(x - gap / 2 + 0.4, y + 0.3, 'o').dot(x + gap / 2 + 0.4, y + 0.3, 'o')
+
+def flame(s, x, y, h, w=2.6):  # lengua de fuego que se afina hacia arriba
+    s.stroke([(x, y), (x + w * 0.4, y - h * 0.5), (x - w * 0.2, y - h)], w, 0.4, mat='fire')
+
+def v_pawn(s):  # brasa con ojos
+    for x, h in ((14, 8), (18, 11), (22, 7)):
+        flame(s, x, 26, h)
+    s.ell(18, 29, 7, 6)
+    for x, y in ((14, 30), (20, 27), (22, 32)):
+        s.dot(x, y, 'glow')
+    eyes(s, 18, 28.5)
+
+def v_rook(s):  # volcán con cráter humeante
+    s.stroke([(18, 33), (18, 14)], 13, 6)
+    s.cut(18, 12, 4.5, 2.2)
+    for x0, x1 in ((15, 12), (21, 24)):
+        s.stroke([(x0, 15), (x1, 30)], 0.8, 1.2, mat='lava')
+    flame(s, 18, 15, 8, 3)
+    s.ell(14, 6, 2.4, 1.8, mat='smoke').ell(19, 3.5, 2, 1.5, mat='smoke')
+
+def v_knight(s):  # salamandra de perfil con cresta de llamas
+    s.stroke([(6, 28), (2, 24), (3, 19)], 1.8, 0.6)
+    for x0, x1 in ((10, 8), (14, 15), (22, 21), (26, 28)):
+        s.stroke([(x0, 28), (x1, 34.5)], 1.2, 1)
+    s.stroke([(6, 27), (14, 24), (22, 24), (27, 22)], 3.4, 2.8)
+    s.ell(30, 20, 4.4, 3.2, rot=-12)
+    for x in (10, 15, 20, 25):
+        flame(s, x, 22.5 - (x - 10) * 0.12, 5, 1.6)
+    s.ell(31, 18.5, 1.1, 1.1, mat='eye').dot(31.4, 18.6, 'o')
+    s.line([(32, 22), (34, 21.5)], 'o')
+
+def v_bishop(s):  # espíritu-vela alto
+    s.stroke([(18, 34), (18, 16)], 5, 3.6)
+    s.ell(18, 33.5, 6, 1.6, mat='rock')
+    for y in (30, 25):
+        s.line([(15, y), (21, y - 1)], 3)
+    flame(s, 18, 15, 8, 3.4)
+    eyes(s, 18, 20, 2.6)
+
+def v_queen(s):  # fénix con alas abiertas y corona
+    for d in (-1, 1):
+        s.stroke([(18, 20), (18 + d * 8, 14), (18 + d * 15, 18)], 2.4, 1)
+        for k in (0, 1, 2):
+            flame(s, 18 + d * (8 + k * 3), 16 + k, 5, 1.4)
+    s.stroke([(18, 32), (18, 20)], 3, 2.4)
+    s.stroke([(18, 31), (15, 35)], 1.2, 0.6, mat='fire').stroke([(18, 31), (21, 35)], 1.2, 0.6, mat='fire')
+    s.ell(18, 16, 3, 3)
+    s.stroke([(20, 16), (23, 17)], 0.8, 0.4, mat='gold')
+    s.dot(19, 15, 'o')
+    s.ell(18, 11.5, 3, 1.1, mat='gold')
+    for x in (16, 18, 20):
+        s.ell(x, 10, 0.7, 1.4, mat='gold')
+
+def v_king(s):  # gólem de magma coronado
+    s.stroke([(14, 28), (13, 35)], 2.6).stroke([(22, 28), (23, 35)], 2.6)
+    s.stroke([(10, 18), (8, 27)], 2.2).stroke([(26, 18), (28, 27)], 2.2)
+    s.ell(18, 22, 8, 8)
+    s.line([(14, 18), (17, 22), (15, 27)], 'lava').line([(22, 17), (20, 22), (23, 26)], 'lava')
+    s.ell(18, 12, 5, 4.5)
+    eyes(s, 18, 12, 3.4, 'glowc')
+    s.ell(18, 6.5, 4.5, 1.4, mat='gold')
+    for x in (14.5, 18, 21.5):
+        s.ell(x, 4.6, 0.9, 1.8, mat='gold')
+
+def v_guard(s):  # centinela de obsidiana con escudo
+    s.stroke([(15, 28), (14, 35)], 2).stroke([(20, 28), (21, 35)], 2)
+    s.ell(17, 21, 6, 7.5)
+    s.ell(17, 11, 4, 4)
+    eyes(s, 17.5, 11, 2.6, 'glowc')
+    s.stroke([(24, 31), (24, 15)], 4.6, 4.4, mat='rock')
+    s.line([(22.5, 20), (25.5, 20)], 'lava').line([(24, 17), (24, 27)], 'lava')
+
+def v_advisor(s):  # farolillo de brasa con asa
+    s.stroke([(14, 6), (18, 2), (22, 6)], 0.7, mat='metal')
+    s.ell(18, 33.5, 6, 1.6, mat='metal')
+    s.stroke([(18, 31), (18, 10)], 7.5, 6.5)
+    s.ell(18, 21, 4.8, 7, mat='glowc')
+    flame(s, 18, 25, 9, 3)
+    s.ell(18, 9, 7.6, 1.8, mat='metal')
+
+def v_elephant(s):  # tortuga de lava
+    s.stroke([(9, 30), (8, 35)], 2.2, mat='rock').stroke([(25, 30), (26, 35)], 2.2, mat='rock')
+    s.ell(30, 27, 3.6, 3, mat='rock').dot(31, 26, 'glow')
+    s.ell(17, 26, 12, 8)
+    s.cut(17, 37, 15, 4.5)
+    for x in (10, 17, 24):
+        s.line([(x - 2.5, 24), (x, 21), (x + 2.5, 24), (x, 28), (x - 2.5, 24)], 'lava')
+    flame(s, 17, 19, 6, 2)
+
+def v_camel(s):  # serpiente de fuego erguida
+    s.stroke([(6, 34), (14, 32), (22, 34), (26, 30), (24, 22), (20, 16), (23, 9)], 3, 2)
+    s.ell(25, 7, 3.8, 2.6, rot=-15)
+    s.ell(26, 6.2, 1, 1, mat='eye').dot(26.3, 6.3, 'o')
+    s.stroke([(28, 8), (31, 9), (33, 8)], 0.4, mat='fire')
+    for x, y in ((11, 30), (18, 31.5), (24, 26), (22, 19)):
+        flame(s, x, y, 4, 1.2)
+
+def v_cannon(s):  # caldero que escupe lava
+    s.stroke([(11, 32), (10, 35)], 1).stroke([(25, 32), (26, 35)], 1)
+    s.ell(18, 26, 9, 7)
+    s.ell(18, 20, 9, 2.4, mat='lava')
+    for x, y, r in ((24, 14, 2.2), (28, 10, 1.6), (31, 7, 1.1)):
+        s.ell(x, y, r, r, mat='lava')
+    eyes(s, 18, 27, 4, 'glowc')
+
+def vb_titan(s):  # gigante de magma
+    s.stroke([(16, 34), (14, 44)], 4).stroke([(32, 34), (34, 44)], 4)
+    s.stroke([(10, 18), (4, 30), (6, 36)], 3.6, 3).stroke([(38, 18), (44, 30), (42, 36)], 3.6, 3)
+    s.ell(24, 26, 14, 12)
+    for pts in ([(16, 18), (20, 25), (17, 32)], [(30, 17), (27, 24), (31, 31)], [(24, 28), (24, 36)]):
+        s.line(pts, 'lava')
+    s.ell(24, 11, 7, 6)
+    eyes(s, 24, 11, 5, 'glowc')
+    for x in (18, 24, 30):
+        flame(s, x, 6, 6, 2)
+
+def vb_ram(s):  # jabalí de brasa embistiendo
+    for x in (12, 18, 28, 34):
+        s.stroke([(x, 34), (x - 1, 43)], 2)
+    s.ell(23, 29, 15, 8)
+    for x in (12, 18, 24, 30):
+        flame(s, x, 22, 7, 2.2)
+    s.ell(38, 31, 6, 5)
+    s.stroke([(41, 35), (45, 31), (44, 27)], 1, 0.5, mat='w')
+    eyes(s, 39, 29, 2.6, 'glowc')
+
+def vb_hydra(s):  # tres serpientes de fuego de un pozo de lava
+    s.ell(24, 40, 18, 4.5, mat='lava')
+    for pts, d in (([(16, 39), (11, 30), (10, 20), (8, 14)], -1), ([(24, 38), (24, 24), (26, 14), (29, 8)], 1), ([(32, 39), (37, 30), (38, 20), (40, 14)], 1)):
+        s.stroke(pts, 3, 2)
+        x, y = pts[-1]
+        s.ell(x + d, y, 4, 2.8, rot=-12 * d)
+        s.dot(x + d * 1.8, y - 0.8, 'glowc')
+        flame(s, x - d * 1.5, y - 2, 4, 1.2)
+
+def vb_golem(s):  # roca volcánica 3×3 que anda
+    s.stroke([(16, 36), (14, 44)], 4, mat='rock').stroke([(32, 36), (34, 44)], 4, mat='rock')
+    s.ell(24, 25, 18, 15)
+    for pts in ([(12, 16), (18, 24), (13, 34)], [(34, 14), (29, 24), (35, 33)], [(20, 34), (28, 34)]):
+        s.line(pts, 'lava')
+    eyes(s, 24, 20, 8, 'glowc')
+    for x in (16, 24, 32):
+        flame(s, x, 11, 8, 2.6)
+
+def vb_rider(s):  # jinete de llamas, alto
+    s.stroke([(22, 44), (22, 30)], 2).stroke([(27, 44), (27, 30)], 2)
+    s.stroke([(24.5, 32), (24.5, 16)], 6, 4)
+    s.ell(24.5, 11, 4.5, 4.5)
+    eyes(s, 24.5, 11, 3, 'glowc')
+    flame(s, 24.5, 7, 9, 3.4)
+    s.stroke([(29, 18), (34, 8)], 0.8, mat='metal')
+    flame(s, 34, 8, 6, 1.6)
+
+def vb_wall(s):  # muralla de basalto con grietas de lava
+    s.stroke([(4, 34), (44, 34)], 9)
+    for x in (8, 16, 24, 32, 40):
+        s.line([(x, 26), (x + 1, 34), (x - 1, 42)], 'lava')
+    for x in (12, 28):
+        eyes(s, x, 31, 3, 'glowc')
+    for x in (6, 20, 36):
+        flame(s, x, 25, 6, 2)
+
+def vb_devourer(s):  # boca de volcán
+    s.stroke([(24, 42), (24, 18)], 22, 12)
+    s.ell(24, 17, 11, 4, mat='lava')
+    s.ell(24, 32, 9, 5, mat='o')
+    for x in range(17, 32, 3):
+        s.stroke([(x, 27.5), (x + 0.5, 30.5)], 0.8, 0.3, mat='w').stroke([(x + 1.5, 37), (x + 1, 34)], 0.8, 0.3, mat='w')
+    eyes(s, 24, 23, 8, 'glowc')
+    for x in (18, 24, 30):
+        flame(s, x, 14, 9, 3)
+
+THEMES['volcan'] = {'outline': '#1a0e0c', 'fine': True,
+    'fixed': {'o': ['#120808'], 'w': ['#fff2d8'], 'eye': ['#fff4d0', '#f0d8a0'], 'glow': ['#fff27a'], 'glowc': ['#fff27a', '#ffc23a'],
+              'fire': ['#fff27a', '#ffc23a', '#ff8a2a', '#e0461e'], 'lava': ['#ffcf4a', '#ff8a2a', '#d4461e'],
+              'rock': ['#5a4a4a', '#463a3a', '#342a2c', '#241c1e'], 'smoke': ['#8a8078', '#6a625c'],
+              'metal': ['#7a7470', '#5c5652', '#403c3a'], 'gold': ['#f2cf62', '#d4a63a']},
+    'sprites': {'pawn': v_pawn, 'rook': v_rook, 'knight': v_knight, 'bishop': v_bishop, 'queen': v_queen, 'king': v_king,
+                'guard': v_guard, 'advisor': v_advisor, 'elephant': v_elephant, 'camel': v_camel, 'cannon': v_cannon,
+                'boss-titan': vb_titan, 'boss-ram': vb_ram, 'boss-hydra': vb_hydra, 'boss-golem': vb_golem,
+                'boss-rider': vb_rider, 'boss-wall': vb_wall, 'boss-devourer': vb_devourer}}
+
+# ---------- Ciénaga tóxica: babas, barriles y mutantes ----------
+def drip(s, x, y, n=3):
+    s.stroke([(x, y), (x, y + n)], 0.7, 0.5, mat='goo').ell(x, y + n + 0.6, 0.9, 1.1, mat='goo')
+
+def x_pawn(s):  # baba con burbujas
+    s.ell(18, 29, 8, 6)
+    s.cut(18, 37, 10, 2.5)
+    for x, y, r in ((13, 21, 1.4), (22, 20, 1.1), (17, 17, 0.8)):
+        s.ell(x, y, r, r, mat='bubble')
+    eyes(s, 18, 28, 3.6)
+    s.line([(16, 31.5), (18, 32.4), (20, 31.5)], 'o')
+
+def x_rook(s):  # barril que gotea
+    s.stroke([(18, 34), (18, 12)], 9, 9)
+    for y in (15, 23, 31):
+        s.stroke([(9.5, y), (26.5, y)], 0.9, mat='metal')
+    s.ell(18, 11, 9, 2.2, mat='goo')
+    for x in (12, 17, 23):
+        drip(s, x, 12, 2 + x % 3)
+    s.ell(18, 23, 3, 3, mat='haz').dot(18, 23, 'o')
+
+def x_knight(s):  # rana mutante de perfil a punto de saltar
+    s.stroke([(10, 29), (5, 33), (9, 35)], 2.2, 1.2)
+    s.stroke([(22, 30), (25, 35)], 1.2, 0.8)
+    s.ell(15, 26, 9, 6, rot=-20)
+    s.ell(23, 19, 6, 4.5, rot=-15)
+    s.ell(23, 14.5, 2.4, 2.4, mat='eye').ell(20, 15, 2, 2, mat='eye')
+    s.dot(23.6, 14.6, 'o').dot(20.4, 15.2, 'o')
+    s.line([(24, 21.5), (28, 20.5)], 'o')
+    for x, y in ((11, 24), (15, 22), (18, 27)):
+        s.ell(x, y, 1.1, 1, mat='goo')
+
+def x_bishop(s):  # seta venenosa alta
+    s.stroke([(18, 34), (18, 16)], 2.6, 2)
+    s.ell(18, 33.5, 5, 1.4, mat='goo')
+    s.ell(18, 13, 8, 6)
+    s.cut(18, 20, 10, 2.5)
+    for x, y in ((14, 11), (20, 9), (22, 14), (16, 15)):
+        s.ell(x, y, 1.3, 1.1, mat='bubble')
+    for x in (12, 24):
+        drip(s, x, 17, 3)
+
+def x_queen(s):  # flor carnívora con corona
+    s.stroke([(18, 34), (17, 26), (19, 19)], 1.6, 1.2, mat='stem')
+    s.ell(13, 30, 4, 1.6, rot=-20, mat='stem').ell(23, 28, 4, 1.6, rot=20, mat='stem')
+    s.ell(19, 14, 8, 6)
+    s.ell(21, 15, 4.5, 2.6, mat='o')
+    for x in (18.5, 20.5, 22.5):
+        s.dot(x, 13.3, 'w').dot(x + 0.5, 16.8, 'w')
+    s.ell(17, 6.5, 4, 1.4, mat='gold')
+    for x in (14, 17, 20):
+        s.ell(x, 4.8, 0.8, 1.6, mat='gold')
+
+def x_king(s):  # baba gigante coronada
+    s.ell(18, 26, 11, 9)
+    s.cut(18, 37.5, 14, 3)
+    eyes(s, 18, 23, 5)
+    s.line([(14, 28), (18, 30), (22, 28)], 'o')
+    for x in (10, 26):
+        drip(s, x, 30, 2)
+    s.ell(18, 15.5, 5, 1.6, mat='gold')
+    for x in (14.5, 18, 21.5):
+        s.ell(x, 13.6, 0.9, 1.8, mat='gold')
+
+def x_guard(s):  # rata con máscara de gas
+    s.stroke([(10, 30), (4, 29), (2, 24)], 0.8, 0.4)
+    s.stroke([(14, 30), (14, 35)], 1.2).stroke([(21, 30), (22, 35)], 1.2)
+    s.ell(17, 24, 6.5, 7)
+    s.ell(20, 14, 5, 4.5)
+    s.ell(16, 10, 1.8, 2.4).ell(23, 10, 1.8, 2.4)
+    s.ell(22, 16, 2.6, 2, mat='metal').ell(25, 17, 1.4, 1.4, mat='metal')
+    s.ell(20, 13, 1.2, 1, mat='glass').ell(23, 13, 1.2, 1, mat='glass')
+
+def x_advisor(s):  # matraz burbujeante
+    s.ell(18, 27, 8, 7, mat='glass')
+    s.ell(18, 29, 7, 4.5)
+    s.stroke([(18, 21), (18, 10)], 2.4, mat='glass')
+    s.ell(18, 9, 3, 1.2, mat='metal')
+    for x, y, r in ((16, 26, 1), (20, 28, 1.3), (18, 6, 1), (20, 3, 0.8)):
+        s.ell(x, y, r, r, mat='bubble')
+
+def x_elephant(s):  # sapo gordo
+    s.stroke([(10, 31), (8, 35)], 2.2).stroke([(26, 31), (28, 35)], 2.2)
+    s.ell(18, 26, 12, 8)
+    s.ell(12, 18, 3, 3, mat='eye').ell(24, 18, 3, 3, mat='eye')
+    s.dot(12.5, 18, 'o').dot(24.5, 18, 'o')
+    s.line([(11, 27), (18, 29.5), (25, 27)], 'o')
+    for x, y in ((9, 23), (27, 23), (15, 31), (22, 31)):
+        s.ell(x, y, 1.3, 1.1, mat='goo')
+
+def x_camel(s):  # gusano de lodo que asoma
+    s.ell(15, 33.5, 9, 2, mat='goo')
+    s.stroke([(12, 34), (14, 24), (20, 18), (22, 10)], 3.6, 2.6)
+    for y in (29, 24, 19, 14):
+        s.line([(13, y), (21, y - 1)], 3)
+    s.ell(23, 8, 3.4, 3)
+    s.ell(25, 8.5, 1.8, 1.4, mat='o')
+    s.dot(24.6, 7.6, 'w').dot(25.8, 7.6, 'w')
+
+def x_cannon(s):  # tubería que escupe baba
+    s.stroke([(8, 34), (8, 22), (14, 18), (22, 18)], 3)
+    s.ell(23, 18, 2.4, 4, mat='metal')
+    s.ell(8, 33.5, 4, 1.4, mat='metal')
+    for x, y, r in ((27, 18, 2.6), (31, 17, 1.9), (34, 15.5, 1.2)):
+        s.ell(x, y, r, r)
+    drip(s, 27, 20, 3)
+    s.ell(13, 26, 3.5, 3)
+    eyes(s, 13, 26, 2.4)
+
+def xb_titan(s):  # baba colosal
+    s.ell(24, 30, 20, 14)
+    s.cut(24, 47, 26, 4)
+    eyes(s, 24, 25, 9)
+    s.line([(16, 33), (24, 36), (32, 33)], 'o')
+    for x in (8, 18, 30, 40):
+        drip(s, x, 36, 3)
+    for x, y, r in ((12, 18, 2), (34, 15, 1.6), (24, 13, 1.2)):
+        s.ell(x, y, r, r, mat='bubble')
+
+def xb_ram(s):  # jabalí mutante
+    for x in (12, 18, 28, 34):
+        s.stroke([(x, 34), (x - 1, 43)], 2)
+    s.ell(23, 29, 15, 8.5)
+    for x in (14, 20, 26):
+        s.ell(x, 24, 2, 1.6, mat='goo')
+    s.ell(38, 31, 6.5, 5.5)
+    s.stroke([(41, 35), (45, 31), (44, 27)], 1, 0.5, mat='w')
+    s.ell(39, 28, 1.4, 1.4, mat='eye').ell(41.5, 28.5, 1, 1, mat='eye')
+    s.dot(39.3, 28, 'o').dot(41.7, 28.5, 'o')
+
+def xb_hydra(s):  # tres tentáculos de baba de un charco
+    s.ell(24, 40, 18, 4.5, mat='goo')
+    for pts, d in (([(16, 39), (11, 30), (10, 20), (8, 14)], -1), ([(24, 38), (24, 24), (26, 14), (29, 8)], 1), ([(32, 39), (37, 30), (38, 20), (40, 14)], 1)):
+        s.stroke(pts, 3.2, 2.2)
+        x, y = pts[-1]
+        s.ell(x + d, y, 4, 3.2)
+        s.ell(x + d * 1.5, y, 1.8, 1.8, mat='eye').dot(x + d * 1.9, y, 'o')
+
+def xb_golem(s):  # torre de barriles con ojos
+    for x, y in ((14, 36), (34, 36), (24, 36), (19, 24), (29, 24), (24, 12)):
+        s.stroke([(x, y + 5), (x, y - 5)], 5.4, 5.4)
+        s.stroke([(x - 5, y), (x + 5, y)], 0.7, mat='metal')
+    eyes(s, 24, 12, 4, 'glowx')
+    s.ell(24, 6.5, 5, 1.4, mat='goo')
+    drip(s, 20, 7, 3); drip(s, 28, 7, 2)
+
+def xb_rider(s):  # rata alta con gas
+    s.stroke([(21, 44), (21, 34)], 2).stroke([(28, 44), (28, 34)], 2)
+    s.stroke([(24.5, 36), (24.5, 18)], 6.5, 4.5)
+    s.stroke([(19, 36), (12, 40), (8, 36)], 1, 0.5)
+    s.ell(25, 12, 5, 4.6)
+    s.ell(21, 7.5, 1.8, 2.6).ell(29, 7.5, 1.8, 2.6)
+    s.ell(26, 14.5, 3, 2.2, mat='metal')
+    s.ell(23.5, 11, 1.3, 1.1, mat='glass').ell(27, 11, 1.3, 1.1, mat='glass')
+    for x, y in ((33, 13), (36, 10), (39, 8)):
+        s.ell(x, y, 1.6, 1.4, mat='gas')
+
+def xb_wall(s):  # muro de barriles tumbados
+    for x in (6, 15, 24, 33, 42):
+        s.ell(x, 35, 4.6, 7.5)
+        s.ell(x, 35, 2.4, 4, mat='haz')
+    s.ell(24, 26.5, 22, 1.6, mat='goo')
+    for x in (10, 24, 38):
+        drip(s, x, 27, 3)
+
+def xb_devourer(s):  # boca de alcantarilla
+    s.ell(24, 36, 22, 7, mat='metal')
+    s.ell(24, 33, 15, 9)
+    s.ell(24, 33, 11, 5, mat='o')
+    for x in range(15, 34, 3):
+        s.stroke([(x, 28.5), (x + 0.5, 31.5)], 0.8, 0.3, mat='w').stroke([(x + 1.5, 38), (x + 1, 35)], 0.8, 0.3, mat='w')
+    eyes(s, 24, 22, 8, 'glowx')
+    for x in (12, 36):
+        drip(s, x, 40, 2)
+
+THEMES['toxico'] = {'outline': '#0e140e', 'fine': True,
+    'fixed': {'o': ['#0a0e0a'], 'w': ['#f6f8e8'], 'eye': ['#f6f8e8', '#d6dcc4'], 'goo': ['#c8ff5a', '#8ee02a', '#5ea81e'],
+              'bubble': ['#e8ffb0', '#b8f060'], 'metal': ['#8a908a', '#6a706a', '#4c524c', '#343a34'], 'haz': ['#f2d23c', '#c8a81e'],
+              'glass': ['#a8e0d8', '#78b8b0'], 'stem': ['#6a8a4a', '#4e6c36'], 'gold': ['#f2cf62', '#d4a63a'],
+              'gas': ['#c8e88a', '#a8c86a'], 'glowx': ['#e8ff6a', '#b8e02a']},
+    'sprites': {'pawn': x_pawn, 'rook': x_rook, 'knight': x_knight, 'bishop': x_bishop, 'queen': x_queen, 'king': x_king,
+                'guard': x_guard, 'advisor': x_advisor, 'elephant': x_elephant, 'camel': x_camel, 'cannon': x_cannon,
+                'boss-titan': xb_titan, 'boss-ram': xb_ram, 'boss-hydra': xb_hydra, 'boss-golem': xb_golem,
+                'boss-rider': xb_rider, 'boss-wall': xb_wall, 'boss-devourer': xb_devourer}}

@@ -692,6 +692,38 @@ export const PIXEL_THEMES = {
     "art": "pixel",
     "pack": "terrario-vivo"
   },
+  "toxico": {
+    "id": "toxico",
+    "name": "Ciénaga tóxica",
+    "price": 240,
+    "swatch": [
+      "#121a14",
+      "#b9c49a",
+      "#c69ae6",
+      "#f0a250"
+    ],
+    "vars": {
+      "table": "#121a14",
+      "table-2": "#1c281e",
+      "tile-a": "#b9c49a",
+      "tile-b": "#4f5e52",
+      "tile-side": "#2a362c",
+      "side-light": "#b4f04a",
+      "side-dark": "#c69ae6",
+      "side-wild": "#f0a250",
+      "paper": "#e8efd8",
+      "paper-2": "#d4dfc0",
+      "paper-3": "#b2c29a",
+      "ink": "#161e16",
+      "ink-2": "#3e4e3c",
+      "accent": "#6a9a2a",
+      "accent-ink": "#24400e",
+      "brass": "#e6d24a",
+      "muted": "#66755e"
+    },
+    "art": "pixel",
+    "pack": "toxico"
+  },
   "vesper": {
     "id": "vesper",
     "name": "Vesper",
@@ -754,6 +786,38 @@ export const PIXEL_THEMES = {
     },
     "art": "pixel",
     "pack": "vocaloid-miku"
+  },
+  "volcan": {
+    "id": "volcan",
+    "name": "Forja volcánica",
+    "price": 240,
+    "swatch": [
+      "#1a1212",
+      "#c9a58a",
+      "#8ea2c4",
+      "#a6c86a"
+    ],
+    "vars": {
+      "table": "#1a1212",
+      "table-2": "#2a1c1a",
+      "tile-a": "#c9a58a",
+      "tile-b": "#5a4a4a",
+      "tile-side": "#3a2a26",
+      "side-light": "#f7a84a",
+      "side-dark": "#8ea2c4",
+      "side-wild": "#a6c86a",
+      "paper": "#f1e2d0",
+      "paper-2": "#e2cdb4",
+      "paper-3": "#c8a98a",
+      "ink": "#241614",
+      "ink-2": "#5a3a30",
+      "accent": "#c4502a",
+      "accent-ink": "#5a1e10",
+      "brass": "#f2b84a",
+      "muted": "#7a6058"
+    },
+    "art": "pixel",
+    "pack": "volcan"
   },
   "zombis": {
     "id": "zombis",
