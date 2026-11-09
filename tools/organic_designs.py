@@ -91,12 +91,15 @@ def t_elephant(s):  # escarabajo pelotero con su bola
     s.ell(20, 21, 3.5, 3, rot=15)
     s.dot(19, 20, 'e')
 
-def t_camel(s):  # oruga
-    pts = [(6, 32), (10, 26), (15, 31), (20, 25), (25, 30), (29, 22)]
-    for i, (x, y) in enumerate(pts):
-        if i < 5: s.stroke([(x, 33), (x, 35)], 0.7)
-        s.ell(x, y, 4.5 if i < 5 else 5, 4.5 if i < 5 else 5)
-    s.stroke([(28, 17), (26, 12)], 0.5).stroke([(31, 17.5), (33, 12.5)], 0.5)
+def t_camel(s):  # oruga: segmentos que se solapan y se afinan, lomo ondulado
+    pts = [(5, 31, 3.2), (9, 29, 3.8), (13, 27.5, 4.2), (17, 28.5, 4.2), (21, 27, 4), (25, 25, 3.8), (28.5, 21.5, 3.6)]
+    for i, (x, y, r) in enumerate(pts[:-1]):
+        s.stroke([(x, y + r - 1), (x, 35)], 0.7)
+    for x, y, r in pts:
+        s.ell(x, y, r * 1.15, r)
+    for x, y, r in pts[1:-1]:
+        s.dot(x, y + r * 0.4, 'e')
+    s.stroke([(28, 18), (26, 13)], 0.5).stroke([(31, 18.5), (33, 13.5)], 0.5)
     s.dot(30, 21, 'o').dot(31, 21, 'e')
 
 def t_cannon(s):  # escarabajo bombardero
@@ -186,13 +189,17 @@ def p_advisor(s):  # ámbar engastado en hueso
     s.dot(15, 17, 'w').dot(16, 16, 'w')
     s.stroke([(14, 35), (18, 33), (22, 35)], 1.3)
 
-def p_elephant(s):  # cráneo de mamut con colmillos
-    s.stroke([(10, 35), (11, 28)], 2).stroke([(20, 35), (19, 28)], 2)
-    s.ell(15, 18, 9, 9.5)
-    s.ell(19, 27, 7, 4)
-    s.stroke([(21, 24), (29, 28), (33, 22), (31, 15)], 1.8, 1, mat='w')
-    s.cut(17, 17, 2.3, 2.3)
-    s.line([(9, 12), (14, 10), (20, 12)], 3)
+def p_elephant(s):  # esqueleto de mamut de perfil: lomo alto, costillas, cráneo y colmillo curvo
+    for x0, x1 in ((7, 6), (12, 13), (21, 20), (26, 27)):
+        s.stroke([(x0, 24), (x1, 35)], 1.6, 1.3)
+    s.stroke([(4, 24), (10, 17), (18, 15), (25, 18)], 2.2, 2.6)
+    s.ell(15, 22, 9, 4.5, rot=-6)
+    for x in (9, 12, 15, 18, 21):
+        s.line([(x, 18.5), (x + 0.6, 25.5)], 3)
+    s.ell(28, 17, 4.5, 5)
+    s.cut(29, 16, 1.4, 1.4)
+    s.stroke([(30, 21), (33, 27), (30, 31), (26, 30)], 1.3, 0.7, mat='w')
+    s.stroke([(3, 25), (1, 30)], 0.7, 0.4)
 
 def p_camel(s):  # braquiosaurio
     s.stroke([(8, 35), (9, 29)], 1.2).stroke([(20, 35), (19, 29)], 1.2)
