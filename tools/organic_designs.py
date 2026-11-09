@@ -1635,3 +1635,108 @@ THEMES['toxico'] = {'outline': '#0e140e', 'fine': True,
                 'guard': x_guard, 'advisor': x_advisor, 'elephant': x_elephant, 'camel': x_camel, 'cannon': x_cannon,
                 'boss-titan': xb_titan, 'boss-ram': xb_ram, 'boss-hydra': xb_hydra, 'boss-golem': xb_golem,
                 'boss-rider': xb_rider, 'boss-wall': xb_wall, 'boss-devourer': xb_devourer}}
+
+# ---------- Siluetas menos geométricas para volcán y tóxico ----------
+def slime(s, cx, gy, w, h, lean=1.5):
+    """Baba: charco ancho, cuerpo que se afina y se inclina, lóbulos caídos y gotas por los lados."""
+    s.ell(cx, gy - 1.2, w * 1.15, 1.6)
+    s.stroke([(cx - w * 0.15, gy - 2), (cx + lean * 0.5, gy - h * 0.55), (cx + lean, gy - h)], w * 0.75, w * 0.28)
+    s.ell(cx - w * 0.55, gy - h * 0.28, w * 0.42, h * 0.22, rot=25).ell(cx + w * 0.6, gy - h * 0.35, w * 0.36, h * 0.2, rot=-30)
+    s.stroke([(cx + lean, gy - h), (cx + lean + w * 0.3, gy - h - 1.5), (cx + lean + w * 0.45, gy - h + 0.5)], 1.1, 0.5)
+    for k, dx in enumerate((-0.8, 0.85)):
+        s.stroke([(cx + dx * w, gy - h * (0.4 + k * 0.1)), (cx + dx * w * 1.05, gy - 2)], 0.9, 0.6)
+
+def rock(s, cx, cy, r, seed=0):
+    """Roca: trozos inclinados de distinto tamaño, nunca un óvalo limpio."""
+    import random as _r
+    g = _r.Random(seed)
+    for i in range(5):
+        a = i * 72 + g.uniform(-20, 20)
+        import math as _m
+        s.ell(cx + _m.cos(_m.radians(a)) * r * 0.45, cy + _m.sin(_m.radians(a)) * r * 0.4,
+              r * g.uniform(0.45, 0.62), r * g.uniform(0.38, 0.52), rot=g.uniform(-40, 40))
+
+def x_pawn(s):
+    slime(s, 17, 35, 8, 13)
+    eyes(s, 18.5, 25, 3.4)
+    s.line([(16.5, 28.5), (18.5, 29.6), (20.5, 28.4)], 'o')
+    s.ell(12, 17, 1.2, 1.2, mat='bubble').ell(23, 15, 0.9, 0.9, mat='bubble')
+
+def x_king(s):
+    slime(s, 17, 35, 11, 20, 2)
+    eyes(s, 19, 22, 5)
+    s.line([(15, 27), (19, 29.5), (23, 27)], 'o')
+    s.ell(20, 12, 4.4, 1.4, rot=-8, mat='gold')
+    for x in (17, 20, 23):
+        s.ell(x, 10.2 - (x - 17) * 0.15, 0.9, 1.8, mat='gold')
+
+def xb_titan(s):
+    slime(s, 22, 44, 17, 30, 3)
+    eyes(s, 25, 26, 8)
+    s.line([(19, 33), (25, 36.5), (31, 33)], 'o')
+    for x, y, r in ((10, 14, 1.8), (36, 12, 1.4), (28, 9, 1)):
+        s.ell(x, y, r, r, mat='bubble')
+
+def x_rook(s):  # barril abollado e inclinado que rebosa baba
+    s.ell(18, 34, 10, 1.6, mat='goo')
+    s.stroke([(17, 33.5), (18.5, 23), (20, 12.5)], 7.8, 7)
+    s.cut(13, 22, 1.6, 3)
+    for y, x in ((30, 17.4), (22, 18.6), (15, 19.6)):
+        s.stroke([(x - 7.5, y + 0.6), (x + 7.5, y - 0.6)], 0.8, mat='metal')
+    s.ell(20.2, 11.5, 7.6, 2.2, rot=-6, mat='goo')
+    s.stroke([(25, 12), (28, 16), (27.5, 22)], 1.4, 0.7, mat='goo')
+    drip(s, 15, 13, 4)
+    s.ell(18.6, 22.5, 2.6, 2.6, mat='haz').dot(18.6, 22.5, 'o')
+
+def x_elephant(s):  # sapo agazapado de perfil, papada y patas plegadas
+    s.stroke([(7, 30), (4, 35), (10, 35)], 2.4, 1.2).stroke([(22, 31), (26, 35)], 1.6, 1)
+    s.stroke([(6, 29), (14, 22), (24, 20), (30, 24)], 4.6, 3.4)
+    s.ell(15, 28, 9, 5, rot=-10)
+    s.ell(27, 27, 4.4, 3.2, mat='belly')
+    s.ell(24, 17.5, 2.6, 2.6, mat='eye').dot(24.8, 17.6, 'o')
+    s.line([(27, 24.5), (32, 24)], 'o')
+    for x, y in ((10, 24), (16, 21), (13, 29)):
+        s.ell(x, y, 1.2, 1, mat='goo')
+
+def v_king(s):
+    s.stroke([(14, 28), (12, 35)], 2.8, 2.2).stroke([(22, 28), (24, 35)], 2.8, 2.2)
+    s.stroke([(10, 17), (6, 24), (8, 29)], 2.6, 1.8).stroke([(26, 17), (30, 24), (28, 29)], 2.6, 1.8)
+    rock(s, 18, 22, 10, 1)
+    s.line([(14, 17), (17, 22), (15, 27)], 'lava').line([(22, 16), (20, 21), (23, 26)], 'lava')
+    rock(s, 18, 12, 6, 2)
+    eyes(s, 18, 12, 3.4, 'glowc')
+    s.ell(18, 6, 4.5, 1.4, mat='gold')
+    for x in (14.5, 18, 21.5):
+        s.ell(x, 4.2, 0.9, 1.8, mat='gold')
+
+def v_guard(s):
+    s.stroke([(15, 28), (13, 35)], 2, 1.6).stroke([(20, 28), (22, 35)], 2, 1.6)
+    rock(s, 17, 21, 8, 3)
+    rock(s, 17, 11.5, 5, 4)
+    eyes(s, 17.5, 11, 2.6, 'glowc')
+    s.stroke([(25, 31), (24, 22), (25, 14)], 4.4, 3.6, mat='rock')
+    s.line([(23, 20), (26, 19.5)], 'lava').line([(24.6, 16), (24.2, 27)], 'lava')
+
+def vb_titan(s):
+    s.stroke([(16, 34), (13, 44)], 4.4, 3.6).stroke([(32, 34), (35, 44)], 4.4, 3.6)
+    s.stroke([(10, 17), (3, 27), (5, 36)], 4, 3).stroke([(38, 17), (45, 27), (43, 36)], 4, 3)
+    rock(s, 24, 26, 15, 5)
+    for pts in ([(16, 18), (20, 25), (17, 32)], [(30, 17), (27, 24), (31, 31)]):
+        s.line(pts, 'lava')
+    rock(s, 24, 11, 8, 6)
+    eyes(s, 24, 11, 5, 'glowc')
+    for x in (18, 24, 30):
+        flame(s, x, 5, 6, 2)
+
+def vb_golem(s):
+    s.stroke([(16, 36), (13, 44)], 4.2, 3.6).stroke([(32, 36), (35, 44)], 4.2, 3.6)
+    rock(s, 24, 25, 17, 7)
+    for pts in ([(12, 16), (18, 24), (13, 34)], [(34, 14), (29, 24), (35, 33)]):
+        s.line(pts, 'lava')
+    eyes(s, 24, 20, 8, 'glowc')
+    for x in (15, 24, 33):
+        flame(s, x, 10, 8, 2.6)
+
+THEMES['toxico']['sprites'].update({'pawn': x_pawn, 'king': x_king, 'boss-titan': xb_titan, 'rook': x_rook, 'elephant': x_elephant})
+THEMES['toxico']['fixed']['belly'] = ['#e8f0c8', '#c8d4a0']
+THEMES['volcan']['sprites'].update({'king': v_king, 'guard': v_guard, 'boss-titan': vb_titan, 'boss-golem': vb_golem})
