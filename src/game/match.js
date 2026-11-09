@@ -170,12 +170,12 @@ export class Match {
       const color = w.color;
       const foes = this.pieces.filter((p) => p.color !== color && !p.chicken);
       const ctx = ctxOf(this.pieces, this.board);
-      // Quien la apunta (aunque acabe de aparecer) cae en el acto, sea el turno que sea, y no hay vida que valga.
+      // Quien la apunta (aunque acabe de aparecer) recibe un golpe en el acto, sea el turno que sea.
       const aimer = foes.find((p) => canHit(p, w, ctx));
       let m = null;
       if (aimer) {
         Object.assign(w, { awake: true, target: aimer.id });
-        m = { row: aimer.row, col: aimer.col, hits: [aimer], kill: true };
+        m = { row: aimer.row, col: aimer.col, hits: [aimer] };
       } else if (w.awake && w.color === color && !w.ally && color === mover && !lazy) {
         // La del Aquelarre, ya despierta, persigue a su presa (si cae, a la rival más cercana).
         const dist = (p, r = w.row, c = w.col) => Math.max(Math.abs(p.row - r), Math.abs(p.col - c));
@@ -188,7 +188,7 @@ export class Match {
       if (!m) continue;
       out.moved.push({ piece: w, from: { row: w.row, col: w.col }, to: { row: m.row, col: m.col }, how: 'hop' });
       for (const v of m.hits) {
-        v.hp = m.kill ? 0 : (v.hp ?? 1) - 1;
+        v.hp = (v.hp ?? 1) - 1;
         if (v.hp > 0) continue;
         this.pieces.splice(this.pieces.indexOf(v), 1); out.kills.push(v);
         if (v.royal && !this.pieces.some((q) => q.royal && q.color === v.color)) this.eliminated[v.color] = true;

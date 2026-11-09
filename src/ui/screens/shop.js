@@ -27,7 +27,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
   // `drop`: la carta de la mano que sale para hacerle sitio.
   const buyCard = (card, drop) => {
     if (run && drop == null && handFull(run.cards, card.id)) return setSwap(card);
-    if (!charge(CARD_PRICE[card.rarity || 'common'])) return;
+    if (!charge(card.price ?? CARD_PRICE[card.rarity || 'common'])) return;
     award('buy_card');
     if (run) setRun((r) => addToHand(drop == null ? r : consumeCard(r, drop), [card.id], true));
     else addPending(card.id);
@@ -87,7 +87,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
           <h2>${t('shop.cards', 'Cartas tácticas')}</h2>
           ${seen.size < CARD_LIST.length && html`<p class="shop-note">${t('shop.cardsLocked', 'Faltan {n} cartas por descubrir: aparecen aquí cuando las ves en la travesía.', { n: CARD_LIST.length - seen.size })}</p>`}
           ${CARD_LIST.filter((c) => seen.has(c.id)).map((c) => {
-            const price = CARD_PRICE[c.rarity || 'common'];
+            const price = c.price ?? CARD_PRICE[c.rarity || 'common'];
             const packed = !run && pending.length >= PENDING_LIMIT;
             const can = shop.coins >= price && !packed;
             return html`<div class="shop-row">
