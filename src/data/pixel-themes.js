@@ -411,16 +411,16 @@ export const PIXEL_THEMES = {
     "price": 260,
     "swatch": [
       "#17231f",
-      "#c7c49a",
+      "#c9b386",
       "#8c7eb7",
       "#b67b35"
     ],
     "vars": {
       "table": "#17231f",
       "table-2": "#25352a",
-      "tile-a": "#c7c49a",
-      "tile-b": "#59674a",
-      "tile-side": "#334432",
+      "tile-a": "#c9b386",
+      "tile-b": "#5c4330",
+      "tile-side": "#3a2a1e",
       "side-light": "#a9cc78",
       "side-dark": "#8c7eb7",
       "side-wild": "#b67b35",
@@ -698,15 +698,15 @@ export const PIXEL_THEMES = {
     "price": 240,
     "swatch": [
       "#121a14",
-      "#b9c49a",
+      "#7a705c",
       "#c69ae6",
       "#f0a250"
     ],
     "vars": {
       "table": "#121a14",
       "table-2": "#1c281e",
-      "tile-a": "#b9c49a",
-      "tile-b": "#4f5e52",
+      "tile-a": "#7a705c",
+      "tile-b": "#353c34",
       "tile-side": "#2a362c",
       "side-light": "#b4f04a",
       "side-dark": "#c69ae6",
@@ -793,17 +793,17 @@ export const PIXEL_THEMES = {
     "price": 240,
     "swatch": [
       "#1a1212",
-      "#c9a58a",
+      "#a39a92",
       "#8ea2c4",
       "#a6c86a"
     ],
     "vars": {
       "table": "#1a1212",
       "table-2": "#2a1c1a",
-      "tile-a": "#c9a58a",
-      "tile-b": "#5a4a4a",
-      "tile-side": "#3a2a26",
-      "side-light": "#f7a84a",
+      "tile-a": "#a39a92",
+      "tile-b": "#3e3436",
+      "tile-side": "#241a1a",
+      "side-light": "#e0703a",
       "side-dark": "#8ea2c4",
       "side-wild": "#a6c86a",
       "paper": "#f1e2d0",

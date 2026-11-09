@@ -1,0 +1,2 @@
+{ "cfg": { "node": { "isMiniBoss": true } }, "viewports": ["mobile"], "themes": ["volcan", "toxico", "naturaleza", "paleontologia"],
+  "steps": [ { "wait": 2500 }, { "shot": "mesa" }, { "expect": { "noErrors": true } } ] }

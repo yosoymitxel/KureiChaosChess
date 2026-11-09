@@ -389,15 +389,20 @@ def pb_wall(s):  # estegosaurio
     for x in (14, 21, 28, 34):
         s.stroke([(x, 38), (x, 44)], 1.8)
 
-def pb_devourer(s):  # mosasaurio con fauces abiertas
-    s.stroke([(4, 38), (16, 36), (26, 34)], 1.8, 5)
-    s.stroke([(24, 28), (34, 18), (46, 15)], 4.5, 2.4)
-    s.stroke([(25, 36), (36, 38), (46, 34)], 3.2, 1.8)
-    s.cut(29, 26, 2.5, 2.2)
-    for x in range(30, 46, 3):
-        s.stroke([(x, 20.5 - (x - 30) * 0.25 + 2), (x, 24 - (x - 30) * 0.1 + 2)], 0.6, mat='w')
-        s.stroke([(x, 33.5 - (x - 30) * 0.05), (x, 30.5)], 0.6, mat='w')
-    s.ell(12, 42, 6, 2, rot=-10).ell(22, 41, 4.5, 1.8, rot=20)
+def pb_devourer(s):  # esqueleto de mosasaurio arqueado sobre su roca: cola, costillas, aletas y cráneo con fauces
+    s.ell(24, 41.5, 21, 2.4, mat='r')
+    s.stroke([(2, 39), (8, 38.5), (15, 35)], 0.8, 2.6)
+    s.ell(15, 39, 4, 1.4, rot=15).ell(25, 37.5, 4.2, 1.5, rot=30)
+    s.stroke([(14, 35), (21, 30), (28, 27.5)], 3, 4.6)
+    for x in range(17, 29, 3):
+        s.line([(x, 29 - (x - 17) * 0.2), (x + 1.2, 35.5 - (x - 17) * 0.4)], 4)
+    s.stroke([(27, 26), (34, 20), (46, 17.5)], 4.2, 1.8)
+    s.stroke([(28, 30), (37, 31.5), (46, 28.5)], 2.8, 1.3)
+    s.cut(39.5, 25.5, 8.5, 3.3, rot=-12)
+    for x in (34, 36.5, 39, 41.5, 44):
+        s.stroke([(x, 22.6 - (x - 34) * 0.35), (x, 25.2 - (x - 34) * 0.35)], 0.55, mat='w')
+        s.stroke([(x, 30 - (x - 34) * 0.25), (x, 27.4 - (x - 34) * 0.25)], 0.55, mat='w')
+    s.cut(31, 22, 1.4, 1.3)
 
 import math  # noqa: E402
 THEMES['terrario-vivo']['sprites'].update({'boss-titan': tb_titan, 'boss-ram': tb_ram, 'boss-hydra': tb_hydra,

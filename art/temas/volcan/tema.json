@@ -2,13 +2,48 @@
   "nombre": "Forja volcánica",
   "precio": 240,
   "descripcion": "Roca basáltica, ríos de lava y criaturas de fuego: brasas con ojos, salamandras y un fénix que no se apaga.",
-  "colores": { "table": "#1a1212", "table-2": "#2a1c1a", "tile-a": "#c9a58a", "tile-b": "#5a4a4a", "tile-side": "#3a2a26",
-    "side-light": "#f7a84a", "side-dark": "#8ea2c4", "side-wild": "#a6c86a" },
-  "interfaz": { "paper": "#f1e2d0", "paper-2": "#e2cdb4", "paper-3": "#c8a98a", "ink": "#241614", "ink-2": "#5a3a30",
-    "accent": "#c4502a", "accent-ink": "#5a1e10", "brass": "#f2b84a", "muted": "#7a6058" },
+  "colores": {
+    "table": "#1a1212",
+    "table-2": "#2a1c1a",
+    "tile-a": "#a39a92",
+    "tile-b": "#3e3436",
+    "tile-side": "#241a1a",
+    "side-light": "#e0703a",
+    "side-dark": "#8ea2c4",
+    "side-wild": "#a6c86a"
+  },
+  "interfaz": {
+    "paper": "#f1e2d0",
+    "paper-2": "#e2cdb4",
+    "paper-3": "#c8a98a",
+    "ink": "#241614",
+    "ink-2": "#5a3a30",
+    "accent": "#c4502a",
+    "accent-ink": "#5a1e10",
+    "brass": "#f2b84a",
+    "muted": "#7a6058"
+  },
   "bandos": {
-    "claro": ["#ffe08a", "#f7a84a", "#e0662e", "#a23a24", "#5e1e18"],
-    "oscuro": ["#d6e0ee", "#a6b6d2", "#7488aa", "#4c5a7a", "#2c344a"],
-    "salvaje": ["#e2f0a8", "#b6d27a", "#80a24e", "#527036", "#2e4222"]
+    "claro": [
+      "#e8945a",
+      "#b85a34",
+      "#84382a",
+      "#58241e",
+      "#321412"
+    ],
+    "oscuro": [
+      "#b8c4d8",
+      "#7c8aa6",
+      "#545e7c",
+      "#363c56",
+      "#1e2234"
+    ],
+    "salvaje": [
+      "#c8d890",
+      "#8aa25a",
+      "#5e783c",
+      "#3e522a",
+      "#22301a"
+    ]
   }
 }

@@ -2,13 +2,48 @@
   "nombre": "Ciénaga tóxica",
   "precio": 240,
   "descripcion": "Barriles que gotean, babas que reptan y bichos mutantes en un pantano que brilla en la oscuridad.",
-  "colores": { "table": "#121a14", "table-2": "#1c281e", "tile-a": "#b9c49a", "tile-b": "#4f5e52", "tile-side": "#2a362c",
-    "side-light": "#b4f04a", "side-dark": "#c69ae6", "side-wild": "#f0a250" },
-  "interfaz": { "paper": "#e8efd8", "paper-2": "#d4dfc0", "paper-3": "#b2c29a", "ink": "#161e16", "ink-2": "#3e4e3c",
-    "accent": "#6a9a2a", "accent-ink": "#24400e", "brass": "#e6d24a", "muted": "#66755e" },
+  "colores": {
+    "table": "#121a14",
+    "table-2": "#1c281e",
+    "tile-a": "#7a705c",
+    "tile-b": "#353c34",
+    "tile-side": "#2a362c",
+    "side-light": "#b4f04a",
+    "side-dark": "#c69ae6",
+    "side-wild": "#f0a250"
+  },
+  "interfaz": {
+    "paper": "#e8efd8",
+    "paper-2": "#d4dfc0",
+    "paper-3": "#b2c29a",
+    "ink": "#161e16",
+    "ink-2": "#3e4e3c",
+    "accent": "#6a9a2a",
+    "accent-ink": "#24400e",
+    "brass": "#e6d24a",
+    "muted": "#66755e"
+  },
   "bandos": {
-    "claro": ["#eaffa0", "#b4f04a", "#76c02a", "#4a7e1e", "#284616"],
-    "oscuro": ["#efdcfa", "#c69ae6", "#9666c2", "#664290", "#3c2658"],
-    "salvaje": ["#ffdca4", "#f0a250", "#c46e2e", "#8a4422", "#502616"]
+    "claro": [
+      "#d4e0b4",
+      "#9cb486",
+      "#6c8a64",
+      "#465e48",
+      "#26342c"
+    ],
+    "oscuro": [
+      "#efdcfa",
+      "#c69ae6",
+      "#9666c2",
+      "#664290",
+      "#3c2658"
+    ],
+    "salvaje": [
+      "#ffdca4",
+      "#f0a250",
+      "#c46e2e",
+      "#8a4422",
+      "#502616"
+    ]
   }
 }

@@ -6,9 +6,11 @@ from PIL import Image
 # tema: (casilla clara base, oscura, luz), (casilla oscura ...), (mesa, junta, detalle)
 PRESETS = {
     'liminal': (('#d9c98a', '#cdbb79', '#e6d9a3'), ('#a8934f', '#9a8545', '#b5a15e'), ('#1c1a12', '#24211a', '#3b3828')),
-    'volcan': (('#c9a58a', '#b8927a', '#d8b9a0'), ('#5a4a4a', '#4c3e3f', '#6c5654'), ('#1a1212', '#241818', '#5a2a1a')),
-    'toxico': (('#b9c49a', '#a9b588', '#c9d3ab'), ('#4f5e52', '#435146', '#5f6e5f'), ('#121a14', '#1a241c', '#2f5a2a')),
+    'volcan': (('#a39a92', '#928a84', '#b4aca2'), ('#3e3436', '#332a2c', '#4c4042'), ('#160e0e', '#201414', '#7a2a14')),
+    'naturaleza': (('#c9b386', '#b9a274', '#d8c49a'), ('#5c4330', '#4e3828', '#6c5038'), ('#17201a', '#202c22', '#3a5a2a')),
+    'toxico': (('#7a705c', '#6c6250', '#8a806a'), ('#353c34', '#2c322c', '#424a40'), ('#121a14', '#1a241c', '#2f5a2a')),
 }
+CRACK = {'volcan': ('#c4401a', '#ff9a3a'), 'toxico': ('#5ea81e', '#c8ff5a')}
 hx = lambda h: tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
 th = sys.argv[1]
 light, dark, table = PRESETS[th]
@@ -25,6 +27,11 @@ def tile(name, base, shade, glint, seed, stain=False):
         for y in range(16):
             for x in range(16):
                 if (x - cx) ** 2 + (y - cy) ** 2 * 1.6 < 9: px[x, y] = hx(shade)
+    if stain and th in CRACK:  # grieta de lava en zigzag
+        x = r.randint(3, 12)
+        for y in range(16):
+            x = min(14, max(1, x + r.choice((-1, 0, 1))))
+            px[x, y] = hx(CRACK[th][y % 3 == 0])
     im.save(f'{D}/{name}.png')
 
 for i, (pre, c) in enumerate((('tile-a', light), ('tile-b', dark))):
