@@ -1,6 +1,6 @@
 # Genera piezas y jefes píxel "orgánicos" (formas por unión de elipses y trazos curvos, con volumen
 # y contorno) para los temas paleontologia y terrario-vivo. Escribe en art/temas/<id>/dibujos/.
-# Uso: python3 tools/organic-sprites.py [tema…] && node tools/pixel-art.mjs
+# Uso: python3 tools/organic-sprites.py [tema | tema:pieza,pieza …] && node tools/pixel-art.mjs
 import json, math, os
 import numpy as np
 from PIL import Image
@@ -150,12 +150,15 @@ from organic_designs import THEMES  # noqa: E402
 
 import sys  # noqa: E402
 for th, spec in THEMES.items():
-    if len(sys.argv) > 1 and th not in sys.argv[1:]: continue
+    # Argumentos: `tema` (todo el tema) o `tema:pieza,pieza` (solo esas figuras).
+    picks = {a.split(':')[0]: (a.split(':')[1].split(',') if ':' in a else None) for a in sys.argv[1:]}
+    if picks and th not in picks: continue
     tema = json.load(open(f'art/temas/{th}/tema.json'))
     ramp = [hexc(c) for c in tema['bandos'].get('claro') or tema['bandos']['l']]
     fixed = {k: [hexc(c) for c in v] for k, v in spec['fixed'].items()}
     out = hexc(spec['outline'])
     for name, fn in spec['sprites'].items():
+        if picks.get(th) and name not in picks[th]: continue
         boss = name.startswith('boss')
         s = Sprite(48, 44) if boss else Sprite(36, 36)
         s.fine = spec.get('fine', False)
