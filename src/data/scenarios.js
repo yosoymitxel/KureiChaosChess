@@ -530,7 +530,7 @@ Object.assign(SCENARIOS, {
       const seen = () => new Set(side({ pieces }, 'light').flatMap((p) => legalMoves(p, pieces, b).map((m) => key(m.row, m.col))));
       for (let i = 0; i < lv.witches; i++) {
         const watched = seen(), at = spots(rng, pieces, b, 1, N - 3, 40).find(([r, c]) => !watched.has(key(r, c)));
-        if (at) pieces.push(makePiece('queen', 'dark', at[0], at[1], { witch: true, moves: WITCH_MOVES, startRow: -1 }));
+        if (at) pieces.push(makePiece('queen', 'dark', at[0], at[1], { witch: true, name: t('piece.witch', 'Bruja'), moves: WITCH_MOVES, startRow: -1 }));
       }
       const coins = new Set(spots(rng, pieces, b, 1, N - 2, lv.coins).map(([r, c]) => key(r, c)));
       const total = coins.size;

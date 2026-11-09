@@ -116,15 +116,6 @@ export const CARDS = localize('cards', {
     desc: 'Cambia el clima de la mesa por otro al azar. No gasta tu carta del turno.',
     apply: () => ({ visual: 'weather' }),
   },
-  summon: {
-    id: 'summon', aim: 'Elige una casilla vacía del centro.', name: 'Bruja aliada', rarity: 'lilac', lilac: true, icon: 'hunt', target: 'tile',
-    desc: 'Una bruja dormida de tu bando: si una pieza rival la apunta, despierta y la caza.',
-    can: (m, r, c) => r >= 2 && r < m.board.rows - 2 && freeTile(m, r, c) && !m.pieces.some((p) => p.witch && p.color === m.player.color),
-    apply: (m, r, c) => {
-      // Aliada más lenta que la rival (solo paso de rey): gratis no puede ser decisiva.
-      const p = makePiece('queen', m.player.color, r, c, { witch: true, moves: ['king'] }); m.pieces.push(p); return p;
-    },
-  },
   fuse: {
     id: 'fuse', aim: 'Elige una torre con un guardia tuyo al lado.', name: 'Escolta', rarity: 'lilac', lilac: true, icon: 'rook', target: 'piece',
     desc: 'El guardia pegado a una torre se une a ella: la torre suma su movimiento y aguanta un golpe más.',

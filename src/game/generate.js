@@ -400,7 +400,7 @@ function placeOnce(board, { modifier, playerCount, isBoss, isMiniBoss, elite, se
       // Ni a tiro ni pegada a otro bando: que se vea sola en la tierra de nadie.
       const near = (r, c) => pieces.some((p) => p.color !== color && Math.max(Math.abs(p.row - r), Math.abs(p.col - c)) <= 1);
       for (let r = 2; r < rows - 2; r++) for (let c = 0; c < cols; c++) if (valid(r, c) && !occupied(r, c) && !seen.has(key(r, c)) && !near(r, c)) safe.push([r, c]);
-      if (safe.length) { const [r, c] = pickFrom(rng, safe); pieces.push(makePiece('queen', color, r, c, { witch: true, moves: ['rook2', 'bishop2', 'knight'] })); }
+      if (safe.length) { const [r, c] = pickFrom(rng, safe); pieces.push(makePiece('queen', color, r, c, { witch: true, name: t('piece.witch', 'Bruja'), moves: ['rook2', 'bishop2', 'knight'] })); }
     }
   }
 

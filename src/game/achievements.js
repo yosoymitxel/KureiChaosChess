@@ -65,7 +65,6 @@ export const ACHIEVEMENTS = localize('achievements', [
   { id: 'crown_minor', group: 'Partida', name: 'Ascenso de oficio', desc: 'Corona a un guardia o a un consejero.', icon: 'crown' },
   { id: 'lilac', group: 'Travesía', name: 'Guiño lila', desc: 'Juega una carta lila.', icon: 'scroll' },
   { id: 'all_cards', group: 'Largo plazo', name: 'Baraja completa', desc: 'Juega alguna vez cada una de las cartas tácticas.', icon: 'scroll' },
-  { id: 'witch_ally', group: 'Secretos', name: 'Pacto', desc: 'Tu bruja aliada caza una pieza rival.', icon: 'hunt', secret: true },
   { id: 'castle', group: 'Partida', name: 'A resguardo', desc: 'Enroca durante una partida.', icon: 'rook' },
   { id: 'en_passant', group: 'Partida', name: 'Al paso', desc: 'Captura un peón al paso.', icon: 'pawn' },
   { id: 'quick_win', group: 'Partida', name: 'Relámpago', desc: 'Gana una partida en 10 rondas o menos.', icon: 'rush' },

@@ -155,7 +155,7 @@ export class Match {
     const ctx = ctxOf(this.pieces, this.board), mine = this.pieces.filter((p) => p.color === color);
     const woke = sleeping.filter((w) => mine.some((p) => canHit(p, w, ctx)));
     // Despierta con un blanco: la pieza que la apuntó.
-    for (const w of woke) Object.assign(w, { awake: true, target: mine.find((p) => canHit(p, w, ctx)).id });
+    for (const w of woke) Object.assign(w, { awake: true, pounce: true, target: mine.find((p) => canHit(p, w, ctx)).id });
     return woke;
   }
 
@@ -172,8 +172,10 @@ export class Match {
       let target = foes.find((p) => p.id === w.target);
       if (!target) { target = foes.reduce((a, b) => (!a || dist(b) < dist(a) ? b : a), null); w.target = target?.id; }
       if (!target) continue;
-      const moves = legalMoves(w, this.pieces, this.board);
-      const m = moves.find((x) => x.hits.includes(target)) || moves.filter((x) => !x.hits.length).reduce((a, b) => (!a || dist(target, b.row, b.col) < dist(target, a.row, a.col) ? b : a), null);
+      // Primer zarpazo: cae sobre la pieza que la despertó, esté donde esté.
+      const pounce = w.pounce && target.id === w.target; delete w.pounce;
+      const moves = pounce ? [] : legalMoves(w, this.pieces, this.board);
+      const m = pounce ? { row: target.row, col: target.col, hits: [target] } : moves.find((x) => x.hits.includes(target)) || moves.filter((x) => !x.hits.length).reduce((a, b) => (!a || dist(target, b.row, b.col) < dist(target, a.row, a.col) ? b : a), null);
       if (!m) continue;
       out.moved.push({ piece: w, from: { row: w.row, col: w.col }, to: { row: m.row, col: m.col }, how: 'hop' });
       for (const v of m.hits) {
@@ -182,7 +184,8 @@ export class Match {
         this.pieces.splice(this.pieces.indexOf(v), 1); out.kills.push(v);
         if (v.royal && !this.pieces.some((q) => q.royal && q.color === v.color)) this.eliminated[v.color] = true;
       }
-      w.row = m.row; w.col = m.col;
+      if (m.hits.some((v) => this.pieces.includes(v))) out.moved.at(-1).to = { row: w.row, col: w.col };
+      else { w.row = m.row; w.col = m.col; }
     }
     return out.moved.length ? out : null;
   }
