@@ -214,11 +214,10 @@
 .duo-list button { display: flex; gap: 10px; align-items: center; width: 100%; padding: 10px; border: 2px solid transparent; border-radius: 10px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .duo-list button.on { border-color: var(--ink); background: var(--brass); }
 .duo-list button div { display: grid; }
-/* Pantalla ancha (PC, tableta): las tarjetas se reparten en dos columnas y el botón cierra la segunda. */
+/* Pantalla ancha (PC, tableta): tarjetas en rejilla de dos columnas (no columns: se desbordaba en tableta) y el botón debajo. */
 @media (min-width: 720px) {
-  .setup .setup-body { display: block; columns: 2 320px; column-gap: 16px; width: min(1040px, 100%); padding-top: 24px; }
-  .setup .setup-body > * { break-inside: avoid; margin-bottom: 16px; }
-  .setup .setup-body > .btn.big { display: flex; width: 100%; min-height: 76px; font-size: 22px; }
+  .setup .setup-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); align-items: start; align-content: safe center; width: min(1040px, 100%); padding-top: 24px; }
+  .setup .setup-body > .btn.big { grid-column: 1 / -1; display: flex; width: 100%; min-height: 76px; font-size: 22px; }
 }
 /* Ajustes en pantalla ancha: la mesa va arriba a todo el ancho para que sus 26 muestras entren en
    pocas filas, y el resto se reparte en tres columnas. Cámara y animación cierran a lo ancho, con

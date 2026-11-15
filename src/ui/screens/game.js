@@ -567,7 +567,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (killed.length > 1) d.moments.callout({ text: res.piece.boss ? t('game.crushed', '¡Aplastados ×{n}!', { n: killed.length }) : t('game.multiCapture', '¡Captura ×{n}!', { n: killed.length }), tone, piece: art(res.piece), anim: 'stomp' });
       else {
         const big = killed.find((p) => p.type === 'queen' || p.type === 'rook');
-        if (big) d.moments.callout({ text: t('game.bigDown', '¡{name} caída!', { name: PIECE_NAMES[big.type] }), tone, piece: art(big), anim: 'fall', tier: 'major' });
+        if (big) d.moments.callout({ text: t('game.bigDown', '¡{name} caída!', { name: pieceName(big) }), tone, piece: art(big), anim: 'fall', tier: 'major' });
       }
       if (res.promoted) {
         const q = res.piece.type === 'queen';

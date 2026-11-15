@@ -176,7 +176,8 @@ export class Match {
       if (aimer) {
         Object.assign(w, { awake: true, target: aimer.id });
         m = { row: aimer.row, col: aimer.col, hits: [aimer] };
-      } else if (w.awake && w.color === color && !w.ally && color === mover && !lazy) {
+      } else if (!w.ally && color === mover && !lazy) {
+        w.awake = true;
         // La del Aquelarre, ya despierta, persigue a su presa (si cae, a la rival más cercana).
         const dist = (p, r = w.row, c = w.col) => Math.max(Math.abs(p.row - r), Math.abs(p.col - c));
         let target = foes.find((p) => p.id === w.target);
