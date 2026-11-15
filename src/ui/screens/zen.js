@@ -232,6 +232,23 @@ export function ZenScreen({ onBack, onShop }) {
       setTimeout(() => done?.(), 300);
     }, tool === 'cut' ? 560 : 380);
   });
+  const fxRepair = (key, done) => later(() => {
+    const cell = cellOf(key);
+    if (!cell || reduced()) { playSfx('tap'); return done?.(); }
+    gesture('hammer', cell, 0.45, 700);
+    const art = cell.querySelector('svg');
+    setTimeout(() => {
+      playSfx('tap');
+      if (art) motion(art, { scale: [1, 0.93, 1.05, 1], y: [0, 2, -1, 0] }, { duration: 0.32, ease: OUT });
+      const p = at(cell, 0.6);
+      fxRef.current.dust(p.x, p.y, 0.4);
+      pfx('hitSpark', cell, 0.45, { f: 1.2 });
+      setTimeout(() => {
+        done?.();
+        if (art) art.style.transform = '';
+      }, 250);
+    }, 380);
+  });
   const pickFx = (el) => {
     const art = el?.querySelector('svg, .zn-pondbox');
     if (!art || reduced()) return;
@@ -345,7 +362,7 @@ export function ZenScreen({ onBack, onShop }) {
     }
     if (type === 'pot' && tool === 'hammer') {
       if (!potCracked(z, key)) return say(t('zen.potFine', 'La maceta está sana: se agrieta tras {n} flores.', { n: POT_LIFE }));
-      fxClear(key, 'hammer', () => apply(zenFix(z, key)));
+      fxRepair(key, () => apply(zenFix(z, key)));
       return say(t('zen.potFixed', 'Maceta arreglada: aguanta otras {n} flores.', { n: POT_LIFE }));
     }
     if (type === 'lantern') return info(key, 'lantern');
