@@ -46,7 +46,10 @@ const cells = (p, pieces, b = board()) => new Set(legalMoves(p, pieces, b).map((
   check(p.type === 'queen', 'coronación: el peón corona por defecto en la última fila');
   const g = makePiece('guard', 'light', 2, 4), g2 = makePiece('king', 'light', 7, 0), G = makePiece('king', 'dark', 0, 0);
   const m2 = match([g, g2, G]);
-  check(cardTargets(m2, CARDS.ascend).includes(g), 'Ascenso: un guardia a 3 filas del final es objetivo');
+  check(cardTargets(m2, CARDS.ascend).includes(g), 'Ascenso: un guardia en campo rival es objetivo');
+  const gOwn = makePiece('guard', 'light', 5, 4);
+  const mOwn = match([gOwn, g2, G]);
+  check(!cardTargets(mOwn, CARDS.ascend).includes(gOwn), 'Ascenso: un guardia en campo propio no es objetivo');
   playCard(m2, 'ascend', { piece: g });
   check(g.promoted && cells(g, [g, g2, G]).has('3,4'), 'guardia coronado: puede ir justo atrás');
 }
@@ -160,5 +163,47 @@ const cells = (p, pieces, b = board()) => new Set(legalMoves(p, pieces, b).map((
   check(Object.values(grown.tiles).filter((t) => t === 'bush').length === BUSH_MAX, 'jardín: brotan arbustos hasta el tope');
 }
 
+// Gárgola: dormida no se mueve; tras mover una pieza que la apunta, gargoyleStep la salta encima.
+{
+  const k = makePiece('king', 'light', 7, 4, { royal: true }), K = makePiece('king', 'dark', 0, 0, { royal: true });
+  const g = makePiece('queen', 'light', 3, 3, { gargoyle: true, ally: true, name: 'Gárgola', moves: [] });
+  const r = makePiece('rook', 'dark', 6, 3);
+  const m = match([k, K, g, r]);
+
+  // La gárgola dormida no tiene jugadas legales.
+  check(m.legal(g).length === 0, 'gárgola dormida: sin jugadas legales');
+
+  // Turno de marfil: pasar sin mover nada.
+  m.afterMove({ pass: true });
+
+  // Turno carmesí: la torre se mueve y queda apuntando a la gárgola.
+  const res = m.move(r, { row: 5, col: 3 });
+  check(res, 'gárgola: la torre puede moverse');
+  const after = m.afterMove();
+  check(after.gargoyle, 'gárgola: gargoyleStep devolvió algo');
+  check(after.gargoyle.kills.length === 1 && after.gargoyle.kills[0] === r, 'gárgola: aplastó a la torre que la apuntó');
+  check(g.awake, 'gárgola: despierta tras el salto');
+
+  // La gárgola se movió a la posición de la torre.
+  check(g.row === 5 && g.col === 3, 'gárgola: saltó a la casilla de la torre');
+}
+
+// Gárgola: una pieza estática que ya estaba apuntando no la activa (solo la pieza recién movida).
+{
+  const k = makePiece('king', 'light', 7, 4, { royal: true }), K = makePiece('king', 'dark', 0, 0, { royal: true });
+  const g = makePiece('queen', 'light', 3, 3, { gargoyle: true, ally: true, name: 'Gárgola', moves: [] });
+  const r = makePiece('rook', 'dark', 5, 3); // ya apunta a la gárgola desde el inicio
+  const p = makePiece('pawn', 'dark', 1, 7);
+  const m = match([k, K, g, r, p]);
+
+  // Turno de marfil: pasar.
+  m.afterMove({ pass: true });
+
+  // Turno carmesí: muevo el peón, no la torre. La torre sigue apuntando pero no se movió.
+  m.move(p, { row: 2, col: 7 });
+  const after = m.afterMove();
+  check(!after.gargoyle, 'gárgola: no reacciona a una pieza estática que ya apuntaba');
+}
+
 if (fails.length) { console.log('Regresiones:\n' + fails.join('\n')); process.exit(1); }
-console.log('Regresiones OK: guardia, coronación, enroque, cartas, manos, ranuras, copias, maceta y clima del jardín');
+console.log('Regresiones OK: guardia, coronación, enroque, cartas, manos, ranuras, copias, maceta, clima del jardín y gárgola');

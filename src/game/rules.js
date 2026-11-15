@@ -144,9 +144,9 @@ export function moveTypesOf(p) {
   return [...(p.moves || [p.type]), ...(p.extraMoveTypes || [])];
 }
 
-// La bruja dormida no se mueve ni amenaza: despierta cuando una jugada rival puede tocarla (match.wake).
+// La bruja o gárgola dormida no se mueve ni amenaza: despierta cuando una jugada rival puede tocarla.
 function canMove(piece, r, c, ctx) {
-  if ((piece.witch && !piece.awake) || piece.chicken) return false;
+  if (((piece.witch || piece.gargoyle) && !piece.awake) || piece.chicken) return false;
   return moveTypesOf(piece).some((t) => canMoveAs(piece, t, r, c, ctx));
 }
 

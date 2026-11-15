@@ -42,7 +42,7 @@ export class Match {
     return extra > 0 && this.movesThisTurn >= this.movesFor(this.player.color) - extra;
   }
   legal(piece) {
-    if (piece.witch) return []; // nadie la manda: se mueve sola (witchStep)
+    if (piece.witch || piece.gargoyle) return []; // nadie la manda: se mueve sola (witchStep/gargoyleStep)
     let all = [...legalMoves(piece, this.pieces, this.board), ...this.special(piece), ...(this.rule?.moves?.(this, piece) || [])];
     // Si una carta ya llevaba al rey a la casilla del enroque, gana el enroque (se marca en azul).
     const castles = all.filter((m) => m.castle);
@@ -144,6 +144,7 @@ export class Match {
     this.ep = !bounced && piece.type === 'pawn' && Math.abs(to.row - from.row) === 2 ? { row: (from.row + to.row) / 2, col: from.col, pawn: piece } : null;
     if (this.quietOnly()) res.dash = true;
     this.movesThisTurn++;
+    this.lastMoved = piece;
     if (victims.length) this.quietTurns = 0;
     return res;
   }
@@ -195,6 +196,35 @@ export class Match {
       }
       if (m.hits.some((v) => this.pieces.includes(v))) out.moved.at(-1).to = { row: w.row, col: w.col };
       else { w.row = m.row; w.col = m.col; }
+    }
+    return out.moved.length ? out : null;
+  }
+
+  // Gárgola: estatua de piedra que no persigue. Si la pieza que se acaba de mover (`lastMoved`)
+  // apunta a una gárgola enemiga, la gárgola despierta y salta a través de todo el tablero
+  // directamente sobre ella, aplastándola. Máximo 1 captura por turno.
+  gargoyleStep(mover) {
+    const out = { fx: [], kills: [], moved: [], spawned: [], art: [] };
+    const last = this.lastMoved;
+    if (!last) return null;
+    for (const g of this.pieces.filter((p) => p.gargoyle)) {
+      if (last.color === g.color) continue;
+      const ctx = ctxOf(this.pieces, this.board);
+      if (canHit(last, g, ctx)) {
+        Object.assign(g, { awake: true, target: last.id });
+        const m = { row: last.row, col: last.col, hits: [last] };
+        out.moved.push({ piece: g, from: { row: g.row, col: g.col }, to: { row: m.row, col: m.col }, how: 'hop' });
+        for (const v of m.hits) {
+          v.hp = (v.hp ?? 1) - 1;
+          if (v.hp > 0) continue;
+          this.pieces.splice(this.pieces.indexOf(v), 1);
+          out.kills.push(v);
+          if (v.royal && !this.pieces.some((q) => q.royal && q.color === v.color)) this.eliminated[v.color] = true;
+        }
+        if (m.hits.some((v) => this.pieces.includes(v))) out.moved.at(-1).to = { row: g.row, col: g.col };
+        else { g.row = m.row; g.col = m.col; }
+        break;
+      }
     }
     return out.moved.length ? out : null;
   }
@@ -275,8 +305,9 @@ export class Match {
     const tick = this.tick?.(this) || null;
     const mech = this.rule?.turn?.(this) || bossPower(this, mover);
     const witch = this.witchStep(mover);
-    if (this.checkOver()) return { ended: true, collapse, meteor, tick, mech, witch, over: this.over };
-    return { ended: true, collapse, meteor, tick, mech, witch };
+    const gargoyle = this.gargoyleStep(mover);
+    if (this.checkOver()) return { ended: true, collapse, meteor, tick, mech, witch, gargoyle, over: this.over };
+    return { ended: true, collapse, meteor, tick, mech, witch, gargoyle };
   }
 
   // Meteorito: un turno avisa dónde caerá (`doom`, una cruz de cinco casillas) y el siguiente cae:
@@ -392,7 +423,7 @@ export function botChooseMove(match) {
   const { pieces, board } = match;
   const R = match.rivals?.[match.player.color] || match.rival || RIVALS.oficial;
   const color = match.player.color;
-  const mine = pieces.filter((p) => p.color === color && !p.witch); // la bruja va por su cuenta (witchStep)
+  const mine = pieces.filter((p) => p.color === color && !p.witch && !p.gargoyle); // la bruja y la gárgola van por su cuenta (witchStep/gargoyleStep)
   const royal = pieces.find((p) => p.royal && p.color !== color);
   const options = [];
   const memo = ((match.botMemo ||= {})[match.player.color] ||= { back: new Map(), last: null, streak: 0 });

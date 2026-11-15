@@ -27,10 +27,9 @@ export const CARDS = localize('cards', {
     },
   },
   ascend: {
-    id: 'ascend', aim: 'Elige un peón, guardia o consejero en las 3 últimas filas.', name: 'Ascenso', rarity: 'common', icon: 'queen', target: 'piece',
-    desc: 'Corona ya a un peón (reina), guardia o consejero que esté a 3 filas o menos del final.',
-    // Antes valía desde medio tablero; ahora pide llegar cerca del final, como la coronación.
-    can: (m, p) => crownable(p) && (p.color === 'light' ? p.row : m.board.rows - 1 - p.row) < 3,
+    id: 'ascend', aim: 'Elige un peón, guardia o consejero en campo rival.', name: 'Ascenso', rarity: 'common', icon: 'queen', target: 'piece',
+    desc: 'Corona ya a un peón (reina), guardia o consejero que ya cruzó a campo rival.',
+    can: (m, p) => crownable(p) && (p.color === 'light' ? p.row < m.board.rows / 2 : p.row >= m.board.rows / 2),
     apply: (m, p) => { crown(p); p.ascended = true; },
   },
   mount: {
@@ -122,6 +121,16 @@ export const CARDS = localize('cards', {
     can: (m, r, c) => r >= 2 && r < m.board.rows - 2 && freeTile(m, r, c) && !m.pieces.some((p) => p.witch && p.color === m.player.color),
     apply: (m, r, c) => {
       const p = makePiece('queen', m.player.color, r, c, { witch: true, ally: true, name: t('piece.witch', 'Bruja'), moves: ['rook2', 'bishop2', 'knight'] }); m.pieces.push(p); return p;
+    },
+  },
+  gargoyle: {
+    id: 'gargoyle', aim: 'Elige una casilla vacía del centro.', name: 'Gárgola de piedra', rarity: 'lilac', lilac: true, price: 190, icon: 'shield', target: 'tile',
+    desc: 'Una estatua de piedra que no persigue: si una pieza enemiga se mueve y la apunta, despierta, salta sobre ella y la aplasta.',
+    can: (m, r, c) => r >= 2 && r < m.board.rows - 2 && freeTile(m, r, c) && !m.pieces.some((p) => p.gargoyle && p.color === m.player.color),
+    apply: (m, r, c) => {
+      const p = makePiece('queen', m.player.color, r, c, { gargoyle: true, ally: true, name: t('piece.gargoyle', 'Gárgola'), moves: [] });
+      m.pieces.push(p);
+      return p;
     },
   },
   fuse: {

@@ -27,6 +27,25 @@ export const WITCH = `<svg class="hen" viewBox="0 0 24 24" aria-hidden="true"><g
 <rect x="9" y="5" width="6" height="1" fill="#f0b93c"/><rect x="8" y="6" width="8" height="1" fill="#5a2f86"/><rect x="5" y="7" width="14" height="2" fill="#5a2f86"/>
 <rect x="9" y="9" width="6" height="4" fill="#8fcf6a"/><rect x="10" y="10" width="1" height="1" fill="#1b1226"/><rect x="13" y="10" width="1" height="1" fill="#1b1226"/><rect x="11" y="11" width="2" height="2" fill="#6fae4c"/>
 <rect x="8" y="13" width="8" height="2" fill="#3b2457"/><rect x="7" y="15" width="10" height="4" fill="#3b2457"/><rect x="6" y="19" width="12" height="3" fill="#3b2457"/></g></svg>`;
+// Gárgola: estatua de piedra que no persigue; al ser amenazada por una jugada salta y aplasta.
+export const GARGOYLE = `<svg class="hen" viewBox="0 0 24 24" aria-hidden="true"><g class="hen-vec">
+<path d="M5 22h14l-2-3H7z" fill="#383447" stroke="#181422" stroke-width="1"/>
+<path d="M3 17c1-4 4-7 7-7M21 17c-1-4-4-7-7-7" fill="none" stroke="#252233" stroke-width="1.8" stroke-linecap="round"/>
+<path d="M7 19c-1-4 1-8 5-8s6 4 5 8z" fill="#5b5770" stroke="#181422" stroke-width="1.1" stroke-linejoin="round"/>
+<path d="M9 11l-2-6 3 2 2-1 2 1 3-2-2 6z" fill="#8985a0" stroke="#181422" stroke-width="1" stroke-linejoin="round"/>
+<circle cx="10.5" cy="8.5" r=".75" class="gargoyle-eye" fill="#181422"/><circle cx="13.5" cy="8.5" r=".75" class="gargoyle-eye" fill="#181422"/>
+<path d="M10 14h4M11 16h2" stroke="#383447" stroke-width=".9"/>
+</g>
+<g class="hen-px" shape-rendering="crispEdges">
+<rect x="9" y="1" width="2" height="2" fill="#8985a0"/><rect x="13" y="1" width="2" height="2" fill="#8985a0"/>
+<rect x="8" y="3" width="8" height="2" fill="#5b5770"/><rect x="7" y="5" width="10" height="2" fill="#8985a0"/>
+<rect x="7" y="7" width="2" height="2" class="gargoyle-eye" fill="#181422"/><rect x="15" y="7" width="2" height="2" class="gargoyle-eye" fill="#181422"/>
+<rect x="9" y="7" width="6" height="2" fill="#5b5770"/>
+<rect x="4" y="8" width="3" height="4" fill="#383447"/><rect x="17" y="8" width="3" height="4" fill="#383447"/>
+<rect x="7" y="9" width="10" height="5" fill="#5b5770"/>
+<rect x="6" y="14" width="12" height="4" fill="#383447"/>
+<rect x="5" y="18" width="14" height="4" fill="#181422"/>
+</g></svg>`;
 // Gallina del Gallinero: dos dibujos (vector y píxel), CSS elige según la mesa.
 const HEN = `<svg class="hen" viewBox="0 0 24 24" aria-hidden="true"><g class="hen-vec">
 <path d="M5 13c0-4 3-6 7-6 2 0 3-2 5-2 2 0 3 2 2 4l2 1-2 1c0 5-4 8-8 8s-6-2-6-6z" fill="#f6f1e6" stroke="#2a2018" stroke-width="1.2" stroke-linejoin="round"/>
@@ -41,7 +60,7 @@ import { t } from '../i18n/index.js';
 
 // Color con que se pinta una pieza: la bruja del Aquelarre va con el tercer color de la mesa (el
 // jade de las piezas del menú), para que no se confunda con su bando; juega igual con el suyo.
-const look = (p) => (p.witch ? 'wild' : p.color);
+const look = (p) => (p.witch ? 'wild' : p.gargoyle ? (p.ally ? p.color : 'wild') : p.color);
 
 export const CAMERAS = { flat: 0, tilt: 40, epic: 56 };
 const JUMPERS = new Set(['knight', 'camel', 'elephant']);
@@ -359,14 +378,14 @@ export class BoardView {
   addPiece(p) {
     const el = document.createElement('div');
     const [h, w] = sizeOf(p);
-    el.className = `pc side-${look(p)}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}${p.infected ? ' infected' : ''}${p.disc ? ' disc' : ''}${p.crown ? ' crown' : ''}${p.chicken ? ' chicken' : ''}${p.witch ? ' witch-pc' : ''}`;
+    el.className = `pc side-${look(p)}${p.boss ? ' boss' : ''}${p.zombie ? ' zombie' : ''}${p.infected ? ' infected' : ''}${p.disc ? ' disc' : ''}${p.crown ? ' crown' : ''}${p.chicken ? ' chicken' : ''}${p.witch ? ' witch-pc' : ''}${p.gargoyle ? ' gargoyle-pc' : ''}`;
     el.dataset.pid = p.id;
     el.style.setProperty('--h', h); el.style.setProperty('--w', w);
     el.style.setProperty('--s', h * w > 1 ? Math.max(h, w) * 0.85 : 1); // multi-cell figures read bigger than one tile
     el.style.setProperty('--head', headTop(artOf(p)).toFixed(3));
     el.style.setProperty('--bd', `-${(Math.random() * 3.4).toFixed(2)}s`); // cada pieza respira a su ritmo
     el.innerHTML = `<div class="pc-shadow"></div><div class="pc-base"><i></i><i></i><i></i></div>
-      <div class="pc-stand"><div class="pc-fig"><div class="pc-art">${p.chicken ? HEN : p.witch ? WITCH : pieceSVG(artOf(p))}</div>${p.boss || p.maxHp > 1 ? this.hpHTML(p) : ''}<span class="pc-badge"></span></div></div>`;
+      <div class="pc-stand"><div class="pc-fig"><div class="pc-art">${p.chicken ? HEN : p.witch ? WITCH : p.gargoyle ? GARGOYLE : pieceSVG(artOf(p))}</div>${p.boss || p.maxHp > 1 ? this.hpHTML(p) : ''}<span class="pc-badge"></span></div></div>`;
     this.piecesEl.appendChild(el);
     this.els.set(p, el);
     const st = { r: p.row, c: p.col, z: 0 };
@@ -396,11 +415,12 @@ export class BoardView {
       const on = isImmune(p);
       const mut = !on && !!p.extraMoveTypes?.length;
       // Flask = the player's run mutation; star = moves lent by a card or a boss.
-      const kind = p.witch ? 'eye' : on ? (p.trait === 'last' ? 'last' : 'lock') : mut ? (p.mutationExtras?.length ? 'mut' : 'lent') : '';
-      el.classList.toggle('guarded', on && !p.witch);
-      el.classList.toggle('mutated', mut && !p.witch);
-      // Bruja: ojo rojo, que se enciende al despertar.
+      const kind = p.witch || p.gargoyle ? 'eye' : on ? (p.trait === 'last' ? 'last' : 'lock') : mut ? (p.mutationExtras?.length ? 'mut' : 'lent') : '';
+      el.classList.toggle('guarded', on && !p.witch && !p.gargoyle);
+      el.classList.toggle('mutated', mut && !p.witch && !p.gargoyle);
+      // Bruja o Gárgola: ojo rojo, que se enciende al despertar.
       el.classList.toggle('witch', !!p.witch);
+      el.classList.toggle('gargoyle', !!p.gargoyle);
       el.classList.toggle('awake', !!p.awake);
       const badge = el.querySelector('.pc-badge');
       if (badge && badge.dataset.kind !== kind) { badge.dataset.kind = kind; badge.innerHTML = kind ? BADGES[kind] : ''; }
@@ -459,7 +479,7 @@ export class BoardView {
 
   setArt(p) {
     const art = this.els.get(p)?.querySelector('.pc-art');
-    if (art) art.innerHTML = p.chicken ? HEN : p.witch ? WITCH : pieceSVG(artOf(p));
+    if (art) art.innerHTML = p.chicken ? HEN : p.witch ? WITCH : p.gargoyle ? GARGOYLE : pieceSVG(artOf(p));
   }
   // Cambio de mesa a mitad de partida (pausa): las piezas pasan al arte de la nueva mesa.
   restyle() {
@@ -468,7 +488,7 @@ export class BoardView {
 
 
   clearMarks() {
-    for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger', 'castle', 'target', 'gain', 'foot', 'hot', 'block', 'veil');
+    for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger', 'castle', 'target', 'gain', 'foot', 'hot', 'block', 'veil', 'crown');
     for (const el of this.els.values()) el.classList.remove('eligible');
     for (const el of this.tilesEl.querySelectorAll('.prop.reach')) el.classList.remove('reach');
     this.host.classList.remove('aiming');
@@ -497,7 +517,7 @@ export class BoardView {
     for (const k of footprint) this.tiles.get(k)?.classList.add('foot');
   }
   // cells: Set of "r,c"; captures: Set of "r,c" with an enemy
-  showMoves(cells, captures, danger = false, castles) {
+  showMoves(cells, captures, danger = false, castles, crowns) {
     this.clearMarks();
     for (const k of cells) {
       const t = this.tiles.get(k);
@@ -505,6 +525,7 @@ export class BoardView {
       t.classList.add(captures.has(k) ? 'cap' : 'mv');
       if (danger) t.classList.add('danger');
       if (castles?.has(k)) t.classList.add('castle');
+      if (crowns?.has(k)) t.classList.add('crown');
     }
     // Un coleccionable al alcance lleva el aro verde alrededor: el punto quedaría tapado debajo.
     for (const el of this.tilesEl.querySelectorAll('.prop:not(.grab)')) el.classList.toggle('reach', cells.has(el.style.getPropertyValue('--r') + ',' + el.style.getPropertyValue('--c')));

@@ -3,8 +3,9 @@ import { html, render, useState, useEffect, useRef, motion, motionStagger } from
 import { Icon, PieceIcon } from '../icons.js';
 import { TurnBanner, CardFace, MiniEnd, TurnClock } from '../components.js';
 import { usePad } from '../gamepad.js';
-import { BoardView, WITCH } from '../../view/board-view.js';
+import { BoardView, WITCH, GARGOYLE } from '../../view/board-view.js';
 import { artOf } from '../../view/piece-art.js';
+import { crownable } from '../../game/crown.js';
 import { Match, botChooseMove, freezeMatch, thawMatch } from '../../game/match.js';
 import { rivalForFloor } from '../../game/difficulty.js';
 import { generateBoard, placePieces, eliteVariants } from '../../game/generate.js';
@@ -247,7 +248,15 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const caps = new Set();
       for (const m of moves) if (m.hits.length) for (const v of m.hits) for (const [r, c] of cellsOf(v)) caps.add(key(r, c));
       const cells = moveCells(p, moves);
-      d.view.showMoves(cells, new Set([...cells].filter((k) => caps.has(k))), danger, new Set(moves.filter((m) => m.castle).map((m) => key(m.row, m.col))));
+      const crowns = new Set();
+      if (!danger && crownable(p)) {
+        const zone = match.modifier === 'promote' || p.canCrown ? 3 : 1;
+        for (const m of moves) {
+          const depth = p.color === 'light' ? m.row : match.board.rows - 1 - m.row;
+          if (depth < zone) crowns.add(key(m.row, m.col));
+        }
+      }
+      d.view.showMoves(cells, new Set([...cells].filter((k) => caps.has(k))), danger, new Set(moves.filter((m) => m.castle).map((m) => key(m.row, m.col))), crowns);
       return moves;
     };
     // Detalle de una pieza para el panel: separa lo que añadieron las mutaciones, las cartas o un
@@ -279,7 +288,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       else if ((p.maxHp || 1) > 1 && !p.boss) cards.push('fortify');
       if (p.ascended) cards.push('ascend');
       return {
-        type: p.type, witch: p.witch, side: p.color, name: pieceName(p), color: SIDE_NAME[p.color], moves: count, threat,
+        type: p.type, witch: p.witch, gargoyle: p.gargoyle, side: p.color, name: pieceName(p), color: SIDE_NAME[p.color], moves: count, threat,
         // Demo de cómo se mueve (toque en el icono): el jefe con la suya; el resto con sus patrones de verdad.
         demo: demoOf(p, mut, cards),
         boss: p.boss && BOSSES[p.boss].desc,
@@ -397,6 +406,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       await showTick(after.tick);
       await showMech(after.mech);
       await showMech(witchMech(after.witch));
+      await showMech(gargoyleMech(after.gargoyle));
       d.busy = false;
       if (match.over) return finish(), true;
       startTurn(after.ended);
@@ -418,6 +428,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
     };
     // Mecánicas de piso (src/game/mechanics.js): rótulo, registro y su animación.
     const witchMech = (w) => w && (w.kills.length && w.moved[0]?.piece.color === d.feats.human && award('witch_ally'), { ...w, log: w.kills.length ? t('game.witchKills', 'La bruja caza: {list}', { list: w.kills.map((p) => pieceName(p).toLowerCase()).join(', ') }) : t('game.witchMoves', 'La bruja va tras su presa') });
+    const gargoyleMech = (g) => g && ({ ...g, log: g.kills.length ? t('game.gargoyleKills', 'La gárgola aplasta: {list}', { list: g.kills.map((p) => pieceName(p).toLowerCase()).join(', ') }) : t('game.gargoyleMoves', 'La gárgola se posa vigilante') });
     const showMech = async (m) => {
       if (!m) return;
       if (m.log) addLog(m.log);
@@ -483,7 +494,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
 
     const pass = () => {
       const a = match.afterMove({ pass: true });
-      return showMeteor(a.meteor).then(() => showTick(a.tick)).then(() => showMech(a.mech)).then(() => showMech(witchMech(a.witch))).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
+      return showMeteor(a.meteor).then(() => showTick(a.tick)).then(() => showMech(a.mech)).then(() => showMech(witchMech(a.witch))).then(() => showMech(gargoyleMech(a.gargoyle))).then(() => (match.over ? finish() : setTimeout(() => startTurn(a.ended), 400)));
     };
     // Minis cronometrados (scenario.turnTime): se acabó el tiempo y la jugada se pierde.
     d.timeUp = () => {
@@ -867,7 +878,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       </div>
       ${chipInfo && html`<p class="chip-info" role="status"><strong>${chipInfo.title}</strong> ${chipInfo.text}</p>`}
       ${inspect && html`<section class=${'inspector' + (inspect.threat ? ' threat' : '')}>
-        <button class="insp-demo" title=${t('game.howMoves', 'Ver cómo se mueve')} aria-label=${t('game.howMoves', 'Ver cómo se mueve')} onClick=${() => ref.current.moments && playDemo(ref.current.moments, { ...inspect.demo, force: true })}>${inspect.witch ? html`<span class="insp-witch" style="display:inline-block;width:44px;height:44px" dangerouslySetInnerHTML=${{ __html: WITCH }} />` : html`<${PieceIcon} type=${inspect.type} side=${inspect.side} size=${44} />`}</button>
+        <button class="insp-demo" title=${t('game.howMoves', 'Ver cómo se mueve')} aria-label=${t('game.howMoves', 'Ver cómo se mueve')} onClick=${() => ref.current.moments && playDemo(ref.current.moments, { ...inspect.demo, force: true })}>${inspect.witch ? html`<span class="insp-witch" style="display:inline-block;width:44px;height:44px" dangerouslySetInnerHTML=${{ __html: WITCH }} />` : inspect.gargoyle ? html`<span class="insp-gargoyle" style="display:inline-block;width:44px;height:44px" dangerouslySetInnerHTML=${{ __html: GARGOYLE }} />` : html`<${PieceIcon} type=${inspect.type} side=${inspect.side} size=${44} />`}</button>
         <div>
           <strong>${inspect.name} <small>${inspect.color}</small></strong>
           <p>${inspect.boss || tp('game.reach', inspect.moves, 'Alcanza {n} casilla', 'Alcanza {n} casillas')}</p>

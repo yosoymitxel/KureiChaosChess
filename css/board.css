@@ -97,6 +97,25 @@
   animation: mark-in 0.22s var(--ease-out) both;
 }
 .tile.danger.mv .mark::before { background: var(--danger); }
+/* Coronación al alcance: parpadeo amarillo lento en la casilla que corona. */
+.tile.crown {
+  --crown-gold: oklch(0.85 0.18 95);
+  box-shadow: inset 0 0 0 2px color-mix(in oklch, var(--crown-gold), transparent 30%), inset 0 0 0 999px color-mix(in oklch, var(--crown-gold), transparent 72%);
+  animation: crown-pulse 1.6s ease-in-out infinite alternate;
+}
+@keyframes crown-pulse {
+  from {
+    box-shadow: inset 0 0 0 2px color-mix(in oklch, var(--crown-gold), transparent 45%), inset 0 0 0 999px color-mix(in oklch, var(--crown-gold), transparent 82%);
+  }
+  to {
+    box-shadow: inset 0 0 0 3px color-mix(in oklch, var(--crown-gold), transparent 10%), inset 0 0 0 999px color-mix(in oklch, var(--crown-gold), transparent 48%);
+  }
+}
+.tile.crown.mv .mark::before { background: var(--crown-gold); }
+.tile.crown.cap .mark::before { border-color: var(--crown-gold); }
+@media (prefers-reduced-motion: reduce) {
+  .tile.crown { animation: none; }
+}
 /* Card targeting: dashed brass outline on valid targets; preview dots in brass; footprint tinted. */
 .tile.target { box-shadow: inset 0 0 0 calc(var(--sq) * 0.05) var(--brass), inset 0 0 0 999px oklch(0.77 0.12 80 / 0.18); }
 .tile.gain .mark::before {
@@ -243,6 +262,11 @@
 .pc.witch .pc-badge svg { fill: var(--gain); }
 .pc.witch.awake .pc-badge { background: var(--danger); }
 .pc.witch.awake .pc-badge svg { fill: var(--paper); }
+.pc.gargoyle .pc-badge { display: grid; background: var(--ink); }
+.pc.gargoyle .pc-badge svg { fill: #8985a0; }
+.pc.gargoyle.awake .pc-badge { background: var(--danger); }
+.pc.gargoyle.awake .pc-badge svg { fill: var(--paper); }
+.pc.gargoyle.awake .gargoyle-eye { fill: #ff3855; }
 .tether {
   position: absolute; left: 0; top: 0; height: 0; width: calc(var(--len) * var(--sq));
   transform-origin: 0 50%;
@@ -370,7 +394,7 @@
 
 /* Gallina del Gallinero: dibujo propio (no un peón), sin base de bando. */
 .pc.chicken .pc-base { display: none; }
-.pc:is(.chicken, .witch-pc) .hen { width: 100%; height: 100%; }
+.pc:is(.chicken, .witch-pc, .gargoyle-pc) .hen { width: 100%; height: 100%; }
 .hen-px { display: none; }
 [data-art="pixel"] .hen-vec { display: none; }
 [data-art="pixel"] .hen-px { display: inline; }
