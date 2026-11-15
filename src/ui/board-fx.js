@@ -1,13 +1,13 @@
 // Efectos del tablero pedidos como datos (minis por turnos y mecánicas de piso: src/game/mechanics.js).
 import { key } from '../game/rules.js';
 import { playSfx } from './sfx.js';
-import { playAPKBeam, playAPKShockwave, playAPKParticleBurst } from '../lab/apk/effects.js';
+import { playAPKBeam, playAPKShockwave, playAPKParticleBurst, playAPKPixelTrail, playAPKFloatingText } from '../lab/apk/effects.js';
 import { pixelArt } from '../view/board-view.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Un efecto por objeto: { doom | blast | sink | fire: casillas } · { beam: [desde, hasta], color } ·
-// { float: [r, c, texto] } · { ring | sparkle | shield: [r, c] } · { hurt | power: id(s) } · { shake } · { sfx } · { wait }.
+// { float | banner: [r, c, texto] } · { trail: [desde, hasta], color } · { ring | sparkle | shield: [r, c] } · { hurt | power: id(s) } · { shake } · { sfx } · { wait }.
 export async function playFx(v, list = []) {
   for (const e of list) {
     if (!v) return;
@@ -21,6 +21,12 @@ export async function playFx(v, list = []) {
     if (e.beam) { const a = pt(...e.beam[0]), b = pt(...e.beam[1]); if (a && b) { playSfx('laser'); // Rayo: en píxel el haz del APK; en vector, el de Kure'i.
         if (pixelArt() && v.fx.vfx) v.apk(playAPKBeam, { row: e.beam[0][0], col: e.beam[0][1] }, { row: e.beam[1][0], col: e.beam[1][1] }, e.color || '#b06bff');
         else v.fx.beam(a.x, a.y - v.sq * 0.3, b.x, b.y - v.sq * 0.3, { color: e.color || '#c58bff' }); } }
+    if (e.trail) { const [f, to] = e.trail, a = pt(...f), b = pt(...to); if (a && b) {
+        if (pixelArt() && v.fx.vfx) v.apk(playAPKPixelTrail, { row: f[0], col: f[1] }, { row: to[0], col: to[1] }, { colors: ['#ffffff', e.color || '#b06bff', '#2a1640'] });
+        else v.fx.beam(a.x, a.y - v.sq * 0.3, b.x, b.y - v.sq * 0.3, { color: e.color || '#c58bff' }); } }
+    if (e.banner) { const p = pt(e.banner[0], e.banner[1]); if (p) {
+        if (pixelArt() && v.fx.vfx) v.apk(playAPKFloatingText, { row: e.banner[0], col: e.banner[1] }, e.banner[2], e.color || '#ffc83d');
+        else v.floatText(p.x, p.y - v.sq * 1.1, e.banner[2]); } }
     if (e.float) { const p = pt(e.float[0], e.float[1]); if (p) v.floatText(p.x, p.y - v.sq * 0.7, e.float[2]); }
     // Onda y ráfaga: las del APK con efectos activados.
     if (e.ring) { const p = pt(...e.ring); if (p) { if (v.fx.vfx) v.apk(playAPKShockwave, { row: e.ring[0], col: e.ring[1] }); else v.fx.ring(p.x, p.y, { radius: v.sq * (e.size || 1.4), width: 4, color: e.color || '#fff' }); v.fx.dust(p.x, p.y, 1); } }

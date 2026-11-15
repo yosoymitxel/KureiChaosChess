@@ -77,6 +77,9 @@ const DO = {
   pull(m, b, cells, out) { for (const p of m.pieces.filter((x) => x.color !== b.color && on(cells, x))) shove(m, p, ...away(b, p, true), out); },
 };
 
+const POWER_COLOR = { quake: '#ffc83d', charge: '#ff6b3d', heal: '#7dffb0', rockfall: '#c9a07a', summon: '#29e3ff', push: '#9fd0ff', pull: '#b06bff' };
+const cells0 = (plan) => plan.cells[0];
+
 export function bossPower(m, mover) {
   const b = m.pieces.find((p) => p.boss && p.color === mover);
   const def = b && BOSSES[b.boss];
@@ -86,7 +89,14 @@ export function bossPower(m, mover) {
   if (plan && plan.id === b.id) {
     m.bossPlan = null;
     out.fx.push({ doom: [] });
+    const mid = [Math.round(b.row + (b.h - 1) / 2), Math.round(b.col + (b.w - 1) / 2)];
+    out.fx.push({ banner: [...mid, def.powerName], color: POWER_COLOR[def.power] });
     DO[def.power](m, b, plan.cells, out, plan);
+    // Rastro de cada pieza que el poder desplaza (atraída, empujada…), antes de que se mueva.
+    const trails = out.moved.map(({ from, to }) => ({ trail: [[from.row, from.col], [to.row, to.col]], color: POWER_COLOR[def.power] }));
+    if (trails.length) out.fx.splice(1, 0, def.power === 'pull' || def.power === 'quake' ? { ring: mid, color: POWER_COLOR[def.power], size: 2.4 } : {}, ...trails, { wait: 260 });
+    if (def.power === 'summon' && cells0(plan)) out.fx.push({ beam: [mid, cells0(plan)], color: POWER_COLOR.summon });
+    if (def.power === 'heal') out.fx.push({ sparkle: mid, color: POWER_COLOR.heal });
     out.log = def.powerName;
     return out;
   }
