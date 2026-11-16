@@ -132,7 +132,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       if (scenario?.goals) d.view.setGoals(scenario.goals(match));
       if (scenario?.doom) {
         if (!match.turn) d.view.setDoom(scenario.doom());
-      } else d.view.setDoom(match.doom || [], false);
+      } else d.view.setDoom([...(match.doom || []), ...(match.bossPlan?.cells || [])], false); // el aviso del jefe sigue marcado hasta que se cumple
       // Ajedrez invisible: lo rival desaparece; lo tuyo, en transparencia.
       if (node.modifier === 'potato') {
         const heirs = Object.values(match.mech?.heirs || {});
