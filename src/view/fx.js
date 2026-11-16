@@ -226,7 +226,10 @@ export class Fx {
   sfx(name, x, y, o = {}) {
     if (!this.vfx || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     (sfLibs[name] ||= import(`../../vendor/sprite-fusion/${name}.js`)).then((lib) => {
-      this.sf.push(lib.default({ x, y, ground: y, seed: (Math.random() * 1e9) | 0, ...o }));
+      // `k`: escala alrededor de (x, y), para efectos de medida fija (energy, impact); `to` se corrige para caer donde toca.
+      const { k, to, ...rest } = o, at = k && to ? [x + (to[0] - x) / k, y + (to[1] - y) / k] : to;
+      const fx = lib.default({ x, y, ground: y, seed: (Math.random() * 1e9) | 0, ...rest, ...(at && { to: at }) });
+      this.sf.push(k ? Object.assign(fx, { k, kx: x, ky: y }) : fx);
       this.kick();
     });
   }

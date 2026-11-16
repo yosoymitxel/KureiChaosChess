@@ -11,7 +11,11 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 export async function playFx(v, list = []) {
   for (const e of list) {
     if (!v) return;
-    const pt = (r, c) => { const t = v.tiles.get(key(r, c)); return t ? v.fx.pointOf(t) : null; };
+    const tilePt = (r, c) => { const t = v.tiles.get(key(r, c)); return t ? v.fx.pointOf(t) : null; };
+    // Con coordenadas no enteras (centro de un jefe grande), el punto medio de las casillas que lo rodean.
+    const pt = (r, c) => { if (Number.isInteger(r) && Number.isInteger(c)) return tilePt(r, c);
+      const ps = [[Math.floor(r), Math.floor(c)], [Math.ceil(r), Math.ceil(c)]].map(([a, d]) => tilePt(a, d)).filter(Boolean);
+      return ps.length ? { x: ps.reduce((s, p) => s + p.x, 0) / ps.length, y: ps.reduce((s, p) => s + p.y, 0) / ps.length } : null; };
     const byId = (id) => [...v.els.keys()].find((p) => p.id === id);
     if (e.sfx) playSfx(e.sfx);
     if (e.doom) v.setDoom(e.doom, false);
@@ -27,7 +31,7 @@ export async function playFx(v, list = []) {
     // pixelfx (vendor): { pfx: nombre, at: [r, c], palette, f } — f escala respecto a la casilla.
     if (e.pfx) { const p = pt(...e.at); if (p) v.fx.pfx(e.pfx, p.x, p.y, { k: Math.min(1.4, Math.max(0.25, (e.f || 1) * v.sq / 120)), ...(e.palette && { palette: e.palette }) }); }
     // Sprite Fusion: { sf: nombre, at: [r, c], opts } — opts con medidas en casillas (r: radio, s: tamaño).
-    if (e.sf) { const p = pt(...e.at); if (p) { const { r, s: sz, to, ...o } = e.opts || {}, q = to && pt(...to); v.fx.sfx(e.sf, p.x, p.y, { ...o, ...(q && { to: [q.x, q.y] }), ...(r && { radius: Math.round(r * v.sq / 2) }), ...(sz && { size: sz * v.sq / 72 }) }); } }
+    if (e.sf) { const p = pt(...e.at); if (p) { const { r, s: sz, to, ...o } = e.opts || {}, q = to && pt(...to); v.fx.sfx(e.sf, p.x, p.y, { ...o, ...((e.sf === 'energy' || e.sf === 'impact') && { k: Math.min(1, Math.max(0.4, v.sq / 64)) }), ...(q && { to: [q.x, q.y] }), ...(r && { radius: Math.round(r * v.sq / 2) }), ...(sz && { size: sz * v.sq / 72 }) }); } }
     if (e.banner) { const p = pt(e.banner[0], e.banner[1]); if (p) {
         if (pixelArt() && v.fx.vfx) v.apk(playAPKFloatingText, { row: e.banner[0], col: e.banner[1] }, e.banner[2], e.color || '#ffc83d');
         else v.floatText(p.x, p.y - v.sq * 1.1, e.banner[2]); } }

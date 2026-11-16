@@ -110,6 +110,8 @@ export function bossPower(m, mover) {
   if (plan && plan.id === b.id) {
     m.bossPlan = null;
     out.fx.push({ doom: [] });
+    // `core`: centro exacto del jefe (puede caer entre casillas) para los efectos píxel.
+    const core = [b.row + (b.h - 1) / 2, b.col + (b.w - 1) / 2];
     const mid = [Math.round(b.row + (b.h - 1) / 2), Math.round(b.col + (b.w - 1) / 2)];
     out.fx.push({ bossCut: b.id, title: b.name, sub: def.powerName, color: POWER_COLOR[def.power] }, { stamp: plan.cells, color: POWER_COLOR[def.power] });
     out.fx.push({ transform: b.id, label: def.powerName, color: POWER_COLOR[def.power] });
@@ -117,9 +119,9 @@ export function bossPower(m, mover) {
     // Rastro de cada pieza que el poder desplaza (atraída, empujada…), antes de que se mueva.
     const trails = out.moved.map(({ from, to }) => ({ trail: [[from.row, from.col], [to.row, to.col]], color: POWER_COLOR[def.power] }));
     if (trails.length) out.fx.splice(4, 0, def.power === 'pull' || def.power === 'quake' ? { ring: mid, color: POWER_COLOR[def.power], size: 2.4 } : {}, ...trails, { wait: 260 });
-    out.fx.splice(4, 0, ...PFX[def.power](mid, out.moved, plan.cells).map((e) => ({ ...e, palette: RAMP[def.power] })));
+    out.fx.splice(4, 0, ...PFX[def.power](core, out.moved, plan.cells).map((e) => ({ ...e, palette: RAMP[def.power] })));
     // Anticipación (game-feel, Charge Attack): el jefe junta energía antes de soltar el poder.
-    out.fx.splice(4, 0, { sf: 'energy', at: mid, opts: { kind: 'charge', charge: 0.55, colors: CHARGE[def.power] } }, { wait: 520 });
+    out.fx.splice(4, 0, { sf: 'energy', at: core, opts: { kind: 'charge', charge: 0.55, colors: CHARGE[def.power] } }, { wait: 520 });
     if (def.power === 'summon' && cells0(plan)) out.fx.push({ beam: [mid, cells0(plan)], color: POWER_COLOR.summon });
     if (def.power === 'heal') out.fx.push({ sparkle: mid, color: POWER_COLOR.heal });
     out.log = def.powerName;

@@ -18,7 +18,7 @@
   {
    "expect": {
     "noErrors": true,
-    "eval": "!!document.querySelector('.witch-art')"
+    "eval": "!!document.querySelector('.witch-pc')"
    }
   }
  ]
