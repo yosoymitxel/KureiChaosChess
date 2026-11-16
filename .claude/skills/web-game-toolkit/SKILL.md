@@ -140,6 +140,9 @@ y antes de publicar. Plantillas listas en `templates/security/` (copiar a la ra�
   Si no hay acceso a la API, un workflow temporal con `permissions: security-events: read` y
   `gh api repos/$REPO/code-scanning/alerts?state=open` las lista en el log; luego borrarlo.
 - Un pipeline rojo durante semanas tapa los fallos nuevos: arreglarlo o borrarlo, no convivir con él.
+- Librerías que el juego carga por CDN con versión fija y que en npm solo son el espejo de los tests
+  (react, motion, three, tailwind…): ponerlas en `ignore` de Dependabot. Si no, el PR agrupado sube
+  majors (React 19 ya no trae UMD), el QA falla y tests y juego quedan con versiones distintas.
 
 **Dependencias del navegador**:
 - Nada de versiones flotantes en CDN (`react@18`, `htm?module`, `@latest`): fijar la versión exacta

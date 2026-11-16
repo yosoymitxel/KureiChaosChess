@@ -15,3 +15,7 @@ updates:
     groups:
       npm:
         patterns: ["*"]
+    # Lo que index.html carga por CDN con versión fija se sube a mano (ver SKILL.md, Seguridad).
+    ignore:
+      - dependency-name: react
+      - dependency-name: react-dom
