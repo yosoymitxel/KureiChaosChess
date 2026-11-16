@@ -20,7 +20,7 @@ const GEOMETRY_NUMBERS = new Set(['x', 'y', 'width', 'height', 'rx', 'ry', 'cx',
 const OPACITY = /^(?:0(?:\.\d+)?|1(?:\.0+)?)$/;
 const PATH_DATA = /^[MmZzLlHhVvCcSsQqTtAa0-9eE+.,\-\s]+$/;
 const POINTS = /^[0-9eE+.,\-\s]+$/;
-const TRANSFORM = /^(?:(?:matrix|translate|scale|rotate|skewX|skewY)\s*\(\s*[-+0-9.eE,\s]+\)\s*)+$/;
+const TRANSFORM = /^(?:(?:matrix|translate|scale|rotate|skewX|skewY)\s*\(\s*[-+0-9.eE]+(?:[\s,]+[-+0-9.eE]+)*\s*\)\s*)+$/;
 
 function safePresentationValue(property, value) {
   const v = value.trim();
