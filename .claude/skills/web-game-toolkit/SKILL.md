@@ -1,6 +1,6 @@
 ---
 name: web-game-toolkit
-description: Taller para hacer juegos web (HTML/JS sin build) con Claude Code, sacado de Zugzwang. Úsala al empezar o ampliar un juego web: temas pixel art dibujables a mano (PNG o claude-pxl), iconos en dos sets (vector y píxel) medidos e igualados, sonido grabado + sintetizado, música en bucle, registro central de contenido con comprobaciones, demos de movimiento, minijuegos con física, pruebas con Playwright en móvil y PC, y cómo gastar pocos tokens en todo eso.
+description: Taller para hacer juegos web (HTML/JS sin build) con Claude Code, sacado de Zugzwang. Úsala al empezar, ampliar o revisar un juego web (también para revisar su seguridad y su CI): temas pixel art dibujables a mano (PNG o claude-pxl), iconos en dos sets (vector y píxel) medidos e igualados, sonido grabado + sintetizado, música en bucle, registro central de contenido con comprobaciones, demos de movimiento, minijuegos con física, pruebas con Playwright en móvil y PC, lista de seguridad (CDN, regex, guardados importados, secretos, CodeQL/gitleaks/Dependabot) y cómo gastar pocos tokens en todo eso.
 ---
 
 # Taller de juegos web
@@ -125,6 +125,47 @@ Zugzwang (`tools/`, `src/`) es la implementación de referencia cuando haga falt
   con `actions_list`/`get_job_logs` y no gasta su máquina ni contexto generando medios.
   Bajar el artefacto (`download_workflow_run_artifact`) da una URL de `*.blob.core.windows.net`: en la
   nube de Claude Code ese dominio tiene que estar en *Allowed domains* del entorno.
+
+### Seguridad (revisar en cada proyecto, aunque no se parezca a este)
+Fallos que se repitieron en varios juegos HTML. Pasar esta lista al empezar, al revisar un cambio
+y antes de publicar. Plantillas listas en `templates/security/` (copiar a la raíz del repo).
+
+**CI mínima** (si falta, es lo primero):
+- CodeQL `security-extended`, gitleaks con historial completo, OSV-Scanner y Dependabot semanal
+  **agrupado** (`groups`). Sin grupo, Dependabot parte `codeql-action/init` y `analyze` en dos PR y
+  cada uno rompe CodeQL por separado; lo mismo con `osv-scanner-reusable` y `-reusable-pr`.
+- Acciones fijadas por SHA con la versión en comentario, `permissions: contents: read` arriba y solo
+  lo justo por job, `persist-credentials: false` en `checkout`.
+- Las alertas de Code scanning y Dependabot **no salen en los logs**: mirarlas en la pestaña Security.
+  Si no hay acceso a la API, un workflow temporal con `permissions: security-events: read` y
+  `gh api repos/$REPO/code-scanning/alerts?state=open` las lista en el log; luego borrarlo.
+- Un pipeline rojo durante semanas tapa los fallos nuevos: arreglarlo o borrarlo, no convivir con él.
+
+**Dependencias del navegador**:
+- Nada de versiones flotantes en CDN (`react@18`, `htm?module`, `@latest`): fijar la versión exacta
+  o, mejor, copiarlas a `vendor/` y cargarlas por import map (itch.io las necesita locales igual).
+  Un test que compare el import map con lo esperado evita que vuelva un CDN.
+- `npm audit` en cero aunque sean solo dependencias de desarrollo (vitest, happy-dom, vite):
+  también corren en la máquina de quien desarrolla y en CI.
+
+**Código**:
+- Regex sin ambigüedad: que un mismo carácter no pueda entrar por dos caminos (`\s*` junto a una clase
+  con `\s` dentro de un grupo repetido = `js/redos`). Probar con 20 000 repeticiones: debe tardar ~0 ms.
+- Nada de `innerHTML`, `eval`, `new Function` ni `setTimeout("texto")` con datos que vengan del
+  jugador, de una copia importada, de la nube o de la URL. Textos con `textContent`/plantillas.
+- SVG o HTML de fuera (arte importado, códigos compartidos) pasa por una lista blanca de elementos y
+  atributos con su selfcheck (`on*`, `href=javascript:`, `url()` externos, `foreignObject`, `<script>`).
+- **Copias de guardado importadas = datos hostiles**: límite de tamaño, versión, esquema validado,
+  solo claves conocidas, sin `__proto__`/`constructor`, y si falla no se toca lo guardado.
+- `localStorage` con `try/catch` (en iframes de itch o Safari estricto hasta leerlo lanza).
+
+**Secretos**:
+- En el repo solo claves **publicables** (Supabase `sb_publishable_…`/anon, Firebase web). Nunca
+  `service_role`, `sb_secret_`, tokens de API ni contraseñas, ni en commits viejos: gitleaks mira todo el historial.
+- Con clave publicable, la seguridad está en el servidor: RLS activado en cada tabla y políticas por
+  usuario. Revisarlo con los avisos de seguridad del proveedor.
+- Los falsos positivos de gitleaks (claves de `localStorage` como `juego.save.v1`) se silencian con
+  `.gitleaks.toml` por patrón, no desactivando la regla ni con fingerprints sueltos.
 
 ### Coherencia visual
 - **Tokens semánticos de color** en un solo archivo (`css/tokens.css`): un color por significado

@@ -1,0 +1,11 @@
+# Falsos positivos típicos de juegos web. Ajustar el prefijo de las claves de guardado.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Claves de localStorage y claves publicables (públicas por diseño)"
+regexTarget = "secret"
+regexes = [
+  '''^(mijuego|zugzwang|kurei)\.[a-z0-9.]+$''',
+  '''^sb_publishable_[A-Za-z0-9_-]+$''',
+]
