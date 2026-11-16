@@ -11,4 +11,4 @@ La web (`index.html`) sigue cargándolas desde jsDelivr y Google Fonts con las m
 | `pixelfx/pixelfx.js` | pixelfx (patch-gg, núcleo + 7 efectos del jardín; esbuild) | MIT |
 | `motion.esm.js` | motion 12.43.0 (empaquetado con esbuild en un solo archivo) | MIT |
 | `fonts/bricolage-grotesque-latin.woff2` | Bricolage Grotesque (Google Fonts, subconjunto latino) | SIL OFL 1.1 |
-| `sprite-fusion/*.js` (shield, fire, black-hole, heal, explosion, holy-light) | Sprite Fusion Pixel Art VFX (Hugo Duprez), `.ts` pasados a JS con esbuild | MIT |
+| `sprite-fusion/*.js` (shield, fire, black-hole, heal, explosion, holy-light, energy, impact, movement) | Sprite Fusion Pixel Art VFX (Hugo Duprez), `.ts` pasados a JS con esbuild | MIT |
