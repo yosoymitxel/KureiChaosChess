@@ -90,7 +90,8 @@ export function bossPower(m, mover) {
     m.bossPlan = null;
     out.fx.push({ doom: [] });
     const mid = [Math.round(b.row + (b.h - 1) / 2), Math.round(b.col + (b.w - 1) / 2)];
-    out.fx.push({ banner: [...mid, def.powerName], color: POWER_COLOR[def.power] });
+    out.fx.push({ bossCut: b.id, title: b.name, sub: def.powerName, color: POWER_COLOR[def.power] }, { stamp: plan.cells, color: POWER_COLOR[def.power] });
+    out.fx.push({ transform: b.id, label: def.powerName, color: POWER_COLOR[def.power] });
     DO[def.power](m, b, plan.cells, out, plan);
     // Rastro de cada pieza que el poder desplaza (atraída, empujada…), antes de que se mueva.
     const trails = out.moved.map(({ from, to }) => ({ trail: [[from.row, from.col], [to.row, to.col]], color: POWER_COLOR[def.power] }));

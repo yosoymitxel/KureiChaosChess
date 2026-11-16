@@ -1,13 +1,13 @@
 // Efectos del tablero pedidos como datos (minis por turnos y mecánicas de piso: src/game/mechanics.js).
 import { key } from '../game/rules.js';
 import { playSfx } from './sfx.js';
-import { playAPKBeam, playAPKShockwave, playAPKParticleBurst, playAPKPixelTrail, playAPKFloatingText } from '../lab/apk/effects.js';
+import { playAPKBeam, playAPKShockwave, playAPKParticleBurst, playAPKPixelTrail, playAPKFloatingText, playAPKBossCut, playAPKEventStamp, playAPKTransformVariant } from '../lab/apk/effects.js';
 import { pixelArt } from '../view/board-view.js';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Un efecto por objeto: { doom | blast | sink | fire: casillas } · { beam: [desde, hasta], color } ·
-// { float | banner: [r, c, texto] } · { trail: [desde, hasta], color } · { ring | sparkle | shield: [r, c] } · { hurt | power: id(s) } · { shake } · { sfx } · { wait }.
+// { float | banner: [r, c, texto] } · { bossCut | transform: id } · { stamp: casillas } · { trail: [desde, hasta], color } · { ring | sparkle | shield: [r, c] } · { hurt | power: id(s) } · { shake } · { sfx } · { wait }.
 export async function playFx(v, list = []) {
   for (const e of list) {
     if (!v) return;
@@ -27,6 +27,11 @@ export async function playFx(v, list = []) {
     if (e.banner) { const p = pt(e.banner[0], e.banner[1]); if (p) {
         if (pixelArt() && v.fx.vfx) v.apk(playAPKFloatingText, { row: e.banner[0], col: e.banner[1] }, e.banner[2], e.color || '#ffc83d');
         else v.floatText(p.x, p.y - v.sq * 1.1, e.banner[2]); } }
+    // Poder de jefe: corte de retrato (fase ataque), sello en las casillas y estallido sobre el jefe.
+    if (e.bossCut) { const b = byId(e.bossCut); if (b && pixelArt() && v.fx.vfx && !matchMedia('(prefers-reduced-motion: reduce)').matches) await playAPKBossCut(v.host, v, b, { title: String(e.title || '').toUpperCase(), subtitle: String(e.sub || '').toUpperCase(), color: e.color, phase: 'attack' });
+      else if (b) v.powerUp([b], e.color || '#ff2d55'); }
+    if (e.stamp) for (const [row, col] of e.stamp) v.apk(playAPKEventStamp, { row, col }, e.color || '#9b4dff');
+    if (e.transform) { const b = byId(e.transform); if (b) v.apk(playAPKTransformVariant, { row: Math.floor(b.row + ((b.h || 1) - 1) / 2), col: Math.floor(b.col + ((b.w || 1) - 1) / 2) }, 'evolve', e.label); }
     if (e.float) { const p = pt(e.float[0], e.float[1]); if (p) v.floatText(p.x, p.y - v.sq * 0.7, e.float[2]); }
     // Onda y ráfaga: las del APK con efectos activados.
     if (e.ring) { const p = pt(...e.ring); if (p) { if (v.fx.vfx) v.apk(playAPKShockwave, { row: e.ring[0], col: e.ring[1] }); else v.fx.ring(p.x, p.y, { radius: v.sq * (e.size || 1.4), width: 4, color: e.color || '#fff' }); v.fx.dust(p.x, p.y, 1); } }
