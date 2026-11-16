@@ -1,0 +1,11 @@
+# Falsos positivos de generic-api-key: claves de localStorage y la clave publicable de Supabase (pública por diseño).
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Claves de guardado local y clave publicable de Supabase"
+regexTarget = "secret"
+regexes = [
+  '''^(zugzwang|kurei)\.[a-z0-9.]+$''',
+  '''^sb_publishable_[A-Za-z0-9_-]+$''',
+]

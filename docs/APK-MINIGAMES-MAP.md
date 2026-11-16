@@ -74,7 +74,7 @@ El controlador `src/lab/apk/playable-match.js` reutiliza `Match`, las reglas leg
 Pruebas:
 - `tools/apk-match-selfcheck.mjs`: reglas legales, turno del bot, captura del rey, condiciones de victoria y movimientos especiales del tablero gigante.
 - `tools/apk-playable-smoke.mjs`: Playwright en 360×800 táctil y 1366×768; verifica tablero, movimiento legal, respuesta de IA y estados visibles.
-- Workflows: `.github/workflows/validate-mates.yml` y `.github/workflows/apk-playable-qa.yml`.
+- Workflow: `.github/workflows/validate-mates.yml` (el smoke se corre a mano).
 
 Nada de esto se registra en las partidas normales de Kure’i, sus recompensas, persistencia o economía.
 
