@@ -91,13 +91,13 @@ const RAMP = {
 };
 // Efecto píxel de cada poder: en el jefe (`mid`), donde sale cada pieza movida y donde cae.
 const PFX = {
-  quake: (mid, moved) => [{ pfx: 'groundSlam', at: mid, f: 2.4 }, ...moved.map(({ to }) => ({ pfx: 'heavyLanding', at: [to.row, to.col] }))],
+  quake: (mid, moved) => [{ sf: 'explosion', at: mid, opts: { s: 1.4, fire: 0, chunks: 18 } }, { pfx: 'groundSlam', at: mid, f: 2.4 }, ...moved.map(({ to }) => ({ pfx: 'heavyLanding', at: [to.row, to.col] }))],
   charge: (mid, moved) => [{ pfx: 'groundSlam', at: mid, f: 1.8 }, ...moved.map(({ from }) => ({ pfx: 'bluntHit', at: [from.row, from.col], f: 1.2 }))],
-  heal: (mid) => [{ pfx: 'collectBurst', at: mid, f: 2 }],
-  rockfall: (mid, moved, cells) => cells.map((c) => ({ pfx: 'heavyLanding', at: c, f: 1.2 })),
-  summon: (mid, moved, cells) => [{ pfx: 'poof', at: mid, f: 1.6 }, ...cells.slice(0, 1).map((c) => ({ pfx: 'poof', at: c, f: 1.2 }))],
+  heal: (mid) => [{ sf: 'heal', at: mid, opts: { count: 22 } }, { pfx: 'collectBurst', at: mid, f: 2 }],
+  rockfall: (mid, moved, cells) => [{ sf: 'explosion', at: cells[0] || mid, opts: { s: 1.1, fire: 0 } }, ...cells.map((c) => ({ pfx: 'heavyLanding', at: c, f: 1.2 }))],
+  summon: (mid, moved, cells) => [...cells.slice(0, 1).map((c) => ({ sf: 'holy-light', at: c, opts: { hold: 0.5, width: 8 } })), { pfx: 'poof', at: mid, f: 1.6 }, ...cells.slice(0, 1).map((c) => ({ pfx: 'poof', at: c, f: 1.2 }))],
   push: (mid, moved) => [{ pfx: 'groundSlam', at: mid, f: 1.6 }, ...moved.map(({ from }) => ({ pfx: 'bluntHit', at: [from.row, from.col] }))],
-  pull: (mid, moved) => [{ pfx: 'collectBurst', at: mid, f: 2.4 }, ...moved.map(({ from, to }) => [{ pfx: 'poof', at: [from.row, from.col] }, { pfx: 'hitSpark', at: [to.row, to.col] }]).flat()],
+  pull: (mid, moved) => [{ sf: 'black-hole', at: mid, opts: { r: 0.45, life: 1.1, pull: 0.6 } }, { pfx: 'collectBurst', at: mid, f: 2.4 }, ...moved.map(({ from, to }) => [{ pfx: 'poof', at: [from.row, from.col] }, { pfx: 'hitSpark', at: [to.row, to.col] }]).flat()],
 };
 
 export function bossPower(m, mover) {
@@ -115,8 +115,8 @@ export function bossPower(m, mover) {
     DO[def.power](m, b, plan.cells, out, plan);
     // Rastro de cada pieza que el poder desplaza (atraída, empujada…), antes de que se mueva.
     const trails = out.moved.map(({ from, to }) => ({ trail: [[from.row, from.col], [to.row, to.col]], color: POWER_COLOR[def.power] }));
-    if (trails.length) out.fx.splice(1, 0, def.power === 'pull' || def.power === 'quake' ? { ring: mid, color: POWER_COLOR[def.power], size: 2.4 } : {}, ...trails, { wait: 260 });
-    out.fx.splice(1, 0, ...PFX[def.power](mid, out.moved, plan.cells).map((e) => ({ ...e, palette: RAMP[def.power] })));
+    if (trails.length) out.fx.splice(4, 0, def.power === 'pull' || def.power === 'quake' ? { ring: mid, color: POWER_COLOR[def.power], size: 2.4 } : {}, ...trails, { wait: 260 });
+    out.fx.splice(4, 0, ...PFX[def.power](mid, out.moved, plan.cells).map((e) => ({ ...e, palette: RAMP[def.power] })));
     if (def.power === 'summon' && cells0(plan)) out.fx.push({ beam: [mid, cells0(plan)], color: POWER_COLOR.summon });
     if (def.power === 'heal') out.fx.push({ sparkle: mid, color: POWER_COLOR.heal });
     out.log = def.powerName;

@@ -9,6 +9,7 @@ import { WEATHER_FX, LAMP } from './weather-fx.js';
 let pfxLib = null;
 const COIN_RAMP = ['#2a1a05', '#4d3008', '#7a4d0c', '#b07a14', '#e0a92a', '#ffd25a', '#fff0a8', '#ffffff'];
 const WEATHER_RATE = { rain: 70 }; // los demás climas, en weather-fx.js
+const sfLibs = {};
 const SF_PX = 2; // cada píxel de los efectos de Sprite Fusion ocupa 2 px de pantalla // partículas por segundo cada 360 px de ancho
 
 export class Fx {
@@ -221,7 +222,15 @@ export class Fx {
       this.sf.push(Object.assign(lib.createFx(lib[name], { x: x / SF_PX, y: y / SF_PX, seed: (Math.random() * 1e9) | 0, light: 0.6, ...rest }), { k, kx: x, ky: y }));
       this.kick();
     });
-  }  coinBurst(x, y, k = 0.5) { this.pfx('collectBurst', x, y, { palette: COIN_RAMP, k }); }
+  }  // Más efectos de Sprite Fusion (vendor/sprite-fusion/<name>.js), cargados al primer uso; `o` en px de pantalla.
+  sfx(name, x, y, o = {}) {
+    if (!this.vfx || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    (sfLibs[name] ||= import(`../../vendor/sprite-fusion/${name}.js`)).then((lib) => {
+      this.sf.push(lib.default({ x, y, ground: y, seed: (Math.random() * 1e9) | 0, ...o }));
+      this.kick();
+    });
+  }
+  coinBurst(x, y, k = 0.5) { this.pfx('collectBurst', x, y, { palette: COIN_RAMP, k }); }
 
   // Veneno: nube verde que se abre y burbujas que suben y revientan.
   poison(x, y, w) {
