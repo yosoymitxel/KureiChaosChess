@@ -79,6 +79,26 @@ const DO = {
 
 const POWER_COLOR = { quake: '#ffc83d', charge: '#ff6b3d', heal: '#7dffb0', rockfall: '#c9a07a', summon: '#29e3ff', push: '#9fd0ff', pull: '#b06bff' };
 const cells0 = (plan) => plan.cells[0];
+// Rampas (de oscuro a claro) para pixelfx, una por poder.
+const RAMP = {
+  quake: ['#2a1a0c', '#5e3a18', '#9c6426', '#d89a3a', '#ffc83d', '#fff0b4', '#ffffff'],
+  charge: ['#2a0c08', '#6e1e12', '#b8401f', '#f26b3d', '#ffa06b', '#ffe0c4', '#ffffff'],
+  heal: ['#0c2a18', '#16502e', '#2a8a4e', '#4fd07c', '#7dffb0', '#d4ffe4', '#ffffff'],
+  rockfall: ['#1d1620', '#4a3a3c', '#7d6a66', '#b09c90', '#dccab4', '#f6ead2', '#ffffff'],
+  summon: ['#06202a', '#0c4256', '#147a96', '#20b4d6', '#29e3ff', '#bff6ff', '#ffffff'],
+  push: ['#0e1a2a', '#1e3656', '#3a5e8e', '#6a94c6', '#9fd0ff', '#e0f0ff', '#ffffff'],
+  pull: ['#1a0526', '#3d0a56', '#6a1e96', '#9a4ad6', '#b06bff', '#e4c8ff', '#ffffff'],
+};
+// Efecto píxel de cada poder: en el jefe (`mid`), donde sale cada pieza movida y donde cae.
+const PFX = {
+  quake: (mid, moved) => [{ pfx: 'groundSlam', at: mid, f: 2.4 }, ...moved.map(({ to }) => ({ pfx: 'heavyLanding', at: [to.row, to.col] }))],
+  charge: (mid, moved) => [{ pfx: 'groundSlam', at: mid, f: 1.8 }, ...moved.map(({ from }) => ({ pfx: 'bluntHit', at: [from.row, from.col], f: 1.2 }))],
+  heal: (mid) => [{ pfx: 'collectBurst', at: mid, f: 2 }],
+  rockfall: (mid, moved, cells) => cells.map((c) => ({ pfx: 'heavyLanding', at: c, f: 1.2 })),
+  summon: (mid, moved, cells) => [{ pfx: 'poof', at: mid, f: 1.6 }, ...cells.slice(0, 1).map((c) => ({ pfx: 'poof', at: c, f: 1.2 }))],
+  push: (mid, moved) => [{ pfx: 'groundSlam', at: mid, f: 1.6 }, ...moved.map(({ from }) => ({ pfx: 'bluntHit', at: [from.row, from.col] }))],
+  pull: (mid, moved) => [{ pfx: 'collectBurst', at: mid, f: 2.4 }, ...moved.map(({ from, to }) => [{ pfx: 'poof', at: [from.row, from.col] }, { pfx: 'hitSpark', at: [to.row, to.col] }]).flat()],
+};
 
 export function bossPower(m, mover) {
   const b = m.pieces.find((p) => p.boss && p.color === mover);
@@ -96,6 +116,7 @@ export function bossPower(m, mover) {
     // Rastro de cada pieza que el poder desplaza (atraída, empujada…), antes de que se mueva.
     const trails = out.moved.map(({ from, to }) => ({ trail: [[from.row, from.col], [to.row, to.col]], color: POWER_COLOR[def.power] }));
     if (trails.length) out.fx.splice(1, 0, def.power === 'pull' || def.power === 'quake' ? { ring: mid, color: POWER_COLOR[def.power], size: 2.4 } : {}, ...trails, { wait: 260 });
+    out.fx.splice(1, 0, ...PFX[def.power](mid, out.moved, plan.cells).map((e) => ({ ...e, palette: RAMP[def.power] })));
     if (def.power === 'summon' && cells0(plan)) out.fx.push({ beam: [mid, cells0(plan)], color: POWER_COLOR.summon });
     if (def.power === 'heal') out.fx.push({ sparkle: mid, color: POWER_COLOR.heal });
     out.log = def.powerName;

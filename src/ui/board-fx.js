@@ -24,6 +24,8 @@ export async function playFx(v, list = []) {
     if (e.trail) { const [f, to] = e.trail, a = pt(...f), b = pt(...to); if (a && b) {
         if (pixelArt() && v.fx.vfx) v.apk(playAPKPixelTrail, { row: f[0], col: f[1] }, { row: to[0], col: to[1] }, { colors: ['#ffffff', e.color || '#b06bff', '#2a1640'] });
         else v.fx.beam(a.x, a.y - v.sq * 0.3, b.x, b.y - v.sq * 0.3, { color: e.color || '#c58bff' }); } }
+    // pixelfx (vendor): { pfx: nombre, at: [r, c], palette, f } — f escala respecto a la casilla.
+    if (e.pfx) { const p = pt(...e.at); if (p) v.fx.pfx(e.pfx, p.x, p.y, { k: Math.min(1.4, Math.max(0.25, (e.f || 1) * v.sq / 120)), ...(e.palette && { palette: e.palette }) }); }
     if (e.banner) { const p = pt(e.banner[0], e.banner[1]); if (p) {
         if (pixelArt() && v.fx.vfx) v.apk(playAPKFloatingText, { row: e.banner[0], col: e.banner[1] }, e.banner[2], e.color || '#ffc83d');
         else v.floatText(p.x, p.y - v.sq * 1.1, e.banner[2]); } }
