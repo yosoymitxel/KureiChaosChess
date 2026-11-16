@@ -18,7 +18,7 @@ export const GARDEN_ITEMS = localize('gardenItems', {
   mallet: { id: 'mallet', name: 'Mazo de hierro', price: 140, desc: 'Parte piedras y losas de un solo golpe.' },
   glove: { id: 'glove', name: 'Guantes de jardinero', price: 180, desc: 'Mueven sin esperar y pueden llevar el estanque a otro sitio.' },
   can: { id: 'can', name: 'Regadera grande', price: 220, desc: 'Al regar, moja también los tiestos de al lado.' },
-  lantern: { id: 'lantern', name: 'Farol', price: 90, stack: true, desc: 'Va en tierra libre: lo que crece a su lado va un 25 % más rápido.' },
+  lantern: { id: 'lantern', name: 'Farol', price: 90, stack: true, desc: 'Va en tierra libre: lo que crece a su lado va un 15 % más rápido.' },
   pot: { id: 'pot', name: 'Maceta', price: 12, stack: true, desc: 'Va en tierra cavada con la pala; después se siembra.' },
 });
 
@@ -34,7 +34,7 @@ export const BUSH_MAX = 4;
 // Una maceta aguanta POT_LIFE flores cortadas y se agrieta: no se siembra hasta arreglarla con el mazo.
 export const POT_LIFE = 4;
 export const ROCK_HP = [2, 3];      // golpes de mazo para partirla
-export const LANTERN_BOOST = 1.25;  // crecimiento al lado de un farol
+export const LANTERN_BOOST = 1.15;  // crecimiento al lado de un farol
 // Cada planta pide agua WATER_STEPS veces: con agua crece hasta el siguiente tramo y ahí se para hasta
 // que la vuelvas a regar (como en el jardín de PvZ). Un jardín grande da más por visita.
 export const WATER_STEPS = 3;

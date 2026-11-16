@@ -503,7 +503,7 @@ export default {
     "zen.hammer": "Mallet",
     "zen.store": "Store",
     "zen.lanternName": "Lantern",
-    "zen.lanternInfo": "The eight squares around it grow 25% faster. Use Store to put it in your bag and place it elsewhere.",
+    "zen.lanternInfo": "The eight squares around it grow 15% faster. Use Store to put it in your bag and place it elsewhere.",
     "zen.bushName": "Bush",
     "zen.bushInfo": "In the way: cut it with the shears and you get soil to dig.",
     "zen.stoneName": "Slab",
@@ -1282,7 +1282,7 @@ export default {
     mallet: { name: 'Iron mallet', desc: 'Breaks rocks and slabs in a single blow.' },
     glove: { name: "Gardener's gloves", desc: 'Move things without waiting and can carry the pond elsewhere.' },
     can: { name: 'Big watering can', desc: 'Watering also soaks the pots next to it.' },
-    lantern: { name: 'Lantern', desc: 'Goes on free ground: whatever grows beside it grows 25% faster.' },
+    lantern: { name: 'Lantern', desc: 'Goes on free ground: whatever grows beside it grows 15% faster.' },
     pot: { name: 'Pot', desc: 'Goes on soil dug with the shovel; then you sow.' },
   },
 

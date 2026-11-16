@@ -202,11 +202,17 @@ export function zenHarvest(z, key, now = Date.now(), rng = Math.random) {
   if (stage !== 'bloom') return z;
   const pot = z.pots[key], sp = SEEDS[kind], again = (pot.regrown || 0) < (sp.regrow || 0);
   const back = rng() < SEED_BACK;
+  const wear = { ...(z.wear || {}) };
+  if (again) {
+    if ((wear[key] || 0) >= POT_LIFE) wear[key] = POT_LIFE - 1;
+  } else {
+    wear[key] = (wear[key] || 0) + 1;
+  }
   return {
     ...z,
     pots: { ...z.pots, [key]: again ? { kind, t: now, g: 0, regrown: (pot.regrown || 0) + 1 } : null },
     flores: { ...z.flores, [kind]: (z.flores[kind] || 0) + 1 },
-    wear: { ...(z.wear || {}), [key]: (z.wear?.[key] || 0) + 1 },
+    wear,
     seeds: back ? { ...z.seeds, [kind]: (z.seeds[kind] || 0) + 1 } : z.seeds,
     gift: back ? kind : null,
   };
