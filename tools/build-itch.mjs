@@ -5,6 +5,7 @@
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 
 import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -41,6 +42,7 @@ const VENDOR = {
 let page = readFileSync(join(root, 'index.html'), 'utf8');
 const before = page;
 page = page.replace(/<script type="importmap">[\s\S]*?<\/script>/, `<script type="importmap">\n  ${JSON.stringify({ imports: VENDOR })}\n  </script>`);
+page = page.replace(/'sha256-[^']*'/, `'sha256-${createHash('sha256').update(page.match(/<script type="importmap">([\s\S]*?)<\/script>/)[1]).digest('base64')}'`);
 page = page.replace(/\s*<link rel="preconnect"[^>]*>/g, '');
 page = page.replace(/<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com[^>]*>/, `<style>@font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 400 800; font-display: swap; src: url(vendor/fonts/bricolage-grotesque-latin.woff2) format('woff2'); }</style>`);
 page = page.replace(/\s*<!-- Dependencies come from the CDN[\s\S]*?-->/, '');

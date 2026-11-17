@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,6 +25,12 @@ function attribute(tag, name) {
 const html = read('index.html');
 const importMapMatch = html.match(/<script\s+type="importmap">\s*([\s\S]*?)\s*<\/script>/);
 assert.ok(importMapMatch, 'index.html must contain a valid import map');
+
+const importMapHash = 'sha256-' + createHash('sha256').update(html.match(/<script type="importmap">([\s\S]*?)<\/script>/)[1]).digest('base64');
+const csp = html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]*)"/)?.[1] || '';
+assert.ok(html.indexOf('Content-Security-Policy') < html.indexOf('<script'), 'The CSP meta must come before any script');
+assert.ok(csp.includes(`script-src 'self' '${importMapHash}';`), 'CSP script-src must be self plus the import map hash: ' + importMapHash);
+assert.ok(!/script-src[^;]*unsafe|default-src[^;]*(unsafe|\*)/.test(csp) && csp.includes("object-src 'none'") && csp.includes("base-uri 'self'"), 'CSP must stay strict');
 
 const importMap = JSON.parse(importMapMatch[1]);
 const expected = {
