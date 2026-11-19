@@ -75,7 +75,7 @@ export function newRace(kind = 'papel', key = 'normal', rng = Math.random, type)
   const diff = DIFFS[key] || DIFFS.normal, track = makeTrack(diff, rng, type);
   const kinds = [kind, ...RIVALS.map((k) => (k === kind ? 'balsa' : k))];
   // Los rivales van a la par del barco que llevas, a medias: uno mejor ayuda, pero no gana solo.
-  const top = diff.pace * (9 + (BOATS[kind].top - 9) * 0.5), p0 = track.line[0];
+  const top = diff.pace * (13.5 + (BOATS[kind].top - 13.5) * 0.5), p0 = track.line[0];
   const h = Math.atan2(p0.ty, p0.tx);
   const racers = kinds.map((k, i) => {
     const back = 3 + Math.floor(i / 2) * 5, side = (i % 2 ? 1 : -1) * LANE * 0.2;

@@ -40,6 +40,11 @@ export class School {
         const d = Math.hypot(o.x - f.x, o.y - f.y);
         if (d < len * 0.8 && d > 0) want += wrap(Math.atan2(f.y - o.y, f.x - o.x) - f.h) * 0.35 * (1 - d / (len * 0.8));
       }
+      // Barcos que pasan cerca: se apartan con un coletazo.
+      for (const o of this.avoid || []) {
+        const d = Math.hypot(o.x - f.x, o.y - f.y);
+        if (d < len * 1.3 && d > 0) { want += wrap(Math.atan2(f.y - o.y, f.x - o.x) - f.h) * 0.9; turn = 4; v = speed * 2.4; f.burst = 0.6; }
+      }
       // Orilla: dos sondas por delante; si una sale del agua, girar hacia la otra.
       const look = len * 0.9, L = inside(f.x + Math.cos(f.h - 0.6) * look, f.y + Math.sin(f.h - 0.6) * look), R = inside(f.x + Math.cos(f.h + 0.6) * look, f.y + Math.sin(f.h + 0.6) * look);
       if (!L || !R) { want = f.h + (L ? -1.4 : 1.4); turn = 3.2; v *= 0.8; }
@@ -60,11 +65,17 @@ function swim(f, dt) {
   f.phase += dt * (3 + Math.abs(f.v) * 0.9);
   const p = f.pts;
   p[0] = [f.x, f.y];
+  // Cada vértebra se dobla como mucho BEND respecto a la anterior: en un giro cerrado el cuerpo hace una
+  // curva de pez y no se enrosca sobre sí mismo.
+  let prev = null;
   for (let k = 1; k < N; k++) {
-    const a = Math.atan2(p[k - 1][1] - p[k][1], p[k - 1][0] - p[k][0]);
+    let a = Math.atan2(p[k - 1][1] - p[k][1], p[k - 1][0] - p[k][0]);
+    if (prev != null) a = prev + Math.max(-BEND, Math.min(BEND, wrap(a - prev)));
     p[k] = [p[k - 1][0] - Math.cos(a) * f.seg, p[k - 1][1] - Math.sin(a) * f.seg];
+    prev = a;
   }
 }
+const BEND = 0.22;
 
 // Variedades (Kohaku, Sanke, Showa, Ogon, Tancho, Shiro): cuerpo, acento, marca, aletas, y sus
 // manchas en el espacio del cuerpo: dónde (0 cabeza, 1 cola), largo, ancho, desvío lateral y color.

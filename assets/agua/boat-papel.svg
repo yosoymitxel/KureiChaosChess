@@ -1,9 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><title>Barquito de papel, desde arriba</title>
-<path d="M58 34 L46 46 L10 46 L18 34 L10 22 L46 22 Z" fill="#14191d" opacity="0.22" transform="translate(2 3)"/>
-<g stroke="#14191d" stroke-width="1" stroke-linejoin="round">
-<path id="hull" d="M58 32 L46 44 L10 44 L18 32 L10 20 L46 20 Z" fill="#f4f1e8"/>
-<path id="fold.top" d="M46 20 L32 32 L58 32 Z" fill="#ffffff"/>
-<path id="fold.bottom" d="M46 44 L32 32 L58 32 Z" fill="#c9c3b4"/>
-<path id="sail" d="M32 32 L24 22 L40 22 Z" fill="#e6e1d4"/>
-<path id="ridge" d="M18 32 L58 32" fill="none" stroke="#14191d" stroke-width="0.8"/></g>
+<desc>Casco de papel curvo con proa en punta; la vela de origami se alza en el centro y proyecta su sombra.</desc>
+<path id="shadow" d="M60 35 C54 27 42 24 14 25 L10 35 L14 45 C42 46 54 43 60 35 Z" fill="#14191d" opacity="0.22"/>
+<g stroke="#14191d" stroke-width="1.1" stroke-linejoin="round">
+<path id="hull" d="M58 32 C52 24 40 21 12 22 L8 32 L12 42 C40 43 52 40 58 32 Z" fill="#f4f0e4"/>
+<path id="hull.inside" d="M52 32 C47 27 38 25.5 16 26 L13.5 32 L16 38 C38 38.5 47 37 52 32 Z" fill="#ddd6c4" stroke-width="0.8"/>
+<path id="fold.stern" d="M12 22 L8 32 L12 42 L16 32 Z" fill="#e6e0cf" stroke-width="0.8"/></g>
+<path id="sail.cast" d="M18 32 L46 32 L38 42 Z" fill="#14191d" opacity="0.18"/>
+<g id="sail" stroke="#14191d" stroke-width="1" stroke-linejoin="round">
+<path id="sail.sun" d="M18 32 L33 26.5 L46 32 Z" fill="#ffffff"/>
+<path id="sail.shade" d="M18 32 L33 37.5 L46 32 Z" fill="#c9c1ad"/>
+<path d="M18 32 H46" fill="none" stroke-width="0.8"/></g>
 </svg>

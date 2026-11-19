@@ -22,6 +22,8 @@ export function drive(b, input, dt, inside, scale = 1) {
   const st = BOATS[b.kind] || BOATS.papel, { throttle, steer } = control(b, input);
   const want = throttle * st.top * scale * (throttle < 0 ? 0.4 : 1);
   b.v += (want - b.v) * Math.min(1, st.accel * dt);
+  // Escora: se inclina hacia dentro de la curva, más cuanto más corre (solo se dibuja).
+  b.lean = (b.lean || 0) + (steer * 0.18 * clamp(Math.abs(b.v) / st.top, 0, 1) - (b.lean || 0)) * Math.min(1, dt * 6);
   b.h = wrap(b.h + steer * st.turn * dt * clamp(Math.abs(b.v) / (st.top * 0.35), 0.25, 1) * Math.sign(b.v || 1));
   const fx = Math.cos(b.h) * b.v, fy = Math.sin(b.h) * b.v, k = Math.min(1, st.grip * dt);
   b.vx += (fx - b.vx) * k; b.vy += (fy - b.vy) * k;

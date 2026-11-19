@@ -75,6 +75,7 @@ export class Pond {
 
   step(dt, T) {
     this.onStep?.(dt, T);
+    this.school.avoid = this.boats;
     this.school.step(dt, T);
     // Estela de barcos y koi que corren: dos brazos en V que se abren, y una onda de vez en cuando.
     for (const w of this.wake) w.age += dt;
@@ -114,20 +115,23 @@ export class Pond {
 
   // Cámara de seguimiento: se acerca a `b` y gira con su rumbo, con suavidad; con `on` false vuelve
   // al encuadre de siempre (k = 0 es la vista entera, sin giro ni zoom).
-  follow(b, on, dt, zoom = 2.6) {
+  follow(b, on, dt, zoom) {
+    // Se ven unas 26 unidades de ancho o 40 de alto, lo que quepa: igual en el teléfono y en el PC.
+    zoom ??= Math.max(1.2, Math.min(this.W / 26, (this.vh || this.H) / 40));
     const c = this.cam ||= { x: b.x, y: b.y, rot: -Math.PI / 2 - b.h, k: 0 }, e = Math.min(1, dt * 5);
     c.k += ((on ? 1 : 0) - c.k) * Math.min(1, dt * 4);
     const d = ((-Math.PI / 2 - b.h - c.rot + Math.PI) % TAU + TAU) % TAU - Math.PI;
     c.rot += d * e; c.x += (b.x - c.x) * e; c.y += (b.y - c.y) * e;
     if (!on && c.k < 0.01) { this.view = null; this.cam = null; return; }
     const lerp = (a, z) => a + (z - a) * c.k;
-    this.view = { x: lerp(this.W / 2, c.x), y: lerp(this.H * 0.62, c.y), zoom: lerp(1, zoom), rot: c.rot * c.k };
+    const vh = this.vh || this.H;
+    this.view = { x: lerp(this.W / 2, c.x), y: lerp(vh * 0.62, c.y), zoom: lerp(1, zoom), rot: c.rot * c.k };
   }
-  // De un punto del lienzo (0..W, 0..H) al estanque, deshaciendo la cámara.
-  toWorld(x, y) {
-    const v = this.view;
+  // De un punto del lienzo (fracciones 0..1 de su caja) al estanque, deshaciendo la cámara.
+  toWorld(fx, fy) {
+    const v = this.view, vh = v ? this.vh || this.H : this.H, x = fx * this.W, y = fy * vh;
     if (!v) return [x, y];
-    const dx = (x - this.W / 2) / v.zoom, dy = (y - this.H * 0.62) / v.zoom, c = Math.cos(-v.rot), s = Math.sin(-v.rot);
+    const dx = (x - this.W / 2) / v.zoom, dy = (y - vh * 0.62) / v.zoom, c = Math.cos(-v.rot), s = Math.sin(-v.rot);
     return [v.x + dx * c - dy * s, v.y + dx * s + dy * c];
   }
   // Giro de la cámara: el joystick apunta en la pantalla y se pasa al estanque.
@@ -137,14 +141,16 @@ export class Pond {
     const { canvas, W, H } = this, box = canvas.getBoundingClientRect();
     // Vector: a la resolución de la pantalla. Píxel: dos píxeles por unidad del dibujo.
     const target = pixel ? this.lo : canvas, scale = pixel ? 2 : Math.max(2, (box.width * Math.min(2, devicePixelRatio || 1)) / W);
-    const cw = Math.round(W * scale), ch = Math.round(H * scale);
+    const v = this.view;
+    // Con cámara el lienzo puede tener otra forma (pantalla completa): el alto sale de su caja.
+    this.vh = v && box.width ? (W * box.height) / box.width : H;
+    const cw = Math.round(W * scale), ch = Math.round(this.vh * scale);
     if (target.width !== cw || target.height !== ch) { target.width = cw; target.height = ch; }
     const ctx = target.getContext('2d');
     ctx.setTransform(scale, 0, 0, scale, 0, 0);
-    const v = this.view;
     if (v) { // cámara que sigue a un barco: acercada y girada para que vaya hacia arriba
-      ctx.fillStyle = LAND.grass; ctx.fillRect(0, 0, W, H);
-      ctx.translate(W / 2, H * 0.62); ctx.rotate(v.rot); ctx.scale(v.zoom, v.zoom); ctx.translate(-v.x, -v.y);
+      ctx.fillStyle = LAND.grass; ctx.fillRect(0, 0, W, this.vh);
+      ctx.translate(W / 2, this.vh * 0.62); ctx.rotate(v.rot); ctx.scale(v.zoom, v.zoom); ctx.translate(-v.x, -v.y);
     }
     this.paint(ctx, T, pixel, scale);
     if (pixel) {
@@ -320,7 +326,7 @@ export function drawBoat(ctx, b, T, len, pixel) {
     ctx.beginPath(); ctx.arc(b.x, b.y, L * 0.85, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
   }
   const im = sprite(`boat-${b.kind}`);
-  if (im) return stamp(ctx, im, b.x, b.y, L / 0.75, b.h + rock);
+  if (im) return stamp(ctx, im, b.x, b.y, L / 0.75, b.h + rock + (b.lean || 0));
   ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.h + rock);
   const poly = (pts, fill) => { ctx.beginPath(); pts.forEach(([x, y], i) => (i ? ctx.lineTo(x * L, y * Wd) : ctx.moveTo(x * L, y * Wd))); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); };
   // Sombra corrida abajo a la derecha, como la de los peces.

@@ -1,11 +1,12 @@
 // Lo que rodea el agua en el Jardín de Agua y la carrera, dibujado en el lienzo del estanque (pond.decor):
 // así comparte luz, paleta y modo píxel con el agua. Lenguaje del agua: piedra redonda en el borde, hierba
 // con matas, juncos en las esquinas y madera para lo que se usa (muelle, salida).
-import { LAND } from './pond.js';
+import { LAND, sprite } from './pond.js';
 
 const TAU = Math.PI * 2;
 const rng = (seed) => () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
 
+function drawSprite(ctx, im, x, y, size, rot) { ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.drawImage(im, -size / 2, -size / 2, size, size); ctx.restore(); }
 function rock(ctx, x, y, r, rot) {
   ctx.fillStyle = 'rgba(20,25,29,0.3)'; ctx.beginPath(); ctx.ellipse(x + r * 0.2, y + r * 0.3, r, r * 0.8, rot, 0, TAU); ctx.fill();
   ctx.fillStyle = LAND.rock2; ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.82, rot, 0, TAU); ctx.fill();
@@ -77,14 +78,17 @@ export function raceDecor(W, H, track) {
     loop(ctx, track.outer.map((q, i) => ({ x: q.x + (q.x - track.line[i].x) * 0.16, y: q.y + (q.y - track.line[i].y) * 0.16 }))); ctx.closePath();
     loop(ctx, track.inner.map((q, i) => ({ x: q.x + (q.x - track.line[i].x) * 0.16, y: q.y + (q.y - track.line[i].y) * 0.16 }))); ctx.closePath();
     ctx.fill('evenodd');
-    tufts(ctx, grass, pixel);
-    for (const [x, y] of reedAt) reeds(ctx, x, y, 4 + (Math.round(x) % 3), T, pixel);
-    // Algas: matas que frenan, con hebras que ondulan.
-    ctx.lineWidth = pixel ? 0.5 : 0.35;
+    // Hierba: manchas de otro verde (sin rayitas) y matas de junco del mismo dibujo que el jardín.
+    ctx.fillStyle = LAND.grass2;
+    for (const [x, y] of grass) { ctx.beginPath(); ctx.ellipse(x, y, 2.2, 1.4, x, 0, TAU); ctx.fill(); }
+    const reed = sprite('junco-bud');
+    for (const [x, y] of reedAt) reed ? drawSprite(ctx, reed, x, y, 7, x) : reeds(ctx, x, y, 4, T, pixel);
+    // Algas que frenan: lenteja de agua con un par de nenúfares, los sprites de las plantas del jardín.
+    const duck = sprite('lenteja-bud'), pad = sprite('nenufar-bud');
     for (const w of track.weed) {
-      ctx.fillStyle = '#2f6b45'; ctx.globalAlpha = 0.55; ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
-      ctx.strokeStyle = '#4f9a5a';
-      for (let k = 0; k < 7; k++) { const a = k * 0.9, x = w.x + Math.cos(a) * w.r * 0.55, y = w.y + Math.sin(a) * w.r * 0.55; ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + Math.sin(T + k) * 0.8, y - 0.8, x + Math.cos(a) * 1.4, y + Math.sin(a) * 1.4); ctx.stroke(); }
+      if (!duck || !pad) { ctx.fillStyle = '#7fbf5a'; ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, TAU); ctx.fill(); continue; }
+      drawSprite(ctx, duck, w.x, w.y, w.r * 2.4, w.x + Math.sin(T * 0.3) * 0.05);
+      drawSprite(ctx, pad, w.x + w.r * 0.5, w.y - w.r * 0.3, w.r * 1.3, w.y);
     }
     for (const q of track.rocks) { rock(ctx, q.x, q.y, q.r, q.x); rock(ctx, q.x + q.r * 0.6, q.y + q.r * 0.4, q.r * 0.45, q.y); }
     // Salida: franja a cuadros de orilla a orilla, de través al canal.

@@ -6,9 +6,19 @@ import { School, spine, koiShape } from '../view/koi.js';
 // En píxel se pinta a 24 px y se amplía sin suavizar, como el estanque.
 export function Thumb({ plant, boat }) {
   const ref = useRef(null);
+  const src = () => new URL(`../../assets/agua/${plant ? plant + '-bloom' : 'boat-' + boat}.svg`, import.meta.url).href;
+  const pixel = document.documentElement.dataset.art === 'pixel';
   useEffect(() => {
-    if (boat !== 'koi') return;
-    const cv = ref.current, pixel = document.documentElement.dataset.art === 'pixel', n = pixel ? 24 : 96;
+    if (boat !== 'koi') {
+      // En píxel la SVG se baja a 24 px y se amplía sin suavizar: mismo grano que el estanque.
+      if (!pixel) return;
+      const cv = ref.current, im = new Image();
+      cv.width = cv.height = 24;
+      im.onload = () => { const c = cv.getContext('2d'); c.imageSmoothingEnabled = true; c.drawImage(im, 0, 0, 24, 24); };
+      im.src = src();
+      return;
+    }
+    const cv = ref.current, n = pixel ? 24 : 96;
     cv.width = cv.height = n;
     const ctx = cv.getContext('2d'), k = n / 12;
     ctx.setTransform(k, 0, 0, k, 0, 0);
@@ -23,6 +33,6 @@ export function Thumb({ plant, boat }) {
       ctx.beginPath(); sh.body.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.fillStyle = sh.kind.base; ctx.fill();
     } else drawBoat(ctx, { kind: boat, x: 6, y: 6, h: -Math.PI / 4, v: 0 }, 0, 11, pixel);
   }, [plant, boat]);
-  if (boat !== 'koi') return html`<img class="wt-thumb-cv" src=${new URL(`../../assets/agua/${plant ? plant + '-bloom' : 'boat-' + boat}.svg`, import.meta.url).href} alt="" />`;
+  if (boat !== 'koi' && !pixel) return html`<img class="wt-thumb-cv" src=${src()} alt="" />`;
   return html`<canvas class="wt-thumb-cv" ref=${ref} aria-hidden="true"></canvas>`;
 }

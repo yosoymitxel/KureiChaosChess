@@ -87,7 +87,7 @@ function Race({ kind, diff, onBack, again }) {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  return html`<div class="screen mini zen-screen">
+  return html`<div class=${'screen mini zen-screen' + (zoom && !over ? ' wt-full' : '')}>
     <${Topbar} title=${t('water.race', 'Carrera de barquitos')} sub=${BOATS[kind].name + ' · ' + DIFFS[diff].name} onBack=${onBack} />
     <div class="mini-body zen-body">
       <div class="mini-stats br-hud" aria-live="polite">
@@ -100,9 +100,9 @@ function Race({ kind, diff, onBack, again }) {
         ${hud.count > 0 && html`<b class="br-count">${hud.count}</b>`}
       </div>
       ${!over && html`<div class="br-pad"><${RcPad} input=${rc} zoom=${zoom} onZoom=${() => setZoom((z) => !z)}>
-        <button class=${'zn-tool-ic br-nitro' + (hud.boost ? ' on' : '') + (hud.cd > 0 ? ' zn-cool' : '')} disabled=${hud.cd > 0 || hud.count > 0}
-          style=${hud.cd > 0 ? { '--zn-rest': (hud.cd / NITRO.cooldown).toFixed(4) } : null} onClick=${() => nitro(s)} aria-label=${t('boatrace.nitro', 'Nitro')} title=${t('boatrace.nitro', 'Nitro')}>
-          <${Icon} name="meteor" size=${30} /></button><//></div>`}
+        <button class=${'zn-tool-ic br-nitro' + (hud.boost ? ' on' : '') + (hud.cd > 0 ? ' zn-cool' : '')} aria-disabled=${hud.cd > 0 || hud.count > 0}
+          style=${hud.cd > 0 ? { '--zn-rest': (hud.cd / NITRO.cooldown).toFixed(4) } : null} onPointerDown=${(e) => { e.preventDefault(); nitro(s); }} aria-label=${t('boatrace.nitro', 'Nitro')} title=${t('boatrace.nitro', 'Nitro')}>
+          <${Icon} name="meteor" size=${36} /></button><//></div>`}
     </div>
     ${over && html`<${MiniEnd} win=${over === 'win'} note=${over === 'win' ? t('boatrace.won', 'Primero en la meta: +{n} monedas.', { n: RACE_PRIZE[diff] }) : t('boatrace.lost', 'Llegaste {n}º.', { n: s.place })}
       label=${t('boatrace.again', 'Otra carrera')} onEnd=${again} />`}

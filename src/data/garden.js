@@ -67,11 +67,11 @@ export const WATER_SLOTS = [[9, 9], [30, 7], [51, 9], [53, 30], [51, 51], [30, 5
 // top: velocidad punta (unidades del estanque por segundo); accel: cuánto tarda en llegar; turn: giro (rad/s);
 // grip: cuánto se pega al rumbo (poco = derrapa). El koi no se compra: siempre puede correr.
 export const BOATS = localize('boats', {
-  papel: { id: 'papel', name: 'Barquito de papel', price: 150, top: 8, accel: 1.8, turn: 2.6, grip: 3, desc: 'Ligero y ágil, pero lento.' },
-  balsa: { id: 'balsa', name: 'Balsa de bambú', price: 400, top: 9, accel: 1.1, turn: 2.2, grip: 5, desc: 'Pesada: tarda en arrancar y no derrapa.' },
-  velero: { id: 'velero', name: 'Velero', price: 900, top: 12, accel: 0.8, turn: 1.7, grip: 2, desc: 'Rápido en recta; en las curvas se abre.' },
-  lancha: { id: 'lancha', name: 'Lancha', price: 1800, top: 14, accel: 2, turn: 2, grip: 3.5, desc: 'La más rápida y con buen giro.' },
-  koi: { id: 'koi', name: 'Koi', price: 0, top: 10, accel: 2.4, turn: 3.4, grip: 6, fish: true, desc: 'Nada ágil y gira en seco.' },
+  papel: { id: 'papel', name: 'Barquito de papel', price: 150, top: 12, accel: 2.5, turn: 3.4, grip: 3, desc: 'Ligero y ágil, pero lento.' },
+  balsa: { id: 'balsa', name: 'Balsa de bambú', price: 400, top: 14, accel: 1.5, turn: 2.9, grip: 5, desc: 'Pesada: tarda en arrancar y no derrapa.' },
+  velero: { id: 'velero', name: 'Velero', price: 900, top: 18, accel: 1.1, turn: 2.2, grip: 2, desc: 'Rápido en recta; en las curvas se abre.' },
+  lancha: { id: 'lancha', name: 'Lancha', price: 1800, top: 21, accel: 2.8, turn: 2.6, grip: 3.5, desc: 'La más rápida y con buen giro.' },
+  koi: { id: 'koi', name: 'Koi', price: 0, top: 15, accel: 3.4, turn: 4.4, grip: 6, fish: true, desc: 'Nada ágil y gira en seco.' },
 });
 // Monedas por ganar la carrera, según la dificultad.
 export const RACE_PRIZE = { facil: 10, normal: 20, dificil: 35 };
