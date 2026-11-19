@@ -27,10 +27,10 @@ export function BoatRaceScreen({ onBack }) {
   if (!pick) return html`<div class="screen mini zen-screen">
     <${Topbar} title=${t('water.race', 'Carrera de barquitos')} sub=${GARDENS.agua.name} onBack=${onBack} />
     <div class="mini-body zen-body"><div class="panel br-pick">
-      <p>${t('race.help', 'Dos vueltas a la isla pasando por las boyas en orden, contra dos barcos y un koi. Maneja con el mando o con las flechas. Gana y te llevas monedas.')}</p>
-      <h3>${t('race.diff', 'Dificultad')}</h3>
+      <p>${t('boatrace.help', 'Dos vueltas a la isla pasando por las boyas en orden, contra dos barcos y un koi. Maneja con el mando o con las flechas. Gana y te llevas monedas.')}</p>
+      <h3>${t('boatrace.diff', 'Dificultad')}</h3>
       <div class="garden-switch">${Object.entries(DIFFS).map(([k, d]) => html`<button class=${'btn sm' + (diff === k ? ' on' : ' ghost')} onClick=${() => setDiff(k)}>${d.name} · +${RACE_PRIZE[k]}</button>`)}</div>
-      <h3>${t('race.racer', 'Corredor')}</h3>
+      <h3>${t('boatrace.racer', 'Corredor')}</h3>
       <div class="zn-tools">${own.map((k) => html`<button class="zn-tool" title=${BOATS[k].desc} onClick=${() => setPick({ kind: k, diff })}><span class="zn-tool-ic"><${Icon} name=${BOATS[k].fish ? 'seed' : 'drop'} size=${20} /></span><span>${BOATS[k].name}</span></button>`)}</div>
     </div></div>
   </div>`;
@@ -83,8 +83,8 @@ function Race({ kind, diff, onBack, again }) {
     <${Topbar} title=${t('water.race', 'Carrera de barquitos')} sub=${BOATS[kind].name + ' · ' + DIFFS[diff].name} onBack=${onBack} />
     <div class="mini-body zen-body">
       <div class="mini-stats br-hud" aria-live="polite">
-        <span class="chip">${t('race.lap', 'Vuelta {n}/{of}', { n: hud.lap, of: LAPS })}</span>
-        <span class="chip">${t('race.place', 'Puesto {n}º', { n: hud.place })}</span>
+        <span class="chip">${t('boatrace.lap', 'Vuelta {n}/{of}', { n: hud.lap, of: LAPS })}</span>
+        <span class="chip">${t('boatrace.place', 'Puesto {n}º', { n: hud.place })}</span>
       </div>
       <div class="br-track">
         <canvas class="wt-cv" ref=${cvRef}></canvas>
@@ -93,7 +93,7 @@ function Race({ kind, diff, onBack, again }) {
       </div>
       ${!over && html`<div class="br-pad"><${RcPad} input=${rc} /></div>`}
     </div>
-    ${over && html`<${MiniEnd} win=${over === 'win'} note=${over === 'win' ? t('race.won', 'Primero en la meta: +{n} monedas.', { n: RACE_PRIZE[diff] }) : t('race.lost', 'Llegaste {n}º.', { n: s.place })}
-      label=${t('race.again', 'Otra carrera')} onEnd=${again} />`}
+    ${over && html`<${MiniEnd} win=${over === 'win'} note=${over === 'win' ? t('boatrace.won', 'Primero en la meta: +{n} monedas.', { n: RACE_PRIZE[diff] }) : t('boatrace.lost', 'Llegaste {n}º.', { n: s.place })}
+      label=${t('boatrace.again', 'Otra carrera')} onEnd=${again} />`}
   </div>`;
 }
