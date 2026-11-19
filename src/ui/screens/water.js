@@ -8,7 +8,6 @@ import { gardenDecor, gardenInside } from '../../view/water-art.js';
 import { Thumb } from '../water-thumb.js';
 import { reduced } from '../hop.js';
 import { Fx } from '../../view/fx.js';
-import { zenSky } from '../../game/zen.js';
 import { newBoat, drive } from '../../game/boats.js';
 import { bump } from '../../game/physics.js';
 import { RcPad, RcButton, useRcKeys } from '../rc-pad.js';
@@ -36,8 +35,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
   const zoomRef = useRef(false);
   zoomRef.current = zoom;
   const [, tick] = useState(0);
-  // Clima: el mismo del Jardín Zen (cielo compartido); en el agua la lluvia y la nieve dejan ondas.
-  const [sky] = useState(() => zenSky());
+  const [sky] = useState('pond'); // el clima «Estanque» (src/data/weather.js): nenúfares y ondas, el propio del agua
   const wrapRef = useRef(null);
   useEffect(() => { const fx = new Fx(wrapRef.current); Object.assign(fx, { vfx: true, noShade: true }); fx.setWeather(sky); return () => fx.destroy(); }, []);
   const plantedRef = useRef([]);
@@ -54,7 +52,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
     const inside = (x, y) => water(x, y) && !plantedRef.current.some(([px, py]) => Math.hypot(px - x, py - y) < 5.5);
     const pond = pondRef.current = new Pond(cvRef.current, { size: [S, S], inside: water, count: 4, len: 7.5, speed: 3.2, pads: [[24, 34, 2.2], [37, 24, 1.8]], duckweed: 12 });
     pond.decor = gardenDecor(S);
-    pond.rain = sky === 'rain' ? 9 : sky === 'snow' ? 2 : 0;
+    pond.rain = 1.5; // alguna gota suelta que deja onda
     pond.onStep = (dt) => {
       const inp = rc.current, rot = pond.view?.rot || 0, mine = inp?.aim != null ? { ...inp, aim: inp.aim - rot } : inp;
       pond.boats.forEach((b, i) => { b.sel = i === drivingRef.current; if (drive(b, b.sel ? mine : null, dt, inside) > 4) { playSfx('tap', 0.7); pond.ripple(b.x, b.y, 0.5); } });
