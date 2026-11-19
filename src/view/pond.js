@@ -13,9 +13,11 @@ const WATER = { deep: '#17414f', mid: '#245f6b', shallow: '#3a8584', light: '#bf
 const PAD = { base: '#4f8f3a', dark: '#36692a', light: '#86bd5c', vein: '#3a6f2c' };
 const LOTUS = { out: '#f3b8cd', in: '#fbe0ea', deep: '#df88aa', core: '#f2d36b' };
 // Barquitos (vista desde arriba): casco, cubierta, vela o cabina y su borde.
+const LAND = { grass: '#5c8f3e', grass2: '#4a7a33', tuft: '#7fb052', sand: '#d9c08a', sand2: '#bfa06a', rock: '#8c8a80', rock2: '#6a675f', plank: '#a87848', plank2: '#7a5232' };
+export { LAND };
 const REED = { stem: '#5f8a3a', dark: '#3f6a2a', head: '#6b4a2a', duck: '#9bd36a' };
 const BOAT = { paper: '#f4f1e8', fold: '#c9c3b4', wood: '#9a6a3c', dark: '#5e3f22', bamboo: '#c9b26a', sail: '#fbf7ee', red: '#d2483a', buoy: '#e8573f' };
-const PALETTE = [...new Set([...Object.values(WATER), ...Object.values(PAD), ...Object.values(LOTUS), ...Object.values(BOAT), ...Object.values(REED), ...KOI_KINDS.flatMap((k) => [k.base, k.accent, k.marking, k.fin]), '#171815', '#ffffff', '#2f7468', '#5aa39a', '#9a7b4c', '#7fc4a0'])]
+const PALETTE = [...new Set([...Object.values(WATER), ...Object.values(PAD), ...Object.values(LOTUS), ...Object.values(BOAT), ...Object.values(REED), ...Object.values(LAND), ...KOI_KINDS.flatMap((k) => [k.base, k.accent, k.marking, k.fin]), '#171815', '#ffffff', '#2f7468', '#5aa39a', '#9a7b4c', '#7fc4a0'])]
   .map((h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]);
 
 // Nenúfar: disco con su muesca, cara más clara arriba a la izquierda, nervios desde el centro.
@@ -59,6 +61,7 @@ export class Pond {
     this.plants = []; // plazas del Jardín de Agua: { x, y, kind, stage, grow } (sin kind: plaza libre)
     this.marks = []; // boyas de la carrera: { x, y, on }
     this.wake = [];  // estela: puntos que se abren y se apagan
+    this.decor = null;
     this.onStep = null; // quien maneja los barcos (jardín o carrera) antes de cada paso
   }
 
@@ -216,11 +219,12 @@ export class Pond {
       ctx.fillRect(s.x + Math.sin(T * 0.2 + s.ph) * 2, s.y, pixel ? 1 : len * 0.12, pixel ? 0.5 : len * 0.03);
     }
     ctx.globalAlpha = 1;
+    this.decor?.(ctx, T, pixel); // orilla, islas, muelles: lo que rodea el agua, en el mismo dibujo (y paleta)
   }
 }
 
 // Planta acuática según su etapa (brote, capullo, flor); la plaza libre es un aro punteado.
-function drawPlant(ctx, p, T, len, pixel) {
+export function drawPlant(ctx, p, T, len, pixel) {
   const u = len * 0.5, sway = Math.sin(T * 0.9 + p.x) * 0.06, g = p.stage === 'bloom' ? 1 : 0.35 + 0.65 * (p.grow || 0);
   if (!p.kind) {
     ctx.strokeStyle = '#ffffff'; ctx.globalAlpha = 0.35; ctx.lineWidth = pixel ? 0.5 : 0.18;
@@ -270,7 +274,7 @@ function drawBuoy(ctx, m, T, len) {
 }
 
 // Barquito visto desde arriba, apuntando a su rumbo; se mece y escora al girar.
-function drawBoat(ctx, b, T, len, pixel) {
+export function drawBoat(ctx, b, T, len, pixel) {
   const L = len * 0.85, Wd = L * 0.45, rock = Math.sin(T * 2.6 + b.x * 0.7) * 0.04;
   if (b.sel) { // el que se maneja: un aro que late debajo
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = pixel ? 0.5 : 0.25; ctx.globalAlpha = 0.45 + 0.3 * Math.sin(T * 5);

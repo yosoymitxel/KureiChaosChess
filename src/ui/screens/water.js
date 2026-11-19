@@ -4,6 +4,8 @@ import { html, useState, useEffect, useRef } from '../lib.js';
 import { Topbar, useEnter } from '../components.js';
 import { Icon } from '../icons.js';
 import { Pond, runPond } from '../../view/pond.js';
+import { gardenDecor, gardenInside } from '../../view/water-art.js';
+import { Thumb } from '../water-thumb.js';
 import { reduced } from '../hop.js';
 import { newBoat, drive } from '../../game/boats.js';
 import { RcPad, useRcKeys } from '../rc-pad.js';
@@ -14,7 +16,7 @@ import { addCoins, charge, loadShop } from '../../game/shop.js';
 import { playSfx } from '../sfx.js';
 import { t } from '../../i18n/index.js';
 
-const inside = (x, y) => x > 2 && y > 2 && x < S - 2 && y < S - 2;
+const inside = gardenInside(S);
 const KINDS = Object.keys(WATER_PLANTS);
 const mins = (ms) => Math.max(1, Math.ceil(ms / 60_000));
 
@@ -36,6 +38,7 @@ export function WaterScreen({ onBack, onGarden, onRace }) {
   // Estanque vivo: koi, nenúfares que derivan, barquitos y las plantas de cada plaza.
   useEffect(() => {
     const pond = pondRef.current = new Pond(cvRef.current, { size: [S, S], inside, count: 4, len: 7.5, speed: 3.2, pads: [[24, 34, 2.2], [37, 24, 1.8]], duckweed: 12 });
+    pond.decor = gardenDecor(S);
     pond.onStep = (dt) => pond.boats.forEach((b, i) => { b.sel = i === drivingRef.current; if (drive(b, b.sel ? rc.current : null, dt, inside) > 4) playSfx('tap', 0.7); });
     return runPond(pond, () => cvRef.current, reduced());
   }, []);
@@ -103,7 +106,7 @@ export function WaterScreen({ onBack, onGarden, onRace }) {
             <h3>${t('water.plants', 'Plantas acuáticas')}</h3>
             <div class="zn-tools">
               ${KINDS.map((k) => { const p = WATER_PLANTS[k]; return html`<button class=${'zn-tool' + (seed === k ? ' on' : '')} aria-pressed=${seed === k} title=${p.desc} onClick=${() => setSeed(k)}>
-                <span class="zn-tool-ic"><b>${w.seeds[k] || 0}</b></span><span>${p.name}</span></button>`; })}
+                <span class="zn-tool-ic wt-thumb"><${Thumb} plant=${k} /><b class="zn-packet-n">${w.seeds[k] || 0}</b></span><span>${p.name}</span></button>`; })}
             </div>
             <button class="zen-expand" onClick=${() => buy(WATER_PLANTS[seed].price, WATER_PLANTS[seed].name, () => apply(addWaterSeed(loadWater(), seed)))}>
               <${Icon} name="seed" size=${18} /><span class="zen-expand-text">${t('water.buySeed', 'Comprar {name}', { name: WATER_PLANTS[seed].name })}</span>
@@ -116,7 +119,7 @@ export function WaterScreen({ onBack, onGarden, onRace }) {
                 const own = w.boats.indexOf(b.id);
                 return html`<button class=${'zn-tool' + (own >= 0 && driving === own ? ' on' : '')} title=${b.desc}
                   onClick=${() => (own >= 0 ? setDriving(driving === own ? null : own) : buy(b.price, b.name, () => { apply(addBoat(loadWater(), b.id)); setMsg(t('zen.boatBought', '{name} al agua: tócalo para manejarlo.', { name: b.name })); }))}>
-                  <span class="zn-tool-ic"><${Icon} name=${own >= 0 ? 'drop' : 'coin'} size=${20} /></span>
+                  <span class=${'zn-tool-ic wt-thumb' + (own >= 0 ? '' : ' locked')}><${Thumb} boat=${b.id} /></span>
                   <span>${b.name}${own >= 0 ? '' : ` · ${b.price}`}</span></button>`;
               })}
             </div>

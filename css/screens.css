@@ -1730,7 +1730,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .garden-switch { display: flex; justify-content: center; gap: 6px; width: 100%; margin-block: 4px 8px; }
 .garden-switch .btn.on { background: var(--brass); color: var(--ink); }
 @media (max-width: 520px) { .garden-switch .btn { padding-inline: 8px; font-size: 11px; } }
-@media (min-width: 900px) { .rc-float { left: auto; right: 24px; translate: none; } }
+@media (min-width: 900px) { .rc-float { left: 24px; translate: none; } }
 
 /* Carrera de barquitos: el estanque en vertical, con orilla e isla encima y el mando debajo. */
 .br-pick { display: grid; gap: 12px; width: min(100%, 560px); margin: 16px auto; }
@@ -1745,3 +1745,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .br-count { position: absolute; inset: 0; display: grid; place-items: center; font-size: 72px; color: #fff; text-shadow: 0 4px 0 var(--ink); pointer-events: none; }
 .br-pad { display: flex; justify-content: center; padding-bottom: 12px; }
 [data-art="pixel"] .br-land { shape-rendering: crispEdges; }
+.wt-thumb { position: relative; overflow: hidden; padding: 0; }
+.wt-thumb-cv { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.wt-thumb .zn-packet-n { position: absolute; right: 1px; bottom: 1px; min-width: 0; height: auto; padding: 0 3px; font-size: 10px; line-height: 14px; border-radius: 4px; background: var(--ink); color: var(--paper); }
+.wt-thumb.locked .wt-thumb-cv { filter: grayscale(0.8) brightness(0.8); }

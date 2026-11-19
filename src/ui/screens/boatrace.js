@@ -4,6 +4,8 @@ import { html, useState, useEffect, useRef } from '../lib.js';
 import { Topbar, MiniEnd } from '../components.js';
 import { Icon } from '../icons.js';
 import { Pond } from '../../view/pond.js';
+import { raceDecor } from '../../view/water-art.js';
+import { Thumb } from '../water-thumb.js';
 import { RcPad, useRcKeys } from '../rc-pad.js';
 import { playSfx } from '../sfx.js';
 import { t } from '../../i18n/index.js';
@@ -12,13 +14,6 @@ import { W, H, LAPS, DIFFS, inside, buoys, ISLAND, SHORE, newRace, step, standin
 import { loadWater } from '../../game/water.js';
 import { addCoins } from '../../game/shop.js';
 
-// Orilla e isla encima del agua: un rectángulo con el hueco del canal y la isla con su borde de piedra.
-const LAND = html`<svg class="br-land" viewBox=${`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
-  <path fill-rule="evenodd" d=${`M0 0H${W}V${H}H0Z M${SHORE.cx - SHORE.rx} ${SHORE.cy}a${SHORE.rx} ${SHORE.ry} 0 1 0 ${SHORE.rx * 2} 0a${SHORE.rx} ${SHORE.ry} 0 1 0 ${-SHORE.rx * 2} 0Z`} class="br-shore" />
-  <ellipse cx=${ISLAND.cx} cy=${ISLAND.cy} rx=${ISLAND.rx + 0.8} ry=${ISLAND.ry + 0.8} class="br-rock" />
-  <ellipse cx=${ISLAND.cx} cy=${ISLAND.cy} rx=${ISLAND.rx - 0.6} ry=${ISLAND.ry - 0.6} class="br-isle" />
-  <path d=${`M${W / 2 + 2} ${ISLAND.cy + ISLAND.ry + 0.5}V${H - 2.5}`} class="br-start" />
-</svg>`;
 
 export function BoatRaceScreen({ onBack }) {
   const [pick, setPick] = useState(null); // { kind, diff } al empezar
@@ -31,7 +26,7 @@ export function BoatRaceScreen({ onBack }) {
       <h3>${t('boatrace.diff', 'Dificultad')}</h3>
       <div class="garden-switch">${Object.entries(DIFFS).map(([k, d]) => html`<button class=${'btn sm' + (diff === k ? ' on' : ' ghost')} onClick=${() => setDiff(k)}>${d.name} · +${RACE_PRIZE[k]}</button>`)}</div>
       <h3>${t('boatrace.racer', 'Corredor')}</h3>
-      <div class="zn-tools">${own.map((k) => html`<button class="zn-tool" title=${BOATS[k].desc} onClick=${() => setPick({ kind: k, diff })}><span class="zn-tool-ic"><${Icon} name=${BOATS[k].fish ? 'seed' : 'drop'} size=${20} /></span><span>${BOATS[k].name}</span></button>`)}</div>
+      <div class="zn-tools">${own.map((k) => html`<button class="zn-tool" title=${BOATS[k].desc} onClick=${() => setPick({ kind: k, diff })}><span class="zn-tool-ic wt-thumb"><${Thumb} boat=${k} /></span><span>${BOATS[k].name}</span></button>`)}</div>
     </div></div>
   </div>`;
   return html`<${Race} key=${pick.kind + pick.diff + (pick.n || 0)} ...${pick} onBack=${onBack} again=${() => setPick(null)} />`;
@@ -50,6 +45,7 @@ function Race({ kind, diff, onBack, again }) {
     pond.boats = s.racers.filter((r) => !r.fish);
     pond.school.fish.forEach((f, i) => { const r = fish[i]; f.ctl = true; f.pts = f.pts.map((_, k) => [r.x + k * f.seg, r.y]); f.kind = (i * 3 + 1) % 6; });
     pond.marks = buoys.map((b) => ({ ...b }));
+    pond.decor = raceDecor(W, H, SHORE, ISLAND, { x: W / 2 + 1.5, y0: ISLAND.cy + ISLAND.ry, y1: H - 2 });
     let raf, last = performance.now(), acc = 0;
     const pixel = () => document.documentElement.dataset.art === 'pixel';
     const frame = (now) => {
@@ -88,7 +84,6 @@ function Race({ kind, diff, onBack, again }) {
       </div>
       <div class="br-track">
         <canvas class="wt-cv" ref=${cvRef}></canvas>
-        ${LAND}
         ${hud.count > 0 && html`<b class="br-count">${hud.count}</b>`}
       </div>
       ${!over && html`<div class="br-pad"><${RcPad} input=${rc} /></div>`}
