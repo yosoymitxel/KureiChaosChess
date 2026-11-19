@@ -9,6 +9,9 @@ import { CARD_PRICE, COINS_PER_NODE, PENDING_LIMIT, THEME_SHOP, addPending, addT
 import { ZEN_KINDS, ZEN_NAMES, addZenSeeds, addZenItem, loadZen } from '../../game/zen.js';
 import { SEEDS, GARDEN_ITEMS } from '../../data/garden.js';
 import { chipArt, ITEM_ART } from '../zen-art.js';
+import { WATER_PLANTS, BOATS } from '../../data/garden.js';
+import { loadWater, saveWater, addWaterSeed, addBoat } from '../../game/water.js';
+import { Thumb } from '../water-thumb.js';
 import { playSfx } from '../sfx.js';
 import { t } from '../../i18n/index.js';
 
@@ -20,6 +23,15 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
   const [shop, setShop] = useState(loadShop);
   const [seeds, setSeeds] = useState(() => loadZen().seeds);
   const [items, setItems] = useState(() => loadZen().items);
+  const [water, setWater] = useState(loadWater);
+  // Jardín de Agua: semillas acuáticas (se acumulan) y barquitos (uno de cada).
+  const buyWater = (price, next) => {
+    if (!charge(price)) return;
+    const w = next(loadWater());
+    saveWater(w); setWater(w);
+    playSfx('coin');
+    refresh();
+  };
   const refresh = () => setShop(loadShop());
   const [seen] = useState(() => new Set([...seenCards()].filter((id) => CARDS[id])));
 
@@ -120,6 +132,30 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
               <div class="shop-info"><strong>${it.name}</strong><small>${it.desc}${it.stack && items[it.id] ? ' ' + t('shop.toPlace', 'Por poner: {n}.', { n: items[it.id] }) : ''}</small></div>
               ${owned ? html`<span class="price">${t('shop.owned', 'Tuya')}</span>` : html`<span class="price"><${Icon} name="coin" size=${14} />${it.price}</span>`}
               <button class="btn sm" disabled=${!can} title=${owned ? t('shop.have', 'Ya la tienes') : can ? '' : t('zen.noCoins', 'Faltan monedas.')} onClick=${() => buyItem(it.id)}>${t('shop.buy', 'Comprar')}</button>
+            </div>`;
+          })}
+        </section>
+
+        <section class="panel shop-card shop-pane-seeds" data-enter>
+          <h2>${t('shop.water', 'Jardín de Agua')}</h2>
+          <p class="shop-note">${t('shop.waterNote', 'Plantas para la orilla del estanque (crecen solas) y barquitos para manejar y correr.')}</p>
+          ${Object.values(WATER_PLANTS).map((p) => {
+            const can = shop.coins >= p.price;
+            return html`<div class="shop-row">
+              <span class="mod-icon seed-icon wt-thumb"><${Thumb} plant=${p.id} /></span>
+              <div class="shop-info"><strong>${p.name}</strong><small>${p.desc} ${t('shop.seedPays', 'Paga {n}. En la bolsa: {have}.', { n: p.pays, have: water.seeds[p.id] || 0 })}</small></div>
+              <span class="price"><${Icon} name="coin" size=${14} />${p.price}</span>
+              <button class="btn sm" disabled=${!can} onClick=${() => buyWater(p.price, (w) => addWaterSeed(w, p.id))}>${t('shop.buy', 'Comprar')}</button>
+            </div>`;
+          })}
+          <h2>${t('zen.boats', 'Barquitos')}</h2>
+          ${Object.values(BOATS).filter((b) => !b.fish).map((b) => {
+            const owned = water.boats.includes(b.id), can = !owned && shop.coins >= b.price;
+            return html`<div class="shop-row">
+              <span class="mod-icon seed-icon wt-thumb"><${Thumb} boat=${b.id} /></span>
+              <div class="shop-info"><strong>${b.name}</strong><small>${b.desc}</small></div>
+              ${owned ? html`<span class="price">${t('shop.owned', 'Tuya')}</span>` : html`<span class="price"><${Icon} name="coin" size=${14} />${b.price}</span>`}
+              <button class="btn sm" disabled=${!can} onClick=${() => buyWater(b.price, (w) => addBoat(w, b.id))}>${t('shop.buy', 'Comprar')}</button>
             </div>`;
           })}
         </section>

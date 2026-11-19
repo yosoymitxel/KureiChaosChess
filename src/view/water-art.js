@@ -58,29 +58,39 @@ export function gardenDecor(S) {
 export const gardenInside = (S) => (x, y) => x > GARDEN_EDGE && y > GARDEN_EDGE && x < S - GARDEN_EDGE && y < S - GARDEN_EDGE
   && !(x > PIER.x - 1.5 && x < PIER.x + PIER.w + 1.5 && y > PIER.y - 1.5);
 
-// Carrera: hierba fuera del canal, playa de arena en las dos orillas, piedras en la isla, juncos y salida a cuadros.
-export function raceDecor(W, H, shore, isle, start) {
-  const r = rng(11), ring = [], grass = [];
-  for (let a = 0; a < TAU; a += 0.22 + r() * 0.12) ring.push([isle.cx + Math.cos(a) * isle.rx, isle.cy + Math.sin(a) * isle.ry, 1.1 + r() * 0.9, r() * 3]);
-  for (let i = 0; i < 40; i++) {
-    const x = r() * W, y = r() * H, out = ((x - shore.cx) / shore.rx) ** 2 + ((y - shore.cy) / shore.ry) ** 2 > 1.08, inn = ((x - isle.cx) / (isle.rx - 2)) ** 2 + ((y - isle.cy) / (isle.ry - 2)) ** 2 < 1;
-    if (out || inn) grass.push([x, y]);
-  }
-  const ell = (e, d) => { ctx0.ellipse(e.cx, e.cy, e.rx + d, e.ry + d, 0, 0, TAU); };
-  let ctx0;
+// Carrera: hierba fuera del canal, playa de arena en sus dos orillas, rocas, algas, juncos y salida a cuadros.
+export function raceDecor(W, H, track) {
+  const r = rng(11), grass = [], reedAt = [];
+  const out = (x, y) => !track.line.some((p, i) => i % 3 === 0 && Math.hypot(p.x - x, p.y - y) < 10);
+  for (let i = 0; i < 90 && grass.length < 50; i++) { const x = r() * W, y = r() * H; if (out(x, y)) grass.push([x, y]); }
+  for (let i = 0; i < 40 && reedAt.length < 6; i++) { const x = 3 + r() * (W - 6), y = 5 + r() * (H - 8); if (out(x, y)) reedAt.push([x, y]); }
+  const loop = (ctx, pts) => pts.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+  const p0 = track.line[0];
   return (ctx, T, pixel) => {
-    ctx0 = ctx;
-    // Arena: un aro bajo la hierba que asoma por las dos orillas.
-    ctx.fillStyle = LAND.sand; ctx.beginPath(); ctx.rect(0, 0, W, H); ell(shore, -1.2); ctx.fill('evenodd');
-    ctx.beginPath(); ell(isle, 1.2); ctx.fill();
-    ctx.fillStyle = LAND.grass; ctx.beginPath(); ctx.rect(0, 0, W, H); ell(shore, 0.6); ctx.fill('evenodd');
-    ctx.beginPath(); ell(isle, -0.8); ctx.fill();
-    ctx.fillStyle = LAND.grass2; ctx.beginPath(); ell(isle, -4); ctx.fill();
+    // Arena: el canal un poco más ancho, bajo la hierba; la hierba deja ver el canal y la arena.
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = LAND.sand; ctx.lineWidth = 2.4;
+    for (const e of [track.outer, track.inner]) { ctx.beginPath(); loop(ctx, e); ctx.closePath(); ctx.stroke(); }
+    ctx.fillStyle = LAND.grass; ctx.beginPath(); ctx.rect(0, 0, W, H);
+    loop(ctx, track.outer.map((q, i) => ({ x: q.x + (q.x - track.line[i].x) * 0.16, y: q.y + (q.y - track.line[i].y) * 0.16 }))); ctx.closePath();
+    loop(ctx, track.inner.map((q, i) => ({ x: q.x + (q.x - track.line[i].x) * 0.16, y: q.y + (q.y - track.line[i].y) * 0.16 }))); ctx.closePath();
+    ctx.fill('evenodd');
     tufts(ctx, grass, pixel);
-    for (const s of ring) rock(ctx, ...s);
-    reeds(ctx, 6, 10, 5, T, pixel); reeds(ctx, W - 6, H - 8, 6, T, pixel); reeds(ctx, isle.cx, isle.cy - 6, 4, T, pixel);
-    // Salida: franja a cuadros de la isla a la orilla.
-    const s = 1.2;
-    for (let y = start.y0, i = 0; y < start.y1; y += s, i++) for (let j = 0; j < 2; j++) { ctx.fillStyle = (i + j) % 2 ? '#14191d' : '#ffffff'; ctx.fillRect(start.x + j * s, y, s, s); }
+    for (const [x, y] of reedAt) reeds(ctx, x, y, 4 + (Math.round(x) % 3), T, pixel);
+    // Algas: matas que frenan, con hebras que ondulan.
+    ctx.lineWidth = pixel ? 0.5 : 0.35;
+    for (const w of track.weed) {
+      ctx.fillStyle = '#2f6b45'; ctx.globalAlpha = 0.55; ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+      ctx.strokeStyle = '#4f9a5a';
+      for (let k = 0; k < 7; k++) { const a = k * 0.9, x = w.x + Math.cos(a) * w.r * 0.55, y = w.y + Math.sin(a) * w.r * 0.55; ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + Math.sin(T + k) * 0.8, y - 0.8, x + Math.cos(a) * 1.4, y + Math.sin(a) * 1.4); ctx.stroke(); }
+    }
+    for (const q of track.rocks) { rock(ctx, q.x, q.y, q.r, q.x); rock(ctx, q.x + q.r * 0.6, q.y + q.r * 0.4, q.r * 0.45, q.y); }
+    // Salida: franja a cuadros de orilla a orilla, de través al canal.
+    const s = 1.1, nx = -p0.ty, ny = p0.tx, n = Math.round(15 / s);
+    for (let i = 0; i < n; i++) for (let j = 0; j < 2; j++) {
+      ctx.fillStyle = (i + j) % 2 ? '#14191d' : '#ffffff';
+      const x = p0.x + nx * (i - n / 2) * s + p0.tx * j * s, y = p0.y + ny * (i - n / 2) * s + p0.ty * j * s;
+      ctx.fillRect(x - s / 2, y - s / 2, s, s);
+    }
   };
 }

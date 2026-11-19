@@ -198,20 +198,19 @@ src/game/blizzard.js:31 +shortest
 src/game/blizzard.js:51 +newBlizzard
 src/game/blizzard.js:74 +look
 src/game/blizzard.js:79 +move
-## src/game/boatrace.js (75L)
-src/game/boatrace.js:7 +W
-src/game/boatrace.js:8 CX
-src/game/boatrace.js:9 BUOYS
-src/game/boatrace.js:11 +inside
-src/game/boatrace.js:12 +ISLAND
-src/game/boatrace.js:14 +buoys
-src/game/boatrace.js:17 +DIFFS
-src/game/boatrace.js:22 RIVALS
-src/game/boatrace.js:24 +newRace
-src/game/boatrace.js:35 +aim
-src/game/boatrace.js:39 bot
-src/game/boatrace.js:42 +step
-src/game/boatrace.js:71 +standing
+## src/game/boatrace.js (121L)
+src/game/boatrace.js:9 +W
+src/game/boatrace.js:10 N
+src/game/boatrace.js:12 +TRACKS
+src/game/boatrace.js:19 +DIFFS
+src/game/boatrace.js:24 RIVALS
+src/game/boatrace.js:26 +makeTrack
+src/game/boatrace.js:55 +newRace
+src/game/boatrace.js:70 +aim
+src/game/boatrace.js:81 bot
+src/game/boatrace.js:82 slowed
+src/game/boatrace.js:85 +step
+src/game/boatrace.js:117 +standing
 ## src/game/boats.js (35L)
 src/game/boats.js:5 TAU
 src/game/boats.js:6 +wrap
@@ -898,7 +897,7 @@ src/game/zen.js:374 +addZenSeeds
 src/game/zen.js:381 +pickSeed
 src/game/zen.js:389 +koiHungry
 src/game/zen.js:390 +feedKoi
-## src/i18n/en.js (1369L)
+## src/i18n/en.js (1372L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -1168,10 +1167,9 @@ src/ui/screens/blind.js:17 +BlindScreen
 ## src/ui/screens/blizzard.js (84L)
 src/ui/screens/blizzard.js:12 KEYS
 src/ui/screens/blizzard.js:14 +BlizzardScreen
-## src/ui/screens/boatrace.js (100L)
-src/ui/screens/boatrace.js:16 LAND
-src/ui/screens/boatrace.js:23 +BoatRaceScreen
-src/ui/screens/boatrace.js:40 Race
+## src/ui/screens/boatrace.js (96L)
+src/ui/screens/boatrace.js:18 +BoatRaceScreen
+src/ui/screens/boatrace.js:35 Race
 ## src/ui/screens/bomber.js (143L)
 src/ui/screens/bomber.js:13 KEYS
 src/ui/screens/bomber.js:14 PAD
@@ -1290,9 +1288,9 @@ src/ui/screens/setup.js:220 Backup
 src/ui/screens/setup.js:293 ProgressChoice
 src/ui/screens/setup.js:311 Slots
 src/ui/screens/setup.js:332 Cloud
-## src/ui/screens/shop.js (145L)
-src/ui/screens/shop.js:15 CARD_LIST
-src/ui/screens/shop.js:17 +ShopScreen
+## src/ui/screens/shop.js (181L)
+src/ui/screens/shop.js:18 CARD_LIST
+src/ui/screens/shop.js:20 +ShopScreen
 ## src/ui/screens/tenpin.js (132L)
 src/ui/screens/tenpin.js:12 css
 src/ui/screens/tenpin.js:13 pct
@@ -1309,11 +1307,11 @@ src/ui/screens/turn-minis.js:16 +PdodgeScreen
 src/ui/screens/turn-minis.js:17 +ParkourScreen
 src/ui/screens/turn-minis.js:18 +BlasterScreen
 src/ui/screens/turn-minis.js:19 +HordeScreen
-## src/ui/screens/water.js (133L)
-src/ui/screens/water.js:17 inside
-src/ui/screens/water.js:18 KINDS
-src/ui/screens/water.js:19 mins
-src/ui/screens/water.js:21 +WaterScreen
+## src/ui/screens/water.js (130L)
+src/ui/screens/water.js:19 inside
+src/ui/screens/water.js:20 KINDS
+src/ui/screens/water.js:21 mins
+src/ui/screens/water.js:23 +WaterScreen
 ## src/ui/screens/zen.js (716L)
 src/ui/screens/zen.js:20 ETAPAS
 src/ui/screens/zen.js:22 TOOLS
@@ -1377,6 +1375,8 @@ src/ui/table-kit.js:33 +slingshot
 src/ui/table-kit.js:81 +corners
 src/ui/table-kit.js:84 homography
 src/ui/table-kit.js:102 +toTable
+## src/ui/water-thumb.js (27L)
+src/ui/water-thumb.js:7 +Thumb
 ## src/ui/zen-art.js (266L)
 src/ui/zen-art.js:8 +HEAD
 src/ui/zen-art.js:14 +chipArt
@@ -1487,24 +1487,37 @@ src/view/piece-art.js:109 +pieceSVG
 src/view/piece-art.js:123 +headTop
 src/view/piece-art.js:125 +RAW_BODIES
 src/view/piece-art.js:129 +artOf
-## src/view/pond.js (346L)
+## src/view/pond.js (350L)
 src/view/pond.js:9 TAU
 src/view/pond.js:10 rnd
 src/view/pond.js:12 WATER
 src/view/pond.js:13 PAD
 src/view/pond.js:14 LOTUS
-src/view/pond.js:16 REED
-src/view/pond.js:17 BOAT
-src/view/pond.js:18 PALETTE
-src/view/pond.js:22 +drawPad
-src/view/pond.js:36 +drawLotus
-src/view/pond.js:45 +Pond
-src/view/pond.js:223 drawPlant
-src/view/pond.js:259 drawBuoy
-src/view/pond.js:273 drawBoat
-src/view/pond.js:308 outline
-src/view/pond.js:316 quantize
-src/view/pond.js:333 +runPond
+src/view/pond.js:16 LAND
+src/view/pond.js:18 REED
+src/view/pond.js:19 BOAT
+src/view/pond.js:20 PALETTE
+src/view/pond.js:24 +drawPad
+src/view/pond.js:38 +drawLotus
+src/view/pond.js:47 +Pond
+src/view/pond.js:227 +drawPlant
+src/view/pond.js:263 drawBuoy
+src/view/pond.js:277 +drawBoat
+src/view/pond.js:312 outline
+src/view/pond.js:320 quantize
+src/view/pond.js:337 +runPond
+## src/view/water-art.js (97L)
+src/view/water-art.js:6 TAU
+src/view/water-art.js:7 rng
+src/view/water-art.js:9 rock
+src/view/water-art.js:14 tufts
+src/view/water-art.js:18 reeds
+src/view/water-art.js:28 planks
+src/view/water-art.js:38 +PIER
+src/view/water-art.js:39 +GARDEN_EDGE
+src/view/water-art.js:40 +gardenDecor
+src/view/water-art.js:58 +gardenInside
+src/view/water-art.js:62 +raceDecor
 ## src/view/weather-fx.js (399L)
 src/view/weather-fx.js:8 G
 src/view/weather-fx.js:9 TAU
@@ -1629,7 +1642,7 @@ css/pixel.css:85 /* Sombra de la pieza y koi del estanque del tablero, sin degra
 css/pixel.css:87 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
 css/pixel.css:90 /* El ::before va fuera de :is(), que no admite pseudoelementos
 ## css/proto-diamond.css (83L)
-## css/screens.css (1748L)
+## css/screens.css (1752L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
 css/screens.css:12 /* Menu: asymmetric, the diorama is the focal point and the tit

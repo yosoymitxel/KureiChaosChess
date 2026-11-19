@@ -11,8 +11,8 @@ import { newBoat, drive } from '../../game/boats.js';
 import { RcPad, useRcKeys } from '../rc-pad.js';
 import { GardenSwitch } from '../garden-switch.js';
 import { GARDENS, WATER_PLANTS, WATER_SLOTS, WATER_SIZE as S, BOATS } from '../../data/garden.js';
-import { loadWater, saveWater, waterStage, waterSow, waterHarvest, addWaterSeed, addBoat, waterFeed, waterKoiHungry } from '../../game/water.js';
-import { addCoins, charge, loadShop } from '../../game/shop.js';
+import { loadWater, saveWater, waterStage, waterSow, waterHarvest, waterFeed, waterKoiHungry } from '../../game/water.js';
+import { addCoins, loadShop } from '../../game/shop.js';
 import { playSfx } from '../sfx.js';
 import { t } from '../../i18n/index.js';
 
@@ -20,7 +20,7 @@ const inside = gardenInside(S);
 const KINDS = Object.keys(WATER_PLANTS);
 const mins = (ms) => Math.max(1, Math.ceil(ms / 60_000));
 
-export function WaterScreen({ onBack, onGarden, onRace }) {
+export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
   const ref = useRef(null), cvRef = useRef(null), pondRef = useRef(null);
   useEnter(ref);
   const [w, setW] = useState(loadWater);
@@ -53,13 +53,6 @@ export function WaterScreen({ onBack, onGarden, onRace }) {
   useEffect(() => { if (pondRef.current) pondRef.current.plants = WATER_SLOTS.map(([x, y], i) => ({ x, y, ...waterStage(w, i, Date.now()) })); });
 
   const pay = (n) => setCoins(addCoins(n));
-  const buy = (price, name, then) => {
-    if (coins < price) return setMsg(t('water.short', '{name} cuesta {cost} monedas: te faltan {n}.', { name, cost: price, n: price - coins }));
-    if (!charge(price)) return;
-    setCoins(loadShop().coins);
-    playSfx('coin');
-    then();
-  };
 
   const tap = (e) => {
     const r = cvRef.current.getBoundingClientRect(), x = ((e.clientX - r.left) / r.width) * S, y = ((e.clientY - r.top) / r.height) * S;
@@ -67,7 +60,7 @@ export function WaterScreen({ onBack, onGarden, onRace }) {
     if (slot >= 0) {
       const st = waterStage(w, slot);
       if (st.stage === 'empty') {
-        if (!(w.seeds[seed] > 0)) return setMsg(t('water.noSeed', 'No te quedan semillas de {name}: cómpralas abajo.', { name: WATER_PLANTS[seed].name }));
+        if (!(w.seeds[seed] > 0)) return setMsg(t('water.noSeed', 'No te quedan semillas de {name}: cómpralas en la tienda.', { name: WATER_PLANTS[seed].name }));
         apply(waterSow(w, slot, seed)); playSfx('dig');
         return setMsg(t('water.sown', '{name} plantado: crece solo, sin riego.', { name: WATER_PLANTS[seed].name }));
       }
@@ -88,7 +81,7 @@ export function WaterScreen({ onBack, onGarden, onRace }) {
 
   return html`<div class="screen mini zen-screen water-screen" ref=${ref}>
     <${Topbar} title=${GARDENS.agua.name} onBack=${onBack}>
-      <span class="coin-chip"><${Icon} name="coin" size=${16} /><b>${coins}</b></span>
+      <button class="coin-chip" title=${t('zen.shop', 'Tienda del jardín')} aria-label=${t('zen.coinsShop', '{n} monedas: abrir la tienda', { n: coins })} onClick=${onShop}><${Icon} name="coin" size=${16} /><b>${coins}</b></button>
     </${Topbar}>
     <div class="mini-body zen-body">
       <${GardenSwitch} current="agua" onGarden=${onGarden} />
@@ -108,9 +101,6 @@ export function WaterScreen({ onBack, onGarden, onRace }) {
               ${KINDS.map((k) => { const p = WATER_PLANTS[k]; return html`<button class=${'zn-tool' + (seed === k ? ' on' : '')} aria-pressed=${seed === k} title=${p.desc} onClick=${() => setSeed(k)}>
                 <span class="zn-tool-ic wt-thumb"><${Thumb} plant=${k} /><b class="zn-packet-n">${w.seeds[k] || 0}</b></span><span>${p.name}</span></button>`; })}
             </div>
-            <button class="zen-expand" onClick=${() => buy(WATER_PLANTS[seed].price, WATER_PLANTS[seed].name, () => apply(addWaterSeed(loadWater(), seed)))}>
-              <${Icon} name="seed" size=${18} /><span class="zen-expand-text">${t('water.buySeed', 'Comprar {name}', { name: WATER_PLANTS[seed].name })}</span>
-              <b class="zen-cost"><${Icon} name="coin" size=${13} />${WATER_PLANTS[seed].price}</b></button>
           </section>
           <section class="zn-sec" aria-label=${t('zen.boats', 'Barquitos')}>
             <h3>${t('zen.boats', 'Barquitos')}</h3>
@@ -118,12 +108,16 @@ export function WaterScreen({ onBack, onGarden, onRace }) {
               ${Object.values(BOATS).filter((b) => !b.fish).map((b) => {
                 const own = w.boats.indexOf(b.id);
                 return html`<button class=${'zn-tool' + (own >= 0 && driving === own ? ' on' : '')} title=${b.desc}
-                  onClick=${() => (own >= 0 ? setDriving(driving === own ? null : own) : buy(b.price, b.name, () => { apply(addBoat(loadWater(), b.id)); setMsg(t('zen.boatBought', '{name} al agua: tócalo para manejarlo.', { name: b.name })); }))}>
+                  onClick=${() => (own >= 0 ? setDriving(driving === own ? null : own) : onShop())}>
                   <span class=${'zn-tool-ic wt-thumb' + (own >= 0 ? '' : ' locked')}><${Thumb} boat=${b.id} /></span>
                   <span>${b.name}${own >= 0 ? '' : ` · ${b.price}`}</span></button>`;
               })}
             </div>
           </section>
+          <button class="zen-shop" onClick=${onShop}>
+            <span class="zen-shop-text"><strong>${t('zen.shop', 'Tienda del jardín')}</strong><small>${t('water.shopSub', 'Plantas acuáticas y barquitos')}</small></span>
+            <span class="zen-shop-coins"><${Icon} name="coin" size=${16} />${coins}</span>
+          </button>
           ${onRace && html`<button class="zen-shop" onClick=${onRace}>
             <span class="zen-shop-text"><strong>${t('water.race', 'Carrera de barquitos')}</strong><small>${t('water.raceSub', 'Barcos y koi en el estanque grande')}</small></span>
             <${Icon} name="rush" size=${22} /></button>`}
