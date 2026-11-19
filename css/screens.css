@@ -1722,3 +1722,12 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .rc-pad { position: relative; width: 112px; aspect-ratio: 1; border: 2px solid var(--ink); border-radius: 50%; background: color-mix(in oklch, var(--paper), transparent 25%); box-shadow: inset 0 3px 0 oklch(0 0 0 / 0.15); touch-action: none; cursor: grab; }
 .rc-pad i { position: absolute; inset: 32%; border: 2px solid var(--ink); border-radius: 50%; background: var(--brass); box-shadow: 0 3px 0 var(--ink); pointer-events: none; }
 .rc-float { position: fixed; z-index: 30; bottom: max(16px, env(safe-area-inset-bottom)); left: 50%; translate: -50% 0; padding: 10px 14px; border: 2px solid var(--ink); border-radius: 14px; background: var(--paper); box-shadow: 0 4px 0 var(--ink); }
+
+/* Jardín de Agua: el estanque entero en un marco de madera, como la bandeja del Zen. */
+.wt-pond { position: relative; width: min(100%, 560px, calc(100dvh - 260px)); aspect-ratio: 1; margin-inline: auto; border-radius: 6px; overflow: hidden; cursor: pointer; touch-action: manipulation;
+  box-shadow: 0 0 0 2px var(--ink), 0 0 0 7px color-mix(in oklch, var(--wood), white 12%), 0 0 0 13px var(--wood), 0 0 0 15px var(--ink), 0 14px 30px oklch(0 0 0 / 0.45); margin-block: 16px; }
+.wt-cv { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.garden-switch { display: flex; justify-content: center; gap: 6px; width: 100%; margin-block: 4px 8px; }
+.garden-switch .btn.on { background: var(--brass); color: var(--ink); }
+@media (max-width: 520px) { .garden-switch .btn { padding-inline: 8px; font-size: 11px; } }
+@media (min-width: 900px) { .rc-float { left: auto; right: 24px; translate: none; } }

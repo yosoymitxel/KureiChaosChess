@@ -9,7 +9,7 @@ src/data/bosses.js:6 +BOSSES
 src/data/bosses.js:36 +BOSS_IDS
 ## src/data/filters.js (16L)
 src/data/filters.js:4 +FILTERS
-## src/data/garden.js (55L)
+## src/data/garden.js (78L)
 src/data/garden.js:9 +SEEDS
 src/data/garden.js:16 +GARDEN_ITEMS
 src/data/garden.js:26 +SEED_BACK
@@ -26,19 +26,23 @@ src/data/garden.js:42 +KOI_HUNGER_MS
 src/data/garden.js:43 +KOI_COINS
 src/data/garden.js:45 +LAKE_MAX
 src/data/garden.js:46 +lakeCost
-src/data/garden.js:50 +GARDENS
-src/data/garden.js:54 +RACE_PRIZE
+src/data/garden.js:49 +GARDENS
+src/data/garden.js:56 +WATER_PLANTS
+src/data/garden.js:63 +WATER_SIZE
+src/data/garden.js:64 +WATER_SLOTS
+src/data/garden.js:69 +BOATS
+src/data/garden.js:77 +RACE_PRIZE
 ## src/data/mates.js (3L)
 src/data/mates.js:2 +MATES
-## src/data/minigame-catalog.js (41L)
-src/data/minigame-catalog.js:30 SCREENS
-src/data/minigame-catalog.js:40 +MINIGAMES
-## src/data/modifiers.js (96L)
+## src/data/minigame-catalog.js (40L)
+src/data/minigame-catalog.js:29 SCREENS
+src/data/minigame-catalog.js:39 +MINIGAMES
+## src/data/modifiers.js (95L)
 src/data/modifiers.js:2 +MODIFIERS
-src/data/modifiers.js:83 +nodeModifier
-src/data/modifiers.js:90 +BOARD_MECHANICS
-src/data/modifiers.js:93 +FEATURED_MECHANICS
-src/data/modifiers.js:95 +DUO_MECHANICS
+src/data/modifiers.js:82 +nodeModifier
+src/data/modifiers.js:89 +BOARD_MECHANICS
+src/data/modifiers.js:92 +FEATURED_MECHANICS
+src/data/modifiers.js:94 +DUO_MECHANICS
 ## src/data/mutations.js (53L)
 src/data/mutations.js:4 +MUTATIONS
 src/data/mutations.js:16 KEYS
@@ -121,32 +125,32 @@ src/game/achievements.js:131 +seePieces
 src/game/achievements.js:139 MUT_KEY
 src/game/achievements.js:140 +loadMutSeen
 src/game/achievements.js:141 +seeMutations
-## src/game/backup.js (267L)
+## src/game/backup.js (269L)
 src/game/backup.js:2 MAGIC_V1
 src/game/backup.js:3 MAGIC_V2
 src/game/backup.js:4 MAX_BACKUP_BYTES
 src/game/backup.js:5 MAX_COMPRESSED_BYTES
 src/game/backup.js:6 +MAX_BACKUP_CODE_CHARS
 src/game/backup.js:8 KEY_LIMITS
-src/game/backup.js:22 ROOT_TYPES
-src/game/backup.js:36 encoder
-src/game/backup.js:37 decoder
-src/game/backup.js:39 toBase64
-src/game/backup.js:47 fromBase64
-src/game/backup.js:64 readStreamLimited
-src/game/backup.js:93 inflate
-src/game/backup.js:99 inspectJson
-src/game/backup.js:144 validateSnapshot
-src/game/backup.js:176 saveData
-src/game/backup.js:185 +exportSave
-src/game/backup.js:204 +decodeSave
-src/game/backup.js:218 +localSaveData
-src/game/backup.js:221 +summarizeSave
-src/game/backup.js:228 +sameProgress
-src/game/backup.js:236 +importSave
-src/game/backup.js:245 SLOT_KEYS
-src/game/backup.js:247 +slotSnapshot
-src/game/backup.js:254 +slotRestore
+src/game/backup.js:23 ROOT_TYPES
+src/game/backup.js:38 encoder
+src/game/backup.js:39 decoder
+src/game/backup.js:41 toBase64
+src/game/backup.js:49 fromBase64
+src/game/backup.js:66 readStreamLimited
+src/game/backup.js:95 inflate
+src/game/backup.js:101 inspectJson
+src/game/backup.js:146 validateSnapshot
+src/game/backup.js:178 saveData
+src/game/backup.js:187 +exportSave
+src/game/backup.js:206 +decodeSave
+src/game/backup.js:220 +localSaveData
+src/game/backup.js:223 +summarizeSave
+src/game/backup.js:230 +sameProgress
+src/game/backup.js:238 +importSave
+src/game/backup.js:247 SLOT_KEYS
+src/game/backup.js:249 +slotSnapshot
+src/game/backup.js:256 +slotRestore
 ## src/game/barrier.js (111L)
 src/game/barrier.js:2 +N
 src/game/barrier.js:4 +DIFFS
@@ -194,6 +198,13 @@ src/game/blizzard.js:31 +shortest
 src/game/blizzard.js:51 +newBlizzard
 src/game/blizzard.js:74 +look
 src/game/blizzard.js:79 +move
+## src/game/boats.js (35L)
+src/game/boats.js:5 TAU
+src/game/boats.js:6 +wrap
+src/game/boats.js:7 clamp
+src/game/boats.js:9 +newBoat
+src/game/boats.js:12 +control
+src/game/boats.js:21 +drive
 ## src/game/bomber.js (264L)
 src/game/bomber.js:5 FUSE
 src/game/bomber.js:6 L_JUMP
@@ -447,7 +458,7 @@ src/game/golf.js:28 center
 src/game/golf.js:29 +tileAt
 src/game/golf.js:35 +moverAt
 src/game/golf.js:40 bounce
-src/game/golf.js:48 +roll
+src/game/golf.js:48 roll
 src/game/golf.js:80 +simulate
 src/game/golf.js:91 field
 src/game/golf.js:109 score
@@ -682,16 +693,6 @@ src/game/rampage.js:82 +start
 src/game/rampage.js:83 +pieces
 src/game/rampage.js:84 +marks
 src/game/rampage.js:85 +status
-## src/game/regatta.js (82L)
-src/game/regatta.js:8 +MAX_TURNS
-src/game/regatta.js:9 BOAT_E
-src/game/regatta.js:11 +DIFFS
-src/game/regatta.js:16 clamp
-src/game/regatta.js:18 +newRegatta
-src/game/regatta.js:25 launch
-src/game/regatta.js:35 +shoot
-src/game/regatta.js:42 +step
-src/game/regatta.js:49 sub
 ## src/game/rules.js (236L)
 src/game/rules.js:6 +key
 src/game/rules.js:8 +linkPortalPair
@@ -801,80 +802,89 @@ src/game/turn-kit.js:13 +freeCells
 src/game/turn-kit.js:19 +movesOf
 src/game/turn-kit.js:20 n
 src/game/turn-kit.js:21 +piece
-## src/game/zen.js (403L)
-src/game/zen.js:8 KEYS
-src/game/zen.js:10 garden
-src/game/zen.js:11 +setGarden
-src/game/zen.js:12 +gardenId
-src/game/zen.js:13 key
-src/game/zen.js:14 read
-src/game/zen.js:15 write
-src/game/zen.js:17 +ZEN_KINDS
-src/game/zen.js:18 +ZEN_NAMES
-src/game/zen.js:19 +ZEN_BASE
-src/game/zen.js:20 +ZEN_MAX
-src/game/zen.js:24 bloomMs
-src/game/zen.js:27 +BASE_GRID
-src/game/zen.js:34 +BASE_KEYS
-src/game/zen.js:36 +cellKey
-src/game/zen.js:37 +parseKey
-src/game/zen.js:39 +expandCost
-src/game/zen.js:45 +blankZen
-src/game/zen.js:50 agua
-src/game/zen.js:56 withBase
-src/game/zen.js:68 seedsOf
-src/game/zen.js:70 +loadZen
-src/game/zen.js:88 movedPot
-src/game/zen.js:89 +saveZen
-src/game/zen.js:93 +lakeBox
-src/game/zen.js:95 +lakeRect
-src/game/zen.js:96 inRect
-src/game/zen.js:97 +inLake
-src/game/zen.js:99 inYard
-src/game/zen.js:100 fitsWater
-src/game/zen.js:111 +cellType
-src/game/zen.js:122 lit
-src/game/zen.js:129 growth
-src/game/zen.js:136 capOf
-src/game/zen.js:140 +zenStage
-src/game/zen.js:149 +potCracked
-src/game/zen.js:151 +zenFix
-src/game/zen.js:158 +zenSow
-src/game/zen.js:169 +zenWater
-src/game/zen.js:177 +zenWaterAround
-src/game/zen.js:185 +digWait
-src/game/zen.js:189 +zenDig
-src/game/zen.js:196 relocate
-src/game/zen.js:203 +zenBreak
-src/game/zen.js:212 +zenHarvest
-src/game/zen.js:235 +zenExpand
-src/game/zen.js:251 +zenClear
-src/game/zen.js:258 +zenStore
-src/game/zen.js:276 +zenLake
-src/game/zen.js:284 clearDug
-src/game/zen.js:289 +moveWait
-src/game/zen.js:290 +zenMove
-src/game/zen.js:303 +zenMovePond
-src/game/zen.js:310 +zenPlace
-src/game/zen.js:324 +addZenItem
-src/game/zen.js:333 +LEAF_MS
-src/game/zen.js:334 +LEAF_MAX
-src/game/zen.js:335 +LEAF_COINS
-src/game/zen.js:336 +zenLeaves
-src/game/zen.js:346 +zenBushes
-src/game/zen.js:363 +zenSweep
-src/game/zen.js:366 SKY_KEY
-src/game/zen.js:367 +ZEN_SKIES
-src/game/zen.js:368 +SKY_SPAN
-src/game/zen.js:369 +zenSky
-src/game/zen.js:377 +zenSkyMatch
-src/game/zen.js:380 +BUTTERFLY_MS
-src/game/zen.js:381 +butterflyGift
-src/game/zen.js:386 +addZenSeeds
-src/game/zen.js:393 +pickSeed
-src/game/zen.js:401 +koiHungry
-src/game/zen.js:402 +feedKoi
-## src/i18n/en.js (1347L)
+## src/game/water.js (43L)
+src/game/water.js:5 KEY
+src/game/water.js:6 read
+src/game/water.js:8 +blankWater
+src/game/water.js:9 +loadWater
+src/game/water.js:15 +saveWater
+src/game/water.js:17 bloomMs
+src/game/water.js:19 +waterStage
+src/game/water.js:26 +waterSow
+src/game/water.js:32 +waterHarvest
+src/game/water.js:39 +addWaterSeed
+src/game/water.js:40 +addBoat
+src/game/water.js:41 +waterKoiHungry
+src/game/water.js:42 +waterFeed
+## src/game/zen.js (391L)
+src/game/zen.js:8 KEY
+src/game/zen.js:9 read
+src/game/zen.js:10 write
+src/game/zen.js:12 +ZEN_KINDS
+src/game/zen.js:13 +ZEN_NAMES
+src/game/zen.js:14 +ZEN_BASE
+src/game/zen.js:15 +ZEN_MAX
+src/game/zen.js:19 bloomMs
+src/game/zen.js:22 +BASE_GRID
+src/game/zen.js:29 +BASE_KEYS
+src/game/zen.js:31 +cellKey
+src/game/zen.js:32 +parseKey
+src/game/zen.js:34 +expandCost
+src/game/zen.js:40 +blankZen
+src/game/zen.js:45 withBase
+src/game/zen.js:57 seedsOf
+src/game/zen.js:59 +loadZen
+src/game/zen.js:76 movedPot
+src/game/zen.js:77 +saveZen
+src/game/zen.js:81 +lakeBox
+src/game/zen.js:83 +lakeRect
+src/game/zen.js:84 inRect
+src/game/zen.js:85 +inLake
+src/game/zen.js:87 inYard
+src/game/zen.js:88 fitsWater
+src/game/zen.js:99 +cellType
+src/game/zen.js:110 lit
+src/game/zen.js:117 growth
+src/game/zen.js:124 capOf
+src/game/zen.js:128 +zenStage
+src/game/zen.js:137 +potCracked
+src/game/zen.js:139 +zenFix
+src/game/zen.js:146 +zenSow
+src/game/zen.js:157 +zenWater
+src/game/zen.js:165 +zenWaterAround
+src/game/zen.js:173 +digWait
+src/game/zen.js:177 +zenDig
+src/game/zen.js:184 relocate
+src/game/zen.js:191 +zenBreak
+src/game/zen.js:200 +zenHarvest
+src/game/zen.js:223 +zenExpand
+src/game/zen.js:239 +zenClear
+src/game/zen.js:246 +zenStore
+src/game/zen.js:264 +zenLake
+src/game/zen.js:272 clearDug
+src/game/zen.js:277 +moveWait
+src/game/zen.js:278 +zenMove
+src/game/zen.js:291 +zenMovePond
+src/game/zen.js:298 +zenPlace
+src/game/zen.js:312 +addZenItem
+src/game/zen.js:321 +LEAF_MS
+src/game/zen.js:322 +LEAF_MAX
+src/game/zen.js:323 +LEAF_COINS
+src/game/zen.js:324 +zenLeaves
+src/game/zen.js:334 +zenBushes
+src/game/zen.js:351 +zenSweep
+src/game/zen.js:354 SKY_KEY
+src/game/zen.js:355 +ZEN_SKIES
+src/game/zen.js:356 +SKY_SPAN
+src/game/zen.js:357 +zenSky
+src/game/zen.js:365 +zenSkyMatch
+src/game/zen.js:368 +BUTTERFLY_MS
+src/game/zen.js:369 +butterflyGift
+src/game/zen.js:374 +addZenSeeds
+src/game/zen.js:381 +pickSeed
+src/game/zen.js:389 +koiHungry
+src/game/zen.js:390 +feedKoi
+## src/i18n/en.js (1361L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -1013,15 +1023,15 @@ src/lab/proto/diamond-game.js:14 +createDiamondBoard
 src/lab/proto/diamond-game.js:27 +createDiamondPieces
 src/lab/proto/diamond-game.js:40 +createDiamondMatch
 ## src/main.js (7L)
-## src/ui/app.js (426L)
+## src/ui/app.js (416L)
 src/ui/app.js:35 REST_CARDS
 src/ui/app.js:40 BAG_CARDS
 src/ui/app.js:47 shuffle3
 src/ui/app.js:49 MINI_PRIZES
 src/ui/app.js:50 ONE_SHOT
 src/ui/app.js:52 +App
-src/ui/app.js:382 MutationReveal
-src/ui/app.js:398 AchievementToast
+src/ui/app.js:372 MutationReveal
+src/ui/app.js:388 AchievementToast
 ## src/ui/board-fx.js (67L)
 src/ui/board-fx.js:7 wait
 src/ui/board-fx.js:11 +playFx
@@ -1088,6 +1098,8 @@ src/ui/gamepad.js:166 held
 src/ui/gamepad.js:167 poll
 src/ui/gamepad.js:195 running
 src/ui/gamepad.js:196 +startGamepad
+## src/ui/garden-switch.js (11L)
+src/ui/garden-switch.js:5 +GardenSwitch
 ## src/ui/hop.js (79L)
 src/ui/hop.js:8 OUT
 src/ui/hop.js:9 +reduced
@@ -1124,6 +1136,9 @@ src/ui/moments.js:35 TOSS_CROSS
 src/ui/moments.js:36 tossFace
 src/ui/moments.js:40 color
 src/ui/moments.js:42 +Moments
+## src/ui/rc-pad.js (42L)
+src/ui/rc-pad.js:6 +useRcKeys
+src/ui/rc-pad.js:25 +RcPad
 ## src/ui/screens/achievements.js (48L)
 src/ui/screens/achievements.js:9 Bar
 src/ui/screens/achievements.js:12 +AchievementsScreen
@@ -1205,10 +1220,10 @@ src/ui/screens/map.js:13 +MapScreen
 src/ui/screens/marcianos.js:12 css
 src/ui/screens/marcianos.js:15 KEYS
 src/ui/screens/marcianos.js:17 +MarcianosScreen
-## src/ui/screens/menu.js (200L)
+## src/ui/screens/menu.js (198L)
 src/ui/screens/menu.js:15 Diorama
-src/ui/screens/menu.js:122 fitCrown
-src/ui/screens/menu.js:154 +MenuScreen
+src/ui/screens/menu.js:121 fitCrown
+src/ui/screens/menu.js:153 +MenuScreen
 ## src/ui/screens/mini-grid.js (22L)
 src/ui/screens/mini-grid.js:6 +MiniGrid
 ## src/ui/screens/minis.js (21L)
@@ -1224,10 +1239,6 @@ src/ui/screens/overlays.js:31 +PauseOverlay
 src/ui/screens/overlays.js:63 +HowToOverlay
 ## src/ui/screens/queens.js (51L)
 src/ui/screens/queens.js:11 +QueensScreen
-## src/ui/screens/regatta.js (175L)
-src/ui/screens/regatta.js:13 css
-src/ui/screens/regatta.js:14 PULL_MAX
-src/ui/screens/regatta.js:17 +RegattaScreen
 ## src/ui/screens/scenario.js (36L)
 src/ui/screens/scenario.js:9 RUN
 src/ui/screens/scenario.js:10 noop
@@ -1280,25 +1291,30 @@ src/ui/screens/turn-minis.js:16 +PdodgeScreen
 src/ui/screens/turn-minis.js:17 +ParkourScreen
 src/ui/screens/turn-minis.js:18 +BlasterScreen
 src/ui/screens/turn-minis.js:19 +HordeScreen
-## src/ui/screens/zen.js (719L)
-src/ui/screens/zen.js:19 ETAPAS
-src/ui/screens/zen.js:21 TOOLS
-src/ui/screens/zen.js:29 STORE
-src/ui/screens/zen.js:31 TOOL_ART
-src/ui/screens/zen.js:32 reduced
-src/ui/screens/zen.js:33 later
-src/ui/screens/zen.js:35 the
-src/ui/screens/zen.js:36 cap
-src/ui/screens/zen.js:38 ROOM
-src/ui/screens/zen.js:40 INFO
-src/ui/screens/zen.js:46 SOIL_COLORS
-src/ui/screens/zen.js:48 SOIL_RAMP
-src/ui/screens/zen.js:49 LEAF_RAMP
-src/ui/screens/zen.js:50 STONE_RAMP
-src/ui/screens/zen.js:51 SAND_RAMP
-src/ui/screens/zen.js:52 OUT
-src/ui/screens/zen.js:56 potArt
-src/ui/screens/zen.js:66 +ZenScreen
+## src/ui/screens/water.js (133L)
+src/ui/screens/water.js:17 inside
+src/ui/screens/water.js:18 KINDS
+src/ui/screens/water.js:19 mins
+src/ui/screens/water.js:21 +WaterScreen
+## src/ui/screens/zen.js (716L)
+src/ui/screens/zen.js:20 ETAPAS
+src/ui/screens/zen.js:22 TOOLS
+src/ui/screens/zen.js:30 STORE
+src/ui/screens/zen.js:32 TOOL_ART
+src/ui/screens/zen.js:33 reduced
+src/ui/screens/zen.js:34 later
+src/ui/screens/zen.js:36 the
+src/ui/screens/zen.js:37 cap
+src/ui/screens/zen.js:39 ROOM
+src/ui/screens/zen.js:41 INFO
+src/ui/screens/zen.js:47 SOIL_COLORS
+src/ui/screens/zen.js:49 SOIL_RAMP
+src/ui/screens/zen.js:50 LEAF_RAMP
+src/ui/screens/zen.js:51 STONE_RAMP
+src/ui/screens/zen.js:52 SAND_RAMP
+src/ui/screens/zen.js:53 OUT
+src/ui/screens/zen.js:57 potArt
+src/ui/screens/zen.js:67 +ZenScreen
 ## src/ui/sfx.js (419L)
 src/ui/sfx.js:7 +SFX_VOLUMES
 src/ui/sfx.js:14 JITTER
@@ -1414,15 +1430,16 @@ src/view/fx.js:11 WEATHER_RATE
 src/view/fx.js:12 sfLibs
 src/view/fx.js:13 SF_PX
 src/view/fx.js:15 +Fx
-## src/view/koi.js (111L)
+## src/view/koi.js (117L)
 src/view/koi.js:7 N
 src/view/koi.js:8 WIDE
 src/view/koi.js:9 wrap
 src/view/koi.js:11 +School
-src/view/koi.js:65 +KOI_KINDS
-src/view/koi.js:75 widthAt
-src/view/koi.js:78 +spine
-src/view/koi.js:90 +koiShape
+src/view/koi.js:59 swim
+src/view/koi.js:71 +KOI_KINDS
+src/view/koi.js:81 widthAt
+src/view/koi.js:84 +spine
+src/view/koi.js:96 +koiShape
 ## src/view/liquid.js (89L)
 src/view/liquid.js:6 count
 src/view/liquid.js:11 +liquid
@@ -1452,19 +1469,24 @@ src/view/piece-art.js:109 +pieceSVG
 src/view/piece-art.js:123 +headTop
 src/view/piece-art.js:125 +RAW_BODIES
 src/view/piece-art.js:129 +artOf
-## src/view/pond.js (221L)
+## src/view/pond.js (346L)
 src/view/pond.js:9 TAU
 src/view/pond.js:10 rnd
 src/view/pond.js:12 WATER
 src/view/pond.js:13 PAD
 src/view/pond.js:14 LOTUS
-src/view/pond.js:15 PALETTE
-src/view/pond.js:19 +drawPad
-src/view/pond.js:33 +drawLotus
-src/view/pond.js:42 +Pond
-src/view/pond.js:183 outline
-src/view/pond.js:191 quantize
-src/view/pond.js:208 +runPond
+src/view/pond.js:16 REED
+src/view/pond.js:17 BOAT
+src/view/pond.js:18 PALETTE
+src/view/pond.js:22 +drawPad
+src/view/pond.js:36 +drawLotus
+src/view/pond.js:45 +Pond
+src/view/pond.js:223 drawPlant
+src/view/pond.js:259 drawBuoy
+src/view/pond.js:273 drawBoat
+src/view/pond.js:308 outline
+src/view/pond.js:316 quantize
+src/view/pond.js:333 +runPond
 ## src/view/weather-fx.js (399L)
 src/view/weather-fx.js:8 G
 src/view/weather-fx.js:9 TAU
@@ -1589,7 +1611,7 @@ css/pixel.css:85 /* Sombra de la pieza y koi del estanque del tablero, sin degra
 css/pixel.css:87 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
 css/pixel.css:90 /* El ::before va fuera de :is(), que no admite pseudoelementos
 ## css/proto-diamond.css (83L)
-## css/screens.css (1727L)
+## css/screens.css (1734L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
 css/screens.css:12 /* Menu: asymmetric, the diorama is the focal point and the tit
@@ -1773,6 +1795,7 @@ css/screens.css:1670 /* Copia de seguridad (Ajustes): el código se pega en un r
 css/screens.css:1683 /* Botones de Perfil y Copia: tres por fila, icono arriba, sin 
 css/screens.css:1694 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
 css/screens.css:1705 /* Reference APK renderer: a separate green/pixel signature, di
-css/screens.css:1719 /* Regata: el campo del golf hecho estanque; algas (gf-s), corr
+css/screens.css:1720 /* Mando de teledirigido (Jardín de Agua y carrera de barquitos
+css/screens.css:1726 /* Jardín de Agua: el estanque entero en un marco de madera, co
 ## css/tokens.css (51L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.

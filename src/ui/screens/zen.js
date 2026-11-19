@@ -4,14 +4,13 @@
 // las mariposas que visitan las flores dejan regalos.
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Topbar, useEnter } from '../components.js';
+import { GardenSwitch } from '../garden-switch.js';
 import { Icon } from '../icons.js';
 import { Fx } from '../../view/fx.js';
 import { Pond, runPond } from '../../view/pond.js';
-import { newBoat, drive } from '../../game/boats.js';
-import { RcPad, useRcKeys } from '../rc-pad.js';
 import { chipArt, POT, SOIL, plantArt, pondArt, pondInside, MOSS, STEP, LANTERN, BRANCH, mapleLeaf, rakeArt, BUTTERFLY, CAN, SHEARS, SHOVEL, POUCH, GLOVE, px, stoneArt, ITEM_ART, KOI_ART } from '../zen-art.js';
 import { ZEN_KINDS, ZEN_NAMES, ZEN_MAX, cellKey, cellType, lakeRect, expandCost, zenStage, zenSow, zenWater, zenWaterAround, zenDig, digWait, zenBreak, zenHarvest, zenExpand, zenLake, zenPlace, zenClear, zenStore, zenMove, zenMovePond, moveWait, zenLeaves, zenBushes, zenFix, potCracked, zenSweep, koiHungry, feedKoi, zenSky, LEAF_COINS, BUTTERFLY_MS, butterflyGift, loadZen, saveZen } from '../../game/zen.js';
-import { SEEDS, GARDEN_ITEMS, GARDENS, BOATS, LAKE_MAX, lakeCost, DIG_COOLDOWN, MOVE_COOLDOWN, WATER_STEPS, POT_LIFE } from '../../data/garden.js';
+import { SEEDS, GARDEN_ITEMS, LAKE_MAX, lakeCost, DIG_COOLDOWN, MOVE_COOLDOWN, WATER_STEPS, POT_LIFE } from '../../data/garden.js';
 import { award } from '../../game/achievements.js';
 import { addCoins, charge, loadShop } from '../../game/shop.js';
 import { playSfx } from '../sfx.js';
@@ -65,7 +64,7 @@ function potArt(kind, stage, d = 0, cracked = false) {
   </svg>`;
 }
 
-export function ZenScreen({ onBack, onShop, onRace, garden = 'zen' }) {
+export function ZenScreen({ onBack, onShop, onGarden }) {
   const ref = useRef(null);
   useEnter(ref);
   const [z, setZ] = useState(() => { const n = zenBushes(zenLeaves(loadZen(), Date.now()), Date.now()); saveZen(n); return n; });
@@ -510,32 +509,12 @@ export function ZenScreen({ onBack, onShop, onRace, garden = 'zen' }) {
     const n = z.lake || 2;
     const pond = pondRef.current = new Pond(cv(), { size: [48, 48], inside: pondInside, count: Math.min(5, n + 1), len: 7.5, speed: 3.2,
       pads: [[33.5, 33.5, 3.4], [14.5, 32.5, 2.6], [34.5, 17, 2.2], [17, 16, 1.8]], lotus: 0, duckweed: 14 });
-    // Barquitos comprados: flotan a la deriva; el que se toca se maneja con el mando.
-    pond.boats = (z.boats || []).map((k, i) => { const a = i * 2.4; return newBoat(k, 24 + Math.cos(a) * 9, 24.5 + Math.sin(a) * 8, a + Math.PI / 2); });
-    pond.onStep = (dt) => pond.boats.forEach((b, i) => { if (drive(b, i === drivingRef.current ? rc.current : null, dt, pondInside) > 4) playSfx('tap', 0.7); });
     return runPond(pond, cv, reduced());
-  }, [z.lake || 2, (z.boats || []).length]);
-  // Mando: el barco tocado (índice en pond.boats) y lo que piden el joystick o el teclado.
-  const [driving, setDriving] = useState(null);
-  const drivingRef = useRef(null), rc = useRef(null);
-  drivingRef.current = driving;
-  const release = () => setDriving(null);
-  useRcKeys(rc, driving != null, release);
-  const buyBoat = (kind) => {
-    const b = BOATS[kind];
-    if (coins < b.price) return say(t('zen.boatShort', '{name} cuesta {cost} monedas: te faltan {n}.', { name: b.name, cost: b.price, n: b.price - coins }));
-    if (!charge(b.price)) return say(t('zen.noCoins', 'Faltan monedas.'));
-    setCoins(loadShop().coins);
-    apply({ ...z, boats: [...(z.boats || []), kind] });
-    playSfx('coin');
-    say(t('zen.boatBought', '{name} al agua: tócalo para manejarlo.', { name: b.name }));
-  };
+  }, [z.lake || 2]);
   const feed = (e) => {
     const svg = e.currentTarget.querySelector('.zn-pondart'), r = svg.getBoundingClientRect();
     const x = ((e.clientX - r.left) / r.width) * 48, y = ((e.clientY - r.top) / r.height) * 48;
     if (Math.hypot(x - 24, (y - 24.5) / 0.9) > 15) return; // fuera del agua
-    const boats = pondRef.current?.boats || [], near = boats.findIndex((b) => Math.hypot(b.x - x, b.y - y) < 5);
-    if (near >= 0) { setDriving(near); playSfx('pop'); return say(t('zen.boatDrive', 'Manejas {name}: arrastra el mando o usa las flechas.', { name: BOATS[boats[near].kind].name })); }
     pondRef.current?.tap(x, y);
     playSfx('splash');
     // Con hambre (burbujas en el agua), comer deja monedas; si no, solo vienen a picotear.
@@ -648,11 +627,12 @@ export function ZenScreen({ onBack, onShop, onRace, garden = 'zen' }) {
   const feeding = overPond && tool !== 'move';
 
   return html`<div class="screen mini zen-screen" data-weather=${sky} ref=${ref}>
-    <${Topbar} title=${GARDENS[garden].name} sub=${GARDENS[garden].sub} onBack=${onBack}>
+    <${Topbar} title=${t('menu.zen', 'Jardín Zen')} sub=${t('zen.sub', 'Un rincón tranquilo entre runs')} onBack=${onBack}>
       <button class="btn ghost sm icon-only" data-pad="select" aria-label=${t('zen.help', 'Cómo se cuida el jardín')} title=${t('zen.help', 'Cómo se cuida el jardín')} onClick=${() => setHelp(true)}><${Icon} name="book" size=${16} /></button>
       <button class="coin-chip" data-pad="y" ref=${coinRef} title=${t('zen.shop', 'Tienda del jardín')} aria-label=${t('zen.coinsShop', '{n} monedas: abrir la tienda', { n: coins })} onClick=${onShop}><${Icon} name="coin" size=${16} /><b>${coins}</b></button>
     </${Topbar}>
     <div class="mini-body zen-body">
+      ${onGarden && html`<${GardenSwitch} current="zen" onGarden=${onGarden} />`}
       <div class="zen-main">
         <div class="zen-scene">
           <div class="mini-stage">
@@ -715,19 +695,6 @@ export function ZenScreen({ onBack, onShop, onRace, garden = 'zen' }) {
             <span class="zen-expand-text">${lakeArmed ? t('zen.confirmPond', 'Confirmar estanque') : t('zen.pondTo', 'Estanque a {size}', { size: `${(z.lake || 2) + 1}×${(z.lake || 2) + 1}` })}</span>
             <b class="zen-cost"><${Icon} name="coin" size=${13} />${lakeCost(z.lake || 2)}</b>
           </button>`}
-          ${garden === 'agua' && html`<section class="zn-sec" aria-label=${t('zen.boats', 'Barquitos')}>
-            <h3>${t('zen.boats', 'Barquitos')}</h3>
-            <div class="zn-tools">
-              ${Object.values(BOATS).filter((b) => !b.fish).map((b) => {
-                const own = (z.boats || []).indexOf(b.id);
-                return html`<button class=${'zn-tool' + (own >= 0 && driving === own ? ' on' : '')} title=${b.desc}
-                  onClick=${() => (own >= 0 ? setDriving(driving === own ? null : own) : buyBoat(b.id))}>
-                  <span class="zn-tool-ic"><${Icon} name=${own >= 0 ? 'drop' : 'coin'} size=${20} /></span>
-                  <span>${b.name}${own >= 0 ? '' : ` · ${b.price}`}</span></button>`;
-              })}
-            </div>
-            ${onRace && html`<button class="zen-expand" onClick=${onRace}><${Icon} name="rush" size=${18} /><span class="zen-expand-text">${t('zen.race', 'Carrera de barquitos y koi')}</span></button>`}
-          </section>`}
           <button class="zen-shop" onClick=${onShop}>
             <span class="zen-shop-text"><strong>${t('zen.shop', 'Tienda del jardín')}</strong><small>${t('zen.shopSub', 'Semillas, macetas, faroles y herramientas')}</small></span>
             <span class="zen-shop-coins"><${Icon} name="coin" size=${16} />${coins}</span>
@@ -735,7 +702,6 @@ export function ZenScreen({ onBack, onShop, onRace, garden = 'zen' }) {
         </div>
       </div>
     </div>
-    ${driving != null && html`<div class="rc-float"><${RcPad} input=${rc} onRelease=${release} /></div>`}
     ${help && html`<div class="overlay" onClick=${(e) => e.target === e.currentTarget && setHelp(false)}>
       <div class="panel mini-sheet" role="dialog" aria-modal="true" aria-label=${t('zen.help', 'Cómo se cuida el jardín')}>
         <h2>${t('zen.help', 'Cómo se cuida el jardín')}</h2>

@@ -16,7 +16,7 @@ const KEY_LIMITS = Object.freeze({
   'zugzwang.seen.v1': 64 * 1024,
   'zugzwang.mutseen.v1': 64 * 1024,
   'zugzwang.zen.v1': 768 * 1024,
-  'zugzwang.zen.agua.v1': 768 * 1024,
+  'zugzwang.agua.v1': 768 * 1024,
   'zugzwang.shop.v1': 128 * 1024,
 });
 
@@ -31,7 +31,7 @@ const ROOT_TYPES = Object.freeze({
   'zugzwang.seen.v1': 'array',
   'zugzwang.mutseen.v1': 'array',
   'zugzwang.zen.v1': 'object',
-  'zugzwang.zen.agua.v1': 'object',
+  'zugzwang.agua.v1': 'object',
   'zugzwang.shop.v1': 'object',
 });
 

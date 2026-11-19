@@ -13,8 +13,9 @@ const WATER = { deep: '#17414f', mid: '#245f6b', shallow: '#3a8584', light: '#bf
 const PAD = { base: '#4f8f3a', dark: '#36692a', light: '#86bd5c', vein: '#3a6f2c' };
 const LOTUS = { out: '#f3b8cd', in: '#fbe0ea', deep: '#df88aa', core: '#f2d36b' };
 // Barquitos (vista desde arriba): casco, cubierta, vela o cabina y su borde.
+const REED = { stem: '#5f8a3a', dark: '#3f6a2a', head: '#6b4a2a', duck: '#9bd36a' };
 const BOAT = { paper: '#f4f1e8', fold: '#c9c3b4', wood: '#9a6a3c', dark: '#5e3f22', bamboo: '#c9b26a', sail: '#fbf7ee', red: '#d2483a', buoy: '#e8573f' };
-const PALETTE = [...new Set([...Object.values(WATER), ...Object.values(PAD), ...Object.values(LOTUS), ...Object.values(BOAT), ...KOI_KINDS.flatMap((k) => [k.base, k.accent, k.marking, k.fin]), '#171815', '#ffffff', '#2f7468', '#5aa39a', '#9a7b4c', '#7fc4a0'])]
+const PALETTE = [...new Set([...Object.values(WATER), ...Object.values(PAD), ...Object.values(LOTUS), ...Object.values(BOAT), ...Object.values(REED), ...KOI_KINDS.flatMap((k) => [k.base, k.accent, k.marking, k.fin]), '#171815', '#ffffff', '#2f7468', '#5aa39a', '#9a7b4c', '#7fc4a0'])]
   .map((h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]);
 
 // Nenúfar: disco con su muesca, cara más clara arriba a la izquierda, nervios desde el centro.
@@ -55,6 +56,7 @@ export class Pond {
     this.glints = Array.from({ length: 5 }, () => ({ x: rnd(W * 0.2, W * 0.8), y: rnd(H * 0.2, H * 0.8), ph: rnd(0, TAU) }));
     this.lo = document.createElement('canvas');
     this.boats = []; // { kind, x, y, h, v, vx, vy } de src/game/boats.js
+    this.plants = []; // plazas del Jardín de Agua: { x, y, kind, stage, grow } (sin kind: plaza libre)
     this.marks = []; // boyas de la carrera: { x, y, on }
     this.wake = [];  // estela: puntos que se abren y se apagan
     this.onStep = null; // quien maneja los barcos (jardín o carrera) antes de cada paso
@@ -202,6 +204,7 @@ export class Pond {
       drawPad(ctx, p.x, p.y, p.r * (1 + bob), p.rot);
       if (i === this.lotus) drawLotus(ctx, p.x - p.r * 0.1, p.y - p.r * 0.15, p.r * 0.62, T);
     });
+    for (const p of this.plants) drawPlant(ctx, p, T, len, pixel);
     for (const m of this.marks) drawBuoy(ctx, m, T, len);
     for (const b of this.boats) drawBoat(ctx, b, T, len, pixel);
     // Brillos sueltos en la superficie.
@@ -213,6 +216,42 @@ export class Pond {
       ctx.fillRect(s.x + Math.sin(T * 0.2 + s.ph) * 2, s.y, pixel ? 1 : len * 0.12, pixel ? 0.5 : len * 0.03);
     }
     ctx.globalAlpha = 1;
+  }
+}
+
+// Planta acuática según su etapa (brote, capullo, flor); la plaza libre es un aro punteado.
+function drawPlant(ctx, p, T, len, pixel) {
+  const u = len * 0.5, sway = Math.sin(T * 0.9 + p.x) * 0.06, g = p.stage === 'bloom' ? 1 : 0.35 + 0.65 * (p.grow || 0);
+  if (!p.kind) {
+    ctx.strokeStyle = '#ffffff'; ctx.globalAlpha = 0.35; ctx.lineWidth = pixel ? 0.5 : 0.18;
+    ctx.setLineDash([0.7, 0.7]); ctx.beginPath(); ctx.arc(p.x, p.y, u * 0.75, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+    return;
+  }
+  if (p.kind === 'lenteja') {
+    ctx.fillStyle = REED.duck;
+    for (let i = 0; i < 9; i++) { const a = i * 2.4, d = (i % 3 + 0.5) * u * 0.3 * g; ctx.beginPath(); ctx.arc(p.x + Math.cos(a + sway) * d, p.y + Math.sin(a) * d, pixel ? 0.6 : u * 0.13, 0, TAU); ctx.fill(); }
+    if (p.stage === 'bloom') { ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(p.x, p.y, pixel ? 0.5 : u * 0.1, 0, TAU); ctx.fill(); }
+  } else if (p.kind === 'junco') {
+    const n = p.stage === 'sprout' ? 2 : p.stage === 'bud' ? 4 : 6;
+    ctx.lineWidth = pixel ? 0.5 : u * 0.09; ctx.lineCap = 'round';
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + (i - (n - 1) / 2) * 0.32 + sway, l = u * (0.9 + (i % 2) * 0.35) * g;
+      const ex = p.x + Math.cos(a) * l, ey = p.y + Math.sin(a) * l;
+      ctx.strokeStyle = i % 2 ? REED.dark : REED.stem; ctx.beginPath(); ctx.moveTo(p.x + (i - n / 2) * 0.25, p.y); ctx.lineTo(ex, ey); ctx.stroke();
+      if (p.stage === 'bloom' && i % 2 === 0) { ctx.fillStyle = REED.head; ctx.beginPath(); ctx.ellipse(ex, ey, u * 0.1, u * 0.24, a + Math.PI / 2, 0, TAU); ctx.fill(); }
+    }
+    ctx.lineCap = 'butt';
+  } else {
+    // Nenúfar y loto: hoja que crece; el capullo asoma rosa y la flor se abre.
+    drawPad(ctx, p.x, p.y, u * 0.8 * g, p.x + sway);
+    if (p.kind === 'loto') drawPad(ctx, p.x + u * 0.55, p.y + u * 0.35, u * 0.45 * g, p.y);
+    const fx = p.x - u * 0.1, fy = p.y - u * 0.15;
+    if (p.stage === 'bud') { ctx.fillStyle = LOTUS.deep; ctx.beginPath(); ctx.ellipse(fx, fy, u * 0.16, u * 0.24, 0.3, 0, TAU); ctx.fill(); }
+    else if (p.stage === 'bloom') {
+      if (p.kind === 'loto') drawLotus(ctx, fx, fy, u * 0.6, T);
+      else { ctx.fillStyle = '#ffffff'; for (let i = 0; i < 6; i++) { const a = i * TAU / 6 + 0.3; ctx.beginPath(); ctx.ellipse(fx + Math.cos(a) * u * 0.16, fy + Math.sin(a) * u * 0.16, u * 0.1, u * 0.2, a + Math.PI / 2, 0, TAU); ctx.fill(); } ctx.fillStyle = LOTUS.core; ctx.beginPath(); ctx.arc(fx, fy, u * 0.09, 0, TAU); ctx.fill(); }
+    }
   }
 }
 
@@ -233,6 +272,10 @@ function drawBuoy(ctx, m, T, len) {
 // Barquito visto desde arriba, apuntando a su rumbo; se mece y escora al girar.
 function drawBoat(ctx, b, T, len, pixel) {
   const L = len * 0.85, Wd = L * 0.45, rock = Math.sin(T * 2.6 + b.x * 0.7) * 0.04;
+  if (b.sel) { // el que se maneja: un aro que late debajo
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = pixel ? 0.5 : 0.25; ctx.globalAlpha = 0.45 + 0.3 * Math.sin(T * 5);
+    ctx.beginPath(); ctx.arc(b.x, b.y, L * 0.85, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
+  }
   ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.h + rock);
   const poly = (pts, fill) => { ctx.beginPath(); pts.forEach(([x, y], i) => (i ? ctx.lineTo(x * L, y * Wd) : ctx.moveTo(x * L, y * Wd))); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); };
   // Sombra corrida abajo a la derecha, como la de los peces.

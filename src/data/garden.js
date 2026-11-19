@@ -45,12 +45,23 @@ export const KOI_COINS = 4;
 export const LAKE_MAX = 4;
 export const lakeCost = (n) => 80 * 2 ** (n - 2);
 
-// Jardines: el Zen de siempre y el de Agua, con su guardado aparte y las mismas reglas, tienda y monedas.
-// El de Agua empieza con el estanque grande en el centro y una orilla de macetas alrededor; en él se corre la regata.
+// Jardines, cada uno con su pantalla y su guardado; el selector de arriba pasa de uno a otro. Comparten monedas.
 export const GARDENS = localize('gardens', {
-  zen: { id: 'zen', name: 'Jardín Zen', sub: 'Un rincón tranquilo entre runs' },
-  agua: { id: 'agua', name: 'Jardín de Agua', sub: 'Estanque grande, orilla con macetas y regatas' },
+  zen: { id: 'zen', screen: 'zen', name: 'Jardín Zen' },
+  agua: { id: 'agua', screen: 'water', name: 'Jardín de Agua' },
 });
+
+// Jardín de Agua: todo es estanque. Las plantas acuáticas van en pocas plazas de la orilla (el centro queda
+// para los koi y los barquitos) y no piden riego: crecen solas. `regrow`: rebrota esas veces tras cortarla.
+export const WATER_PLANTS = localize('waterPlants', {
+  lenteja: { id: 'lenteja', name: 'Lenteja de agua', price: 6, bloomMin: 8, pays: 10, desc: 'Rápida y barata.' },
+  nenufar: { id: 'nenufar', name: 'Nenúfar', price: 14, bloomMin: 20, pays: 26, regrow: 2, desc: 'Abre su flor y rebrota dos veces.' },
+  junco: { id: 'junco', name: 'Junco', price: 18, bloomMin: 30, pays: 40, desc: 'Echa espigas en la orilla.' },
+  loto: { id: 'loto', name: 'Loto', price: 30, bloomMin: 45, pays: 75, desc: 'Lento, pero la flor más cara.' },
+});
+// Plazas de la orilla, en unidades del estanque (60×60): las cuatro esquinas y la mitad de cada lado.
+export const WATER_SIZE = 60;
+export const WATER_SLOTS = [[9, 9], [30, 7], [51, 9], [53, 30], [51, 51], [30, 53], [9, 51], [7, 30]];
 
 // Barquitos del Jardín de Agua: se compran allí, se manejan como teledirigidos y corren en la carrera.
 // top: velocidad punta (unidades del estanque por segundo); accel: cuánto tarda en llegar; turn: giro (rad/s);

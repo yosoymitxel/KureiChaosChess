@@ -11,6 +11,7 @@ import { setFullscreen } from './fullscreen.js';
 import { setSfxEnabled, setSfxVolume, setMusicEnabled, startAmbient, setMusicScene, playSfx } from './sfx.js';
 import { MinisScreen } from './screens/minis.js';
 import { ZenScreen } from './screens/zen.js';
+import { WaterScreen } from './screens/water.js';
 import { ShopScreen } from './screens/shop.js';
 import { GalleryScreen } from './screens/gallery.js';
 import { AchievementsScreen } from './screens/achievements.js';
@@ -18,7 +19,7 @@ import { MODIFIERS, DUO_MECHANICS } from '../data/modifiers.js';
 import { MINIGAMES } from '../data/minigame-catalog.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, enterLevel, resetLevel, dropLevel, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs, takeNewDemos } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard, seeCards } from '../game/shop.js';
-import { ZEN_NAMES, addZenSeeds, pickSeed, setGarden } from '../game/zen.js';
+import { ZEN_NAMES, addZenSeeds, pickSeed } from '../game/zen.js';
 import { popSeed } from './coins.js';
 import { PICKUP_ART } from './zen-art.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
@@ -93,10 +94,6 @@ export function App() {
   // Jardín Zen: se abre al terminar o dejar atrás el tutorial (también para partidas de antes de esta regla).
   const zenOpen = loadAchievements().includes('zen_open');
   useEffect(() => { if (!zenOpen && (settings.tutorialSeen || loadAchievements().length) && !run?.tutorial) award('zen_open'); }, [run?.tutorial]);
-  // Jardín de Agua: se abre al llevar el estanque del Zen a 4×4.
-  const waterOpen = loadAchievements().includes('pond_max');
-  // La tienda siembra en el jardín desde el que se abrió; el resto del juego, en el Zen.
-  setGarden(screen === 'watergarden' || (screen === 'shop' && shopFrom === 'watergarden') ? 'agua' : 'zen');
   useEffect(() => { setSfxEnabled(settings.sound); setSfxVolume(settings.volume); }, [settings.sound, settings.volume]);
   useEffect(() => { setMusicEnabled(settings.music !== false); }, [settings.music]);
   // El navegador no deja sonar sin un gesto: el fondo arranca con el primer toque. El listener
@@ -108,7 +105,7 @@ export function App() {
   }, []);
   // La música sigue a la pantalla, al jefe y a la mesa (applyTheme ya puso data-art en este render).
   const boss = screen === 'game' && (node?.isBoss || node?.isMiniBoss);
-  const mood = screen === 'zen' || screen === 'watergarden' ? 'zen' : screen === 'mini' || screen === 'free-mini' ? 'mini' : boss ? 'boss' : 'normal';
+  const mood = screen === 'zen' || screen === 'water' || screen === 'boatrace' ? 'zen' : screen === 'mini' || screen === 'free-mini' ? 'mini' : boss ? 'boss' : 'normal';
   useEffect(() => { setMusicScene(mood); }, [mood, settings.theme]);
   // Una mesa guardada que no se compró vuelve a la de serie.
   useEffect(() => { if (!themeOwned(settings.theme)) setSettings((s) => ({ ...s, theme: DEFAULT_SETTINGS.theme })); }, []);
@@ -316,7 +313,7 @@ export function App() {
   const FreeMini = MINIGAMES[freeMini]?.Screen;
 
   return html`
-    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} inTutorial=${!!run?.tutorial && !zenOpen} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${zenOpen ? () => goTo('zen') : null} onWaterGarden=${waterOpen ? () => goTo('watergarden') : null} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} onVersus=${() => newVersus()} settings=${settings} setSettings=${setSettings} />`}
+    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} inTutorial=${!!run?.tutorial && !zenOpen} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${zenOpen ? () => goTo('zen') : null} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} onVersus=${() => newVersus()} settings=${settings} setSettings=${setSettings} />`}
     ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} onShop=${openShop('map')} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} settings=${settings} setSettings=${setSettings} defaultCount=${seats?.length} onHowTo=${() => setHowTo(true)} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame}
@@ -352,8 +349,8 @@ export function App() {
       endLabel=${t('mini.again', 'Otra partida')}
       onEnd=${(won) => { if (won) award('free_mini'); setFreeKey((k) => k + 1); }}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
-    ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
-    ${screen === 'watergarden' && html`<${ZenScreen} key="agua" garden="agua" onBack=${() => goTo('menu')} onShop=${openShop('watergarden')} />`}
+    ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} onGarden=${goTo} />`}
+    ${screen === 'water' && html`<${WaterScreen} onBack=${() => goTo('menu')} onGarden=${goTo}/>`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => {
       // Desde una partida: vuelve a la misma partida, donde quedó.
       const s = shopFrom === 'game' && run?.suspended;
