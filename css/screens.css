@@ -1773,3 +1773,4 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .br-hud { align-items: center; }
 .br-pad .rc { justify-content: space-between; width: min(100%, 360px); margin-inline: auto; }
 .wt-races { display: grid; gap: 10px; }
+@media (max-width: 520px) { .br-pad, .wt-full .br-pad { left: 12px; right: 12px; translate: none; } .br-pad .rc { width: 100%; } }
