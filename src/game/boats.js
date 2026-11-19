@@ -1,0 +1,34 @@
+// Barquitos y koi que se manejan como teledirigidos: rumbo `h`, velocidad de avance `v` y deriva lateral
+// (vx, vy). Lo usan el Jardín de Agua (src/view/pond.js) y la carrera. Sin DOM.
+import { BOATS } from '../data/garden.js';
+
+const TAU = Math.PI * 2;
+export const wrap = (a) => ((a + Math.PI) % TAU + TAU) % TAU - Math.PI;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+export const newBoat = (kind, x, y, h = -Math.PI / 2) => ({ kind, x, y, h, v: 0, vx: 0, vy: 0 });
+
+// Mando: { throttle: -1..1, steer: -1..1 } (teclado) o { aim: ángulo, mag: 0..1 } (joystick: hacia dónde ir).
+export function control(b, input) {
+  if (!input) return { throttle: 0, steer: 0 };
+  if (input.aim == null) return input;
+  const d = wrap(input.aim - b.h);
+  return { steer: clamp(d * 2.5, -1, 1), throttle: input.mag * (Math.abs(d) < 1.6 ? 1 : 0.2) };
+}
+
+// Un paso: acelera hacia `throttle · top`, gira más cuanto más corre, la deriva se pega al rumbo según
+// `grip` y en la orilla rebota (inside(x, y): si es agua). Devuelve la fuerza del golpe contra la orilla.
+export function drive(b, input, dt, inside, scale = 1) {
+  const st = BOATS[b.kind] || BOATS.papel, { throttle, steer } = control(b, input);
+  const want = throttle * st.top * scale * (throttle < 0 ? 0.4 : 1);
+  b.v += (want - b.v) * Math.min(1, st.accel * dt);
+  b.h = wrap(b.h + steer * st.turn * dt * clamp(Math.abs(b.v) / (st.top * 0.35), 0.25, 1) * Math.sign(b.v || 1));
+  const fx = Math.cos(b.h) * b.v, fy = Math.sin(b.h) * b.v, k = Math.min(1, st.grip * dt);
+  b.vx += (fx - b.vx) * k; b.vy += (fy - b.vy) * k;
+  const nx = b.x + b.vx * dt, ny = b.y + b.vy * dt;
+  if (inside(nx, ny)) { b.x = nx; b.y = ny; return 0; }
+  const hit = Math.hypot(b.vx, b.vy);
+  // Contra la orilla: se queda donde estaba, frena y rebota hacia atrás.
+  b.vx *= -0.4; b.vy *= -0.4; b.v *= -0.3;
+  return hit;
+}

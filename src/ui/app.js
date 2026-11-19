@@ -19,7 +19,6 @@ import { MINIGAMES } from '../data/minigame-catalog.js';
 import { loadRun, saveRun, clearRun, createRun, completeNode, enterLevel, resetLevel, dropLevel, loadSettings, saveSettings, loadUnlocked, unlockMini, unlockBoss, loadBosses, floorTier, DEFAULT_SETTINGS, withPrefs, takeNewDemos } from '../game/run.js';
 import { COINS_PER_NODE, addCoins, addToHand, themeOwned, consumeCard, seeCards } from '../game/shop.js';
 import { ZEN_NAMES, addZenSeeds, pickSeed, setGarden } from '../game/zen.js';
-import { RACE_PRIZE } from '../data/garden.js';
 import { popSeed } from './coins.js';
 import { PICKUP_ART } from './zen-art.js';
 import { MUTATIONS, pickMutationChoices } from '../data/mutations.js';
@@ -61,8 +60,7 @@ export function App() {
   const [reward, setReward] = useState(null); // { kind, cards }
   const [reveal, setReveal] = useState(null); // mutación del Frasco extraño, que se enseña antes del mapa
   const [howTo, setHowTo] = useState(false);
-  const [freeMini, setFreeMini] = useState(null);
-  const [freeBack, setFreeBack] = useState('minis'); // la regata del Jardín de Agua vuelve al jardín // minigame played from the menu, outside a run
+  const [freeMini, setFreeMini] = useState(null); // minigame played from the menu, outside a run
   const [freeKey, setFreeKey] = useState(0);
   const [miniKey, setMiniKey] = useState(0); // remonta el minijuego del mapa al cambiar de dificultad
   const [shopFrom, setShopFrom] = useState('zen'); // a dónde vuelve la tienda
@@ -349,18 +347,13 @@ export function App() {
     ${screen === 'mini' && Mini && html`<${Mini} key=${node.id + '-' + miniKey} sub=${t('mini.floorSub', 'Piso {n} · minijuego', { n: node.floor + 1 })} onBack=${leaveMini} onEnd=${onMiniEnd}
       diff=${floorTier(node.floor, run.map.floors)}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setMiniKey((k) => k + 1)} />`}
-    ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeBack('minis'); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
-    ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub=${freeBack === 'minis' ? t('mini.free', 'Partida libre') : t('menu.agua', 'Jardín de Agua')} onBack=${() => goTo(freeBack)}
-      endLabel=${freeBack === 'minis' ? t('mini.again', 'Otra partida') : t('zen.back', 'Volver al jardín')}
-      onEnd=${(won) => {
-        if (freeBack === 'minis') { if (won) award('free_mini'); return setFreeKey((k) => k + 1); }
-        if (won) { addCoins(RACE_PRIZE); unlockMini('regatta'); }
-        goTo(freeBack);
-      }}
+    ${screen === 'minis' && html`<${MinisScreen} unlocked=${loadUnlocked()} onBack=${() => goTo('menu')} onPlay=${(id) => { setFreeMini(id); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
+    ${screen === 'free-mini' && FreeMini && html`<${FreeMini} key=${freeKey} sub=${t('mini.free', 'Partida libre')} onBack=${() => goTo('minis')}
+      endLabel=${t('mini.again', 'Otra partida')}
+      onEnd=${(won) => { if (won) award('free_mini'); setFreeKey((k) => k + 1); }}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} />`}
-    ${screen === 'watergarden' && html`<${ZenScreen} key="agua" garden="agua" onBack=${() => goTo('menu')} onShop=${openShop('watergarden')}
-      onRace=${() => { setFreeMini('regatta'); setFreeBack('watergarden'); setFreeKey((k) => k + 1); goTo('free-mini'); }} />`}
+    ${screen === 'watergarden' && html`<${ZenScreen} key="agua" garden="agua" onBack=${() => goTo('menu')} onShop=${openShop('watergarden')} />`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => {
       // Desde una partida: vuelve a la misma partida, donde quedó.
       const s = shopFrom === 'game' && run?.suspended;

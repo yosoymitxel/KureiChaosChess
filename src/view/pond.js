@@ -12,7 +12,9 @@ const rnd = (a, b) => a + Math.random() * (b - a);
 const WATER = { deep: '#17414f', mid: '#245f6b', shallow: '#3a8584', light: '#bfeee6', ink: '#14191d' };
 const PAD = { base: '#4f8f3a', dark: '#36692a', light: '#86bd5c', vein: '#3a6f2c' };
 const LOTUS = { out: '#f3b8cd', in: '#fbe0ea', deep: '#df88aa', core: '#f2d36b' };
-const PALETTE = [...new Set([...Object.values(WATER), ...Object.values(PAD), ...Object.values(LOTUS), ...KOI_KINDS.flatMap((k) => [k.base, k.accent, k.marking, k.fin]), '#171815', '#ffffff', '#2f7468', '#5aa39a', '#9a7b4c', '#7fc4a0'])]
+// Barquitos (vista desde arriba): casco, cubierta, vela o cabina y su borde.
+const BOAT = { paper: '#f4f1e8', fold: '#c9c3b4', wood: '#9a6a3c', dark: '#5e3f22', bamboo: '#c9b26a', sail: '#fbf7ee', red: '#d2483a', buoy: '#e8573f' };
+const PALETTE = [...new Set([...Object.values(WATER), ...Object.values(PAD), ...Object.values(LOTUS), ...Object.values(BOAT), ...KOI_KINDS.flatMap((k) => [k.base, k.accent, k.marking, k.fin]), '#171815', '#ffffff', '#2f7468', '#5aa39a', '#9a7b4c', '#7fc4a0'])]
   .map((h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]);
 
 // Nenúfar: disco con su muesca, cara más clara arriba a la izquierda, nervios desde el centro.
@@ -52,6 +54,10 @@ export class Pond {
     this.weed = Array.from({ length: duckweed }, () => { for (;;) { const x = rnd(0, W), y = rnd(0, H); if (inside(x, y)) return { x, y, r: rnd(0.35, 0.6) }; } });
     this.glints = Array.from({ length: 5 }, () => ({ x: rnd(W * 0.2, W * 0.8), y: rnd(H * 0.2, H * 0.8), ph: rnd(0, TAU) }));
     this.lo = document.createElement('canvas');
+    this.boats = []; // { kind, x, y, h, v, vx, vy } de src/game/boats.js
+    this.marks = []; // boyas de la carrera: { x, y, on }
+    this.wake = [];  // estela: puntos que se abren y se apagan
+    this.onStep = null; // quien maneja los barcos (jardín o carrera) antes de cada paso
   }
 
   ripple(x, y, k = 1) { this.ripples.push({ x, y, age: 0, k }); if (this.ripples.length > 24) this.ripples.shift(); }
@@ -62,7 +68,22 @@ export class Pond {
   }
 
   step(dt, T) {
+    this.onStep?.(dt, T);
     this.school.step(dt, T);
+    // Estela de barcos y koi que corren: dos brazos en V que se abren, y una onda de vez en cuando.
+    for (const w of this.wake) w.age += dt;
+    this.wake = this.wake.filter((w) => w.age < 1.4);
+    for (const b of [...this.boats, ...this.school.fish.filter((f) => f.ctl)]) {
+      const sp = Math.hypot(b.vx ?? 0, b.vy ?? 0) || Math.abs(b.v || 0);
+      if (sp < 1.2) continue;
+      b.wt = (b.wt || 0) + dt;
+      if (b.wt < 0.05) continue;
+      b.wt = 0;
+      const back = b.fish ? 0 : this.len * 0.3;
+      this.wake.push({ x: b.x - Math.cos(b.h) * back, y: b.y - Math.sin(b.h) * back, h: b.h, age: 0, k: Math.min(1, sp / 10) });
+      if (Math.random() < 0.12) this.ripple(b.x, b.y, 0.25 + 0.25 * Math.min(1, sp / 10));
+    }
+    if (this.wake.length > 160) this.wake.splice(0, this.wake.length - 160);
     for (const r of this.ripples) r.age += dt;
     this.ripples = this.ripples.filter((r) => r.age < 2.2);
     for (this.rainAcc += this.rain * dt; this.rainAcc >= 1; this.rainAcc--) { const x = rnd(0, this.W), y = rnd(0, this.H); if (this.inside(x, y)) this.ripple(x, y, rnd(0.5, 0.9)); }
@@ -72,6 +93,10 @@ export class Pond {
       for (const r of this.ripples) {
         const d = Math.hypot(p.x - r.x, p.y - r.y), front = r.age * this.len * 1.2;
         if (r.age < 0.8 && Math.abs(d - front) < p.r && d > 0.01) { p.vx += ((p.x - r.x) / d) * 0.6 * r.k * dt; p.vy += ((p.y - r.y) / d) * 0.6 * r.k * dt; }
+      }
+      for (const b of this.boats) {
+        const d = Math.hypot(p.x - b.x, p.y - b.y), min = p.r + this.len * 0.22;
+        if (d < min && d > 0.01) { const f = (min - d) * 3; p.vx += ((p.x - b.x) / d) * f * dt * 6; p.vy += ((p.y - b.y) / d) * f * dt * 6; }
       }
       if (!this.inside(p.x + p.vx * 2, p.y + p.vy * 2)) { p.vx += (this.W / 2 - p.x) * 0.02 * dt; p.vy += (this.H / 2 - p.y) * 0.02 * dt; }
       p.vx *= 1 - dt * 0.6; p.vy *= 1 - dt * 0.6;
@@ -158,6 +183,16 @@ export class Pond {
       ctx.lineWidth = pixel ? 0.5 : 0.22;
       ctx.beginPath(); ctx.arc(r.x, r.y, 0.4 + a * len * 0.9 * r.k, 0, TAU); ctx.stroke();
     }
+    // Estela: cada punto deja dos rayitas que se abren hacia atrás.
+    ctx.lineWidth = pixel ? 0.5 : 0.2;
+    for (const w of this.wake) {
+      const open = 0.5 + w.age * len * 0.35, a = w.h + Math.PI;
+      ctx.globalAlpha = Math.max(0, 0.6 - w.age * 0.45) * (0.4 + 0.6 * w.k);
+      for (const side of [-1, 1]) {
+        const px = w.x + Math.cos(a + side * 0.5) * open, py = w.y + Math.sin(a + side * 0.5) * open;
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + Math.cos(a) * 0.9, py + Math.sin(a) * 0.9); ctx.stroke();
+      }
+    }
     ctx.globalAlpha = 1;
     // Lenteja de agua, nenúfares y el loto: flotan por encima de los peces.
     ctx.fillStyle = '#7fc4a0';
@@ -167,6 +202,8 @@ export class Pond {
       drawPad(ctx, p.x, p.y, p.r * (1 + bob), p.rot);
       if (i === this.lotus) drawLotus(ctx, p.x - p.r * 0.1, p.y - p.r * 0.15, p.r * 0.62, T);
     });
+    for (const m of this.marks) drawBuoy(ctx, m, T, len);
+    for (const b of this.boats) drawBoat(ctx, b, T, len, pixel);
     // Brillos sueltos en la superficie.
     ctx.fillStyle = '#ffffff';
     for (const s of this.glints) {
@@ -177,6 +214,51 @@ export class Pond {
     }
     ctx.globalAlpha = 1;
   }
+}
+
+// Boya: se mece; la siguiente que toca pasar (`on`) lleva un aro que late.
+function drawBuoy(ctx, m, T, len) {
+  const r = len * 0.16, bob = Math.sin(T * 2 + m.x) * 0.06;
+  ctx.fillStyle = WATER.ink; ctx.globalAlpha = 0.25;
+  ctx.beginPath(); ctx.arc(m.x + r * 0.3, m.y + r * 0.4, r, 0, TAU); ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = BOAT.buoy; ctx.beginPath(); ctx.arc(m.x, m.y, r * (1 + bob), 0, TAU); ctx.fill();
+  ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(m.x, m.y, r * 0.45, 0, TAU); ctx.fill();
+  if (m.on) {
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 0.3; ctx.globalAlpha = 0.5 + 0.4 * Math.sin(T * 6);
+    ctx.beginPath(); ctx.arc(m.x, m.y, r * 2.4, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+}
+
+// Barquito visto desde arriba, apuntando a su rumbo; se mece y escora al girar.
+function drawBoat(ctx, b, T, len, pixel) {
+  const L = len * 0.85, Wd = L * 0.45, rock = Math.sin(T * 2.6 + b.x * 0.7) * 0.04;
+  ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.h + rock);
+  const poly = (pts, fill) => { ctx.beginPath(); pts.forEach(([x, y], i) => (i ? ctx.lineTo(x * L, y * Wd) : ctx.moveTo(x * L, y * Wd))); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); };
+  // Sombra corrida abajo a la derecha, como la de los peces.
+  ctx.save(); ctx.rotate(-(b.h + rock)); ctx.translate(L * 0.12, L * 0.16); ctx.rotate(b.h + rock);
+  ctx.globalAlpha = pixel ? 0.3 : 0.22; poly([[0.55, 0], [0.2, 0.55], [-0.5, 0.5], [-0.5, -0.5], [0.2, -0.55]], WATER.ink); ctx.globalAlpha = 1;
+  ctx.restore();
+  if (b.kind === 'papel') {
+    poly([[0.55, 0], [0.25, 0.5], [-0.5, 0.5], [-0.3, 0], [-0.5, -0.5], [0.25, -0.5]], BOAT.paper);
+    poly([[0.25, 0.5], [-0.1, 0], [0.25, -0.5], [0.05, 0]], BOAT.fold);
+    poly([[-0.3, 0], [-0.5, 0.5], [-0.15, 0.08]], BOAT.fold);
+  } else if (b.kind === 'balsa') {
+    poly([[0.5, 0.5], [-0.5, 0.5], [-0.5, -0.5], [0.5, -0.5]], BOAT.bamboo);
+    ctx.strokeStyle = BOAT.dark; ctx.lineWidth = pixel ? 0.5 : 0.12;
+    for (const y of [-0.25, 0, 0.25]) { ctx.beginPath(); ctx.moveTo(-0.5 * L, y * Wd); ctx.lineTo(0.5 * L, y * Wd); ctx.stroke(); }
+    poly([[0.2, 0], [-0.25, 0.35], [-0.25, -0.35]], BOAT.sail);
+  } else if (b.kind === 'velero') {
+    poly([[0.6, 0], [0.2, 0.48], [-0.5, 0.4], [-0.5, -0.4], [0.2, -0.48]], BOAT.wood);
+    poly([[0.45, 0], [0.15, 0.32], [-0.4, 0.28], [-0.4, -0.28], [0.15, -0.32]], BOAT.dark);
+    const sw = Math.max(-0.5, Math.min(0.5, (b.v || 0) * 0.04)); // la vela se hincha con la velocidad
+    poly([[0.25, 0], [-0.35, 0.7 + sw], [-0.35, 0.05]], BOAT.sail);
+  } else if (b.kind === 'lancha') {
+    poly([[0.65, 0], [0.25, 0.48], [-0.5, 0.45], [-0.5, -0.45], [0.25, -0.48]], BOAT.red);
+    poly([[0.15, 0.3], [-0.2, 0.3], [-0.2, -0.3], [0.15, -0.3]], BOAT.paper);
+    poly([[-0.5, 0.18], [-0.62, 0.18], [-0.62, -0.18], [-0.5, -0.18]], WATER.ink);
+  }
+  ctx.restore();
 }
 
 // Silueta entera (cuerpo, aletas y cola) para la sombra y el borde en píxel.

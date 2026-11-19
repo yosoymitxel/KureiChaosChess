@@ -51,4 +51,16 @@ export const GARDENS = localize('gardens', {
   zen: { id: 'zen', name: 'Jardín Zen', sub: 'Un rincón tranquilo entre runs' },
   agua: { id: 'agua', name: 'Jardín de Agua', sub: 'Estanque grande, orilla con macetas y regatas' },
 });
-export const RACE_PRIZE = 20; // monedas por ganar la regata desde el Jardín de Agua
+
+// Barquitos del Jardín de Agua: se compran allí, se manejan como teledirigidos y corren en la carrera.
+// top: velocidad punta (unidades del estanque por segundo); accel: cuánto tarda en llegar; turn: giro (rad/s);
+// grip: cuánto se pega al rumbo (poco = derrapa). El koi no se compra: siempre puede correr.
+export const BOATS = localize('boats', {
+  papel: { id: 'papel', name: 'Barquito de papel', price: 25, top: 8, accel: 1.8, turn: 2.6, grip: 3, desc: 'Ligero y ágil, pero lento.' },
+  balsa: { id: 'balsa', name: 'Balsa de bambú', price: 70, top: 9, accel: 1.1, turn: 2.2, grip: 5, desc: 'Pesada: tarda en arrancar y no derrapa.' },
+  velero: { id: 'velero', name: 'Velero', price: 140, top: 12, accel: 0.8, turn: 1.7, grip: 2, desc: 'Rápido en recta; en las curvas se abre.' },
+  lancha: { id: 'lancha', name: 'Lancha', price: 260, top: 14, accel: 2, turn: 2, grip: 3.5, desc: 'La más rápida y con buen giro.' },
+  koi: { id: 'koi', name: 'Koi', price: 0, top: 10, accel: 2.4, turn: 3.4, grip: 6, fish: true, desc: 'Nada ágil y gira en seco.' },
+});
+// Monedas por ganar la carrera, según la dificultad.
+export const RACE_PRIZE = { facil: 10, normal: 20, dificil: 35 };

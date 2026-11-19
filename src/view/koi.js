@@ -24,6 +24,7 @@ export class School {
   step(dt, T) {
     const { fish, inside, len, speed, food } = this;
     for (const f of fish) {
+      if (f.ctl) { swim(f, dt); continue; } // lo lleva la carrera: solo nada, sin rumbo propio
       let want = f.h + Math.sin(T * 0.35 + f.seed) * 0.9 * dt * 2; // vagar: un giro lento que cambia
       let turn = 1.6, v = speed * (0.8 + 0.3 * Math.sin(T * 0.5 + f.seed));
       const bit = food.reduce((a, p) => (!a || Math.hypot(p.x - f.x, p.y - f.y) < Math.hypot(a.x - f.x, a.y - f.y) ? p : a), null);
@@ -48,15 +49,20 @@ export class School {
       const nx = f.x + Math.cos(f.h) * f.v * dt, ny = f.y + Math.sin(f.h) * f.v * dt;
       if (inside(nx, ny)) { f.x = nx; f.y = ny; } else f.h += Math.PI * dt * 2;
       f.burst = Math.max(0, f.burst - dt);
-      f.phase += dt * (3 + f.v * 0.9);
       f.depth = 0.5 + 0.5 * Math.sin(T * 0.2 + f.seed) - f.burst * 0.5; // sube al comer
-      const p = f.pts;
-      p[0] = [f.x, f.y];
-      for (let k = 1; k < N; k++) {
-        const a = Math.atan2(p[k - 1][1] - p[k][1], p[k - 1][0] - p[k][0]);
-        p[k] = [p[k - 1][0] - Math.cos(a) * f.seg, p[k - 1][1] - Math.sin(a) * f.seg];
-      }
+      swim(f, dt);
     }
+  }
+}
+
+// Ondular y arrastrar el cuerpo detrás de la cabeza.
+function swim(f, dt) {
+  f.phase += dt * (3 + Math.abs(f.v) * 0.9);
+  const p = f.pts;
+  p[0] = [f.x, f.y];
+  for (let k = 1; k < N; k++) {
+    const a = Math.atan2(p[k - 1][1] - p[k][1], p[k - 1][0] - p[k][0]);
+    p[k] = [p[k - 1][0] - Math.cos(a) * f.seg, p[k - 1][1] - Math.sin(a) * f.seg];
   }
 }
 

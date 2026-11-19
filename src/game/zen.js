@@ -82,7 +82,7 @@ export function loadZen(g = garden) {
   const size = Math.min(ZEN_MAX, Math.max(ZEN_BASE, z.size || ZEN_BASE));
   const out = { ...blankZen(g), size, off: z.off || 0, lake: z.lake || 2, pots, rocks: z.rocks || {}, tiles: z.tiles || {}, dug: z.dug || {}, lanterns: z.lanterns || [], lakeAt: z.lakeAt, moveT: z.moveT, items: z.items || {},
     seeds: seedsOf(z.seeds), flores, planted, leaves: z.leaves || [], leafT: z.leafT, digT: z.digT, koiT: z.koiT,
-    wear: z.wear || {}, loose: z.loose || {}, bushT: z.bushT };
+    wear: z.wear || {}, loose: z.loose || {}, bushT: z.bushT, boats: z.boats || [] };
   return (z.v || 0) < 3 ? withBase(out) : out;
 }
 const movedPot = (k) => ({ r1c1: 'r1c3', r2c1: 'r2c3' })[k] || k;
