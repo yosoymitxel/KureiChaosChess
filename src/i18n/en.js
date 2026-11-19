@@ -848,8 +848,6 @@ export default {
     "boatrace.help": "Two laps around a channel that changes every race, through the buoys in order, against two boats and a koi. Rocks block the way and weed slows you down. Steer with the controller or the arrows.",
     "boatrace.diff": "Difficulty",
     "boatrace.nitro": "Nitro",
-    "boatrace.ready": "ready",
-    "boatrace.boosting": "Go!",
     "boatrace.racer": "Racer",
     "boatrace.lap": "Lap {n}/{of}",
     "boatrace.place": "Place {n}",

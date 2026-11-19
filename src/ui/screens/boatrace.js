@@ -100,10 +100,9 @@ function Race({ kind, diff, onBack, again }) {
         ${hud.count > 0 && html`<b class="br-count">${hud.count}</b>`}
       </div>
       ${!over && html`<div class="br-pad"><${RcPad} input=${rc} zoom=${zoom} onZoom=${() => setZoom((z) => !z)}>
-        <button class=${'btn br-nitro' + (hud.boost ? ' on' : hud.cd ? ' wait' : ' ready')} disabled=${hud.cd > 0 || hud.count > 0}
-          style=${{ '--fill': 1 - hud.cd / NITRO.cooldown }} onClick=${() => nitro(s)} aria-label=${t('boatrace.nitro', 'Nitro')}>
-          <b>${t('boatrace.nitro', 'Nitro')}</b><small>${hud.boost ? t('boatrace.boosting', '¡Ya!') : hud.cd > 0 ? `${Math.ceil(hud.cd)} s` : t('boatrace.ready', 'listo')}</small>
-        </button><//></div>`}
+        <button class=${'zn-tool-ic br-nitro' + (hud.boost ? ' on' : '') + (hud.cd > 0 ? ' zn-cool' : '')} disabled=${hud.cd > 0 || hud.count > 0}
+          style=${hud.cd > 0 ? { '--zn-rest': (hud.cd / NITRO.cooldown).toFixed(4) } : null} onClick=${() => nitro(s)} aria-label=${t('boatrace.nitro', 'Nitro')} title=${t('boatrace.nitro', 'Nitro')}>
+          <${Icon} name="meteor" size=${30} /></button><//></div>`}
     </div>
     ${over && html`<${MiniEnd} win=${over === 'win'} note=${over === 'win' ? t('boatrace.won', 'Primero en la meta: +{n} monedas.', { n: RACE_PRIZE[diff] }) : t('boatrace.lost', 'Llegaste {n}º.', { n: s.place })}
       label=${t('boatrace.again', 'Otra carrera')} onEnd=${again} />`}
