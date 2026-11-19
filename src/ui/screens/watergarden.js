@@ -9,14 +9,17 @@ import {
   buyBoat, moveBoat, setBoatTarget, boatsStep, useNet, useBait, addWaterTool,
   startRace, expandWater, buyWaterItem,
   takePhoto, playWaterSound,
+} from '../../game/watergarden.js';
+import {
   WATER_PLANTS, KOI_KINDS_DATA, BOAT_KINDS_DATA, WATER_TOOLS,
   blankWaterGarden, waterCellKey, parseWaterKey, inWaterGrid, isWater,
-  WATER_MAX_SIZE, WATER_BASE_SIZE, KOI_HUNGER_MS, RACE_ENTRY_COST, RACE_WIN_PRIZE,
+  WATER_LEVEL_COST, WATER_MAX_SIZE, WATER_BASE_SIZE, KOI_HUNGER_MS, RACE_ENTRY_COST, RACE_WIN_PRIZE,
   waterLevelFor, xpToNext,
   KOI_BREED_COST, KOI_BREED_SUCCESS_CHANCE, GALLERY_MAX_PHOTOS, PHOTO_COST, WATER_SOUNDS,
-} from '../../game/watergarden.js';
+} from '../../data/watergarden.js';
 import { award } from '../../game/achievements.js';
 import { Pond } from '../../view/pond.js';
+import { t } from '../../i18n/index.js';
 
 const CELL = 16;
 
@@ -132,13 +135,13 @@ export function WaterGardenScreen({ onBack, onShop }) {
     if (mode === 'harvest') {
       const nz = waterHarvest(z, key);
       if (nz === z) { setMsg('No hay flor lista para cortar.'); return; }
-      setZ(nz);
+      setZ(nz); if (Object.keys(nz.harvested || {}).length >= Object.keys(WATER_PLANTS).length) award('agua_flora_all');
       setMsg('Flor cosechada.');
       return;
     }
     if (mode === 'net') {
       const idx = (z.leaves || []).findIndex((l) => Math.hypot(l.x * CELL - x, l.y * CELL - y) < CELL * 0.6);
-      if (idx >= 0) { setZ(useNet(z, idx)); setMsg('Hoja limpiada: +1 moneda.'); return; }
+      if (idx >= 0) { const nz = useNet(z, idx); setZ(nz); if (nz.leavesCleaned >= 10) award('agua_red'); setMsg('Hoja limpiada: +1 moneda.'); return; }
       setMsg('No hay hoja aquí.');
       return;
     }

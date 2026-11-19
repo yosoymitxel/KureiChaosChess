@@ -92,6 +92,7 @@ export const waterHarvest = (z, key, now = Date.now(), rng = Math.random) => {
     xp: z.xp + sp.xp,
     plants: { ...z.plants, [key]: null },
     ...(back ? { seeds: { ...(z.seeds || {}), [kind]: ((z.seeds || {})[kind] || 0) + 1 } } : {}),
+    harvested: { ...(z.harvested || {}), [kind]: true },
   };
 };
 
