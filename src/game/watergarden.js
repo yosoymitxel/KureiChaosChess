@@ -7,7 +7,7 @@ import {
   WATER_PLANTS, KOI_KINDS_DATA, BOAT_KINDS_DATA, WATER_TOOLS,
   blankWaterGarden, waterCellKey, parseWaterKey, inWaterGrid, isWater,
   WATER_MAX_SIZE, WATER_BASE_SIZE, WATER_LEVEL_COST, KOI_HUNGER_MS,
-  KOI_FEED_XP, BOAT_WEAR_MAX, RACE_ENTRY_COST, RACE_WIN_PRIZE,
+  KOI_FEED_XP, KOI_COIN_PER_SEC, BOAT_WEAR_MAX, RACE_ENTRY_COST, RACE_WIN_PRIZE,
   waterLevelFor, xpToNext,
   KOI_BREED_COOLDOWN_MS, KOI_BREED_COST, KOI_BREED_SUCCESS_CHANCE, KOI_BREED_MIN_SPACE,
   GALLERY_MAX_PHOTOS, PHOTO_COST, WATER_SOUNDS,
@@ -18,9 +18,20 @@ const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null')
 const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
 export const loadWaterGarden = () => {
+  const base = blankWaterGarden();
   const z = read(KEY);
-  if (!z) return blankWaterGarden();
-  return { ...blankWaterGarden(), ...z, plants: z.plants || {}, kois: z.kois || [], boats: z.boats || [], tools: z.tools || {}, waterTiles: z.waterTiles || {} };
+  if (!z) return base;
+  // Migración: versiones anteriores guardaban el grid de agua vacío y el modo era injugable.
+  let waterTiles = z.waterTiles || {};
+  if (Object.keys(waterTiles).length === 0) {
+    waterTiles = base.waterTiles;
+  }
+  return {
+    ...base, ...z,
+    plants: z.plants || {}, kois: z.kois || [], boats: z.boats || [],
+    tools: z.tools || {}, waterTiles,
+    leaves: z.leaves || [], photos: z.photos || [], leavesCleaned: z.leavesCleaned || 0,
+  };
 };
 export const saveWaterGarden = (z) => write(KEY, z);
 
@@ -116,16 +127,17 @@ export const feedKoi = (z, koiId, now = Date.now()) => {
   };
 };
 
-// El koi genera XP pasivo mientras nada (llamado cada paso del bucle).
+// El koi genera XP y monedas pasivas mientras nada (llamado una vez por segundo).
 export const koiPassiveXP = (z, dtSec) => {
   let added = 0;
   const kois = z.kois.map((k) => {
     const kd = KOI_KINDS_DATA[k.kind];
-    const gain = kd.xpPerSec * dtSec;
+    const gain = (kd?.xpPerSec || 0) * dtSec;
     added += gain;
-    return { ...k, xp: k.xp + gain };
+    return { ...k, xp: (k.xp || 0) + gain };
   });
-  return { ...z, kois, xp: z.xp + added };
+  const coins = (z.coins || 0) + z.kois.length * KOI_COIN_PER_SEC * dtSec;
+  return { ...z, kois, xp: z.xp + added, coins };
 };
 
 // ---------- Barquitos ----------
@@ -193,7 +205,7 @@ export const useNet = (z, leafIndex) => {
   const leaves = [...(z.leaves || [])];
   if (leafIndex < 0 || leafIndex >= leaves.length) return z;
   leaves.splice(leafIndex, 1);
-  return { ...z, leaves, coins: z.coins + 1 };
+  return { ...z, leaves, leavesCleaned: (z.leavesCleaned || 0) + 1, coins: z.coins + 1 };
 };
 
 export const useBait = (z, now = Date.now()) => {
@@ -209,10 +221,12 @@ export const startRace = (z, playerBoatId, rng = Math.random) => {
   const player = z.boats.find((b) => b.id === playerBoatId);
   if (!player || z.coins < RACE_ENTRY_COST) return { z, raced: false };
   const bd = BOAT_KINDS_DATA[player.kind];
-  // Oponentes: 3 barcos aleatorios del mismo tipo o inferior.
+  const kinds = Object.keys(BOAT_KINDS_DATA);
+  // Oponentes equilibrados: mismo ritmo que tu barco (0.7–0.95×) para que cualquier barco
+  // tenga posibilidades; el tipo es solo estético.
   const opponents = Array.from({ length: 3 }, (_, i) => {
-    const k = Object.keys(BOAT_KINDS_DATA)[i % Object.keys(BOAT_KINDS_DATA).length];
-    return { id: `opp-${i}`, kind: k, speed: BOAT_KINDS_DATA[k].speed, dist: 0 };
+    const k = kinds[Math.floor(rng() * kinds.length)];
+    return { id: `opp-${i}`, kind: k, speed: bd.speed * (0.7 + rng() * 0.25), dist: 0 };
   });
   const playerSpeed = bd.speed;
   const raceDist = 100;
@@ -235,7 +249,7 @@ export const startRace = (z, playerBoatId, rng = Math.random) => {
   const out = {
     ...z,
     coins: z.coins - RACE_ENTRY_COST + (won ? RACE_WIN_PRIZE : 0),
-    racesWon: z.racesWon + (won ? 1 : 0),
+    racesWon: (z.racesWon || 0) + (won ? 1 : 0),
     bestRaceTime: best,
   };
   return { z: out, raced: true, won, timeSec, opponents };
@@ -285,7 +299,10 @@ export const buyWaterItem = (z, id) => {
   }
   if (tool) {
     if (z.coins < tool.price) return z;
-    return { ...z, coins: z.coins - tool.price, ...addWaterTool(z, id) };
+    // Ojo: addWaterTool devuelve el estado completo; hay que tomar solo `tools` para no
+    // reemplazar el descuento de monedas con el saldo viejo.
+    const withTool = addWaterTool(z, id);
+    return { ...z, coins: z.coins - tool.price, tools: withTool.tools };
   }
   return z;
 };
@@ -312,17 +329,24 @@ export const expandWater = (z) => {
 export const breedKoi = (z, idA, idB, now = Date.now(), rng = Math.random) => {
   const a = z.kois.find((k) => k.id === idA);
   const b = z.kois.find((k) => k.id === idB);
-  if (!a || !b || a.kind !== b.kind) return { z, bred: false, msg: 'Necesitas dos koi del mismo tipo.' };
-  if (a.hungerT && now - a.hungerT < 0) return { z, bred: false, msg: 'Uno de los koi no está listo.' };
-  if (b.hungerT && now - b.hungerT < 0) return { z, bred: false, msg: 'Uno de los koi no está listo.' };
+  if (!a || !b || a.id === b.id || a.kind !== b.kind) {
+    return { z, bred: false, msg: 'Necesitas dos koi distintos del mismo tipo.' };
+  }
+  // Los padres deben estar alimentados (hungerT en el futuro) y no venir de otra cría reciente.
+  const fed = (k) => (k.hungerT || 0) > now;
+  if (!fed(a) || !fed(b)) return { z, bred: false, msg: 'Alimenta a los dos koi antes de criar.' };
+  const resting = (k) => k.bredT && now - k.bredT < KOI_BREED_COOLDOWN_MS;
+  if (resting(a) || resting(b)) return { z, bred: false, msg: 'Los koi descansan: espera una hora entre crías.' };
   // Espacio libre en el estanque.
   const waterKeys = Object.keys(z.waterTiles || {});
   const occupied = new Set(z.kois.map((k) => k.key));
   const free = waterKeys.filter((k) => !occupied.has(k));
   if (free.length < KOI_BREED_MIN_SPACE) return { z, bred: false, msg: 'No hay suficiente espacio en el estanque.' };
   if (z.coins < KOI_BREED_COST) return { z, bred: false, msg: 'No tienes suficientes monedas.' };
+  // El intento cuenta como cría aunque falle: ambos padres descansan.
+  const parents = z.kois.map((k) => (k.id === idA || k.id === idB ? { ...k, bredT: now } : k));
   if (rng() > KOI_BREED_SUCCESS_CHANCE) {
-    return { ...z, coins: z.coins - KOI_BREED_COST, bred: false, msg: 'La cría no tuvo éxito esta vez.' };
+    return { ...z, coins: z.coins - KOI_BREED_COST, kois: parents, bred: false, msg: 'La cría no tuvo éxito esta vez.' };
   }
   // Nacer un koi nuevo del mismo tipo.
   const key = free[Math.floor(rng() * free.length)];
@@ -340,7 +364,7 @@ export const breedKoi = (z, idA, idB, now = Date.now(), rng = Math.random) => {
   return {
     ...z,
     coins: z.coins - KOI_BREED_COST,
-    kois: [...z.kois, baby],
+    kois: [...parents, baby],
     bred: true,
     msg: `¡Nació un koi ${KOI_KINDS_DATA[a.kind].name}!`,
   };
@@ -348,8 +372,8 @@ export const breedKoi = (z, idA, idB, now = Date.now(), rng = Math.random) => {
 
 // ---------- Galería de fotos ----------
 // Toma una foto del estanque y la guarda en la galería.
-export const takePhoto = (z, now = Date.now()) => {
-  if (z.coins < PHOTO_COST) return { z, photo: null, msg: 'No tienes suficientes monedas.' };
+export const takePhoto = (z, now = Date.now(), img = null, cost = PHOTO_COST) => {
+  if (z.coins < cost) return { z, photo: null, msg: 'No tienes suficientes monedas.' };
   const photos = [...(z.photos || [])];
   if (photos.length >= GALLERY_MAX_PHOTOS) return { z, photo: null, msg: 'La galería está llena.' };
   const photo = {
@@ -360,10 +384,11 @@ export const takePhoto = (z, now = Date.now()) => {
     plantCount: Object.values(z.plants || {}).filter(Boolean).length,
     boatCount: z.boats.length,
     takenT: now,
+    img: typeof img === 'string' ? img : null,
   };
   return {
     ...z,
-    coins: z.coins - PHOTO_COST,
+    coins: z.coins - cost,
     photos: [...photos, photo],
     photo,
     msg: 'Foto guardada en la galería.',
@@ -372,9 +397,9 @@ export const takePhoto = (z, now = Date.now()) => {
 
 // ---------- Sonido ----------
 export const playWaterSound = (kind) => {
-  const src = WATER_SOUNDS[kind];
-  if (!src) return;
+  const sfx = WATER_SOUNDS[kind];
+  if (!sfx) return;
   if (typeof window !== 'undefined' && window.dispatchEvent) {
-    window.dispatchEvent(new CustomEvent('zugzwang:water:sound', { detail: { src, kind } }));
+    window.dispatchEvent(new CustomEvent('zugzwang:water:sound', { detail: { kind, sfx } }));
   }
 };

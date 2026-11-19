@@ -1,0 +1,354 @@
+{
+ "frames": {
+  "koi_kohaku": {
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 11
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 11
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 11
+   }
+  },
+  "koi_sanke": {
+   "frame": {
+    "x": 18,
+    "y": 0,
+    "w": 16,
+    "h": 11
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 11
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 11
+   }
+  },
+  "koi_showa": {
+   "frame": {
+    "x": 36,
+    "y": 0,
+    "w": 16,
+    "h": 11
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 11
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 11
+   }
+  },
+  "koi_ogon": {
+   "frame": {
+    "x": 54,
+    "y": 0,
+    "w": 16,
+    "h": 11
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 11
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 11
+   }
+  },
+  "koi_tancho": {
+   "frame": {
+    "x": 72,
+    "y": 0,
+    "w": 16,
+    "h": 11
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 11
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 11
+   }
+  },
+  "koi_shiro": {
+   "frame": {
+    "x": 0,
+    "y": 13,
+    "w": 16,
+    "h": 11
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 11
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 11
+   }
+  },
+  "boat_papel": {
+   "frame": {
+    "x": 18,
+    "y": 13,
+    "w": 14,
+    "h": 10
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 10
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 10
+   }
+  },
+  "boat_madera": {
+   "frame": {
+    "x": 34,
+    "y": 13,
+    "w": 14,
+    "h": 10
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 10
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 10
+   }
+  },
+  "boat_bambu": {
+   "frame": {
+    "x": 50,
+    "y": 13,
+    "w": 14,
+    "h": 10
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 10
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 10
+   }
+  },
+  "boat_lujo": {
+   "frame": {
+    "x": 66,
+    "y": 13,
+    "w": 14,
+    "h": 10
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 10
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 10
+   }
+  },
+  "boat_velocidad": {
+   "frame": {
+    "x": 0,
+    "y": 26,
+    "w": 14,
+    "h": 10
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 14,
+    "h": 10
+   },
+   "sourceSize": {
+    "w": 14,
+    "h": 10
+   }
+  },
+  "plant_loto": {
+   "frame": {
+    "x": 16,
+    "y": 26,
+    "w": 12,
+    "h": 12
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 12
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 12
+   }
+  },
+  "plant_nenufar": {
+   "frame": {
+    "x": 30,
+    "y": 26,
+    "w": 12,
+    "h": 12
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 12
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 12
+   }
+  },
+  "plant_junco": {
+   "frame": {
+    "x": 44,
+    "y": 26,
+    "w": 12,
+    "h": 12
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 12
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 12
+   }
+  },
+  "plant_lenteja": {
+   "frame": {
+    "x": 58,
+    "y": 26,
+    "w": 12,
+    "h": 12
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 12
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 12
+   }
+  },
+  "plant_alga": {
+   "frame": {
+    "x": 0,
+    "y": 40,
+    "w": 12,
+    "h": 12
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 12
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 12
+   }
+  },
+  "plant_papiro": {
+   "frame": {
+    "x": 14,
+    "y": 40,
+    "w": 12,
+    "h": 12
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 12
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 12
+   }
+  }
+ },
+ "meta": {
+  "app": "pxl",
+  "image": "watergarden.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 88,
+   "h": 52
+  },
+  "scale": "1"
+ }
+}

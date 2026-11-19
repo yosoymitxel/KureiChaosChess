@@ -48,27 +48,41 @@ export const WATER_TOOLS = localize('waterTools', {
 // Reglas del estanque.
 export const WATER_MAX_SIZE = 8;
 export const WATER_BASE_SIZE = 4;
+export const WATER_START_COINS = 150; // regalo inicial: alcanza para arrancar sin bloqueo
 export const WATER_LEVEL_COST = (n) => 100 * 2 ** (n - WATER_BASE_SIZE); // monedas para subir nivel de agua
 export const KOI_HUNGER_MS = 20 * 60_000; // hambre cada 20 minutos
 export const KOI_FEED_XP = 10; // experiencia al alimentar
+export const KOI_COIN_PER_SEC = 0.01; // monedas pasivas por koi nadando
 export const BOAT_WEAR_MAX = 5; // golpes antes de reparar
 export const RACE_ENTRY_COST = 20; // monedas para entrar a una carrera
 export const RACE_WIN_PRIZE = 60; // monedas por ganar
 
+// El estanque es solo agua: todas las casillas del grid son agua desde el inicio.
+const fullWaterGrid = (size) => {
+  const tiles = {};
+  for (let r = 0; r < size; r += 1) {
+    for (let c = 0; c < size; c += 1) tiles[`r${r}c${c}`] = true;
+  }
+  return tiles;
+};
+
 // Estado inicial del jardín de agua.
 export const blankWaterGarden = () => ({
   size: WATER_BASE_SIZE,
-  coins: 0,
+  coins: WATER_START_COINS,
   xp: 0,
   level: 1,
-  waterTiles: {}, // { [key]: true } casillas que son agua
+  waterTiles: fullWaterGrid(WATER_BASE_SIZE), // { [key]: true } casillas que son agua
   plants: {}, // { [key]: { kind, t, g, wet, wt, cap, planted } }
-  kois: [], // [{ id, kind, x, y, level, hungerT, xp, boughtT }]
+  kois: [], // [{ id, kind, key, level, hungerT, xp, boughtT }]
   boats: [], // [{ id, kind, x, y, target, wear, boughtT }]
   tools: {},
   racesWon: 0,
   bestRaceTime: null,
   leaves: [], // hojas flotantes para limpiar con la red
+  leavesCleaned: 0,
+  photos: [], // galería del estanque
+  leafT: null,
   v: 1,
 });
 
@@ -106,11 +120,12 @@ export const GALLERY_MAX_PHOTOS = 24;
 export const PHOTO_COST = 10; // monedas por foto
 
 // ---------- Sonidos del jardín de agua ----------
+// Nombres de recetas de src/ui/sfx.js (WebAudio, sin archivos externos que puedan faltar).
 export const WATER_SOUNDS = {
-  ambient: 'assets/sfx/water-ambient.mp3',
-  splash: 'assets/sfx/water-splash.mp3',
-  feed: 'assets/sfx/water-feed.mp3',
-  breed: 'assets/sfx/water-breed.mp3',
-  camera: 'assets/sfx/water-camera.mp3',
-  race: 'assets/sfx/water-race.mp3',
+  ambient: 'water',
+  splash: 'splash',
+  feed: 'water',
+  breed: 'flower',
+  camera: 'card',
+  race: 'whoosh',
 };
