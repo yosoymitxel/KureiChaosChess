@@ -1,0 +1,6 @@
+{
+  "version": 2, "phase": "plan",
+  "art_direction": { "description": "Flora y barquitos del Jardín de Agua vistos desde arriba, como el estanque: formas planas con una luz suave arriba a la izquierda, sombra corrida abajo a la derecha, contorno fino de tinta #14191d y la paleta del estanque (hoja #4f8f3a/#36692a/#86bd5c, loto #f3b8cd/#df88aa, núcleo #f2d36b).", "mood": "tranquilo, artesanal", "rendering": "flat con dos tonos y brillo", "material": "hoja cerosa, pétalo, papel, madera" },
+  "subjects": ["nenufar-bud", "nenufar-bloom", "loto-bud", "loto-bloom", "junco-bud", "junco-bloom", "lenteja-bud", "lenteja-bloom", "boat-papel", "boat-balsa", "boat-velero", "boat-lancha"],
+  "constraints": ["viewBox 0 0 64 64, centrado", "los barcos apuntan a +x (derecha)", "legible a 24 px (modo píxel)", "sin texto ni rasters"]
+}

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><title>Nenúfar, hoja con capullo</title>
+<g id="pad">
+<path id="pad.shadow" d="M34 35 L56 30 A24 22 0 1 1 52 22 Z" fill="#14191d" opacity="0.22"/>
+<path id="pad.leaf" d="M32 32 L54 27 A23 21 0 1 1 50 19 Z" fill="#4f8f3a" stroke="#14191d" stroke-width="1.2" stroke-linejoin="round"/>
+<path id="pad.light" d="M32 32 L14 20 A22 20 0 0 1 40 11.5 Z" fill="#86bd5c" opacity="0.55"/>
+<g id="pad.veins" stroke="#36692a" stroke-width="1" stroke-linecap="round" fill="none">
+<path d="M32 32 L12 28"/><path d="M32 32 L16 44"/><path d="M32 32 L30 52"/><path d="M32 32 L46 48"/><path d="M32 32 L22 13"/><path d="M32 32 L40 12"/>
+</g></g>
+<g id="bud"><ellipse cx="29" cy="33" rx="5" ry="6.5" fill="#14191d" opacity="0.25"/>
+<path d="M27 37 C22 33 23 25 27 21 C31 25 32 33 27 37 Z" fill="#fbe0ea" stroke="#14191d" stroke-width="1"/>
+<path d="M27 37 C25 32 25.5 26 27 21" stroke="#df88aa" stroke-width="1" fill="none"/></g>
+</svg>

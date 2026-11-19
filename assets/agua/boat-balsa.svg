@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><title>Balsa de bambú, desde arriba</title>
+<rect x="10" y="18" width="46" height="30" rx="4" fill="#14191d" opacity="0.22" transform="translate(2 3)"/>
+<g id="logs" stroke="#14191d" stroke-width="0.9">
+<rect x="10" y="17" width="46" height="7" rx="3.5" fill="#c9b26a"/><rect x="8" y="24" width="48" height="7" rx="3.5" fill="#d9c27a"/><rect x="10" y="31" width="46" height="7" rx="3.5" fill="#c9b26a"/><rect x="8" y="38" width="48" height="7" rx="3.5" fill="#d9c27a"/></g>
+<g id="ties" fill="#6b4a2a"><rect x="16" y="16" width="3" height="30" rx="1"/><rect x="46" y="16" width="3" height="30" rx="1"/></g>
+<g id="nodes" stroke="#9a8040" stroke-width="0.9"><path d="M30 17v7M36 24v7M26 31v7M40 38v7"/></g>
+<g id="sail" stroke="#14191d" stroke-width="0.9"><path d="M40 31 L24 20 L24 42 Z" fill="#f4f1e8"/><circle cx="40" cy="31" r="1.8" fill="#6b4a2a"/></g>
+</svg>

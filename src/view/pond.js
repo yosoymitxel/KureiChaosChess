@@ -251,6 +251,16 @@ export class Pond {
 }
 
 // Planta acuática según su etapa (brote, capullo, flor); la plaza libre es un aro punteado.
+// Sprites SVG del Jardín de Agua (assets/agua, dibujados con la skill vector-illustration). Mientras cargan,
+// o si fallan, se pinta el dibujo de código de siempre.
+const IMG = {};
+export function sprite(id) {
+  let im = IMG[id];
+  if (!im) { im = IMG[id] = new Image(); im.src = new URL(`../../assets/agua/${id}.svg`, import.meta.url).href; }
+  return im.complete && im.naturalWidth ? im : null;
+}
+const stamp = (ctx, im, x, y, size, rot) => { ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.drawImage(im, -size / 2, -size / 2, size, size); ctx.restore(); };
+
 export function drawPlant(ctx, p, T, len, pixel) {
   const u = len * 0.5, sway = Math.sin(T * 0.9 + p.x) * 0.06, g = p.stage === 'bloom' ? 1 : 0.35 + 0.65 * (p.grow || 0);
   if (!p.kind) {
@@ -259,6 +269,8 @@ export function drawPlant(ctx, p, T, len, pixel) {
     ctx.globalAlpha = 1;
     return;
   }
+  const im = p.kind && sprite(`${p.kind}-${p.stage === 'bloom' ? 'bloom' : 'bud'}`);
+  if (im) return stamp(ctx, im, p.x, p.y, u * 2.6 * (p.stage === 'sprout' ? 0.6 : p.stage === 'bud' ? 0.85 : 1) * (0.92 + 0.08 * g), (p.x * 7 % 6) + sway * 0.5);
   if (p.kind === 'lenteja') {
     ctx.fillStyle = REED.duck;
     for (let i = 0; i < 9; i++) { const a = i * 2.4, d = (i % 3 + 0.5) * u * 0.3 * g; ctx.beginPath(); ctx.arc(p.x + Math.cos(a + sway) * d, p.y + Math.sin(a) * d, pixel ? 0.6 : u * 0.13, 0, TAU); ctx.fill(); }
@@ -307,6 +319,8 @@ export function drawBoat(ctx, b, T, len, pixel) {
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = pixel ? 0.5 : 0.25; ctx.globalAlpha = 0.45 + 0.3 * Math.sin(T * 5);
     ctx.beginPath(); ctx.arc(b.x, b.y, L * 0.85, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
   }
+  const im = sprite(`boat-${b.kind}`);
+  if (im) return stamp(ctx, im, b.x, b.y, L / 0.75, b.h + rock);
   ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.h + rock);
   const poly = (pts, fill) => { ctx.beginPath(); pts.forEach(([x, y], i) => (i ? ctx.lineTo(x * L, y * Wd) : ctx.moveTo(x * L, y * Wd))); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); };
   // Sombra corrida abajo a la derecha, como la de los peces.

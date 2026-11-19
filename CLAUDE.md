@@ -45,7 +45,7 @@ Lanzamiento cercano: cambios acotados.
 - Todo vive centralizado en `src/data/` y según tema píxel o no; lo nuevo se registra ahí y pasa `check-registry`.
 - Idiomas: todo texto para el jugador pasa por `t()` o `localize()` (`src/i18n`, skill `idiomas`); el español va en el código.
 - Sonido: grabado en mesas normales, sintetizado en mesas píxel. Iconos y jardín: dos versiones, CSS elige.
-- Skills: antislop, ponytail (mínimo + autocomprobación), impeccable, taste; `gaming-references` antes de diseñar;
+- Skills: antislop, ponytail (mínimo + autocomprobación), impeccable, taste, `vector-illustration` (SVG: plan, render y revisión; fuentes en `assets/agua`, plan en `art/agua/plan.json`); `gaming-references` antes de diseñar;
   `web-game-toolkit` para arte, iconos, audio y pruebas.
 - Probar en navegador a 360×800 táctil y en PC, mesa normal y `pixelada`, antes de dar algo por hecho.
 - Commits directos a `main` y push; sin PR ni ramas nuevas.

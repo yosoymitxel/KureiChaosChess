@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><title>Velero, desde arriba</title>
+<path d="M60 32 C52 22 36 20 10 23 L10 41 C36 44 52 42 60 32 Z" fill="#14191d" opacity="0.22" transform="translate(2 3)"/>
+<g stroke="#14191d" stroke-width="1" stroke-linejoin="round">
+<path id="hull" d="M60 32 C52 22 36 20 10 23 L10 41 C36 44 52 42 60 32 Z" fill="#9a6a3c"/>
+<path id="deck" d="M55 32 C48 25 36 24 14 26 L14 38 C36 40 48 39 55 32 Z" fill="#c08a52"/>
+<g id="planks" stroke="#9a6a3c" stroke-width="0.8" fill="none"><path d="M16 30h36M16 34h36"/></g>
+<path id="sail.main" d="M38 32 L12 14 C14 26 26 33 38 32 Z" fill="#fbf7ee"/>
+<path id="sail.shade" d="M36 31 L16 18 C18 26 27 31 36 31 Z" fill="#e6dfcd" stroke="none"/>
+<circle id="mast" cx="38" cy="32" r="2" fill="#5e3f22"/>
+<path id="boom" d="M38 32 L12 14" stroke="#5e3f22" stroke-width="1.6"/></g>
+</svg>

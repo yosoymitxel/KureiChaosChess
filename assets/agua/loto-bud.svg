@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><title>Loto con capullo</title>
+<g id="pads">
+<circle cx="38" cy="36" r="17" fill="#14191d" opacity="0.2"/>
+<circle cx="36" cy="34" r="17" fill="#4f8f3a" stroke="#14191d" stroke-width="1.2"/>
+<path d="M36 34 m-15 -3 a15 15 0 0 1 22 -11" stroke="#86bd5c" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
+<circle cx="36" cy="34" r="2.2" fill="#36692a"/>
+<g stroke="#36692a" stroke-width="0.9" fill="none"><path d="M36 34 L22 30"/><path d="M36 34 L44 20"/><path d="M36 34 L50 40"/><path d="M36 34 L30 49"/></g>
+<ellipse cx="15" cy="17" rx="10" ry="9" fill="#36692a" stroke="#14191d" stroke-width="1"/>
+<path d="M9 14 a9 8 0 0 1 10 -5" stroke="#86bd5c" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/></g>
+<g id="bud"><ellipse cx="33" cy="31" rx="6" ry="8" fill="#14191d" opacity="0.25"/>
+<path d="M30 39 C23 34 23 24 30 17 C37 24 37 34 30 39 Z" fill="#f3b8cd" stroke="#14191d" stroke-width="1"/>
+<path d="M30 39 C27 33 27 24 30 17" stroke="#df88aa" stroke-width="1.4" fill="none"/>
+<path d="M27 22 C28 20 29 18.5 30 17" stroke="#ffffff" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.8"/></g>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><title>Nenúfar en flor</title>
+<g id="pad">
+<path d="M34 35 L56 30 A24 22 0 1 1 52 22 Z" fill="#14191d" opacity="0.22"/>
+<path d="M32 32 L54 27 A23 21 0 1 1 50 19 Z" fill="#4f8f3a" stroke="#14191d" stroke-width="1.2" stroke-linejoin="round"/>
+<path d="M32 32 L14 20 A22 20 0 0 1 40 11.5 Z" fill="#86bd5c" opacity="0.55"/>
+<g stroke="#36692a" stroke-width="1" stroke-linecap="round" fill="none"><path d="M32 32 L12 28"/><path d="M32 32 L16 44"/><path d="M32 32 L30 52"/><path d="M32 32 L46 48"/></g></g>
+<g id="flower" stroke="#14191d" stroke-width="0.9" stroke-linejoin="round">
+<circle cx="30" cy="32" r="12" fill="#14191d" opacity="0.2" stroke="none" transform="translate(2 2)"/>
+<g id="flower.outer" fill="#ffffff">
+<path d="M30 32 L26 20 L30 17 L34 20 Z"/><path d="M30 32 L40 24 L43 28 L41 32 Z" /><path d="M30 32 L41 36 L40 41 L36 42 Z"/><path d="M30 32 L32 44 L28 46 L25 43 Z"/><path d="M30 32 L20 40 L17 37 L18 33 Z"/><path d="M30 32 L18 28 L18 24 L22 22 Z"/></g>
+<g id="flower.inner" fill="#f4e9f0">
+<path d="M30 32 L33 23 L37 25 Z"/><path d="M30 32 L38 33 L36 37 Z"/><path d="M30 32 L28 40 L24 38 Z"/><path d="M30 32 L22 31 L23 27 Z"/></g>
+<circle id="flower.core" cx="30" cy="32" r="3.6" fill="#f2d36b"/></g>
+</svg>

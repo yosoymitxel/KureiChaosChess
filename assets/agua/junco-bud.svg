@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><title>Junco joven</title>
+<ellipse cx="34" cy="36" rx="14" ry="11" fill="#14191d" opacity="0.2"/>
+<g id="blades" stroke="#14191d" stroke-width="0.9" stroke-linejoin="round">
+<path d="M32 34 C26 26 18 18 9 15 C17 22 24 30 30 36 Z" fill="#3f6a2a"/>
+<path d="M32 34 C36 24 44 14 52 9 C46 18 40 28 34 36 Z" fill="#5f8a3a"/>
+<path d="M32 34 C40 34 50 38 57 45 C48 42 40 39 33 37 Z" fill="#3f6a2a"/>
+<path d="M32 34 C30 42 24 50 15 54 C22 47 27 41 30 34 Z" fill="#5f8a3a"/>
+<path d="M32 34 C30 24 31 14 34 6 C34 16 34 26 34 35 Z" fill="#86bd5c"/>
+</g><circle cx="32.5" cy="34.5" r="3" fill="#36692a" stroke="#14191d" stroke-width="0.9"/>
+</svg>

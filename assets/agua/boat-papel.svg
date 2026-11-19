@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><title>Barquito de papel, desde arriba</title>
+<path d="M58 34 L46 46 L10 46 L18 34 L10 22 L46 22 Z" fill="#14191d" opacity="0.22" transform="translate(2 3)"/>
+<g stroke="#14191d" stroke-width="1" stroke-linejoin="round">
+<path id="hull" d="M58 32 L46 44 L10 44 L18 32 L10 20 L46 20 Z" fill="#f4f1e8"/>
+<path id="fold.top" d="M46 20 L32 32 L58 32 Z" fill="#ffffff"/>
+<path id="fold.bottom" d="M46 44 L32 32 L58 32 Z" fill="#c9c3b4"/>
+<path id="sail" d="M32 32 L24 22 L40 22 Z" fill="#e6e1d4"/>
+<path id="ridge" d="M18 32 L58 32" fill="none" stroke="#14191d" stroke-width="0.8"/></g>
+</svg>

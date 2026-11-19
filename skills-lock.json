@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "skills": {
+    "vector-illustration": {
+      "source": "syi0808/svg-skills",
+      "commit": "c5937c2bed48aff98c12cda43ccba2ed6f2880f0",
+      "sourceType": "github",
+      "skillPath": "vector-illustration/SKILL.md",
+      "computedHash": "944e0cc9fb4ce3a0aa22fb05ee96fd7d0499c0f5ec5c867e04bd2578a3765397"
+    }
+  }
+}
