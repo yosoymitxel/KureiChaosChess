@@ -56,16 +56,16 @@ export function makeTrack(diff, rng = Math.random, type) {
   // Rocas a un lado del canal (nunca en la salida) y algas en el medio.
   const at = (i, off) => { const p = line[i % N]; return { x: p.x - p.ty * off, y: p.y + p.tx * off }; };
   const spots = Array.from({ length: diff.rocks + diff.weed }, (_, k) => Math.floor(((k + 1) / (diff.rocks + diff.weed + 1)) * N));
-  const rocks = spots.slice(0, diff.rocks).map((i, k) => ({ ...at(i + Math.floor(rng() * 6), (k % 2 ? 1 : -1) * LANE * (0.27 + rng() * 0.08)), r: 1.8 + rng() * 0.8 }));
+  const rocks = spots.slice(0, diff.rocks).map((i, k) => ({ ...at(i + Math.floor(rng() * 6), (k % 2 ? 1 : -1) * LANE * (0.3 + rng() * 0.08)), r: 1.8 + rng() * 0.8 }));
   const weed = spots.slice(diff.rocks).map((i) => ({ ...at(i, (rng() - 0.5) * LANE * 0.3), r: 3.5 + rng() * 1.5 }));
   const track = { type, line, outer: edge(1), inner: edge(-1), rocks, weed, gates: line.filter((_, i) => i % STEP === STEP / 2) };
-  // Máscara del agua: dentro del canal y fuera de las rocas.
+  // Máscara por donde puede ir el centro de un barco: el canal y las rocas, con medio casco (R) de margen.
   const gw = W * GRID, gh = H * GRID, mask = new Uint8Array(gw * gh);
   for (let gy = 0; gy < gh; gy++) for (let gx = 0; gx < gw; gx++) {
     const x = (gx + 0.5) / GRID, y = (gy + 0.5) / GRID;
     let d = Infinity;
     for (let i = 0; i < N; i += 2) d = Math.min(d, (line[i].x - x) ** 2 + (line[i].y - y) ** 2);
-    mask[gy * gw + gx] = d < (LANE / 2) ** 2 && !rocks.some((r) => (r.x - x) ** 2 + (r.y - y) ** 2 < r.r ** 2) ? 1 : 0;
+    mask[gy * gw + gx] = d < (LANE / 2 - R) ** 2 && !rocks.some((r) => (r.x - x) ** 2 + (r.y - y) ** 2 < (r.r + 1.2) ** 2) ? 1 : 0;
   }
   track.inside = (x, y) => x >= 0 && y >= 0 && x < W && y < H && mask[Math.floor(y * GRID) * gw + Math.floor(x * GRID)] === 1;
   return track;

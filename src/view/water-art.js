@@ -47,7 +47,7 @@ export function gardenDecor(S) {
   const grass = Array.from({ length: 26 }, () => { const s = r() * S, side = Math.floor(r() * 4); return [[s, 1], [S - 1, s], [s, S - 1], [1, s]][side]; });
   return (ctx, T, pixel) => {
     ctx.fillStyle = LAND.grass;
-    ctx.beginPath(); ctx.rect(0, 0, S, S); ctx.rect(GARDEN_EDGE - 1, S - GARDEN_EDGE + 1, S - 2 * GARDEN_EDGE + 2, -(S - 2 * GARDEN_EDGE + 2)); ctx.fill('evenodd');
+    ctx.beginPath(); ctx.rect(-S, -S, 3 * S, 3 * S); ctx.rect(GARDEN_EDGE - 1, S - GARDEN_EDGE + 1, S - 2 * GARDEN_EDGE + 2, -(S - 2 * GARDEN_EDGE + 2)); ctx.fill('evenodd');
     tufts(ctx, grass, pixel);
     for (const s of stones) rock(ctx, ...s);
     reeds(ctx, 4.5, 6, 5, T, pixel); reeds(ctx, S - 5, S - 4.5, 6, T, pixel); reeds(ctx, S - 4.5, 7, 3, T, pixel);
@@ -55,8 +55,10 @@ export function gardenDecor(S) {
     ctx.fillStyle = LAND.plank2; for (const [x, y] of [[PIER.x - 0.3, PIER.y], [PIER.x + PIER.w - 0.7, PIER.y]]) ctx.fillRect(x, y - 0.4, 1, 1); // postes
   };
 }
-export const gardenInside = (S) => (x, y) => x > GARDEN_EDGE && y > GARDEN_EDGE && x < S - GARDEN_EDGE && y < S - GARDEN_EDGE
-  && !(x > PIER.x - 1.5 && x < PIER.x + PIER.w + 1.5 && y > PIER.y - 1.5);
+// HULL: medio casco; el centro del barco no se acerca más a la orilla, así el dibujo no la pisa.
+const HULL = 2.6;
+export const gardenInside = (S) => (x, y) => x > GARDEN_EDGE + HULL && y > GARDEN_EDGE + HULL && x < S - GARDEN_EDGE - HULL && y < S - GARDEN_EDGE - HULL
+  && !(x > PIER.x - HULL && x < PIER.x + PIER.w + HULL && y > PIER.y - HULL);
 
 // Carrera: hierba fuera del canal, playa de arena en sus dos orillas, rocas, algas, juncos y salida a cuadros.
 export function raceDecor(W, H, track) {
@@ -71,7 +73,7 @@ export function raceDecor(W, H, track) {
     ctx.lineJoin = 'round';
     ctx.strokeStyle = LAND.sand; ctx.lineWidth = 2.4;
     for (const e of [track.outer, track.inner]) { ctx.beginPath(); loop(ctx, e); ctx.closePath(); ctx.stroke(); }
-    ctx.fillStyle = LAND.grass; ctx.beginPath(); ctx.rect(0, 0, W, H);
+    ctx.fillStyle = LAND.grass; ctx.beginPath(); ctx.rect(-W, -H, 3 * W, 3 * H);
     loop(ctx, track.outer.map((q, i) => ({ x: q.x + (q.x - track.line[i].x) * 0.16, y: q.y + (q.y - track.line[i].y) * 0.16 }))); ctx.closePath();
     loop(ctx, track.inner.map((q, i) => ({ x: q.x + (q.x - track.line[i].x) * 0.16, y: q.y + (q.y - track.line[i].y) * 0.16 }))); ctx.closePath();
     ctx.fill('evenodd');
