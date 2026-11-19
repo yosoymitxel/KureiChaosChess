@@ -831,6 +831,8 @@ export default {
     "zen.sub": "A quiet corner between runs",
     "rc.aria": "Controller: drag towards where you want to go; on keyboard, arrows or WASD",
     "rc.release": "Let go",
+    "rc.zoomIn": "Zoom in",
+    "rc.zoomOut": "See all",
     "water.hello": "Tap a spot on the shore to plant; the middle is for the koi and the boats.",
     "water.noSeed": "No {name} seeds left: buy them in the shop.",
     "water.sown": "{name} planted: it grows by itself, no watering.",

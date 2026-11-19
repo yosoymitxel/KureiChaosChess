@@ -28,6 +28,9 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
   const [seed, setSeed] = useState(KINDS[0]);
   const [msg, setMsg] = useState(t('water.hello', 'Toca una plaza de la orilla para plantar; el centro es para los koi y los barquitos.'));
   const [driving, setDriving] = useState(null);
+  const [zoom, setZoom] = useState(false);
+  const zoomRef = useRef(false);
+  zoomRef.current = zoom;
   const [, tick] = useState(0);
   const rc = useRef(null), drivingRef = useRef(null);
   drivingRef.current = driving;
@@ -39,7 +42,12 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
   useEffect(() => {
     const pond = pondRef.current = new Pond(cvRef.current, { size: [S, S], inside, count: 4, len: 7.5, speed: 3.2, pads: [[24, 34, 2.2], [37, 24, 1.8]], duckweed: 12 });
     pond.decor = gardenDecor(S);
-    pond.onStep = (dt) => pond.boats.forEach((b, i) => { b.sel = i === drivingRef.current; if (drive(b, b.sel ? rc.current : null, dt, inside) > 4) playSfx('tap', 0.7); });
+    pond.onStep = (dt) => {
+      const inp = rc.current, rot = pond.view?.rot || 0, mine = inp?.aim != null ? { ...inp, aim: inp.aim - rot } : inp;
+      pond.boats.forEach((b, i) => { b.sel = i === drivingRef.current; if (drive(b, b.sel ? mine : null, dt, inside) > 4) playSfx('tap', 0.7); });
+      const me = pond.boats[drivingRef.current];
+      if (me || pond.view) pond.follow(me || { x: S / 2, y: S / 2, h: -Math.PI / 2 }, !!me && zoomRef.current, dt);
+    };
     return runPond(pond, () => cvRef.current, reduced());
   }, []);
   useEffect(() => {
@@ -55,7 +63,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
   const pay = (n) => setCoins(addCoins(n));
 
   const tap = (e) => {
-    const r = cvRef.current.getBoundingClientRect(), x = ((e.clientX - r.left) / r.width) * S, y = ((e.clientY - r.top) / r.height) * S;
+    const r = cvRef.current.getBoundingClientRect(), [x, y] = pondRef.current.toWorld(((e.clientX - r.left) / r.width) * S, ((e.clientY - r.top) / r.height) * S);
     const slot = WATER_SLOTS.findIndex(([sx, sy]) => Math.hypot(sx - x, sy - y) < 5.5);
     if (slot >= 0) {
       const st = waterStage(w, slot);
@@ -124,6 +132,6 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
         </div>
       </div>
     </div>
-    ${driving != null && html`<div class="rc-float"><${RcPad} input=${rc} onRelease=${release} /></div>`}
+    ${driving != null && html`<div class="rc-float"><${RcPad} input=${rc} onRelease=${release} zoom=${zoom} onZoom=${() => setZoom((z) => !z)} /></div>`}
   </div>`;
 }

@@ -19,19 +19,36 @@ export const TRACKS = localize('boatTracks', {
 export const DIFFS = {
   facil: { name: 'Fácil', pace: 0.72, wobble: 0.5, rocks: 4, weed: 2 },
   normal: { name: 'Normal', pace: 0.76, wobble: 0.3, rocks: 6, weed: 3 },
-  dificil: { name: 'Difícil', pace: 0.8, wobble: 0.15, rocks: 8, weed: 4 },
+  dificil: { name: 'Difícil', pace: 0.78, wobble: 0.15, rocks: 8, weed: 4 },
 };
 const RIVALS = ['papel', 'velero', 'koi'];
 
+// Radio de la curva más cerrada (por tres puntos seguidos).
+function minRadius(line) {
+  let min = Infinity;
+  for (let i = 0; i < N; i++) {
+    const a = line[(i + N - 3) % N], b = line[i], c = line[(i + 3) % N];
+    const ab = Math.hypot(b.x - a.x, b.y - a.y), bc = Math.hypot(c.x - b.x, c.y - b.y), ca = Math.hypot(a.x - c.x, a.y - c.y);
+    const area = Math.abs((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) / 2;
+    if (area > 1e-6) min = Math.min(min, (ab * bc * ca) / (4 * area));
+  }
+  return min;
+}
+
 export function makeTrack(diff, rng = Math.random, type) {
   type ||= Object.keys(TRACKS)[Math.floor(rng() * Object.keys(TRACKS).length)];
-  const h = TRACKS[type].h.map(([k, a]) => [k, a * (0.8 + rng() * 0.4), rng() * Math.PI * 2]);
-  const f = (t) => 1 + h.reduce((s, [k, a, p]) => s + a * Math.cos(k * t + p), 0);
-  let max = 0;
-  for (let i = 0; i < N; i++) max = Math.max(max, f((i / N) * Math.PI * 2));
+  const h0 = TRACKS[type].h.map(([k, a]) => [k, a * (0.8 + rng() * 0.4), rng() * Math.PI * 2]);
   const rx = W / 2 - LANE / 2 - 3, ry = H / 2 - LANE / 2 - 3;
-  // Línea central, de abajo y en el sentido de las agujas del reloj.
-  const line = Array.from({ length: N }, (_, i) => { const t = Math.PI / 2 + (i / N) * Math.PI * 2, k = f(t) / max; return { x: W / 2 + Math.cos(t) * rx * k, y: H / 2 + Math.sin(t) * ry * k }; });
+  // Línea central, de abajo y en el sentido de las agujas del reloj. Si alguna curva queda más cerrada
+  // que el canal (la orilla de dentro haría pico y los barcos la pisarían), se suavizan las ondas.
+  let line;
+  for (let soft = 1; soft > 0.05; soft *= 0.8) {
+    const h = h0.map(([k, a, p]) => [k, a * soft, p]), f = (t) => 1 + h.reduce((q, [k, a, p]) => q + a * Math.cos(k * t + p), 0);
+    let max = 0;
+    for (let i = 0; i < N; i++) max = Math.max(max, f((i / N) * Math.PI * 2));
+    line = Array.from({ length: N }, (_, i) => { const t = Math.PI / 2 + (i / N) * Math.PI * 2, k = f(t) / max; return { x: W / 2 + Math.cos(t) * rx * k, y: H / 2 + Math.sin(t) * ry * k }; });
+    if (minRadius(line) > LANE / 2 + 4) break;
+  }
   line.forEach((p, i) => { const a = line[(i + N - 1) % N], b = line[(i + 1) % N], d = Math.hypot(b.x - a.x, b.y - a.y); p.tx = (b.x - a.x) / d; p.ty = (b.y - a.y) / d; });
   const edge = (side) => line.map((p) => ({ x: p.x - p.ty * side * LANE / 2, y: p.y + p.tx * side * LANE / 2 }));
   // Rocas a un lado del canal (nunca en la salida) y algas en el medio.

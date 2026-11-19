@@ -36,6 +36,9 @@ function Race({ kind, diff, onBack, again }) {
   const [s] = useState(() => newRace(kind, diff));
   const [hud, setHud] = useState({ lap: 0, place: 4, count: 3 });
   const [over, setOver] = useState(null);
+  const [zoom, setZoom] = useState(false);
+  const zoomRef = useRef(false);
+  zoomRef.current = zoom;
   const cvRef = useRef(null), rc = useRef(null);
   useRcKeys(rc, !over, null);
 
@@ -52,7 +55,8 @@ function Race({ kind, diff, onBack, again }) {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       for (acc += dt; acc >= 1 / 120; acc -= 1 / 120) {
-        step(s, 1 / 120, rc.current);
+        const inp = rc.current, rot = pond.view?.rot || 0;
+        step(s, 1 / 120, inp?.aim != null ? { ...inp, aim: inp.aim - rot } : inp);
         for (const e of s.events) {
           if (e.kind === 'count') playSfx('tap');
           else if (e.kind === 'go') playSfx('pop');
@@ -66,6 +70,7 @@ function Race({ kind, diff, onBack, again }) {
       const me = s.racers[0];
       pond.marks.forEach((m, i) => (m.on = i === me.next % tr.gates.length));
       me.sel = true;
+      pond.follow(me, zoomRef.current, dt);
       if (!document.hidden) { pond.step(dt, now / 1000); pond.draw(now / 1000, pixel()); }
       setHud({ lap: Math.min(LAPS, me.lap + 1), place: s.over ? s.place : standing(s), count: Math.ceil(-s.t) });
       if (s.over) { setOver(s.over); if (s.over === 'win') addCoins(RACE_PRIZE[diff]); return; }
@@ -87,7 +92,7 @@ function Race({ kind, diff, onBack, again }) {
         <canvas class="wt-cv" ref=${cvRef}></canvas>
         ${hud.count > 0 && html`<b class="br-count">${hud.count}</b>`}
       </div>
-      ${!over && html`<div class="br-pad"><${RcPad} input=${rc} /></div>`}
+      ${!over && html`<div class="br-pad"><${RcPad} input=${rc} zoom=${zoom} onZoom=${() => setZoom((z) => !z)} /></div>`}
     </div>
     ${over && html`<${MiniEnd} win=${over === 'win'} note=${over === 'win' ? t('boatrace.won', 'Primero en la meta: +{n} monedas.', { n: RACE_PRIZE[diff] }) : t('boatrace.lost', 'Llegaste {n}º.', { n: s.place })}
       label=${t('boatrace.again', 'Otra carrera')} onEnd=${again} />`}

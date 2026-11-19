@@ -1749,3 +1749,4 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .wt-thumb-cv { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
 .wt-thumb .zn-packet-n { position: absolute; right: 1px; bottom: 1px; min-width: 0; height: auto; padding: 0 3px; font-size: 10px; line-height: 14px; border-radius: 4px; background: var(--ink); color: var(--paper); }
 .wt-thumb.locked .wt-thumb-cv { filter: grayscale(0.8) brightness(0.8); }
+.rc-zoom.on { background: var(--brass); color: var(--ink); }

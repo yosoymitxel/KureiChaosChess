@@ -62,6 +62,7 @@ export class Pond {
     this.marks = []; // boyas de la carrera: { x, y, on }
     this.wake = [];  // estela: puntos que se abren y se apagan
     this.decor = null;
+    this.view = null; // { x, y, zoom, rot } con la cámara de seguimiento; null: todo el estanque
     this.onStep = null; // quien maneja los barcos (jardín o carrera) antes de cada paso
   }
 
@@ -111,6 +112,27 @@ export class Pond {
     }
   }
 
+  // Cámara de seguimiento: se acerca a `b` y gira con su rumbo, con suavidad; con `on` false vuelve
+  // al encuadre de siempre (k = 0 es la vista entera, sin giro ni zoom).
+  follow(b, on, dt, zoom = 2.6) {
+    const c = this.cam ||= { x: b.x, y: b.y, rot: -Math.PI / 2 - b.h, k: 0 }, e = Math.min(1, dt * 5);
+    c.k += ((on ? 1 : 0) - c.k) * Math.min(1, dt * 4);
+    const d = ((-Math.PI / 2 - b.h - c.rot + Math.PI) % TAU + TAU) % TAU - Math.PI;
+    c.rot += d * e; c.x += (b.x - c.x) * e; c.y += (b.y - c.y) * e;
+    if (!on && c.k < 0.01) { this.view = null; this.cam = null; return; }
+    const lerp = (a, z) => a + (z - a) * c.k;
+    this.view = { x: lerp(this.W / 2, c.x), y: lerp(this.H * 0.62, c.y), zoom: lerp(1, zoom), rot: c.rot * c.k };
+  }
+  // De un punto del lienzo (0..W, 0..H) al estanque, deshaciendo la cámara.
+  toWorld(x, y) {
+    const v = this.view;
+    if (!v) return [x, y];
+    const dx = (x - this.W / 2) / v.zoom, dy = (y - this.H * 0.62) / v.zoom, c = Math.cos(-v.rot), s = Math.sin(-v.rot);
+    return [v.x + dx * c - dy * s, v.y + dx * s + dy * c];
+  }
+  // Giro de la cámara: el joystick apunta en la pantalla y se pasa al estanque.
+  camRot() { return this.view?.rot || 0; }
+
   draw(T, pixel) {
     const { canvas, W, H } = this, box = canvas.getBoundingClientRect();
     // Vector: a la resolución de la pantalla. Píxel: dos píxeles por unidad del dibujo.
@@ -119,6 +141,11 @@ export class Pond {
     if (target.width !== cw || target.height !== ch) { target.width = cw; target.height = ch; }
     const ctx = target.getContext('2d');
     ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    const v = this.view;
+    if (v) { // cámara que sigue a un barco: acercada y girada para que vaya hacia arriba
+      ctx.fillStyle = LAND.grass; ctx.fillRect(0, 0, W, H);
+      ctx.translate(W / 2, H * 0.62); ctx.rotate(v.rot); ctx.scale(v.zoom, v.zoom); ctx.translate(-v.x, -v.y);
+    }
     this.paint(ctx, T, pixel, scale);
     if (pixel) {
       quantize(ctx, cw, ch);
