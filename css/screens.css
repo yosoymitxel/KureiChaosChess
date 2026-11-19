@@ -1715,3 +1715,12 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 }
 .lab-stage.apk-ref-mode .tile.block { background-color: #17291c; box-shadow: inset 0 0 0 2px #3dff8e; }
 .lab-stage.apk-ref-mode .pc.zombie .pc-base::after { border-color: #3dff8e; border-style: dashed; }
+
+/* Regata: el campo del golf hecho estanque; algas (gf-s), corriente (gf-i) y remolinos (gf-v). */
+[data-art="pixel"] .rg .ah-cell { background-image: none; }
+.rg .ah-cell.a { background-color: oklch(0.56 0.07 210); }
+.rg .ah-cell.b { background-color: oklch(0.52 0.07 212); }
+.rg .ah-cell.gf-s { background-color: oklch(0.5 0.09 150); }
+.rg .ah-cell.gf-i { background-color: oklch(0.7 0.06 215); }
+.rg .rg-buoy { background: var(--accent); box-shadow: 0 0 0 3px oklch(1 0 0 / 0.8), 0 2px 0 4px oklch(0 0 0 / 0.25); }
+.rg .rg-rival i { --tk: var(--side-dark); --tk-2: color-mix(in oklch, var(--side-dark), var(--ink) 38%); }

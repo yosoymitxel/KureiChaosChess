@@ -45,7 +45,7 @@ function bounce(b, px, py, mvx, ev) {
 }
 
 // Un subpaso de la bola. Devuelve 'sink', 'fall', 'rest' (se acaba de parar) o null.
-function roll(c, b, t, dt, ev) {
+export function roll(c, b, t, dt, ev) {
   const sp0 = Math.hypot(b.vx, b.vy);
   const ground = tileAt(c, b.x, b.y);
   slide(b, ROLL[ground] ?? ROLL.g, dt);

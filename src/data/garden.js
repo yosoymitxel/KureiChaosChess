@@ -44,3 +44,11 @@ export const KOI_COINS = 4;
 // El estanque crece de 2×2 a 4×4, un paso abajo a la derecha y el siguiente arriba a la izquierda.
 export const LAKE_MAX = 4;
 export const lakeCost = (n) => 80 * 2 ** (n - 2);
+
+// Jardines: el Zen de siempre y el de Agua, con su guardado aparte y las mismas reglas, tienda y monedas.
+// El de Agua empieza con el estanque grande en el centro y una orilla de macetas alrededor; en él se corre la regata.
+export const GARDENS = localize('gardens', {
+  zen: { id: 'zen', name: 'Jardín Zen', sub: 'Un rincón tranquilo entre runs' },
+  agua: { id: 'agua', name: 'Jardín de Agua', sub: 'Estanque grande, orilla con macetas y regatas' },
+});
+export const RACE_PRIZE = 20; // monedas por ganar la regata desde el Jardín de Agua

@@ -6,7 +6,7 @@ import { CARDS, HAND_LIMIT, handFull } from '../../game/cards.js';
 import { THEMES } from '../../data/themes.js';
 import { award } from '../../game/achievements.js';
 import { CARD_PRICE, COINS_PER_NODE, PENDING_LIMIT, THEME_SHOP, addPending, addToHand, consumeCard, charge, grantTheme, isShopCard, loadShop, seenCards, themeOwned } from '../../game/shop.js';
-import { ZEN_KINDS, ZEN_NAMES, addZenSeeds, addZenItem, loadZen } from '../../game/zen.js';
+import { ZEN_KINDS, ZEN_NAMES, addZenSeeds, addZenItem, loadZen, gardenId } from '../../game/zen.js';
 import { SEEDS, GARDEN_ITEMS } from '../../data/garden.js';
 import { chipArt, ITEM_ART } from '../zen-art.js';
 import { playSfx } from '../sfx.js';
@@ -49,7 +49,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
   };
   const buySeed = (kind) => {
     if (!charge(SEEDS[kind].price)) return;
-    setSeeds(addZenSeeds(kind, 1));
+    setSeeds(addZenSeeds(kind, 1, gardenId()));
     playSfx('coin');
     refresh();
   };

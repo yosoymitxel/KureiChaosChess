@@ -5,7 +5,12 @@
 // r0c0 a r3c3 y los anillos de arriba o de la izquierda tienen coordenadas negativas.
 import { SEEDS, GARDEN_ITEMS, SEED_BACK, DIG_COOLDOWN, MOVE_COOLDOWN, OBSTACLE_CHANCE, ROCK_HP, LANTERN_BOOST, LAKE_MAX, WATER_STEPS, KOI_HUNGER_MS, KOI_COINS, BUSH_MS, BUSH_MAX, POT_LIFE } from '../data/garden.js';
 
-const KEY = 'zugzwang.zen.v1';
+const KEYS = { zen: 'zugzwang.zen.v1', agua: 'zugzwang.zen.agua.v1' };
+// El jardín abierto: la tienda siembra en el que la abrió; app.js lo fija según la pantalla.
+let garden = 'zen';
+export const setGarden = (id) => { garden = KEYS[id] ? id : 'zen'; };
+export const gardenId = () => garden;
+const key = (g = garden) => KEYS[g];
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
 const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
@@ -37,8 +42,14 @@ export const expandCost = (size) => 30 * 2 ** (size - ZEN_BASE);
 // rocks: piedras sobre tierra virgen (golpes que faltan). lanterns: faroles puestos.
 // tiles: estorbos que se quitan: 'bush' (arbusto, con las tijeras) o 'stone' (losa, con el mazo).
 // items: lo comprado o guardado (pala, regadera: true; faroles y macetas: cuántos quedan por poner).
-export const blankZen = () => withBase({
+export const blankZen = (g = garden) => withBase({
   size: ZEN_BASE, off: 0, lake: 2, pots: {}, rocks: {}, tiles: {}, lanterns: [], items: {}, seeds: seedsOf(), flores: {}, planted: 0, v: 3,
+  ...(g === 'agua' ? agua() : {}),
+});
+// Agua: el 4×4 base es estanque y un anillo de orilla lo rodea, con seis macetas y semillas para empezar.
+const agua = () => ({
+  size: ZEN_BASE + 2, off: 1, lake: LAKE_MAX, seeds: seedsOf({ romero: 2 }),
+  pots: Object.fromEntries(['r-1c0', 'r-1c3', 'r1c4', 'r4c3', 'r4c0', 'r2c-1'].map((k) => [k, null])),
 });
 // Desde v3 el cantero base no es fijo: sus macetas, arbustos, losas y el farol pasan a ser cosas
 // del jardín que se quitan, se guardan y se mueven. Aquí se vuelcan una sola vez.
@@ -56,8 +67,9 @@ function withBase(z) {
 
 const seedsOf = (s) => ({ ...Object.fromEntries(ZEN_KINDS.map((k) => [k, 0])), ...(s || {}) });
 
-export function loadZen() {
-  const z = read(KEY) || {};
+export function loadZen(g = garden) {
+  const z = read(key(g));
+  if (!z) return blankZen(g);
   const flores = z.flores || {}, planted = z.planted || 0;
   if (Array.isArray(z.pots)) { // formato viejo: ocho macetas de un cantero fijo, sin semillas
     const pots = {};
@@ -68,13 +80,13 @@ export function loadZen() {
   // v1 tenía el estanque a la derecha: las dos macetas que ahora son agua se corren a la orilla este.
   if (!z.v) for (const k of ['r1c1', 'r2c1']) if (k in pots) { pots[movedPot(k)] = pots[k]; delete pots[k]; }
   const size = Math.min(ZEN_MAX, Math.max(ZEN_BASE, z.size || ZEN_BASE));
-  const out = { ...blankZen(), size, off: z.off || 0, lake: z.lake || 2, pots, rocks: z.rocks || {}, tiles: z.tiles || {}, dug: z.dug || {}, lanterns: z.lanterns || [], lakeAt: z.lakeAt, moveT: z.moveT, items: z.items || {},
+  const out = { ...blankZen(g), size, off: z.off || 0, lake: z.lake || 2, pots, rocks: z.rocks || {}, tiles: z.tiles || {}, dug: z.dug || {}, lanterns: z.lanterns || [], lakeAt: z.lakeAt, moveT: z.moveT, items: z.items || {},
     seeds: seedsOf(z.seeds), flores, planted, leaves: z.leaves || [], leafT: z.leafT, digT: z.digT, koiT: z.koiT,
     wear: z.wear || {}, loose: z.loose || {}, bushT: z.bushT };
   return (z.v || 0) < 3 ? withBase(out) : out;
 }
 const movedPot = (k) => ({ r1c1: 'r1c3', r2c1: 'r2c3' })[k] || k;
-export const saveZen = (z) => write(KEY, z);
+export const saveZen = (z, g = garden) => write(key(g), z);
 
 // Estanque: 2×2 en el centro del cantero base; crece abajo a la derecha (3×3) y luego arriba a la
 // izquierda (4×4, todo el cantero base).
@@ -371,10 +383,10 @@ export function butterflyGift(rng = Math.random) {
 }
 
 // Semillas que caen al ganar un nodo de la travesía o se compran en la tienda.
-export function addZenSeeds(kind, n = 1) {
-  const z = loadZen();
+export function addZenSeeds(kind, n = 1, g = 'zen') {
+  const z = loadZen(g);
   z.seeds[kind] = (z.seeds[kind] || 0) + n;
-  saveZen(z);
+  saveZen(z, g);
   return z.seeds;
 }
 // La semilla que cae sale según su rareza.
