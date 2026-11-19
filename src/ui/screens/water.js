@@ -7,8 +7,6 @@ import { Pond, runPond } from '../../view/pond.js';
 import { gardenDecor, gardenInside } from '../../view/water-art.js';
 import { Thumb } from '../water-thumb.js';
 import { reduced } from '../hop.js';
-import { Fx } from '../../view/fx.js';
-import { WEATHER_FX } from '../../view/weather-fx.js';
 import { newBoat, drive } from '../../game/boats.js';
 import { bump } from '../../game/physics.js';
 import { RcPad, RcButton, useRcKeys } from '../rc-pad.js';
@@ -36,9 +34,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
   const zoomRef = useRef(false);
   zoomRef.current = zoom;
   const [, tick] = useState(0);
-  const [sky] = useState('pond'); // el clima «Estanque» (src/data/weather.js): nenúfares y ondas, el propio del agua
-  const wrapRef = useRef(null);
-  useEffect(() => { const fx = new Fx(wrapRef.current); Object.assign(fx, { vfx: true, noShade: true }); WEATHER_FX.pond.dry = true; fx.setWeather(sky); return () => { WEATHER_FX.pond.dry = false; fx.destroy(); }; }, []);
+  const sky = 'pond'; // el fondo del clima «Estanque» (src/data/weather.js), sin gotas: sobre el agua ya están sus nenúfares
   const plantedRef = useRef([]);
   plantedRef.current = WATER_SLOTS.filter((_, i) => w.slots[i]);
   const rc = useRef(null), drivingRef = useRef(null);
@@ -58,7 +54,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
       pond.boats.forEach((b, i) => { b.sel = i === drivingRef.current; if (drive(b, b.sel ? mine : null, dt, inside) > 4) { playSfx('tap', 0.7); pond.ripple(b.x, b.y, 0.5); } });
       // Entre barcos: se empujan según su peso (la balsa pesa más que el papel).
       for (let a = 0; a < pond.boats.length; a++) for (let c = a + 1; c < pond.boats.length; c++) {
-        const A = pond.boats[a], B = pond.boats[c], hit = bump(A, B, 5, 0.5, MASS[A.kind], MASS[B.kind]);
+        const A = pond.boats[a], B = pond.boats[c], hit = bump(A, B, 6.4, 0.5, MASS[A.kind], MASS[B.kind]);
         if (hit > 2) { playSfx('hit', 0.6 + Math.min(0.6, hit / 20)); pond.ripple((A.x + B.x) / 2, (A.y + B.y) / 2, 0.7); A.v *= 0.6; B.v *= 0.6; }
       }
       const me = pond.boats[drivingRef.current];
@@ -112,7 +108,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
       <div class="zen-main">
         <div class="zen-scene">
           <div class="mini-stage">
-          <div ref=${wrapRef} class=${'wt-pond' + (waterKoiHungry(w) ? ' hungry' : '')} onClick=${tap} role="application" aria-label=${t('water.aria', 'Estanque: toca una plaza de la orilla para plantar o cortar, un barquito para manejarlo o el agua para dar de comer a los koi')}>
+          <div class=${'wt-pond' + (waterKoiHungry(w) ? ' hungry' : '')} onClick=${tap} role="application" aria-label=${t('water.aria', 'Estanque: toca una plaza de la orilla para plantar o cortar, un barquito para manejarlo o el agua para dar de comer a los koi')}>
             <canvas class="wt-cv" ref=${cvRef}></canvas>
           </div>
           </div>

@@ -325,8 +325,7 @@ const offBoard = (x, y, m) => { const a = pond.avoid?.(); return !a || x < a.x -
 const pond = {
   avoid: null,
   squash: () => 0.6, // cuánto se aplasta en vertical el plano de la mesa (coseno de la cámara); lo pone BoardView
-  dry: false, // sin gotas: solo nenúfares (el Jardín de Agua lo pide así)
-  count: (w, h) => ({ drop: pond.dry ? 0 : w * h * 0.00009, pad: Math.min(10, w * h * 0.00004) }),
+  count: (w, h) => ({ drop: w * h * 0.00009, pad: Math.min(10, w * h * 0.00004) }),
   spawn(kind, w, h, any) {
     if (kind === 'pad') {
       const r = rnd(9, 17);

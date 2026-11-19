@@ -57,7 +57,7 @@ export function gardenDecor(S) {
   };
 }
 // HULL: medio casco; el centro del barco no se acerca más a la orilla, así el dibujo no la pisa.
-const HULL = 2.6;
+const HULL = 3.3;
 export const gardenInside = (S) => (x, y) => x > GARDEN_EDGE + HULL && y > GARDEN_EDGE + HULL && x < S - GARDEN_EDGE - HULL && y < S - GARDEN_EDGE - HULL
   && !(x > PIER.x - HULL && x < PIER.x + PIER.w + HULL && y > PIER.y - HULL);
 

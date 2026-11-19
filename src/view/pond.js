@@ -141,9 +141,9 @@ export class Pond {
 
   draw(T, pixel) {
     const { canvas, W, H } = this, box = canvas.getBoundingClientRect();
-    // Píxel: cada píxel del dibujo mide unos 3 px de pantalla, con o sin cámara (antes 2 por unidad: a pantalla
+    // Píxel: cada píxel del dibujo mide 2 px de pantalla en el teléfono y 3 en pantallas grandes, con o sin cámara (antes 2 por unidad: a pantalla
     // completa se veía enorme). Vector: a la resolución de la pantalla.
-    const target = pixel ? this.lo : canvas, scale = pixel ? Math.max(2, box.width / W / 3) : Math.max(2, (box.width * Math.min(2, devicePixelRatio || 1)) / W);
+    const target = pixel ? this.lo : canvas, scale = pixel ? Math.max(2, box.width / W / Math.min(3, Math.max(2, box.width / 170))) : Math.max(2, (box.width * Math.min(2, devicePixelRatio || 1)) / W);
     const v = this.view;
     // Con cámara el lienzo puede tener otra forma (pantalla completa): el alto sale de su caja.
     this.vh = v && box.width ? (W * box.height) / box.width : H;
@@ -324,7 +324,7 @@ function drawBuoy(ctx, m, T, len) {
 
 // Barquito visto desde arriba, apuntando a su rumbo; se mece y escora al girar.
 export function drawBoat(ctx, b, T, len, pixel) {
-  const L = len * 0.85, Wd = L * 0.45, rock = Math.sin(T * 2.6 + b.x * 0.7) * 0.04;
+  const L = len * 1.1, Wd = L * 0.45, rock = Math.sin(T * 2.6 + b.x * 0.7) * 0.04;
   if (b.sel) { // el que se maneja: un aro que late debajo
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = pixel ? 0.5 : 0.25; ctx.globalAlpha = 0.45 + 0.3 * Math.sin(T * 5);
     ctx.beginPath(); ctx.arc(b.x, b.y, L * 0.85, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
