@@ -1731,3 +1731,17 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .garden-switch .btn.on { background: var(--brass); color: var(--ink); }
 @media (max-width: 520px) { .garden-switch .btn { padding-inline: 8px; font-size: 11px; } }
 @media (min-width: 900px) { .rc-float { left: auto; right: 24px; translate: none; } }
+
+/* Carrera de barquitos: el estanque en vertical, con orilla e isla encima y el mando debajo. */
+.br-pick { display: grid; gap: 12px; width: min(100%, 560px); margin: 16px auto; }
+.br-pick h3 { margin: 4px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-2); }
+.br-hud { justify-content: center; margin-block: 6px; }
+.br-track { position: relative; width: min(100%, calc((100dvh - 290px) * 2 / 3), 480px); aspect-ratio: 2 / 3; margin-inline: auto; border-radius: 6px; overflow: hidden;
+  box-shadow: 0 0 0 2px var(--ink), 0 0 0 7px color-mix(in oklch, var(--wood), white 12%), 0 0 0 13px var(--wood), 0 0 0 15px var(--ink), 0 14px 30px oklch(0 0 0 / 0.45); margin-block: 16px; }
+.br-land { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.br-shore, .br-isle { fill: var(--leaf-2); }
+.br-rock { fill: oklch(0.62 0.02 80); stroke: var(--ink); stroke-width: 0.5; }
+.br-start { stroke: #fff; stroke-width: 0.8; stroke-dasharray: 1.2 1.2; }
+.br-count { position: absolute; inset: 0; display: grid; place-items: center; font-size: 72px; color: #fff; text-shadow: 0 4px 0 var(--ink); pointer-events: none; }
+.br-pad { display: flex; justify-content: center; padding-bottom: 12px; }
+[data-art="pixel"] .br-land { shape-rendering: crispEdges; }

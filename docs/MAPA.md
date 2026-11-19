@@ -198,6 +198,20 @@ src/game/blizzard.js:31 +shortest
 src/game/blizzard.js:51 +newBlizzard
 src/game/blizzard.js:74 +look
 src/game/blizzard.js:79 +move
+## src/game/boatrace.js (75L)
+src/game/boatrace.js:7 +W
+src/game/boatrace.js:8 CX
+src/game/boatrace.js:9 BUOYS
+src/game/boatrace.js:11 +inside
+src/game/boatrace.js:12 +ISLAND
+src/game/boatrace.js:14 +buoys
+src/game/boatrace.js:17 +DIFFS
+src/game/boatrace.js:22 RIVALS
+src/game/boatrace.js:24 +newRace
+src/game/boatrace.js:35 +aim
+src/game/boatrace.js:39 bot
+src/game/boatrace.js:42 +step
+src/game/boatrace.js:71 +standing
 ## src/game/boats.js (35L)
 src/game/boats.js:5 TAU
 src/game/boats.js:6 +wrap
@@ -884,7 +898,7 @@ src/game/zen.js:374 +addZenSeeds
 src/game/zen.js:381 +pickSeed
 src/game/zen.js:389 +koiHungry
 src/game/zen.js:390 +feedKoi
-## src/i18n/en.js (1361L)
+## src/i18n/en.js (1369L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -1023,15 +1037,15 @@ src/lab/proto/diamond-game.js:14 +createDiamondBoard
 src/lab/proto/diamond-game.js:27 +createDiamondPieces
 src/lab/proto/diamond-game.js:40 +createDiamondMatch
 ## src/main.js (7L)
-## src/ui/app.js (416L)
-src/ui/app.js:35 REST_CARDS
-src/ui/app.js:40 BAG_CARDS
-src/ui/app.js:47 shuffle3
-src/ui/app.js:49 MINI_PRIZES
-src/ui/app.js:50 ONE_SHOT
-src/ui/app.js:52 +App
-src/ui/app.js:372 MutationReveal
-src/ui/app.js:388 AchievementToast
+## src/ui/app.js (418L)
+src/ui/app.js:36 REST_CARDS
+src/ui/app.js:41 BAG_CARDS
+src/ui/app.js:48 shuffle3
+src/ui/app.js:50 MINI_PRIZES
+src/ui/app.js:51 ONE_SHOT
+src/ui/app.js:53 +App
+src/ui/app.js:374 MutationReveal
+src/ui/app.js:390 AchievementToast
 ## src/ui/board-fx.js (67L)
 src/ui/board-fx.js:7 wait
 src/ui/board-fx.js:11 +playFx
@@ -1154,6 +1168,10 @@ src/ui/screens/blind.js:17 +BlindScreen
 ## src/ui/screens/blizzard.js (84L)
 src/ui/screens/blizzard.js:12 KEYS
 src/ui/screens/blizzard.js:14 +BlizzardScreen
+## src/ui/screens/boatrace.js (100L)
+src/ui/screens/boatrace.js:16 LAND
+src/ui/screens/boatrace.js:23 +BoatRaceScreen
+src/ui/screens/boatrace.js:40 Race
 ## src/ui/screens/bomber.js (143L)
 src/ui/screens/bomber.js:13 KEYS
 src/ui/screens/bomber.js:14 PAD
@@ -1611,7 +1629,7 @@ css/pixel.css:85 /* Sombra de la pieza y koi del estanque del tablero, sin degra
 css/pixel.css:87 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
 css/pixel.css:90 /* El ::before va fuera de :is(), que no admite pseudoelementos
 ## css/proto-diamond.css (83L)
-## css/screens.css (1734L)
+## css/screens.css (1748L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
 css/screens.css:12 /* Menu: asymmetric, the diorama is the focal point and the tit
@@ -1797,5 +1815,6 @@ css/screens.css:1694 /* Semilla que suelta algo del tablero (popSeed): flota sob
 css/screens.css:1705 /* Reference APK renderer: a separate green/pixel signature, di
 css/screens.css:1720 /* Mando de teledirigido (Jardín de Agua y carrera de barquitos
 css/screens.css:1726 /* Jardín de Agua: el estanque entero en un marco de madera, co
+css/screens.css:1735 /* Carrera de barquitos: el estanque en vertical, con orilla e 
 ## css/tokens.css (51L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.

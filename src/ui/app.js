@@ -12,6 +12,7 @@ import { setSfxEnabled, setSfxVolume, setMusicEnabled, startAmbient, setMusicSce
 import { MinisScreen } from './screens/minis.js';
 import { ZenScreen } from './screens/zen.js';
 import { WaterScreen } from './screens/water.js';
+import { BoatRaceScreen } from './screens/boatrace.js';
 import { ShopScreen } from './screens/shop.js';
 import { GalleryScreen } from './screens/gallery.js';
 import { AchievementsScreen } from './screens/achievements.js';
@@ -350,7 +351,8 @@ export function App() {
       onEnd=${(won) => { if (won) award('free_mini'); setFreeKey((k) => k + 1); }}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} onGarden=${goTo} />`}
-    ${screen === 'water' && html`<${WaterScreen} onBack=${() => goTo('menu')} onGarden=${goTo}/>`}
+    ${screen === 'water' && html`<${WaterScreen} onBack=${() => goTo('menu')} onGarden=${goTo} onRace=${() => goTo('boatrace')} />`}
+    ${screen === 'boatrace' && html`<${BoatRaceScreen} onBack=${() => goTo('water')} />`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => {
       // Desde una partida: vuelve a la misma partida, donde quedó.
       const s = shopFrom === 'game' && run?.suspended;

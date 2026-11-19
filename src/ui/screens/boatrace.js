@@ -1,0 +1,99 @@
+// Carrera de barquitos y koi (solo desde el Jardín de Agua): se elige corredor y dificultad, y se
+// maneja con el mismo mando del jardín. El agua es el estanque de siempre (src/view/pond.js).
+import { html, useState, useEffect, useRef } from '../lib.js';
+import { Topbar, MiniEnd } from '../components.js';
+import { Icon } from '../icons.js';
+import { Pond } from '../../view/pond.js';
+import { RcPad, useRcKeys } from '../rc-pad.js';
+import { playSfx } from '../sfx.js';
+import { t } from '../../i18n/index.js';
+import { BOATS, RACE_PRIZE, GARDENS } from '../../data/garden.js';
+import { W, H, LAPS, DIFFS, inside, buoys, ISLAND, SHORE, newRace, step, standing } from '../../game/boatrace.js';
+import { loadWater } from '../../game/water.js';
+import { addCoins } from '../../game/shop.js';
+
+// Orilla e isla encima del agua: un rectángulo con el hueco del canal y la isla con su borde de piedra.
+const LAND = html`<svg class="br-land" viewBox=${`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
+  <path fill-rule="evenodd" d=${`M0 0H${W}V${H}H0Z M${SHORE.cx - SHORE.rx} ${SHORE.cy}a${SHORE.rx} ${SHORE.ry} 0 1 0 ${SHORE.rx * 2} 0a${SHORE.rx} ${SHORE.ry} 0 1 0 ${-SHORE.rx * 2} 0Z`} class="br-shore" />
+  <ellipse cx=${ISLAND.cx} cy=${ISLAND.cy} rx=${ISLAND.rx + 0.8} ry=${ISLAND.ry + 0.8} class="br-rock" />
+  <ellipse cx=${ISLAND.cx} cy=${ISLAND.cy} rx=${ISLAND.rx - 0.6} ry=${ISLAND.ry - 0.6} class="br-isle" />
+  <path d=${`M${W / 2 + 2} ${ISLAND.cy + ISLAND.ry + 0.5}V${H - 2.5}`} class="br-start" />
+</svg>`;
+
+export function BoatRaceScreen({ onBack }) {
+  const [pick, setPick] = useState(null); // { kind, diff } al empezar
+  const [diff, setDiff] = useState('normal');
+  const own = ['koi', ...new Set(loadWater().boats)];
+  if (!pick) return html`<div class="screen mini zen-screen">
+    <${Topbar} title=${t('water.race', 'Carrera de barquitos')} sub=${GARDENS.agua.name} onBack=${onBack} />
+    <div class="mini-body zen-body"><div class="panel br-pick">
+      <p>${t('race.help', 'Dos vueltas a la isla pasando por las boyas en orden, contra dos barcos y un koi. Maneja con el mando o con las flechas. Gana y te llevas monedas.')}</p>
+      <h3>${t('race.diff', 'Dificultad')}</h3>
+      <div class="garden-switch">${Object.entries(DIFFS).map(([k, d]) => html`<button class=${'btn sm' + (diff === k ? ' on' : ' ghost')} onClick=${() => setDiff(k)}>${d.name} · +${RACE_PRIZE[k]}</button>`)}</div>
+      <h3>${t('race.racer', 'Corredor')}</h3>
+      <div class="zn-tools">${own.map((k) => html`<button class="zn-tool" title=${BOATS[k].desc} onClick=${() => setPick({ kind: k, diff })}><span class="zn-tool-ic"><${Icon} name=${BOATS[k].fish ? 'seed' : 'drop'} size=${20} /></span><span>${BOATS[k].name}</span></button>`)}</div>
+    </div></div>
+  </div>`;
+  return html`<${Race} key=${pick.kind + pick.diff + (pick.n || 0)} ...${pick} onBack=${onBack} again=${() => setPick(null)} />`;
+}
+
+function Race({ kind, diff, onBack, again }) {
+  const [s] = useState(() => newRace(kind, diff));
+  const [hud, setHud] = useState({ lap: 0, place: 4, count: 3 });
+  const [over, setOver] = useState(null);
+  const cvRef = useRef(null), rc = useRef(null);
+  useRcKeys(rc, !over, null);
+
+  useEffect(() => {
+    const fish = s.racers.filter((r) => r.fish);
+    const pond = new Pond(cvRef.current, { size: [W, H], inside, count: fish.length, len: 7, speed: 3, pads: [[12, 20, 2], [52, 74, 2.4]], duckweed: 16 });
+    pond.boats = s.racers.filter((r) => !r.fish);
+    pond.school.fish.forEach((f, i) => { const r = fish[i]; f.ctl = true; f.pts = f.pts.map((_, k) => [r.x + k * f.seg, r.y]); f.kind = (i * 3 + 1) % 6; });
+    pond.marks = buoys.map((b) => ({ ...b }));
+    let raf, last = performance.now(), acc = 0;
+    const pixel = () => document.documentElement.dataset.art === 'pixel';
+    const frame = (now) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      for (acc += dt; acc >= 1 / 120; acc -= 1 / 120) {
+        step(s, 1 / 120, rc.current);
+        for (const e of s.events) {
+          if (e.kind === 'count') playSfx('tap');
+          else if (e.kind === 'go') playSfx('pop');
+          else if (e.kind === 'lap') { playSfx('coin'); pond.ripple(e.x ?? s.racers[0].x, e.y ?? s.racers[0].y, 1.2); }
+          else if (e.kind === 'bump') { playSfx('hit', 0.8); pond.ripple(e.x, e.y, 0.6); }
+          else if (e.kind === 'shore') playSfx('tap', 0.6);
+          else if (e.kind === 'finish' && e.who === 0) playSfx('splash');
+        }
+      }
+      fish.forEach((r, i) => { const f = pond.school.fish[i]; f.x = r.x; f.y = r.y; f.v = Math.hypot(r.vx, r.vy); f.h = r.h; });
+      const me = s.racers[0];
+      pond.marks.forEach((m, i) => (m.on = i === me.next % buoys.length));
+      me.sel = true;
+      if (!document.hidden) { pond.step(dt, now / 1000); pond.draw(now / 1000, pixel()); }
+      setHud({ lap: Math.min(LAPS, me.lap + 1), place: s.over ? s.place : standing(s), count: Math.ceil(-s.t) });
+      if (s.over) { setOver(s.over); if (s.over === 'win') addCoins(RACE_PRIZE[diff]); return; }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return html`<div class="screen mini zen-screen">
+    <${Topbar} title=${t('water.race', 'Carrera de barquitos')} sub=${BOATS[kind].name + ' · ' + DIFFS[diff].name} onBack=${onBack} />
+    <div class="mini-body zen-body">
+      <div class="mini-stats br-hud" aria-live="polite">
+        <span class="chip">${t('race.lap', 'Vuelta {n}/{of}', { n: hud.lap, of: LAPS })}</span>
+        <span class="chip">${t('race.place', 'Puesto {n}º', { n: hud.place })}</span>
+      </div>
+      <div class="br-track">
+        <canvas class="wt-cv" ref=${cvRef}></canvas>
+        ${LAND}
+        ${hud.count > 0 && html`<b class="br-count">${hud.count}</b>`}
+      </div>
+      ${!over && html`<div class="br-pad"><${RcPad} input=${rc} /></div>`}
+    </div>
+    ${over && html`<${MiniEnd} win=${over === 'win'} note=${over === 'win' ? t('race.won', 'Primero en la meta: +{n} monedas.', { n: RACE_PRIZE[diff] }) : t('race.lost', 'Llegaste {n}º.', { n: s.place })}
+      label=${t('race.again', 'Otra carrera')} onEnd=${again} />`}
+  </div>`;
+}
