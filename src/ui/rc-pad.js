@@ -22,7 +22,7 @@ export function useRcKeys(input, on, onRelease) {
   }, [on]);
 }
 
-export function RcPad({ input, onRelease, zoom, onZoom }) {
+export function RcPad({ input, onRelease, zoom, onZoom, children }) {
   const pad = useRef(null), knob = useRef(null);
   const set = (e) => {
     const r = pad.current.getBoundingClientRect(), R = r.width / 2;
@@ -37,6 +37,7 @@ export function RcPad({ input, onRelease, zoom, onZoom }) {
     ${onZoom && html`<button class=${'btn sm rc-zoom' + (zoom ? ' on' : '')} aria-pressed=${!!zoom} onClick=${onZoom}>${zoom ? t('rc.zoomOut', 'Ver todo') : t('rc.zoomIn', 'Acercar')}</button>`}
     <div class="rc-pad" ref=${pad} role="application" aria-label=${t('rc.aria', 'Mando: arrastra hacia donde quieres ir; con teclado, flechas o WASD')}
       onPointerDown=${down} onPointerMove=${(e) => e.buttons && set(e)} onPointerUp=${up} onPointerCancel=${up}><i ref=${knob}></i></div>
+    ${children}
     ${onRelease && html`<button class="btn sm" onClick=${onRelease}>${t('rc.release', 'Soltar el mando')}</button>`}
   </div>`;
 }

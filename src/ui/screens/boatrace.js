@@ -10,7 +10,7 @@ import { RcPad, useRcKeys } from '../rc-pad.js';
 import { playSfx } from '../sfx.js';
 import { t } from '../../i18n/index.js';
 import { BOATS, RACE_PRIZE, GARDENS } from '../../data/garden.js';
-import { W, H, LAPS, DIFFS, TRACKS, newRace, step, standing } from '../../game/boatrace.js';
+import { W, H, LAPS, DIFFS, TRACKS, NITRO, newRace, step, standing, nitro } from '../../game/boatrace.js';
 import { loadWater } from '../../game/water.js';
 import { addCoins } from '../../game/shop.js';
 
@@ -34,13 +34,19 @@ export function BoatRaceScreen({ onBack }) {
 
 function Race({ kind, diff, onBack, again }) {
   const [s] = useState(() => newRace(kind, diff));
-  const [hud, setHud] = useState({ lap: 0, place: 4, count: 3 });
+  const [hud, setHud] = useState({ lap: 0, place: 4, count: 3, cd: 2, boost: 0 });
   const [over, setOver] = useState(null);
   const [zoom, setZoom] = useState(false);
   const zoomRef = useRef(false);
   zoomRef.current = zoom;
   const cvRef = useRef(null), rc = useRef(null);
   useRcKeys(rc, !over, null);
+  // Nitro: espacio o el botón, con su cuenta atrás mientras se recarga.
+  useEffect(() => {
+    const key = (e) => { if (e.code === 'Space' || e.key === 'Shift') { e.preventDefault(); nitro(s); } };
+    addEventListener('keydown', key);
+    return () => removeEventListener('keydown', key);
+  }, []);
 
   useEffect(() => {
     const fish = s.racers.filter((r) => r.fish);
@@ -63,6 +69,7 @@ function Race({ kind, diff, onBack, again }) {
           else if (e.kind === 'lap') { playSfx('coin'); pond.ripple(e.x ?? s.racers[0].x, e.y ?? s.racers[0].y, 1.2); }
           else if (e.kind === 'bump') { playSfx('hit', 0.8); pond.ripple(e.x, e.y, 0.6); }
           else if (e.kind === 'shore') playSfx('tap', 0.6);
+          else if (e.kind === 'nitro') { if (!e.who) playSfx('splash', 1.4); pond.ripple(e.x, e.y, 1.6); }
           else if (e.kind === 'finish' && e.who === 0) playSfx('splash');
         }
       }
@@ -72,7 +79,7 @@ function Race({ kind, diff, onBack, again }) {
       me.sel = true;
       pond.follow(me, zoomRef.current, dt);
       if (!document.hidden) { pond.step(dt, now / 1000); pond.draw(now / 1000, pixel()); }
-      setHud({ lap: Math.min(LAPS, me.lap + 1), place: s.over ? s.place : standing(s), count: Math.ceil(-s.t) });
+      setHud({ lap: Math.min(LAPS, me.lap + 1), place: s.over ? s.place : standing(s), count: Math.ceil(-s.t), cd: me.cd, boost: me.boost });
       if (s.over) { setOver(s.over); if (s.over === 'win') addCoins(RACE_PRIZE[diff]); return; }
       raf = requestAnimationFrame(frame);
     };
@@ -92,7 +99,11 @@ function Race({ kind, diff, onBack, again }) {
         <canvas class="wt-cv" ref=${cvRef}></canvas>
         ${hud.count > 0 && html`<b class="br-count">${hud.count}</b>`}
       </div>
-      ${!over && html`<div class="br-pad"><${RcPad} input=${rc} zoom=${zoom} onZoom=${() => setZoom((z) => !z)} /></div>`}
+      ${!over && html`<div class="br-pad"><${RcPad} input=${rc} zoom=${zoom} onZoom=${() => setZoom((z) => !z)}>
+        <button class=${'btn br-nitro' + (hud.boost ? ' on' : hud.cd ? ' wait' : ' ready')} disabled=${hud.cd > 0 || hud.count > 0}
+          style=${{ '--fill': 1 - hud.cd / NITRO.cooldown }} onClick=${() => nitro(s)} aria-label=${t('boatrace.nitro', 'Nitro')}>
+          <b>${t('boatrace.nitro', 'Nitro')}</b><small>${hud.boost ? t('boatrace.boosting', '¡Ya!') : hud.cd > 0 ? `${Math.ceil(hud.cd)} s` : t('boatrace.ready', 'listo')}</small>
+        </button><//></div>`}
     </div>
     ${over && html`<${MiniEnd} win=${over === 'win'} note=${over === 'win' ? t('boatrace.won', 'Primero en la meta: +{n} monedas.', { n: RACE_PRIZE[diff] }) : t('boatrace.lost', 'Llegaste {n}º.', { n: s.place })}
       label=${t('boatrace.again', 'Otra carrera')} onEnd=${again} />`}

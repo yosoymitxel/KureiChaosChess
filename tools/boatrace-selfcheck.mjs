@@ -1,12 +1,12 @@
 // Carrera de barquitos: termina siempre, un piloto que sigue las boyas con un pulso imperfecto gana
 // a menudo con el barco más barato, y quedarse quieto no gana. `node tools/boatrace-selfcheck.mjs`.
 import { mulberry32 } from '../src/core/rng.js';
-import { newRace, step, aim, DIFFS, TRACKS, makeTrack } from '../src/game/boatrace.js';
+import { newRace, step, aim, nitro, DIFFS, TRACKS, makeTrack } from '../src/game/boatrace.js';
 
 const fails = [], rows = [];
 const play = (kind, level, seed, pilot) => {
   const rng = mulberry32(seed), s = newRace(kind, level, rng);
-  for (let i = 0; i < 60 * 300 && !s.over; i++) step(s, 1 / 60, pilot(s, rng));
+  for (let i = 0; i < 60 * 300 && !s.over; i++) { if (pilot !== idle) nitro(s); step(s, 1 / 60, pilot(s, rng)); }
   if (!s.over) fails.push(`${level} semilla ${seed}: no termina`);
   return s.over === 'win';
 };

@@ -18,10 +18,12 @@ export const TRACKS = localize('boatTracks', {
 });
 export const DIFFS = {
   facil: { name: 'Fácil', pace: 0.72, wobble: 0.5, rocks: 4, weed: 2 },
-  normal: { name: 'Normal', pace: 0.76, wobble: 0.3, rocks: 6, weed: 3 },
-  dificil: { name: 'Difícil', pace: 0.78, wobble: 0.15, rocks: 8, weed: 4 },
+  normal: { name: 'Normal', pace: 0.76, wobble: 0.3, rocks: 6, weed: 3, nitro: true },
+  dificil: { name: 'Difícil', pace: 0.78, wobble: 0.15, rocks: 8, weed: 4, nitro: true },
 };
 const RIVALS = ['papel', 'velero', 'koi'];
+// Nitro: un empujón corto para remontar y luego hay que esperar a que se recargue.
+export const NITRO = { time: 1.6, boost: 1.45, cooldown: 9 };
 
 // Radio de la curva más cerrada (por tres puntos seguidos).
 function minRadius(line) {
@@ -77,7 +79,7 @@ export function newRace(kind = 'papel', key = 'normal', rng = Math.random, type)
   const h = Math.atan2(p0.ty, p0.tx);
   const racers = kinds.map((k, i) => {
     const back = 3 + Math.floor(i / 2) * 5, side = (i % 2 ? 1 : -1) * LANE * 0.2;
-    return { ...newBoat(k, p0.x - p0.tx * back - p0.ty * side, p0.y - p0.ty * back + p0.tx * side, h), next: 0, lap: 0, done: null, fish: !!BOATS[k].fish, seed: rng() * 99,
+    return { ...newBoat(k, p0.x - p0.tx * back - p0.ty * side, p0.y - p0.ty * back + p0.tx * side, h), next: 0, lap: 0, done: null, boost: 0, cd: 2, fish: !!BOATS[k].fish, seed: rng() * 99,
       scale: i ? (top / BOATS[k].top) * (0.95 + rng() * 0.1) : 1 };
   });
   return { diff, rng, track, racers, t: -COUNT, events: [], over: null, place: null };
@@ -98,6 +100,15 @@ export function aim(s, r) {
 const bot = (s, r) => ({ aim: aim(s, r) + Math.sin(s.t * 1.3 + r.seed) * s.diff.wobble * 0.5, mag: 1 });
 const slowed = (s, r) => (s.track.weed.some((w) => Math.hypot(w.x - r.x, w.y - r.y) < w.r) ? 0.55 : 1);
 
+// Encender el nitro del corredor `i` (0: el jugador) si está cargado.
+export function nitro(s, i = 0) {
+  const r = s.racers[i];
+  if (s.t < 0 || s.over || r.done || r.cd > 0) return false;
+  r.boost = NITRO.time; r.cd = NITRO.cooldown;
+  s.events.push({ kind: 'nitro', who: i, x: r.x, y: r.y });
+  return true;
+}
+
 // input: el mando del jugador (como en el jardín) o null.
 export function step(s, dt, input) {
   s.events = [];
@@ -107,11 +118,14 @@ export function step(s, dt, input) {
   if (prev < 0) { if (Math.ceil(prev) !== Math.ceil(s.t)) s.events.push({ kind: s.t >= 0 ? 'go' : 'count', n: -Math.floor(s.t) }); return s; }
   s.racers.forEach((r, i) => {
     if (r.done) { r.vx *= 0.96; r.vy *= 0.96; if (s.track.inside(r.x + r.vx * dt, r.y + r.vy * dt)) { r.x += r.vx * dt; r.y += r.vy * dt; } return; }
-    const w = slowed(s, r);
+    r.cd = Math.max(0, r.cd - dt); r.boost = Math.max(0, r.boost - dt);
+    // Los rivales lo usan para remontar (por detrás del jugador); en difícil, en cuanto se carga.
+    if (i && !r.cd && (s.diff.nitro || behind(s, r))) nitro(s, i);
+    const w = slowed(s, r) * (r.boost ? NITRO.boost : 1);
     const hit = drive(r, i ? bot(s, r) : input, dt, s.track.inside, r.scale * w);
     if (hit > 4 && !i) s.events.push({ kind: 'shore', x: r.x, y: r.y });
-    if (w < 1 && !i && !r.weed) s.events.push({ kind: 'weed', x: r.x, y: r.y });
-    r.weed = w < 1;
+    if (slowed(s, r) < 1 && !i && !r.weed) s.events.push({ kind: 'weed', x: r.x, y: r.y });
+    r.weed = slowed(s, r) < 1;
     const q = g[r.next % g.length];
     if (Math.hypot(q.x - r.x, q.y - r.y) < GATE) {
       r.next++;
@@ -130,8 +144,9 @@ export function step(s, dt, input) {
   }
   return s;
 }
+const progress = (s, r) => { const g = s.track.gates; return r.next * 1000 - Math.hypot(g[r.next % g.length].x - r.x, g[r.next % g.length].y - r.y) + (r.done ? 1e6 - r.done : 0); };
+const behind = (s, r) => progress(s, r) < progress(s, s.racers[0]);
 // Puesto ahora: por boyas pasadas y, a igualdad, por cercanía a la que toca.
 export const standing = (s) => {
-  const g = s.track.gates, score = (r) => r.next * 1000 - Math.hypot(g[r.next % g.length].x - r.x, g[r.next % g.length].y - r.y) + (r.done ? 1e6 - r.done : 0);
-  return 1 + s.racers.slice(1).filter((r) => score(r) > score(s.racers[0])).length;
+  return 1 + s.racers.slice(1).filter((r) => progress(s, r) > progress(s, s.racers[0])).length;
 };
