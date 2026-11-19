@@ -28,5 +28,6 @@ for (const level of Object.keys(DIFFS)) {
 }
 const koi = rate((k) => play('koi', 'normal', k, human(0.2)));
 rows.push(`koi normal ${Math.round(koi * 100)}%`);
+if (koi < 0.45 || koi > 0.95) fails.push(`carrera de koi normal: el piloto gana ${Math.round(koi * 100)} %`);
 if (fails.length) { console.log('Carrera:\n' + fails.join('\n')); process.exit(1); }
 console.log(`carrera ok: ${rows.join(' · ')}`);

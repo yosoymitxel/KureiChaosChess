@@ -62,6 +62,7 @@ export function App() {
   const [reward, setReward] = useState(null); // { kind, cards }
   const [reveal, setReveal] = useState(null); // mutación del Frasco extraño, que se enseña antes del mapa
   const [howTo, setHowTo] = useState(false);
+  const [raceMode, setRaceMode] = useState('boats'); // carrera del Jardín de Agua: barcos o koi
   const [freeMini, setFreeMini] = useState(null); // minigame played from the menu, outside a run
   const [freeKey, setFreeKey] = useState(0);
   const [miniKey, setMiniKey] = useState(0); // remonta el minijuego del mapa al cambiar de dificultad
@@ -351,8 +352,8 @@ export function App() {
       onEnd=${(won) => { if (won) award('free_mini'); setFreeKey((k) => k + 1); }}
       settings=${settings} setSettings=${setSettings} onRestart=${() => setFreeKey((k) => k + 1)} />`}
     ${screen === 'zen' && html`<${ZenScreen} onBack=${() => goTo('menu')} onShop=${openShop('zen')} onGarden=${goTo} />`}
-    ${screen === 'water' && html`<${WaterScreen} onBack=${() => goTo('menu')} onGarden=${goTo} onRace=${() => goTo('boatrace')} onShop=${openShop('water')} />`}
-    ${screen === 'boatrace' && html`<${BoatRaceScreen} onBack=${() => goTo('water')} />`}
+    ${screen === 'water' && html`<${WaterScreen} onBack=${() => goTo('menu')} onGarden=${goTo} onRace=${(m) => { setRaceMode(m); goTo('boatrace'); }} onShop=${openShop('water')} />`}
+    ${screen === 'boatrace' && html`<${BoatRaceScreen} key=${raceMode} mode=${raceMode} onBack=${() => goTo('water')} />`}
     ${screen === 'shop' && html`<${ShopScreen} run=${run} setRun=${setRun} settings=${settings} setSettings=${setSettings} onBack=${() => {
       // Desde una partida: vuelve a la misma partida, donde quedó.
       const s = shopFrom === 'game' && run?.suspended;

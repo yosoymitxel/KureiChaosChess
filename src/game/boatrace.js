@@ -21,7 +21,8 @@ export const DIFFS = {
   normal: { name: 'Normal', pace: 0.76, wobble: 0.3, rocks: 6, weed: 3, nitro: true },
   dificil: { name: 'Difícil', pace: 0.78, wobble: 0.15, rocks: 8, weed: 4, nitro: true },
 };
-const RIVALS = ['papel', 'velero', 'koi'];
+// Dos carreras distintas: barcos contra barcos (los otros tres modelos) y koi contra koi.
+const BOATS_RACE = ['papel', 'balsa', 'velero', 'lancha'];
 // Nitro: un empujón corto para remontar y luego hay que esperar a que se recargue.
 export const NITRO = { time: 1.6, boost: 1.45, cooldown: 9 };
 
@@ -73,9 +74,9 @@ export function makeTrack(diff, rng = Math.random, type) {
 
 export function newRace(kind = 'papel', key = 'normal', rng = Math.random, type) {
   const diff = DIFFS[key] || DIFFS.normal, track = makeTrack(diff, rng, type);
-  const kinds = [kind, ...RIVALS.map((k) => (k === kind ? 'balsa' : k))];
+  const kinds = kind === 'koi' ? ['koi', 'koi', 'koi', 'koi'] : [kind, ...BOATS_RACE.filter((k) => k !== kind)];
   // Los rivales van a la par del barco que llevas, a medias: uno mejor ayuda, pero no gana solo.
-  const top = diff.pace * (13.5 + (BOATS[kind].top - 13.5) * 0.5), p0 = track.line[0];
+  const top = diff.pace * (kind === 'koi' ? BOATS.koi.top * 1.1 : 13.5 + (BOATS[kind].top - 13.5) * 0.5), p0 = track.line[0];
   const h = Math.atan2(p0.ty, p0.tx);
   const racers = kinds.map((k, i) => {
     const back = 3 + Math.floor(i / 2) * 5, side = (i % 2 ? 1 : -1) * LANE * 0.2;

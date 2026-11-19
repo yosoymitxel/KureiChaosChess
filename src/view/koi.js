@@ -27,6 +27,22 @@ export class School {
       if (f.ctl) { swim(f, dt); continue; } // lo lleva la carrera: solo nada, sin rumbo propio
       let want = f.h + Math.sin(T * 0.35 + f.seed) * 0.9 * dt * 2; // vagar: un giro lento que cambia
       let turn = 1.6, v = speed * (0.8 + 0.3 * Math.sin(T * 0.5 + f.seed));
+      // Humor de cada pez, que cambia cada pocos segundos: vagar, quedarse quieto al fondo, dar un
+      // acelerón, seguir a otro, subir a picotear la superficie o esconderse bajo un nenúfar.
+      if ((f.moodT = (f.moodT ?? Math.random() * 4) - dt) <= 0) {
+        const r = Math.random();
+        f.mood = r < 0.35 ? 'wander' : r < 0.5 ? 'rest' : r < 0.62 ? 'dart' : r < 0.8 ? 'follow' : r < 0.92 ? 'nibble' : 'hide';
+        f.moodT = f.mood === 'dart' ? 0.7 : 3 + Math.random() * 5;
+        f.mate = fish[Math.floor(Math.random() * fish.length)];
+        if (f.mood === 'dart') f.dartH = f.h + (Math.random() - 0.5) * 2.4;
+      }
+      const seek = (x, y, k = 2.4) => { want = Math.atan2(y - f.y, x - f.x); turn = k; };
+      if (f.mood === 'rest') { v = speed * 0.18; f.sink = 1; }
+      else if (f.mood === 'dart') { want = f.dartH; turn = 5; v = speed * 3; f.burst = 1; }
+      else if (f.mood === 'follow' && f.mate && f.mate !== f) { const tail = f.mate.pts[N - 1]; seek(tail[0], tail[1]); v = Math.max(v, f.mate.v * 1.05); }
+      else if (f.mood === 'nibble') { v = speed * 0.35; f.sink = -1; if (Math.random() < dt * 0.8) this.onNibble?.(f.x + Math.cos(f.h) * len * 0.5, f.y + Math.sin(f.h) * len * 0.5); }
+      else if (f.mood === 'hide' && this.cover?.length) { const p = this.cover.reduce((a, c) => (Math.hypot(c.x - f.x, c.y - f.y) < Math.hypot(a.x - f.x, a.y - f.y) ? c : a)); seek(p.x, p.y, 2); v = Math.hypot(p.x - f.x, p.y - f.y) < 2 ? speed * 0.15 : speed; f.sink = 1; }
+      if (f.mood !== 'rest' && f.mood !== 'nibble' && f.mood !== 'hide') f.sink = 0;
       const bit = food.reduce((a, p) => (!a || Math.hypot(p.x - f.x, p.y - f.y) < Math.hypot(a.x - f.x, a.y - f.y) ? p : a), null);
       if (bit) {
         const d = Math.hypot(bit.x - f.x, bit.y - f.y);
@@ -54,7 +70,9 @@ export class School {
       const nx = f.x + Math.cos(f.h) * f.v * dt, ny = f.y + Math.sin(f.h) * f.v * dt;
       if (inside(nx, ny)) { f.x = nx; f.y = ny; } else f.h += Math.PI * dt * 2;
       f.burst = Math.max(0, f.burst - dt);
-      f.depth = 0.5 + 0.5 * Math.sin(T * 0.2 + f.seed) - f.burst * 0.5; // sube al comer
+      // Hondura: ondula sola; sube al comer o al picotear y baja al descansar o esconderse.
+      const goal = 0.5 + 0.5 * Math.sin(T * 0.2 + f.seed) - f.burst * 0.5 + (f.sink || 0) * 0.45;
+      f.depth = (f.depth ?? goal) + (Math.max(-0.2, Math.min(1.1, goal)) - (f.depth ?? goal)) * Math.min(1, dt * 1.5);
       swim(f, dt);
     }
   }

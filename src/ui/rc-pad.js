@@ -1,5 +1,6 @@
 import { html, useEffect, useRef } from './lib.js';
 import { t } from '../i18n/index.js';
+import { Icon } from './icons.js';
 
 // Mando de teledirigido: joystick en pantalla (hacia dónde ir y cuánto) y teclado (flechas o WASD:
 // acelerar, frenar y girar). Escribe en `input.current` lo que lee drive() de src/game/boats.js.
@@ -22,7 +23,12 @@ export function useRcKeys(input, on, onRelease) {
   }, [on]);
 }
 
-export function RcPad({ input, onRelease, zoom, onZoom, children }) {
+// Botón redondo de icono a los lados del joystick (pantalla completa, soltar, nitro…): todos del mismo tamaño.
+export const RcButton = ({ icon, label, on, onPress, cls = '', style }) => html`<button class=${'zn-tool-ic rc-side ' + cls + (on ? ' on' : '')} style=${style}
+  aria-label=${label} title=${label} aria-pressed=${on == null ? undefined : !!on} onPointerDown=${(e) => { e.preventDefault(); onPress(); }}><${Icon} name=${icon} size=${30} /></button>`;
+
+// left / right: lo que va a cada lado del joystick (un RcButton), para que quede centrado.
+export function RcPad({ input, left, right }) {
   const pad = useRef(null), knob = useRef(null);
   const set = (e) => {
     const r = pad.current.getBoundingClientRect(), R = r.width / 2;
@@ -34,10 +40,9 @@ export function RcPad({ input, onRelease, zoom, onZoom, children }) {
   const down = (e) => { e.preventDefault(); pad.current.setPointerCapture?.(e.pointerId); set(e); };
   const up = () => { input.current = null; knob.current.style.translate = '0 0'; };
   return html`<div class="rc">
-    ${onZoom && html`<button class=${'btn sm rc-zoom' + (zoom ? ' on' : '')} aria-pressed=${!!zoom} onClick=${onZoom}>${zoom ? t('rc.zoomOut', 'Ver todo') : t('rc.zoomIn', 'Acercar')}</button>`}
+    ${left}
     <div class="rc-pad" ref=${pad} role="application" aria-label=${t('rc.aria', 'Mando: arrastra hacia donde quieres ir; con teclado, flechas o WASD')}
       onPointerDown=${down} onPointerMove=${(e) => e.buttons && set(e)} onPointerUp=${up} onPointerCancel=${up}><i ref=${knob}></i></div>
-    ${children}
-    ${onRelease && html`<button class="btn sm" onClick=${onRelease}>${t('rc.release', 'Soltar el mando')}</button>`}
+    ${right}
   </div>`;
 }

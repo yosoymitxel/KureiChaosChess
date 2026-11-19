@@ -9,7 +9,7 @@ import { Thumb } from '../water-thumb.js';
 import { reduced } from '../hop.js';
 import { newBoat, drive } from '../../game/boats.js';
 import { bump } from '../../game/physics.js';
-import { RcPad, useRcKeys } from '../rc-pad.js';
+import { RcPad, RcButton, useRcKeys } from '../rc-pad.js';
 import { GardenSwitch } from '../garden-switch.js';
 import { GARDENS, WATER_PLANTS, WATER_SLOTS, WATER_SIZE as S, BOATS } from '../../data/garden.js';
 import { loadWater, saveWater, waterStage, waterSow, waterHarvest, waterFeed, waterKoiHungry } from '../../game/water.js';
@@ -137,12 +137,15 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
             <span class="zen-shop-text"><strong>${t('zen.shop', 'Tienda del jardín')}</strong><small>${t('water.shopSub', 'Plantas acuáticas y barquitos')}</small></span>
             <span class="zen-shop-coins"><${Icon} name="coin" size=${16} />${coins}</span>
           </button>
-          ${onRace && html`<button class="zen-shop" onClick=${onRace}>
-            <span class="zen-shop-text"><strong>${t('water.race', 'Carrera de barquitos')}</strong><small>${t('water.raceSub', 'Barcos y koi en el estanque grande')}</small></span>
-            <${Icon} name="rush" size=${22} /></button>`}
+          ${onRace && html`<div class="wt-races">
+            <button class="zen-shop" onClick=${() => onRace('boats')}><span class="zen-shop-text"><strong>${t('water.race', 'Carrera de barquitos')}</strong><small>${t('water.raceSub', 'Con tu barco contra los otros modelos')}</small></span><${Icon} name="rush" size=${22} /></button>
+            <button class="zen-shop" onClick=${() => onRace('koi')}><span class="zen-shop-text"><strong>${t('water.koiRace', 'Carrera de koi')}</strong><small>${t('water.koiRaceSub', 'Nada tú un koi contra otros tres')}</small></span><${Icon} name="rush" size=${22} /></button>
+          </div>`}
         </div>
       </div>
     </div>
-    ${driving != null && html`<div class="rc-float"><${RcPad} input=${rc} onRelease=${release} zoom=${zoom} onZoom=${() => setZoom((z) => !z)} /></div>`}
+    ${driving != null && html`<div class="rc-float"><${RcPad} input=${rc}
+      left=${html`<${RcButton} icon=${zoom ? 'shrink' : 'expand'} on=${zoom} label=${zoom ? t('rc.zoomOut', 'Ver todo') : t('rc.zoomIn', 'Acercar')} onPress=${() => setZoom((z) => !z)} />`}
+      right=${html`<${RcButton} icon="back" label=${t('rc.release', 'Soltar el mando')} onPress=${release} />`} /></div>`}
   </div>`;
 }

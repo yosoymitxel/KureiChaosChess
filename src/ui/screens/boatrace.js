@@ -6,7 +6,7 @@ import { Icon } from '../icons.js';
 import { Pond } from '../../view/pond.js';
 import { raceDecor } from '../../view/water-art.js';
 import { Thumb } from '../water-thumb.js';
-import { RcPad, useRcKeys } from '../rc-pad.js';
+import { RcPad, RcButton, useRcKeys } from '../rc-pad.js';
 import { playSfx } from '../sfx.js';
 import { t } from '../../i18n/index.js';
 import { BOATS, RACE_PRIZE, GARDENS } from '../../data/garden.js';
@@ -15,24 +15,25 @@ import { loadWater } from '../../game/water.js';
 import { addCoins } from '../../game/shop.js';
 
 
-export function BoatRaceScreen({ onBack }) {
+export function BoatRaceScreen({ onBack, mode = 'boats' }) {
   const [pick, setPick] = useState(null); // { kind, diff } al empezar
   const [diff, setDiff] = useState('normal');
-  const own = ['koi', ...new Set(loadWater().boats)];
+  const koi = mode === 'koi', own = [...new Set(loadWater().boats)];
+  const title = koi ? t('water.koiRace', 'Carrera de koi') : t('water.race', 'Carrera de barquitos');
   if (!pick) return html`<div class="screen mini zen-screen">
-    <${Topbar} title=${t('water.race', 'Carrera de barquitos')} sub=${GARDENS.agua.name} onBack=${onBack} />
+    <${Topbar} title=${title} sub=${GARDENS.agua.name} onBack=${onBack} />
     <div class="mini-body zen-body"><div class="panel br-pick">
-      <p>${t('boatrace.help', 'Dos vueltas a un canal que cambia cada carrera, pasando por las boyas en orden, contra dos barcos y un koi. Las rocas cortan el paso y las algas frenan. Maneja con el mando o con las flechas.')}</p>
+      <p>${koi ? t('boatrace.koiHelp', 'Dos vueltas a un canal que cambia cada carrera, contra tres koi. Pasa las boyas en orden, esquiva las rocas y cuidado con las algas. Maneja con el mando o con las flechas.') : t('boatrace.help', 'Dos vueltas a un canal que cambia cada carrera, pasando por las boyas en orden, contra dos barcos y un koi. Las rocas cortan el paso y las algas frenan. Maneja con el mando o con las flechas.')}</p>
       <h3>${t('boatrace.diff', 'Dificultad')}</h3>
       <div class="garden-switch">${Object.entries(DIFFS).map(([k, d]) => html`<button class=${'btn sm' + (diff === k ? ' on' : ' ghost')} onClick=${() => setDiff(k)}>${d.name} · +${RACE_PRIZE[k]}</button>`)}</div>
-      <h3>${t('boatrace.racer', 'Corredor')}</h3>
-      <div class="zn-tools">${own.map((k) => html`<button class="zn-tool" title=${BOATS[k].desc} onClick=${() => setPick({ kind: k, diff })}><span class="zn-tool-ic wt-thumb"><${Thumb} boat=${k} /></span><span>${BOATS[k].name}</span></button>`)}</div>
+      ${koi ? html`<button class="btn primary" onClick=${() => setPick({ kind: 'koi', diff })}>${t('boatrace.start', 'Salir')}</button>` : !own.length ? html`<p>${t('boatrace.noBoat', 'Compra un barquito en la tienda del jardín para correr.')}</p>` : html`<h3>${t('boatrace.racer', 'Corredor')}</h3>
+      <div class="zn-tools">${own.map((k) => html`<button class="zn-tool" title=${BOATS[k].desc} onClick=${() => setPick({ kind: k, diff })}><span class="zn-tool-ic wt-thumb"><${Thumb} boat=${k} /></span><span>${BOATS[k].name}</span></button>`)}</div>`}
     </div></div>
   </div>`;
-  return html`<${Race} key=${pick.kind + pick.diff + (pick.n || 0)} ...${pick} onBack=${onBack} again=${() => setPick(null)} />`;
+  return html`<${Race} key=${pick.kind + pick.diff + (pick.n || 0)} ...${pick} title=${title} onBack=${onBack} again=${() => setPick(null)} />`;
 }
 
-function Race({ kind, diff, onBack, again }) {
+function Race({ kind, diff, title, onBack, again }) {
   const [s] = useState(() => newRace(kind, diff));
   const [hud, setHud] = useState({ lap: 0, place: 4, count: 3, cd: 2, boost: 0 });
   const [over, setOver] = useState(null);
@@ -88,21 +89,20 @@ function Race({ kind, diff, onBack, again }) {
   }, []);
 
   return html`<div class=${'screen mini zen-screen' + (zoom && !over ? ' wt-full' : '')}>
-    <${Topbar} title=${t('water.race', 'Carrera de barquitos')} sub=${BOATS[kind].name + ' · ' + DIFFS[diff].name} onBack=${onBack} />
+    <${Topbar} title=${title} sub=${BOATS[kind].name + ' · ' + DIFFS[diff].name} onBack=${onBack} />
     <div class="mini-body zen-body">
       <div class="mini-stats br-hud" aria-live="polite">
         <span class="chip">${TRACKS[s.track.type].name}</span>
         <span class="chip">${t('boatrace.lap', 'Vuelta {n}/{of}', { n: hud.lap, of: LAPS })}</span>
         <span class="chip">${t('boatrace.place', 'Puesto {n}º', { n: hud.place })}</span>
+        <${RcButton} icon=${zoom ? 'shrink' : 'expand'} on=${zoom} cls="br-zoom" label=${zoom ? t('rc.zoomOut', 'Ver todo') : t('rc.zoomIn', 'Acercar')} onPress=${() => setZoom((z) => !z)} />
       </div>
       <div class="br-track">
         <canvas class="wt-cv" ref=${cvRef}></canvas>
         ${hud.count > 0 && html`<b class="br-count">${hud.count}</b>`}
       </div>
-      ${!over && html`<div class="br-pad"><${RcPad} input=${rc} zoom=${zoom} onZoom=${() => setZoom((z) => !z)}>
-        <button class=${'zn-tool-ic br-nitro' + (hud.boost ? ' on' : '') + (hud.cd > 0 ? ' zn-cool' : '')} aria-disabled=${hud.cd > 0 || hud.count > 0}
-          style=${hud.cd > 0 ? { '--zn-rest': (hud.cd / NITRO.cooldown).toFixed(4) } : null} onPointerDown=${(e) => { e.preventDefault(); nitro(s); }} aria-label=${t('boatrace.nitro', 'Nitro')} title=${t('boatrace.nitro', 'Nitro')}>
-          <${Icon} name="meteor" size=${36} /></button><//></div>`}
+      ${!over && html`<div class="br-pad"><${RcPad} input=${rc} right=${html`<${RcButton} icon="meteor" label=${t('boatrace.nitro', 'Nitro')} onPress=${() => nitro(s)}
+        cls=${'br-nitro' + (hud.boost ? ' boosting' : '') + (hud.cd > 0 ? ' zn-cool' : '')} style=${hud.cd > 0 ? { '--zn-rest': (hud.cd / NITRO.cooldown).toFixed(4) } : null} />`} /></div>`}
     </div>
     ${over && html`<${MiniEnd} win=${over === 'win'} note=${over === 'win' ? t('boatrace.won', 'Primero en la meta: +{n} monedas.', { n: RACE_PRIZE[diff] }) : t('boatrace.lost', 'Llegaste {n}º.', { n: s.place })}
       label=${t('boatrace.again', 'Otra carrera')} onEnd=${again} />`}

@@ -1749,14 +1749,17 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .wt-thumb-cv { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
 .wt-thumb .zn-packet-n { position: absolute; right: 1px; bottom: 1px; min-width: 0; height: auto; padding: 0 3px; font-size: 10px; line-height: 14px; border-radius: 4px; background: var(--ink); color: var(--paper); }
 .wt-thumb.locked .wt-thumb-cv { filter: grayscale(0.8) brightness(0.8); }
-.rc-zoom.on { background: var(--brass); color: var(--ink); }
 .wt-thumb { background: radial-gradient(circle, #3a8584 55%, #245f6b 56%); }
 /* Nitro: el botón de herramienta del jardín, con el mismo reloj de descanso (zn-cool); encendido, late. */
-.br-nitro { width: 84px; height: 84px; cursor: pointer; background-color: var(--brass); touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+.rc-side { width: 72px; height: 72px; flex: none; cursor: pointer; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+.rc-side.on { background-color: var(--brass); }
+.br-nitro { width: 84px; height: 84px; background-color: var(--brass); }
+.br-zoom { width: 44px; height: 44px; }
+.br-zoom svg { width: 22px; height: 22px; }
 .br-nitro.zn-cool { background-color: var(--paper); cursor: default; }
-.br-nitro.on { background-color: var(--accent); color: var(--paper); animation: br-pulse 0.3s ease-in-out infinite alternate; }
+.br-nitro.boosting { background-color: var(--accent); color: var(--paper); animation: br-pulse 0.3s ease-in-out infinite alternate; }
 @keyframes br-pulse { to { scale: 1.08; } }
-@media (prefers-reduced-motion: reduce) { .br-nitro.on { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .br-nitro.boosting { animation: none; } }
 
 /* Mando: al manejar se esconde el panel (el agua ocupa su sitio); con Acercar, el agua a pantalla
    completa y el mando y los datos encima. */
@@ -1767,3 +1770,6 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .wt-full .br-hud { position: fixed; z-index: 41; top: max(10px, env(safe-area-inset-top)); left: 0; right: 0; }
 .wt-full .br-hud .chip { background: color-mix(in oklch, var(--ink), transparent 25%); }
 .wt-driving:not(.wt-full) .rc-float { position: static; translate: none; width: fit-content; margin: 0 auto 16px; }
+.br-hud { align-items: center; }
+.br-pad .rc { justify-content: space-between; width: min(100%, 360px); margin-inline: auto; }
+.wt-races { display: grid; gap: 10px; }

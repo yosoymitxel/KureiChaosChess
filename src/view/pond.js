@@ -76,6 +76,8 @@ export class Pond {
   step(dt, T) {
     this.onStep?.(dt, T);
     this.school.avoid = this.boats;
+    this.school.cover = this.pads;
+    this.school.onNibble ??= (x, y) => this.ripple(x, y, 0.35);
     this.school.step(dt, T);
     // Estela de barcos y koi que corren: dos brazos en V que se abren, y una onda de vez en cuando.
     for (const w of this.wake) w.age += dt;
@@ -240,6 +242,8 @@ export class Pond {
       drawPad(ctx, p.x, p.y, p.r * (1 + bob), p.rot);
       if (i === this.lotus) drawLotus(ctx, p.x - p.r * 0.1, p.y - p.r * 0.15, p.r * 0.62, T);
     });
+    // Orilla, islas, algas y muelle (mismo dibujo y paleta); encima solo lo que flota y se mueve.
+    this.decor?.(ctx, T, pixel);
     for (const p of this.plants) drawPlant(ctx, p, T, len, pixel);
     for (const m of this.marks) drawBuoy(ctx, m, T, len);
     for (const b of this.boats) drawBoat(ctx, b, T, len, pixel);
@@ -252,7 +256,6 @@ export class Pond {
       ctx.fillRect(s.x + Math.sin(T * 0.2 + s.ph) * 2, s.y, pixel ? 1 : len * 0.12, pixel ? 0.5 : len * 0.03);
     }
     ctx.globalAlpha = 1;
-    this.decor?.(ctx, T, pixel); // orilla, islas, muelles: lo que rodea el agua, en el mismo dibujo (y paleta)
   }
 }
 
