@@ -7,6 +7,8 @@ import { Pond, runPond } from '../../view/pond.js';
 import { gardenDecor, gardenInside } from '../../view/water-art.js';
 import { Thumb } from '../water-thumb.js';
 import { reduced } from '../hop.js';
+import { Fx } from '../../view/fx.js';
+import { zenSky } from '../../game/zen.js';
 import { newBoat, drive } from '../../game/boats.js';
 import { bump } from '../../game/physics.js';
 import { RcPad, RcButton, useRcKeys } from '../rc-pad.js';
@@ -34,6 +36,10 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
   const zoomRef = useRef(false);
   zoomRef.current = zoom;
   const [, tick] = useState(0);
+  // Clima: el mismo del Jardín Zen (cielo compartido); en el agua la lluvia y la nieve dejan ondas.
+  const [sky] = useState(() => zenSky());
+  const wrapRef = useRef(null);
+  useEffect(() => { const fx = new Fx(wrapRef.current); Object.assign(fx, { vfx: true, noShade: true }); fx.setWeather(sky); return () => fx.destroy(); }, []);
   const plantedRef = useRef([]);
   plantedRef.current = WATER_SLOTS.filter((_, i) => w.slots[i]);
   const rc = useRef(null), drivingRef = useRef(null);
@@ -48,6 +54,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
     const inside = (x, y) => water(x, y) && !plantedRef.current.some(([px, py]) => Math.hypot(px - x, py - y) < 5.5);
     const pond = pondRef.current = new Pond(cvRef.current, { size: [S, S], inside: water, count: 4, len: 7.5, speed: 3.2, pads: [[24, 34, 2.2], [37, 24, 1.8]], duckweed: 12 });
     pond.decor = gardenDecor(S);
+    pond.rain = sky === 'rain' ? 9 : sky === 'snow' ? 2 : 0;
     pond.onStep = (dt) => {
       const inp = rc.current, rot = pond.view?.rot || 0, mine = inp?.aim != null ? { ...inp, aim: inp.aim - rot } : inp;
       pond.boats.forEach((b, i) => { b.sel = i === drivingRef.current; if (drive(b, b.sel ? mine : null, dt, inside) > 4) { playSfx('tap', 0.7); pond.ripple(b.x, b.y, 0.5); } });
@@ -98,7 +105,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
     else setMsg(t('zen.koiFeed', 'Los koi vienen a comer.'));
   };
 
-  return html`<div class=${'screen mini zen-screen water-screen' + (driving != null ? ' wt-driving' : '') + (driving != null && zoom ? ' wt-full' : '')} ref=${ref}>
+  return html`<div class=${'screen mini zen-screen water-screen' + (driving != null ? ' wt-driving' : '') + (driving != null && zoom ? ' wt-full' : '')} data-weather=${sky} ref=${ref}>
     <${Topbar} title=${GARDENS.agua.name} onBack=${onBack}>
       <button class="coin-chip" title=${t('zen.shop', 'Tienda del jardín')} aria-label=${t('zen.coinsShop', '{n} monedas: abrir la tienda', { n: coins })} onClick=${onShop}><${Icon} name="coin" size=${16} /><b>${coins}</b></button>
     </${Topbar}>
@@ -107,7 +114,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
       <div class="zen-main">
         <div class="zen-scene">
           <div class="mini-stage">
-          <div class=${'wt-pond' + (waterKoiHungry(w) ? ' hungry' : '')} onClick=${tap} role="application" aria-label=${t('water.aria', 'Estanque: toca una plaza de la orilla para plantar o cortar, un barquito para manejarlo o el agua para dar de comer a los koi')}>
+          <div ref=${wrapRef} class=${'wt-pond' + (waterKoiHungry(w) ? ' hungry' : '')} onClick=${tap} role="application" aria-label=${t('water.aria', 'Estanque: toca una plaza de la orilla para plantar o cortar, un barquito para manejarlo o el agua para dar de comer a los koi')}>
             <canvas class="wt-cv" ref=${cvRef}></canvas>
           </div>
           </div>

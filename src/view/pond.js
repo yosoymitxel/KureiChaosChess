@@ -141,9 +141,9 @@ export class Pond {
 
   draw(T, pixel) {
     const { canvas, W, H } = this, box = canvas.getBoundingClientRect();
-    // Píxel: cada píxel del dibujo mide unos 3 px de pantalla, con o sin cámara (antes 2 por unidad: a pantalla
+    // Píxel: cada píxel del dibujo mide unos 2 px de pantalla, con o sin cámara (antes 2 por unidad: a pantalla
     // completa se veía enorme). Vector: a la resolución de la pantalla.
-    const target = pixel ? this.lo : canvas, scale = pixel ? Math.max(2, box.width / W / 3) : Math.max(2, (box.width * Math.min(2, devicePixelRatio || 1)) / W);
+    const target = pixel ? this.lo : canvas, scale = pixel ? Math.max(2, box.width / W / 2) : Math.max(2, (box.width * Math.min(2, devicePixelRatio || 1)) / W);
     const v = this.view;
     // Con cámara el lienzo puede tener otra forma (pantalla completa): el alto sale de su caja.
     this.vh = v && box.width ? (W * box.height) / box.width : H;

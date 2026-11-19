@@ -1774,3 +1774,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .br-pad .rc { justify-content: space-between; width: min(100%, 360px); margin-inline: auto; }
 .wt-races { display: grid; gap: 10px; }
 @media (max-width: 520px) { .br-pad, .wt-full .br-pad { left: 12px; right: 12px; translate: none; } .br-pad .rc { width: 100%; } }
+/* Entrar a pantalla completa: el agua crece desde su sitio. */
+.wt-full .wt-pond, .wt-full .br-track { animation: wt-full-in 0.35s var(--ease-out) both; }
+@keyframes wt-full-in { from { scale: 0.82; opacity: 0.4; border-radius: 12px; } }
+@media (prefers-reduced-motion: reduce) { .wt-full .wt-pond, .wt-full .br-track { animation: none; } }
