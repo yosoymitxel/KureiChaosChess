@@ -12,9 +12,9 @@ import { t } from '../../i18n/index.js';
 
 // Decorative diorama: a small board with a boss facing a few pieces, gently swaying.
 // Five more pieces, labelled above, turn into the extras: Jardín Zen, Tienda, Galería, Logros and Tutorial.
-function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
+function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial, onWaterGarden }) {
   const host = useRef(null), tags = useRef(null), retag = useRef(null), titan = useRef({ id: null, n: 0, t: 0 });
-  const open = { 'x-zen': onZen, 'x-tienda': onShop, 'x-galeria': onGallery, 'x-logros': onAchievements, 'x-tutorial': onTutorial };
+  const open = { 'x-zen': onZen, 'x-tienda': onShop, 'x-galeria': onGallery, 'x-logros': onAchievements, 'x-tutorial': onTutorial, 'x-agua': onWaterGarden };
   useEffect(() => {
     const v = new BoardView(host.current, { camera: 'epic' });
     const board = { rows: 6, cols: 6, holes: new Set(['2,0', '3,5', '2,5']) };
@@ -35,6 +35,7 @@ function Diorama({ onZen, onShop, onGallery, onAchievements, onTutorial }) {
     // near so the near one paints over the one behind; the host resolves the tap by data-pid.
     for (const [id, label, type, row, col] of [
       ['x-zen', t('menu.zen', 'Jardín Zen'), 'pawn', 3, 0],
+      ['x-agua', t('menu.agua', 'Jardín de Agua'), 'queen', 0, 3],
       ['x-tutorial', t('menu.tutorial', 'Tutorial'), 'king', 4, 5],
       ['x-logros', t('menu.achievements', 'Logros'), 'rook', 5, 2],
       ['x-galeria', t('menu.gallery', 'Galería'), 'bishop', 2, 4],
@@ -150,7 +151,7 @@ function fitCrown(el) {
   el.style.setProperty('--top', `${baseline - (asc + 1 - top) + fs * 0.012 - size * foot}px`);
 }
 
-export function MenuScreen({ hasRun, inTutorial, onNew, onTutorial, onContinue, onHowTo, onSettings, onMinis, onVersus, onZen, onShop, onGallery, onAchievements, settings, setSettings }) {
+export function MenuScreen({ hasRun, inTutorial, onNew, onTutorial, onContinue, onHowTo, onSettings, onMinis, onVersus, onZen, onWaterGarden, onShop, onGallery, onAchievements, settings, setSettings }) {
   const ref = useRef(null);
   useEnter(ref);
   const crown = useRef(null);
@@ -167,7 +168,7 @@ export function MenuScreen({ hasRun, inTutorial, onNew, onTutorial, onContinue, 
   const go = (fn) => () => { if (settings.fullscreen) setFullscreen(true); fn(); };
   return html`<div class="screen menu" ref=${ref}>
     <${Diorama} onZen=${onZen && go(onZen)} onShop=${onShop && go(onShop)} onGallery=${onGallery && go(onGallery)} onAchievements=${onAchievements && go(onAchievements)}
-      onTutorial=${hasRun ? () => setAskTutorial(true) : go(onTutorial)} />
+      onTutorial=${hasRun ? () => setAskTutorial(true) : go(onTutorial)} onWaterGarden=${onWaterGarden && go(onWaterGarden)} />
     <div class="menu-col">
       <div class="logo" data-enter>
         <h1 aria-label="Kure'i ChaosChess"><span class="logo-main" aria-hidden="true">Kure'<span class="logo-i" ref=${crown}>ı<${Icon} name="crown" size=${40} /></span></span>
@@ -183,6 +184,7 @@ export function MenuScreen({ hasRun, inTutorial, onNew, onTutorial, onContinue, 
         <button class="btn primary wide" data-enter onClick=${go(hasRun ? onContinue : onNew)}><${Icon} name=${hasRun ? 'map' : 'swords'} />${hasRun ? t('menu.continue', 'Continuar run') : t('menu.start', 'Empezar run')}</button>
         ${hasRun && !inTutorial && html`<${ConfirmButton} class="btn" enter onConfirm=${onNew} confirmLabel=${t('menu.newRunConfirm', 'Se pierde la run actual. ¿Seguro?')}><${Icon} name="refresh" />${t('menu.newRun', 'Nueva run')}<//>`}
         ${onMinis && html`<button class=${'btn' + (hasRun && !inTutorial ? '' : ' wide')} data-enter onClick=${onMinis}><${Icon} name="connect4" />${t('menu.minis', 'Minijuegos')}</button>`}
+        ${onWaterGarden && html`<button class=${'btn' + (hasRun && !inTutorial ? '' : ' wide')} data-enter onClick=${onWaterGarden}><${Icon} name="drop" size=${18} />${t('menu.agua', 'Jardín de Agua')}</button>`}
         <button class="btn wide" data-enter onClick=${go(onVersus)}><${Icon} name="human" />${t('menu.multi', 'Multijugador')}</button>
         </div>`}
         <div class="menu-row" data-enter>

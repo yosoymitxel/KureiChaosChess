@@ -9,7 +9,7 @@ const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null')
 const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
 // Los grupos se muestran en este orden en la pantalla de Logros.
-export const ACHIEVEMENT_GROUPS = ['Partida', 'Travesía', 'Minijuegos', 'Jardín Zen', 'Tienda', 'Largo plazo', 'Secretos'];
+export const ACHIEVEMENT_GROUPS = ['Partida', 'Travesía', 'Minijuegos', 'Jardín Zen', 'Jardín de Agua', 'Tienda', 'Largo plazo', 'Secretos'];
 
 // Los logros por grupo, en el orden de la pantalla y con los conseguidos primero: Logros y la
 // Galería los muestran igual.
@@ -96,6 +96,19 @@ export const ACHIEVEMENTS = localize('achievements', [
   { id: 'king_hunt', group: 'Secretos', name: 'El rey sale a cazar', desc: 'Captura a la reina rival con tu rey.', icon: 'king', secret: true },
   { id: 'early_fall', group: 'Secretos', name: 'Despiste', desc: 'Pierde a tu rey en las cinco primeras rondas.', icon: 'skull', secret: true },
   { id: 'rich', group: 'Tienda', name: 'Bolsillo lleno', desc: 'Ten 100 monedas a la vez.', icon: 'coin' },
+  // Jardín de Agua
+  { id: 'agua_open', group: 'Jardín de Agua', name: 'Puerta del estanque', desc: 'Abre el Jardín de Agua por primera vez.', icon: 'drop' },
+  { id: 'agua_koi_1', group: 'Jardín de Agua', name: 'Primer pez', desc: 'Compra tu primer koi.', icon: 'drop' },
+  { id: 'agua_koi_all', group: 'Jardín de Agua', name: 'Coleccionista de koi', desc: 'Ten un koi de cada tipo en el estanque.', icon: 'drop' },
+  { id: 'agua_estanque_max', group: 'Jardín de Agua', name: 'Estanque completo', desc: 'Amplía el estanque hasta 8×8.', icon: 'expand' },
+  { id: 'agua_flora_all', group: 'Jardín de Agua', name: 'Todo florece en el agua', desc: 'Cosecha una planta de cada tipo acuático.', icon: 'seed' },
+  { id: 'agua_barco_papel', group: 'Jardín de Agua', name: 'Flota de origami', desc: 'Ten 3 barquitos de papel al mismo tiempo.', icon: 'ship' },
+  { id: 'agua_carrera_1', group: 'Jardín de Agua', name: 'Velocista del estanque', desc: 'Gana 1 carrera de barquitos.', icon: 'ship' },
+  { id: 'agua_carrera_10', group: 'Jardín de Agua', name: 'Rey de las carreras', desc: 'Gana 10 carreras de barquitos.', icon: 'trophy' },
+  { id: 'agua_red', group: 'Jardín de Agua', name: 'Agua cristalina', desc: 'Limpia 10 hojas flotantes con la red.', icon: 'net' },
+  { id: 'agua_koi_crianza', group: 'Jardín de Agua', name: 'Nace un koi', desc: 'Cria con éxito dos koi del mismo tipo.', icon: 'drop' },
+  { id: 'agua_foto_1', group: 'Jardín de Agua', name: 'Primer recuerdo', desc: 'Toma tu primera foto del estanque.', icon: 'drop' },
+  { id: 'agua_galeria_llena', group: 'Jardín de Agua', name: 'Galería completa', desc: 'Llena la galería con 24 fotos del estanque.', icon: 'drop' },
 ]);
 
 // Los secretos no dicen qué piden hasta que se consiguen.
