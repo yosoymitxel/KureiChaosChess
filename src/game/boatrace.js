@@ -20,7 +20,7 @@ export const TRACKS = localize('boatTracks', {
 export const DIFFS = {
   facil: { name: 'Fácil', pace: 0.72, wobble: 0.5, rocks: 4, weed: 2 },
   normal: { name: 'Normal', pace: 0.8, wobble: 0.3, rocks: 6, weed: 3, nitro: true },
-  dificil: { name: 'Difícil', pace: 0.88, wobble: 0.15, rocks: 8, weed: 4, nitro: true },
+  dificil: { name: 'Difícil', pace: 0.85, wobble: 0.15, rocks: 8, weed: 4, nitro: true },
 };
 // Dos carreras distintas: barcos contra barcos (los otros tres modelos) y koi contra koi.
 const BOATS_RACE = ['papel', 'balsa', 'velero', 'lancha'];

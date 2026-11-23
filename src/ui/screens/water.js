@@ -46,7 +46,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
   // Estanque vivo: koi, nenúfares que derivan, barquitos y las plantas de cada plaza.
   useEffect(() => {
     // Los barcos también chocan con las plantas de la orilla (no con las plazas libres).
-    const inside = (x, y) => water(x, y) && !plantedRef.current.some(([px, py]) => Math.hypot(px - x, py - y) < 4.5);
+    const inside = (x, y) => water(x, y) && !plantedRef.current.some(([px, py]) => Math.hypot(px - x, py - y) < 3.5);
     const pond = pondRef.current = new Pond(cvRef.current, { size: [S, S], inside: water, count: 5, len: 7.5, speed: 3.2, pads: [[34, 50, 2.2], [56, 34, 1.8], [62, 60, 2]], duckweed: 20 });
     pond.decor = gardenDecor(S);
     pond.onStep = (dt) => {

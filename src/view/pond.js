@@ -244,6 +244,11 @@ export class Pond {
       drawPad(ctx, p.x, p.y, p.r * (1 + bob), p.rot);
       if (i === this.lotus) drawLotus(ctx, p.x - p.r * 0.1, p.y - p.r * 0.15, p.r * 0.62, T);
     });
+    // El que se maneja: un aro que late en el agua (la orilla lo tapa, como a las ondas).
+    for (const b of this.boats) if (b.sel) {
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = pixel ? 0.5 : 0.25; ctx.globalAlpha = 0.45 + 0.3 * Math.sin(T * 5);
+      ctx.beginPath(); ctx.arc(b.x, b.y, len * 1.1 * 0.85, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
+    }
     // Orilla, islas, algas y muelle (mismo dibujo y paleta); encima solo lo que flota y se mueve.
     this.decor?.(ctx, T, pixel);
     for (const p of this.plants) drawPlant(ctx, p, T, len, pixel);
@@ -334,10 +339,6 @@ function drawBuoy(ctx, m, T, len) {
 // Barquito visto desde arriba, apuntando a su rumbo; se mece y escora al girar.
 export function drawBoat(ctx, b, T, len, pixel) {
   const L = len * 1.1, Wd = L * 0.45, rock = Math.sin(T * 2.6 + b.x * 0.7) * 0.04;
-  if (b.sel) { // el que se maneja: un aro que late debajo
-    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = pixel ? 0.5 : 0.25; ctx.globalAlpha = 0.45 + 0.3 * Math.sin(T * 5);
-    ctx.beginPath(); ctx.arc(b.x, b.y, L * 0.85, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
-  }
   const im = sprite(`boat-${b.kind}`);
   if (im) return stamp(ctx, im, b.x, b.y, L / 0.75, b.h + rock + (b.lean || 0));
   ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.h + rock);

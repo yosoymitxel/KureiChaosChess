@@ -69,7 +69,7 @@ function Race({ kind, diff, title, onBack, again }) {
           else if (e.kind === 'go') playSfx('pop');
           else if (e.kind === 'lap') { playSfx('coin'); pond.ripple(e.x ?? s.racers[0].x, e.y ?? s.racers[0].y, 1.2); }
           else if (e.kind === 'bump') { playSfx('hit', 0.8); pond.ripple(e.x, e.y, 0.6); }
-          else if (e.kind === 'shore') playSfx('tap', 0.6);
+          else if (e.kind === 'shore') { playSfx('tap', 0.6); pond.ripple(e.x, e.y, 0.5); }
           else if (e.kind === 'nitro') { if (!e.who) playSfx('splash', 1.4); pond.ripple(e.x, e.y, 1.6); }
           else if (e.kind === 'finish' && e.who === 0) playSfx('splash');
         }
