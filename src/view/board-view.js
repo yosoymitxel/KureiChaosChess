@@ -491,12 +491,18 @@ export class BoardView {
     for (const t of this.tiles.values()) t.classList.remove('mv', 'cap', 'danger', 'castle', 'target', 'gain', 'foot', 'hot', 'block', 'veil', 'crown');
     for (const el of this.els.values()) el.classList.remove('eligible');
     for (const el of this.tilesEl.querySelectorAll('.prop.reach')) el.classList.remove('reach');
+    for (const el of this.tilesEl.querySelectorAll('.tile.void')) el.remove();
     this.host.classList.remove('aiming');
   }
   // Card targeting: outline valid tiles, ring the pieces the card can be played on and fade the rest.
   showTargets(cells, pieces = []) {
     this.clearMarks();
-    for (const k of cells) this.tiles.get(k)?.classList.add('target');
+    for (const k of cells) {
+      let t = this.tiles.get(k);
+      // Un hueco no tiene casilla: se pone una provisional para poder apuntarlo (carta Puente).
+      if (!t) { const [r, c] = k.split(',').map(Number); t = this.tileEl(this.board, r, c); t.classList.add('void'); this.tilesEl.appendChild(t); }
+      t.classList.add('target');
+    }
     for (const p of pieces) this.els.get(p)?.classList.add('eligible');
     this.host.classList.add('aiming');
   }
@@ -588,10 +594,11 @@ export class BoardView {
   hitAt(x, y) {
     const stack = document.elementsFromPoint(x, y).filter((el) => this.host.contains(el));
     const first = this.cellFromEl(stack[0]);
-    if (first?.piece && sizeOf(first.piece).some((n) => n > 1)) return first;
     const tile = stack.find((el) => el.classList.contains('tile'));
-    if (tile?.matches('.mv, .cap, .target')) return { row: +tile.dataset.r, col: +tile.dataset.c };
-    return first;
+    const marked = tile?.matches('.mv, .cap, .target') && { row: +tile.dataset.r, col: +tile.dataset.c };
+    // El jefe tapa casillas de detrás: si la marcada no es suya, se va a esa casilla sin atacarlo.
+    if (first?.piece && sizeOf(first.piece).some((n) => n > 1) && (!marked || cellsOf(first.piece).some(([r, c]) => r === marked.row && c === marked.col))) return first;
+    return marked || first;
   }
 
   bindPointer() {
@@ -622,8 +629,11 @@ export class BoardView {
       const zoomed = e.pointerType !== 'mouse' && this.zoom > 1.01;
       if (!hit) { if (zoomed) pending = { hit: null, id: e.pointerId, x: e.clientX, y: e.clientY, pan: { ...this.pan }, moved: false }; return; }
       hit.touch = e.pointerType !== 'mouse';
-      if (hit.piece && this.canDrag?.(hit.piece)) drag = { piece: hit.piece, x: e.clientX, y: e.clientY, id: e.pointerId, ghost: null };
-      else if (zoomed) { pending = { hit, id: e.pointerId, x: e.clientX, y: e.clientY, pan: { ...this.pan }, moved: false }; return; }
+      if (hit.piece && this.canDrag?.(hit.piece)) {
+        // Agarrar la pieza ya elegida no la suelta: el toque que la deselecciona espera a ver si no era arrastre.
+        drag = { piece: hit.piece, x: e.clientX, y: e.clientY, id: e.pointerId, ghost: null, hit: hit.piece === this.selected && hit };
+        if (drag.hit) return;
+      } else if (zoomed) { pending = { hit, id: e.pointerId, x: e.clientX, y: e.clientY, pan: { ...this.pan }, moved: false }; return; }
       this.onTap?.(hit);
     };
     const move = (e) => {
@@ -667,7 +677,7 @@ export class BoardView {
       }
       if (!drag || e.pointerId !== drag.id) return;
       const d = drag; drag = null;
-      if (!d.ghost) return;
+      if (!d.ghost) { if (d.hit && e.type === 'pointerup') this.onTap?.(d.hit); return; }
       d.ghost.remove();
       this.els.get(d.piece)?.classList.remove('dragging');
       this.onDrop?.(d.piece, this.hitAt(e.clientX, e.clientY));
