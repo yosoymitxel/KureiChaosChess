@@ -46,8 +46,8 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
   // Estanque vivo: koi, nenúfares que derivan, barquitos y las plantas de cada plaza.
   useEffect(() => {
     // Los barcos también chocan con las plantas de la orilla (no con las plazas libres).
-    const inside = (x, y) => water(x, y) && !plantedRef.current.some(([px, py]) => Math.hypot(px - x, py - y) < 5.5);
-    const pond = pondRef.current = new Pond(cvRef.current, { size: [S, S], inside: water, count: 4, len: 7.5, speed: 3.2, pads: [[24, 34, 2.2], [37, 24, 1.8]], duckweed: 12 });
+    const inside = (x, y) => water(x, y) && !plantedRef.current.some(([px, py]) => Math.hypot(px - x, py - y) < 4.5);
+    const pond = pondRef.current = new Pond(cvRef.current, { size: [S, S], inside: water, count: 5, len: 7.5, speed: 3.2, pads: [[34, 50, 2.2], [56, 34, 1.8], [62, 60, 2]], duckweed: 20 });
     pond.decor = gardenDecor(S);
     pond.onStep = (dt) => {
       const inp = rc.current, rot = pond.view?.rot || 0, mine = inp?.aim != null ? { ...inp, aim: inp.aim - rot } : inp;
@@ -64,7 +64,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
   }, []);
   useEffect(() => {
     const pond = pondRef.current;
-    pond.boats = w.boats.map((k, i) => pond.boats[i] || newBoat(k, S / 2 + Math.cos(i * 2.4) * 10, S / 2 + Math.sin(i * 2.4) * 10, i * 2.4 + Math.PI / 2));
+    pond.boats = w.boats.map((k, i) => pond.boats[i] || newBoat(k, S / 2 + Math.cos(i * 2.4) * 16, S / 2 + Math.sin(i * 2.4) * 16, i * 2.4 + Math.PI / 2));
   }, [w.boats.length]);
   // Las plantas crecen con el reloj: se repinta su etapa cada pocos segundos.
   useEffect(() => { const id = setInterval(() => tick((n) => n + 1), 5000); return () => clearInterval(id); }, []);

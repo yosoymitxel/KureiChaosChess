@@ -36,7 +36,7 @@ function planks(ctx, x, y, w, h, along) {
 }
 
 // Jardín de Agua (estanque cuadrado de lado S): marco de hierba, borde de piedras, juncos y el muelle.
-export const PIER = { x: 15, y: 50, w: 6, h: 10 };
+export const PIER = { x: 24, y: 78, w: 6, h: 12 };
 export const GARDEN_EDGE = 4.6;
 export function gardenDecor(S) {
   const r = rng(7), stones = [];

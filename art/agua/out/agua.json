@@ -1,0 +1,254 @@
+{
+ "frames": {
+  "boat-papel": {
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 26
+   }
+  },
+  "boat-balsa": {
+   "frame": {
+    "x": 28,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 26
+   }
+  },
+  "boat-velero": {
+   "frame": {
+    "x": 56,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 26
+   }
+  },
+  "boat-lancha": {
+   "frame": {
+    "x": 84,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 26
+   }
+  },
+  "nenufar-bud": {
+   "frame": {
+    "x": 0,
+    "y": 28,
+    "w": 26,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 26
+   }
+  },
+  "nenufar-bloom": {
+   "frame": {
+    "x": 28,
+    "y": 28,
+    "w": 26,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 26
+   }
+  },
+  "loto-bud": {
+   "frame": {
+    "x": 56,
+    "y": 28,
+    "w": 26,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 26
+   }
+  },
+  "loto-bloom": {
+   "frame": {
+    "x": 84,
+    "y": 28,
+    "w": 26,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 26
+   }
+  },
+  "junco-bud": {
+   "frame": {
+    "x": 0,
+    "y": 56,
+    "w": 26,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 26
+   }
+  },
+  "junco-bloom": {
+   "frame": {
+    "x": 28,
+    "y": 56,
+    "w": 26,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 26
+   }
+  },
+  "lenteja-bud": {
+   "frame": {
+    "x": 56,
+    "y": 56,
+    "w": 26,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 26
+   }
+  },
+  "lenteja-bloom": {
+   "frame": {
+    "x": 84,
+    "y": 56,
+    "w": 26,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 26
+   }
+  }
+ },
+ "meta": {
+  "app": "pxl",
+  "image": "agua.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 110,
+   "h": 82
+  },
+  "scale": "1"
+ }
+}

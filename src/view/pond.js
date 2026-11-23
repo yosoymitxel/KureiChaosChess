@@ -165,6 +165,7 @@ export class Pond {
   }
 
   paint(ctx, T, pixel, scale) {
+    PIXEL = pixel; SCALE = scale;
     const { W, H, len } = this, cx = W / 2, cy = H / 2, R = Math.hypot(W, H) / 2;
     // Lecho: claro en el medio, hondo hacia la orilla.
     const g = ctx.createRadialGradient(cx * 0.9, cy * 0.85, 0, cx, cy, R);
@@ -263,13 +264,21 @@ export class Pond {
 // Planta acuática según su etapa (brote, capullo, flor); la plaza libre es un aro punteado.
 // Sprites SVG del Jardín de Agua (assets/agua, dibujados con la skill vector-illustration). Mientras cargan,
 // o si fallan, se pinta el dibujo de código de siempre.
+// En las mesas píxel, sus versiones de pxl (assets/agua/px, de art/agua/agua.px.js), a un píxel de arte por
+// píxel del estanque (o el doble, si así se acerca más al tamaño pedido): nítidas, sin reescalar a medias.
 const IMG = {};
-export function sprite(id) {
-  let im = IMG[id];
-  if (!im) { im = IMG[id] = new Image(); im.src = new URL(`../../assets/agua/${id}.svg`, import.meta.url).href; }
+let PIXEL = false, SCALE = 1;
+export function sprite(id, pixel = PIXEL) {
+  const key = (pixel ? 'px/' : '') + id;
+  let im = IMG[key];
+  if (!im) { im = IMG[key] = new Image(); im.src = new URL(`../../assets/agua/${pixel ? `px/${id}.png` : `${id}.svg`}`, import.meta.url).href; }
   return im.complete && im.naturalWidth ? im : null;
 }
-const stamp = (ctx, im, x, y, size, rot) => { ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.drawImage(im, -size / 2, -size / 2, size, size); ctx.restore(); };
+const stamp = (ctx, im, x, y, size, rot) => {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+  if (PIXEL) { ctx.imageSmoothingEnabled = false; size = (im.width / SCALE) * Math.max(1, Math.round((size * SCALE) / im.width)); }
+  ctx.drawImage(im, -size / 2, -size / 2, size, size); ctx.restore();
+};
 
 export function drawPlant(ctx, p, T, len, pixel) {
   const u = len * 0.5, sway = Math.sin(T * 0.9 + p.x) * 0.06, g = p.stage === 'bloom' ? 1 : 0.35 + 0.65 * (p.grow || 0);

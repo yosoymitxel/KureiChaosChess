@@ -105,10 +105,11 @@ const RECIPES = {
   ],
   // Jardín: agua que cae de la regadera (chorro y gotas).
   water: [
-    { noise: true, dur: 0.7, gain: 0.16, cutoff: 3200, sweep: 1800, filter: 'bandpass', q: 0.8, attack: 0.08 },
-    { osc: 'sine', from: 700, to: 1100, dur: 0.05, gain: 0.12, at: 0.18 },
-    { osc: 'sine', from: 620, to: 980, dur: 0.05, gain: 0.1, at: 0.34 },
-    { osc: 'sine', from: 760, to: 1250, dur: 0.05, gain: 0.1, at: 0.5 },
+    { noise: true, dur: 0.85, gain: 0.14, cutoff: 4200, sweep: 2600, filter: 'bandpass', q: 0.6, attack: 0.12 },
+    { noise: true, dur: 0.75, gain: 0.06, cutoff: 7000, filter: 'highpass', attack: 0.2, at: 0.1 },
+    { noise: true, dur: 0.03, gain: 0.12, cutoff: 2400, filter: 'bandpass', q: 3, at: 0.3 },
+    { noise: true, dur: 0.03, gain: 0.1, cutoff: 2000, filter: 'bandpass', q: 3, at: 0.55 },
+    { noise: true, dur: 0.03, gain: 0.1, cutoff: 2700, filter: 'bandpass', q: 3, at: 0.8 },
   ],
   // Tijeras: dos cortes secos.
   snip: [
@@ -141,13 +142,13 @@ const RECIPES = {
     { osc: 'triangle', from: 420, to: 300, dur: 0.05, gain: 0.24, at: 0.09 },
   ],
   win: [
-    { osc: 'sine', from: 523.25, to: 523.25, dur: 0.45, gain: 0.18 },
-    { osc: 'sine', from: 659.25, to: 659.25, dur: 0.5, gain: 0.16, at: 0.1 },
-    { osc: 'sine', from: 783.99, to: 783.99, dur: 0.6, gain: 0.16, at: 0.2 },
+    { osc: 'sine', from: 523.25, to: 523.25, dur: 0.45, gain: 0.108 },
+    { osc: 'sine', from: 659.25, to: 659.25, dur: 0.5, gain: 0.096, at: 0.1 },
+    { osc: 'sine', from: 783.99, to: 783.99, dur: 0.6, gain: 0.096, at: 0.2 },
   ],
   lose: [
-    { osc: 'triangle', from: 330, to: 165, dur: 0.45, gain: 0.26 },
-    { osc: 'sine', from: 220, to: 110, dur: 0.55, gain: 0.18, at: 0.08 },
+    { osc: 'triangle', from: 330, to: 165, dur: 0.45, gain: 0.156 },
+    { osc: 'sine', from: 220, to: 110, dur: 0.55, gain: 0.108, at: 0.08 },
   ],
   coin: [
     { osc: 'square', from: 988, to: 988, dur: 0.06, gain: 0.14 },
@@ -167,12 +168,12 @@ const RECIPES = {
     { osc: 'sine', from: 1046.5, to: 1046.5, dur: 0.7, gain: 0.13, at: 0.27 },
   ],
   mini_win: [
-    { osc: 'sine', from: 587.33, to: 587.33, dur: 0.22, gain: 0.2 },
-    { osc: 'sine', from: 880, to: 880, dur: 0.3, gain: 0.16, at: 0.1 },
+    { osc: 'sine', from: 587.33, to: 587.33, dur: 0.22, gain: 0.12 },
+    { osc: 'sine', from: 880, to: 880, dur: 0.3, gain: 0.096, at: 0.1 },
   ],
   mini_lose: [
-    { osc: 'triangle', from: 294, to: 262, dur: 0.16, gain: 0.22 },
-    { osc: 'triangle', from: 220, to: 165, dur: 0.3, gain: 0.18, at: 0.12 },
+    { osc: 'triangle', from: 294, to: 262, dur: 0.16, gain: 0.132 },
+    { osc: 'triangle', from: 220, to: 165, dur: 0.3, gain: 0.108, at: 0.12 },
   ],
   shatter: [
     { noise: true, dur: 0.28, gain: 0.35, cutoff: 4200 },
@@ -297,7 +298,7 @@ const SAMPLE_GAIN = {
   select: 0.35, tap: 0.4, step: 0.35, invalid: 0.4, leaf: 0.45, pop: 0.5, card: 0.55, coin: 0.55, snip: 0.6, dig: 0.6,
   move: 0.65, land: 0.7, water: 0.55, splash: 0.6, flower: 0.55, whoosh: 0.5, warp: 0.6, laser: 0.45, zombie: 0.6,
   capture: 0.85, hit: 0.8, crunch: 0.75, shatter: 0.85, boom: 0.85, stomp: 0.95, bigboom: 1,
-  promote: 0.7, mini_win: 0.6, mini_lose: 0.6, achievement: 0.7, win: 0.75, lose: 0.75, tick: 0.35, alarm: 0.85,
+  promote: 0.7, mini_win: 0.4, mini_lose: 0.4, achievement: 0.7, win: 0.45, lose: 0.45, tick: 0.35, alarm: 0.85,
 };
 const buffers = {};
 // Por efecto, la primera toma lista; si no baja ninguna, se borra y el efecto queda sintetizado.
@@ -400,7 +401,7 @@ export function playJingle(name) {
   track('jingles/' + (pixel ? 'pixel-' : '') + name).then((buf) => {
     if (!buf) return;
     const src = c.createBufferSource(), g = c.createGain(), t = c.currentTime, bus = ambient?.bus;
-    src.buffer = buf; g.gain.value = 0.8;
+    src.buffer = buf; g.gain.value = 0.45;
     src.connect(g); g.connect(master); src.start(t);
     if (bus) {
       bus.gain.cancelScheduledValues(t);

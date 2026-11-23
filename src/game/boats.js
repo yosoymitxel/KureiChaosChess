@@ -17,7 +17,7 @@ export function control(b, input) {
 }
 
 // Un paso: acelera hacia `throttle · top`, gira más cuanto más corre, la deriva se pega al rumbo según
-// `grip` y en la orilla rebota (inside(x, y): si es agua). Devuelve la fuerza del golpe contra la orilla.
+// `grip` y en la orilla resbala (inside(x, y): si es agua). Devuelve la fuerza del golpe contra la orilla.
 export function drive(b, input, dt, inside, scale = 1) {
   const st = BOATS[b.kind] || BOATS.papel, { throttle, steer } = control(b, input);
   const want = throttle * st.top * scale * (throttle < 0 ? 0.4 : 1);
@@ -28,9 +28,13 @@ export function drive(b, input, dt, inside, scale = 1) {
   const fx = Math.cos(b.h) * b.v, fy = Math.sin(b.h) * b.v, k = Math.min(1, st.grip * dt);
   b.vx += (fx - b.vx) * k; b.vy += (fy - b.vy) * k;
   const nx = b.x + b.vx * dt, ny = b.y + b.vy * dt;
-  if (inside(nx, ny)) { b.x = nx; b.y = ny; return 0; }
+  // Si un choque lo dejó fuera, sale por donde pueda.
+  if (inside(nx, ny) || !inside(b.x, b.y)) { b.x = nx; b.y = ny; return 0; }
+  // Contra la orilla: resbala por ella (pierde la parte que la empuja) y frena un poco; sin dar marcha atrás.
   const hit = Math.hypot(b.vx, b.vy);
-  // Contra la orilla: se queda donde estaba, frena y rebota hacia atrás.
-  b.vx *= -0.4; b.vy *= -0.4; b.v *= -0.3;
+  if (inside(nx, b.y)) { b.x = nx; b.vy *= -0.2; }
+  else if (inside(b.x, ny)) { b.y = ny; b.vx *= -0.2; }
+  else { b.vx *= -0.3; b.vy *= -0.3; }
+  b.v *= 0.85;
   return hit;
 }

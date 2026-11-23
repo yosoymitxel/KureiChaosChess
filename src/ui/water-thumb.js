@@ -6,15 +6,15 @@ import { School, spine, koiShape } from '../view/koi.js';
 // En píxel se pinta a 24 px y se amplía sin suavizar, como el estanque.
 export function Thumb({ plant, boat }) {
   const ref = useRef(null);
-  const src = () => new URL(`../../assets/agua/${plant ? plant + '-bloom' : 'boat-' + boat}.svg`, import.meta.url).href;
   const pixel = document.documentElement.dataset.art === 'pixel';
+  const src = () => new URL(`../../assets/agua/${pixel ? 'px/' : ''}${plant ? plant + '-bloom' : 'boat-' + boat}.${pixel ? 'png' : 'svg'}`, import.meta.url).href;
   useEffect(() => {
     if (boat !== 'koi') {
       // En píxel la SVG se baja a 24 px y se amplía sin suavizar: mismo grano que el estanque.
       if (!pixel) return;
       const cv = ref.current, im = new Image();
       cv.width = cv.height = 24;
-      im.onload = () => { const c = cv.getContext('2d'); c.imageSmoothingEnabled = true; c.drawImage(im, 0, 0, 24, 24); };
+      im.onload = () => { const c = cv.getContext('2d'); cv.width = cv.height = im.width; c.drawImage(im, 0, 0); };
       im.src = src();
       return;
     }

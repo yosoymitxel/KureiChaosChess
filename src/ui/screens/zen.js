@@ -643,8 +643,8 @@ export function ZenScreen({ onBack, onShop, onGarden }) {
                 ${cells}
                 ${z.leaves.map((l) => html`<button key=${`leaf-${l.x}-${l.y}`} class="zn-fallen" data-pad="x" style=${{ left: (l.x / z.size) * 100 + '%', top: (l.y / z.size) * 100 + '%', '--r': l.r + 'deg', '--s': 0.36 + (l.r * 7 % 25) / 100, '--t': l.r % 4 }}
                   aria-label=${t('zen.leafAria', 'Hoja caída: tócala para barrerla')} onClick=${(e) => sweep(l, e.currentTarget)}>${mapleLeaf}</button>`)}
+                ${BRANCH}
               </div>
-              ${BRANCH}
               ${pour && html`<span key=${pour.id} class="zn-at zn-at-can" style=${{ left: pour.x + 'px', top: pour.y + 'px' }} aria-hidden="true"><span class="zn-canfx">${CAN}<i class="zn-stream"></i></span></span>`}
               ${tip && html`<span key=${tip.id} class="tile-tip" style=${{ left: tip.x + 'px', top: tip.y + 'px' }}><b>${tip.title}</b>${tip.text}</span>`}
               ${act && html`<span key=${act.id} class="zn-at" style=${{ left: act.x + 'px', top: act.y + 'px' }} aria-hidden="true"><span class=${'zn-toolfx t-' + act.tool}>${TOOL_ART[act.tool]}</span></span>`}

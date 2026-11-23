@@ -17,7 +17,7 @@ whoosh <- foley-sounds/woosh4.ogg | alt: oga-rpg-sound-pack/swing.m4a
 warp <- digital-audio/phaseJump1.ogg | alt: sci-fi-sounds/forceField_000.ogg
 laser <- sci-fi-sounds/laserSmall_000.ogg | alt: sci-fi-sounds/laserRetro_002.ogg
 zombie <- oga-zombies-sound-pack/zombie-5.m4a | alt: oga-zombies-sound-pack/zombie-24.m4a
-water <- ninja-adventure/Elemental__Water4.wav | alt: foley-sounds/sinkWater2.ogg
+water <- freesound.org/s/532890 "Watering with a Watering Can" by Bricklover (CC0), 1,4 s desde el segundo 3
 snip <- rpg-audio/knifeSlice2.ogg | alt: oga-100-cc0-sfx/tools-02.m4a
 dig <- oga-25-cc0-mud-sfx/mud-08.m4a | alt: impact-sounds/footstep_snow_001.ogg
 splash <- oga-40-cc0-water-splash-slime-sfx/splash-10.m4a | alt: oga-40-cc0-water-splash-slime-sfx/splash-02.m4a

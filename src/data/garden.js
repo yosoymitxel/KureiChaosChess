@@ -60,8 +60,8 @@ export const WATER_PLANTS = localize('waterPlants', {
   loto: { id: 'loto', name: 'Loto', price: 30, bloomMin: 45, pays: 75, desc: 'Lento, pero la flor más cara.' },
 });
 // Plazas de la orilla, en unidades del estanque (60×60): las cuatro esquinas y la mitad de cada lado.
-export const WATER_SIZE = 60;
-export const WATER_SLOTS = [[9, 9], [30, 7], [51, 9], [53, 30], [51, 51], [30, 53], [9, 51], [7, 30]];
+export const WATER_SIZE = 90;
+export const WATER_SLOTS = [[10, 10], [45, 9], [80, 10], [81, 45], [80, 80], [45, 81], [10, 80], [9, 45]];
 
 // Barquitos del Jardín de Agua: se compran allí, se manejan como teledirigidos y corren en la carrera.
 // top: velocidad punta (unidades del estanque por segundo); accel: cuánto tarda en llegar; turn: giro (rad/s);

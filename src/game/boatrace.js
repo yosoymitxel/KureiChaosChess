@@ -6,15 +6,16 @@ import { bump } from './physics.js';
 import { BOATS } from '../data/garden.js';
 import { localize } from '../i18n/index.js';
 
-export const W = 72, H = 120, LAPS = 2, COUNT = 3, LIMIT = 240;
-const N = 180, LANE = 15, R = 2.8, GATE = LANE / 2 + 1.5, STEP = 10, GRID = 2; // GRID: celdas por unidad de la máscara
-// Formas del canal: armónicos que deforman una elipse (k: cuántas ondas; a: cuánto).
+export const W = 110, H = 180, LAPS = 2, COUNT = 3, LIMIT = 240;
+const N = 360, LANE = 15, R = 2.8, GATE = LANE / 2 + 1.5, STEP = 12, GRID = 2; // GRID: celdas por unidad de la máscara
+// Formas del canal: el borde de una mancha de casillas (poliominó) que crece al azar, con las esquinas
+// redondeadas. cells: cuántas casillas; grow: 'blob' (compacta), 'snake' (brazos largos) o 'any'.
 export const TRACKS = localize('boatTracks', {
-  ovalo: { name: 'Óvalo', h: [] },
-  rinon: { name: 'Riñón', h: [[2, 0.2]] },
-  trebol: { name: 'Trébol', h: [[3, 0.15]] },
-  gota: { name: 'Gota', h: [[1, 0.16], [2, 0.1]] },
-  ola: { name: 'Ola', h: [[4, 0.07], [2, 0.1]] },
+  ovalo: { name: 'Óvalo', cells: 10, grow: 'blob' },
+  rinon: { name: 'Riñón', cells: 9, grow: 'any' },
+  trebol: { name: 'Trébol', cells: 12, grow: 'any' },
+  gota: { name: 'Gota', cells: 8, grow: 'snake' },
+  ola: { name: 'Ola', cells: 11, grow: 'snake' },
 });
 export const DIFFS = {
   facil: { name: 'Fácil', pace: 0.72, wobble: 0.5, rocks: 4, weed: 2 },
@@ -30,7 +31,7 @@ export const NITRO = { time: 1.6, boost: 1.45, cooldown: 9 };
 function minRadius(line) {
   let min = Infinity;
   for (let i = 0; i < N; i++) {
-    const a = line[(i + N - 3) % N], b = line[i], c = line[(i + 3) % N];
+    const a = line[(i + N - 6) % N], b = line[i], c = line[(i + 6) % N];
     const ab = Math.hypot(b.x - a.x, b.y - a.y), bc = Math.hypot(c.x - b.x, c.y - b.y), ca = Math.hypot(a.x - c.x, a.y - c.y);
     const area = Math.abs((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) / 2;
     if (area > 1e-6) min = Math.min(min, (ab * bc * ca) / (4 * area));
@@ -38,20 +39,112 @@ function minRadius(line) {
   return min;
 }
 
+// Curva cerrada por los puntos (Catmull-Rom) y vuelta a muestrear en N tramos iguales.
+function spline(pts) {
+  const n = pts.length, dense = [];
+  for (let i = 0; i < n; i++) {
+    const [p0, p1, p2, p3] = [-1, 0, 1, 2].map((d) => pts[(i + d + n) % n]);
+    for (let k = 0; k < 30; k++) {
+      const t = k / 30, t2 = t * t, t3 = t2 * t, f = (a, b, c, d) => 0.5 * (2 * b + (c - a) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (3 * b - a - 3 * c + d) * t3);
+      dense.push({ x: f(p0.x, p1.x, p2.x, p3.x), y: f(p0.y, p1.y, p2.y, p3.y) });
+    }
+  }
+  return resample(dense);
+}
+function resample(pts) {
+  const cum = [0];
+  for (let i = 1; i <= pts.length; i++) { const a = pts[i - 1], b = pts[i % pts.length]; cum.push(cum[i - 1] + Math.hypot(b.x - a.x, b.y - a.y)); }
+  const len = cum[pts.length], out = [];
+  for (let i = 0, j = 0; i < N; i++) {
+    const want = (i / N) * len;
+    while (cum[j + 1] < want) j++;
+    const a = pts[j], b = pts[(j + 1) % pts.length], k = (want - cum[j]) / (cum[j + 1] - cum[j] || 1);
+    out.push({ x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k });
+  }
+  return out;
+}
+// Que dos tramos lejanos del canal no se toquen.
+const clear = (line) => line.every((p, i) => line.every((q, j) => { const d = Math.abs(i - j); return Math.min(d, N - d) < 48 || Math.hypot(p.x - q.x, p.y - q.y) > LANE + 4; }));
+
+// Mancha de `cells` casillas en una rejilla gw×gh, sin agujeros ni casillas que se toquen solo por la esquina.
+const CELL = 22;
+function blob(rng, gw, gh, cells, grow) {
+  const on = new Uint8Array(gw * gh), at = (x, y) => x >= 0 && y >= 0 && x < gw && y < gh && on[y * gw + x];
+  const ok = () => {
+    for (let y = 0; y < gh - 1; y++) for (let x = 0; x < gw - 1; x++) {
+      const a = at(x, y), b = at(x + 1, y), c = at(x, y + 1), d = at(x + 1, y + 1);
+      if ((a && d && !b && !c) || (b && c && !a && !d)) return false;
+    }
+    // Agujeros: lo vacío tiene que llegar al borde.
+    const seen = new Uint8Array((gw + 2) * (gh + 2)), todo = [[-1, -1]];
+    seen[0] = 1;
+    while (todo.length) {
+      const [x, y] = todo.pop();
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy, k = (ny + 1) * (gw + 2) + nx + 1;
+        if (nx < -1 || ny < -1 || nx > gw || ny > gh || seen[k] || at(nx, ny)) continue;
+        seen[k] = 1; todo.push([nx, ny]);
+      }
+    }
+    for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) if (!at(x, y) && !seen[(y + 1) * (gw + 2) + x + 1]) return false;
+    return true;
+  };
+  on[Math.floor(rng() * gh) * gw + Math.floor(rng() * gw)] = 1;
+  for (let n = 1; n < cells; n++) {
+    const cand = [];
+    for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
+      if (at(x, y)) continue;
+      const k = [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(([dx, dy]) => at(x + dx, y + dy)).length;
+      if (k) cand.push({ x, y, s: (grow === 'blob' ? k : grow === 'snake' ? -k : 0) + rng() * 1.5 });
+    }
+    cand.sort((a, b) => b.s - a.s);
+    if (!cand.some((c) => { on[c.y * gw + c.x] = 1; if (ok()) return true; on[c.y * gw + c.x] = 0; return false; })) break;
+  }
+  // Borde en el sentido de las agujas del reloj: de cada vértice sale un solo tramo.
+  const next = new Map(), key = (x, y) => x + ',' + y;
+  for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
+    if (!at(x, y)) continue;
+    if (!at(x, y - 1)) next.set(key(x, y), [x + 1, y]);
+    if (!at(x + 1, y)) next.set(key(x + 1, y), [x + 1, y + 1]);
+    if (!at(x, y + 1)) next.set(key(x + 1, y + 1), [x, y + 1]);
+    if (!at(x - 1, y)) next.set(key(x, y + 1), [x, y]);
+  }
+  const [k0] = next.keys(), loop = [k0.split(',').map(Number)];
+  for (let v = next.get(k0); key(...v) !== k0; v = next.get(key(...v))) loop.push(v);
+  // Solo las esquinas.
+  return loop.filter((p, i) => { const a = loop[(i + loop.length - 1) % loop.length], b = loop[(i + 1) % loop.length]; return (p[0] - a[0]) * (b[1] - p[1]) - (p[1] - a[1]) * (b[0] - p[0]) !== 0; });
+}
+// Esquinas a mundo, cada una cambiada por un cuarto de curva de radio `d`.
+function rounded(corners, d) {
+  const xs = corners.map((p) => p[0]), ys = corners.map((p) => p[1]);
+  const ox = (W - (Math.max(...xs) + Math.min(...xs)) * CELL) / 2, oy = (H - (Math.max(...ys) + Math.min(...ys)) * CELL) / 2;
+  const P = corners.map(([x, y]) => ({ x: ox + x * CELL, y: oy + y * CELL })), out = [];
+  P.forEach((p, i) => {
+    const a = P[(i + P.length - 1) % P.length], b = P[(i + 1) % P.length];
+    const ia = Math.hypot(p.x - a.x, p.y - a.y), ob = Math.hypot(b.x - p.x, b.y - p.y);
+    const inx = (p.x - a.x) / ia, iny = (p.y - a.y) / ia, ox2 = (b.x - p.x) / ob, oy2 = (b.y - p.y) / ob;
+    // Cuarto de círculo: de p - entrada·d a p + salida·d.
+    for (let k = 0; k <= 6; k++) {
+      const t = (k / 6) * Math.PI / 2, c = Math.cos(t), sn = Math.sin(t);
+      out.push({ x: p.x - inx * d + ox2 * d - ox2 * d * c + inx * d * sn, y: p.y - iny * d + oy2 * d - oy2 * d * c + iny * d * sn });
+    }
+  });
+  return resample(out);
+}
+
 export function makeTrack(diff, rng = Math.random, type) {
   type ||= Object.keys(TRACKS)[Math.floor(rng() * Object.keys(TRACKS).length)];
-  const h0 = TRACKS[type].h.map(([k, a]) => [k, a * (0.8 + rng() * 0.4), rng() * Math.PI * 2]);
-  const rx = W / 2 - LANE / 2 - 3, ry = H / 2 - LANE / 2 - 3;
-  // Línea central, de abajo y en el sentido de las agujas del reloj. Si alguna curva queda más cerrada
-  // que el canal (la orilla de dentro haría pico y los barcos la pisarían), se suavizan las ondas.
+  const { cells, grow } = TRACKS[type], m = LANE / 2 + 3;
+  // Línea central; si dos tramos quedan demasiado cerca, se sortea otra mancha.
   let line;
-  for (let soft = 1; soft > 0.05; soft *= 0.8) {
-    const h = h0.map(([k, a, p]) => [k, a * soft, p]), f = (t) => 1 + h.reduce((q, [k, a, p]) => q + a * Math.cos(k * t + p), 0);
-    let max = 0;
-    for (let i = 0; i < N; i++) max = Math.max(max, f((i / N) * Math.PI * 2));
-    line = Array.from({ length: N }, (_, i) => { const t = Math.PI / 2 + (i / N) * Math.PI * 2, k = f(t) / max; return { x: W / 2 + Math.cos(t) * rx * k, y: H / 2 + Math.sin(t) * ry * k }; });
-    if (minRadius(line) > LANE / 2 + 4) break;
+  for (let tries = 0; ; tries++) {
+    line = rounded(blob(rng, Math.floor((W - 2 * m) / CELL), Math.floor((H - 2 * m) / CELL), tries > 30 ? 4 : cells, grow), CELL * 0.48);
+    if ((minRadius(line) >= LANE / 2 + 1 && clear(line)) || tries > 30) break;
   }
+  // La salida, a media recta del tramo más bajo.
+  const low = Math.max(...line.map((p) => p.y)), bottom = line.map((p, i) => i).filter((i) => line[i].y > low - 0.5);
+  const s0 = bottom.reduce((best, i) => (Math.abs(line[i].x - W / 2) < Math.abs(line[best].x - W / 2) ? i : best));
+  line = [...line.slice(s0), ...line.slice(0, s0)];
   line.forEach((p, i) => { const a = line[(i + N - 1) % N], b = line[(i + 1) % N], d = Math.hypot(b.x - a.x, b.y - a.y); p.tx = (b.x - a.x) / d; p.ty = (b.y - a.y) / d; });
   const edge = (side) => line.map((p) => ({ x: p.x - p.ty * side * LANE / 2, y: p.y + p.tx * side * LANE / 2 }));
   // Rocas a un lado del canal (nunca en la salida) y algas en el medio.
@@ -134,10 +227,21 @@ export function step(s, dt, input) {
       if (r.lap >= LAPS) { r.done = s.t; s.events.push({ kind: 'finish', who: i }); }
     }
   });
+  // Choques entre corredores; si el empujón saca a uno del agua, vuelve a donde estaba.
+  const before = s.racers.map((r) => [r.x, r.y]);
   for (let a = 0; a < s.racers.length; a++) for (let b = a + 1; b < s.racers.length; b++) {
-    const p = bump(s.racers[a], s.racers[b], R * 2, 0.5);
+    const p = bump(s.racers[a], s.racers[b], R * 2, 0.3);
     if (p > 3) s.events.push({ kind: 'bump', x: (s.racers[a].x + s.racers[b].x) / 2, y: (s.racers[a].y + s.racers[b].y) / 2, power: p });
   }
+  s.racers.forEach((r, i) => {
+    if (!s.track.inside(r.x, r.y)) [r.x, r.y] = before[i];
+    // Un rival que se queda atascado reaparece en la última boya, mirando a la siguiente.
+    r.stuck = !i || r.done || Math.hypot(r.vx, r.vy) > 2 ? 0 : (r.stuck || 0) + dt;
+    if (r.stuck > 1.5) {
+      const a = g[(r.next + g.length - 1) % g.length], b = g[r.next % g.length];
+      Object.assign(r, { x: a.x, y: a.y, h: Math.atan2(b.y - a.y, b.x - a.x), v: 0, vx: 0, vy: 0, stuck: 0 });
+    }
+  });
   const me = s.racers[0];
   if (me.done || s.t > LIMIT) {
     s.place = me.done ? s.racers.filter((r) => r.done && r.done <= me.done).length : s.racers.length;
