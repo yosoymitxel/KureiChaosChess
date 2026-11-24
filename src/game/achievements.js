@@ -79,7 +79,7 @@ export const ACHIEVEMENTS = localize('achievements', [
   { id: 'hockey_shutout', group: 'Minijuegos', name: 'Portería a cero', desc: 'Gana al hockey de mesa sin encajar ningún gol.', icon: 'hockey' },
   { id: 'carrom_clear', group: 'Minijuegos', name: 'Mesa limpia', desc: 'Mete tus cuatro fichas en un solo turno en el billar redondo.', icon: 'carrom' },
   { id: 'golf_ace', group: 'Minijuegos', name: 'Hoyo en uno', desc: 'Mete la bola de un solo golpe en el golf de mesa.', icon: 'golf' },
-  { id: 'outbreak_one', group: 'Minijuegos', name: 'Paciente cero', desc: 'Completa el Brote con una sola dosis.', icon: 'drop' },
+  { id: 'outbreak_one', group: 'Minijuegos', name: 'Pulso firme', desc: 'Cura a todas en Antídoto, en Difícil, sin deshacer ninguna vacuna.', icon: 'drop' },
   { id: 'queens_fast', group: 'Minijuegos', name: 'Reinas al vuelo', desc: 'Resuelve las reinas con un minuto o más de sobra.', icon: 'queen' },
   { id: 'flowers_25', group: 'Jardín Zen', name: 'Florista', desc: 'Corta 25 flores en el Jardín Zen.', icon: 'shears' },
   { id: 'zen_max', group: 'Jardín Zen', name: 'Cantero completo', desc: 'Amplía el cantero hasta 8×8.', icon: 'expand' },

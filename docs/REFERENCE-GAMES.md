@@ -156,6 +156,6 @@ Deducción sobre `rules.js`: la pista es una casilla que el impostor amenaza (de
 
 ## NES llevados al tablero (minijuegos distintos de su mecánica)
 - **Aquelarre** (mecánica propia) → *La bruja*: brujas dormidas que despiertan si una pieza tuya puede tocarlas; escenario en `src/data/scenarios.js`.
-- **Dr. Mario** (Nintendo) → *Brote*: limpiar todo con pocas dosis; el contagio sigue el ataque de cada pieza (`src/game/outbreak.js`).
+- **Dr. Mario** (Nintendo) → *Antídoto*: cola de vacunas a la vista como las cápsulas; cada vacuna cura a las de su forma (el color de la cápsula) que ataca y las curadas siguen la cadena (`src/game/outbreak.js`).
 - **Kickle Cubicle** (Irem) y las cuevas de hielo → *Ventisca*: resbalar hasta chocar, niebla, monedas y salida (`src/game/blizzard.js`).
 - **Battleship** (versiones NES) → *Damas a ciegas*: colocar y apuntar a ciegas, descarga simultánea (`src/game/blind.js`).

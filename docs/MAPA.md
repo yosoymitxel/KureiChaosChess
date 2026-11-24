@@ -224,7 +224,7 @@ src/game/boatrace.js:207 +step
 src/game/boatrace.js:252 progress
 src/game/boatrace.js:253 behind
 src/game/boatrace.js:255 +standing
-## src/game/boats.js (60L)
+## src/game/boats.js (61L)
 src/game/boats.js:5 TAU
 src/game/boats.js:6 +wrap
 src/game/boats.js:7 clamp
@@ -257,7 +257,7 @@ src/game/bomber.js:208 +act
 src/game/bomber.js:231 +tick
 src/game/bomber.js:251 judge
 src/game/bomber.js:259 +step
-## src/game/boss-powers.js (141L)
+## src/game/boss-powers.js (121L)
 src/game/boss-powers.js:10 ev
 src/game/boss-powers.js:11 ring
 src/game/boss-powers.js:17 on
@@ -268,11 +268,8 @@ src/game/boss-powers.js:31 inBoard
 src/game/boss-powers.js:34 AIM
 src/game/boss-powers.js:51 DO
 src/game/boss-powers.js:80 POWER_COLOR
-src/game/boss-powers.js:81 CHARGE
-src/game/boss-powers.js:82 cells0
-src/game/boss-powers.js:84 RAMP
-src/game/boss-powers.js:94 PFX
-src/game/boss-powers.js:104 +bossPower
+src/game/boss-powers.js:83 SIGN
+src/game/boss-powers.js:93 +bossPower
 ## src/game/bowling.js (107L)
 src/game/bowling.js:4 +LAUNCH_COLS
 src/game/bowling.js:7 +DIFFS
@@ -479,38 +476,38 @@ src/game/generate.js:275 quickThreats
 src/game/generate.js:285 +placePieces
 src/game/generate.js:296 placeOnce
 src/game/generate.js:420 +placeBoss
-## src/game/golf.js (269L)
+## src/game/golf.js (271L)
 src/game/golf.js:6 +CELL
 src/game/golf.js:7 +W
 src/game/golf.js:8 +BALL_R
 src/game/golf.js:9 +SHOT_MAX
-src/game/golf.js:10 +PULL_MAX
-src/game/golf.js:11 +HOLES
-src/game/golf.js:12 ROLL
-src/game/golf.js:13 CUP_V
-src/game/golf.js:14 PULL
-src/game/golf.js:15 WALL_E
-src/game/golf.js:20 +DIFFS
-src/game/golf.js:25 TYPES
-src/game/golf.js:27 clamp
-src/game/golf.js:28 center
-src/game/golf.js:29 +tileAt
-src/game/golf.js:35 +moverAt
-src/game/golf.js:40 bounce
-src/game/golf.js:48 roll
-src/game/golf.js:80 +simulate
-src/game/golf.js:91 field
-src/game/golf.js:109 score
-src/game/golf.js:118 +plan
-src/game/golf.js:146 +solve
-src/game/golf.js:159 +makeHole
-src/game/golf.js:191 +newGolf
-src/game/golf.js:200 startHole
-src/game/golf.js:211 +shoot
-src/game/golf.js:222 +step
-src/game/golf.js:229 lost
-src/game/golf.js:230 endHole
-src/game/golf.js:236 sub
+src/game/golf.js:12 +PULL_MAX
+src/game/golf.js:13 +HOLES
+src/game/golf.js:14 ROLL
+src/game/golf.js:15 CUP_V
+src/game/golf.js:16 PULL
+src/game/golf.js:17 WALL_E
+src/game/golf.js:22 +DIFFS
+src/game/golf.js:27 TYPES
+src/game/golf.js:29 clamp
+src/game/golf.js:30 center
+src/game/golf.js:31 +tileAt
+src/game/golf.js:37 +moverAt
+src/game/golf.js:42 bounce
+src/game/golf.js:50 roll
+src/game/golf.js:82 +simulate
+src/game/golf.js:93 field
+src/game/golf.js:111 score
+src/game/golf.js:120 +plan
+src/game/golf.js:148 +solve
+src/game/golf.js:161 +makeHole
+src/game/golf.js:193 +newGolf
+src/game/golf.js:202 startHole
+src/game/golf.js:213 +shoot
+src/game/golf.js:224 +step
+src/game/golf.js:231 lost
+src/game/golf.js:232 endHole
+src/game/golf.js:238 sub
 ## src/game/hockey.js (214L)
 src/game/hockey.js:5 +CELL
 src/game/hockey.js:6 +W
@@ -653,13 +650,29 @@ src/game/mechanics.js:33 +MECHANICS
 src/game/mechanics.js:330 safeHeir
 src/game/mechanics.js:336 shot
 src/game/mechanics.js:349 +mechOf
-## src/game/outbreak.js (78L)
-src/game/outbreak.js:7 TYPES
-src/game/outbreak.js:8 +DIFFS
-src/game/outbreak.js:15 +chain
-src/game/outbreak.js:35 +fewest
-src/game/outbreak.js:49 +newOutbreak
-src/game/outbreak.js:68 +dose
+## src/game/outbreak.js (162L)
+src/game/outbreak.js:9 TYPES
+src/game/outbreak.js:10 DOSES
+src/game/outbreak.js:13 +DIFFS
+src/game/outbreak.js:19 boardOf
+src/game/outbreak.js:20 pickOf
+src/game/outbreak.js:21 +occupied
+src/game/outbreak.js:22 +next
+src/game/outbreak.js:25 +chain
+src/game/outbreak.js:44 doseAt
+src/game/outbreak.js:47 +preview
+src/game/outbreak.js:53 +vaccinate
+src/game/outbreak.js:65 settle
+src/game/outbreak.js:72 +undo
+src/game/outbreak.js:85 +giveUp
+src/game/outbreak.js:90 reach
+src/game/outbreak.js:105 +empties
+src/game/outbreak.js:110 +cures
+src/game/outbreak.js:111 +play
+src/game/outbreak.js:119 +greedy
+src/game/outbreak.js:120 +blind
+src/game/outbreak.js:122 +clone
+src/game/outbreak.js:127 +newOutbreak
 ## src/game/parkour.js (77L)
 src/game/parkour.js:6 +DIFFS
 src/game/parkour.js:13 lava
@@ -923,7 +936,7 @@ src/game/zen.js:374 +addZenSeeds
 src/game/zen.js:381 +pickSeed
 src/game/zen.js:389 +koiHungry
 src/game/zen.js:390 +feedKoi
-## src/i18n/en.js (1390L)
+## src/i18n/en.js (1394L)
 ## src/i18n/index.js (46L)
 src/i18n/index.js:5 +LANGS
 src/i18n/index.js:7 saved
@@ -1071,33 +1084,35 @@ src/ui/app.js:52 ONE_SHOT
 src/ui/app.js:54 +App
 src/ui/app.js:386 MutationReveal
 src/ui/app.js:402 AchievementToast
-## src/ui/board-fx.js (67L)
+## src/ui/board-fx.js (64L)
 src/ui/board-fx.js:7 wait
 src/ui/board-fx.js:11 +playFx
-src/ui/board-fx.js:56 +playMech
+src/ui/board-fx.js:53 +playMech
 ## src/ui/coins.js (44L)
 src/ui/coins.js:6 reduced
 src/ui/coins.js:8 +flyCoins
 src/ui/coins.js:25 +popSeed
-## src/ui/components.js (266L)
+## src/ui/components.js (293L)
 src/ui/components.js:13 +ThemeLook
 src/ui/components.js:21 +Topbar
-src/ui/components.js:37 +TurnClock
-src/ui/components.js:62 +MiniEnd
-src/ui/components.js:72 diffName
-src/ui/components.js:77 +MiniDiff
-src/ui/components.js:93 +MiniTools
-src/ui/components.js:143 +ConfirmButton
-src/ui/components.js:154 +BossCard
-src/ui/components.js:167 +useEnter
-src/ui/components.js:175 Card
-src/ui/components.js:192 KIND_LABEL
-src/ui/components.js:193 +RARITY_LABEL
-src/ui/components.js:197 +CardFace
-src/ui/components.js:211 +CardPick
-src/ui/components.js:237 +TurnBanner
-src/ui/components.js:249 +FilterMenu
-src/ui/components.js:260 +Toggle
+src/ui/components.js:38 +holdRepeat
+src/ui/components.js:61 +TurnClock
+src/ui/components.js:86 +MiniEnd
+src/ui/components.js:96 diffName
+src/ui/components.js:101 +MiniDiff
+src/ui/components.js:115 +miniHeld
+src/ui/components.js:120 +MiniTools
+src/ui/components.js:170 +ConfirmButton
+src/ui/components.js:181 +BossCard
+src/ui/components.js:194 +useEnter
+src/ui/components.js:202 Card
+src/ui/components.js:219 KIND_LABEL
+src/ui/components.js:220 +RARITY_LABEL
+src/ui/components.js:224 +CardFace
+src/ui/components.js:238 +CardPick
+src/ui/components.js:264 +TurnBanner
+src/ui/components.js:276 +FilterMenu
+src/ui/components.js:287 +Toggle
 ## src/ui/demos.js (31L)
 src/ui/demos.js:10 +pieceDemo
 src/ui/demos.js:15 +mutationDemo
@@ -1182,7 +1197,7 @@ src/ui/rc-pad.js:31 +RcPad
 ## src/ui/screens/achievements.js (48L)
 src/ui/screens/achievements.js:9 Bar
 src/ui/screens/achievements.js:12 +AchievementsScreen
-## src/ui/screens/barrier.js (132L)
+## src/ui/screens/barrier.js (133L)
 src/ui/screens/barrier.js:11 KEYS
 src/ui/screens/barrier.js:12 anchor
 src/ui/screens/barrier.js:14 +BarrierScreen
@@ -1194,13 +1209,13 @@ src/ui/screens/blind.js:17 +BlindScreen
 ## src/ui/screens/blizzard.js (84L)
 src/ui/screens/blizzard.js:12 KEYS
 src/ui/screens/blizzard.js:14 +BlizzardScreen
-## src/ui/screens/boatrace.js (111L)
+## src/ui/screens/boatrace.js (114L)
 src/ui/screens/boatrace.js:18 +BoatRaceScreen
 src/ui/screens/boatrace.js:36 Race
-## src/ui/screens/bomber.js (143L)
-src/ui/screens/bomber.js:13 KEYS
-src/ui/screens/bomber.js:14 PAD
-src/ui/screens/bomber.js:16 +BomberScreen
+## src/ui/screens/bomber.js (155L)
+src/ui/screens/bomber.js:14 KEYS
+src/ui/screens/bomber.js:15 PAD
+src/ui/screens/bomber.js:17 +BomberScreen
 ## src/ui/screens/bowling.js (201L)
 src/ui/screens/bowling.js:12 TICK_MS
 src/ui/screens/bowling.js:13 css
@@ -1223,7 +1238,7 @@ src/ui/screens/duel.js:14 wait
 src/ui/screens/duel.js:15 OUT
 src/ui/screens/duel.js:17 Plate
 src/ui/screens/duel.js:28 +DuelScreen
-## src/ui/screens/fusion.js (69L)
+## src/ui/screens/fusion.js (73L)
 src/ui/screens/fusion.js:12 KEYS
 src/ui/screens/fusion.js:13 PAD
 src/ui/screens/fusion.js:15 +FusionScreen
@@ -1233,33 +1248,33 @@ src/ui/screens/gallery.js:26 ThemeGroup
 src/ui/screens/gallery.js:41 RULE
 src/ui/screens/gallery.js:42 Locked
 src/ui/screens/gallery.js:44 +GalleryScreen
-## src/ui/screens/game.js (942L)
+## src/ui/screens/game.js (944L)
 src/ui/screens/game.js:35 SIDE_NAME
 src/ui/screens/game.js:38 pieceName
 src/ui/screens/game.js:40 TIPS
 src/ui/screens/game.js:49 cardEffect
 src/ui/screens/game.js:63 +GameScreen
-src/ui/screens/game.js:913 EndOverlay
+src/ui/screens/game.js:915 EndOverlay
 ## src/ui/screens/golf.js (201L)
 src/ui/screens/golf.js:13 css
 src/ui/screens/golf.js:15 NAMES
 src/ui/screens/golf.js:16 result
 src/ui/screens/golf.js:20 +GolfScreen
-## src/ui/screens/hockey.js (194L)
+## src/ui/screens/hockey.js (195L)
 src/ui/screens/hockey.js:14 KEYS
 src/ui/screens/hockey.js:16 TOP_KEYS
 src/ui/screens/hockey.js:17 css
 src/ui/screens/hockey.js:20 +HockeyScreen
-## src/ui/screens/hotbomb.js (144L)
+## src/ui/screens/hotbomb.js (148L)
 src/ui/screens/hotbomb.js:14 +HotbombScreen
-## src/ui/screens/izombie.js (59L)
+## src/ui/screens/izombie.js (66L)
 src/ui/screens/izombie.js:13 +IZombieScreen
 ## src/ui/screens/laststand.js (68L)
 src/ui/screens/laststand.js:13 +LastStandScreen
 ## src/ui/screens/map.js (71L)
 src/ui/screens/map.js:11 ROW
 src/ui/screens/map.js:13 +MapScreen
-## src/ui/screens/marcianos.js (148L)
+## src/ui/screens/marcianos.js (155L)
 src/ui/screens/marcianos.js:12 css
 src/ui/screens/marcianos.js:15 KEYS
 src/ui/screens/marcianos.js:17 +MarcianosScreen
@@ -1271,9 +1286,10 @@ src/ui/screens/menu.js:153 +MenuScreen
 src/ui/screens/mini-grid.js:6 +MiniGrid
 ## src/ui/screens/minis.js (21L)
 src/ui/screens/minis.js:8 +MinisScreen
-## src/ui/screens/outbreak.js (73L)
-src/ui/screens/outbreak.js:14 wait
-src/ui/screens/outbreak.js:16 +OutbreakScreen
+## src/ui/screens/outbreak.js (116L)
+src/ui/screens/outbreak.js:17 wait
+src/ui/screens/outbreak.js:18 css
+src/ui/screens/outbreak.js:20 +OutbreakScreen
 ## src/ui/screens/overlays.js (128L)
 src/ui/screens/overlays.js:19 closeOnBackdrop
 src/ui/screens/overlays.js:20 useEscape
@@ -1319,7 +1335,7 @@ src/ui/screens/setup.js:332 Cloud
 ## src/ui/screens/shop.js (181L)
 src/ui/screens/shop.js:18 CARD_LIST
 src/ui/screens/shop.js:20 +ShopScreen
-## src/ui/screens/tenpin.js (132L)
+## src/ui/screens/tenpin.js (133L)
 src/ui/screens/tenpin.js:12 css
 src/ui/screens/tenpin.js:13 pct
 src/ui/screens/tenpin.js:14 ROWS
@@ -1335,7 +1351,7 @@ src/ui/screens/turn-minis.js:16 +PdodgeScreen
 src/ui/screens/turn-minis.js:17 +ParkourScreen
 src/ui/screens/turn-minis.js:18 +BlasterScreen
 src/ui/screens/turn-minis.js:19 +HordeScreen
-## src/ui/screens/water.js (153L)
+## src/ui/screens/water.js (163L)
 src/ui/screens/water.js:20 water
 src/ui/screens/water.js:21 KINDS
 src/ui/screens/water.js:22 MASS
@@ -1398,12 +1414,12 @@ src/ui/sfx.js:380 +stopAmbient
 src/ui/sfx.js:395 +JINGLES
 src/ui/sfx.js:396 +playJingle
 src/ui/sfx.js:417 +sfxState
-## src/ui/table-kit.js (113L)
+## src/ui/table-kit.js (122L)
 src/ui/table-kit.js:6 +tableKit
-src/ui/table-kit.js:33 +slingshot
-src/ui/table-kit.js:81 +corners
-src/ui/table-kit.js:84 homography
-src/ui/table-kit.js:102 +toTable
+src/ui/table-kit.js:34 +slingshot
+src/ui/table-kit.js:90 +corners
+src/ui/table-kit.js:93 homography
+src/ui/table-kit.js:111 +toTable
 ## src/ui/water-thumb.js (39L)
 src/ui/water-thumb.js:7 +Thumb
 ## src/ui/zen-art.js (266L)
@@ -1517,7 +1533,7 @@ src/view/piece-art.js:109 +pieceSVG
 src/view/piece-art.js:123 +headTop
 src/view/piece-art.js:125 +RAW_BODIES
 src/view/piece-art.js:129 +artOf
-## src/view/pond.js (411L)
+## src/view/pond.js (422L)
 src/view/pond.js:9 TAU
 src/view/pond.js:10 rnd
 src/view/pond.js:12 WATER
@@ -1530,16 +1546,16 @@ src/view/pond.js:20 PALETTE
 src/view/pond.js:24 +drawPad
 src/view/pond.js:38 +drawLotus
 src/view/pond.js:47 +Pond
-src/view/pond.js:274 IMG
-src/view/pond.js:275 PIXEL
-src/view/pond.js:276 +sprite
-src/view/pond.js:282 stamp
-src/view/pond.js:288 +drawPlant
-src/view/pond.js:326 drawBuoy
-src/view/pond.js:340 +drawBoat
-src/view/pond.js:373 outline
-src/view/pond.js:381 quantize
-src/view/pond.js:398 +runPond
+src/view/pond.js:285 IMG
+src/view/pond.js:286 PIXEL
+src/view/pond.js:287 +sprite
+src/view/pond.js:293 stamp
+src/view/pond.js:299 +drawPlant
+src/view/pond.js:337 drawBuoy
+src/view/pond.js:351 +drawBoat
+src/view/pond.js:384 outline
+src/view/pond.js:392 quantize
+src/view/pond.js:409 +runPond
 ## src/view/water-art.js (103L)
 src/view/water-art.js:6 TAU
 src/view/water-art.js:7 rng
@@ -1678,7 +1694,7 @@ css/pixel.css:85 /* Sombra de la pieza y koi del estanque del tablero, sin degra
 css/pixel.css:87 /* Fichas de damas (bolos, damas, Conecta 4): disco escalonado 
 css/pixel.css:90 /* El ::before va fuera de :is(), que no admite pseudoelementos
 ## css/proto-diamond.css (83L)
-## css/screens.css (1808L)
+## css/screens.css (1810L)
 css/screens.css:1 /* Screen layouts: menu, map, setup/settings, rewards, game HUD
 css/screens.css:3 /* Curtain wipe between screens: the one authored transition of
 css/screens.css:12 /* Menu: asymmetric, the diorama is the focal point and the tit
@@ -1739,137 +1755,137 @@ css/screens.css:606 /* Ayuda y nivel en un solo botón: las reglas y el selector
 css/screens.css:613 /* Minijuegos con tablero vertical: en pantalla ancha el tabler
 css/screens.css:620 /* El texto de turno cambia de largo: reservar dos líneas evita
 css/screens.css:628 /* Cierre de minijuego: misma superficie que los tableros (gran
-css/screens.css:635 /* Onboarding de Yo, Zombi: el paso activo queda encendido y lo
-css/screens.css:652 /* The hole: a dark well cut into the board, so tokens read as 
-css/screens.css:659 /* La ficha fantasma asoma en la casilla donde caería tu próxim
-css/screens.css:663 /* La ficha cuadrada del minijuego, versión lista: misma forma 
-css/screens.css:665 /* Jardín Zen: un karesansui sobre la mesa. Marco de madera, ar
-css/screens.css:673 /* El cantero arranca en 4×4 y crece hasta 8×8: la pantalla man
-css/screens.css:691 /* Clima del jardín: la nieve se posa en todo el cantero; la ll
-css/screens.css:704 /* Las luciérnagas y los efectos pasan del borde del cantero si
-css/screens.css:712 /* En el cantero cada objeto deja aire a los lados: macetas vec
-css/screens.css:714 /* Centrado como las macetas: mismo margen a cada lado (.zn-tra
-css/screens.css:716 /* Luz del farol: las nueve casillas que acelera, recortada por
-css/screens.css:720 /* Las plantas se mecen despacio, cada una a su ritmo (--d).
-css/screens.css:723 /* Burbuja de necesidad, como en PvZ: gota si falta riego, tije
-css/screens.css:736 /* Maceta con planta: anclada a su base, sombra de contacto en 
-css/screens.css:743 /* Descalzado con la pala: se levanta un poco, listo para el gu
-css/screens.css:748 /* Esmalte de la maceta y color de la flor por especie; la vací
-css/screens.css:772 /* Estanque: orilla de musgo, agua con hondura, koi, nenúfares,
-css/screens.css:776 /* Las piedras vectoriales de Kenney son claras para el granito
-css/screens.css:786 /* Estanque vivo (src/view/pond.js): el lienzo llena el agua; e
-css/screens.css:796 /* Musgo, pisadera y farol.
-css/screens.css:807 /* Piedras de la tierra nueva: canto rodado con la cara al sol 
-css/screens.css:815 /* La rama de arce asoma por la esquina y suelta, muy de vez en
-css/screens.css:816 /* Más arriba y algo menor cuanto más grande el cantero: en 8×8
-css/screens.css:825 /* Hojas caídas sobre la arena: se tocan para barrerlas.
-css/screens.css:828 /* Tonos de otoño rojizos (los amarillos se confunden con moned
-css/screens.css:832 /* Asa de las animaciones de la planta: escala desde donde nace
-css/screens.css:834 /* Tierra húmeda tras regar, hasta que la flor abre.
-css/screens.css:836 /* La regadera aparece sobre la maceta, se inclina, riega y se 
-css/screens.css:855 /* Regadera grande con ratón: el aro de lo que alcanza (3×3 cas
-css/screens.css:857 /* El chorro sale del pico mientras la regadera está inclinada;
-css/screens.css:862 /* Herramientas: dibujo común.
-css/screens.css:872 /* La mano: la herramienta elegida acompaña al ratón sobre el j
-css/screens.css:875 /* La mano escala desde la punta de la herramienta (el puntero)
-css/screens.css:879 /* Mazo y bolsa van con su icono, en tinta para leerse sobre la
-css/screens.css:885 /* Mazo y bolsa son iconos con versión vector y píxel: aquí sol
-css/screens.css:892 /* El gesto al tocar: las tijeras bajan al tallo y cortan dos v
-css/screens.css:901 /* El mazo se alza y cae de golpe sobre la piedra.
-css/screens.css:911 /* Mariposa: vuela hasta la flor, bate las alas y se posa.
-css/screens.css:921 /* Alimento de los koi: bolitas que flotan hasta que se las com
-css/screens.css:922 /* Estado del jardín: una línea tranquila bajo el cantero.
-css/screens.css:924 /* Panel: sobres de semillas, herramientas con mango redondo, a
-css/screens.css:935 /* El sobre va cerrado arriba con la costura en zigzag de los s
-css/screens.css:947 /* Herramienta en descanso: un reloj gris encima del icono. El 
-css/screens.css:961 /* Tienda: la acción principal del panel, rellena de latón, con
-css/screens.css:970 /* Ampliar: barra con precio y confirmación; al armarse se pint
-css/screens.css:982 /* Tierra virgen de los anillos: se cava para hacer un tiesto; 
-css/screens.css:983 /* Tierra virgen de los anillos: arena sin rastrillar, más oscu
-css/screens.css:985 /* La tierra sin cavar se marca siempre con su recuadro puntead
-css/screens.css:989 /* Cavada: tierra oscura removida, esperando su maceta.
-css/screens.css:993 /* Galería: grupos de imágenes; las bloqueadas son placeholders
-css/screens.css:996 /* Celdas del mismo ancho: el nombre, corto o largo, no descuad
-css/screens.css:1007 /* Logros en la Galería: los mismos grupos que la pantalla de L
-css/screens.css:1010 /* Un jefe derrotado es un botón: su ficha de siempre, que al t
-css/screens.css:1022 /* Tienda del jardín: monedero, estantería y la marca de lo com
-css/screens.css:1025 /* Jardín Zen en pantalla ancha: el cantero ocupa la izquierda 
-css/screens.css:1031 /* En el teléfono la escena y el panel se apilan con su alto na
-css/screens.css:1048 /* Semillas en la tienda: la flor recortada sobre el verde del 
-css/screens.css:1063 /* Fila de tienda en teléfono: el nombre y la descripción ocupa
-css/screens.css:1076 /* Tienda en pantalla ancha: el catálogo de cartas a la izquier
-css/screens.css:1094 /* Logros: progreso total, grupos con barra y rejilla de fichas
-css/screens.css:1113 /* El logro que se tocó en la Galería destella al llegar.
-css/screens.css:1119 /* Aviso de logro: la ficha sube desde el borde inferior y se v
-css/screens.css:1142 /* La bomba del cañón enemigo lleva su color y un aro carmesí, 
-css/screens.css:1144 /* Puerta de salida, como la del NES: un portón de piedra que s
-css/screens.css:1150 /* Duelo: arena de papel con dos peanas en diagonal, como los c
-css/screens.css:1170 /* La barra baja de golpe y deja detrás, un instante, el trozo 
-css/screens.css:1189 /* Fusión: bandeja de madera con huecos; cada ficha es una losa
-css/screens.css:1227 /* Tablero del Bomberman con cuerpo: la losa del cantero, celda
-css/screens.css:1235 /* El marco de losa: el mismo para el tablero de minijuego (Boa
-css/screens.css:1254 /* La figura va SOBRE su peana: sin z-index la peana la tapaba 
-css/screens.css:1267 /* En la fila del fondo la figura se contiene para que la cabez
-css/screens.css:1282 /* Matamarcianos: la bola en vuelo, las vidas y el mando de dos
-css/screens.css:1287 /* Tu fila, marcada: pisarla cuesta una vida.
-css/screens.css:1294 /* Hockey de mesa: un tablero de 6×10 hace de mesa, la banda es
-css/screens.css:1307 /* Rayas de la mesa: la central, el círculo de saque y el área 
-css/screens.css:1316 /* Lo que se mueve: origen arriba a la izquierda y el script po
-css/screens.css:1320 /* La peana es la huella que choca; la torre se alza sobre ella
-css/screens.css:1331 /* Regla de los siete segundos: los tres últimos, el disco parp
-css/screens.css:1339 /* La mesa es alta: en el teléfono el escenario le da más alto 
-css/screens.css:1342 /* Píxel: losas del tema en las casillas y lo redondo, octógono
-css/screens.css:1351 /* La cámara de Ajustes (Cenital, Mesa, Épica) inclina también 
-css/screens.css:1357 /* Solo las mesas de física (hockey, golf, billar), mucho menos
-css/screens.css:1364 /* Billar: la mesa del hockey con banda de madera ancha (como e
-css/screens.css:1370 /* Bolos: la pista del billar con canaletas y línea de tiro; lo
-css/screens.css:1374 /* Los bolos, de pie como en el tablero: peana pequeña y figura
-css/screens.css:1381 /* Papa caliente: la mesa del billar redondo con piezas; la bom
-css/screens.css:1387 /* La bomba es la de Bomberman (.bm-bomb), con la mecha en segu
-css/screens.css:1389 /* Billar redondo: mesa circular con casillas de tablero, cuatr
-css/screens.css:1400 /* Tronera: agujero hondo con aro de latón, todo dentro de su c
-css/screens.css:1404 /* Fichas, bolas y lanzador son la ficha de damas (.bm-tok) vis
-css/screens.css:1415 /* Píxel: sin curvas en todo el juego; la mesa redonda es un cí
-css/screens.css:1418 /* En píxel, la banda es un aro escalonado (máscara de 40×40 ca
-css/screens.css:1423 /* En píxel, la tronera es un círculo dibujado en píxeles (12×1
-css/screens.css:1425 /* Golf de mesa: la misma mesa del hockey con suelos (arena, hi
-css/screens.css:1427 /* Lo que asoma por encima de la fila de arriba (banderín, figu
-css/screens.css:1444 /* Banderín: mástil de tinta y gallardete bermellón, dibujado e
-css/screens.css:1459 /* Peón levantado mientras se arrastra, y la casilla a la que i
-css/screens.css:1463 /* La valla cae en su sitio con un golpe seco.
-css/screens.css:1476 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
-css/screens.css:1480 /* En pantallas bajas el tablero vale más que el chrome: menos 
-css/screens.css:1482 /* En el teléfono la compra se aprieta a una fila de ficha y pr
-css/screens.css:1488 /* Reloj de turno (minis cronometrados): barra que se vacía; en
-css/screens.css:1494 /* Estado de los minis sobre la losa: ficha de monedas y contad
-css/screens.css:1497 /* Contadores en fila: un punto por unidad; apagado queda lo ga
-css/screens.css:1501 /* La última oleada es la horda: su punto es un banderín bermel
-css/screens.css:1503 /* Carriles de lanzamiento: velo claro (--zone), distinto del v
-css/screens.css:1505 /* El número del carril en su esquina: es la tecla que lo lanza
-css/screens.css:1507 /* La bolera es apaisada: su escenario no reserva el alto pensa
-css/screens.css:1511 /* La línea roja del original: hasta ahí se lanza.
-css/screens.css:1513 /* La ficha que rueda va como elemento para que Motion la pueda
-css/screens.css:1514 /* La ficha es una pieza de damas vista en perspectiva: disco c
-css/screens.css:1524 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
-css/screens.css:1542 /* Avance de la oleada con el banderín de la horda al 70 %.
-css/screens.css:1549 /* La cinta: las fichas que vienen, la primera se lanza al toca
-css/screens.css:1561 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
-css/screens.css:1566 /* Selector de mecánicas de la run: favorita en latón, vetada t
-css/screens.css:1570 /* «Ver todo»: fichas de una línea; el estado lo dicen el color
-css/screens.css:1580 /* Mobile-first repair: keep the game surface visible instead o
-css/screens.css:1612 /* The animation lab must give its remaining viewport to the li
-css/screens.css:1654 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
-css/screens.css:1671 /* Copia de seguridad (Ajustes): el código se pega en un recuad
-css/screens.css:1684 /* Botones de Perfil y Copia: tres por fila, icono arriba, sin 
-css/screens.css:1695 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
-css/screens.css:1706 /* Reference APK renderer: a separate green/pixel signature, di
-css/screens.css:1721 /* Mando de teledirigido (Jardín de Agua y carrera de barquitos
-css/screens.css:1727 /* Jardín de Agua: el estanque entero en un marco de madera, co
-css/screens.css:1736 /* Carrera de barquitos: el estanque en vertical, con orilla e 
-css/screens.css:1754 /* Nitro: el botón de herramienta del jardín, con el mismo relo
-css/screens.css:1765 /* Mando: al manejar se esconde el panel (el agua ocupa su siti
-css/screens.css:1778 /* Entrar a pantalla completa: el agua crece desde su sitio.
-css/screens.css:1782 /* En el PC el selector de jardines sube a la barra de arriba: 
-css/screens.css:1787 /* Regalo diario: tira de 7 (el último, cofre) y lo que trajo.
+css/screens.css:638 /* Onboarding de Yo, Zombi: el paso activo queda encendido y lo
+css/screens.css:655 /* The hole: a dark well cut into the board, so tokens read as 
+css/screens.css:662 /* La ficha fantasma asoma en la casilla donde caería tu próxim
+css/screens.css:666 /* La ficha cuadrada del minijuego, versión lista: misma forma 
+css/screens.css:668 /* Jardín Zen: un karesansui sobre la mesa. Marco de madera, ar
+css/screens.css:676 /* El cantero arranca en 4×4 y crece hasta 8×8: la pantalla man
+css/screens.css:694 /* Clima del jardín: la nieve se posa en todo el cantero; la ll
+css/screens.css:707 /* Las luciérnagas y los efectos pasan del borde del cantero si
+css/screens.css:715 /* En el cantero cada objeto deja aire a los lados: macetas vec
+css/screens.css:717 /* Centrado como las macetas: mismo margen a cada lado (.zn-tra
+css/screens.css:719 /* Luz del farol: las nueve casillas que acelera, recortada por
+css/screens.css:723 /* Las plantas se mecen despacio, cada una a su ritmo (--d).
+css/screens.css:726 /* Burbuja de necesidad, como en PvZ: gota si falta riego, tije
+css/screens.css:739 /* Maceta con planta: anclada a su base, sombra de contacto en 
+css/screens.css:746 /* Descalzado con la pala: se levanta un poco, listo para el gu
+css/screens.css:751 /* Esmalte de la maceta y color de la flor por especie; la vací
+css/screens.css:775 /* Estanque: orilla de musgo, agua con hondura, koi, nenúfares,
+css/screens.css:779 /* Las piedras vectoriales de Kenney son claras para el granito
+css/screens.css:789 /* Estanque vivo (src/view/pond.js): el lienzo llena el agua; e
+css/screens.css:799 /* Musgo, pisadera y farol.
+css/screens.css:810 /* Piedras de la tierra nueva: canto rodado con la cara al sol 
+css/screens.css:818 /* La rama de arce asoma por la esquina y suelta, muy de vez en
+css/screens.css:819 /* Más arriba y algo menor cuanto más grande el cantero: en 8×8
+css/screens.css:828 /* Hojas caídas sobre la arena: se tocan para barrerlas.
+css/screens.css:831 /* Tonos de otoño rojizos (los amarillos se confunden con moned
+css/screens.css:835 /* Asa de las animaciones de la planta: escala desde donde nace
+css/screens.css:837 /* Tierra húmeda tras regar, hasta que la flor abre.
+css/screens.css:839 /* La regadera aparece sobre la maceta, se inclina, riega y se 
+css/screens.css:858 /* Regadera grande con ratón: el aro de lo que alcanza (3×3 cas
+css/screens.css:860 /* El chorro sale del pico mientras la regadera está inclinada;
+css/screens.css:865 /* Herramientas: dibujo común.
+css/screens.css:875 /* La mano: la herramienta elegida acompaña al ratón sobre el j
+css/screens.css:878 /* La mano escala desde la punta de la herramienta (el puntero)
+css/screens.css:882 /* Mazo y bolsa van con su icono, en tinta para leerse sobre la
+css/screens.css:888 /* Mazo y bolsa son iconos con versión vector y píxel: aquí sol
+css/screens.css:895 /* El gesto al tocar: las tijeras bajan al tallo y cortan dos v
+css/screens.css:904 /* El mazo se alza y cae de golpe sobre la piedra.
+css/screens.css:914 /* Mariposa: vuela hasta la flor, bate las alas y se posa.
+css/screens.css:924 /* Alimento de los koi: bolitas que flotan hasta que se las com
+css/screens.css:925 /* Estado del jardín: una línea tranquila bajo el cantero.
+css/screens.css:927 /* Panel: sobres de semillas, herramientas con mango redondo, a
+css/screens.css:938 /* El sobre va cerrado arriba con la costura en zigzag de los s
+css/screens.css:950 /* Herramienta en descanso: un reloj gris encima del icono. El 
+css/screens.css:964 /* Tienda: la acción principal del panel, rellena de latón, con
+css/screens.css:973 /* Ampliar: barra con precio y confirmación; al armarse se pint
+css/screens.css:985 /* Tierra virgen de los anillos: se cava para hacer un tiesto; 
+css/screens.css:986 /* Tierra virgen de los anillos: arena sin rastrillar, más oscu
+css/screens.css:988 /* La tierra sin cavar se marca siempre con su recuadro puntead
+css/screens.css:992 /* Cavada: tierra oscura removida, esperando su maceta.
+css/screens.css:996 /* Galería: grupos de imágenes; las bloqueadas son placeholders
+css/screens.css:999 /* Celdas del mismo ancho: el nombre, corto o largo, no descuad
+css/screens.css:1010 /* Logros en la Galería: los mismos grupos que la pantalla de L
+css/screens.css:1013 /* Un jefe derrotado es un botón: su ficha de siempre, que al t
+css/screens.css:1025 /* Tienda del jardín: monedero, estantería y la marca de lo com
+css/screens.css:1028 /* Jardín Zen en pantalla ancha: el cantero ocupa la izquierda 
+css/screens.css:1034 /* En el teléfono la escena y el panel se apilan con su alto na
+css/screens.css:1051 /* Semillas en la tienda: la flor recortada sobre el verde del 
+css/screens.css:1066 /* Fila de tienda en teléfono: el nombre y la descripción ocupa
+css/screens.css:1079 /* Tienda en pantalla ancha: el catálogo de cartas a la izquier
+css/screens.css:1097 /* Logros: progreso total, grupos con barra y rejilla de fichas
+css/screens.css:1116 /* El logro que se tocó en la Galería destella al llegar.
+css/screens.css:1122 /* Aviso de logro: la ficha sube desde el borde inferior y se v
+css/screens.css:1145 /* La bomba del cañón enemigo lleva su color y un aro carmesí, 
+css/screens.css:1147 /* Puerta de salida, como la del NES: un portón de piedra que s
+css/screens.css:1153 /* Duelo: arena de papel con dos peanas en diagonal, como los c
+css/screens.css:1173 /* La barra baja de golpe y deja detrás, un instante, el trozo 
+css/screens.css:1192 /* Fusión: bandeja de madera con huecos; cada ficha es una losa
+css/screens.css:1230 /* Tablero del Bomberman con cuerpo: la losa del cantero, celda
+css/screens.css:1238 /* El marco de losa: el mismo para el tablero de minijuego (Boa
+css/screens.css:1257 /* La figura va SOBRE su peana: sin z-index la peana la tapaba 
+css/screens.css:1270 /* En la fila del fondo la figura se contiene para que la cabez
+css/screens.css:1285 /* Matamarcianos: la bola en vuelo, las vidas y el mando de dos
+css/screens.css:1290 /* Tu fila, marcada: pisarla cuesta una vida.
+css/screens.css:1297 /* Hockey de mesa: un tablero de 6×10 hace de mesa, la banda es
+css/screens.css:1310 /* Rayas de la mesa: la central, el círculo de saque y el área 
+css/screens.css:1319 /* Lo que se mueve: origen arriba a la izquierda y el script po
+css/screens.css:1323 /* La peana es la huella que choca; la torre se alza sobre ella
+css/screens.css:1334 /* Regla de los siete segundos: los tres últimos, el disco parp
+css/screens.css:1342 /* La mesa es alta: en el teléfono el escenario le da más alto 
+css/screens.css:1345 /* Píxel: losas del tema en las casillas y lo redondo, octógono
+css/screens.css:1354 /* La cámara de Ajustes (Cenital, Mesa, Épica) inclina también 
+css/screens.css:1360 /* Solo las mesas de física (hockey, golf, billar), mucho menos
+css/screens.css:1367 /* Billar: la mesa del hockey con banda de madera ancha (como e
+css/screens.css:1373 /* Bolos: la pista del billar con canaletas y línea de tiro; lo
+css/screens.css:1377 /* Los bolos, de pie como en el tablero: peana pequeña y figura
+css/screens.css:1384 /* Papa caliente: la mesa del billar redondo con piezas; la bom
+css/screens.css:1390 /* La bomba es la de Bomberman (.bm-bomb), con la mecha en segu
+css/screens.css:1392 /* Billar redondo: mesa circular con casillas de tablero, cuatr
+css/screens.css:1403 /* Tronera: agujero hondo con aro de latón, todo dentro de su c
+css/screens.css:1407 /* Fichas, bolas y lanzador son la ficha de damas (.bm-tok) vis
+css/screens.css:1418 /* Píxel: sin curvas en todo el juego; la mesa redonda es un cí
+css/screens.css:1421 /* En píxel, la banda es un aro escalonado (máscara de 40×40 ca
+css/screens.css:1426 /* En píxel, la tronera es un círculo dibujado en píxeles (12×1
+css/screens.css:1428 /* Golf de mesa: la misma mesa del hockey con suelos (arena, hi
+css/screens.css:1430 /* Lo que asoma por encima de la fila de arriba (banderín, figu
+css/screens.css:1447 /* Banderín: mástil de tinta y gallardete bermellón, dibujado e
+css/screens.css:1462 /* Peón levantado mientras se arrastra, y la casilla a la que i
+css/screens.css:1466 /* La valla cae en su sitio con un golpe seco.
+css/screens.css:1479 /* El aro de vida del tablero (pc-hp) a escala de casilla, dent
+css/screens.css:1483 /* En pantallas bajas el tablero vale más que el chrome: menos 
+css/screens.css:1485 /* En el teléfono la compra se aprieta a una fila de ficha y pr
+css/screens.css:1491 /* Reloj de turno (minis cronometrados): barra que se vacía; en
+css/screens.css:1497 /* Estado de los minis sobre la losa: ficha de monedas y contad
+css/screens.css:1500 /* Contadores en fila: un punto por unidad; apagado queda lo ga
+css/screens.css:1504 /* La última oleada es la horda: su punto es un banderín bermel
+css/screens.css:1506 /* Carriles de lanzamiento: velo claro (--zone), distinto del v
+css/screens.css:1508 /* El número del carril en su esquina: es la tecla que lo lanza
+css/screens.css:1510 /* La bolera es apaisada: su escenario no reserva el alto pensa
+css/screens.css:1514 /* La línea roja del original: hasta ahí se lanza.
+css/screens.css:1516 /* La ficha que rueda va como elemento para que Motion la pueda
+css/screens.css:1517 /* La ficha es una pieza de damas vista en perspectiva: disco c
+css/screens.css:1527 /* Cara o cruz: la misma ficha, de canto a cara; marfil por del
+css/screens.css:1545 /* Avance de la oleada con el banderín de la horda al 70 %.
+css/screens.css:1552 /* La cinta: las fichas que vienen, la primera se lanza al toca
+css/screens.css:1564 /* Copias de un paso ya jugado: la pieza que cae y la ficha que
+css/screens.css:1569 /* Selector de mecánicas de la run: favorita en latón, vetada t
+css/screens.css:1573 /* «Ver todo»: fichas de una línea; el estado lo dicen el color
+css/screens.css:1583 /* Mobile-first repair: keep the game surface visible instead o
+css/screens.css:1614 /* The animation lab must give its remaining viewport to the li
+css/screens.css:1656 /* Móvil: «Cómo se juega» va arriba a la derecha, a la altura d
+css/screens.css:1673 /* Copia de seguridad (Ajustes): el código se pega en un recuad
+css/screens.css:1686 /* Botones de Perfil y Copia: tres por fila, icono arriba, sin 
+css/screens.css:1697 /* Semilla que suelta algo del tablero (popSeed): flota sobre t
+css/screens.css:1708 /* Reference APK renderer: a separate green/pixel signature, di
+css/screens.css:1723 /* Mando de teledirigido (Jardín de Agua y carrera de barquitos
+css/screens.css:1729 /* Jardín de Agua: el estanque entero en un marco de madera, co
+css/screens.css:1738 /* Carrera de barquitos: el estanque en vertical, con orilla e 
+css/screens.css:1756 /* Nitro: el botón de herramienta del jardín, con el mismo relo
+css/screens.css:1767 /* Mando: al manejar se esconde el panel (el agua ocupa su siti
+css/screens.css:1780 /* Entrar a pantalla completa: el agua crece desde su sitio.
+css/screens.css:1784 /* En el PC el selector de jardines sube a la barra de arriba: 
+css/screens.css:1789 /* Regalo diario: tira de 7 (el último, cofre) y lo que trajo.
 ## css/tokens.css (51L)
 css/tokens.css:1 /* Design tokens. Reasons for each choice live in DESIGN.md.
