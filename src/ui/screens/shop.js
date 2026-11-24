@@ -136,7 +136,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
           })}
         </section>
 
-        <section class="panel shop-card shop-pane-seeds" data-enter>
+        <section class="panel shop-card shop-pane-water" data-enter>
           <h2>${t('shop.water', 'Jardín de Agua')}</h2>
           <p class="shop-note">${t('shop.waterNote', 'Plantas para la orilla del estanque (crecen solas) y barquitos para manejar y correr.')}</p>
           ${Object.values(WATER_PLANTS).map((p) => {
