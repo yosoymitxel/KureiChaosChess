@@ -1,6 +1,6 @@
 // Jardín de Agua: un estanque entero. Plantas acuáticas en las plazas de la orilla, koi y barquitos que
 // se manejan como teledirigidos en el centro; abajo, la carrera de barquitos.
-import { html, useState, useEffect, useRef } from '../lib.js';
+import { html, useState, useEffect, useRef, motion } from '../lib.js';
 import { Topbar, useEnter } from '../components.js';
 import { Icon } from '../icons.js';
 import { Pond, runPond } from '../../view/pond.js';
@@ -40,11 +40,16 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop, shake = true }) 
   const rc = useRef(null), drivingRef = useRef(null);
   drivingRef.current = driving;
   const apply = (n) => { saveWater(n); setW(n); };
-  // Entrar o salir de manejar cambia el armado de la pantalla: con View Transitions el estanque se
-  // desliza a su nuevo sitio y el panel se desvanece, en vez del salto seco.
+  // Entrar o salir de manejar rearma la pantalla: el estanque se desliza de su sitio viejo al nuevo
+  // (FLIP) en vez del salto seco.
   const steer = (v) => {
-    if (v === drivingRef.current || reduced() || !document.startViewTransition) return setDriving(v);
-    document.startViewTransition(() => { setDriving(v); return new Promise((r) => requestAnimationFrame(() => r())); });
+    const el = ref.current?.querySelector('.wt-pond'), from = el?.getBoundingClientRect();
+    setDriving(v);
+    if (!from || v === drivingRef.current || reduced()) return;
+    requestAnimationFrame(() => {
+      const to = el.getBoundingClientRect();
+      motion(el, { x: [from.left - to.left, 0], y: [from.top - to.top, 0] }, { duration: 0.45, ease: [0.22, 1, 0.36, 1] });
+    });
   };
   const release = () => { steer(null); setZoom(false); };
   useRcKeys(rc, driving != null, release);
