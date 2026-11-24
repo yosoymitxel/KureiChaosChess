@@ -1,23 +1,25 @@
 // Estanque vivo en un <canvas>: lecho con hondura, luz que ondula en el fondo, sombras, koi
 // procedurales (koi.js), nenúfares que derivan y se apartan de las ondas, un loto, lenteja de agua,
-// brillos y aros al tocar o al caer gotas. Ideas de nagomi (msk1039); los koi, adaptados de su código
-// (ver koi.js).
+// brillos y aros al tocar o al caer gotas, pececillos. Adaptado de nagomi (msk1039), PolyForm
+// Noncommercial 1.0.0 (docs/licencias/nagomi.md): cáusticas en red, aros de cresta y valle, sombras y tinte
+// según la hondura, lenteja que se aparta de las ondas y pececillos (ver koi.js).
 // Trabaja en unidades del dibujo (el jardín usa 48×48, el tablero 20×20). En píxel se pinta a baja
 // resolución y cada píxel se lleva al color más cercano de una paleta corta: sprites limpios.
-import { School, spine, koiShape, KOI_KINDS } from './koi.js';
+import { School, Minnows, spine, koiShape, KOI_KINDS } from './koi.js';
 
 const TAU = Math.PI * 2;
 const rnd = (a, b) => a + Math.random() * (b - a);
 
 const WATER = { deep: '#17414f', mid: '#245f6b', shallow: '#3a8584', light: '#bfeee6', ink: '#14191d' };
 const PAD = { base: '#4f8f3a', dark: '#36692a', light: '#86bd5c', vein: '#3a6f2c' };
+const MINNOW = { gold: '#f0c75a', silver: '#b9d8d2' };
 const LOTUS = { out: '#f3b8cd', in: '#fbe0ea', deep: '#df88aa', core: '#f2d36b' };
 // Barquitos (vista desde arriba): casco, cubierta, vela o cabina y su borde.
 const LAND = { grass: '#5c8f3e', grass2: '#4a7a33', tuft: '#7fb052', sand: '#d9c08a', sand2: '#bfa06a', rock: '#8c8a80', rock2: '#6a675f', plank: '#a87848', plank2: '#7a5232' };
 export { LAND };
 const REED = { stem: '#5f8a3a', dark: '#3f6a2a', head: '#6b4a2a', duck: '#9bd36a' };
 const BOAT = { paper: '#f4f1e8', fold: '#c9c3b4', wood: '#9a6a3c', dark: '#5e3f22', bamboo: '#c9b26a', sail: '#fbf7ee', red: '#d2483a', buoy: '#e8573f' };
-const PALETTE = [...new Set([...Object.values(WATER), ...Object.values(PAD), ...Object.values(LOTUS), ...Object.values(BOAT), ...Object.values(REED), ...Object.values(LAND), ...KOI_KINDS.flatMap((k) => [k.base, k.accent, k.marking, k.fin]), '#171815', '#ffffff', '#2f7468', '#5aa39a', '#9a7b4c', '#7fc4a0'])]
+const PALETTE = [...new Set([...Object.values(WATER), ...Object.values(PAD), ...Object.values(LOTUS), ...Object.values(MINNOW), ...Object.values(BOAT), ...Object.values(REED), ...Object.values(LAND), ...KOI_KINDS.flatMap((k) => [k.base, k.accent, k.marking, k.fin]), '#171815', '#ffffff', '#2f7468', '#5aa39a', '#9a7b4c', '#7fc4a0'])]
   .map((h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]);
 
 // Nenúfar: disco con su muesca, cara más clara arriba a la izquierda, nervios desde el centro.
@@ -46,7 +48,7 @@ export function drawLotus(ctx, x, y, r, T = 0) {
 
 export class Pond {
   // canvas: el lienzo; size: [ancho, alto] en unidades; inside(x, y): si es agua.
-  constructor(canvas, { size, inside, count = 2, len = 7, speed = 3, pads = [], lotus = null, duckweed = 0 }) {
+  constructor(canvas, { size, inside, count = 2, len = 7, speed = 3, pads = [], lotus = null, duckweed = 0, minnows = 0 }) {
     const [W, H] = size;
     Object.assign(this, { canvas, W, H, inside, len, ripples: [], pellets: [], rain: 0, rainAcc: 0 });
     this.ctx = canvas.getContext('2d');
@@ -54,7 +56,9 @@ export class Pond {
     this.school.onEat = (bit) => { const i = this.pellets.indexOf(bit.el); if (i >= 0) this.pellets.splice(i, 1); this.ripple(bit.x, bit.y, 0.5); };
     this.pads = pads.map(([x, y, r]) => ({ x, y, r, rot: rnd(0, TAU), vx: 0, vy: 0, seed: rnd(0, 99) }));
     this.lotus = lotus; // índice del nenúfar que lleva la flor
-    this.weed = Array.from({ length: duckweed }, () => { for (;;) { const x = rnd(0, W), y = rnd(0, H); if (inside(x, y)) return { x, y, r: rnd(0.35, 0.6) }; } });
+    this.minnows = new Minnows(inside, { count: minnows, len, size });
+    // Lenteja: matitas de 2 a 4 hojas que derivan y se apartan cuando pasa una onda.
+    this.weed = Array.from({ length: duckweed }, () => { for (;;) { const x = rnd(0, W), y = rnd(0, H); if (inside(x, y)) return { x, y, vx: 0, vy: 0, r: rnd(0.35, 0.6), leaves: Array.from({ length: 2 + Math.floor(rnd(0, 3)) }, (_, i) => [i ? rnd(-0.7, 0.7) : 0, i ? rnd(-0.7, 0.7) : 0, i ? rnd(0.6, 0.9) : 1]) }; } });
     this.glints = Array.from({ length: 5 }, () => ({ x: rnd(W * 0.2, W * 0.8), y: rnd(H * 0.2, H * 0.8), ph: rnd(0, TAU) }));
     this.lo = document.createElement('canvas');
     this.boats = []; // { kind, x, y, h, v, vx, vy } de src/game/boats.js
@@ -72,6 +76,8 @@ export class Pond {
   // Tocar el agua: un aro y unas bolitas de comida que los koi vienen a buscar.
   tap(x, y) {
     this.ripple(x, y, 1.4);
+    this.school.callTo(x, y);
+    this.minnows.fleeFrom(x, y);
     for (let i = 0; i < 4; i++) { const p = { x: x + rnd(-1, 1) * this.len * 0.2, y: y + rnd(-1, 1) * this.len * 0.2 }; this.pellets.push(p); this.school.feed(p.x, p.y, p); }
   }
 
@@ -81,6 +87,7 @@ export class Pond {
     this.school.cover = this.pads;
     this.school.onNibble ??= (x, y) => this.ripple(x, y, 0.35);
     this.school.step(dt, T);
+    this.minnows.step(dt, T, this.boats);
     // Estela de barcos y koi que corren: dos brazos en V que se abren, y una onda de vez en cuando.
     for (const w of this.wake) w.age += dt;
     this.wake = this.wake.filter((w) => w.age < 2);
@@ -116,6 +123,15 @@ export class Pond {
       const nx = p.x + p.vx * dt, ny = p.y + p.vy * dt;
       if (this.inside(nx, ny)) { p.x = nx; p.y = ny; } else { p.vx = -p.vx; p.vy = -p.vy; }
       p.rot += (p.vx - p.vy) * dt * 0.2;
+    }
+    for (const w of this.weed) {
+      for (const r of this.ripples) {
+        const dx = w.x - r.x, dy = w.y - r.y, d = Math.hypot(dx, dy), front = 0.4 + r.age * this.len * 0.9 * r.k;
+        if (r.age < 1.2 && Math.abs(d - front) < 0.8 && d > 0.01) { w.vx += (dx / d) * 1.4 * r.k * dt; w.vy += (dy / d) * 1.4 * r.k * dt; }
+      }
+      w.vx *= 1 - dt * 1.2; w.vy *= 1 - dt * 1.2;
+      const nx = w.x + w.vx * dt, ny = w.y + w.vy * dt;
+      if (this.inside(nx, ny)) { w.x = nx; w.y = ny; } else { w.vx = -w.vx; w.vy = -w.vy; }
     }
   }
 
@@ -180,36 +196,48 @@ export class Pond {
     const g = ctx.createRadialGradient(cx * 0.9, cy * 0.85, 0, cx, cy, R);
     g.addColorStop(0, WATER.shallow); g.addColorStop(0.55, WATER.mid); g.addColorStop(1, WATER.deep);
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    // Luz del fondo: líneas que ondulan despacio (cáusticas).
-    ctx.strokeStyle = WATER.light; ctx.lineWidth = pixel ? 0.5 : 0.18;
-    for (let i = 0; i < 7; i++) {
-      ctx.globalAlpha = pixel ? 0.35 : 0.12;
-      ctx.beginPath();
-      for (let x = 0; x <= W; x += W / 24) {
-        const y = (i + 0.5) * (H / 7) + Math.sin(x * 0.35 + T * 0.8 + i * 1.7) * H * 0.025 + Math.sin(x * 0.11 - T * 0.5 + i) * H * 0.03;
-        x ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-      }
-      ctx.stroke();
+    // Luz del fondo (cáusticas): una red de celdas horneada una vez, en dos capas que derivan en sentidos
+    // distintos; donde se cruzan, brilla más.
+    const pat = caustics(ctx);
+    for (const [k, ax, ay, a] of [[2.2, 0.31, 0.17, pixel ? 0.2 : 0.13], [3.1, -0.19, 0.26, pixel ? 0.12 : 0.09]]) {
+      const z = (len * k) / CAUSTIC;
+      pat.setTransform(new DOMMatrix().translate(T * ax * len * 0.25 + Math.sin(T * 0.13 * k) * len * 0.3, T * ay * len * 0.25).scale(z));
+      ctx.globalAlpha = a; ctx.fillStyle = pat; ctx.fillRect(0, 0, W, H);
     }
     ctx.globalAlpha = 1;
     const fish = this.school.fish.map((f) => {
-      const sh = koiShape(spine(f, len, Math.min(1, 0.3 + f.burst + f.v / (this.school.speed * 4))), f, len);
+      const sh = koiShape(spine(f, len, f.ctl ? Math.min(1, 0.3 + f.v / (this.school.speed * 4)) : f.effort), f, len);
       return { f, sh, path: outline(sh) };
     });
-    // Sombras: de peces y nenúfares, corridas abajo a la derecha (la luz viene de arriba).
+    // Sombras: de peces y nenúfares, corridas abajo a la derecha (la luz viene de arriba). Un koi hondo
+    // está más cerca del lecho: su sombra se le arrima y se oscurece.
     ctx.fillStyle = WATER.ink;
     for (const { f, path } of fish) {
-      ctx.globalAlpha = pixel ? 0.3 : 0.18 + 0.12 * (1 - f.depth);
-      ctx.save(); ctx.translate(len * 0.12 + f.depth * len * 0.08, len * 0.16 + f.depth * len * 0.1);
+      const dv = deep(f.depth);
+      ctx.globalAlpha = pixel ? 0.3 : 0.2 + 0.12 * dv;
+      ctx.save(); ctx.translate(len * (0.13 - 0.08 * dv), len * (0.22 - 0.14 * dv));
       ctx.fill(path); ctx.restore();
+    }
+    // Pececillos: sombra y cuerpo, una rayita con la cola que culebrea.
+    const mf = this.minnows.fish;
+    if (mf.length) {
+      ctx.lineCap = 'round';
+      const minnow = (m, ox, oy) => {
+        const sp = Math.hypot(m.vx, m.vy) || 1, ux = m.vx / sp, uy = m.vy / sp, L = m.len, wag = Math.sin(m.tail) * L * 0.28;
+        ctx.beginPath(); ctx.moveTo(m.x + ox, m.y + oy); ctx.quadraticCurveTo(m.x - ux * L * 0.5 + ox, m.y - uy * L * 0.5 + oy, m.x - ux * L - uy * wag + ox, m.y - uy * L + ux * wag + oy); ctx.stroke();
+      };
+      ctx.strokeStyle = WATER.ink; ctx.globalAlpha = pixel ? 0.3 : 0.25; ctx.lineWidth = mf[0].len * 0.3;
+      for (const m of mf) minnow(m, m.len * 0.35, m.len * 0.6);
+      ctx.globalAlpha = 1;
+      for (const gold of [true, false]) { ctx.strokeStyle = gold ? MINNOW.gold : MINNOW.silver; for (const m of mf) if (m.gold === gold) minnow(m, 0, 0); }
+      ctx.lineCap = 'butt';
     }
     ctx.globalAlpha = 0.22;
     for (const p of this.pads) { ctx.beginPath(); ctx.arc(p.x + p.r * 0.25, p.y + p.r * 0.35, p.r, 0, TAU); ctx.fill(); }
     ctx.globalAlpha = 1;
     // Koi: aletas y cola debajo, cuerpo, manchas recortadas al cuerpo, ojos. Más hondos, más velados.
     // Los que corren (f.ctl) nadan en la superficie: se pintan encima de la salida y las boyas, como los barcos.
-    const koi = (list) => { for (const { f, sh } of list) {
-      ctx.globalAlpha = pixel ? 1 : 1 - Math.max(0, f.depth) * 0.35; // en píxel, colores puros
+    const koi = (list) => { for (const { f, sh, path } of list) {
       ctx.fillStyle = sh.kind.fin;
       for (const tri of [...sh.fins, ...sh.tail]) { ctx.beginPath(); tri.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.fill(); }
       const body = new Path2D();
@@ -221,19 +249,25 @@ export class Pond {
       ctx.restore();
       ctx.fillStyle = '#171815';
       for (const e of sh.eyes) { ctx.beginPath(); ctx.arc(e.x, e.y, pixel ? 0.5 : e.r, 0, TAU); ctx.fill(); }
-    } ctx.globalAlpha = 1; };
+      // Hondo: el agua lo vela (más apagado y verdoso), no transparente.
+      const dv = f.ctl ? 0 : deep(f.depth);
+      if (dv > 0.02) { ctx.globalAlpha = dv * (pixel ? 0.55 : 0.5); ctx.fillStyle = WATER.mid; ctx.fill(path); ctx.globalAlpha = 1; }
+    } };
     koi(fish.filter((q) => !q.f.ctl));
     // Comida flotando.
     ctx.fillStyle = '#9a7b4c';
     for (const p of this.pellets) { ctx.beginPath(); ctx.arc(p.x, p.y, pixel ? 0.5 : len * 0.05, 0, TAU); ctx.fill(); }
-    // Aros: dos por toque, que crecen y se apagan.
-    ctx.strokeStyle = '#ffffff';
-    for (const r of this.ripples) for (const lag of [0, 0.3]) {
-      const a = r.age - lag;
+    // Aros: cresta clara y valle oscuro justo dentro; un toque deja un tren de tres, una gota o un bocado uno.
+    ctx.lineWidth = pixel ? 0.5 : 0.22;
+    for (const r of this.ripples) for (let i = 0, n = r.k >= 1 ? 3 : r.k >= 0.5 ? 2 : 1; i < n; i++) {
+      const a = r.age - i * 0.22;
       if (a <= 0) continue;
-      ctx.globalAlpha = Math.max(0, 0.55 - a * 0.28) * (lag ? 0.6 : 1);
-      ctx.lineWidth = pixel ? 0.5 : 0.22;
-      ctx.beginPath(); ctx.arc(r.x, r.y, 0.4 + a * len * 0.9 * r.k, 0, TAU); ctx.stroke();
+      const fade = Math.max(0, 0.55 - a * 0.28) * (1 - i * 0.25), rad = 0.4 + a * len * 0.9 * r.k;
+      ctx.strokeStyle = '#ffffff'; ctx.globalAlpha = fade;
+      ctx.beginPath(); ctx.arc(r.x, r.y, rad, 0, TAU); ctx.stroke();
+      if (rad < 0.9) continue;
+      ctx.strokeStyle = WATER.ink; ctx.globalAlpha = fade * (pixel ? 0.4 : 0.3);
+      ctx.beginPath(); ctx.arc(r.x, r.y, rad - (pixel ? 0.5 : 0.3), 0, TAU); ctx.stroke();
     }
     // Estela: cada punto deja dos rayitas que se abren hacia atrás.
     ctx.lineWidth = pixel ? 0.5 : 0.2;
@@ -248,7 +282,10 @@ export class Pond {
     ctx.globalAlpha = 1;
     // Lenteja de agua, nenúfares y el loto: flotan por encima de los peces.
     ctx.fillStyle = '#7fc4a0';
-    for (const w of this.weed) { ctx.beginPath(); ctx.arc(w.x + Math.sin(T * 0.4 + w.x) * 0.3, w.y, pixel ? 0.5 : w.r, 0, TAU); ctx.fill(); }
+    for (const w of this.weed) {
+      const bx = w.x + Math.sin(T * 0.4 + w.r * 9) * 0.15;
+      for (const [dx, dy, k] of w.leaves) { ctx.beginPath(); ctx.arc(bx + dx * w.r * 1.6, w.y + dy * w.r * 1.6, pixel ? 0.5 : w.r * k, 0, TAU); ctx.fill(); }
+    }
     this.pads.forEach((p, i) => {
       const bob = Math.sin(T * 0.9 + p.seed) * 0.03;
       drawPad(ctx, p.x, p.y, p.r * (1 + bob), p.rot);
@@ -378,6 +415,35 @@ export function drawBoat(ctx, b, T, len, pixel) {
     poly([[-0.5, 0.18], [-0.62, 0.18], [-0.62, -0.18], [-0.5, -0.18]], WATER.ink);
   }
   ctx.restore();
+}
+
+// Hondura visible: nada cerca de la superficie, todo a partir de 0,72.
+const deep = (d) => { const t = Math.max(0, Math.min(1, (d - 0.1) / 0.62)); return t * t * (3 - 2 * t); };
+
+// Red de cáusticas: bordes entre celdas de Voronoi (distancia al segundo punto más cercano menos al
+// primero), en mosaico que se repite sin costuras. Se hornea una vez; cada lienzo guarda su patrón.
+const CAUSTIC = 64;
+let causticTile = null;
+const causticPat = new WeakMap();
+function caustics(ctx) {
+  if (!causticTile) {
+    const n = CAUSTIC, pts = Array.from({ length: 9 }, () => [Math.random(), Math.random()]);
+    causticTile = document.createElement('canvas'); causticTile.width = causticTile.height = n;
+    const c = causticTile.getContext('2d'), img = c.createImageData(n, n);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      let d1 = 9, d2 = 9;
+      for (const [px, py] of pts) for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) {
+        const d = Math.hypot(x / n - px - ox, y / n - py - oy);
+        if (d < d1) { d2 = d1; d1 = d; } else if (d < d2) d2 = d;
+      }
+      const v = Math.max(0, 1 - (d2 - d1) / 0.04), i = (y * n + x) * 4;
+      img.data[i] = 191; img.data[i + 1] = 238; img.data[i + 2] = 230; img.data[i + 3] = Math.round(255 * v ** 3);
+    }
+    c.putImageData(img, 0, 0);
+  }
+  let p = causticPat.get(ctx);
+  if (!p) causticPat.set(ctx, (p = ctx.createPattern(causticTile, 'repeat')));
+  return p;
 }
 
 // Silueta entera (cuerpo, aletas y cola) para la sombra y el borde en píxel.

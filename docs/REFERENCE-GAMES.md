@@ -82,6 +82,21 @@ cruz), gravedad (el tablero se inclina), zombi (el peón capturado vuelve una ve
 (evolución del derrumbe con aviso previo). Ejércitos con estética propia encajan con la
 personalización y la galería.
 
+## nagomi (msk1039): estanque de koi
+
+Referencia del Jardín de Agua, el estanque zen y el del tablero. Código adaptado con su aviso
+(PolyForm Noncommercial; `docs/licencias/nagomi.md`). Lo que tomamos:
+
+- **Koi**: cinco estados de nado (deslizar, planear, quieto, acelerón, giro cerrado) con su esfuerzo de
+  cola; giro con inercia; carácter por pez (marcha, cintura, prisa); cardumen suelto (cohesión,
+  alineación, separación); hondura por temporadas (largas arriba, cortas al fondo); bocados en la
+  superficie; al tocar, acuden escalonados según distancia y carácter, suben y dan vueltas al punto.
+- **Pececillos**: cardúmenes que se arremolinan y huyen en una ola que sale del toque.
+- **Agua**: cáusticas en red de celdas, aros con cresta y valle, sombra que se arrima al pez hondo y
+  tinte de agua sobre él, lenteja en matitas que se aparta de las ondas.
+- **Pendiente** (más caro en Canvas 2D): refracción del fondo, distorsión local sobre peces someros,
+  mariposas, clima con nubes y luz, grano del lecho.
+
 ## Propuestas que salen de aquí
 
 1. **Selector de mecánicas al empezar la run** (Gambonanza): elegir qué modificadores salen más

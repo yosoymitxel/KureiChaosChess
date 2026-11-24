@@ -61,6 +61,7 @@ for (const view of views) for (const theme of themes) {
     localStorage.clear();
     localStorage.setItem('zugzwang.settings.v2', JSON.stringify({ theme, tutorialSeen: true, lang: 'es' }));
     localStorage.setItem('zugzwang.achievements.v1', JSON.stringify(['zen_open']));
+    localStorage.setItem('zugzwang.daily.v1', JSON.stringify({ claims: 1, lastDay: 'smoke', lastTs: Date.now() })); // sin la hoja del regalo encima
     localStorage.setItem('zugzwang.shop.v1', JSON.stringify({ coins: 999 }));
     localStorage.setItem('zugzwang.zensky.v1', JSON.stringify({ sky: 'snow', until: Date.now() + 1e7, left: 3 }));
     // Cantero a medida: tiestos y un arbusto arriba, tierra libre donde crece el estanque.

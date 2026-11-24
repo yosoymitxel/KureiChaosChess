@@ -508,7 +508,7 @@ export function ZenScreen({ onBack, onShop, onGarden }) {
     if (!cv()) return;
     const n = z.lake || 2;
     const pond = pondRef.current = new Pond(cv(), { size: [48, 48], inside: pondInside, count: Math.min(5, n + 1), len: 7.5, speed: 3.2,
-      pads: [[33.5, 33.5, 3.4], [14.5, 32.5, 2.6], [34.5, 17, 2.2], [17, 16, 1.8]], lotus: 0, duckweed: 14 });
+      pads: [[33.5, 33.5, 3.4], [14.5, 32.5, 2.6], [34.5, 17, 2.2], [17, 16, 1.8]], lotus: 0, duckweed: 14, minnows: 7 });
     return runPond(pond, cv, reduced());
   }, [z.lake || 2]);
   const feed = (e) => {

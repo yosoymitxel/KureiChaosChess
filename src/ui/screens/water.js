@@ -47,7 +47,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop, shake = true }) 
   useEffect(() => {
     // Los barcos también chocan con las plantas de la orilla (no con las plazas libres).
     const inside = (x, y) => water(x, y) && !plantedRef.current.some(([px, py]) => Math.hypot(px - x, py - y) < 3.5);
-    const pond = pondRef.current = new Pond(cvRef.current, { size: [S, S], inside: water, count: 5, len: 7.5, speed: 3.2, pads: [[34, 50, 2.2], [56, 34, 1.8], [62, 60, 2]], duckweed: 20 });
+    const pond = pondRef.current = new Pond(cvRef.current, { size: [S, S], inside: water, count: 5, len: 7.5, speed: 3.2, pads: [[34, 50, 2.2], [56, 34, 1.8], [62, 60, 2]], duckweed: 20, minnows: 14 });
     pond.decor = gardenDecor(S);
     pond.shakeOn = shake;
     pond.onStep = (dt) => {
@@ -56,7 +56,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop, shake = true }) 
       pond.boats.forEach((b, i) => {
         b.sel = i === drivingRef.current;
         const hit = drive(b, b.sel ? mine : null, dt, inside), f = Math.min(1, hit / 15);
-        if (hit > 2.5) { playSfx(f > 0.4 ? 'hit' : 'tap', 0.9 - 0.3 * f); pond.ripple(b.x, b.y, 0.4 + 0.7 * f); if (b.sel) pond.kick(0.3 + 1.2 * f); }
+        if (hit > 2.5) { playSfx(f > 0.4 ? 'hit' : 'tap', 0.9 - 0.3 * f); pond.ripple(b.x, b.y, 0.4 + 0.7 * f); if (b.sel) pond.kick(0.3 + 1.2 * f); if (f > 0.6) pond.school.scatter(); }
       });
       // Entre barcos: se empujan según su peso (la balsa pesa más que el papel); la marcha sigue al empujón.
       for (let a = 0; a < pond.boats.length; a++) for (let c = a + 1; c < pond.boats.length; c++) {
