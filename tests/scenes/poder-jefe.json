@@ -15,6 +15,7 @@
   { "move": "7,0>6,0" }, { "bot": true },
   { "shot": "aviso" },
   { "expect": { "noErrors": true, "eval": "!!bench.match.bossPlan && document.querySelectorAll('.doom').length > 0" } },
+  { "wait": 1800 },
   { "move": "6,0>7,0" }, { "bot": true },
   { "shot": "cumplido" },
   { "expect": { "noErrors": true, "eval": "!bench.match.bossPlan && document.querySelectorAll('.doom').length === 0" } }

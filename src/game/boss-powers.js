@@ -77,6 +77,8 @@ const DO = {
   pull(m, b, cells, out) { for (const p of m.pieces.filter((x) => x.color !== b.color && on(cells, x))) shove(m, p, ...away(b, p, true), out); },
 };
 
+// Cada poder suena a lo que hace (src/ui/sfx.js).
+const POWER_SFX = { quake: 'rumble', charge: 'charge', heal: 'heal', rockfall: 'rockfall', summon: 'neigh', push: 'shove', pull: 'suck' };
 const POWER_COLOR = { quake: '#ffc83d', charge: '#ff6b3d', heal: '#7dffb0', rockfall: '#c9a07a', summon: '#29e3ff', push: '#9fd0ff', pull: '#b06bff' };
 // Una sola seña por poder (pixelfx y Sprite Fusion, de vendor/), que cuente lo que hace:
 // pisotón al suelo · rayo en línea · remolino que atrae · luz de curación · rocas que caen · golpe en lo empujado.
@@ -98,7 +100,7 @@ export function bossPower(m, mover) {
   const plan = m.bossPlan;
   if (plan && plan.id === b.id) {
     m.bossPlan = null;
-    out.fx.push({ doom: [] });
+    out.fx.push({ doom: [], sfx: POWER_SFX[def.power] });
     const mid = [Math.round(b.row + (b.h - 1) / 2), Math.round(b.col + (b.w - 1) / 2)], color = POWER_COLOR[def.power];
     DO[def.power](m, b, plan.cells, out, plan);
     const mark = SIGN[def.power](mid, plan.cells, out.moved);

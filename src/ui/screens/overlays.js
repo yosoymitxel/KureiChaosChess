@@ -1,4 +1,5 @@
-import { html, useEffect, useState } from '../lib.js';
+import { html, useEffect, useRef, useState } from '../lib.js';
+import { Fx } from '../../view/fx.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { ConfirmButton, BossCard, Toggle, FilterMenu, ThemeLook } from '../components.js';
 import { PIECE_RULES, PIECE_NAMES } from '../../data/pieces.js';
@@ -91,35 +92,70 @@ export function HowToOverlay({ onClose }) {
 }
 
 // Regalo del día: la tira del ciclo (el 7.º es un cofre) y, al abrirlo, lo que trajo.
+// Abrirlo es el premio: la bolsa tiembla, revienta y suelta lo que trae de uno en uno, cada cosa con su sonido.
+const DL_SOUND = { coin: 'coin', seed: 'pop', water: 'splash', card: 'card' };
+function CountUp({ to, run }) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (!run) return;
+    const t0 = performance.now(), dur = 600;
+    let raf = requestAnimationFrame(function step(now) {
+      const k = Math.min(1, (now - t0) / dur);
+      setN(Math.round(to * (1 - (1 - k) ** 3)));
+      if (k < 1) raf = requestAnimationFrame(step);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [run]);
+  return html`${n}`;
+}
 export function DailyOverlay({ onClose, onClaim }) {
   useEscape(onClose);
-  const [d] = useState(loadDaily), [got, setGot] = useState(null);
-  const ready = !got && dailyReady(d), slot = got ? got.slot : dailySlot(d);
+  const [d] = useState(loadDaily), [got, setGot] = useState(null), [phase, setPhase] = useState('idle'), [shown, setShown] = useState(0);
+  const root = useRef(null), gift = useRef(null);
+  const ready = !got && dailyReady(d), slot = got ? got.slot : dailySlot(d), chest = slot === DAILY.cycle - 1;
+  const items = got ? [
+    got.coins && { kind: 'coin', node: (on) => html`<span class="dl-ic"><${Icon} name="coin" size=${22} /></span><b>+<${CountUp} to=${got.coins} run=${on} /></b> ${t('daily.coins', 'monedas')}` },
+    ...Object.entries(got.zen).map(([k, n]) => ({ kind: 'seed', node: () => html`<span class="dl-ic dl-seed">${chipArt(k)}</span><b>×${n}</b> ${t('daily.zenSeed', 'semilla de {name}', { name: ZEN_NAMES[k] })}` })),
+    ...Object.entries(got.water).map(([k, n]) => ({ kind: 'water', node: () => html`<span class="dl-ic"><${Icon} name="drop" size=${22} /></span><b>×${n}</b> ${WATER_PLANTS[k].name}` })),
+    ...got.cards.map((id) => ({ kind: 'card', node: () => html`<span class="dl-ic dl-card"><${Icon} name=${CARDS[id].icon} size=${22} /></span><span><b>${CARDS[id].name}</b><small>${t('daily.cardNote', 'Al sobre: entra en tu próxima run')}</small></span>` })),
+  ].filter(Boolean) : [];
+  useEffect(() => {
+    if (!got) return;
+    const fx = new Fx(root.current), timers = [];
+    const p = gift.current ? fx.pointOf(gift.current) : { x: fx.w / 2, y: fx.h / 2 };
+    const gold = ['#ffcf6b', '#fff3c4', '#e0a53a'];
+    fx.ring(p.x, p.y, { color: '#ffe7a0', radius: chest ? 150 : 110, life: 0.55, width: 4 });
+    fx.burst(p.x, p.y, { count: chest ? 60 : 36, color: gold, speed: [120, 420], life: [0.5, 1.1], size: [3, 7], gravity: 320, shape: 'rect', drag: 0.94 });
+    fx.sparkle(p.x, p.y, '#ffcf6b', chest ? 16 : 10);
+    if (chest) fx.confetti([...gold, '#7dffb0', '#29e3ff', '#ff7aa8']);
+    items.forEach((it, i) => timers.push(setTimeout(() => { setShown(i + 1); playSfx(DL_SOUND[it.kind], 1 + i * 0.06); }, 420 + i * 380)));
+    if (got.coins) timers.push(setTimeout(() => playSfx('coin', 1.25), 420 + 260));
+    return () => { timers.forEach(clearTimeout); setTimeout(() => fx.destroy(), 2500); };
+  }, [got]);
   const open = () => {
+    if (phase !== 'idle') return;
     const r = claimDaily();
     if (!r) return;
-    setGot(r); onClaim?.(r);
-    playSfx('achievement');
-    if (r.coins) setTimeout(() => playSfx('coin'), 350);
+    setPhase('shake');
+    [0, 170, 300, 400, 480].forEach((ms, i) => setTimeout(() => playSfx('tick', 0.8 + i * 0.12), ms));
+    setTimeout(() => { setPhase('open'); setGot(r); onClaim?.(r); playSfx('gift'); if (chest) setTimeout(() => playSfx('achievement'), 200); }, 620);
   };
   const hours = Math.max(1, Math.ceil((d.lastTs + DAILY.gapH * 3_600_000 - Date.now()) / 3_600_000));
-  const items = got ? [
-    got.coins && html`<li><span class="dl-ic"><${Icon} name="coin" size=${22} /></span><b>+${got.coins}</b> ${t('daily.coins', 'monedas')}</li>`,
-    ...Object.entries(got.zen).map(([k, n]) => html`<li><span class="dl-ic dl-seed">${chipArt(k)}</span><b>×${n}</b> ${t('daily.zenSeed', 'semilla de {name}', { name: ZEN_NAMES[k] })}</li>`),
-    ...Object.entries(got.water).map(([k, n]) => html`<li><span class="dl-ic"><${Icon} name="drop" size=${22} /></span><b>×${n}</b> ${WATER_PLANTS[k].name}</li>`),
-    ...got.cards.map((id) => html`<li><span class="dl-ic dl-card"><${Icon} name=${CARDS[id].icon} size=${22} /></span><span><b>${CARDS[id].name}</b><small>${t('daily.cardNote', 'Al sobre: entra en tu próxima run')}</small></span></li>`),
-  ].filter(Boolean) : [];
-  return html`<div class="overlay" onClick=${closeOnBackdrop(onClose)}>
+  const bag = chest ? 'gem' : 'bag';
+  return html`<div class="overlay" ref=${root} onClick=${closeOnBackdrop(onClose)}>
     <div class="panel daily" role="dialog" aria-modal="true" aria-label=${t('daily.title', 'Regalo del día')}>
       <h1>${t('daily.title', 'Regalo del día')}</h1>
       <ol class="dl-strip" aria-label=${t('daily.cycle', 'Regalos de la semana')}>
-        ${Array.from({ length: DAILY.cycle }, (_, i) => html`<li class=${(i < slot || (got && i === slot) ? 'done' : '') + (i === slot ? ' now' : '') + (i === DAILY.cycle - 1 ? ' chest' : '')}>
+        ${Array.from({ length: DAILY.cycle }, (_, i) => html`<li class=${(i < slot || (got && i === slot) ? 'done' : '') + (i === slot ? ' now' : '') + (got && i === slot ? ' dl-hit' : '') + (i === DAILY.cycle - 1 ? ' chest' : '')}>
           <${Icon} name=${i < slot || (got && i === slot) ? 'check' : i === DAILY.cycle - 1 ? 'gem' : 'bag'} size=${18} /><small>${i + 1}</small></li>`)}
       </ol>
-      ${got ? html`<ul class="dl-got">${items}</ul>
+      ${got ? html`<div class="dl-burst" ref=${gift}><${Icon} name=${bag} size=${44} /></div>
+        <ul class="dl-got">${items.map((it, i) => html`<li class=${'dl-' + it.kind + (i < shown ? ' in' : '')}>${it.node(i < shown)}</li>`)}</ul>
         <button class="btn primary" autofocus onClick=${onClose}>${t('common.continue', 'Continuar')}</button>`
-      : ready ? html`<p class="dl-note">${slot === DAILY.cycle - 1 ? t('daily.chestNote', 'Hoy toca el cofre: siempre trae una carta.') : t('daily.note', 'Monedas, semillas o una carta: sale al azar.')}</p>
-        <button class="btn primary dl-open" autofocus onClick=${open}><${Icon} name=${slot === DAILY.cycle - 1 ? 'gem' : 'bag'} size=${18} />${t('daily.open', 'Abrir regalo')}</button>`
+      : ready ? html`<button class=${'dl-gift' + (chest ? ' chest' : '') + (phase === 'shake' ? ' shake' : '')} ref=${gift} autofocus onClick=${open} aria-label=${t('daily.open', 'Abrir regalo')}>
+          <${Icon} name=${bag} size=${64} /></button>
+        <p class="dl-note">${chest ? t('daily.chestNote', 'Hoy toca el cofre: siempre trae una carta.') : t('daily.note', 'Monedas, semillas o una carta: sale al azar.')}</p>
+        <button class="btn primary dl-open" onClick=${open} disabled=${phase !== 'idle'}><${Icon} name=${bag} size=${18} />${t('daily.open', 'Abrir regalo')}</button>`
       : html`<p class="dl-note">${t('daily.later', 'Ya lo abriste. El próximo, en unas {n} h.', { n: hours })}</p>
         <button class="btn" autofocus onClick=${onClose}>${t('common.close', 'Cerrar')}</button>`}
     </div>

@@ -186,6 +186,62 @@ const RECIPES = {
     { osc: 'square', from: 330, to: 322, dur: 0.18, gain: 0.12, at: 0.14 },
     { osc: 'sine', from: 110, to: 104, dur: 0.4, gain: 0.2, at: 0.14 },
   ],
+  // Poderes de jefe. Pisotón: el suelo retumba y cruje.
+  rumble: [
+    { osc: 'sine', from: 75, to: 24, dur: 0.7, gain: 0.55 },
+    { noise: true, dur: 0.75, gain: 0.34, cutoff: 420, sweep: 80, attack: 0.02 },
+    { noise: true, dur: 0.08, gain: 0.2, cutoff: 1400, filter: 'bandpass', q: 1.5, at: 0.12 },
+    { noise: true, dur: 0.08, gain: 0.16, cutoff: 1000, filter: 'bandpass', q: 1.5, at: 0.3 },
+  ],
+  // Embestida: carrerilla que sube y el topetazo.
+  charge: [
+    { noise: true, dur: 0.28, gain: 0.24, cutoff: 300, sweep: 2200, filter: 'bandpass', q: 1.2, attack: 0.2 },
+    { osc: 'sine', from: 150, to: 45, dur: 0.3, gain: 0.5, at: 0.26 },
+    { noise: true, dur: 0.16, gain: 0.36, cutoff: 1600, filter: 'bandpass', q: 1.2, at: 0.26 },
+  ],
+  // Regeneración: campanitas que suben y un brillo.
+  heal: [
+    { osc: 'sine', from: 660, to: 660, dur: 0.35, gain: 0.12 },
+    { osc: 'sine', from: 880, to: 880, dur: 0.35, gain: 0.11, at: 0.08 },
+    { osc: 'sine', from: 1320, to: 1320, dur: 0.5, gain: 0.1, at: 0.16 },
+    { noise: true, dur: 0.6, gain: 0.06, cutoff: 6000, filter: 'highpass', attack: 0.2 },
+  ],
+  // Derrumbe: piedras que caen a destiempo y un golpe sordo.
+  rockfall: [
+    { noise: true, dur: 0.1, gain: 0.3, cutoff: 1200, filter: 'bandpass', q: 1.5 },
+    { noise: true, dur: 0.09, gain: 0.26, cutoff: 1800, filter: 'bandpass', q: 2, at: 0.09 },
+    { noise: true, dur: 0.12, gain: 0.28, cutoff: 900, filter: 'bandpass', q: 1.5, at: 0.2 },
+    { noise: true, dur: 0.08, gain: 0.2, cutoff: 2200, filter: 'bandpass', q: 2, at: 0.33 },
+    { osc: 'sine', from: 110, to: 40, dur: 0.45, gain: 0.45, at: 0.05 },
+  ],
+  // Escudero: relincho y cascos que llegan.
+  neigh: [
+    { osc: 'sawtooth', from: 520, to: 880, dur: 0.18, gain: 0.07 },
+    { osc: 'sawtooth', from: 880, to: 420, dur: 0.3, gain: 0.07, at: 0.17 },
+    { noise: true, dur: 0.03, gain: 0.22, cutoff: 1200, filter: 'bandpass', q: 3, at: 0.5 },
+    { noise: true, dur: 0.03, gain: 0.2, cutoff: 1000, filter: 'bandpass', q: 3, at: 0.6 },
+    { noise: true, dur: 0.03, gain: 0.22, cutoff: 1200, filter: 'bandpass', q: 3, at: 0.74 },
+    { noise: true, dur: 0.03, gain: 0.2, cutoff: 1000, filter: 'bandpass', q: 3, at: 0.84 },
+  ],
+  // Empuje: piedra que arrastra y una ráfaga.
+  shove: [
+    { noise: true, dur: 0.32, gain: 0.3, cutoff: 600, filter: 'bandpass', q: 4, sweep: 380 },
+    { noise: true, dur: 0.3, gain: 0.16, cutoff: 800, sweep: 2600, filter: 'bandpass', q: 1, attack: 0.1, at: 0.05 },
+    { osc: 'sine', from: 120, to: 60, dur: 0.2, gain: 0.35 },
+  ],
+  // Succión: aire que entra hacia dentro.
+  suck: [
+    { noise: true, dur: 0.55, gain: 0.26, cutoff: 3200, sweep: 260, filter: 'bandpass', q: 1.4, attack: 0.4 },
+    { osc: 'sine', from: 700, to: 140, dur: 0.55, gain: 0.12, attack: 0.3 },
+  ],
+  // Regalo diario que revienta: chispa y arpegio que sube.
+  gift: [
+    { noise: true, dur: 0.12, gain: 0.22, cutoff: 3000, filter: 'bandpass', q: 1 },
+    { osc: 'triangle', from: 523.25, to: 523.25, dur: 0.18, gain: 0.14, at: 0.02 },
+    { osc: 'triangle', from: 783.99, to: 783.99, dur: 0.2, gain: 0.13, at: 0.1 },
+    { osc: 'sine', from: 1046.5, to: 1046.5, dur: 0.5, gain: 0.13, at: 0.18 },
+    { noise: true, dur: 0.7, gain: 0.07, cutoff: 7000, filter: 'highpass', attack: 0.15, at: 0.08 },
+  ],
   // Reloj que se acaba: un tic seco por segundo en los últimos.
   tick: [
     { osc: 'square', from: 1800, to: 1700, dur: 0.018, gain: 0.08 },
@@ -299,6 +355,7 @@ const SAMPLE_GAIN = {
   move: 0.65, land: 0.7, water: 0.55, splash: 0.6, flower: 0.55, whoosh: 0.5, warp: 0.6, laser: 0.45, zombie: 0.6,
   capture: 0.85, hit: 0.8, crunch: 0.75, shatter: 0.85, boom: 0.85, stomp: 0.95, bigboom: 1,
   promote: 0.7, mini_win: 0.4, mini_lose: 0.4, achievement: 0.7, win: 0.45, lose: 0.45, tick: 0.35, alarm: 0.85,
+  rumble: 0.95, charge: 0.85, heal: 0.6, rockfall: 0.85, neigh: 0.6, shove: 0.75, suck: 0.7, gift: 0.6,
 };
 const buffers = {};
 // Por efecto, la primera toma lista; si no baja ninguna, se borra y el efecto queda sintetizado.

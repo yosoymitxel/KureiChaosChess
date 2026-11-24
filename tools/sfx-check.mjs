@@ -3,7 +3,7 @@
 // AudioContext de mentira para revisar lo que cada receta agenda de verdad.
 import { SFX_NAMES, SFX_VOLUMES, MUSIC_TRACKS, setSfxEnabled, setMusicEnabled, setSfxVolume, setMusicScene, playSfx, startAmbient, stopAmbient, sfxState } from '../src/ui/sfx.js';
 
-const NAMES = ['move', 'capture', 'select', 'invalid', 'step', 'land', 'hit', 'stomp', 'boom', 'bigboom', 'crunch', 'pop', 'whoosh', 'warp', 'laser', 'zombie', 'water', 'snip', 'dig', 'splash', 'leaf', 'promote', 'card', 'win', 'lose', 'coin', 'flower', 'tap', 'achievement', 'mini_win', 'mini_lose', 'shatter', 'alarm', 'tick'];
+const NAMES = ['move', 'capture', 'select', 'invalid', 'step', 'land', 'hit', 'stomp', 'boom', 'bigboom', 'crunch', 'pop', 'whoosh', 'warp', 'laser', 'zombie', 'water', 'snip', 'dig', 'splash', 'leaf', 'promote', 'card', 'win', 'lose', 'coin', 'flower', 'tap', 'achievement', 'mini_win', 'mini_lose', 'shatter', 'alarm', 'tick', 'rumble', 'charge', 'heal', 'rockfall', 'neigh', 'shove', 'suck', 'gift'];
 const LEVELS = ['suave', 'normal', 'fuerte'];
 const WAVES = ['sine', 'triangle', 'square', 'sawtooth'];
 

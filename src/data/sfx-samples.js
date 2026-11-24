@@ -21,6 +21,10 @@ export const SFX_SAMPLES = {
     "assets/sfx/card-1.mp3",
     "assets/sfx/card-2.mp3"
   ],
+  "charge": [
+    "assets/sfx/charge-1.mp3",
+    "assets/sfx/charge-2.mp3"
+  ],
   "coin": [
     "assets/sfx/coin-1.mp3",
     "assets/sfx/coin-2.mp3"
@@ -33,6 +37,14 @@ export const SFX_SAMPLES = {
   ],
   "flower": [
     "assets/sfx/flower-1.mp3"
+  ],
+  "gift": [
+    "assets/sfx/gift-1.mp3",
+    "assets/sfx/gift-2.mp3"
+  ],
+  "heal": [
+    "assets/sfx/heal-1.mp3",
+    "assets/sfx/heal-2.mp3"
   ],
   "hit": [
     "assets/sfx/hit-1.mp3",
@@ -64,11 +76,23 @@ export const SFX_SAMPLES = {
     "assets/sfx/move-1.mp3",
     "assets/sfx/move-2.mp3"
   ],
+  "neigh": [
+    "assets/sfx/neigh-1.mp3",
+    "assets/sfx/neigh-2.mp3"
+  ],
   "pop": [
     "assets/sfx/pop-1.mp3"
   ],
   "promote": [
     "assets/sfx/promote-1.mp3"
+  ],
+  "rockfall": [
+    "assets/sfx/rockfall-1.mp3",
+    "assets/sfx/rockfall-2.mp3"
+  ],
+  "rumble": [
+    "assets/sfx/rumble-1.mp3",
+    "assets/sfx/rumble-2.mp3"
   ],
   "select": [
     "assets/sfx/select-1.mp3",
@@ -76,6 +100,10 @@ export const SFX_SAMPLES = {
   ],
   "shatter": [
     "assets/sfx/shatter-1.mp3"
+  ],
+  "shove": [
+    "assets/sfx/shove-1.mp3",
+    "assets/sfx/shove-2.mp3"
   ],
   "snip": [
     "assets/sfx/snip-1.mp3"
@@ -89,6 +117,10 @@ export const SFX_SAMPLES = {
   ],
   "stomp": [
     "assets/sfx/stomp-1.mp3"
+  ],
+  "suck": [
+    "assets/sfx/suck-1.mp3",
+    "assets/sfx/suck-2.mp3"
   ],
   "tap": [
     "assets/sfx/tap-1.mp3"
