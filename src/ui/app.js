@@ -6,7 +6,8 @@ import { MenuScreen } from './screens/menu.js';
 import { MapScreen } from './screens/map.js';
 import { SetupScreen, SettingsScreen } from './screens/setup.js';
 import { GameScreen } from './screens/game.js';
-import { HowToOverlay, ResumeOverlay } from './screens/overlays.js';
+import { HowToOverlay, ResumeOverlay, DailyOverlay } from './screens/overlays.js';
+import { loadDaily, dailyReady } from '../game/daily.js';
 import { setFullscreen } from './fullscreen.js';
 import { setSfxEnabled, setSfxVolume, setMusicEnabled, startAmbient, setMusicScene, playSfx } from './sfx.js';
 import { MinisScreen } from './screens/minis.js';
@@ -62,6 +63,8 @@ export function App() {
   const [reward, setReward] = useState(null); // { kind, cards }
   const [reveal, setReveal] = useState(null); // mutación del Frasco extraño, que se enseña antes del mapa
   const [howTo, setHowTo] = useState(false);
+  const [daily, setDaily] = useState(false); // hoja del regalo diario
+  const [dailyOn, setDailyOn] = useState(() => dailyReady(loadDaily()));
   const [raceMode, setRaceMode] = useState('boats'); // carrera del Jardín de Agua: barcos o koi
   const [freeMini, setFreeMini] = useState(null); // minigame played from the menu, outside a run
   const [freeKey, setFreeKey] = useState(0);
@@ -95,6 +98,13 @@ export function App() {
   useEffect(() => { const hide = () => document.hidden && cloudAutoSave(0); document.addEventListener('visibilitychange', hide); return () => document.removeEventListener('visibilitychange', hide); }, []);
   // Jardín Zen: se abre al terminar o dejar atrás el tutorial (también para partidas de antes de esta regla).
   const zenOpen = loadAchievements().includes('zen_open');
+  // Regalo diario: se ofrece solo al volver al menú (nunca en una partida) y con el jardín ya abierto.
+  useEffect(() => {
+    if (screen !== 'menu' || !zenOpen || run?.tutorial) return;
+    const ready = dailyReady(loadDaily());
+    setDailyOn(ready);
+    if (ready) setDaily(true);
+  }, [screen, zenOpen]);
   useEffect(() => { if (!zenOpen && (settings.tutorialSeen || loadAchievements().length) && !run?.tutorial) award('zen_open'); }, [run?.tutorial]);
   useEffect(() => { setSfxEnabled(settings.sound); setSfxVolume(settings.volume); }, [settings.sound, settings.volume]);
   useEffect(() => { setMusicEnabled(settings.music !== false); }, [settings.music]);
@@ -315,7 +325,8 @@ export function App() {
   const FreeMini = MINIGAMES[freeMini]?.Screen;
 
   return html`
-    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} inTutorial=${!!run?.tutorial && !zenOpen} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${zenOpen ? () => goTo('zen') : null} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} onVersus=${() => newVersus()} settings=${settings} setSettings=${setSettings} />`}
+    ${screen === 'menu' && html`<${MenuScreen} hasRun=${!!run} inTutorial=${!!run?.tutorial && !zenOpen} onNew=${() => newRun()} onTutorial=${() => newRun(true)} onContinue=${() => goTo('map')} onHowTo=${() => setHowTo(true)} onSettings=${() => goTo('settings')} onMinis=${loadUnlocked().length ? () => goTo('minis') : null} onZen=${zenOpen ? () => goTo('zen') : null} onShop=${openShop('menu')} onGallery=${() => goTo('gallery')} onAchievements=${() => { setAchFrom({ back: 'menu' }); goTo('achievements'); }} onVersus=${() => newVersus()} onDaily=${zenOpen ? () => setDaily(true) : null} dailyOn=${dailyOn} settings=${settings} setSettings=${setSettings} />`}
+    ${daily && html`<${DailyOverlay} onClose=${() => { setDaily(false); setDailyOn(dailyReady(loadDaily())); }} />`}
     ${screen === 'settings' && html`<${SettingsScreen} settings=${settings} setSettings=${setSettings} onBack=${() => goTo('menu')} />`}
     ${screen === 'map' && run && html`<${MapScreen} key=${run.lastNode || 'start'} run=${run} onBack=${() => goTo('menu')} onSelect=${enterNode} onShop=${openShop('map')} />`}
     ${screen === 'setup' && node && html`<${SetupScreen} node=${node} run=${run} settings=${settings} setSettings=${setSettings} defaultCount=${seats?.length} onHowTo=${() => setHowTo(true)} onBack=${() => goTo(run && Object.keys(run.completed).length ? 'map' : 'menu')} onStart=${startGame}

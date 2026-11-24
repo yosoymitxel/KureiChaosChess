@@ -150,7 +150,7 @@ function fitCrown(el) {
   el.style.setProperty('--top', `${baseline - (asc + 1 - top) + fs * 0.012 - size * foot}px`);
 }
 
-export function MenuScreen({ hasRun, inTutorial, onNew, onTutorial, onContinue, onHowTo, onSettings, onMinis, onVersus, onZen, onShop, onGallery, onAchievements, settings, setSettings }) {
+export function MenuScreen({ hasRun, inTutorial, onNew, onTutorial, onContinue, onHowTo, onSettings, onMinis, onVersus, onZen, onShop, onGallery, onAchievements, onDaily, dailyOn, settings, setSettings }) {
   const ref = useRef(null);
   useEnter(ref);
   const crown = useRef(null);
@@ -188,6 +188,7 @@ export function MenuScreen({ hasRun, inTutorial, onNew, onTutorial, onContinue, 
         <div class="menu-row" data-enter>
           <button class="btn ghost" onClick=${onHowTo}><${Icon} name="book" />${t('menu.rules', 'Reglas')}</button>
           <button class="btn ghost" onClick=${onSettings}><${Icon} name="gear" />${t('menu.settings', 'Ajustes')}</button>
+          ${onDaily && html`<button class=${'btn ghost icon-only daily-btn' + (dailyOn ? ' on' : '')} aria-label=${t('daily.title', 'Regalo del día')} title=${t('daily.title', 'Regalo del día')} onClick=${onDaily}><${Icon} name="bag" /></button>`}
           ${canFullscreen && html`<button class="btn ghost icon-only" aria-pressed=${full} aria-label=${full ? t('menu.exitFullscreen', 'Salir de pantalla completa') : t('menu.fullscreen', 'Pantalla completa')}
             title=${full ? t('menu.exitFullscreen', 'Salir de pantalla completa') : t('menu.fullscreen', 'Pantalla completa')} onClick=${toggleFull}><${Icon} name=${full ? 'shrink' : 'expand'} /></button>`}
         </div>

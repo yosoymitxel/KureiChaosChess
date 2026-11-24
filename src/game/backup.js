@@ -18,6 +18,7 @@ const KEY_LIMITS = Object.freeze({
   'zugzwang.zen.v1': 768 * 1024,
   'zugzwang.agua.v1': 768 * 1024,
   'zugzwang.shop.v1': 128 * 1024,
+  'zugzwang.daily.v1': 16 * 1024,
 });
 
 const ROOT_TYPES = Object.freeze({
@@ -33,6 +34,7 @@ const ROOT_TYPES = Object.freeze({
   'zugzwang.zen.v1': 'object',
   'zugzwang.agua.v1': 'object',
   'zugzwang.shop.v1': 'object',
+  'zugzwang.daily.v1': 'object',
 });
 
 const encoder = new TextEncoder();

@@ -1,4 +1,4 @@
-import { html, useEffect } from '../lib.js';
+import { html, useEffect, useState } from '../lib.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { ConfirmButton, BossCard, Toggle, FilterMenu, ThemeLook } from '../components.js';
 import { PIECE_RULES, PIECE_NAMES } from '../../data/pieces.js';
@@ -8,6 +8,13 @@ import { loadBosses } from '../../game/run.js';
 import { themeOwned } from '../../game/shop.js';
 import { canFullscreen, setFullscreen, useFullscreen } from '../fullscreen.js';
 import { t } from '../../i18n/index.js';
+import { DAILY } from '../../data/daily.js';
+import { WATER_PLANTS } from '../../data/garden.js';
+import { CARDS } from '../../game/cards.js';
+import { loadDaily, dailyReady, dailySlot, claimDaily } from '../../game/daily.js';
+import { ZEN_NAMES } from '../../game/zen.js';
+import { chipArt } from '../zen-art.js';
+import { playSfx } from '../sfx.js';
 
 const closeOnBackdrop = (fn) => (e) => e.target === e.currentTarget && fn();
 const useEscape = (fn) => useEffect(() => {
@@ -79,6 +86,42 @@ export function HowToOverlay({ onClose }) {
       <p>${t('howto.studied', '{n} de {total} jefes estudiados: cada jefe que derribas queda abierto acá y en la Galería.', { n: beaten.length, total: BOSS_IDS.length })}</p>
       <p>${t('howto.gems', 'La gema de una carta dice su rareza:')} <i class="gem"></i> ${t('rarity.common', 'común')}, <i class="gem rare"></i> ${t('rarity.rare', 'rara')}, <i class="gem epic"></i> ${t('rarity.epic', 'épica')}. ${t('howto.frame', 'El marco dice el tipo: táctica, mutación u objeto.')}</p>
       <button class="btn primary" autofocus onClick=${onClose}>${t('howto.ok', 'Entendido')}</button>
+    </div>
+  </div>`;
+}
+
+// Regalo del día: la tira del ciclo (el 7.º es un cofre) y, al abrirlo, lo que trajo.
+export function DailyOverlay({ onClose, onClaim }) {
+  useEscape(onClose);
+  const [d] = useState(loadDaily), [got, setGot] = useState(null);
+  const ready = !got && dailyReady(d), slot = got ? got.slot : dailySlot(d);
+  const open = () => {
+    const r = claimDaily();
+    if (!r) return;
+    setGot(r); onClaim?.(r);
+    playSfx('achievement');
+    if (r.coins) setTimeout(() => playSfx('coin'), 350);
+  };
+  const hours = Math.max(1, Math.ceil((d.lastTs + DAILY.gapH * 3_600_000 - Date.now()) / 3_600_000));
+  const items = got ? [
+    got.coins && html`<li><span class="dl-ic"><${Icon} name="coin" size=${22} /></span><b>+${got.coins}</b> ${t('daily.coins', 'monedas')}</li>`,
+    ...Object.entries(got.zen).map(([k, n]) => html`<li><span class="dl-ic dl-seed">${chipArt(k)}</span><b>×${n}</b> ${t('daily.zenSeed', 'semilla de {name}', { name: ZEN_NAMES[k] })}</li>`),
+    ...Object.entries(got.water).map(([k, n]) => html`<li><span class="dl-ic"><${Icon} name="drop" size=${22} /></span><b>×${n}</b> ${WATER_PLANTS[k].name}</li>`),
+    ...got.cards.map((id) => html`<li><span class="dl-ic dl-card"><${Icon} name=${CARDS[id].icon} size=${22} /></span><span><b>${CARDS[id].name}</b><small>${t('daily.cardNote', 'Al sobre: entra en tu próxima run')}</small></span></li>`),
+  ].filter(Boolean) : [];
+  return html`<div class="overlay" onClick=${closeOnBackdrop(onClose)}>
+    <div class="panel daily" role="dialog" aria-modal="true" aria-label=${t('daily.title', 'Regalo del día')}>
+      <h1>${t('daily.title', 'Regalo del día')}</h1>
+      <ol class="dl-strip" aria-label=${t('daily.cycle', 'Regalos de la semana')}>
+        ${Array.from({ length: DAILY.cycle }, (_, i) => html`<li class=${(i < slot || (got && i === slot) ? 'done' : '') + (i === slot ? ' now' : '') + (i === DAILY.cycle - 1 ? ' chest' : '')}>
+          <${Icon} name=${i < slot || (got && i === slot) ? 'check' : i === DAILY.cycle - 1 ? 'gem' : 'bag'} size=${18} /><small>${i + 1}</small></li>`)}
+      </ol>
+      ${got ? html`<ul class="dl-got">${items}</ul>
+        <button class="btn primary" autofocus onClick=${onClose}>${t('common.continue', 'Continuar')}</button>`
+      : ready ? html`<p class="dl-note">${slot === DAILY.cycle - 1 ? t('daily.chestNote', 'Hoy toca el cofre: siempre trae una carta.') : t('daily.note', 'Monedas, semillas o una carta: sale al azar.')}</p>
+        <button class="btn primary dl-open" autofocus onClick=${open}><${Icon} name=${slot === DAILY.cycle - 1 ? 'gem' : 'bag'} size=${18} />${t('daily.open', 'Abrir regalo')}</button>`
+      : html`<p class="dl-note">${t('daily.later', 'Ya lo abriste. El próximo, en unas {n} h.', { n: hours })}</p>
+        <button class="btn" autofocus onClick=${onClose}>${t('common.close', 'Cerrar')}</button>`}
     </div>
   </div>`;
 }
