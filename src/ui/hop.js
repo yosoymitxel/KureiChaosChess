@@ -32,7 +32,7 @@ function puddle(grid, from, to, { side, cell, cols, rows, dur }) {
 
 // Salta de `from` a `to` ({ row, col }) con su charco. Se llama después de repintar, con la ficha
 // ya en la casilla destino.
-export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows, liquid: forceLiquid = false }) {
+export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows, liquid: forceLiquid = false, walk = 0.26 }) {
   if (!grid || !pcEl || reduced()) return;
   const cellEl = grid.querySelector('.bm-cell, .br-cell');
   if (!cellEl) return;
@@ -48,7 +48,7 @@ export function hopPiece(grid, pcEl, { from, to, side = 'light', cols, rows, liq
   // Las vidas viven al lado de la ficha en la casilla: viajan con ella en vez de llegar antes.
   const hp = pcEl.parentElement?.querySelector('.pc-hp');
   if (Math.abs(dr) + Math.abs(dc) === 1) {
-    const dur = 0.26 / speed();
+    const dur = walk / speed();
     playSfx('step');
     setTimeout(() => playSfx('step'), dur * 500);
     pcEl.style.transformOrigin = '50% 72%';

@@ -1,6 +1,7 @@
 import { html, useState, useEffect, useLayoutEffect, useRef, motion } from '../lib.js';
 import { Fx } from '../../view/fx.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, MiniEnd, MiniTools, holdRepeat } from '../components.js';
+import { playSfx } from '../sfx.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { newBomber, act as play, tick as worldTick, blastOf, doorOpen, DIFFS, FOES } from '../../game/bomber.js';
@@ -19,16 +20,22 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = t('common.continue
   const gridRef = useRef(null);
   const hops = useRef(null); // saltos del último tic: quién se movió y de dónde a dónde
   const booms = useRef(null), fxRef = useRef(null);
+  const [hold] = useState(() => holdRepeat(150));
+  useEffect(() => hold.clear, []);
 
   const snap = () => ({ player: { row: s.player.r, col: s.player.c }, enemies: s.enemies.map((e) => ({ id: e.id, row: e.r, col: e.c })) });
   // `a` es una jugada; sin ella, un tic del reloj del mundo.
   const act = (a) => {
-    const before = snap(), bombsBefore = s.bombs.slice();
+    const before = snap(), bombsBefore = s.bombs.slice(), power = s.maxBombs + s.range;
     if (!(a ? play(s, a) : worldTick(s))) return;
     // Las bombas que ya no están estallaron este tic: el efecto nace en su casilla.
     booms.current = bombsBefore.filter((b) => !s.bombs.includes(b)).map((b) => ({ r: b.r, c: b.c }));
+    if (a?.bomb) playSfx('land', 0.8);
+    if (booms.current.length) playSfx(booms.current.length > 1 ? 'bigboom' : 'boom');
+    if (s.enemies.length < before.enemies.length) setTimeout(() => playSfx('crunch'), 90);
+    if (s.maxBombs + s.range > power) playSfx('coin');
     const after = snap(), moved = [];
-    if (after.player.row !== before.player.row || after.player.col !== before.player.col) moved.push({ sel: '.bm-pc.me', from: before.player, to: after.player, side: 'light' });
+    if (after.player.row !== before.player.row || after.player.col !== before.player.col) moved.push({ sel: '.bm-pc.me', from: before.player, to: after.player, side: 'light', walk: 0.15 });
     for (const e of after.enemies) {
       const was = before.enemies.find((b) => b.id === e.id);
       if (was && (was.row !== e.row || was.col !== e.col)) moved.push({ sel: `.bm-pc.foe[data-id="${e.id}"]`, from: was, to: e, side: 'dark' });
@@ -45,11 +52,14 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = t('common.continue
   useEffect(() => {
     const onKey = (e) => {
       const k = e.key.toLowerCase();
-      if (KEYS[k]) { e.preventDefault(); act({ move: KEYS[k] }); }
-      else if (k === ' ' || k === 'b') { e.preventDefault(); act({ bomb: true }); }
+      if (KEYS[k]) { e.preventDefault(); if (!e.repeat) hold.start(k, () => act({ move: KEYS[k] })); }
+      else if (k === ' ' || k === 'b') { e.preventDefault(); if (!e.repeat) act({ bomb: true }); }
     };
+    const up = (e) => hold.stop(e.key.toLowerCase());
     addEventListener('keydown', onKey);
-    return () => removeEventListener('keydown', onKey);
+    addEventListener('keyup', up);
+    addEventListener('blur', hold.clear);
+    return () => { removeEventListener('keydown', onKey); removeEventListener('keyup', up); removeEventListener('blur', hold.clear); };
   });
   // Reloj del mundo: se para con la ayuda o una cinemática encima.
   useEffect(() => {
@@ -83,7 +93,9 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = t('common.continue
           setTimeout(() => fx.explosion(q.x, q.y, scale * 0.45), d * 45);
         }
       }
-      if (settings.shake) motion(grid, { x: [0, -12, 10, -7, 4, 0], y: [0, 6, -7, 3, 0] }, { duration: 0.5 });
+      // Sacudida según lo que estalla: una bomba sola tiembla, una cadena retumba.
+      const a = booms.current.length > 1 ? 1 : 0.6;
+      if (settings.shake) motion(grid, { x: [0, -12 * a, 10 * a, -7 * a, 4 * a, 0], y: [0, 6 * a, -7 * a, 3 * a, 0] }, { duration: 0.3 + 0.2 * a });
     }
     booms.current = null;
     const moved = hops.current;
@@ -128,10 +140,10 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = t('common.continue
             : html`<div class="bm-controls">
               <div class="bm-pad" role="group" aria-label=${t('game.movement', 'Movimiento')}>
                 ${PAD.map(([dr, dc, cls, label, glyph]) => html`<button class=${'btn sm pad-' + cls} aria-label=${label}
-                  onClick=${() => act({ move: [dr, dc] })}>${glyph}</button>`)}
+                  ...${hold.props(cls, () => act({ move: [dr, dc] }))}>${glyph}</button>`)}
               </div>
               <div class="bm-actions">
-                <button class="btn sm" data-pad="x" onClick=${() => act({ bomb: true })}><${Icon} name="collapse" size=${16} />${t('bomber.bomb', 'Bomba')}</button>
+                <button class="btn sm" data-pad="x" ...${hold.props('bomb', () => act({ bomb: true }), false)}><${Icon} name="collapse" size=${16} />${t('bomber.bomb', 'Bomba')}</button>
               </div>
             </div>`}
           <${MiniTools} mini="bomber" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('bomber.help', 'Mueve con las flechas, WASD o el mando; espacio o el botón ponen bomba. Todo corre en tiempo real: la mecha se consume sola, las casillas con borde rojo están a punto de estallar y algunas cajas sueltan bomba extra o más alcance. Como en el original, la puerta de salida está escondida bajo una caja: derriba a todos los enemigos y entra por ella. Enemigos de este nivel: {foes}.', { foes: kinds.map((k) => `${PIECE_NAMES[k].toLowerCase()} (${FOES[k].replace(/\.$/, '').toLowerCase()})`).join('; ') })}<//>

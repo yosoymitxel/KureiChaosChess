@@ -344,6 +344,8 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
       const res = match.move(piece, to);
       if (!res) return false;
       if (human) d.moments.dropWaiting();
+      // Minis cronometrados: el reloj se para al soltar la jugada, no cuando acaba su animación.
+      if (human && scenario?.turnTime) setHud((h) => h && { ...h, myTurn: false });
       d.busy = true;
       clearSel();
       const tag = match.player.kind === 'bot' ? '◆ ' : '';
@@ -521,7 +523,7 @@ export function GameScreen({ node, run, seats, settings, setSettings, onExit, on
             if (d.paused || d.moments.playing) { d.timer = setTimeout(step, 300); return; }
             const mv = scenario?.bot?.(match) || botChooseMove(match);
             if (mv) doMove(mv.piece, mv.target);
-          }, 450 + Math.random() * 300);
+          }, scenario?.turnTime ? 200 + Math.random() * 150 : 450 + Math.random() * 300); // a contrarreloj, el rival no se hace esperar
         });
       }
       const warned = announceChecks();

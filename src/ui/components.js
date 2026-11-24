@@ -32,6 +32,30 @@ export function Topbar({ title, sub, onBack, backLabel = t('common.back', 'Volve
   </header>`;
 }
 
+// Pulsar y mantener en los minis en tiempo real: actúa al apoyar el dedo (no al soltarlo) y repite a su
+// ritmo mientras siga pulsado. La repetición del sistema (y la del mando) se ignora: tarda medio segundo
+// y luego corre más que el salto de la ficha.
+export function holdRepeat(every = 150, first = 220) {
+  const timers = new Map();
+  const stop = (id) => { clearTimeout(timers.get(id)); timers.delete(id); };
+  const start = (id, fn, repeat = true) => {
+    if (timers.has(id)) return;
+    fn();
+    const again = (ms) => timers.set(id, setTimeout(() => { fn(); again(every); }, ms));
+    if (repeat) again(first);
+  };
+  return {
+    start, stop, clear: () => [...timers.keys()].forEach(stop),
+    // Props de un botón; Enter y el mando (clic sin puntero, detail 0) siguen entrando por onClick.
+    props: (id, fn, repeat = true) => ({
+      onPointerDown: (e) => { if (e.button) return; e.currentTarget.setPointerCapture?.(e.pointerId); start(id, fn, repeat); },
+      onPointerUp: () => stop(id), onPointerCancel: () => stop(id), onLostPointerCapture: () => stop(id),
+      onContextMenu: (e) => e.preventDefault(),
+      onClick: (e) => { if (!e.detail) fn(); },
+    }),
+  };
+}
+
 // Reloj de turno de los minis cronometrados: una barra que se vacía en `secs` segundos mientras no esté
 // en pausa (ni con una hoja o cinemática encima) y llama a `onTimeout`. `run` lo reinicia (cada turno).
 export function TurnClock({ secs, run, paused, onTimeout }) {
