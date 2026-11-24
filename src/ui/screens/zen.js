@@ -105,7 +105,17 @@ export function ZenScreen({ onBack, onShop, onGarden }) {
   const now = Date.now();
   const digRest = digWait(z, now), moveRest = moveWait(z, now);
   const seedKind = ZEN_KINDS[seed];
-  const apply = (next) => { if (next !== z) { saveZen(next); setZ(next); } };
+  // Las acciones que esperan a su animación leen el jardín de ese momento (zRef), no el del toque:
+  // si no, al encadenar cortes o martillazos cada una pisaba a las anteriores.
+  const zRef = useRef(z); zRef.current = z;
+  const apply = (next) => { if (next !== zRef.current) { zRef.current = next; saveZen(next); setZ(next); } };
+  const pending = useRef(new Set()); // casillas con una acción animándose: no se repite encima
+  const deferAct = (key, fx, make) => {
+    if (pending.current.has(key)) return false;
+    pending.current.add(key);
+    fx(() => { pending.current.delete(key); apply(make(zRef.current)); });
+    return true;
+  };
   const say = (s) => { setArmed(false); setMsg(s); };
   const LOOSEN = t('zen.loosenFirst', 'Primero descálzalo con la pala; luego se mueve o se guarda.');
   // Ficha sobre la cosa tocada, como las de las casillas del tablero.
@@ -282,8 +292,10 @@ export function ZenScreen({ onBack, onShop, onGarden }) {
   const harvest = (key, kind) => {
     const cell = cellOf(key);
     const done = () => {
-      const next = zenHarvest(z, key, Date.now()), pays = SEEDS[kind].pays;
+      pending.current.delete(key);
+      const next = zenHarvest(zRef.current, key, Date.now()), pays = SEEDS[kind].pays;
       apply(next);
+      const g = cellOf(key)?.querySelector('.zn-grow'); if (g) g.style.transform = ''; // si rebrota, que no quede encogida
       setGain(t('zen.paid', '+{n} monedas por {kind}', { n: pays, kind: the(kind) }) + (next.gift ? t('zen.dropsSeed', ' y suelta una semilla') : '') + (next.pots[key] ? t('zen.regrows', '. Rebrota: riégala otra vez') : '') + '.');
       flyCoins(cell?.getBoundingClientRect(), 3, pays);
       if (next.gift) seedTo(cell?.getBoundingClientRect(), next.gift);
@@ -296,18 +308,16 @@ export function ZenScreen({ onBack, onShop, onGarden }) {
     };
     if (!cell || reduced()) { playSfx('snip'); return done(); }
     // Las tijeras bajan al tallo, abren y cierran dos veces (cada cierre suena) y la flor salta.
-    busyCut.current = true;
+    pending.current.add(key);
     gesture('cut', cell, 0.3, 900);
     setTimeout(() => playSfx('snip'), 330); // los dos cierres de las hojas (zn-snip, 37 % y 49 %)
     setTimeout(() => {
-      busyCut.current = false;
       const p = at(cell, 0.25), fl = getComputedStyle(cell.querySelector('.zn-plant')).getPropertyValue('--fl').trim() || '#ffcf6b';
       pfx('poof', cell, 0.3, { palette: LEAF_RAMP, f: 0.8 }); // el mismo tijeretazo que al podar
       fxRef.current.burst(p.x, p.y, { count: 18, color: [fl, fl, '#fff'], speed: [60, 220], life: [0.6, 1.1], size: [2, 4], gravity: 160, drag: 0.9, shape: 'chunk' });
       growFx(key, { scale: [1, 1.15, 0], y: [0, -4, -10], rotate: [0, 0, 40] }, { duration: 0.35, ease: [0.7, 0, 0.84, 0], onComplete: done });
     }, 560);
   };
-  const busyCut = useRef(false);
 
   // Un toque aplica la herramienta elegida; el estado cuenta la espera y las novedades.
   const tap = (type, key) => {
@@ -363,19 +373,19 @@ export function ZenScreen({ onBack, onShop, onGarden }) {
     }
     if (type === 'pot' && tool === 'hammer') {
       if (!potCracked(z, key)) return say(t('zen.potFine', 'La maceta está sana: se agrieta tras {n} flores.', { n: POT_LIFE }));
-      fxRepair(key, () => apply(zenFix(z, key)));
+      if (!deferAct(key, (done) => fxRepair(key, done), (cur) => zenFix(cur, key))) return;
       return say(t('zen.potFixed', 'Maceta arreglada: aguanta otras {n} flores.', { n: POT_LIFE }));
     }
     if (type === 'lantern') return info(key, 'lantern');
     if (type === 'bush' || type === 'stone') {
       if (tool !== (type === 'bush' ? 'cut' : 'hammer')) return info(key, type);
-      fxClear(key, tool, () => apply(zenClear(z, key)));
+      if (!deferAct(key, (done) => fxClear(key, tool, done), (cur) => zenClear(cur, key))) return;
       return say(type === 'bush' ? t('zen.bushCut', 'Arbusto cortado: queda tierra para cavar.') : t('zen.stoneBroken', 'Losa partida: queda tierra para cavar.'));
     }
     if (type === 'rock') {
       if (tool !== 'hammer') return info(key, 'rock');
-      const { z: next, broke } = zenBreak(z, key);
-      fxClear(key, 'hammer', () => apply(next));
+      const { broke } = zenBreak(z, key);
+      if (!deferAct(key, (done) => fxClear(key, 'hammer', done), (cur) => zenBreak(cur, key).z)) return;
       return say(broke ? t('zen.rockBreaks', 'La piedra se parte: queda tierra virgen.') : t('zen.rockCracks', 'La piedra se agrieta: otro golpe.'));
     }
     if (type === 'raw') {
@@ -409,7 +419,7 @@ export function ZenScreen({ onBack, onShop, onGarden }) {
     } else if (tool === 'dig') {
       say(st.stage === 'empty' ? t('zen.alreadyDug', 'Ese tiesto ya está cavado.') : t('zen.alreadyPlant', 'Ahí ya hay una planta.'));
     } else if (tool === 'cut') {
-      if (busyCut.current) return;
+      if (pending.current.has(key)) return;
       if (st.stage === 'bloom') harvest(key, st.kind);
       else if (st.stage === 'empty') say(t('zen.nothingToCut', 'Ahí no hay flor que cortar.'));
       else say(t('zen.opensIn', '{kind}: la flor abre en {time}.', { kind: cap(the(st.kind)), time: secs(st.msLeft) }));

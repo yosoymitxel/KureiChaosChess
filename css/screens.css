@@ -672,6 +672,7 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
   --sand: oklch(0.9 0.024 85); --sand-raw: oklch(0.8 0.03 75); --wood: oklch(0.42 0.06 50);
   --leaf: oklch(0.6 0.12 138); --leaf-2: oklch(0.44 0.09 146); --lav-leaf: oklch(0.68 0.05 155);
 }
+.zen-screen { overflow-x: clip; } /* la regadera de abajo no empuja la página de lado */
 .zn-yard { position: relative; display: grid; place-items: center; perspective: 900px; perspective-origin: 50% 30%; }
 /* El cantero arranca en 4×4 y crece hasta 8×8: la pantalla manda `--n`. */
 .bm.zn-tray {
