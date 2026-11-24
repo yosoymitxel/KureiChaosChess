@@ -855,7 +855,7 @@ export default {
     "water.shopSub": "Water plants and boats",
     "shop.water": "Water Garden",
     "shop.waterNote": "Plants for the pond shore (they grow by themselves) and boats to drive and race.",
-    "boatrace.help": "Two laps around a channel that changes every race, through the buoys in order, against two boats and a koi. Rocks block the way and weed slows you down. Steer with the controller or the arrows.",
+    "boatrace.help": "Two laps around a channel that changes every race, through the buoys in order, against the other three boats. Rocks block the way and weed slows you down. Steer with the controller or the arrows.",
     "boatrace.diff": "Difficulty",
     "boatrace.nitro": "Nitro",
     "boatrace.racer": "Racer",

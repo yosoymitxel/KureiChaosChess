@@ -1781,7 +1781,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 @media (prefers-reduced-motion: reduce) { .wt-full .wt-pond, .wt-full .br-track { animation: none; } }
 /* En el PC el selector de jardines sube a la barra de arriba: el cantero gana alto. */
 @media (min-width: 900px) {
-  .garden-switch { position: absolute; top: 18px; left: 50%; translate: -50% 0; width: auto; margin: 0; z-index: 5; }
+  .mini-body > .garden-switch { position: absolute; top: 18px; left: 50%; translate: -50% 0; width: auto; margin: 0; z-index: 5; }
 }
 
 /* Regalo diario: tira de 7 (el último, cofre) y lo que trajo. */

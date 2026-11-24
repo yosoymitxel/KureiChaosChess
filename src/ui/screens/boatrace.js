@@ -23,7 +23,7 @@ export function BoatRaceScreen({ onBack, mode = 'boats', shake = true }) {
   if (!pick) return html`<div class="screen mini zen-screen">
     <${Topbar} title=${title} sub=${GARDENS.agua.name} onBack=${onBack} />
     <div class="mini-body zen-body"><div class="panel br-pick">
-      <p>${koi ? t('boatrace.koiHelp', 'Dos vueltas a un canal que cambia cada carrera, contra tres koi. Pasa las boyas en orden, esquiva las rocas y cuidado con las algas. Maneja con el mando o con las flechas.') : t('boatrace.help', 'Dos vueltas a un canal que cambia cada carrera, pasando por las boyas en orden, contra dos barcos y un koi. Las rocas cortan el paso y las algas frenan. Maneja con el mando o con las flechas.')}</p>
+      <p>${koi ? t('boatrace.koiHelp', 'Dos vueltas a un canal que cambia cada carrera, contra tres koi. Pasa las boyas en orden, esquiva las rocas y cuidado con las algas. Maneja con el mando o con las flechas.') : t('boatrace.help', 'Dos vueltas a un canal que cambia cada carrera, pasando por las boyas en orden, contra los otros tres barcos. Las rocas cortan el paso y las algas frenan. Maneja con el mando o con las flechas.')}</p>
       <h3>${t('boatrace.diff', 'Dificultad')}</h3>
       <div class="garden-switch">${Object.entries(DIFFS).map(([k, d]) => html`<button class=${'btn sm' + (diff === k ? ' on' : ' ghost')} onClick=${() => setDiff(k)}>${d.name} · +${RACE_PRIZE[k]}</button>`)}</div>
       ${koi ? html`<button class="btn primary" onClick=${() => setPick({ kind: 'koi', diff })}>${t('boatrace.start', 'Salir')}</button>` : !own.length ? html`<p>${t('boatrace.noBoat', 'Compra un barquito en la tienda del jardín para correr.')}</p>` : html`<h3>${t('boatrace.racer', 'Corredor')}</h3>
@@ -53,7 +53,7 @@ function Race({ kind, diff, title, onBack, again, shake }) {
     const fish = s.racers.filter((r) => r.fish);
     const tr = s.track, pond = new Pond(cvRef.current, { size: [W, H], inside: tr.inside, count: fish.length, len: 7, speed: 3, duckweed: 0 });
     pond.boats = s.racers.filter((r) => !r.fish);
-    pond.school.fish.forEach((f, i) => { const r = fish[i]; f.ctl = true; f.pts = f.pts.map((_, k) => [r.x + k * f.seg, r.y]); f.kind = (i * 3 + 1) % 6; });
+    pond.school.fish.forEach((f, i) => { const r = fish[i]; f.ctl = true; f.pts = f.pts.map((_, k) => [r.x + k * f.seg, r.y]); f.kind = [3, 0, 4, 5][i]; }); // el tuyo, dorado
     pond.marks = tr.gates.map((b) => ({ x: b.x, y: b.y }));
     pond.decor = raceDecor(W, H, tr);
     pond.shakeOn = shake;
@@ -76,7 +76,7 @@ function Race({ kind, diff, title, onBack, again, shake }) {
           else if (e.kind === 'finish' && e.who === 0) playSfx('splash');
         }
       }
-      fish.forEach((r, i) => { const f = pond.school.fish[i]; f.x = r.x; f.y = r.y; f.v = Math.hypot(r.vx, r.vy); f.h = r.h; f.boost = r.boost; });
+      fish.forEach((r, i) => { const f = pond.school.fish[i]; f.x = r.x; f.y = r.y; f.v = Math.hypot(r.vx, r.vy); f.h = r.h; f.boost = r.boost; f.sel = r === s.racers[0]; });
       const me = s.racers[0];
       pond.marks.forEach((m, i) => (m.on = i === me.next % tr.gates.length));
       me.sel = true;
