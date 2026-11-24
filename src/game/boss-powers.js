@@ -78,8 +78,6 @@ const DO = {
 };
 
 const POWER_COLOR = { quake: '#ffc83d', charge: '#ff6b3d', heal: '#7dffb0', rockfall: '#c9a07a', summon: '#29e3ff', push: '#9fd0ff', pull: '#b06bff' };
-const CHARGE = { quake: 'gold', charge: 'gold', heal: 'cyan', rockfall: 'gold', summon: 'cyan', push: 'cyan', pull: 'pink' };
-const cells0 = (plan) => plan.cells[0];
 // Rampas (de oscuro a claro) para pixelfx, una por poder.
 const RAMP = {
   quake: ['#2a1a0c', '#5e3a18', '#9c6426', '#d89a3a', '#ffc83d', '#fff0b4', '#ffffff'],
@@ -92,13 +90,13 @@ const RAMP = {
 };
 // Efecto píxel de cada poder: en el jefe (`mid`), donde sale cada pieza movida y donde cae.
 const PFX = {
-  quake: (mid, moved) => [{ sf: 'explosion', at: mid, opts: { s: 1.4, fire: 0, chunks: 18 } }, { pfx: 'groundSlam', at: mid, f: 2.4 }, ...moved.map(({ to }) => ({ pfx: 'heavyLanding', at: [to.row, to.col] }))],
-  charge: (mid, moved, cells) => [{ sf: 'energy', at: mid, opts: { kind: 'beam', to: cells.at(-1) || mid, charge: 0.15, hold: 0.45, width: 9, colors: 'gold' } }, ...moved.map(({ from }) => ({ sf: 'impact', at: [from.row, from.col], opts: { s: 1.3, angle: Math.PI / 2 } })), { pfx: 'groundSlam', at: mid, f: 1.8 }, ...moved.map(({ from }) => ({ pfx: 'bluntHit', at: [from.row, from.col], f: 1.2 }))],
-  heal: (mid) => [{ sf: 'heal', at: mid, opts: { count: 22 } }, { pfx: 'collectBurst', at: mid, f: 2 }],
-  rockfall: (mid, moved, cells) => [{ sf: 'explosion', at: cells[0] || mid, opts: { s: 1.1, fire: 0 } }, ...cells.map((c) => ({ pfx: 'heavyLanding', at: c, f: 1.2 }))],
-  summon: (mid, moved, cells) => [...cells.slice(0, 1).map((c) => ({ sf: 'holy-light', at: c, opts: { hold: 0.5, width: 8 } })), { pfx: 'poof', at: mid, f: 1.6 }, ...cells.slice(0, 1).map((c) => ({ pfx: 'poof', at: c, f: 1.2 }))],
-  push: (mid, moved) => [...moved.map(({ from }) => ({ sf: 'energy', at: mid, opts: { kind: 'bolt', to: [from.row, from.col], colors: 'cyan' } })), ...moved.map(({ from }) => ({ sf: 'impact', at: [from.row, from.col], opts: { s: 1.2 } })), { pfx: 'groundSlam', at: mid, f: 1.6 }, ...moved.map(({ from }) => ({ pfx: 'bluntHit', at: [from.row, from.col] }))],
-  pull: (mid, moved) => [{ sf: 'black-hole', at: mid, opts: { r: 0.28, life: 1.1, pull: 0.6 } }, { pfx: 'collectBurst', at: mid, f: 2.4 }, ...moved.map(({ from, to }) => [{ pfx: 'poof', at: [from.row, from.col] }, { pfx: 'hitSpark', at: [to.row, to.col] }]).flat()],
+  quake: (mid, moved) => [{ pfx: 'groundSlam', at: mid, f: 2.4 }, ...moved.map(({ to }) => ({ pfx: 'heavyLanding', at: [to.row, to.col] }))],
+  charge: (mid, moved) => [{ pfx: 'groundSlam', at: mid, f: 1.8 }, ...moved.map(({ from }) => ({ pfx: 'bluntHit', at: [from.row, from.col], f: 1.2 }))],
+  heal: (mid) => [{ pfx: 'collectBurst', at: mid, f: 2 }],
+  rockfall: (mid, moved, cells) => cells.map((c) => ({ pfx: 'heavyLanding', at: c, f: 1.2 })),
+  summon: (mid, moved, cells) => [{ pfx: 'poof', at: mid, f: 1.6 }, ...cells.slice(0, 1).map((c) => ({ pfx: 'poof', at: c, f: 1.2 }))],
+  push: (mid, moved) => [{ pfx: 'groundSlam', at: mid, f: 1.6 }, ...moved.map(({ from }) => ({ pfx: 'bluntHit', at: [from.row, from.col] }))],
+  pull: (mid, moved) => [{ pfx: 'collectBurst', at: mid, f: 2.4 }, ...moved.map(({ to }) => ({ pfx: 'hitSpark', at: [to.row, to.col] }))],
 };
 
 export function bossPower(m, mover) {
@@ -112,18 +110,11 @@ export function bossPower(m, mover) {
     out.fx.push({ doom: [] });
     // `core`: centro exacto del jefe (puede caer entre casillas) para los efectos píxel.
     const core = [b.row + (b.h - 1) / 2, b.col + (b.w - 1) / 2];
-    const mid = [Math.round(b.row + (b.h - 1) / 2), Math.round(b.col + (b.w - 1) / 2)];
-    out.fx.push({ bossCut: b.id, title: b.name, sub: def.powerName, color: POWER_COLOR[def.power] }, { stamp: plan.cells, color: POWER_COLOR[def.power] });
-    out.fx.push({ transform: b.id, label: def.powerName, color: POWER_COLOR[def.power] });
+    // Pocas capas para que se lea: efecto píxel del poder y rastro de lo que se mueve.
     DO[def.power](m, b, plan.cells, out, plan);
-    // Rastro de cada pieza que el poder desplaza (atraída, empujada…), antes de que se mueva.
     const trails = out.moved.map(({ from, to }) => ({ trail: [[from.row, from.col], [to.row, to.col]], color: POWER_COLOR[def.power] }));
-    if (trails.length) out.fx.splice(4, 0, def.power === 'pull' || def.power === 'quake' ? { ring: mid, color: POWER_COLOR[def.power], size: 2.4 } : {}, ...trails, { wait: 260 });
-    out.fx.splice(4, 0, ...PFX[def.power](core, out.moved, plan.cells).map((e) => ({ ...e, palette: RAMP[def.power] })));
-    // Anticipación (game-feel, Charge Attack): el jefe junta energía antes de soltar el poder.
-    out.fx.splice(4, 0, { sf: 'energy', at: core, opts: { kind: 'charge', charge: 0.55, colors: CHARGE[def.power] } }, { wait: 520 });
-    if (def.power === 'summon' && cells0(plan)) out.fx.push({ beam: [mid, cells0(plan)], color: POWER_COLOR.summon });
-    if (def.power === 'heal') out.fx.push({ sparkle: mid, color: POWER_COLOR.heal });
+    const pfx = PFX[def.power](core, out.moved, plan.cells).map((e) => ({ ...e, palette: RAMP[def.power] }));
+    out.fx.splice(1, 0, ...pfx, ...trails, ...(trails.length ? [{ wait: 260 }] : []));
     out.log = def.powerName;
     return out;
   }
