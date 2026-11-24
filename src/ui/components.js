@@ -194,7 +194,9 @@ export function BossCard({ boss, unlocked }) {
 export function useEnter(ref, selector = '[data-enter]') {
   useEffect(() => {
     const els = ref.current?.querySelectorAll(selector);
-    if (els?.length) motion(els, { opacity: [0, 1], y: [24, 0] }, { duration: 0.5, delay: motionStagger(0.06), ease: [0.22, 1, 0.36, 1] });
+    // Al terminar se borra el transform: si no, algunos navegadores dejan restos pintados (botones repetidos en la tienda).
+    if (els?.length) motion(els, { opacity: [0, 1], y: [24, 0] }, { duration: 0.5, delay: motionStagger(0.06), ease: [0.22, 1, 0.36, 1] })
+      .then(() => els.forEach((el) => { el.style.transform = ''; el.style.opacity = ''; }));
   }, []);
 }
 
