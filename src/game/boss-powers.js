@@ -79,15 +79,15 @@ const DO = {
 
 const POWER_COLOR = { quake: '#ffc83d', charge: '#ff6b3d', heal: '#7dffb0', rockfall: '#c9a07a', summon: '#29e3ff', push: '#9fd0ff', pull: '#b06bff' };
 // Una sola seña por poder (pixelfx y Sprite Fusion, de vendor/), que cuente lo que hace:
-// pisotón al suelo · rayo en línea · remolino que atrae · luz de curación · rocas que caen · luz donde aparece · golpe en lo empujado.
+// pisotón al suelo · rayo en línea · remolino que atrae · luz de curación · rocas que caen · golpe en lo empujado.
 const SIGN = {
   quake: (mid) => [{ pfx: 'groundSlam', at: mid, f: 2.4 }],
   charge: (mid, cells) => [{ sf: 'energy', at: mid, opts: { kind: 'beam', to: cells.at(-1) || mid, charge: 0.15, hold: 0.45, width: 9, colors: 'gold' } }],
-  pull: (mid) => [{ sf: 'black-hole', at: mid, opts: { r: 0.28, life: 1.1, pull: 0.6 } }],
+  pull: (mid) => [{ sf: 'black-hole', at: mid, opts: { r: 0.6, life: 1.2, pull: 0.8 } }],
   heal: (mid) => [{ sf: 'heal', at: mid, opts: { count: 22 } }],
   rockfall: (mid, cells) => cells.map((c) => ({ pfx: 'heavyLanding', at: c, f: 1.2 })),
-  summon: (mid, cells) => cells.slice(0, 1).map((c) => ({ sf: 'holy-light', at: c, opts: { hold: 0.5, width: 8 } })),
-  push: (mid, cells, moved) => moved.map(({ from }) => ({ pfx: 'bluntHit', at: [from.row, from.col] })),
+  summon: () => [], // la pieza que aparece ya trae su luz
+  push: (mid, cells, moved) => moved.map(({ from }) => ({ sf: 'impact', at: [from.row, from.col], opts: { s: 1.3 } })),
 };
 
 export function bossPower(m, mover) {
