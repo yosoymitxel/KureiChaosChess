@@ -854,7 +854,7 @@ export class BoardView {
     playSfx(piece.boss ? 'stomp' : victims.length ? 'capture' : 'move');
     this.squash(piece, piece.boss ? 0.6 : 0.78);
     this.fx.dust(c.x, c.y, piece.boss ? 2 : 0.8);
-    if (piece.boss) { this.shake(14, 450); this.fx.ring(c.x, c.y, { radius: this.sq * 2.4, width: 5 }); }
+    if (piece.boss) this.shake(14, 450);
     this.onImpact?.(res);
     if (victims.length) await this.hitStop(victims, victims.some((v) => v.piece.royal) || victims.length > 1 ? 160 : 70);
     await Promise.all(victims.map((v) => this.kill(v.piece, from, to)));
