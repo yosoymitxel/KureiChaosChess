@@ -1,6 +1,20 @@
 {
   "version": 2,
   "skills": {
+    "earshot": {
+      "source": "Leonxlnx/earshot",
+      "commit": "7a7f7c5c70d4a763a1eca4b3666af7c77e313f97",
+      "sourceType": "github",
+      "skillPath": "skills/earshot/SKILL.md",
+      "computedHash": "4ce67786e15c6018bd50254c159494d6d70c6b051177fc4b4f9aadd5390872d7"
+    },
+    "real-sound": {
+      "source": "Leonxlnx/earshot",
+      "commit": "7a7f7c5c70d4a763a1eca4b3666af7c77e313f97",
+      "sourceType": "github",
+      "skillPath": "skills/real-sound/SKILL.md",
+      "computedHash": "0caed483c0c11a7b3dcc7e449d2856a1845a9ea13251f2708ff0e9c4397045fb"
+    },
     "vector-illustration": {
       "source": "syi0808/svg-skills",
       "commit": "c5937c2bed48aff98c12cda43ccba2ed6f2880f0",
