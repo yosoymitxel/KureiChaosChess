@@ -18,16 +18,16 @@ warp <- digital-audio/phaseJump1.ogg | alt: sci-fi-sounds/forceField_000.ogg
 laser <- sci-fi-sounds/laserSmall_000.ogg | alt: sci-fi-sounds/laserRetro_002.ogg
 zombie <- oga-zombies-sound-pack/zombie-5.m4a | alt: oga-zombies-sound-pack/zombie-24.m4a
 water <- freesound.org/s/532890 "Watering with a Watering Can" by Bricklover (CC0), 1,4 s desde el segundo 3
-snip <- rpg-audio/knifeSlice2.ogg | alt: oga-100-cc0-sfx/tools-02.m4a
+snip <- earshot (Leonxlnx/earshot, MIT): "scissors cutting a stem" → scissors/cut
 dig <- oga-25-cc0-mud-sfx/mud-08.m4a | alt: impact-sounds/footstep_snow_001.ogg
 splash <- oga-40-cc0-water-splash-slime-sfx/splash-10.m4a | alt: oga-40-cc0-water-splash-slime-sfx/splash-02.m4a
-leaf <- oga-20-rustles-dry-leaves/rustle10.m4a | alt: oga-20-rustles-dry-leaves/rustle09.m4a
+leaf <- earshot (Leonxlnx/earshot, MIT): step/leaves, hojas secas
 promote <- ninja-adventure/Bonus__PowerUp1.wav | alt: music-jingles/jingles-hit_00.ogg
 card <- casino-audio/card-place-1.ogg | alt: casino-audio/card-slide-4.ogg
 win <- ninja-adventure/Jingles__Success3.wav | alt: music-jingles/jingles-steel_16.ogg
 lose <- ninja-adventure/Jingles__GameOver4.wav | alt: ninja-adventure/Jingles__GameOver3.wav
 coin <- oga-rpg-sound-pack/coin3.m4a | alt: rpg-audio/handleCoins2.ogg
-flower <- ninja-adventure/Magic-Skill__Heal.wav | alt: interface-sounds/maximize_007.ogg
+flower <- earshot (Leonxlnx/earshot, MIT): "a soft magical chime as a flower blooms" → magic/cast
 tap <- ui-audio/click3.ogg | alt: interface-sounds/click_001.ogg
 achievement <- ninja-adventure/Jingles__LevelUp1.wav | alt: ninja-adventure/Bonus__Bonus.wav
 mini_win <- music-jingles/jingles-hit_06.ogg | alt: ninja-adventure/Jingles__Success1.wav
