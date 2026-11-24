@@ -82,19 +82,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
       <div class="shop-main">
         <p class="mini-help">${t('shop.help', 'Cada flor del Jardín Zen paga de {a} a {b} monedas y cada victoria de la travesía deja de {c} a {d}. Aquí se cambian por cartas, mesas y semillas.', { a: SEEDS.romero.pays, b: SEEDS.lavanda.pays, c: COINS_PER_NODE.normal, d: COINS_PER_NODE.boss })}</p>
 
-        <section class="panel shop-card shop-pane-hand" data-enter>
-          <h2>${run ? t('shop.yourHand', 'Tu mano en la run') : t('shop.nextRun', 'Para la próxima run')}</h2>
-          ${run
-            ? html`<p class="shop-note">${t('shop.handNote', 'Máximo {n} cartas: si la mano está llena, al comprar eliges cuál sale. Las compradas llevan la moneda en la esquina.', { n: HAND_LIMIT })}</p>
-              <div class="shop-hand">
-                ${hand.map((id, i) => html`<div class="hand-card" key=${id + '-' + i}><${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini shop=${isShopCard(run, i)} /></div>`)}
-              </div>`
-            : html`<p class="shop-note">${pending.length ? t('shop.pending', 'Tus compras esperan aquí y entran al empezar una run ({n} de {max}).', { n: pending.length, max: PENDING_LIMIT }) : t('shop.noRun', 'Sin run en curso: lo que compres queda apartado para la próxima.')}</p>
-              ${pending.length > 0 && html`<div class="shop-hand">
-                ${pending.map((id, i) => html`<div class="hand-card" key=${id + '-' + i}><${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini shop /></div>`)}
-              </div>`}`}
-        </section>
-
+        <div class="shop-col">
         <section class="panel shop-card shop-pane-cards" data-enter>
           <h2>${t('shop.cards', 'Cartas tácticas')}</h2>
           ${seen.size < CARD_LIST.length && html`<p class="shop-note">${t('shop.cardsLocked', 'Faltan {n} cartas por descubrir: aparecen aquí cuando las ves en la travesía.', { n: CARD_LIST.length - seen.size })}</p>`}
@@ -110,6 +98,35 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
               <button class="btn sm" disabled=${!can} title=${packed ? t('shop.packed', 'El sobre ya tiene {n} cartas', { n: PENDING_LIMIT }) : can ? '' : t('zen.noCoins', 'Faltan monedas.')} onClick=${() => buyCard(c)}>${t('shop.buy', 'Comprar')}</button>
             </div>`;
           })}
+        </section>
+
+        <section class="panel shop-card shop-pane-mesas" data-enter>
+          <h2>${t('shop.tables', 'Mesas')}</h2>
+          <p class="shop-note">${t('shop.tablesNote', 'Cada mesa con su pieza: las de arte píxel cambian también los sonidos. La comprada queda puesta.')}</p>
+          <div class="theme-grid">
+            ${Object.keys(THEME_SHOP).map((id) => {
+              const th = THEMES[id], owned = themeOwned(id), on = settings.theme === id;
+              return html`<button class=${'theme' + (on ? ' on' : '') + (owned ? ' owned' : '')} aria-pressed=${on} aria-label=${th.name}
+                disabled=${!owned && shop.coins < THEME_SHOP[id]} title=${owned ? th.name : t('shop.themePrice', 'Se compra por {n} monedas', { n: THEME_SHOP[id] })} onClick=${() => tapTheme(id)}>
+                <${ThemeLook} t=${th} />
+                ${owned ? (on ? t('shop.inUse', 'En uso') : t('shop.use', 'Usar')) : html`<span class="price"><${Icon} name="coin" size=${13} />${THEME_SHOP[id]}</span>`}
+              </button>`;
+            })}
+          </div>
+        </section>
+        </div>
+        <div class="shop-col">
+        <section class="panel shop-card shop-pane-hand" data-enter>
+          <h2>${run ? t('shop.yourHand', 'Tu mano en la run') : t('shop.nextRun', 'Para la próxima run')}</h2>
+          ${run
+            ? html`<p class="shop-note">${t('shop.handNote', 'Máximo {n} cartas: si la mano está llena, al comprar eliges cuál sale. Las compradas llevan la moneda en la esquina.', { n: HAND_LIMIT })}</p>
+              <div class="shop-hand">
+                ${hand.map((id, i) => html`<div class="hand-card" key=${id + '-' + i}><${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini shop=${isShopCard(run, i)} /></div>`)}
+              </div>`
+            : html`<p class="shop-note">${pending.length ? t('shop.pending', 'Tus compras esperan aquí y entran al empezar una run ({n} de {max}).', { n: pending.length, max: PENDING_LIMIT }) : t('shop.noRun', 'Sin run en curso: lo que compres queda apartado para la próxima.')}</p>
+              ${pending.length > 0 && html`<div class="shop-hand">
+                ${pending.map((id, i) => html`<div class="hand-card" key=${id + '-' + i}><${CardFace} card=${{ ...CARDS[id], kind: 'tactic' }} mini shop /></div>`)}
+              </div>`}`}
         </section>
 
         <section class="panel shop-card shop-pane-seeds" data-enter>
@@ -136,7 +153,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
           })}
         </section>
 
-        <section class="panel shop-card shop-pane-seeds" data-enter>
+        <section class="panel shop-card shop-pane-water" data-enter>
           <h2>${t('shop.water', 'Jardín de Agua')}</h2>
           <p class="shop-note">${t('shop.waterNote', 'Plantas para la orilla del estanque (crecen solas) y barquitos para manejar y correr.')}</p>
           ${Object.values(WATER_PLANTS).map((p) => {
@@ -159,21 +176,7 @@ export function ShopScreen({ run, setRun, settings, setSettings, onBack }) {
             </div>`;
           })}
         </section>
-
-        <section class="panel shop-card shop-pane-mesas" data-enter>
-          <h2>${t('shop.tables', 'Mesas')}</h2>
-          <p class="shop-note">${t('shop.tablesNote', 'Cada mesa con su pieza: las de arte píxel cambian también los sonidos. La comprada queda puesta.')}</p>
-          <div class="theme-grid">
-            ${Object.keys(THEME_SHOP).map((id) => {
-              const th = THEMES[id], owned = themeOwned(id), on = settings.theme === id;
-              return html`<button class=${'theme' + (on ? ' on' : '') + (owned ? ' owned' : '')} aria-pressed=${on} aria-label=${th.name}
-                disabled=${!owned && shop.coins < THEME_SHOP[id]} title=${owned ? th.name : t('shop.themePrice', 'Se compra por {n} monedas', { n: THEME_SHOP[id] })} onClick=${() => tapTheme(id)}>
-                <${ThemeLook} t=${th} />
-                ${owned ? (on ? t('shop.inUse', 'En uso') : t('shop.use', 'Usar')) : html`<span class="price"><${Icon} name="coin" size=${13} />${THEME_SHOP[id]}</span>`}
-              </button>`;
-            })}
-          </div>
-        </section>
+        </div>
       </div>
     </div>
   </div>`;
