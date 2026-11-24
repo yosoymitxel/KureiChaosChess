@@ -19,7 +19,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = t('common.conti
 
   useEffect(() => {
     if (s.phase !== 'fight' || s.over) return;
-    const id = setInterval(() => { if (miniHeld()) return; act(() => step(s)); if (s.over || s.phase !== 'fight') clearInterval(id); }, 900);
+    const id = setInterval(() => { if (miniHeld()) return; act(() => step(s)); if (s.phase === 'between') playSfx('coin'); if (s.over || s.phase !== 'fight') clearInterval(id); }, 900);
     return () => clearInterval(id);
   }, [s.phase, s.wave]);
 
@@ -44,7 +44,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = t('common.conti
     <div class="mini-body side-body">
       <div class="mini-main">
         <${MiniBoard} weather=${TIED_WEATHER.laststand} board=${s.board} pieces=${zombies(s.pieces)} marks=${marks} strikes=${s.captures} disabled=${!building(s)} label=${t('laststand.board', 'Tablero de Última resistencia')} hostRef=${host}
-          onTap=${(r, c) => (canPlace(s, pick, r, c) ? act(() => place(s, pick, r, c)) : playSfx('invalid'))} />
+          onTap=${(r, c) => (canPlace(s, pick, r, c) ? (playSfx('coin', 0.9), act(() => place(s, pick, r, c))) : playSfx('invalid'))} />
         <div class="mini-side">
           ${!s.over && html`<div class="mini-stats" aria-live="polite">
             ${building(s) && html`<span class="coin-chip" title=${t('laststand.budget', 'Presupuesto')}><${Icon} name="coin" size=${16} /><b>${s.budget}</b></span>`}
@@ -56,7 +56,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = t('common.conti
           ${s.over ? html`<${MiniEnd} win=${s.over === 'win'} note=${s.over === 'win' ? t('laststand.won', 'Aguantaste las {n} oleadas y la gran horda sin ceder la línea.', { n: s.diff.waves }) : t('laststand.lost', 'El carmesí se abrió paso en la oleada {n}.', { n: s.wave })} label=${endLabel} onEnd=${() => onEnd(s.over === 'win')} />`
             : building(s) && html`<div class="bm-actions" data-pad="l1 r1" role="group" aria-label=${t('mini.pieceToPlace', 'Pieza a colocar')}>
               ${Object.entries(PRICES).map(([ty, cost]) => html`<button class=${'btn sm' + (pick === ty ? ' on' : ' ghost')} aria-pressed=${pick === ty} aria-label=${`${PIECE_NAMES[ty]}: ` + tp('game.coins', cost, '{n} moneda', '{n} monedas')}
-                disabled=${cost > s.budget} title=${PIECE_NAMES[ty]} onClick=${() => setPick(ty)}><${PieceIcon} type=${ty} side="light" size=${22} />${cost}</button>`)}
+                disabled=${cost > s.budget} title=${PIECE_NAMES[ty]} onClick=${() => { playSfx('select'); setPick(ty); }}><${PieceIcon} type=${ty} side="light" size=${22} />${cost}</button>`)}
             </div>
             <button class="btn primary" data-pad="x" disabled=${!s.pieces.length} onClick=${launch}>${s.phase === 'setup' ? t('laststand.start', 'Empezar el asalto') : last ? t('laststand.bringHorde', '¡Que venga la horda!') : t('laststand.next', 'Siguiente oleada')}</button>`}
           <${MiniTools} mini="laststand" diffs=${DIFFS} fixed=${diff} settings=${settings} setSettings=${setSettings} onRestart=${onRestart}>${t('laststand.help', 'Compra piezas tocando las tres filas de abajo y empieza el asalto. El carmesí ataca en {waves} oleadas; la última es una gran horda. Entre oleadas cobras {bonus} monedas y puedes reforzar con lo que tengas. Si un atacante no puede avanzar, se come la pieza que le tapa el paso: aguanta sin ceder la línea.', { waves: s.diff.waves, bonus: s.diff.bonus })}<//>

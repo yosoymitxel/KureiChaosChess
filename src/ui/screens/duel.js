@@ -59,7 +59,7 @@ export function DuelScreen({ sub, onBack, onEnd, endLabel = t('common.continue',
     if (!el || !arena.current) return;
     const f = (fx.current ||= new Fx(arena.current)), at = f.pointOf(el, 0.45), c = typeColor(type);
     f.burst(at.x, at.y, { count: crit ? 26 : 14, color: [c, '#fff'], speed: [80, crit ? 340 : 220], size: [2, crit ? 5 : 3.5], life: [0.2, 0.5], shape: type === 'linea' ? 'spark' : 'chunk', drag: 0.88 });
-    if (crit) { f.ring(at.x, at.y, { color: c, radius: 70, width: 4 }); motion(arena.current, { x: [0, -8, 7, -4, 0], y: [0, 4, -5, 2, 0] }, { duration: 0.32 }); }
+    if (crit) { f.ring(at.x, at.y, { color: c, radius: 70, width: 4 }); if (settings.shake) motion(arena.current, { x: [0, -8, 7, -4, 0], y: [0, 4, -5, 2, 0] }, { duration: 0.32 }); }
   };
 
   // Cuenta y anima cada evento del turno en orden: embestida, destello, número y frase.
@@ -122,7 +122,7 @@ export function DuelScreen({ sub, onBack, onEnd, endLabel = t('common.continue',
               ${FIGHTERS[me.type].moves.map((id) => {
                 const m = MOVES[id], e = m.power ? effect(m, foe) : 1;
                 const used = m.heal && !me.heals;
-                return html`<button class=${'du-move t-' + m.type} disabled=${used} onClick=${() => use(id)}>
+                return html`<button class=${'du-move t-' + m.type} disabled=${used || busy.current} onClick=${() => use(id)}>
                   <b>${m.name}</b>
                   <small>${m.power ? t('duel.power', 'Poder {p} · {acc} %', { p: m.power, acc: Math.round(m.acc * 100) }) + (e > 1 ? ' · ' + t('duel.eff', 'eficaz') : e < 1 ? ' · ' + t('duel.lowEff', 'poco eficaz') : '') : m.desc}${m.heal ? ' ' + tp('duel.uses', me.heals, '({n} uso)', '({n} usos)') : ''}${m.pierce || m.recoil ? ' · ' + m.desc : ''}</small>
                 </button>`;

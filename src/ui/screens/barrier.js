@@ -78,6 +78,7 @@ export function BarrierScreen({ sub, onBack, onEnd, endLabel = t('common.continu
     const onKey = (e) => {
       if (!KEYS[e.key]) return;
       e.preventDefault();
+      if (e.repeat) return; // mantener la flecha no gasta turnos ni encadena avisos
       // Hacia el rival pegado, la flecha salta (recto si se puede; si no, la primera diagonal).
       const [dr, dc] = KEYS[e.key], m = steps(s, 'light').find((x) => x.dr === dr && x.dc === dc);
       if (m) play({ move: { r: m.r, c: m.c } });

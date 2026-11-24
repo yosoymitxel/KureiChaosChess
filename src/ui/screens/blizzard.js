@@ -45,7 +45,7 @@ export function BlizzardScreen({ sub, onBack, onEnd, endLabel = t('common.contin
     go(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : 3) : dy > 0 ? 2 : 0);
   };
   useEffect(() => {
-    const onKey = (e) => { const d = KEYS[e.key.toLowerCase()]; if (d != null && !e.target.closest?.('.overlay')) { e.preventDefault(); go(d); } };
+    const onKey = (e) => { const d = KEYS[e.key.toLowerCase()]; if (d != null && !e.target.closest?.('.overlay')) { e.preventDefault(); if (!e.repeat) go(d); } };
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
   });
