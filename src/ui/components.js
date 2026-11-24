@@ -86,7 +86,7 @@ export function TurnClock({ secs, run, paused, onTimeout }) {
 export function MiniEnd({ win, title, note, label = t('common.continue', 'Continuar'), onEnd }) {
   useEffect(() => { playSfx(win ? 'mini_win' : 'mini_lose'); }, []);
   return html`<div class="overlay"><div class=${'mini-end ' + (win ? 'win' : 'lose')} role="status">
-    <p class="mini-end-title">${title ?? (win ? t('common.win', '¡Victoria!') : t('common.lose', 'Derrota'))}</p>
+    <div class="mini-end-band"><${Icon} name=${win ? 'trophy' : 'skull'} size=${40} /><p class="mini-end-title">${title ?? (win ? t('common.win', '¡Victoria!') : t('common.lose', 'Derrota'))}</p></div>
     ${note && html`<p class="mini-end-note">${note}</p>`}
     <button class="btn primary" onClick=${() => onEnd()}>${label}</button>
   </div></div>`;
@@ -110,6 +110,9 @@ export function MiniDiff({ mini, diffs, fixed, settings, setSettings, onRestart 
     ${Object.keys(diffs).map((id) => html`<button class=${id === value ? 'on' : ''} aria-pressed=${id === value} onClick=${() => pick(id)}>${diffName(diffs, id)}</button>`)}
   </div>`;
 }
+
+// Con las instrucciones, la intro u otra hoja abierta, el minijuego en tiempo real no avanza.
+export const miniHeld = () => !!document.querySelector('.overlay, .moment');
 
 // Ayuda y nivel del minijuego en un solo botón: abre una hoja encima del juego con cómo se juega
 // y el nivel (elegible en partida libre). La primera vez que se entra a cada minijuego se abre sola,

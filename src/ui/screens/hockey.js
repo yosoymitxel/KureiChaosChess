@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, miniHeld, MiniEnd, MiniTools } from '../components.js';
 import { reduced } from '../hop.js';
 import { Fx } from '../../view/fx.js';
 import { playSfx } from '../sfx.js';
@@ -99,6 +99,7 @@ export function HockeyScreen({ sub, onBack, onEnd, endLabel = t('common.continue
     const frame = (now) => {
       const dt = Math.min((now - last) / 1000, 1 / 20);
       last = now;
+      if (miniHeld()) { raf = requestAnimationFrame(frame); return; }
       if (keys.current.size && !s.over) {
         const push = { me: [0, 0], bot: [0, 0] };
         for (const key of keys.current) { const v = push[duo && TOP_KEYS.has(key) ? 'bot' : 'me']; v[0] += KEYS[key][0]; v[1] += KEYS[key][1]; }

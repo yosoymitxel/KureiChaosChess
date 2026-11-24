@@ -1,5 +1,5 @@
 import { html, useState, useEffect } from '../lib.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, miniHeld, MiniEnd, MiniTools } from '../components.js';
 import { MiniBoard } from '../mini-board.js';
 import { key } from '../../game/rules.js';
 import { DIFFS, newQueens, toggle, clashing } from '../../game/queens.js';
@@ -20,7 +20,7 @@ export function QueensScreen({ sub, onBack, onEnd, endLabel = t('common.continue
   };
 
   useEffect(() => {
-    const id = setInterval(() => setTime((t) => {
+    const id = setInterval(() => !miniHeld() && setTime((t) => {
       if (s.over) { clearInterval(id); return t; }
       if (t <= 1) { s.over = 'lose'; clearInterval(id); return 0; }
       if (t <= 11) playSfx('tick');

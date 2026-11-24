@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, miniHeld, MiniEnd, MiniTools } from '../components.js';
 import { Icon, PieceIcon } from '../icons.js';
 import { PIECE_NAMES } from '../../data/pieces.js';
 import { TIED_WEATHER } from '../../data/weather.js';
@@ -19,7 +19,7 @@ export function LastStandScreen({ sub, onBack, onEnd, endLabel = t('common.conti
 
   useEffect(() => {
     if (s.phase !== 'fight' || s.over) return;
-    const id = setInterval(() => { act(() => step(s)); if (s.over || s.phase !== 'fight') clearInterval(id); }, 900);
+    const id = setInterval(() => { if (miniHeld()) return; act(() => step(s)); if (s.over || s.phase !== 'fight') clearInterval(id); }, 900);
     return () => clearInterval(id);
   }, [s.phase, s.wave]);
 
