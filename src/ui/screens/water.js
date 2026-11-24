@@ -1,6 +1,6 @@
 // Jardín de Agua: un estanque entero. Plantas acuáticas en las plazas de la orilla, koi y barquitos que
 // se manejan como teledirigidos en el centro; abajo, la carrera de barquitos.
-import { html, useState, useEffect, useRef, motion } from '../lib.js';
+import { html, useState, useEffect, useLayoutEffect, useRef, motion } from '../lib.js';
 import { Topbar, useEnter } from '../components.js';
 import { Icon } from '../icons.js';
 import { Pond, runPond } from '../../view/pond.js';
@@ -41,16 +41,21 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop, shake = true }) 
   drivingRef.current = driving;
   const apply = (n) => { saveWater(n); setW(n); };
   // Entrar o salir de manejar rearma la pantalla: el estanque se desliza de su sitio viejo al nuevo
-  // (FLIP) en vez del salto seco.
+  // (FLIP). Se mide antes del cambio y se corrige antes de pintar (layout effect): sin salto.
+  const flip = useRef(null);
   const steer = (v) => {
-    const el = ref.current?.querySelector('.wt-pond'), from = el?.getBoundingClientRect();
+    if (v !== drivingRef.current && !reduced()) flip.current = ref.current?.querySelector('.wt-pond')?.getBoundingClientRect();
     setDriving(v);
-    if (!from || v === drivingRef.current || reduced()) return;
-    requestAnimationFrame(() => {
-      const to = el.getBoundingClientRect();
-      motion(el, { x: [from.left - to.left, 0], y: [from.top - to.top, 0] }, { duration: 0.45, ease: [0.22, 1, 0.36, 1] });
-    });
   };
+  useLayoutEffect(() => {
+    const from = flip.current, el = ref.current?.querySelector('.wt-pond');
+    flip.current = null;
+    if (!from || !el) return;
+    const to = el.getBoundingClientRect(), dx = from.left - to.left, dy = from.top - to.top;
+    if (Math.abs(dx) + Math.abs(dy) < 1) return;
+    el.style.transform = `translate(${dx}px, ${dy}px)`; // ya en este cuadro: motion arranca en el siguiente
+    motion(el, { x: [dx, 0], y: [dy, 0] }, { duration: 0.4, ease: [0.22, 1, 0.36, 1] });
+  }, [driving]);
   const release = () => { steer(null); setZoom(false); };
   useRcKeys(rc, driving != null, release);
 
