@@ -22,7 +22,7 @@ const KINDS = Object.keys(WATER_PLANTS);
 const MASS = { papel: 0.6, balsa: 2, velero: 1.4, lancha: 1.6 };
 const mins = (ms) => Math.max(1, Math.ceil(ms / 60_000));
 
-export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
+export function WaterScreen({ onBack, onGarden, onRace, onShop, shake = true }) {
   const ref = useRef(null), cvRef = useRef(null), pondRef = useRef(null);
   useEnter(ref);
   const [w, setW] = useState(loadWater);
@@ -49,13 +49,23 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop }) {
     const inside = (x, y) => water(x, y) && !plantedRef.current.some(([px, py]) => Math.hypot(px - x, py - y) < 3.5);
     const pond = pondRef.current = new Pond(cvRef.current, { size: [S, S], inside: water, count: 5, len: 7.5, speed: 3.2, pads: [[34, 50, 2.2], [56, 34, 1.8], [62, 60, 2]], duckweed: 20 });
     pond.decor = gardenDecor(S);
+    pond.shakeOn = shake;
     pond.onStep = (dt) => {
       const inp = rc.current, rot = pond.view?.rot || 0, mine = inp?.aim != null ? { ...inp, aim: inp.aim - rot } : inp;
-      pond.boats.forEach((b, i) => { b.sel = i === drivingRef.current; if (drive(b, b.sel ? mine : null, dt, inside) > 4) { playSfx('tap', 0.7); pond.ripple(b.x, b.y, 0.5); } });
-      // Entre barcos: se empujan según su peso (la balsa pesa más que el papel).
+      // Golpes: más fuertes, más graves, con más onda y sacudida (solo si va el que manejas).
+      pond.boats.forEach((b, i) => {
+        b.sel = i === drivingRef.current;
+        const hit = drive(b, b.sel ? mine : null, dt, inside), f = Math.min(1, hit / 15);
+        if (hit > 2.5) { playSfx(f > 0.4 ? 'hit' : 'tap', 0.9 - 0.3 * f); pond.ripple(b.x, b.y, 0.4 + 0.7 * f); if (b.sel) pond.kick(0.3 + 1.2 * f); }
+      });
+      // Entre barcos: se empujan según su peso (la balsa pesa más que el papel); la marcha sigue al empujón.
       for (let a = 0; a < pond.boats.length; a++) for (let c = a + 1; c < pond.boats.length; c++) {
-        const A = pond.boats[a], B = pond.boats[c], hit = bump(A, B, 6.4, 0.5, MASS[A.kind], MASS[B.kind]);
-        if (hit > 2) { playSfx('hit', 0.6 + Math.min(0.6, hit / 20)); pond.ripple((A.x + B.x) / 2, (A.y + B.y) / 2, 0.7); A.v *= 0.6; B.v *= 0.6; }
+        const A = pond.boats[a], B = pond.boats[c], hit = bump(A, B, 6.4, 0.5, MASS[A.kind], MASS[B.kind]), f = Math.min(1, hit / 15);
+        if (hit > 2) {
+          playSfx('hit', 1.1 - 0.4 * f); pond.ripple((A.x + B.x) / 2, (A.y + B.y) / 2, 0.5 + 0.7 * f);
+          if (A.sel || B.sel) pond.kick(0.4 + 1.2 * f);
+          for (const X of [A, B]) X.v = X.vx * Math.cos(X.h) + X.vy * Math.sin(X.h);
+        }
       }
       const me = pond.boats[drivingRef.current];
       if (me || pond.view) pond.follow(me || { x: S / 2, y: S / 2, h: -Math.PI / 2 }, !!me && zoomRef.current, dt);

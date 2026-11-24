@@ -217,7 +217,7 @@ export function step(s, dt, input) {
     if (i && !r.cd && (s.diff.nitro || behind(s, r))) nitro(s, i);
     const w = slowed(s, r) * (r.boost ? NITRO.boost : 1);
     const hit = drive(r, i ? bot(s, r) : input, dt, s.track.inside, r.scale * w);
-    if (hit > 4 && !i) s.events.push({ kind: 'shore', x: r.x, y: r.y });
+    if (hit > 2.5 && !i) s.events.push({ kind: 'shore', x: r.x, y: r.y, power: hit });
     if (slowed(s, r) < 1 && !i && !r.weed) s.events.push({ kind: 'weed', x: r.x, y: r.y });
     r.weed = slowed(s, r) < 1;
     const q = g[r.next % g.length];
@@ -231,7 +231,7 @@ export function step(s, dt, input) {
   const before = s.racers.map((r) => [r.x, r.y]);
   for (let a = 0; a < s.racers.length; a++) for (let b = a + 1; b < s.racers.length; b++) {
     const p = bump(s.racers[a], s.racers[b], R * 2, 0.3);
-    if (p > 3) s.events.push({ kind: 'bump', x: (s.racers[a].x + s.racers[b].x) / 2, y: (s.racers[a].y + s.racers[b].y) / 2, power: p });
+    if (p > 3) s.events.push({ kind: 'bump', x: (s.racers[a].x + s.racers[b].x) / 2, y: (s.racers[a].y + s.racers[b].y) / 2, power: p, me: !a });
   }
   s.racers.forEach((r, i) => {
     if (!s.track.inside(r.x, r.y)) [r.x, r.y] = before[i];

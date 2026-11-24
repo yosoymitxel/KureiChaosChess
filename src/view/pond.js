@@ -67,6 +67,8 @@ export class Pond {
   }
 
   ripple(x, y, k = 1) { this.ripples.push({ x, y, age: 0, k }); if (this.ripples.length > 24) this.ripples.shift(); }
+  // Sacudida de cámara tras un golpe (a: unidades de un estanque de 110 de ancho, a escala); se apaga sola en step().
+  kick(a) { if (this.shakeOn !== false && !matchMedia('(prefers-reduced-motion: reduce)').matches) this.jolt = Math.max(this.jolt || 0, Math.min(1.8, a) * this.W / 110); }
   // Tocar el agua: un aro y unas bolitas de comida que los koi vienen a buscar.
   tap(x, y) {
     this.ripple(x, y, 1.4);
@@ -81,18 +83,20 @@ export class Pond {
     this.school.step(dt, T);
     // Estela de barcos y koi que corren: dos brazos en V que se abren, y una onda de vez en cuando.
     for (const w of this.wake) w.age += dt;
-    this.wake = this.wake.filter((w) => w.age < 1.4);
+    this.wake = this.wake.filter((w) => w.age < 2);
+    this.jolt = (this.jolt || 0) * Math.exp(-dt * 9);
     for (const b of [...this.boats, ...this.school.fish.filter((f) => f.ctl)]) {
       const sp = Math.hypot(b.vx ?? 0, b.vy ?? 0) || Math.abs(b.v || 0);
       if (sp < 1.2) continue;
+      // Más rápido, estela más ancha y viva; con nitro, más densa y con espuma.
       b.wt = (b.wt || 0) + dt;
-      if (b.wt < 0.05) continue;
+      if (b.wt < (b.boost ? 0.03 : 0.05)) continue;
       b.wt = 0;
-      const back = b.fish ? 0 : this.len * 0.3;
-      this.wake.push({ x: b.x - Math.cos(b.h) * back, y: b.y - Math.sin(b.h) * back, h: b.h, age: 0, k: Math.min(1, sp / 10) });
-      if (Math.random() < 0.12) this.ripple(b.x, b.y, 0.25 + 0.25 * Math.min(1, sp / 10));
+      const back = b.fish ? 0 : this.len * 0.3, k = Math.min(1.5, sp / 12) * (b.boost ? 1.4 : 1);
+      this.wake.push({ x: b.x - Math.cos(b.h) * back, y: b.y - Math.sin(b.h) * back, h: b.h, age: 0, k });
+      if (Math.random() < (b.boost ? 0.35 : 0.12)) this.ripple(b.x - Math.cos(b.h) * back, b.y - Math.sin(b.h) * back, 0.25 + 0.25 * Math.min(1.5, k));
     }
-    if (this.wake.length > 160) this.wake.splice(0, this.wake.length - 160);
+    if (this.wake.length > 220) this.wake.splice(0, this.wake.length - 220);
     for (const r of this.ripples) r.age += dt;
     this.ripples = this.ripples.filter((r) => r.age < 2.2);
     for (this.rainAcc += this.rain * dt; this.rainAcc >= 1; this.rainAcc--) { const x = rnd(0, this.W), y = rnd(0, this.H); if (this.inside(x, y)) this.ripple(x, y, rnd(0.5, 0.9)); }
@@ -120,14 +124,18 @@ export class Pond {
   follow(b, on, dt, zoom) {
     // Se ven unas 26 unidades de ancho o 40 de alto, lo que quepa: igual en el teléfono y en el PC.
     zoom ??= Math.max(1.2, Math.min(this.W / 26, (this.vh || this.H) / 40));
-    const c = this.cam ||= { x: b.x, y: b.y, rot: -Math.PI / 2 - b.h, k: 0 }, e = Math.min(1, dt * 5);
+    const c = this.cam ||= { x: b.x, y: b.y, rot: -Math.PI / 2 - b.h, k: 0, z: 1 }, e = Math.min(1, dt * 5);
     c.k += ((on ? 1 : 0) - c.k) * Math.min(1, dt * 4);
+    // Mira un poco por delante de la marcha y se abre con la velocidad (más con nitro); gira algo más
+    // lento que el barco para no marear tras un choque o un trompo.
+    const vx = b.vx || 0, vy = b.vy || 0, sp = Math.hypot(vx, vy);
+    c.z += (1 - 0.14 * Math.min(1, sp / 20) - (b.boost ? 0.1 : 0) - c.z) * Math.min(1, dt * 2.5);
     const d = ((-Math.PI / 2 - b.h - c.rot + Math.PI) % TAU + TAU) % TAU - Math.PI;
-    c.rot += d * e; c.x += (b.x - c.x) * e; c.y += (b.y - c.y) * e;
+    c.rot += d * Math.min(1, dt * 3.5); c.x += (b.x + vx * 0.2 - c.x) * e; c.y += (b.y + vy * 0.2 - c.y) * e;
     if (!on && c.k < 0.01) { this.view = null; this.cam = null; return; }
     const lerp = (a, z) => a + (z - a) * c.k;
     const vh = this.vh || this.H;
-    this.view = { x: lerp(this.W / 2, c.x), y: lerp(vh * 0.62, c.y), zoom: lerp(1, zoom), rot: c.rot * c.k };
+    this.view = { x: lerp(this.W / 2, c.x), y: lerp(vh * 0.62, c.y), zoom: lerp(1, zoom * c.z), rot: c.rot * c.k };
   }
   // De un punto del lienzo (fracciones 0..1 de su caja) al estanque, deshaciendo la cámara.
   toWorld(fx, fy) {
@@ -151,6 +159,7 @@ export class Pond {
     if (target.width !== cw || target.height !== ch) { target.width = cw; target.height = ch; }
     const ctx = target.getContext('2d');
     ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    if (this.jolt > 0.02) { ctx.fillStyle = LAND.grass; ctx.fillRect(0, 0, W, this.vh); ctx.translate(rnd(-1, 1) * this.jolt, rnd(-1, 1) * this.jolt); }
     if (v) { // cámara que sigue a un barco: acercada y girada para que vaya hacia arriba
       ctx.fillStyle = LAND.grass; ctx.fillRect(0, 0, W, this.vh);
       ctx.translate(W / 2, this.vh * 0.62); ctx.rotate(v.rot); ctx.scale(v.zoom, v.zoom); ctx.translate(-v.x, -v.y);
@@ -228,8 +237,8 @@ export class Pond {
     // Estela: cada punto deja dos rayitas que se abren hacia atrás.
     ctx.lineWidth = pixel ? 0.5 : 0.2;
     for (const w of this.wake) {
-      const open = 0.5 + w.age * len * 0.35, a = w.h + Math.PI;
-      ctx.globalAlpha = Math.max(0, 0.6 - w.age * 0.45) * (0.4 + 0.6 * w.k);
+      const open = 0.5 + w.age * len * 0.35 * (0.6 + 0.4 * w.k), a = w.h + Math.PI;
+      ctx.globalAlpha = Math.min(1, Math.max(0, 0.6 - w.age * 0.45 / Math.max(1, w.k)) * (0.4 + 0.6 * w.k));
       for (const side of [-1, 1]) {
         const px = w.x + Math.cos(a + side * 0.5) * open, py = w.y + Math.sin(a + side * 0.5) * open;
         ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + Math.cos(a) * 0.9, py + Math.sin(a) * 0.9); ctx.stroke();
