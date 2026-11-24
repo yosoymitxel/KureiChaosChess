@@ -1083,14 +1083,15 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .shop-main { width: min(1240px, 100%); flex: 1; min-height: 0; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; justify-items: center; align-content: start; }
 .shop-main .shop-card { width: min(480px, 100%); }
 .shop-main .mini-help { margin: 0; }
+/* En angosto las columnas se deshacen: mano, cartas, semillas, agua y mesas, una debajo de otra. */
+.shop-col { display: contents; }
+.shop-pane-hand { order: 1; } .shop-pane-cards { order: 2; } .shop-pane-seeds { order: 3; } .shop-pane-water { order: 4; } .shop-pane-mesas { order: 5; }
 @media (min-width: 900px) {
-  .shop-main { grid-template-columns: minmax(0, 1fr) clamp(300px, 30vw, 380px); justify-items: stretch; grid-template-areas: "cards hand" "cards seeds" "cards water" "mesas water" "help help"; column-gap: clamp(24px, 3.2vw, 48px); }
+  .shop-main { grid-template-columns: minmax(0, 1fr) clamp(300px, 30vw, 380px); justify-items: stretch; align-items: start; grid-template-areas: "left right" "help help"; column-gap: clamp(24px, 3.2vw, 48px); }
   .shop-main .shop-card { width: 100%; }
-  .shop-pane-hand { grid-area: hand; }
-  .shop-pane-cards { grid-area: cards; }
-  .shop-pane-seeds { grid-area: seeds; }
-  .shop-pane-water { grid-area: water; }
-  .shop-pane-mesas { grid-area: mesas; }
+  .shop-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .shop-col:first-of-type { grid-area: left; }
+  .shop-col:last-of-type { grid-area: right; }
   /* Las mesas ya no caben en el carril: van bajo las cartas y la rejilla usa el ancho de la columna. */
   .shop-pane-mesas .theme-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
   .shop-main .mini-help { grid-area: help; width: 100%; max-width: none; padding-top: 14px; border-top: 1.5px dashed color-mix(in oklch, var(--paper), transparent 78%); }
