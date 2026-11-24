@@ -207,7 +207,8 @@ export class Pond {
     for (const p of this.pads) { ctx.beginPath(); ctx.arc(p.x + p.r * 0.25, p.y + p.r * 0.35, p.r, 0, TAU); ctx.fill(); }
     ctx.globalAlpha = 1;
     // Koi: aletas y cola debajo, cuerpo, manchas recortadas al cuerpo, ojos. Más hondos, más velados.
-    for (const { f, sh, path } of fish) {
+    // Los que corren (f.ctl) nadan en la superficie: se pintan encima de la salida y las boyas, como los barcos.
+    const koi = (list) => { for (const { f, sh } of list) {
       ctx.globalAlpha = pixel ? 1 : 1 - Math.max(0, f.depth) * 0.35; // en píxel, colores puros
       ctx.fillStyle = sh.kind.fin;
       for (const tri of [...sh.fins, ...sh.tail]) { ctx.beginPath(); tri.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.fill(); }
@@ -220,8 +221,8 @@ export class Pond {
       ctx.restore();
       ctx.fillStyle = '#171815';
       for (const e of sh.eyes) { ctx.beginPath(); ctx.arc(e.x, e.y, pixel ? 0.5 : e.r, 0, TAU); ctx.fill(); }
-    }
-    ctx.globalAlpha = 1;
+    } ctx.globalAlpha = 1; };
+    koi(fish.filter((q) => !q.f.ctl));
     // Comida flotando.
     ctx.fillStyle = '#9a7b4c';
     for (const p of this.pellets) { ctx.beginPath(); ctx.arc(p.x, p.y, pixel ? 0.5 : len * 0.05, 0, TAU); ctx.fill(); }
@@ -254,7 +255,7 @@ export class Pond {
       if (i === this.lotus) drawLotus(ctx, p.x - p.r * 0.1, p.y - p.r * 0.15, p.r * 0.62, T);
     });
     // El que se maneja: un aro que late en el agua (la orilla lo tapa, como a las ondas).
-    for (const b of this.boats) if (b.sel) {
+    for (const b of [...this.boats, ...this.school.fish]) if (b.sel) {
       ctx.strokeStyle = '#ffffff'; ctx.lineWidth = pixel ? 0.5 : 0.25; ctx.globalAlpha = 0.45 + 0.3 * Math.sin(T * 5);
       ctx.beginPath(); ctx.arc(b.x, b.y, len * 1.1 * 0.85, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
     }
@@ -263,6 +264,7 @@ export class Pond {
     for (const p of this.plants) drawPlant(ctx, p, T, len, pixel);
     for (const m of this.marks) drawBuoy(ctx, m, T, len);
     for (const b of this.boats) drawBoat(ctx, b, T, len, pixel);
+    koi(fish.filter((q) => q.f.ctl));
     // Brillos sueltos en la superficie.
     ctx.fillStyle = '#ffffff';
     for (const s of this.glints) {
