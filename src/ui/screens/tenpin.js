@@ -25,6 +25,7 @@ export function TenpinScreen({ sub, onBack, onEnd, endLabel = t('common.continue
     near: ([x, y]) => Math.hypot(x - s.x, y - LINE) < BALL_R * 2.5,
     slide: ([x]) => place(s, x),
     nudge: (d) => place(s, s.x + d * 3),
+    pullBack: true,
   }));
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export function TenpinScreen({ sub, onBack, onEnd, endLabel = t('common.continue
           if (el && !still) motion(el.querySelector('.ah-body'), { rotate: [0, (e.vx >= 0 ? 1 : -1) * 80] }, { duration: 0.35, ease: [0.5, 0, 0.75, 0] });
         } else if (e.kind === 'result') {
           if (e.strike) { banner(t('tenpin.strike', '¡Pleno!')); if (!still) fx.confetti([color.me, color.accent, color.brass, color.paper]); playSfx('win'); }
-          else if (e.spare) banner(t('tenpin.spare', '¡Semipleno!'));
+          else if (e.spare) { banner(t('tenpin.spare', '¡Semipleno!')); playSfx('coin'); }
           else banner(t('tenpin.pins', '{n} bolos', { n: e.n }));
           for (const pin of s.pins) if (pin.gone) pinRefs.current[pin.id]?.classList.add('gone');
         } else if (e.kind === 'rack') {

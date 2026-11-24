@@ -7,7 +7,9 @@ export const CELL = 16, COLS = 6, ROWS = 10;
 export const W = COLS * CELL, H = ROWS * CELL;
 export const BALL_R = 3.2, CUP_R = 5, PIECE_R = 6.4;
 export const SHOT_MAX = 320; // golpe a tope (u/s)
-export const PULL_MAX = CELL * 3.5; // tirar hacia atrás esto = golpe a tope
+// Tirar hacia atrás esto = golpe a tope. Con 3,5 casillas, en el móvil la bola de la última fila no
+// llegaba a tope: el borde de la pantalla cortaba el tirón al 85 %.
+export const PULL_MAX = CELL * 2.8;
 export const HOLES = 3, MAX_STROKES = 8;
 const ROLL = { g: 70, s: 320, i: 12 }; // frenado (u/s²) por suelo: césped, arena, hielo
 const CUP_V = 100; // más rápido que esto, la bola salta el hoyo

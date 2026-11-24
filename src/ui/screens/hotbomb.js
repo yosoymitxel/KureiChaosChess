@@ -42,13 +42,13 @@ export function HotbombScreen({ sub, onBack, onEnd, endLabel = t('common.continu
     const table = tableRef.current, fx = new Fx(table);
     const kit = tableKit(table, wrapRef.current, settings, W, () => (rect.current = null));
     const { still, place: put, at, shake, banner } = kit;
-    let raf = 0, last = performance.now(), shown = '';
+    let raf = 0, last = performance.now(), shown = '', ticked = 0;
 
     const juice = () => {
       for (const e of s.events) {
         const p = e.x != null && at(e);
         if (e.kind === 'hurl') playSfx('whoosh');
-        else if (e.kind === 'catch') { playSfx('tap', 0.8); const el = pcRefs.current[e.id]; if (el && !still) motion(el.firstElementChild, { scaleY: [1, 0.82, 1], scaleX: [1, 1.12, 1] }, { duration: 0.22 }); }
+        else if (e.kind === 'catch') { playSfx('tap', e.side === 'me' ? 1.3 : 0.8); const el = pcRefs.current[e.id]; if (el && !still) motion(el.firstElementChild, { scaleY: [1, 0.82, 1], scaleX: [1, 1.12, 1] }, { duration: 0.22 }); }
         else if (e.kind === 'land') playSfx('land', 0.7);
         else if (e.kind === 'arm') banner(e.side === 'me' ? t('hotbomb.yours', '¡La bomba es tuya!') : t('hotbomb.theirs', 'La bomba, para el bot'));
         else if (e.kind === 'boom') {
@@ -95,6 +95,9 @@ export function HotbombScreen({ sub, onBack, onEnd, endLabel = t('common.continu
       drawBomb();
       drawAim();
       juice();
+      // Los tres últimos segundos de la mecha se oyen, cada vez más agudos (en Difícil la cuenta no se ve ni se oye).
+      const secs = Math.ceil(s.fuse);
+      if (secs !== ticked) { ticked = secs; if (s.diff.show && s.phase !== 'wait' && secs > 0 && secs <= 3) playSfx('tick', 1 + (3 - secs) * 0.2); }
       const h = holder(s), next = [alive(s, 'me').length, alive(s, 'bot').length, h ? h.side === 'me' : s.last !== 'me', Math.ceil(s.fuse)].join();
       if (next !== shown) { shown = next; setHud({ me: alive(s, 'me').length, bot: alive(s, 'bot').length, mine: h?.side === 'me', fuse: Math.max(0, Math.ceil(s.fuse)) }); }
       if (s.over) {

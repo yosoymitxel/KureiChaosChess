@@ -31,7 +31,7 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = t('common.continue
     // Las bombas que ya no están estallaron este tic: el efecto nace en su casilla.
     booms.current = bombsBefore.filter((b) => !s.bombs.includes(b)).map((b) => ({ r: b.r, c: b.c }));
     if (a?.bomb) playSfx('land', 0.8);
-    if (booms.current.length) playSfx(booms.current.length > 1 ? 'bigboom' : 'boom');
+    if (booms.current.length && reduced()) playSfx('boom'); // con movimiento, el estallido de Fx ya suena
     if (s.enemies.length < before.enemies.length) setTimeout(() => playSfx('crunch'), 90);
     if (s.maxBombs + s.range > power) playSfx('coin');
     const after = snap(), moved = [];

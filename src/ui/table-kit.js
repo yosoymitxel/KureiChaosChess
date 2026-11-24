@@ -29,8 +29,9 @@ export function tableKit(table, wrap, settings, w, onResize) {
 }
 
 // Tirachinas de billares y bolos: tirar hacia atrás y soltar. Un toque que `near(p)` da por bueno mueve
-// la salida con `slide(p)` en vez de apuntar; Z/X llaman a `nudge(±1)`.
-export function slingshot({ table, w, h, ready, origin, shoot, pullMax = 60, near, slide, nudge }) {
+// la salida con `slide(p)` en vez de apuntar; Z/X llaman a `nudge(±1)`. Con `pullBack`, si ese toque
+// arranca hacia atrás (abajo) es un tirón y apunta: agarrar la bola y tirar de ella es el gesto que sale solo.
+export function slingshot({ table, w, h, ready, origin, shoot, pullMax = 60, near, slide, nudge, pullBack = false }) {
   const a = { on: false, slide: false, keys: false, from: null, ang: -Math.PI / 2, pow: 0.5 }, rect = { current: null };
   const at = (e) => toTable(e, table(), rect, w, h);
   const pull = (p) => {
@@ -46,9 +47,17 @@ export function slingshot({ table, w, h, ready, origin, shoot, pullMax = 60, nea
       rect.current = null;
       table().setPointerCapture?.(e.pointerId);
       const p = at(e), sl = !!near?.(p);
-      Object.assign(a, { on: !sl, slide: sl, from: p, pow: 0 });
+      Object.assign(a, { on: !sl, slide: sl, from: p, pow: 0, fresh: sl && pullBack });
     },
-    move(e) { if (a.slide) slide(at(e)); else if (a.on && a.from) pull(at(e)); },
+    move(e) {
+      const p = at(e);
+      if (a.fresh && a.from) {
+        const dx = p[0] - a.from[0], dy = p[1] - a.from[1];
+        if (Math.hypot(dx, dy) > 3) { a.fresh = false; if (dy > Math.abs(dx)) Object.assign(a, { slide: false, on: true }); }
+        if (a.fresh) return; // aún sin decidir: ni se mueve la bola ni se apunta
+      }
+      if (a.slide) slide(p); else if (a.on && a.from) pull(p);
+    },
     up(e) {
       if (a.on && a.from) { pull(at(e)); if (a.pow > 0.06) shoot(a.ang, a.pow); }
       Object.assign(a, { on: false, slide: false, from: null });
