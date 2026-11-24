@@ -15,7 +15,7 @@ import { loadWater } from '../../game/water.js';
 import { addCoins } from '../../game/shop.js';
 
 
-export function BoatRaceScreen({ onBack, mode = 'boats' }) {
+export function BoatRaceScreen({ onBack, mode = 'boats', shake = true }) {
   const [pick, setPick] = useState(null); // { kind, diff } al empezar
   const [diff, setDiff] = useState('normal');
   const koi = mode === 'koi', own = [...new Set(loadWater().boats)];
@@ -30,10 +30,10 @@ export function BoatRaceScreen({ onBack, mode = 'boats' }) {
       <div class="zn-tools">${own.map((k) => html`<button class="zn-tool" title=${BOATS[k].desc} onClick=${() => setPick({ kind: k, diff })}><span class="zn-tool-ic wt-thumb"><${Thumb} boat=${k} /></span><span>${BOATS[k].name}</span></button>`)}</div>`}
     </div></div>
   </div>`;
-  return html`<${Race} key=${pick.kind + pick.diff + (pick.n || 0)} ...${pick} title=${title} onBack=${onBack} again=${() => setPick(null)} />`;
+  return html`<${Race} key=${pick.kind + pick.diff + (pick.n || 0)} ...${pick} title=${title} shake=${shake} onBack=${onBack} again=${() => setPick(null)} />`;
 }
 
-function Race({ kind, diff, title, onBack, again }) {
+function Race({ kind, diff, title, onBack, again, shake }) {
   const [s] = useState(() => newRace(kind, diff));
   const [hud, setHud] = useState({ lap: 0, place: 4, count: 3, cd: 2, boost: 0 });
   const [over, setOver] = useState(null);
@@ -56,6 +56,7 @@ function Race({ kind, diff, title, onBack, again }) {
     pond.school.fish.forEach((f, i) => { const r = fish[i]; f.ctl = true; f.pts = f.pts.map((_, k) => [r.x + k * f.seg, r.y]); f.kind = (i * 3 + 1) % 6; });
     pond.marks = tr.gates.map((b) => ({ x: b.x, y: b.y }));
     pond.decor = raceDecor(W, H, tr);
+    pond.shakeOn = shake;
     let raf, last = performance.now(), acc = 0;
     const pixel = () => document.documentElement.dataset.art === 'pixel';
     const frame = (now) => {
@@ -68,13 +69,14 @@ function Race({ kind, diff, title, onBack, again }) {
           if (e.kind === 'count') playSfx('tap');
           else if (e.kind === 'go') playSfx('pop');
           else if (e.kind === 'lap') { playSfx('coin'); pond.ripple(e.x ?? s.racers[0].x, e.y ?? s.racers[0].y, 1.2); }
-          else if (e.kind === 'bump') { playSfx('hit', 0.8); pond.ripple(e.x, e.y, 0.6); }
-          else if (e.kind === 'shore') { playSfx('tap', 0.6); pond.ripple(e.x, e.y, 0.5); }
-          else if (e.kind === 'nitro') { if (!e.who) playSfx('splash', 1.4); pond.ripple(e.x, e.y, 1.6); }
+          // Golpes: cuanto más fuerte, más grave, más onda y más sacudida (solo los del jugador sacuden).
+          else if (e.kind === 'bump') { const f = Math.min(1, e.power / 15); playSfx('hit', 1.1 - 0.4 * f); pond.ripple(e.x, e.y, 0.5 + 0.7 * f); if (e.me) pond.kick(0.4 + 1.2 * f); }
+          else if (e.kind === 'shore') { const f = Math.min(1, e.power / 15); playSfx(f > 0.4 ? 'hit' : 'tap', 0.9 - 0.3 * f); pond.ripple(e.x, e.y, 0.4 + 0.7 * f); pond.kick(0.3 + 1.2 * f); }
+          else if (e.kind === 'nitro') { if (!e.who) { playSfx('splash', 1.4); pond.kick(0.5); } pond.ripple(e.x, e.y, 1.6); }
           else if (e.kind === 'finish' && e.who === 0) playSfx('splash');
         }
       }
-      fish.forEach((r, i) => { const f = pond.school.fish[i]; f.x = r.x; f.y = r.y; f.v = Math.hypot(r.vx, r.vy); f.h = r.h; });
+      fish.forEach((r, i) => { const f = pond.school.fish[i]; f.x = r.x; f.y = r.y; f.v = Math.hypot(r.vx, r.vy); f.h = r.h; f.boost = r.boost; });
       const me = s.racers[0];
       pond.marks.forEach((m, i) => (m.on = i === me.next % tr.gates.length));
       me.sel = true;
