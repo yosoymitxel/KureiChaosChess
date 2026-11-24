@@ -627,10 +627,13 @@ button.chip:hover, button.chip[aria-pressed="true"] { background: color-mix(in o
 @media (max-height: 720px) { .mini-main, .mini-side { gap: 10px; } }
 /* Cierre de minijuego: misma superficie que los tableros (grano y borde de tinta) para que el
    resultado se lea como el final de la misma mesa. */
-.mini-end { display: grid; justify-items: center; gap: 10px; max-width: 46ch; padding: 16px 26px 18px; text-align: center; border-radius: var(--r-md); border: 3px solid var(--ink); background: var(--tile-b); background-image: var(--grain); box-shadow: var(--lift), inset 0 -6px 0 var(--tile-side); animation: end-in 0.4s var(--ease-out) both; }
-.mini-end-title { margin: 0; font-size: 24px; font-weight: 850; color: var(--ink-2); }
-.mini-end.win .mini-end-title { color: var(--win); }
-.mini-end-note { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ink); }
+.mini-end { display: grid; justify-items: center; gap: 14px; width: min(320px, 100%); padding: 0 0 18px; overflow: hidden; text-align: center; border-radius: var(--r-md); border: 3px solid var(--ink); background: var(--tile-b); background-image: var(--grain); box-shadow: var(--lift), inset 0 -6px 0 var(--tile-side); animation: end-in 0.4s var(--ease-out) both; }
+.mini-end-band { --band: var(--danger); justify-self: stretch; display: grid; justify-items: center; gap: 4px; padding: 18px 16px 14px; background: var(--band); color: var(--paper); border-bottom: 3px solid var(--ink); }
+.mini-end.win .mini-end-band { --band: var(--win); }
+.mini-end-band svg { animation: end-pop 0.5s 0.15s var(--ease-out) both; }
+.mini-end-title { margin: 0; font-size: 28px; font-weight: 900; line-height: 1.05; letter-spacing: 0.02em; text-transform: uppercase; }
+.mini-end-note { margin: 0; padding: 0 18px; font-size: 15px; line-height: 1.45; color: var(--ink); }
+@keyframes end-pop { from { opacity: 0; transform: scale(0.4) rotate(-12deg); } }
 @keyframes end-in { from { opacity: 0; transform: translateY(14px) scale(0.97); } }
 /* Onboarding de Yo, Zombi: el paso activo queda encendido y los hechos apagados. */
 .mini-steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: -8px 0 0; }
@@ -1605,8 +1608,7 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
   .mini-stats { gap: 6px; }
   .mini-stats .chip { padding: 4px 7px; font-size: 11px; }
   .mini-tools { flex-shrink: 0; }
-  .mini-end { max-width: 100%; padding: 12px 14px 14px; }
-  .mini-end-title { font-size: 20px; }
+  .mini-end-title { font-size: 24px; }
 }
 
 /* The animation lab must give its remaining viewport to the live scene on phones. */

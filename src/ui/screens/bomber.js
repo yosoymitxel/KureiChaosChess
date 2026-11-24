@@ -1,6 +1,6 @@
 import { html, useState, useEffect, useLayoutEffect, useRef, motion } from '../lib.js';
 import { Fx } from '../../view/fx.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, miniHeld, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { pieceSVG } from '../../view/piece-art.js';
 import { newBomber, act as play, tick as worldTick, blastOf, doorOpen, DIFFS, FOES } from '../../game/bomber.js';
@@ -57,7 +57,7 @@ export function BomberScreen({ sub, onBack, onEnd, endLabel = t('common.continue
     const id = setInterval(() => {
       const now = performance.now(), dt = Math.min(now - last, 200);
       last = now;
-      if (s.over || document.querySelector('.overlay, .moment')) return;
+      if (s.over || miniHeld()) return;
       if ((acc += dt) >= s.diff.tick * 1000) { acc = 0; act(); }
     }, 50);
     return () => clearInterval(id);

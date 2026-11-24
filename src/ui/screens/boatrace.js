@@ -1,7 +1,7 @@
 // Carrera de barquitos y koi (solo desde el Jardín de Agua): se elige corredor y dificultad, y se
 // maneja con el mismo mando del jardín. El agua es el estanque de siempre (src/view/pond.js).
 import { html, useState, useEffect, useRef } from '../lib.js';
-import { Topbar, MiniEnd } from '../components.js';
+import { Topbar, miniHeld, MiniEnd } from '../components.js';
 import { Icon } from '../icons.js';
 import { Pond } from '../../view/pond.js';
 import { raceDecor } from '../../view/water-art.js';
@@ -62,6 +62,7 @@ function Race({ kind, diff, title, onBack, again, shake }) {
     const frame = (now) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+      if (miniHeld()) { raf = requestAnimationFrame(frame); return; }
       for (acc += dt; acc >= 1 / 120; acc -= 1 / 120) {
         const inp = rc.current, rot = pond.view?.rot || 0;
         step(s, 1 / 120, inp?.aim != null ? { ...inp, aim: inp.aim - rot } : inp);

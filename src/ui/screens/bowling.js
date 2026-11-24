@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useLayoutEffect, useRef, motion } from '../lib.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, miniHeld, MiniEnd, MiniTools } from '../components.js';
 import { MiniGrid } from './mini-grid.js';
 import { hopPiece, popPiece, reduced } from '../hop.js';
 import { Fx } from '../../view/fx.js';
@@ -38,7 +38,7 @@ export function BowlingScreen({ sub, onBack, onEnd, endLabel = t('common.continu
   }, []);
 
   useEffect(() => {
-    const id = setInterval(() => { before.current = snap(); tick(s); redraw((n) => n + 1); if (s.over) clearInterval(id); }, TICK_MS);
+    const id = setInterval(() => { if (miniHeld()) return; before.current = snap(); tick(s); redraw((n) => n + 1); if (s.over) clearInterval(id); }, TICK_MS);
     const onKey = (e) => { const n = +e.key; if (n >= 1 && n <= s.rows) shoot(n - 1); };
     addEventListener('keydown', onKey);
     return () => { clearInterval(id); removeEventListener('keydown', onKey); };

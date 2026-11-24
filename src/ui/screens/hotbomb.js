@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef, motion } from '../lib.js';
-import { Topbar, MiniEnd, MiniTools } from '../components.js';
+import { Topbar, miniHeld, MiniEnd, MiniTools } from '../components.js';
 import { Icon } from '../icons.js';
 import { reduced } from '../hop.js';
 import { Fx } from '../../view/fx.js';
@@ -89,6 +89,7 @@ export function HotbombScreen({ sub, onBack, onEnd, endLabel = t('common.continu
     const frame = (now) => {
       const dt = Math.min((now - last) / 1000, 1 / 20);
       last = now;
+      if (miniHeld()) { raf = requestAnimationFrame(frame); return; }
       if (!screenRef.current?.querySelector('.overlay')) step(s, dt);
       for (const p of s.pcs) { const el = pcRefs.current[p.id]; put(el, p); el?.classList.toggle('hold', s.holder === p.id); }
       drawBomb();
