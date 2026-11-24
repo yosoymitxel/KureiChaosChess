@@ -78,25 +78,16 @@ const DO = {
 };
 
 const POWER_COLOR = { quake: '#ffc83d', charge: '#ff6b3d', heal: '#7dffb0', rockfall: '#c9a07a', summon: '#29e3ff', push: '#9fd0ff', pull: '#b06bff' };
-// Rampas (de oscuro a claro) para pixelfx, una por poder.
-const RAMP = {
-  quake: ['#2a1a0c', '#5e3a18', '#9c6426', '#d89a3a', '#ffc83d', '#fff0b4', '#ffffff'],
-  charge: ['#2a0c08', '#6e1e12', '#b8401f', '#f26b3d', '#ffa06b', '#ffe0c4', '#ffffff'],
-  heal: ['#0c2a18', '#16502e', '#2a8a4e', '#4fd07c', '#7dffb0', '#d4ffe4', '#ffffff'],
-  rockfall: ['#1d1620', '#4a3a3c', '#7d6a66', '#b09c90', '#dccab4', '#f6ead2', '#ffffff'],
-  summon: ['#06202a', '#0c4256', '#147a96', '#20b4d6', '#29e3ff', '#bff6ff', '#ffffff'],
-  push: ['#0e1a2a', '#1e3656', '#3a5e8e', '#6a94c6', '#9fd0ff', '#e0f0ff', '#ffffff'],
-  pull: ['#1a0526', '#3d0a56', '#6a1e96', '#9a4ad6', '#b06bff', '#e4c8ff', '#ffffff'],
-};
-// Efecto píxel de cada poder: en el jefe (`mid`), donde sale cada pieza movida y donde cae.
-const PFX = {
-  quake: (mid, moved) => [{ pfx: 'groundSlam', at: mid, f: 2.4 }, ...moved.map(({ to }) => ({ pfx: 'heavyLanding', at: [to.row, to.col] }))],
-  charge: (mid, moved) => [{ pfx: 'groundSlam', at: mid, f: 1.8 }, ...moved.map(({ from }) => ({ pfx: 'bluntHit', at: [from.row, from.col], f: 1.2 }))],
-  heal: (mid) => [{ pfx: 'collectBurst', at: mid, f: 2 }],
-  rockfall: (mid, moved, cells) => cells.map((c) => ({ pfx: 'heavyLanding', at: c, f: 1.2 })),
-  summon: (mid, moved, cells) => [{ pfx: 'poof', at: mid, f: 1.6 }, ...cells.slice(0, 1).map((c) => ({ pfx: 'poof', at: c, f: 1.2 }))],
-  push: (mid, moved) => [{ pfx: 'groundSlam', at: mid, f: 1.6 }, ...moved.map(({ from }) => ({ pfx: 'bluntHit', at: [from.row, from.col] }))],
-  pull: (mid, moved) => [{ pfx: 'collectBurst', at: mid, f: 2.4 }, ...moved.map(({ to }) => ({ pfx: 'hitSpark', at: [to.row, to.col] }))],
+// Una sola seña por poder (pixelfx y Sprite Fusion, de vendor/), que cuente lo que hace:
+// pisotón al suelo · rayo en línea · remolino que atrae · luz de curación · rocas que caen · luz donde aparece · golpe en lo empujado.
+const SIGN = {
+  quake: (mid) => [{ pfx: 'groundSlam', at: mid, f: 2.4 }],
+  charge: (mid, cells) => [{ sf: 'energy', at: mid, opts: { kind: 'beam', to: cells.at(-1) || mid, charge: 0.15, hold: 0.45, width: 9, colors: 'gold' } }],
+  pull: (mid) => [{ sf: 'black-hole', at: mid, opts: { r: 0.28, life: 1.1, pull: 0.6 } }],
+  heal: (mid) => [{ sf: 'heal', at: mid, opts: { count: 22 } }],
+  rockfall: (mid, cells) => cells.map((c) => ({ pfx: 'heavyLanding', at: c, f: 1.2 })),
+  summon: (mid, cells) => cells.slice(0, 1).map((c) => ({ sf: 'holy-light', at: c, opts: { hold: 0.5, width: 8 } })),
+  push: (mid, cells, moved) => moved.map(({ from }) => ({ pfx: 'bluntHit', at: [from.row, from.col] })),
 };
 
 export function bossPower(m, mover) {
@@ -108,13 +99,11 @@ export function bossPower(m, mover) {
   if (plan && plan.id === b.id) {
     m.bossPlan = null;
     out.fx.push({ doom: [] });
-    // `core`: centro exacto del jefe (puede caer entre casillas) para los efectos píxel.
-    const core = [b.row + (b.h - 1) / 2, b.col + (b.w - 1) / 2];
-    // Pocas capas para que se lea: efecto píxel del poder y rastro de lo que se mueve.
+    const mid = [Math.round(b.row + (b.h - 1) / 2), Math.round(b.col + (b.w - 1) / 2)], color = POWER_COLOR[def.power];
     DO[def.power](m, b, plan.cells, out, plan);
-    const trails = out.moved.map(({ from, to }) => ({ trail: [[from.row, from.col], [to.row, to.col]], color: POWER_COLOR[def.power] }));
-    const pfx = PFX[def.power](core, out.moved, plan.cells).map((e) => ({ ...e, palette: RAMP[def.power] }));
-    out.fx.splice(1, 0, ...pfx, ...trails, ...(trails.length ? [{ wait: 260 }] : []));
+    const mark = SIGN[def.power](mid, plan.cells, out.moved);
+    const trails = out.moved.map(({ from, to }) => ({ trail: [[from.row, from.col], [to.row, to.col]], color }));
+    out.fx.splice(1, 0, ...mark, ...trails, ...(trails.length ? [{ wait: 260 }] : []));
     out.log = def.powerName;
     return out;
   }
