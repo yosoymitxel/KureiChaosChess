@@ -295,7 +295,8 @@ export function ZenScreen({ onBack, onShop, onGarden }) {
       pending.current.delete(key);
       const next = zenHarvest(zRef.current, key, Date.now()), pays = SEEDS[kind].pays;
       apply(next);
-      const g = cellOf(key)?.querySelector('.zn-grow'); if (g) g.style.transform = ''; // si rebrota, que no quede encogida
+      // Si rebrota, el brote vuelve a salir de la tierra (y no queda encogido tras el corte).
+      if (next.pots[key]) later(() => { if (cell && !reduced()) pfx('poof', cell, 0.55, { palette: LEAF_RAMP }); growFx(key, { scale: [0, 1.2, 1], y: [8, -3, 0] }, { duration: 0.55, delay: 0.15, ease: OUT }); });
       setGain(t('zen.paid', '+{n} monedas por {kind}', { n: pays, kind: the(kind) }) + (next.gift ? t('zen.dropsSeed', ' y suelta una semilla') : '') + (next.pots[key] ? t('zen.regrows', '. Rebrota: riégala otra vez') : '') + '.');
       flyCoins(cell?.getBoundingClientRect(), 3, pays);
       if (next.gift) seedTo(cell?.getBoundingClientRect(), next.gift);

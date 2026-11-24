@@ -780,9 +780,8 @@ button.bm-cell.zn-deco { padding: 0; border: 0; cursor: pointer; }
 /* Las piedras vectoriales de Kenney son claras para el granito del jardín: se oscurecen. */
 .zn-pondtop image.zn-vec { filter: brightness(0.74) contrast(1.08); }
 .zn-pondbox > .zn-pondcv { clip-path: url(#zn-pond-clip); pointer-events: none; }
-[data-art="pixel"] .zn-pondbox > .zn-pondcv { clip-path: url(#zn-pond-clip-px); }
 .zn-pondtop { pointer-events: none; }
-.zn-bank { fill: oklch(0.52 0.07 125); }
+.zn-bank { fill: var(--sand-raw); } /* orilla de arena, como el cantero */
 .zn-water { fill: url(#zn-water-g); stroke: var(--ink); stroke-width: .9; }
 .zn-shallow { stop-color: oklch(0.68 0.07 192); }
 .zn-mid { stop-color: oklch(0.5 0.07 212); }
@@ -1828,3 +1827,8 @@ button.gal-item { padding: 0; border: 0; background: none; font: inherit; cursor
 .daily-btn { position: relative; }
 .daily-btn.on::after { content: ''; position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 2px var(--ink, #2a2118); }
 @media (prefers-reduced-motion: reduce) { .dl-strip li.now:not(.done), .dl-strip li.dl-hit, .dl-gift, .dl-burst, .dl-got li.in .dl-ic { animation: none; } .dl-got li.in { transition: none; } }
+/* Manejar en el Jardín de Agua (View Transitions, water.js): el estanque se mueve, el resto se funde. */
+.water-screen .wt-pond { view-transition-name: wt-pond; }
+.water-screen .zen-panel { view-transition-name: wt-panel; }
+::view-transition-group(wt-pond) { animation-duration: 0.45s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+::view-transition-old(wt-panel), ::view-transition-new(wt-panel) { animation-duration: 0.25s; }

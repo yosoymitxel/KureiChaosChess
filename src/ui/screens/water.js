@@ -40,7 +40,13 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop, shake = true }) 
   const rc = useRef(null), drivingRef = useRef(null);
   drivingRef.current = driving;
   const apply = (n) => { saveWater(n); setW(n); };
-  const release = () => { setDriving(null); setZoom(false); };
+  // Entrar o salir de manejar cambia el armado de la pantalla: con View Transitions el estanque se
+  // desliza a su nuevo sitio y el panel se desvanece, en vez del salto seco.
+  const steer = (v) => {
+    if (v === drivingRef.current || reduced() || !document.startViewTransition) return setDriving(v);
+    document.startViewTransition(() => { setDriving(v); return new Promise((r) => requestAnimationFrame(() => r())); });
+  };
+  const release = () => { steer(null); setZoom(false); };
   useRcKeys(rc, driving != null, release);
 
   // Estanque vivo: koi, nenúfares que derivan, barquitos y las plantas de cada plaza.
@@ -102,7 +108,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop, shake = true }) 
       return setMsg(t('water.growing', '{name}: abre en {n} min.', { name: WATER_PLANTS[st.kind].name, n: mins(st.left) }));
     }
     const boats = pondRef.current.boats, near = boats.findIndex((b) => Math.hypot(b.x - x, b.y - y) < 5);
-    if (near >= 0) { setDriving(near === driving ? null : near); playSfx('pop'); return setMsg(t('water.drive', 'Manejas {name}: arrastra el mando o usa las flechas.', { name: BOATS[boats[near].kind].name })); }
+    if (near >= 0) { steer(near === driving ? null : near); playSfx('pop'); return setMsg(t('water.drive', 'Manejas {name}: arrastra el mando o usa las flechas.', { name: BOATS[boats[near].kind].name })); }
     pondRef.current.tap(x, y); playSfx('splash');
     const fed = waterFeed(w);
     if (fed.coins) { apply(fed.w); pay(fed.coins); setMsg(t('zen.koiHungryFed', 'Los koi tenían hambre: +{n} monedas.', { n: fed.coins })); }
@@ -138,7 +144,7 @@ export function WaterScreen({ onBack, onGarden, onRace, onShop, shake = true }) 
               ${Object.values(BOATS).filter((b) => !b.fish).map((b) => {
                 const own = w.boats.indexOf(b.id);
                 return html`<button class=${'zn-tool' + (own >= 0 && driving === own ? ' on' : '')} title=${b.desc}
-                  onClick=${() => (own >= 0 ? setDriving(driving === own ? null : own) : onShop())}>
+                  onClick=${() => (own >= 0 ? steer(driving === own ? null : own) : onShop())}>
                   <span class=${'zn-tool-ic wt-thumb' + (own >= 0 ? '' : ' locked')}><${Thumb} boat=${b.id} /></span>
                   <span>${b.name}${own >= 0 ? '' : ` · ${b.price}`}</span></button>`;
               })}
