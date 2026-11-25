@@ -1,5 +1,6 @@
 // Root: screen routing + run progression. Screens are dumb; all run mutations happen here.
 import { html, useState, useEffect, useRef, useCallback, motion } from './lib.js';
+import { secureRandom, randomSeed } from '../core/rng.js';
 import { CardPick } from './components.js';
 import { Icon } from './icons.js';
 import { MenuScreen } from './screens/menu.js';
@@ -46,7 +47,14 @@ const BAG_CARDS = [
   { id: 'fury', name: t('boon.fury', 'Furia menor'), desc: t('boon.fury.desc', '+1 movimiento sin captura por turno, permanente (máx. 3).'), icon: 'boot', rarity: 'rare', kind: 'boon' },
   { id: 'extra_rook', name: t('boon.extra_rook', 'Torre mercenaria'), desc: t('boon.extra_rook.desc', '+1 torre en tu última fila en el próximo nodo.'), icon: 'rook', kind: 'boon' },
 ];
-const shuffle3 = (arr) => arr.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+const shuffle3 = (arr) => {
+  const shuffled = arr.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(secureRandom() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, 3);
+};
 // A won minigame pays a mutation or a piece the army already knows.
 const MINI_PRIZES = BAG_CARDS.filter((c) => ['mut', 'extra_rook', 'extra_pawn'].includes(c.id));
 const ONE_SHOT =['promoteOne', 'furyNow', 'extraPawn', 'extraRook'];
@@ -151,7 +159,7 @@ export function App() {
   // rondas sube de piso en cada una, como una run corta, y gana quien llegue antes a la mitad.
   const VERSUS_MODS = ['none', ...DUO_MECHANICS];
   const versusNode = (cfg, round = 0) => {
-    const seed = Math.floor(Math.random() * 1e6);
+    const seed = randomSeed();
     const modifier = cfg.mod === 'random' ? VERSUS_MODS[seed % VERSUS_MODS.length] : cfg.mod;
     const board = { size: cfg.size === 'random' ? undefined : cfg.size, shape: cfg.shape === 'random' ? undefined : cfg.shape };
     return { id: `versus-${seed}`, seed, floor: round, versus: true, modifier, board };

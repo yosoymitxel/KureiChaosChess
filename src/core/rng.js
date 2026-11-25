@@ -8,4 +8,17 @@ export function mulberry32(seed) {
   };
 }
 export const pickFrom = (rng, arr) => arr[Math.floor(rng() * arr.length)];
-export const randomSeed = () => Math.floor(Math.random() * 1e6);
+
+// Secure entropy for values that affect persistent progression or cloud saves.
+// Fail closed rather than silently falling back to Math.random.
+export function secureRandom() {
+  const crypto = globalThis.crypto;
+  if (!crypto || typeof crypto.getRandomValues !== 'function') {
+    throw new Error('Web Crypto is required for secure random values');
+  }
+  const sample = new Uint32Array(1);
+  crypto.getRandomValues(sample);
+  return sample[0] / 0x1_0000_0000;
+}
+
+export const randomSeed = () => Math.floor(secureRandom() * 1e6);

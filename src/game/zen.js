@@ -4,6 +4,7 @@
 // virgen por cavar (a veces con piedras). Las claves de casilla son absolutas: el 4×4 base va de
 // r0c0 a r3c3 y los anillos de arriba o de la izquierda tienen coordenadas negativas.
 import { SEEDS, GARDEN_ITEMS, SEED_BACK, DIG_COOLDOWN, MOVE_COOLDOWN, OBSTACLE_CHANCE, ROCK_HP, LANTERN_BOOST, LAKE_MAX, WATER_STEPS, KOI_HUNGER_MS, KOI_COINS, BUSH_MS, BUSH_MAX, POT_LIFE } from '../data/garden.js';
+import { secureRandom } from '../core/rng.js';
 
 const KEY = 'zugzwang.zen.v1';
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
@@ -197,7 +198,7 @@ export function zenBreak(z, key) {
 }
 
 // Cortar: la flor va a la cuenta. La salvia rebrota; cualquiera suelta a veces su semilla.
-export function zenHarvest(z, key, now = Date.now(), rng = Math.random) {
+export function zenHarvest(z, key, now = Date.now(), rng = secureRandom) {
   const { stage, kind } = zenStage(z, key, now);
   if (stage !== 'bloom') return z;
   const pot = z.pots[key], sp = SEEDS[kind], again = (pot.regrown || 0) < (sp.regrow || 0);
@@ -220,7 +221,7 @@ export function zenHarvest(z, key, now = Date.now(), rng = Math.random) {
 
 // Ampliar suma un anillo: abajo a la derecha o arriba a la izquierda, al lado que tenga menos, para
 // que el cantero base quede centrado. La tierra nueva sale virgen y a veces con piedras, arbustos o losas.
-export function zenExpand(z, rng = Math.random) {
+export function zenExpand(z, rng = secureRandom) {
   if (z.size >= ZEN_MAX) return z;
   const off = z.off || 0, tl = z.size - ZEN_BASE - off > off;
   const nOff = off + (tl ? 1 : 0), size = z.size + 1, rocks = { ...(z.rocks || {}) }, tiles = { ...(z.tiles || {}) };
@@ -321,7 +322,7 @@ export function addZenItem(id) {
 export const LEAF_MS = 240_000;
 export const LEAF_MAX = 8;
 export const LEAF_COINS = 1;
-export function zenLeaves(z, now = Date.now(), rng = Math.random) {
+export function zenLeaves(z, now = Date.now(), rng = secureRandom) {
   const leaves = z.leaves || [];
   if (z.leafT == null) return { ...z, leaves, leafT: now };
   const due = Math.floor((now - z.leafT) / LEAF_MS);
@@ -331,7 +332,7 @@ export function zenLeaves(z, now = Date.now(), rng = Math.random) {
   return { ...z, leaves: [...leaves, ...fresh], leafT: z.leafT + due * LEAF_MS };
 }
 // Arbustos: brotan solos en tierra libre (virgen o cavada) uno cada BUSH_MS, hasta BUSH_MAX a la vez.
-export function zenBushes(z, now = Date.now(), rng = Math.random) {
+export function zenBushes(z, now = Date.now(), rng = secureRandom) {
   if (z.bushT == null) return { ...z, bushT: now };
   const due = Math.floor((now - z.bushT) / BUSH_MS);
   if (due <= 0) return z;
@@ -354,7 +355,7 @@ export const zenSweep = (z, leaf) =>({ ...z, leaves: (z.leaves || []).filter((l)
 const SKY_KEY = 'zugzwang.zensky.v1';
 export const ZEN_SKIES = [[null, 80], ['fireflies', 8], ['rain', 7], ['snow', 5]];
 export const SKY_SPAN = { ms: 15 * 60_000, matches: 3 };
-export function zenSky(now = Date.now(), rng = Math.random) {
+export function zenSky(now = Date.now(), rng = secureRandom) {
   const cur = read(SKY_KEY);
   if (cur && now < cur.until && cur.left > 0) return cur.sky;
   let roll = rng() * 100, sky = null;
@@ -366,7 +367,7 @@ export const zenSkyMatch = () => { const cur = read(SKY_KEY); if (cur) write(SKY
 
 // Mariposas: visitan una flor abierta mientras miras el jardín; si la tocas deja un regalo.
 export const BUTTERFLY_MS = [70_000, 150_000]; // espera entre visitas
-export function butterflyGift(rng = Math.random) {
+export function butterflyGift(rng = secureRandom) {
   return rng() < 0.25 ? { seed: pickSeed(rng) } : { coins: 2 };
 }
 
@@ -378,7 +379,7 @@ export function addZenSeeds(kind, n = 1) {
   return z.seeds;
 }
 // La semilla que cae sale según su rareza.
-export function pickSeed(rng = Math.random) {
+export function pickSeed(rng = secureRandom) {
   const total = ZEN_KINDS.reduce((a, k) => a + SEEDS[k].weight, 0);
   let x = rng() * total;
   return ZEN_KINDS.find((k) => (x -= SEEDS[k].weight) < 0) || ZEN_KINDS[0];

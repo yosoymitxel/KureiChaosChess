@@ -1,6 +1,7 @@
 // Regalo diario (src/data/daily.js): cuándo toca, qué sale y cómo se guarda. dailyReady y rollDaily son
 // puras (`now` y `rng` inyectados); claimDaily lo reparte entre la tienda, el jardín zen y el de agua.
 import { DAILY } from '../data/daily.js';
+import { secureRandom } from '../core/rng.js';
 import { WATER_PLANTS } from '../data/garden.js';
 import { CARDS } from './cards.js';
 import { addCoins, addPending, seenCards } from './shop.js';
@@ -35,7 +36,7 @@ const pick = (weights, rng) => {
 const pickCard = (pool, rng) => pick(Object.fromEntries(pool.map((id) => [id, DAILY.cardWeight[CARDS[id]?.rarity] || 1])), rng);
 
 // Qué trae el regalo número `slot` del ciclo. `pool`: cartas que puede dar.
-export function rollDaily(slot, rng = Math.random, pool = Object.keys(CARDS)) {
+export function rollDaily(slot, rng = secureRandom, pool = Object.keys(CARDS)) {
   const r = { coins: 0, zen: {}, water: {}, cards: [] };
   const zen = (n) => { for (let i = 0; i < n; i++) { const k = pickSeed(rng); r.zen[k] = (r.zen[k] || 0) + 1; } };
   if (slot === DAILY.cycle - 1) {
@@ -54,7 +55,7 @@ export function rollDaily(slot, rng = Math.random, pool = Object.keys(CARDS)) {
 }
 
 // Recoge el regalo de hoy: lo reparte y lo guarda. Devuelve lo que trajo (null si no tocaba).
-export function claimDaily(now = Date.now(), rng = Math.random) {
+export function claimDaily(now = Date.now(), rng = secureRandom) {
   const d = loadDaily();
   if (!dailyReady(d, now)) return null;
   const slot = dailySlot(d), r = rollDaily(slot, rng, [...seenCards()].filter((id) => CARDS[id]));

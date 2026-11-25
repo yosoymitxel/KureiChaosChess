@@ -1,7 +1,7 @@
 // Tactic cards: single-use abilities played from the hand during a match (one per turn, free action).
 // Each card says what it can target (`can`) so the rules never break: e.g. only rooks and guards
 // can become a Colossus, and only if the tile behind them is free.
-import { mulberry32 } from '../core/rng.js';
+import { mulberry32, secureRandom } from '../core/rng.js';
 import { cellsOf, key, walkable, legalMoves, moveCells } from './rules.js';
 import { makePiece } from './generate.js';
 import { crownable, crown } from './crown.js';
@@ -65,7 +65,7 @@ export const CARDS = localize('cards', {
     id: 'invoke', aim: 'Elige una casilla vacía de tus dos últimas filas.', name: 'Invocación', rarity: 'rare', icon: 'scroll', target: 'tile',
     desc: 'Entra una pieza al azar en tus dos últimas filas: peón (lo más común), caballo, alfil o torre (lo más raro).',
     can: (m, r, c) => (m.player.color === 'light' ? r >= m.board.rows - 2 : r <= 1) && freeTile(m, r, c),
-    apply: (m, r, c, rng = Math.random) => {
+    apply: (m, r, c, rng = secureRandom) => {
       const roll = rng(), type = roll < 0.45 ? 'pawn' : roll < 0.7 ? 'knight' : roll < 0.9 ? 'bishop' : 'rook';
       const p = makePiece(type, m.player.color, r, c); m.pieces.push(p); return p;
     },
